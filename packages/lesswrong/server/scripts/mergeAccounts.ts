@@ -11,7 +11,7 @@ import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../rep
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
-import { getUnusedSlug } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -347,7 +347,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
       await Users.rawUpdateOne(
         {_id: sourceUserId},
         {$set: {
-          slug: await getUnusedSlug(Users, `${sourceUser.slug}-old`, true)
+          slug: await getUnusedSlugByCollectionName("Users", `${sourceUser.slug}-old`, true)
         }}
       );
     

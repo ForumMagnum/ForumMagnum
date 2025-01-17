@@ -30,6 +30,21 @@ interface DbArbitalCaches extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ArbitalTagContentRelsCollection = CollectionBase<"ArbitalTagContentRels">;
+
+interface DbArbitalTagContentRel extends DbObject {
+  __collectionName?: "ArbitalTagContentRels"
+  parentDocumentId: string
+  childDocumentId: string
+  parentCollectionName: "Tags" | "MultiDocuments"
+  childCollectionName: "Tags" | "MultiDocuments"
+  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child"
+  level: number
+  isStrong: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
@@ -143,6 +158,16 @@ interface DbComment extends DbObject {
   postId: string | null
   tagId: string | null
   forumEventId: string | null
+  forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    },
+  } | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   subforumStickyPriority: number | null
   userId: string
@@ -461,12 +486,16 @@ interface DbForumEvent extends DbObject {
   endDate: Date
   darkColor: string
   lightColor: string
+  bannerTextColor: string
   contrastColor: string | null
-  tagId: string
+  tagId: string | null
   postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
+  eventFormat: "BASIC" | "POLL" | "STICKERS"
+  maxStickersPerUser: number
   customComponent: string | null
+  commentPrompt: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -485,7 +514,6 @@ interface DbGardenCode extends DbObject {
   code: string
   title: string
   userId: string
-  slug: string
   startTime: Date | null
   endTime: Date
   fbLink: string | null
@@ -495,6 +523,7 @@ interface DbGardenCode extends DbObject {
   afOnly: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
   contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
@@ -683,6 +712,38 @@ interface DbModeratorAction extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type MultiDocumentsCollection = CollectionBase<"MultiDocuments">;
+
+interface DbMultiDocument extends DbObject {
+  __collectionName?: "MultiDocuments"
+  title: string | null
+  preview: string | null
+  tabTitle: string
+  tabSubtitle: string | null
+  userId: string
+  parentDocumentId: string
+  collectionName: "Tags" | "MultiDocuments"
+  fieldName: "description" | "summary"
+  index: number
+  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  htmlWithContributorAnnotations: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
+  contents_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
+}
+
 type NotificationsCollection = CollectionBase<"Notifications">;
 
 interface DbNotification extends DbObject {
@@ -856,7 +917,6 @@ interface DbPost extends DbObject {
   url: string | null
   postCategory: "post" | "linkpost" | "question"
   title: string
-  slug: string
   viewCount: number
   lastCommentedAt: Date | null
   clickCount: number
@@ -1024,6 +1084,7 @@ interface DbPost extends DbObject {
   generateDraftJargon: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines_latest: string | null
@@ -1347,10 +1408,10 @@ interface DbTagFlag extends DbObject {
   __collectionName?: "TagFlags"
   name: string
   deleted: boolean
-  slug: string
   order: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
   contents: EditableFieldContents | null
   contents_latest: string | null
 }
@@ -1383,8 +1444,6 @@ interface DbTag extends DbObject {
   name: string
   shortName: string | null
   subtitle: string | null
-  slug: string
-  oldSlugs: Array<string> | null
   core: boolean
   isPostType: boolean
   suggestedAsFilter: boolean
@@ -1422,14 +1481,27 @@ interface DbTag extends DbObject {
   autoTagModel: string | null
   autoTagPrompt: string | null
   noindex: boolean
+  isPlaceholderPage: boolean
+  coreTagId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
   description: EditableFieldContents | null
   description_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
   subforumWelcomeText: EditableFieldContents | null
   subforumWelcomeText_latest: string | null
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
 }
 
 type TweetsCollection = CollectionBase<"Tweets">;
@@ -1547,7 +1619,6 @@ interface DbUser extends DbObject {
   displayName: string | null
   previousDisplayName: string | null
   email: string | null
-  slug: string | null
   noindex: boolean
   groups: Array<string> | null
   lwWikiImport: boolean | null
@@ -1871,7 +1942,6 @@ interface DbUser extends DbObject {
   petrovLaunchCodeDate: Date | null
   defaultToCKEditor: boolean | null
   signUpReCaptchaRating: number | null
-  oldSlugs: Array<string> | null
   noExpandUnreadCommentsReview: boolean
   postCount: number
   maxPostCount: number
@@ -1925,6 +1995,8 @@ interface DbUser extends DbObject {
   userSurveyEmailSentAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
   howOthersCanHelpMe: EditableFieldContents | null
@@ -1991,6 +2063,7 @@ interface DbVote extends DbObject {
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
   ArbitalCaches: ArbitalCachesCollection
+  ArbitalTagContentRels: ArbitalTagContentRelsCollection
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
@@ -2030,6 +2103,7 @@ interface CollectionsByName {
   Migrations: MigrationsCollection
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
+  MultiDocuments: MultiDocumentsCollection
   Notifications: NotificationsCollection
   PageCache: PageCacheCollection
   PetrovDayActions: PetrovDayActionsCollection
@@ -2078,6 +2152,7 @@ interface CollectionsByName {
 interface ObjectsByCollectionName {
   AdvisorRequests: DbAdvisorRequest
   ArbitalCaches: DbArbitalCaches
+  ArbitalTagContentRels: DbArbitalTagContentRel
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
@@ -2117,6 +2192,7 @@ interface ObjectsByCollectionName {
   Migrations: DbMigration
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
+  MultiDocuments: DbMultiDocument
   Notifications: DbNotification
   PageCache: DbPageCacheEntry
   PetrovDayActions: DbPetrovDayAction
@@ -2165,6 +2241,7 @@ interface ObjectsByCollectionName {
 interface ObjectsByTypeName {
   AdvisorRequest: DbAdvisorRequest
   ArbitalCaches: DbArbitalCaches
+  ArbitalTagContentRel: DbArbitalTagContentRel
   Ban: DbBan
   Book: DbBook
   Chapter: DbChapter
@@ -2204,6 +2281,7 @@ interface ObjectsByTypeName {
   Migration: DbMigration
   ModerationTemplate: DbModerationTemplate
   ModeratorAction: DbModeratorAction
+  MultiDocument: DbMultiDocument
   Notification: DbNotification
   PageCacheEntry: DbPageCacheEntry
   PetrovDayAction: DbPetrovDayAction

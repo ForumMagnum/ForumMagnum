@@ -27,20 +27,30 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   removeButton: {
-    float: "right",
     ...(isFriendlyUI
       ? {
+        float: "right",
         marginTop: 10,
         marginLeft: 10,
       }
       : {
-        marginTop: 12,
+        position: "absolute",
+        top: 7,
+        right: 0,
       }),
   },
   removed: {
-    float: "right",
-    marginTop: 12,
-    marginRight: 16,
+    ...(isFriendlyUI
+      ? {
+        float: "right",
+        marginTop: 12,
+        marginRight: 16,
+      }
+      : {
+        position: "absolute",
+        top: 7,
+        right: 16,
+      }),
     color: theme.palette.grey[400]
   }
 });

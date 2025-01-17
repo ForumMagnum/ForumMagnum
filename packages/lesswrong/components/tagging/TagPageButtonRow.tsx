@@ -11,17 +11,20 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { isLWorAF } from '@/lib/instanceSettings';
+import type { TagLens } from '@/lib/arbital/useTagLenses';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: 2,
-    marginBottom: 16,
+    marginTop: isFriendlyUI ? 2 : undefined,
+    marginBottom: isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('xs')]: {
-      marginTop: 8,
+      marginTop: isFriendlyUI ? 8 : undefined,
     },
     '& svg': {
       height: 20,
@@ -42,6 +45,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: "flex",
     },
+  },
+  likeButtonWrapper: {
+    marginRight: 20,
+    fontSize: 12,
   },
   buttonTooltip: {
     display: "flex",
@@ -82,21 +89,63 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     ...theme.typography.italic,
   },
+  newLensIcon: {},
 });
 
-const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
-  tag: TagPageWithRevisionFragment | TagPageFragment,
+/**
+ * Returns whether the current user can edit the tag, and if not, why not.
+ * 
+ * IMPORTANT: this does not return false if the user is logged out.  You need to check that separately.
+ */
+export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPageFragment | null, alreadyEditing: boolean, currentUser: UsersCurrent | null) {
+  if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
+
+  const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
+  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)));
+  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
+  const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
+
+  return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
+}
+
+const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, classes }: {
+  tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment,
+  selectedLens?: TagLens
   editing: boolean,
   setEditing: (editing: boolean) => void,
+  hideLabels?: boolean,
   className?: string,
+  refetchTag?: () => Promise<void>,
+  updateSelectedLens?: (lensId: string) => void,
   classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
+
+  function handleNewLensClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {},
+      });
+      e.preventDefault();
+      return;
+    }
+
+    if (!refetchTag || !updateSelectedLens) return;
+    openDialog({
+      componentName: "NewLensDialog",
+      componentProps: {
+        tag,
+        refetchTag,
+        updateSelectedLens,
+      }
+    });
+  }
 
   function handleEditClick(e: React.MouseEvent<HTMLAnchorElement>) {
     if (currentUser) {
@@ -110,10 +159,14 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     }
   }
 
-  const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0
-  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)))
-  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit")
-  const canEdit = !editing && !noEditKarmaTooLow && !noEditNotAuthor
+  const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
+  
+  const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
+  const showNewLensButton = !editing
+    && canEdit
+    && !!(refetchTag && updateSelectedLens)
+    && (undeletedLensCount < 5)
+    && isLWorAF;
 
   const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
@@ -140,7 +193,11 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
       description={`tag ${tag?.name}`}
     />
-  </>
+  </>;
+
+  const newLensTooltip = (<div>
+    Click to create a new lens for this tag.
+  </div>);
 
   return <div className={classNames(classes.buttonsRow, className)}>
     {!editing && <LWTooltip
@@ -148,33 +205,52 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       title={editTooltip}
     >
       {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
-        <EditOutlinedIcon /><span className={classes.buttonLabel}>
-          Edit
+        <EditOutlinedIcon />
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "Edit"}
         </span>
-      </a>) : (
-        <a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/><span className={classes.buttonLabel}>
-          Edit
-        </span></a>)}
+      </a>) : (<a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/>
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "Edit"}
+        </span>
+      </a>)}
+    </LWTooltip>}
+    {showNewLensButton && <LWTooltip
+      className={classes.buttonTooltip}
+      title={newLensTooltip}      
+    >
+      <a className={classNames(classes.button, classes.newLensIcon)} onClick={handleNewLensClick}>
+        <ForumIcon icon='NoteAdd' />
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "New Lens"}
+        </span>
+      </a>
     </LWTooltip>}
     {<Link
       className={classes.button}
       to={tagGetHistoryUrl(tag)}
     >
-      <HistoryIcon /><span className={classes.buttonLabel}>History</span>
+      <HistoryIcon /><span className={classes.buttonLabel}>
+        {!hideLabels && "History"}
+      </span>
     </Link>}
     {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
       <NotifyMeButton
         document={tag}
         className={classes.subscribeTo}
         showIcon
+        hideLabel={hideLabels}
         hideLabelOnMobile
         subscribeMessage="Subscribe"
         unsubscribeMessage="Unsubscribe"
         subscriptionType={subscriptionTypes.newTagPosts}
       />
     </LWTooltip>}
-    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
-    {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
+    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile /></div>}
+    {selectedLens && <div className={classes.likeButtonWrapper}>
+      <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
+    </div>}
+    {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}
     >

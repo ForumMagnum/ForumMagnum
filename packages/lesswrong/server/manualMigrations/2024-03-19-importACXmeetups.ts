@@ -6,7 +6,7 @@ import { mapsAPIKeySetting } from '../../components/form-components/LocationForm
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
 import { writeFile } from 'fs/promises';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
   const requestOptions: any = {

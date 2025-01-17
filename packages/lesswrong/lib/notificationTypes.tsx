@@ -30,6 +30,7 @@ import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import Sequences from './collections/sequences/collection';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
+import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 
 // We need enough fields here to render the user tooltip
@@ -832,7 +833,7 @@ export const KarmaPowersGainedNotification = registerNotificationType({
     return "Your votes are stronger because your karma went up!"
   },
   getLink() {
-    return `/tag/vote-strength`;
+    return tagGetUrl({slug: 'vote-strength'});
   },
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />

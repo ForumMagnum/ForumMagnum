@@ -109,6 +109,10 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
+  /**
+   * Whether this field must be included in create and update
+   * mutations (separate from whether it is allowed to be null)
+   */
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
@@ -124,6 +128,9 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
+  /**
+   * Whether this field can be null (enforced at the database level)
+   */
   nullable?: boolean,
   
   min?: number,
@@ -186,13 +193,13 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
    * @deprecated
    */
   onInsert?: (doc: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null) => any,
-  onCreate?: (args: {data: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, document: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], schema: SchemaType<N>, fieldName: string}) => any,
+  onCreate?: (args: {data: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, document: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], fieldName: string}) => any,
   /**
    * @deprecated
    */
   onEdit?: (modifier: any, oldDocument: ObjectsByCollectionName[N], currentUser: DbUser|null, newDocument: ObjectsByCollectionName[N]) => any,
-  onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>, fieldName: string}) => any,
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
+  onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, fieldName: string}) => any,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
   
   countOfReferences?: {
     foreignCollectionName: CollectionNameString

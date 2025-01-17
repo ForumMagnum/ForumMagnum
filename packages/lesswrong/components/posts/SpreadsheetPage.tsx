@@ -12,6 +12,7 @@ import { useQuery, gql } from '@apollo/client';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -499,7 +500,7 @@ const SpreadsheetPage = ({classes}: {
               Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
             </p>
             <p>
-              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"}>{"our tag page"}</HoverPreviewLink>.
+              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={tagGetUrl({slug: "coronavirus"})}>{"our tag page"}</HoverPreviewLink>.
             </p>
           </div>
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>

@@ -2,12 +2,13 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import React from 'react';
 import classNames from 'classnames';
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {} }: {
+const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
   className?: string,
-  formProps?: Record<string, any>
+  formProps?: Record<string, any>,
+  prefilledProps?: AnyBecauseTodo
 }) => {
   return (
     <div className={classNames("comments-edit-form", className)}>
@@ -22,6 +23,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
         mutationFragment={getFragment('CommentsList')}
         submitLabel="Save"
         formProps={formProps}
+        prefilledProps={prefilledProps}
       />
     </div>
   )

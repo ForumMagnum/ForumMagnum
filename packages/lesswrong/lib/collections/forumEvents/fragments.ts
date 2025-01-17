@@ -8,12 +8,16 @@ registerFragment(`
     endDate
     darkColor
     lightColor
+    bannerTextColor
     contrastColor
     tagId
     postId
     bannerImageId
-    includesPoll
+    eventFormat
     customComponent
+    commentPrompt
+
+    maxStickersPerUser
   }
 `);
 

@@ -139,8 +139,11 @@ export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
   return sqlFragment;
 }
 
-// Get gql fragment text
-export const getFragmentText = (fragmentName: FragmentName): string => {
+/**
+ * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.
+ * Don't use this for anything that requires the subfragments
+ */
+const getFragmentText = (fragmentName: FragmentName): string => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }

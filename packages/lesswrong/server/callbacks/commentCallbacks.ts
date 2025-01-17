@@ -20,6 +20,11 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
 import { userShortformPostTitle } from '@/lib/collections/users/helpers';
+import { tagGetDiscussionUrl } from '@/lib/collections/tags/helpers';
+import { randomId } from '@/lib/random';
+import isEqual from 'lodash/isEqual';
+import type { ForumEventCommentMetadata } from '@/lib/collections/forumEvents/types';
+import { ForumEventsRepo } from '../repos';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -302,7 +307,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
     const tag = await Tags.findOne(comment.tagId)
     if (tag) {
       contentTitle = tag.name
-      rejectedContentLink = `<a href="https://lesswrong.com/tag/${tag.slug}/discussion?commentId=${comment._id}">comment on ${tag.name}</a>`
+      rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug}, true)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
     }
   } else if (comment.postId) {
     const post = await Posts.findOne(comment.postId)
@@ -597,6 +602,55 @@ getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnC
         type: REJECTED_COMMENT,
         endedAt: new Date()
       }
+    })
+  }
+});
+
+/**
+ * Run side effects based on the `forumEventMetadata` that is submitted.
+ */
+async function forumEventSideEffects({ comment, forumEventMetadata }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; }) {
+  if (forumEventMetadata.eventFormat === "STICKERS") {
+    const sticker = forumEventMetadata.sticker
+
+    if (!comment.forumEventId) {
+      throw new Error("Comment must have forumEventId")
+    }
+
+    const {_id, x, y, theta, emoji} = sticker ?? {};
+
+    if (!sticker || !_id || !x || !y || !theta) {
+      throw new Error("Must include sticker")
+    }
+
+    if (!emoji) {
+      throw new Error("No emoji selected")
+    }
+
+    const forumEventId = comment.forumEventId;
+    const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
+
+    await new ForumEventsRepo().addSticker({ forumEventId, stickerData });
+    captureEvent("addForumEventSticker", {
+      forumEventId,
+      stickerData,
     });
   }
+}
+
+getCollectionHooks("Comments").newSync.add(async (comment: DbComment, _, context: ResolverContext) => {
+  if (comment.forumEventMetadata) {
+    // Side effects may need to reference the comment, so set the _id now
+    comment._id = comment._id || randomId();
+    await forumEventSideEffects({ comment, forumEventMetadata: comment.forumEventMetadata });
+  }
+  return comment;
+});
+
+getCollectionHooks("Comments").editSync.add(async (modifier, comment: DbComment) => {
+  const newMetadata = modifier.$set?.forumEventMetadata;
+  if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
+    await forumEventSideEffects({ comment, forumEventMetadata: newMetadata });
+  }
+  return modifier
 });

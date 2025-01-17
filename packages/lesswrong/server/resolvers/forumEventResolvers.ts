@@ -47,38 +47,17 @@ addGraphQLResolvers({
       })
       return true
     },
-    AddForumEventSticker: async (
-      _root: void,
-      {forumEventId, x, y, theta}: {
-        forumEventId: string,
-        x: number,
-        y: number,
-        theta: number,
-      },
-      {currentUser, repos}: ResolverContext,
-    ) => {
-      if (!currentUser) {
-        throw new Error("Permission denied");
-      }
-
-      await repos.forumEvents.addSticker(forumEventId, currentUser._id, {x, y, theta})
-      captureEvent("addForumEventSticker", {
-        forumEventId,
-        userId: currentUser._id,
-        x, y, theta
-      })
-      return true
-    },
     RemoveForumEventSticker: async (
       _root: void,
-      {forumEventId}: {forumEventId: string},
+      {forumEventId, stickerId}: {forumEventId: string, stickerId: string},
       {currentUser, repos}: ResolverContext,
     ) => {
       if (!currentUser) {
         throw new Error("Permission denied");
       }
 
-      await repos.forumEvents.removeSticker(forumEventId, currentUser._id)
+      await repos.forumEvents.removeSticker({ forumEventId, stickerId, userId: currentUser._id })
+
       captureEvent("removeForumEventSticker", {
         forumEventId,
         userId: currentUser._id
@@ -90,5 +69,4 @@ addGraphQLResolvers({
 
 addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
-addGraphQLMutation('AddForumEventSticker(forumEventId: String!, x: Float!, y: Float!, theta: Float!): Boolean')
-addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!): Boolean')
+addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean')

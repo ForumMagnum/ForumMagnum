@@ -33,7 +33,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTag, LWClickAwayListener, LWTooltip } = Components
+  const { LWPopper, AddTagOrWikiPage, LWClickAwayListener, LWTooltip } = Components
 
   if (!userCanUseTags(currentUser)) {
     return null;
@@ -62,7 +62,8 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
             onClickAway={() => setIsOpen(false)}
           >
             <Paper>
-              <AddTag
+              <AddTagOrWikiPage
+                onlyTags={true}
                 onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
                   setIsOpen(false);
                   onTagSelected({tagId, tagName});

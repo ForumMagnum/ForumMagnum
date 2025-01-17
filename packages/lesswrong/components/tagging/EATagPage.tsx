@@ -22,22 +22,7 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
-
-export const tagPageHeaderStyles = (theme: ThemeType) => ({
-  postListMeta: {
-    display: "flex",
-    alignItems: "baseline",
-    marginBottom: 8,
-  },
-  relevance: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[600],
-    fontWeight: 500,
-    textAlign: "right",
-    flexGrow: 1,
-    marginRight: 8,
-  },
-});
+import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -48,8 +33,7 @@ const sidePaddingStyle = (theme: ThemeType) => ({
   },
 })
 
-// Also used in TagCompareRevisions, TagDiscussionPage
-export const styles = (theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   rootGivenImage: {
     marginTop: 185,
     [theme.breakpoints.down('sm')]: {
@@ -176,25 +160,6 @@ export const styles = (theme: ThemeType) => ({
   ...tagPageHeaderStyles(theme),
 });
 
-export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
-  if (!tag) return
-  return ({
-    ...query,
-    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
-    view: "tagRelevance",
-    tagId: tag._id,
-  })
-}
-
-export const RelevanceLabel = () => (
-  <Components.LWTooltip
-    title='"Relevance" represents how related the tag is to the post it is tagging. You can vote on relevance below, or by hovering over tags on post pages.'
-    placement="bottom-end"
-  >
-    Relevance
-  </Components.LWTooltip>
-);
-
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
@@ -222,7 +187,7 @@ const PostsListHeading: FC<{
   );
 }
 
-const TagPage = ({classes}: {
+const EATagPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const {
@@ -500,10 +465,10 @@ const TagPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const TagPageComponent = registerComponent("TagPage", TagPage, {styles});
+const EATagPageComponent = registerComponent("EATagPage", EATagPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagPage: typeof TagPageComponent
+    EATagPage: typeof EATagPageComponent
   }
 }

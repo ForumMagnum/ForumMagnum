@@ -37,8 +37,8 @@ export type LWTooltipProps = {
   onShow?: () => void,
   onHide?: () => void,
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
   forceOpen?: boolean,
+  classes: ClassesType<typeof styles>,
 }
 
 const LWTooltip = ({
@@ -59,8 +59,8 @@ const LWTooltip = ({
   onHide,
   children,
   className,
-  classes,
   forceOpen,
+  classes,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);

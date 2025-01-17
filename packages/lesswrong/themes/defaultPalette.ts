@@ -201,6 +201,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     red: "#ff0000",
     alwaysWhite: "#fff",
     alwaysBlack: "#000",
+    alwaysLightGrey: "#e0e0e0",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
@@ -411,6 +412,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
+    tagLensTab: shades.greyAlpha(.1),
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -592,6 +594,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#006336",//"#0b7138",
     },
   },
+  forumEvent: {
+    draftSticker: "#9BC4CC",
+    stickerMobileOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
+  },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
   },
@@ -638,5 +644,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   fundraisingThermometer: {
     shadow: '#222',
+  },
+  arbital: {
+    arbitalGreen: '#02796b',
   },
 })

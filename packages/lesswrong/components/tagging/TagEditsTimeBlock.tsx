@@ -22,11 +22,12 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
+  // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff
   const { data, loading } = useQuery(gql`
     query getTagUpdates($before: Date!, $after: Date!) {
       TagUpdatesInTimeBlock(before: $before, after: $after) {
         tag {
-          ...TagBasicInfo
+          ...TagHistoryFragment
         }
         revisionIds
         commentCount
@@ -38,10 +39,22 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
         users {
           ...UsersMinimumInfo
         }
+        documentDeletions {
+          userId
+          documentId
+          netChange
+          type
+          docFields {
+            _id
+            slug
+            tabTitle
+            tabSubtitle
+          }
+          createdAt
+        }
       }
     }
-    ${fragmentTextForQuery('TagBasicInfo')}
-    ${fragmentTextForQuery('UsersMinimumInfo')}
+    ${fragmentTextForQuery(['TagHistoryFragment', 'UsersMinimumInfo'])}
   `, {
     variables: {
       before, after,
@@ -83,6 +96,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
       users={tagUpdates.users}
       commentCount={tagUpdates.commentCount}
       changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
+      documentDeletions={tagUpdates.documentDeletions}
     />)}
     {!expanded && tagUpdatesInTimeBlock.length >= INITIAL_LIMIT && <LoadMore
       loadMore={() => setExpanded(true)}

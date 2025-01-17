@@ -418,7 +418,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
       addedResolvers.push({ Query: { ...queryResolvers } });
     }
 
-    if (!_.isEmpty(mutations)) {
+    if (mutations && !_.isEmpty(mutations)) {
       const mutationResolvers: Partial<Record<string,any>> = {};
       // create
       if (mutations.create) {

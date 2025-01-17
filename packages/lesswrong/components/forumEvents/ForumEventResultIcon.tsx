@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userResultsImage: {
-    outline: `2px solid ${theme.palette.text.alwaysWhite}`,
+    outline: `2px solid var(--forum-event-foreground)`,
     width: "100% !important",
     height: "unset !important",
   },

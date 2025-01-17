@@ -2,7 +2,61 @@ import React, { FC, ReactNode, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
+import { PopperPlacementType } from "@material-ui/core/Popper";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { useTagPageContext } from "./TagPageContext";
+
+const styles = defineStyles("TagsTooltip", theme => ({
+  tooltip: isFriendlyUI
+    ? {}
+    : {
+      padding: 0,
+      background: theme.palette.panelBackground.default,
+      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
+    },
+  tooltipTitle: isFriendlyUI
+    ? {}
+    : {
+      maxWidth: "unset",
+    },
+  loading: {
+    paddingLeft: 16,
+    paddingRight: 32,
+    paddingBottom: 24,
+  },
+  noTagOrPlaceholderMessage: {
+    paddingTop: 0,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
+    '& .ContentStyles-base.ContentStyles-tagBody': {
+      marginBottom: '0 !important',
+    }
+  },
+  redLinkTooltip: {
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    width: 500,
+    paddingBottom: 6,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    },
+    '& .ContentStyles-base.ContentStyles-tagBody': {
+      marginBottom: '0 !important',
+    }
+  },
+  redLinkTooltipTitle: {
+    marginTop: 8,
+    fontSize: '13px',
+    marginBottom: 4,
+    color: theme.palette.text.secondary,
+  },
+}));
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -21,10 +75,7 @@ const useTagsTooltipTag = (
   {tag, tagSlug}: TagsTooltipTag,
   hash?: string,
   skip?: boolean,
-): {
-  tag: PreviewableTag | null,
-  loading: boolean,
-} => {
+) => {
   const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, {
     skip: skip || !!tag,
   });
@@ -52,74 +103,136 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
   <>{children}</>
 );
 
-const styles = (theme: ThemeType) => ({
-  tooltip: isFriendlyUI
-    ? {}
-    : {
-      padding: "4px 0 0 0",
-      background: theme.palette.panelBackground.default,
-      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
-    },
-  tooltipTitle: isFriendlyUI
-    ? {}
-    : {
-      maxWidth: "unset",
-    },
-  loading: {
-    paddingLeft: 16,
-    paddingRight: 32,
-    paddingBottom: 24,
-  },
-});
+const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
+  const { Loading, TagHoverPreview } = Components;
+
+  const { selectedLens } = useTagPageContext() ?? {};
+  const excludedPingbackTagIds = selectedLens?._id ? [selectedLens._id] : undefined;
+  const { results: pingbacks, loading, totalCount } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
+
+  if (loading) {
+    return <Loading />;
+  } 
+
+  if (pingbacks && pingbacks.length === 0) {
+    // note that this message gets viewied by the user in combination with the longer redlink description below
+    return <div>The linked page does not exist, it is a red link.</div>;
+  }
+
+  return <div>
+    This red link was used on {totalCount} other {totalCount === 1 ? 'page' : 'pages'}:
+    <ul>
+      {pingbacks.slice(0, 5).map(pingback => (
+        <li key={pingback._id}>
+          <TagHoverPreview
+            targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
+            href={tagGetUrl({ slug: pingback.slug })}
+            noPrefetch
+          >
+            <Link to={tagGetUrl({ slug: pingback.slug })}>
+              {pingback.name}
+            </Link>
+          </TagHoverPreview>
+      </li>
+      ))}
+    </ul>
+    {pingbacks.length > 5 && <div>And {pingbacks.length - 5} more...</div>}
+  </div>
+}
+
+
+const RedLinkTooltip = ({ tag, slug }: {
+  tag: TagBasicInfo | null
+  slug?: string
+}) => {
+  const classes = useStyles(styles);
+  const { Typography, ContentStyles, TagHoverPreview, Loading } = Components;
+  const title = inferRedLinkTitle(tag, slug ?? null);
+
+  if (!tag) {
+    return (
+      <div className={classes.noTagOrPlaceholderMessage}>
+        <ContentStyles contentType='tag'>
+          No page or placeholder found for this link.
+        </ContentStyles>
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes.redLinkTooltip}>
+      <Typography variant='title'>
+        {title}
+      </Typography>
+      <ContentStyles contentType='tag'>
+        <RedLinksPingbacks tag={tag} />
+        <div className={classes.redLinkTooltipTitle}>
+          A red link is a placeholder for a wikitag page that an author thinks should exist.
+        </div>
+      </ContentStyles>
+    </div>
+  );
+};
 
 const TagsTooltip = ({
   tagRel,
   hash,
   previewPostCount = 6,
+  hideDescription = false,
   hideRelatedTags,
   noPrefetch,
   PreviewWrapper = DefaultPreviewWrapper,
   As,
   inlineBlock = false,
+  placement,
   className,
   popperClassName,
+  isRedLink,
   children,
-  classes,
   ...tagsTooltipProps
 }: TagsTooltipTag & {
   tagRel?: TagRelMinimumFragment
   hash?: string,
   previewPostCount?: number,
   hideRelatedTags?: boolean,
+  hideDescription?: boolean,
   noPrefetch?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   As?: keyof JSX.IntrinsicElements,
   inlineBlock?: boolean,
+  placement?: PopperPlacementType,
   className?: string,
   popperClassName?: string,
+  isRedLink?: boolean,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [everHovered, setEverHovered] = useState(false);
-  const {tag, loading} = useTagsTooltipTag(
+  const [forceOpen, setForceOpen] = useState(false);
+  const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
-    noPrefetch && !everHovered
+    (noPrefetch && !everHovered)
   );
 
-  const {HoverOver, Loading, TagRelCard, TagPreview} = Components;
+  const { HoverOver, Loading, TagRelCard, TagPreview, LWClickAwayListener } = Components;
   return (
     <HoverOver
       title={
-        <PreviewWrapper tag={tag} loading={loading}>
-          {loading && <Loading className={classes.loading}/>}
-          {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
-          {!loading && !tagRel && tag && <TagPreview
-            tag={tag}
-            hash={hash}
-            postCount={previewPostCount}
-            hideRelatedTags={hideRelatedTags}
-          />}
-        </PreviewWrapper>
+        <LWClickAwayListener onClickAway={() => setForceOpen(false)}>
+          <PreviewWrapper tag={tag} loading={loading}>
+            {loading && <Loading className={classes.loading}/>}
+            {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
+            {!loading && !tagRel && tag && !isRedLink && <TagPreview
+              tag={tag}
+              hash={hash}
+              postCount={previewPostCount}
+              hideRelatedTags={hideRelatedTags}
+              hideDescription={hideDescription}
+              setForceOpen={setForceOpen}
+            />}
+            {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
+          </PreviewWrapper>
+        </LWClickAwayListener>
       }
       clickable
       As={As}
@@ -134,17 +247,15 @@ const TagsTooltip = ({
       className={className}
       popperClassName={classNames(classes.tooltip, popperClassName)}
       titleClassName={classes.tooltipTitle}
+      placement={placement}
+      forceOpen={forceOpen}
     >
       {children}
     </HoverOver>
   );
 }
 
-const TagsTooltipComponent = registerComponent(
-  "TagsTooltip",
-  TagsTooltip,
-  {styles},
-);
+const TagsTooltipComponent = registerComponent("TagsTooltip", TagsTooltip);
 
 declare global {
   interface ComponentTypes {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { gql } from '@apollo/client';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
@@ -14,6 +14,7 @@ import { getReadableFields, getCreateableFields, getUpdateableFields } from '../
 import { WrappedSmartFormProps } from './propTypes';
 import { Form } from './Form';
 import * as _ from 'underscore';
+import { NavigationContext } from '@/lib/vulcan-core/appContext';
 
 const intlSuffix = '_intl';
 
@@ -121,15 +122,19 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
   const collection = getCollection(props.collectionName);
   const schema = getSchema(collection);
 
-  (props as AnyBecauseTodo).location = useLocation();
+  const navigationContext = useContext(NavigationContext);
+  const history = navigationContext?.history;
+  const location = useLocation();
 
+  const newProps = { ...props, location, history };
+  
   // if a document is being passed, this is an edit form
   const formType = (props.documentId || props.slug) ? 'edit' : 'new';
 
   if (formType === "edit") {
-    return <FormWrapperEdit {...props} showRemove={showRemove} schema={schema}/>
+    return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema}/>
   } else {
-    return <FormWrapperNew {...props} showRemove={showRemove} schema={schema}/>
+    return <FormWrapperNew {...newProps} showRemove={showRemove} schema={schema}/>
   }
 }
 

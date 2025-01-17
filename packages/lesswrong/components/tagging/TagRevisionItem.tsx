@@ -32,8 +32,8 @@ const TagRevisionItem = ({
   tag: TagBasicInfo,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
-  revision: RevisionMetadataWithChangeMetrics,
-  previousRevision?: RevisionMetadataWithChangeMetrics
+  revision: RevisionHistoryEntry,
+  previousRevision?: RevisionHistoryEntry
   documentId: string,
   showDiscussionLink?: boolean,
   noContainer?: boolean,

@@ -74,7 +74,9 @@ registerFragment(`
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
+    collectionName
     changeMetrics
+    legacyData
     user {
       ...UsersMinimumInfo
     }
@@ -85,7 +87,10 @@ registerFragment(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
-      ...TagBasicInfo
+      ...TagHistoryFragment
+    }
+    lens {
+      ...MultiDocumentParentDocument
     }
   }
 `);

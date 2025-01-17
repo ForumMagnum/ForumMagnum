@@ -1,7 +1,7 @@
 import React, {ComponentType, useState} from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
-import {tagPostTerms} from '../tagging/TagPage'
+import {tagPostTerms} from '../tagging/TagPageUtils'
 import {Link} from '../../lib/reactRouterWrapper'
 import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
