@@ -14,7 +14,7 @@ sed -i.bak "s/APPLICATION_NAME$/$1/" .elasticbeanstalk/config.yml
 rm .elasticbeanstalk/config.yml.bak
 
 # Actual deployment
-eb deploy --timeout 20 $2
+eb deploy --timeout 30 $2
 
 # Return things to how they were
 sed -i.bak "s/$1$/APPLICATION_NAME/" .elasticbeanstalk/config.yml
