@@ -642,6 +642,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     shadow: '#222',
   },
   arbital: {
-    arbitalGreen: '#02796b',
+    arbitalGreen: '#004d40',
   },
 })
