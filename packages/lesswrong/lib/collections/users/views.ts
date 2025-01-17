@@ -288,6 +288,10 @@ Users.addView("usersTopKarma", function (terms: UsersViewTerms) {
   return {
     selector: {
       deleted: {$ne: true},
+      $or: [
+        {banned: {$exists: false}},
+        {banned: {$gte: new Date()}}
+      ]
     },
     options: {
       sort: { 

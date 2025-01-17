@@ -327,36 +327,12 @@ type AirtableLeaderboardResultType = {
   leaderboardAmount?: number;
 };
 
-/**
- * Replace this function's body with a real Airtable API call.
- * The returned records should be in the shape of:
- *
- * [
- *   { fields: { Name: "Some Name", "Leaderboard Amount": "100" } },
- *   { fields: { Name: "Another Name", "Leaderboard Amount": "N/A" } },
- *   ...
- * ]
- *
- * You must set an environment variable AIRTABLE_API_KEY and use it in the
- * Authorization header like so:
- *   headers: { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` }
- * 
- * The link below is the view link; for a direct API call, you'll typically
- * construct something like:
- *   https://api.airtable.com/v0/<baseId>/<tableName>?view=<viewName>
- *
- * For instance, with baseId = "appUepxJdxacpehZz", tableName = "Donor Leaderboard",
- * and a view named "Grid view," the URL could look like:
- *   https://api.airtable.com/v0/appUepxJdxacpehZz/Donor%20Leaderboard?view=Grid%20view
- */
+
 async function fetchAirtableRecords(): Promise<AirtableLeaderboardResultType[]> {
-  // For brevity, we hardcode a sample base/table/view combination.
-  // In your production environment, adjust as needed.
   const baseId = "appUepxJdxacpehZz";
   const tableName = "Donors";
   const viewName = "LeaderBoard";
 
-  // Ensure the API key is present.
   const apiKey = airtableApiKeySetting.get();
   if (!apiKey) {
     throw new Error("Can't fetch Airtable records without an API key");
@@ -378,13 +354,14 @@ async function fetchAirtableRecords(): Promise<AirtableLeaderboardResultType[]> 
   const data = await response.json();
   const records = data.records || [];
 
+  const unpackArray = (value: any) => Array.isArray(value) ? value[0] : value;
+
   // Transform "records" into our AirtableLeaderboardResultType format
   return records.map((record: any) => {
-    const name = record.fields?.Name ?? "Unknown";
-    const amountStr = record.fields?.["Leaderboard Amount"] ?? "";
+    const name = unpackArray(record.fields?.["Leaderboard Display Name"]) ?? "Unknown";
+    const amountStr = unpackArray(record.fields?.["Leaderboard Amount"]) ?? "";
     return {
       name,
-      // If the field is "N/A", convert to undefined.
       leaderboardAmount: amountStr === "" ? undefined : parseInt(amountStr, 10),
     };
   });
@@ -397,7 +374,6 @@ addGraphQLSchema(`
   }
 `)
 
-// We'll manually manage our "cache" using a simple object that holds the data and its timestamp.
 let airtableCache: {
   data?: AirtableLeaderboardResultType[];
   timestamp: number;
@@ -416,9 +392,7 @@ defineQuery({
   name: "AirtableLeaderboards",
   resultType: "[AirtableLeaderboardResult!]!",
   fn: async () => {
-    // If we have cached data:
     if (airtableCache.data) {
-      // Check if it's stale
       const isStale = Date.now() - airtableCache.timestamp > STALE_TIME_MS;
 
       // If the data is stale but no fetch is happening yet, start a new background fetch.

@@ -6,83 +6,92 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 
 const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
-  container: {
-    display: "flex",
-    gap: "2rem",
-    justifyContent: "center"
-  },
-  column: {
-    flex: 1,
-    maxWidth: 800
-  },
-  heading: {
-    textAlign: "center"
-  },
-  table: {
-    borderCollapse: "collapse",
-    width: 300,
+  pageContainer: {
+    maxWidth: 1200,
     margin: "0 auto",
-    textAlign: "center"
+    padding: `${theme.spacing.mainLayoutPaddingTop}px 8px`,
+    display: "flex",
+    flexDirection: "column",
+    [theme.breakpoints.down("xs")]: {
+      padding: 16,
+    },
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  headerCell: {
-    padding: 8,
-    paddingLeft: 16
+  // Combined typography styles for headers
+  header: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    textAlign: "left",
   },
-  headerCenter: {
-    composes: '$headerCell',
-    textAlign: "center"
-  },
-  headerLeft: {
-    composes: '$headerCell',
-    textAlign: "left"
-  },
-  headerRight: {
-    composes: '$headerCell',
-    textAlign: "right"
-  },
-  cell: {
-    padding: 8
-  },
-  cellCenter: {
-    composes: '$cell',
-    textAlign: "center"
-  },
-  cellLeft: {
-    composes: '$cell',
-    textAlign: "left"
-  },
-  cellRight: {
-    composes: '$cell',
-    textAlign: "right"
-  },
-  loadMoreContainer: {
-    textAlign: "center",
-    marginTop: 16
-  },
-  noResults: {
-    textAlign: "center"
-  },
-  toggleContainer: {
-    display: 'flex',
-    justifyContent: 'center',
+  subTitle: {
+    ...theme.typography.body1,
+    color: theme.palette.grey[600],
     marginBottom: theme.spacing.unit * 2,
-    gap: theme.spacing.unit,
+    marginTop: -theme.spacing.unit * 2,
+  },
+  headerRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: theme.spacing.unit * 3,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  toggleGroup: {
+    display: "flex",
+    marginRight: theme.spacing.unit * 2,
   },
   toggleButton: {
-    padding: '8px 16px',
+    padding: "8px 16px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
-    background: 'transparent',
-    cursor: 'pointer',
-    '&:hover': {
-      background: theme.palette.grey[100],
+    "&:hover": {
+      backgroundColor: theme.palette.grey[100],
     },
   },
   activeToggle: {
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    '&:hover': {
-      background: theme.palette.primary.dark,
+    fontWeight: "bold",
+  },
+  columnsContainer: {
+    display: "flex",
+    gap: '4px',
+    justifyContent: "space-between",
+    [theme.breakpoints.down("md")]: {
+      flexDirection: "column",
+    },
+  },
+  column: {
+    flex: 1,
+  },
+  // Simplified table styles
+  table: {
+    width: "100%",
+    maxWidth: 600,
+    margin: "0 auto",
+    borderCollapse: "collapse",
+    border: `1px solid ${theme.palette.grey[300]}`,
+    "& th": {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      padding: "12px",
+      textAlign: "left",
+      height: 44,
+      boxSizing: 'border-box',
+      borderBottom: `2px solid ${theme.palette.grey[300]}`,
+    },
+    "& td": {
+      ...theme.typography.body2,
+      padding: 12,
+      borderBottom: `1px solid ${theme.palette.grey[300]}`,
+    },
+    "& th:nth-child(1), & td:nth-child(1)": {
+      width: "10%",
+    },
+    "& th:nth-child(2), & td:nth-child(2)": {
+      width: "60%",
+    },
+    "& th:nth-child(3), & td:nth-child(3)": {
+      width: "30%",
     },
   },
 }));
@@ -106,183 +115,203 @@ const DONOR_LEADERBOARD_QUERY = gql`
   }
 `;
 
+const LeaderboardTable = ({ headers, children }: { headers: string[], children: React.ReactNode }) => {
+  const classes = useStyles(styles);
+  return (
+    <table className={classes.table}>
+      <thead>
+        <tr>
+          {headers.map(header => (
+            <th key={header}>{header}</th>
+          ))}
+        </tr>
+      </thead>
+      {children}
+    </table>
+  );
+};
+
+type KarmaEntry = {
+  userId: string;
+  netKarma: number;
+};
+
 const Leaderboard = () => {
   const { ErrorBoundary, Loading, UsersNameDisplay, UsersName, LoadMore } = Components;
   const classes = useStyles(styles);
-  const [timeframe, setTimeframe] = useState<'allTime' | '30days'>('allTime');
+  const [timeframe, setTimeframe] = useState<"allTime" | "30days">("allTime");
 
   // Query #1: Top Karma Users
+  //  - We'll load 50 by default now.
   const {
     results: topKarmaUsers,
-    loading: topKarmaLoading,
     loadMoreProps,
   } = useMulti({
     collectionName: "Users",
     fragmentName: "UsersMinimumInfo",
     terms: { view: "usersTopKarma" },
-    itemsPerPage: 15,
+    itemsPerPage: 50,
     enableTotal: true,
-    limit: 15,
+    limit: 50,
   });
 
-  // Query #2: Karma changes in last 30 days
-  const { data: last30DaysData, loading: last30DaysLoading, fetchMore, networkStatus } = useQuery<NetKarmaChangesResult>(
-    gql`
-      query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {
-        NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {
-          userId
-          netKarma
+  // Query #2: Karma changes in last 30 days (also load 50 by default)
+  const { data: last30DaysData, fetchMore, networkStatus } =
+    useQuery<NetKarmaChangesResult>(
+      gql`
+        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {
+          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {
+            userId
+            netKarma
+          }
         }
+      `,
+      {
+        variables: {
+          days: 30,
+          limit: 50,
+        },
       }
-    `,
-    {
-      variables: {
-        days: 30,
-        limit: 15,
-      },
-    }
+    );
+
+  // Query #3: Donor leaderboard (from Airtable) -- load 50 donors to match the user karma query's default.
+  const { data: donorData, loading: donorLoading, error: donorError } =
+    useQuery<{ AirtableLeaderboards: AirtableLeaderboardResult[] }>(
+      DONOR_LEADERBOARD_QUERY
+    );
+
+  // We'll separate donors into those with a known numeric donation, and those over 5k with no exact data
+  const donors = donorData?.AirtableLeaderboards || [];
+  const donorsWithAmounts = donors.filter(
+    (entry) => typeof entry.leaderboardAmount === "number"
+  );
+  const donorsOver5kUnknown = donors.filter(
+    (entry) => typeof entry.leaderboardAmount !== "number"
   );
 
-  // Query #3: Donor leaderboard (from Airtable)
-  const {
-    data: donorData,
-    loading: donorLoading,
-    error: donorError
-  } = useQuery<{ AirtableLeaderboards: AirtableLeaderboardResult[] }>(DONOR_LEADERBOARD_QUERY);
+  const last30DaysResults =
+    last30DaysData?.NetKarmaChangesForAuthorsOverPeriod || [];
 
-  const last30DaysResults = last30DaysData?.NetKarmaChangesForAuthorsOverPeriod || [];
-  const loading = timeframe === 'allTime' ? topKarmaLoading : last30DaysLoading;
+  // Add type guard functions
+  const isAllTimeEntry = (entry: UsersMinimumInfo | KarmaEntry): entry is UsersMinimumInfo => {
+    return '_id' in entry;
+  };
 
-  if (loading) {
-    return <Loading />;
-  }
+  const isKarmaEntry = (entry: UsersMinimumInfo | KarmaEntry): entry is KarmaEntry => {
+    return 'userId' in entry;
+  };
 
   return (
     <ErrorBoundary>
-      <div className={classes.container}>
-        
-        {/* Left column: user karma leaderboard */}
-        <div className={classes.column}>
-          <div className={classes.toggleContainer}>
-            <button 
-              className={classNames(classes.toggleButton, {[classes.activeToggle]: timeframe === 'allTime'})}
-              onClick={() => setTimeframe('allTime')}
-            >
-              All Time
-            </button>
-            <button 
-              className={classNames(classes.toggleButton, {[classes.activeToggle]: timeframe === '30days'})}
-              onClick={() => setTimeframe('30days')}
-            >
-              Last 30 Days
-            </button>
-          </div>
-          
-          <table className={classes.table}>
-            <thead>
-              <tr>
-                <th className={classes.headerCenter}>#</th>
-                <th className={classes.headerLeft}>User</th>
-                <th className={classes.headerRight}>Karma</th>
-              </tr>
-            </thead>
-            {timeframe === 'allTime' ? (
-              <>
-                <tbody>
-                  {(topKarmaUsers || []).map((entry, i) => (
-                    <tr key={entry._id}>
-                      <td className={classes.cellCenter}>{i + 1}</td>
-                      <td className={classes.cellLeft}>
-                        <UsersNameDisplay user={entry} />
-                      </td>
-                      <td className={classes.cellRight}>
-                        {entry.karma.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <LoadMore {...loadMoreProps} />
-              </>
-            ) : (
-              <>
-                <tbody>
-                  {(last30DaysData?.NetKarmaChangesForAuthorsOverPeriod || []).map((entry, i) => (
-                    <tr key={entry.userId}>
-                      <td className={classes.cellCenter}>{i + 1}</td>
-                      <td className={classes.cellLeft}>
-                        <UsersName documentId={entry.userId} />
-                      </td>
-                      <td className={classes.cellRight}>
-                        {entry.netKarma.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <LoadMore
-                  loading={networkStatus === NetworkStatus.fetchMore}
-                  loadMore={() => {
-                    void fetchMore({
-                      variables: {
-                        limit: last30DaysResults.length + 15,
-                      },
-                      updateQuery: (prev, {fetchMoreResult}) => fetchMoreResult ?? prev,
-                    });
-                  }}
-                />
-              </>
-            )}
-          </table>
-        </div>
+      <div className={classes.pageContainer}>
+        <h1 className={classes.header}>Leaderboard</h1>
+        <p className={classes.subTitle}>
+          Here are our top users and donors to <a href="https://lightconeinfrastructure.com">Lightcone Infrastructure</a>, the organization maintaining LessWrong. 
+        </p>
 
-        {/* Right column: donor leaderboard (Airtable) */}
-        <div className={classes.column}>
-          <h2 className={classes.heading}>Donor Leaderboard</h2>
-          {donorLoading ? (
-            <Loading />
-          ) : donorError ? (
-            <div className={classes.noResults}>
-              <p>Error loading donor leaderboard.</p>
+        <div className={classes.columnsContainer}>
+          {/* Karma Leaderboard Column */}
+          <div className={classes.column}>
+            <div className={classes.headerRow}>
+              <h2 className={classes.header}>
+                {timeframe === "allTime" ? "Top Karma Users (All Time)" : "Top Karma Gains (30 Days)"}
+              </h2>
+              <div className={classes.toggleGroup}>
+                {["allTime", "30days"].map((period) => (
+                  <div
+                    key={period}
+                    className={classNames(classes.toggleButton, {
+                      [classes.activeToggle]: timeframe === period,
+                    })}
+                    onClick={() => setTimeframe(period as "allTime" | "30days")}
+                  >
+                    {period === "allTime" ? "All Time" : "30 Days"}
+                  </div>
+                ))}
+              </div>
             </div>
-          ) : (
-            <table className={classes.table}>
-              <thead>
-                <tr>
-                  <th className={classes.headerCenter}>#</th>
-                  <th className={classes.headerLeft}>Name</th>
-                  <th className={classes.headerRight}>Amount</th>
-                </tr>
-              </thead>
+
+            <LeaderboardTable headers={["#", "User", "Karma"]}>
               <tbody>
-                {donorData?.AirtableLeaderboards?.map((entry, i) => (
-                  <tr key={`${entry.name}-${i}`}>
-                    <td className={classes.cellCenter}>{i + 1}</td>
-                    <td className={classes.cellLeft}>{entry.name}</td>
-                    <td className={classes.cellRight}>
-                      {typeof entry.leaderboardAmount === "number"
-                        ? entry.leaderboardAmount.toLocaleString()
-                        : "N/A"}
+                {(timeframe === "allTime" ? topKarmaUsers : last30DaysResults)?.map((entry, i) => (
+                  <tr key={isAllTimeEntry(entry) ? entry._id : entry.userId}>
+                    <td>{i + 1}</td>
+                    <td>
+                      {isAllTimeEntry(entry) 
+                        ? <UsersNameDisplay user={entry} />
+                        : <UsersName documentId={entry.userId} />
+                      }
+                    </td>
+                    <td>
+                      {(isAllTimeEntry(entry) ? entry.karma : entry.netKarma).toLocaleString()}
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-          )}
-        </div>
+            </LeaderboardTable>
+            
+            <LoadMore {...(timeframe === "allTime" ? loadMoreProps : {
+              loading: networkStatus === NetworkStatus.fetchMore,
+              loadMore: () => {
+                void fetchMore({
+                  variables: { limit: last30DaysResults.length + 50 },
+                  updateQuery: (prev, { fetchMoreResult }) => fetchMoreResult ?? prev,
+                });
+              }
+            })} />
+          </div>
 
+          {/* Donor Leaderboard Column */}
+          <div className={classes.column}>
+            <div className={classes.headerRow}>
+              <h2 className={classes.header}>Donor Leaderboard</h2>
+            </div>
+            {donorLoading ? (
+              <Loading />
+            ) : donorError ? (
+              <p>Error loading donor leaderboard.</p>
+            ) : (
+              <>
+                {donorsWithAmounts.length > 0 && (
+                  <LeaderboardTable headers={["#", "Name", "Amount"]}>
+                    <tbody>
+                      {donorsWithAmounts.map((entry, i) => (
+                        <tr key={`${entry.name}-${i}`}>
+                          <td>{i + 1}</td>
+                          <td>{entry.name}</td>
+                          <td>{entry.leaderboardAmount?.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </LeaderboardTable>
+                )}
+
+                {donorsOver5kUnknown.length > 0 && (
+                  <LeaderboardTable headers={["Others who have given at least $5k"]}>
+                    <tbody>
+                        {donorsOver5kUnknown.map((entry, i) => (
+                          <tr key={`${entry.name}-over5k-${i}`}>
+                            <td>{entry.name}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </LeaderboardTable>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </ErrorBoundary>
   );
 };
 
-// Register component with Vulcan
 const LeaderboardComponent = registerComponent("Leaderboard", Leaderboard);
 
-// Declare it globally so that "Leaderboard" is recognized in the ComponentTypes interface
 declare global {
   interface ComponentTypes {
     Leaderboard: typeof LeaderboardComponent;
   }
 }
 
-// Default export
 export default LeaderboardComponent;
