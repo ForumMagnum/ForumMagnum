@@ -126,7 +126,6 @@ const LwAfDomainWhitelist: DomainList = {
     "alignmentforum.org",
     "alignment-forum.com",
     `localhost:${getCommandLineArguments().localhostUrlPort}`,
-    "arbital.com",
   ],
   mirrorDomains: [
     "greaterwrong.com",

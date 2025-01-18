@@ -30,6 +30,7 @@ interface TagLensInfo {
   selectedLens?: TagLens;
   selectedLensId: string;
   updateSelectedLens: (lensId: string) => void;
+  getSelectedLensUrlPath: (lensId: string) => string;
   lenses: TagLens[];
 }
 
@@ -101,34 +102,47 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
     [selectedLensId, availableLenses]
   );
 
-  const updateSelectedLens = useCallback((lensId: string) => {
+  const getSelectedLensLocation = useCallback((lensId: string) => {
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
-    if (selectedLensSlug) {
-      const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
-      const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
-      const queryWithoutLensAndVersion = omit(query, ["l", "lens", "version"]);
-      const newSearch = navigatingToDefaultLens
-       ? qs.stringify(queryWithoutLensAndVersion)
-       : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLensAndVersion });
+    if (!selectedLensSlug) return location;
 
-      navigate({ ...location, search: newSearch });
-    }
-  }, [availableLenses, location, navigate, query]);
+    const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
+    const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
+    const queryWithoutLensAndVersion = omit(query, ["l", "lens", "version"]);
+    const newSearch = navigatingToDefaultLens
+      ? qs.stringify(queryWithoutLensAndVersion)
+      : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLensAndVersion });
+
+    return { pathname: location.pathname, search: newSearch, hash: location.hash };
+  }, [availableLenses, location, query]);
+
+  const updateSelectedLens = useCallback((lensId: string) => {
+    const newLocation = getSelectedLensLocation(lensId);
+    navigate(newLocation);
+  }, [getSelectedLensLocation, navigate]);
+
+  // For a given lensId, return the path that would would be navigated to if the user clicked on the lens
+  const getSelectedLensUrlPath = useCallback((lensId: string) => {
+    const location = getSelectedLensLocation(lensId);
+    const searchPart = location.search ? `?${location.search}` : '';
+    return `${location.pathname}${searchPart}${location.hash}`;
+  }, [getSelectedLensLocation]);
 
   useEffect(() => {
-    if (query.lens && tag && !querySelectedLens) {
+    if (queryLens && tag && !querySelectedLens) {
       // If the lens doesn't exist, reset the search query
       navigate(
-        { ...location, search: qs.stringify(omit(query, "lens")) },
+        { ...location, search: qs.stringify(omit(query, ["l", "lens"])) },
         { replace: true }
       );
     }
-  }, [query, availableLenses, navigate, location, querySelectedLens, tag]);
+  }, [query, availableLenses, navigate, location, querySelectedLens, tag, queryLens]);
 
   return {
     selectedLens,
     selectedLensId,
     updateSelectedLens,
+    getSelectedLensUrlPath,
     lenses: availableLenses,
   };
 }

@@ -5,19 +5,13 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
-import type { RouterLocation, Route } from '../vulcan-lib/routes';
+import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
 import type { History } from 'history'
 
 export interface ServerRequestStatusContextType {
   status?: number
   redirectUrl?: string
 };
-
-interface SegmentedUrl {
-  pathname: string
-  search: string
-  hash: string
-}
 
 export const LocationContext = React.createContext<RouterLocation|null>(null);
 export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
