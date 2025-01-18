@@ -84,7 +84,10 @@ type NotificationDisplaySequence = Pick<DbSequence, "_id" | "title">;
 
 /** Main type for the notifications page */
 export type NotificationDisplay =
-  Pick<DbNotification, "_id"|"type"|"link"|"message"|"createdAt"|"extraData"> & {
+  Pick<
+    DbNotification,
+    "_id" | "type" | "link" | "viewed" | "message" | "createdAt" | "extraData"
+  > & {
     post?: NotificationDisplayPost,
     comment?: NotificationDisplayComment,
     tag?: NotificationDisplayTag,

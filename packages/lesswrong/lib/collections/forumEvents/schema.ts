@@ -1,4 +1,14 @@
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
+import { EVENT_FORMATS } from "./types";
+
+const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
+  stickerEventOptions: {
+    name: "stickerEventOptions",
+    order: 10,
+    label: '"STICKER" Event Options',
+    startCollapsed: true,
+  },
+}
 
 const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: nullable,
@@ -32,13 +42,34 @@ const schema: SchemaType<"ForumEvents"> = {
   },
   darkColor: {
     ...defaultProps(),
+    ...schemaDefaultValue('#000000'),
     type: String,
     control: "FormComponentColorPicker",
+    label: "Primary background color",
+    tooltip: 'Used as the background of the banner for basic events. ' +
+             'Sometimes used as a text color with "Secondary background color" ' +
+             '("lightColor" in the schema) as the background, so these should ' +
+             'be roughly inverses of each other.'
   },
   lightColor: {
     ...defaultProps(),
+    ...schemaDefaultValue('#ffffff'),
     type: String,
     control: "FormComponentColorPicker",
+    label: 'Secondary background color',
+    tooltip: 'Used as the background in some places ' +
+             '(e.g. topic tabs) with "Primary background color" as the foreground, ' +
+             'so these should be roughly inverses of each other.'
+  },
+  bannerTextColor: {
+    ...defaultProps(),
+    ...schemaDefaultValue('#ffffff'),
+    type: String,
+    control: "FormComponentColorPicker",
+    tooltip: 'Color of the text on the main banner, and for some event types ' +
+             'the text in the header (e.g. "Effective Altruism Forum"). ' +
+             'For many events its ok to leave this as white, it may be useful ' +
+             'to set for events where the primary background color is light.'
   },
   contrastColor: {
     ...defaultProps(),
@@ -46,7 +77,7 @@ const schema: SchemaType<"ForumEvents"> = {
     nullable: true,
     type: String,
     control: "FormComponentColorPicker",
-    label: "Contrast color (optional, used very rarely)"
+    label: "Accent color (optional, used very rarely)"
   },
   tagId: {
     ...defaultProps(),
@@ -57,6 +88,8 @@ const schema: SchemaType<"ForumEvents"> = {
       type: "Tag",
       nullable: true,
     }),
+    nullable: true,
+    optional: true,
     control: "TagSelect",
     label: "Choose tag",
   },
@@ -78,16 +111,40 @@ const schema: SchemaType<"ForumEvents"> = {
     type: String,
     control: "ImageUpload",
   },
+  /** @deprecated Set `eventFormat` to "POLL" instead */
   includesPoll: {
     ...defaultProps(),
     ...schemaDefaultValue(false),
+    hidden: true,
     optional: true,
     type: Boolean,
     control: "FormComponentCheckbox",
   },
+  eventFormat: {
+    ...defaultProps(),
+    ...schemaDefaultValue("BASIC"),
+    allowedValues: Array.from(EVENT_FORMATS),
+    control: "select",
+    optional: true,
+    type: String,
+    options: () => EVENT_FORMATS.map(ef => ({value: ef, label: ef}))
+  },
+  maxStickersPerUser: {
+    ...defaultProps(),
+    ...schemaDefaultValue(1),
+    type: Number,
+    optional: true,
+    group: formGroups.stickerEventOptions
+  },
   customComponent: {
     ...defaultProps(true),
     type: String,
+  },
+  commentPrompt: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    tooltip: 'For events with comments, the title in the comment box (defaults to "Add your comment")'
   },
   /**
   Used to store public event data, like public poll votes.

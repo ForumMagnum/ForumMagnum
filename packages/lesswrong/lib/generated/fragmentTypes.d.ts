@@ -453,6 +453,16 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly forumEventId: string,
+  readonly forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    },
+  },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
   readonly userId: string,
@@ -613,12 +623,16 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly endDate: Date,
   readonly darkColor: string,
   readonly lightColor: string,
+  readonly bannerTextColor: string,
   readonly contrastColor: string | null,
-  readonly tagId: string,
+  readonly tagId: string | null,
   readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
+  readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
+  readonly commentPrompt: string | null,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
@@ -2913,12 +2927,15 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly endDate: Date,
   readonly darkColor: string,
   readonly lightColor: string,
+  readonly bannerTextColor: string,
   readonly contrastColor: string | null,
-  readonly tagId: string,
+  readonly tagId: string | null,
   readonly postId: string | null,
   readonly bannerImageId: string | null,
-  readonly includesPoll: boolean,
+  readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
+  readonly commentPrompt: string | null,
+  readonly maxStickersPerUser: number,
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents

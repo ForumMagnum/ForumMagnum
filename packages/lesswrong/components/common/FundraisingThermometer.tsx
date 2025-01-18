@@ -1,17 +1,22 @@
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount } from '@/lib/publicSettings';
+import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 import classNames from 'classnames';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
+import Confetti from 'react-confetti';
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
   'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,w_1530,h_200,c_limit/v1735085464/Fundraiser_2_wttlis.png';
+
+// Third thermometer background image:
+const lightconeFundraiserThermometerBgUrl3 =
+  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,w_1530,h_200,c_limit/v1736822993/wgfexpdeikepryhu1und_uz6lap.png';
 
 interface FundraisingThermometerProps {
   onPost?: boolean;
@@ -46,6 +51,7 @@ const styles = (theme: ThemeType) => ({
     },
     '--stage1Overlay': '100',
     '--stage2Overlay': '100',
+    '--stage3Overlay': '100',
     animation: 'backgroundChange 4s ease forwards',
   },
 
@@ -72,10 +78,13 @@ const styles = (theme: ThemeType) => ({
    */
   blurredOverlayStage1: {
     width: '100%',
-    animation: 'fillStage1 2s ease forwards',
+    animation: 'fillStage1 1.3s ease forwards',
   },
   '@keyframes fillStage1': {
     '0%': {
+      width: '100%'
+    },
+    '40%': {
       width: '100%'
     },
     '100%': {
@@ -90,7 +99,7 @@ const styles = (theme: ThemeType) => ({
    */
   blurredOverlayStage2: {
     width: '100%',
-    animation: 'fillStage2 2s ease forwards 2s', // start 2s after stage1
+    animation: 'fillStage2 1.3s ease forwards 1.3s', // start 1.3s after stage1
     opacity: 0,
   },
   '@keyframes fillStage2': {
@@ -104,6 +113,26 @@ const styles = (theme: ThemeType) => ({
     },
     '100%': {
       width: 'calc(var(--stage2Overlay) * 1%)',
+      opacity: 1,
+    }
+  },
+
+  blurredOverlayStage3: {
+    width: '100%',
+    animation: 'fillStage3 1.3s ease forwards 2.6s', // start 2.6s after stage1
+    opacity: 0,
+  },
+  '@keyframes fillStage3': {
+    '0%': {
+      width: '100%',
+      opacity: 1,
+    },
+    '40%': {
+      width: '100%',
+      opacity: 1,
+    },
+    '100%': {
+      width: 'calc(var(--stage3Overlay) * 1%)',
       opacity: 1,
     }
   },
@@ -212,17 +241,18 @@ const styles = (theme: ThemeType) => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '200%',
+    width: '300%',
     height: '100%',
-    display: 'flex'
+    display: 'flex',
   },
 
   backgroundSliderAnimation: {
-    animation: 'slideBackgrounds 4s ease forwards',
+    animation: 'slideBackgrounds 3.9s ease forwards',
   },
   
   backgroundImage: {
-    width: '50%', // each image takes up half of the slider
+    // each segment is one-third of the slider
+    width: '33.333%',
     height: '100%',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -230,17 +260,23 @@ const styles = (theme: ThemeType) => ({
   },
 
   '@keyframes slideBackgrounds': {
-    '0%, 49.9%': {
+    '0%': {
       left: '0',
     },
-    '50%': {
-      left: '0%',
+    '33%': {
+      left: '0',
     },
-    '69.9%': {
+    '40%': {
       left: '-100%',
     },
-    '70%, 100%': {
+    '66%': {
       left: '-100%',
+    },
+    '72%': {
+      left: '-200%',
+    },
+    '100%': {
+      left: '-200%',
     }
   },
 
@@ -286,51 +322,55 @@ const styles = (theme: ThemeType) => ({
 const FundraisingThermometer: React.FC<
   FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
-  // First & second goal amounts
+  // First, second, and third goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
   const goal2 = lightconeFundraiserThermometerGoal2Amount.get();
+  const goal3 = lightconeFundraiserThermometerGoal3Amount.get();
 
   // Use the main fundraiser progress hook for the overall amount
-  const [percentage, currentAmount] = useFundraiserProgress(goal2);
+  const [percentage, currentAmount] = useFundraiserProgress(goal3);
 
-  // Two-stage fraction calculations:
+  // Fraction calculations for 3 stages
   const finalPct1 = Math.min((currentAmount / goal1) * 100, 100);
   const finalPct2 =
     currentAmount > goal1
       ? Math.min(((currentAmount - goal1) / (goal2 - goal1)) * 100, 100)
       : 0;
+  const finalPct3 =
+    currentAmount > goal2
+      ? Math.min(((currentAmount - goal2) / (goal3 - goal2)) * 100, 100)
+      : 0;
 
-  // Decide which background image to use (stage1 or stage2):
-  const isStage2 = currentAmount > goal1;
+  const displayGoal = currentAmount < goal1 ? goal1 : currentAmount < goal2 ? goal2 : goal3;
+  const displayedStageNumber = currentAmount < goal1 ? 1 : currentAmount < goal2 ? 2 : 3;
 
-  /*
-   * Overlays: we previously used transition: 'width 2s ease'.
-   * Now we rely on CSS keyframes. We pass the final “blur widths”
-   * as CSS variables, so the @keyframes can animate from 100% → var(--stageXOverlay)%.
-   *
-   * The overlay covers some fraction from the right. So if finalPct=30,
-   * that means we want to unblur 30% on the left, i.e. the overlay is 70%.
-   */
-  const stage1Width = 100 - finalPct1;
-  const stage2Width = 100 - finalPct2;
-
-  const displayGoal = currentAmount < goal1 ? goal1 : goal2;
-  const displayedStageNumber = currentAmount < goal1 ? 1 : 2;
   // End at 23:59 AoE (UTC-12) on Jan 13th
-  const fundraiserEndDate = new Date('2025-01-14T11:59:00Z'); // This is 23:59 Jan 13th in UTC-12
+  const fundraiserEndDate = new Date('2025-01-14T11:59:00Z');
   const currentTime = useCurrentTime();
   const timeRemainingMs = fundraiserEndDate.getTime() - currentTime.getTime();
+  const fundraiserEnded = timeRemainingMs <= 0;
+
+  // Display days/hours if not ended
   const remainingDays = Math.ceil(timeRemainingMs / (1000 * 60 * 60 * 24));
   const remainingHours = Math.ceil(timeRemainingMs / (1000 * 60 * 60));
   const timeRemainingText = remainingHours <= 72 
     ? `${remainingHours} hours remaining`
     : `${remainingDays} days remaining`;
+
   const { LWTooltip } = Components;
 
+  // State for final push countdown and—for after the fundraiser—confetti
   const [showCountdown, setShowCountdown] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   let hoverTimer: ReturnType<typeof setTimeout>;
 
   const handleMouseEnter = () => {
+    if (fundraiserEnded) {
+      // Show confetti if hovered while fundraiser is over
+      setShowConfetti(true);
+      return;
+    }
+    // If not ended, show the final push countdown if < 72h remain
     if (remainingHours <= 72) {
       hoverTimer = setTimeout(() => {
         setShowCountdown(true);
@@ -341,7 +381,13 @@ const FundraisingThermometer: React.FC<
   const handleMouseLeave = () => {
     clearTimeout(hoverTimer);
     setShowCountdown(false);
+    setShowConfetti(false);
   };
+
+  // Stage overlay widths: blur covers `(100 - finalPctX)%` from the right
+  const stage1Width = 100 - finalPct1;
+  const stage2Width = 100 - finalPct2;
+  const stage3Width = 100 - finalPct3;
 
   return (
     <>
@@ -366,11 +412,14 @@ const FundraisingThermometer: React.FC<
             </LWTooltip>
           )}
           <span>
-            <span className={classes.goalTextBold}>Goal {displayedStageNumber}:</span>
+            {/* If fundraiser ended, show 'Total raised'; otherwise still show 'Goal' */}
+            <span className={classes.goalTextBold}>
+              {fundraiserEnded ? 'Total raised:' : `Goal ${displayedStageNumber}:`}
+            </span>
             <span className={classes.raisedGoalNumber}>
               ${Math.round(currentAmount).toLocaleString()}
             </span>{" "}
-            of ${displayGoal.toLocaleString()}
+            {!fundraiserEnded && `of ${displayGoal.toLocaleString()}`}
           </span>
         </div>
 
@@ -379,49 +428,58 @@ const FundraisingThermometer: React.FC<
           style={{
             ['--stage1Overlay' as any]: stage1Width,
             ['--stage2Overlay' as any]: stage2Width,
+            ['--stage3Overlay' as any]: stage3Width,
           }}
         >
-          {/* Add sliding background container */}
-          <div className={classNames(classes.backgroundSlider, isStage2 && classes.backgroundSliderAnimation)}>
-            <div 
-              className={classes.backgroundImage} 
+          <div className={classNames(classes.backgroundSlider, currentAmount > goal1 && classes.backgroundSliderAnimation)}>
+            <div
+              className={classes.backgroundImage}
               style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})` }}
             />
-            <div 
-              className={classes.backgroundImage} 
+            <div
+              className={classes.backgroundImage}
               style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl2})` }}
+            />
+            <div
+              className={classes.backgroundImage}
+              style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl3})` }}
             />
           </div>
 
-          {/* Fundraiser header with Donate button */}
+          {/* Fundraiser header with a button (either "Donate" or "Fundraiser over") */}
           <div className={classes.fundraiserHeader}>
-            <Link 
-              className={classes.fundraiserDonateText} 
-              to="https://lightconeinfrastructure.com/donate"
+            <Link
+              className={classes.fundraiserDonateText}
+              to={'https://lightconeinfrastructure.com/donate'}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
               <div className={classes.fundraiserHeaderDonateButton}>
-                Donate
-                <div className={classes.fundraiserHeaderRemainingDays}>{timeRemainingText}</div>
+                {fundraiserEnded ? 'Fundraiser over' : 'Donate'}
+                <div className={classes.fundraiserHeaderRemainingDays}>{fundraiserEnded ? '(You can still donate though)' : timeRemainingText}</div>
               </div>
             </Link>
           </div>
 
-          {/* Stage 1 blur overlay */}
+          {/* Stage 1 overlay */}
           {finalPct1 > 0 && (
             <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage1)} />
           )}
 
-          {/* Stage 2 blur overlay */}
+          {/* Stage 2 overlay */}
           {finalPct2 > 0 && (
             <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage2)} />
+          )}
+
+          {/* Stage 3 overlay */}
+          {finalPct3 > 0 && (
+            <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage3)} />
           )}
         </div>
       </div>
 
       <DeferRender ssr={false}>
-        {isClient && ReactDOM.createPortal(
+        {isClient && !fundraiserEnded && ReactDOM.createPortal(
           <div className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}>
             <div className={classes.countdownText}>
               <div>Dawn of</div>
@@ -432,6 +490,15 @@ const FundraisingThermometer: React.FC<
           document.body
         )}
       </DeferRender>
+
+      {/* If the fundraiser is over and user hovers, show confetti */}
+      {isClient && fundraiserEnded && showConfetti && (
+        <Confetti
+          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}
+          numberOfPieces={250}
+          gravity={0.25}
+        />
+      )}
     </>
   );
 };

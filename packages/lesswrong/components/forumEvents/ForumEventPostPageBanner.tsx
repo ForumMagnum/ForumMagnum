@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
   },
   description: {
-    ...forumEventBannerDescriptionStyles(theme),
+    ...forumEventBannerDescriptionStyles(),
   },
   image: {
     position: "absolute",
@@ -52,10 +52,9 @@ export const ForumEventPostPageBanner = ({classes}: {
   const {params} = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
 
-  // For now, events that have polls have a special post page UI, so hide this banner
   const hideBanner =
     !currentForumEvent ||
-    !!currentForumEvent.includesPoll ||
+    currentForumEvent.eventFormat !== "BASIC" ||
     !!currentForumEvent.customComponent;
 
   const {document: post} = useSingle({
@@ -73,21 +72,16 @@ export const ForumEventPostPageBanner = ({classes}: {
     return null;
   }
 
-  const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
+  const relevance = currentForumEvent.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0;
   if (relevance < 1) {
     return null;
   }
 
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
-  // Define background color with a CSS variable to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-  } as CSSProperties;
-
   const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
-    <div className={classes.root} style={style}>
+    <div className={classes.root}>
       {postPageDescription?.html &&
         <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
           <ContentItemBody

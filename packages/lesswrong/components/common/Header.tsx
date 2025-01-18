@@ -126,9 +126,11 @@ export const styles = (theme: ThemeType) => ({
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
-      color: theme.palette.text.alwaysWhite,
-      contrastColor: theme.palette.text.alwaysBlack,
+      color: "var(--header-text-color)",
+      contrastColor: "var(--header-contrast-color)",
     }),
+    "--header-text-color": theme.palette.text.alwaysWhite,
+    "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -476,23 +478,23 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home") {
-    // On EAF, forum events with polls also update the home page header background
-    if (bannerImageId && currentForumEvent?.includesPoll) {
-      const darkColor = currentForumEvent.darkColor;
-      const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-        c: "fill",
-        dpr: "auto",
-        q: "auto",
-        f: "auto",
-        g: "north",
-      })})${darkColor ? `, ${darkColor}` : ''}`;
-      headerStyle.background = background;
-    }
+  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+    // On EAF, forum events with polls or stickers also update the home page header background and text
+    const darkColor = currentForumEvent.darkColor;
+    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "north",
+    })})${darkColor ? `, ${darkColor}` : ''}`;
+    headerStyle.background = background;
+    (headerStyle as any)["--header-text-color"] = currentForumEvent.bannerTextColor ?? undefined;
+    (headerStyle as any)["--header-contrast-color"] = currentForumEvent.darkColor ?? undefined;
   }
 
-  // Make all the text and icons white when we have some sort of color in the header background
-  const useWhiteText = Object.keys(headerStyle).length > 0;
+  // Make all the text and icons the same color as the text on the current forum event banner
+  const useContrastText = Object.keys(headerStyle).length > 0;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -511,7 +513,7 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useWhiteText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground
             )}
             style={headerStyle}
           >
@@ -522,20 +524,18 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
-                      {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link></div>}
                     </div>
                     <HeaderSubtitle />
                   </div>
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
-                  {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItemSmall}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>$</Link></div>}
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
