@@ -22,6 +22,9 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string> | null,
+  readonly invalidated: boolean,
+  readonly lastSeenAt: Date | null,
+  readonly timesSeen: number,
 }
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
