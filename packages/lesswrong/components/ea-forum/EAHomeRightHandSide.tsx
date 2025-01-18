@@ -59,25 +59,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     marginBottom: 32,
   },
-  wrappedAd: {
-    backgroundColor: theme.palette.wrapped.background,
-    color: theme.palette.text.alwaysWhite,
-    padding: '12px 24px',
-    borderRadius: theme.borderRadius.default,
-    '&:hover': {
-      opacity: 1,
-      backgroundColor: theme.palette.wrapped.darkBackground,
-    }
-  },
-  wrappedAdHeading: {
-    fontWeight: 600,
-    fontSize: 16,
-    lineHeight: '22px',
-    margin: 0
-  },
-  wrappedAdHighlight: {
-    color: theme.palette.wrapped.highlightText,
-  },
   digestAd: {
     maxWidth: 280,
     marginBottom: 32,
@@ -128,24 +109,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-
-const WrappedAd = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const currentUser = useCurrentUser()
-  if (!currentUser) return null
-
-  return <AnalyticsContext pageSubSectionContext="wrappedAd">
-    <div className={classes.section}>
-      <Link to="/wrapped" className={classes.wrappedAd}>
-        <h2 className={classes.wrappedAdHeading}>
-          Your 2024 EA Forum
-          <div className={classes.wrappedAdHighlight}>Wrapped</div>
-        </h2>
-      </Link>
-    </div>
-  </AnalyticsContext>
-}
 
 /**
  * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
@@ -276,7 +239,6 @@ export const EAHomeRightHandSide = ({classes}: {
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
-      <WrappedAd classes={classes} />
       {digestAdNode}
       
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
