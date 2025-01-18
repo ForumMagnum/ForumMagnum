@@ -2,6 +2,7 @@ import { Application, Request, Response, json } from "express";
 import { isValidSearchQuery } from "./SearchQuery";
 import ElasticService from "./ElasticService";
 import { UsersRepo } from "../../repos";
+import uniq from "lodash/uniq";
 
 class ElasticController {
   constructor(
@@ -22,6 +23,13 @@ class ElasticController {
     }
     try {
       const results = await Promise.all(body.map(this.onQuery.bind(this)));
+      for (const result of results) {
+        const resultIds = result.hits.map(r=>r._id);
+        if (uniq(resultIds).length !== resultIds.length) {
+          // eslint-disable-next-line no-console
+          console.error(`Search result set contained duplicate entries`);
+        }
+      }
       res.status(200).send(results);
     } catch (e) {
       this.handleError(res, e);
