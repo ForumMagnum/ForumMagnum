@@ -19,12 +19,9 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: 'transparent',
     },
-    marginLeft: 1,
-    marginRight: 1,
-    transition: 'margin-top 0.2s ease-in-out',
-  },
-  rootAnimationCompleted: {
-    marginTop: 4,
+    marginLeft: isEAForum ? 0 : 1,
+    marginRight: isEAForum ? 0 : 1,
+    transition: 'transform 0.2s ease-in-out',
   },
   disabled: {
     cursor: 'not-allowed',
@@ -39,27 +36,27 @@ const styles = (theme: ThemeType) => ({
   },
   up: {
   },
-  upLarge: {
+  upAnimationCompleted: {
+    transform: 'translateY(2px)',
   },
   down: {
     transform: 'rotate(-180deg)',
     top: 1
   },
-  downLarge: {
-    transform: 'rotate(-180deg)',
-    top: 1
+  downAnimationCompleted: {
+    transform: 'rotate(-180deg) translateY(2px)',
   },
   right: {
     transform: 'rotate(-270deg)',
   },
-  rightLarge: {
-    transform: 'rotate(-270deg)',
+  rightAnimationCompleted: {
+    transform: 'rotate(-270deg) translateY(2px)',
   },
   left: {
     transform: 'rotate(-90deg)',
   },
-  leftLarge: {
-    transform: 'rotate(-90deg)',
+  leftAnimationCompleted: {
+    transform: 'rotate(-90deg) translateY(2px)',
   },
   bigArrow: {
     height: 10,
@@ -155,9 +152,8 @@ const VoteArrowIconSolid = ({
       className={classNames(
         classes.root,
         classes[orientation],
-        largeArrow && classes[`${orientation}Large`],
         !enabled && classes.disabled,
-        bigVoted && classes.rootAnimationCompleted
+        bigVoted && !isEAForum && classes[`${orientation}AnimationCompleted`]
       )}
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
