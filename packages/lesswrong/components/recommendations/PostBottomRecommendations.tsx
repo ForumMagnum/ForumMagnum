@@ -7,10 +7,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
+import { isEAForum } from "@/lib/instanceSettings";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    background: theme.palette.grey[55],
+    background: isEAForum ? theme.palette.grey[55] : 'transparent',
     padding: "60px 0 80px 0",
     marginTop: 60,
     [theme.breakpoints.down('sm')]: {
@@ -43,6 +44,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
 });
+
+const EAForumWrapperComponent = ({children}: {children: React.ReactNode}) => {
+  const { ToCColumn } = Components;
+  return <ToCColumn tableOfContents={<div />} notHideable>{children}</ToCColumn>;
+};
 
 const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
@@ -93,16 +99,16 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
 
   const {
-    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip
+    PostsLoading, EAPostsItem, EALargePostsItem, UserTooltip, PostsItem
   } = Components;
+
+  const WrapperComponent = isEAForum ? EAForumWrapperComponent : React.Fragment;
 
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <ToCColumn
-          tableOfContents={hasTableOfContents ? <div /> : null}
-          notHideable
-        >
+        <WrapperComponent>
+
           <div>
             {hasUserPosts &&
               <div className={classes.section}>
@@ -117,7 +123,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                 }
                 <AnalyticsContext pageSubSectionContext="moreFromAuthor">
                   {moreFromAuthorPosts?.map((post) => (
-                    <EAPostsItem key={post._id} post={post} />
+                    isEAForum ? <EAPostsItem key={post._id} post={post} /> : <PostsItem key={post._id} post={post} />
                   ))}
                   <div className={classes.viewMore}>
                     <Link to={profileUrl}>
@@ -136,16 +142,16 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
               }
               <AnalyticsContext pageSubSectionContext="curatedAndPopular">
                 {curatedAndPopularPosts?.map((post) => (
-                  <EALargePostsItem
+                  isEAForum ? <EALargePostsItem
                     key={post._id}
                     post={post}
                     className={classes.largePostItem}
                     noImagePlaceholder
-                  />
+                  /> : <PostsItem key={post._id} post={post} />
                 ))}
               </AnalyticsContext>
             </div>
-            <div className={classes.section}>
+            {isEAForum && <div className={classes.section}>
               <div className={classes.sectionHeading}>
                 {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
@@ -162,9 +168,10 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                   </Link>
                 </div>
               </AnalyticsContext>
-            </div>
+              </div>
+            }
           </div>
-        </ToCColumn>
+        </WrapperComponent>
       </div>
     </AnalyticsContext>
   );
