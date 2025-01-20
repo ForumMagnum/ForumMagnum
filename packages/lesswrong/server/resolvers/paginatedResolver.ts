@@ -94,7 +94,9 @@ export const createPaginatedResolver = <
         }
         const results = await callback(context, limit, args);
         cachedAt = Date.now();
-        cached = results;
+        if (cacheMaxAgeMs) {
+          cached = results;
+        }
         const filteredResults = await accessFilterFunction?.(results as (ReturnType & DbObject)[]) ?? results;
         return {results: filteredResults as ReturnType[]};
       },
