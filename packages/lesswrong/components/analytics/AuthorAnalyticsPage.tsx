@@ -211,7 +211,7 @@ const AuthorAnalyticsPage = ({ classes }: {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location, search: `?${qs.stringify(newQuery)}` });
     setRestoreScrollPos(window.scrollY)
   };
 

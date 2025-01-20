@@ -55,7 +55,7 @@ export const useCommentLink = ({
     event.preventDefault();
     const navigateArgs = {
       search: qs.stringify({...query, commentId: comment._id}),
-      hash: null,
+      hash: undefined,
     }
     navigate({
       ...location,

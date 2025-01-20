@@ -141,6 +141,11 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
           {children}
         </Components.OWIDPreview>
       }
+      if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
+        return <Components.ArbitalPreview href={href} id={id}>
+          {children}
+        </Components.ArbitalPreview>
+      }
       if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
         return <Components.EstimakerPreview href={href} id={id}>
           {children}
