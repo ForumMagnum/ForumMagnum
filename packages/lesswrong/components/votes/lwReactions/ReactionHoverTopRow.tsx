@@ -21,6 +21,7 @@ const styles = (theme: ThemeType) => ({
     
     display: "flex",
     alignItems: "center",
+    borderRadius: 4,
   },
   hoverInfo: {
     paddingLeft: 10,
