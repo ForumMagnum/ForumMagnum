@@ -19,6 +19,12 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: 'transparent',
     },
+    marginLeft: 1,
+    marginRight: 1,
+    transition: 'margin-top 0.2s ease-in-out',
+  },
+  rootAnimationCompleted: {
+    marginTop: 4,
   },
   disabled: {
     cursor: 'not-allowed',
@@ -150,7 +156,8 @@ const VoteArrowIconSolid = ({
         classes.root,
         classes[orientation],
         largeArrow && classes[`${orientation}Large`],
-        !enabled && classes.disabled
+        !enabled && classes.disabled,
+        bigVoted && classes.rootAnimationCompleted
       )}
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
