@@ -16,6 +16,9 @@ const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
       padding: 16,
     },
     fontFamily: theme.palette.fonts.sansSerifStack,
+    "& a": {
+      color: theme.palette.primary.main,
+    }
   },
   // Combined typography styles for headers
   header: {
@@ -197,16 +200,12 @@ const Leaderboard = () => {
     return '_id' in entry;
   };
 
-  const isKarmaEntry = (entry: UsersMinimumInfo | KarmaEntry): entry is KarmaEntry => {
-    return 'userId' in entry;
-  };
-
   return (
     <ErrorBoundary>
       <div className={classes.pageContainer}>
         <h1 className={classes.header}>Leaderboard</h1>
         <p className={classes.subTitle}>
-          Here are our top users and donors to <a href="https://lightconeinfrastructure.com">Lightcone Infrastructure</a>, the organization maintaining LessWrong. 
+          Here are our top users and donors to <a href="https://lightconeinfrastructure.com">Lightcone Infrastructure</a>, the organization maintaining LessWrong. Contribute to the site, or <a href="https://lightconeinfrastructure.com/donate">donate</a> to show up here! 
         </p>
 
         <div className={classes.columnsContainer}>
