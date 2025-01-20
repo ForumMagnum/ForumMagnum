@@ -669,7 +669,6 @@ createPaginatedResolver({
     currentUser,
     limit,
   }),
-  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
 });
 
 createPaginatedResolver({
