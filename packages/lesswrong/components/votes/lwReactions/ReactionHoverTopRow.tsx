@@ -11,8 +11,8 @@ const styles = (theme: ThemeType) => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
     paddingLeft: 12,
     paddingRight: 8,
     "&:hover": {
@@ -20,7 +20,8 @@ const styles = (theme: ThemeType) => ({
     },
     
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
+    borderRadius: 4,
   },
   hoverInfo: {
     paddingLeft: 10,

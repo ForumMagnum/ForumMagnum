@@ -6,7 +6,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType) => ({
   usersWhoReactedRoot: {
     maxWidth: 205,
-    display: "inline-block",
+    display: "flex",
     color: theme.palette.grey[600]
   },
   usersWhoReactedWrap: {
