@@ -371,7 +371,11 @@ const PostsNewForm = ({classes}: {
         <RecaptchaWarning currentUser={currentUser}>
           <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+          {rateLimitNextAbleToPost && <RateLimitWarning
+            contentType="post"
+            lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
+            rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}
+          />}
           <DeferRender ssr={false}>
               <WrappedSmartForm
                 collectionName="Posts"
