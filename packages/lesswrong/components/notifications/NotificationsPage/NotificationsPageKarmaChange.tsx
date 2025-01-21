@@ -54,7 +54,7 @@ type AddedReactions = {
 }
 
 const userLink = (user: {displayName: string, slug: string}) => (
-  <NotifPopoverLink to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</NotifPopoverLink>
+  <NotifPopoverLink key={user.slug} to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</NotifPopoverLink>
 );
 
 const formatUsers = (users: {displayName: string, slug: string}[], max = 3) => {

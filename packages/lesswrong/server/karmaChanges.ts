@@ -75,22 +75,33 @@ const getEAKarmaChanges = async (
   const changes = await votesRepo.getEAKarmaChanges(args);
   const newChanges = categorizeKarmaChanges(changes)
   
-  // For users with realtime karma notifications,
-  // we also display the rest of the karma changes that they got
-  // in the past 24 hours underneath the ones they got since
-  // the last time they checked.
-  // This way they don't lose the changes after viewing them once.
+  // We also display the rest of the karma changes that they got
+  // in the past 24 hours and in the past week underneath
+  // the ones they got since the last time they checked.
+  // This reduces the chance that they lose the changes after viewing them once.
+
   let todaysKarmaChanges: KarmaChangesSimple|undefined
-  if (updateFrequency === 'realtime') {
-    const yesterday = moment().subtract(1, 'day').toDate()
-    if (args.startDate > yesterday) {
-      const todaysChanges = await votesRepo.getEAKarmaChanges({
-        ...args,
-        startDate: yesterday,
-        endDate: args.startDate,
-      })
-      todaysKarmaChanges = categorizeKarmaChanges(todaysChanges, '-today')
-    }
+  const yesterday = moment().subtract(1, 'day').toDate()
+  // "Today" is only relevant for realtime notifications.
+  if (updateFrequency === 'realtime' && args.startDate > yesterday) {
+    const todaysChanges = await votesRepo.getEAKarmaChanges({
+      ...args,
+      startDate: yesterday,
+      endDate: args.startDate,
+    })
+    todaysKarmaChanges = categorizeKarmaChanges(todaysChanges, '-today')
+  }
+
+  let thisWeeksKarmaChanges: KarmaChangesSimple|undefined
+  const lastWeek = moment().subtract(1, 'week').toDate()
+  // "This week" is only relevant for realtime and daily notifications.
+  if (['realtime', 'daily'].includes(updateFrequency) && args.startDate > lastWeek) {
+    const thisWeeksChanges = await votesRepo.getEAKarmaChanges({
+      ...args,
+      startDate: lastWeek,
+      endDate: !!todaysKarmaChanges ? yesterday : args.startDate,
+    })
+    thisWeeksKarmaChanges = categorizeKarmaChanges(thisWeeksChanges, '-thisWeek')
   }
 
   return {
@@ -103,6 +114,7 @@ const getEAKarmaChanges = async (
     comments: newChanges.comments,
     tagRevisions: newChanges.tagRevisions,
     todaysKarmaChanges,
+    thisWeeksKarmaChanges,
   };
 }
 

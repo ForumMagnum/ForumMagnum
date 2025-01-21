@@ -59,6 +59,7 @@ addGraphQLSchema(`
     comments: [CommentKarmaChange]
     tagRevisions: [RevisionsKarmaChange]
     todaysKarmaChanges: KarmaChangesSimple
+    thisWeeksKarmaChanges: KarmaChangesSimple
   }
 `);
 
@@ -152,4 +153,5 @@ export type KarmaChanges = {
   comments: CommentKarmaChange[],
   tagRevisions: TagRevisionKarmaChange[],
   todaysKarmaChanges?: KarmaChangesSimple,
+  thisWeeksKarmaChanges?: KarmaChangesSimple,
 }
