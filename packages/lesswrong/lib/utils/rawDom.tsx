@@ -216,7 +216,7 @@ export function reduceRangeToText(range: Range): Range|null {
       // Inside a text node, buf after all of the actual text. Find the next
       // text node in the tree, and set the position to be the start of that
       // one rather than the end of this one.
-      const nextTextNode = nextTextNodeAfter(startContainer as Text);
+      const nextTextNode = nextNonemptyTextNodeAfter(startContainer as Text);
       if (!nextTextNode) return null;
       result.setStart(nextTextNode, 0);
     }
@@ -234,7 +234,7 @@ export function reduceRangeToText(range: Range): Range|null {
     if (pos.nodeType === Node.TEXT_NODE) {
       result.setStart(pos, 0);
     } else {
-      const nextTextNode = nextTextNodeAfter(pos);
+      const nextTextNode = nextNonemptyTextNodeAfter(pos);
       if (!nextTextNode) return null;
       result.setStart(nextTextNode, 0);
     }
@@ -277,6 +277,14 @@ function nextTextNodeAfter(node: Node): Text|null {
   do {
     pos = nextLeafNodeAfter(pos);
   } while (pos && pos.nodeType !== Node.TEXT_NODE);
+  return pos as Text|null;
+}
+
+function nextNonemptyTextNodeAfter(node: Node): Text|null {
+  let pos: Node|null = node;
+  do {
+    pos = nextLeafNodeAfter(pos);
+  } while (pos && (pos.nodeType !== Node.TEXT_NODE || pos.textContent===null || !pos.textContent.length));
   return pos as Text|null;
 }
 
