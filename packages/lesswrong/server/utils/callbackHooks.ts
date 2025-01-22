@@ -80,7 +80,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     let result = item;
     try {
       for (const callback of this._callbacks) {
-        result = await runCallback(item, callback);
+        result = await runCallback(result, callback);
       }
       
     } finally {
