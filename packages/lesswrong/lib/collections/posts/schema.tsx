@@ -184,7 +184,7 @@ const schema: SchemaType<"Posts"> = {
         return new Date();
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier, newDocument: post}) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && modifier.$set.status === postStatuses.STATUS_APPROVED) {
         return new Date();
@@ -259,7 +259,7 @@ const schema: SchemaType<"Posts"> = {
     onInsert: async (post) => {
       return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
-    onEdit: async (modifier, post) => {
+    onUpdate: async ({modifier, newDocument: post}) => {
       if (modifier.$set.title) {
         return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
@@ -320,7 +320,7 @@ const schema: SchemaType<"Posts"> = {
         return postGetDefaultStatus(currentUser!);
       }
     },
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
         return postGetDefaultStatus(currentUser!);
@@ -345,7 +345,7 @@ const schema: SchemaType<"Posts"> = {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier, newDocument: post}) => {
       // Set the post's isFuture to true if necessary
       if (modifier.$set.postedAt) {
         const postTime = new Date(modifier.$set.postedAt).getTime();
@@ -376,7 +376,7 @@ const schema: SchemaType<"Posts"> = {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier}) => {
       if (!modifier.$set.sticky) {
         return false;
       }
@@ -421,7 +421,7 @@ const schema: SchemaType<"Posts"> = {
     denormalized: true,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onEdit: async (modifier, document, currentUser) => {
+    onUpdate: async ({modifier, document, currentUser}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
         return await userGetDisplayNameById(modifier.$set.userId)
@@ -2494,7 +2494,7 @@ const schema: SchemaType<"Posts"> = {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier}) => {
       if (!modifier.$set.metaSticky) {
         return false;
       }
@@ -2923,7 +2923,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       if (modifier.$set?.rejected && currentUser) {
         return modifier.$set.rejectedByUserId || currentUser._id
       }
@@ -3052,7 +3052,7 @@ const schema: SchemaType<"Posts"> = {
         return false;
       }
     },
-    onEdit: (modifier: MongoModifier<DbPost>, post: DbPost) => {
+    onUpdate: ({modifier}) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }

@@ -35,7 +35,7 @@ const schema: SchemaType<"TagFlags"> = {
     onInsert: async (tagFlag) => {
       return await getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
-    onEdit: async (modifier, tagFlag) => {
+    onUpdate: async ({modifier, newDocument: tagFlag}) => {
       if (modifier.$set.name) {
         return await getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }

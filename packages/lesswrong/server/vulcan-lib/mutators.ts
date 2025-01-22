@@ -376,20 +376,13 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   onUpdate
 
   */
-  logger('field onUpdate/onEdit callbacks')
+  logger('field onUpdate callbacks')
+  const dataAsModifier = dataToModifier(clone(data));
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
     if (schemaField.onUpdate) {
-      autoValue = await schemaField.onUpdate({...properties, fieldName});
-    } else if (schemaField.onEdit) {
-      // OpenCRUD backwards compatibility
-      autoValue = await schemaField.onEdit(
-        dataToModifier(clone(data)),
-        oldDocument,
-        currentUser,
-        document
-      );
+      autoValue = await schemaField.onUpdate({...properties, fieldName, modifier: dataAsModifier});
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onUpdate returned a value to update for ${fieldName}: ${autoValue}`)

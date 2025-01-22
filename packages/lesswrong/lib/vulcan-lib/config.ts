@@ -30,7 +30,6 @@ SimpleSchema.extendOptions([
   'onInsert', // field insert callback (OpenCRUD backwards compatibility)
 
   'onUpdate', // field edit callback
-  'onEdit', // field edit callback (OpenCRUD backwards compatibility)
 
   'onDelete', // field remove callback
 
