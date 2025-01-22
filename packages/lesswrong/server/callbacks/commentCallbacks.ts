@@ -140,7 +140,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
 // comments.remove.async                            //
 //////////////////////////////////////////////////////
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePostCommenters (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemovePostCommenters ({document: comment}) {
   const { postId } = comment;
 
   if (postId) {
@@ -154,7 +154,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
   }
 });
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemoveChildrenComments (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemoveChildrenComments ({document: comment, currentUser}) {
 
   const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch();
 

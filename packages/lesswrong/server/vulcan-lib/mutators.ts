@@ -215,14 +215,6 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [properties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
-  logger('newBefore')
-  // OpenCRUD backwards compatibility
-  document = await hooks.newBefore.runCallbacks({
-    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [
-      currentUser
-    ]
-  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
@@ -371,14 +363,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
       properties: [properties],
       ignoreExceptions: false,
     });
-    // OpenCRUD backwards compatibility
-    data = modifierToData(
-      await hooks.editValidate.runCallbacks({
-        iterator: dataToModifier(data),
-        properties: [document, currentUser, validationErrors],
-        ignoreExceptions: false,
-      })
-    );
 
     // LESSWRONG - added custom message (showing all validation errors instead of a generic message)
     if (validationErrors.length) {
@@ -428,18 +412,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     iterator: data,
     properties: [properties],
   });
-  logger('editBefore')
-  // OpenCRUD backwards compatibility
-  data = modifierToData(
-    await hooks.editBefore.runCallbacks({
-      iterator: dataToModifier(data),
-      properties: [
-        oldDocument,
-        currentUser,
-        document
-      ]
-    })
-  );
   logger('editSync')
   data = modifierToData(
     await hooks.editSync.runCallbacks({
@@ -497,15 +469,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   document = await hooks.updateAfter.runCallbacks({
     iterator: document,
     properties: [properties],
-  });
-  logger('editAfter')
-  // OpenCRUD backwards compatibility
-  document = await hooks.editAfter.runCallbacks({
-    iterator: document,
-    properties: [
-      oldDocument,
-      currentUser
-    ]
   });
 
   /*
@@ -587,12 +550,6 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
       properties: [properties],
       ignoreExceptions: false,
     });
-    // OpenCRUD backwards compatibility
-    document = await hooks.removeValidate.runCallbacks({
-      iterator: document,
-      properties: [currentUser],
-      ignoreExceptions: false,
-    });
 
     if (validationErrors.length) {
       console.log(validationErrors); // eslint-disable-line no-console
@@ -621,15 +578,6 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
     iterator: document,
     properties: [properties],
   });
-  // OpenCRUD backwards compatibility
-  await hooks.removeBefore.runCallbacks({
-    iterator: document,
-    properties: [currentUser]
-  });
-  await hooks.removeSync.runCallbacks({
-    iterator: document,
-    properties: [currentUser]
-  });
 
   /*
 
@@ -650,12 +598,6 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   */
   await hooks.deleteAsync.runCallbacksAsync([properties]);
-  // OpenCRUD backwards compatibility
-  await hooks.removeAsync.runCallbacksAsync([
-    document,
-    currentUser,
-    collection
-  ]);
 
   return { data: document };
 };
