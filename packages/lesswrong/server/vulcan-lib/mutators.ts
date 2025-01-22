@@ -33,7 +33,7 @@ import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/uti
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
-import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties } from '../mutationCallbacks';
+import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { logFieldChanges } from '../fieldChanges';
 import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
@@ -56,8 +56,8 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
 
   return {
     currentUser, collection, context,
-    document: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    newDocument: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    document: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
+    newDocument: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     schema
   };
 };
@@ -212,12 +212,12 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('before callbacks')
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
-    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [properties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
-    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [currentUser, context]
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
@@ -227,7 +227,9 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('inserting into database');
-  (document as any)._id = await collection.rawInsert(document as ObjectsByCollectionName[N]);
+  const insertedId = await collection.rawInsert(document as ObjectsByCollectionName[N]);
+  const documentWithId = {_id: insertedId, ...document} as ObjectsByCollectionName[N];
+  const afterCreateProperties: AfterCreateCallbackProperties<N> = {...properties, document: documentWithId, newDocument: documentWithId};
 
   /*
 
@@ -239,7 +241,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('createAfter')
   document = await hooks.createAfter.runCallbacks({
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [properties],
+    properties: [afterCreateProperties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newAfter')
   // OpenCRUD backwards compatibility
@@ -250,7 +252,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   // note: query for document to get fresh document with collection-hooks effects applied
   let completedDocument = document as ObjectsByCollectionName[N];
-  const queryResult = await collection.findOne(document._id);
+  const queryResult = await collection.findOne(insertedId);
   if (queryResult)
     completedDocument = queryResult;
 
@@ -263,7 +265,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('async callbacks')
   logger('createAsync')
   await hooks.createAsync.runCallbacksAsync(
-    [{ ...properties, document: completedDocument }],
+    [{ ...afterCreateProperties, document: completedDocument, newDocument: completedDocument }],
   );
   logger('newAsync')
   // OpenCRUD backwards compatibility

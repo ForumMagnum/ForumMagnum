@@ -29,7 +29,7 @@ interface AfterCreateRevisionCallbackContext {
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
-export function getInitialVersion(document: DbPost|DbObject) {
+export function getInitialVersion(document: DbInsertion<DbPost|DbObject>) {
   if ((document as DbPost).draft) {
     return '0.1.0'
   } else {
@@ -108,7 +108,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc: DbType, {currentUser, context}) {
+    async function editorSerializationBeforeCreate (doc: DbInsertion<DbType>, {currentUser, context}) {
     const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
     if (editableField?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }

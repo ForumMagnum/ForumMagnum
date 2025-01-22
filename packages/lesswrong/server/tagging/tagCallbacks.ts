@@ -23,7 +23,7 @@ function normalizeTagName(name: string) {
     return name;
 }
 
-getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
+getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}) => {
   if (!tag.name || !tag.name.length)
     throw new Error("Name is required");
   if (!isValidTagName(tag.name))

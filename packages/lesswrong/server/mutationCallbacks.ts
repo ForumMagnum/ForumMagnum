@@ -1,13 +1,27 @@
-import { CallbackHook, CallbackChainHook, CallbackPropertiesBase } from './utils/callbackHooks';
+import { CallbackHook, CallbackChainHook } from './utils/callbackHooks';
 
 type CallbackValidationErrors = Array<any>;
 
+interface CallbackPropertiesBase<N extends CollectionNameString> {
+  // TODO: Many of these are empirically optional, but setting them to optional
+  // causes a bajillion type errors, so we will not be fixing today
+  currentUser: DbUser|null
+  collection: CollectionBase<N>
+  context: ResolverContext
+  schema: SchemaType<N>
+}
+
 export interface CreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
-  document: ObjectsByCollectionName[N],
+  document: DbInsertion<ObjectsByCollectionName[N]>,
   /**
    * BE CAREFUL USING THIS - IT'S NOT THE INSERTED RECORD, BUT THE DATA PASSED IN TO `createMutator`
    * Correspondingly, it won't have fields like `_id`
    */
+  newDocument: DbInsertion<ObjectsByCollectionName[N]>,
+}
+
+export interface AfterCreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
+  document: ObjectsByCollectionName[N],
   newDocument: ObjectsByCollectionName[N],
 }
 
@@ -30,14 +44,13 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
   createValidate: CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>
   newValidate: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>
   
-  createBefore: CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>
-  
-  newSync: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null,ResolverContext]>
+  createBefore: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[CreateCallbackProperties<N>]>
+  newSync: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>
 
-  createAfter: CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>
+  createAfter: CallbackChainHook<ObjectsByCollectionName[N],[AfterCreateCallbackProperties<N>]>
   newAfter: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
 
-  createAsync: CallbackHook<[CreateCallbackProperties<N>]>
+  createAsync: CallbackHook<[AfterCreateCallbackProperties<N>]>
   newAsync: CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>
 
   updateValidate: CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>
@@ -56,25 +69,26 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
   deleteAsync: CallbackHook<[DeleteCallbackProperties<N>]>
 
   constructor(collectionName: N) {
-    this.createValidate = new CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.create.validate`);
+    const namePrefix = collectionName.toLowerCase();
+    this.createValidate = new CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>(`${namePrefix}.create.validate`);
     this.newValidate = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
-    this.createBefore = new CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.create.before`);
-    this.newSync = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null,ResolverContext]>(`${collectionName.toLowerCase()}.new.sync`);
-    this.createAfter = new CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.create.after`);
-    this.newAfter = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.new.after`);
-    this.createAsync = new CallbackHook<[CreateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.create.async`);
-    this.newAsync = new CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>(`${collectionName.toLowerCase()}.new.async`);
+    this.createBefore = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[CreateCallbackProperties<N>]>(`${namePrefix}.create.before`);
+    this.newSync = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>(`${namePrefix}.new.sync`);
+    this.createAfter = new CallbackChainHook<ObjectsByCollectionName[N],[AfterCreateCallbackProperties<N>]>(`${namePrefix}.create.after`);
+    this.newAfter = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${namePrefix}.new.after`);
+    this.createAsync = new CallbackHook<[AfterCreateCallbackProperties<N>]>(`${namePrefix}.create.async`);
+    this.newAsync = new CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>(`${namePrefix}.new.async`);
 
-    this.updateValidate = new CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.update.validate`);
-    this.updateBefore = new CallbackChainHook<Partial<ObjectsByCollectionName[N]>,[UpdateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.update.before`);
-    this.editSync = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>(`${collectionName.toLowerCase()}.edit.sync`);
-    this.updateAfter = new CallbackChainHook<ObjectsByCollectionName[N],[UpdateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.update.after`);
-    this.updateAsync = new CallbackHook<[UpdateCallbackProperties<N>]>(`${collectionName.toLowerCase()}.update.async`);
-    this.editAsync = new CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>(`${collectionName.toLowerCase()}.edit.async`)
+    this.updateValidate = new CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>(`${namePrefix}.update.validate`);
+    this.updateBefore = new CallbackChainHook<Partial<ObjectsByCollectionName[N]>,[UpdateCallbackProperties<N>]>(`${namePrefix}.update.before`);
+    this.editSync = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>(`${namePrefix}.edit.sync`);
+    this.updateAfter = new CallbackChainHook<ObjectsByCollectionName[N],[UpdateCallbackProperties<N>]>(`${namePrefix}.update.after`);
+    this.updateAsync = new CallbackHook<[UpdateCallbackProperties<N>]>(`${namePrefix}.update.async`);
+    this.editAsync = new CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>(`${namePrefix}.edit.async`)
 
-    this.deleteValidate = new CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<N>]>(`${collectionName.toLowerCase()}.delete.validate`);
-    this.deleteBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DeleteCallbackProperties<N>]>(`${collectionName.toLowerCase()}.delete.before`);
-    this.deleteAsync = new CallbackHook<[DeleteCallbackProperties<N>]>(`${collectionName.toLowerCase()}.delete.async`);
+    this.deleteValidate = new CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<N>]>(`${namePrefix}.delete.validate`);
+    this.deleteBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DeleteCallbackProperties<N>]>(`${namePrefix}.delete.before`);
+    this.deleteAsync = new CallbackHook<[DeleteCallbackProperties<N>]>(`${namePrefix}.delete.async`);
   }
 }
 

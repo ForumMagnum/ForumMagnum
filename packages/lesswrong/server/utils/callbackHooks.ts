@@ -1,17 +1,7 @@
-import { isPromise } from '@/lib/vulcan-lib/utils';
 import { loggerConstructor } from '@/lib/utils/logging'
 import { sleep } from '@/lib/utils/asyncUtils';
 
 type MaybePromise<T> = T|Promise<T>
-
-export interface CallbackPropertiesBase<N extends CollectionNameString> {
-  // TODO: Many of these are empirically optional, but setting them to optional
-  // causes a bajillion type errors, so we will not be fixing today
-  currentUser: DbUser|null
-  collection: CollectionBase<N>
-  context: ResolverContext
-  schema: SchemaType<N>
-}
 
 type CallbackChainFn<IteratorType,ArgumentsType extends any[]> = (doc: IteratorType, ...args: ArgumentsType) => (MaybePromise<IteratorType> | undefined | void)
 

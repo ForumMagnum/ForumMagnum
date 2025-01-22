@@ -4,7 +4,7 @@ import { createNotifications } from '../notificationCallbacksHelpers';
 import Users from '../../lib/vulcan-users';
 
 
-getCollectionHooks("Localgroups").createValidate.add((validationErrors: Array<any>, {document: group}: {document: DbLocalgroup}) => {
+getCollectionHooks("Localgroups").createValidate.add((validationErrors: Array<any>, {document: group}) => {
   if (!group.isOnline && !group.location)
     throw new Error("Location is required for local groups");
   
@@ -18,7 +18,7 @@ getCollectionHooks("Localgroups").updateValidate.add((validationErrors: Array<an
   return validationErrors;
 });
 
-getCollectionHooks("Localgroups").createAsync.add(async ({document}: {document: DbLocalgroup}) => {
+getCollectionHooks("Localgroups").createAsync.add(async ({document}) => {
   await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
 })
 
