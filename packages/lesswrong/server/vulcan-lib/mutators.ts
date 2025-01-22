@@ -166,7 +166,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   note: clone arguments in case callbacks modify them
 
   */
-  logger('field onCreate/onInsert callbacks')
+  logger('field onCreate callbacks')
   const start = Date.now();
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
@@ -175,9 +175,6 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
-    } else if (schemaField.onInsert) {
-      // OpenCRUD backwards compatibility
-      autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)

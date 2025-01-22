@@ -62,7 +62,7 @@ const schema: SchemaType<"Comments"> = {
     type: Date,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
+    onCreate: () => new Date(),
     nullable: false
   },
   // The comment author's name
@@ -70,13 +70,13 @@ const schema: SchemaType<"Comments"> = {
     type: String,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onInsert: async (document, currentUser) => {
+    onCreate: async ({document}) => {
       // if userId is changing, change the author name too
       if (document.userId) {
         return await userGetDisplayNameById(document.userId)
       }
     },
-    onUpdate: async ({modifier, document, currentUser}) => {
+    onUpdate: async ({modifier}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
         return await userGetDisplayNameById(modifier.$set.userId)
@@ -331,7 +331,7 @@ const schema: SchemaType<"Comments"> = {
     denormalized: true,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
+    onCreate: () => new Date(),
   },
 
   // The semver-style version of the post that this comment was made against
