@@ -73,7 +73,7 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
 ) => {
   let { document } = mutatorParams;
   const callbackProperties = mutatorParamsToCallbackProps(mutatorParams);
-  const { collection, context, currentUser } = callbackProperties;
+  const { collection, context } = callbackProperties;
 
   const hooks = getCollectionHooks(collection.collectionName);
   
@@ -83,12 +83,6 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
   validationErrors = await hooks.createValidate.runCallbacks({
     iterator: validationErrors,
     properties: [callbackProperties],
-    ignoreExceptions: false,
-  });
-  // OpenCRUD backwards compatibility
-  document = await hooks.newValidate.runCallbacks({
-    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
-    properties: [currentUser, validationErrors],
     ignoreExceptions: false,
   });
   if (validationErrors.length) {

@@ -1,6 +1,6 @@
 import { CallbackHook, CallbackChainHook } from './utils/callbackHooks';
 
-type CallbackValidationErrors = Array<any>;
+export type CallbackValidationErrors = Array<any>;
 
 interface CallbackPropertiesBase<N extends CollectionNameString> {
   // TODO: Many of these are empirically optional, but setting them to optional
@@ -42,7 +42,6 @@ export interface DeleteCallbackProperties<N extends CollectionNameString> extend
 
 export class CollectionMutationCallbacks<N extends CollectionNameString> {
   createValidate: CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>
-  newValidate: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>
   
   createBefore: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[CreateCallbackProperties<N>]>
   newSync: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>
@@ -71,7 +70,6 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
   constructor(collectionName: N) {
     const namePrefix = collectionName.toLowerCase();
     this.createValidate = new CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>(`${namePrefix}.create.validate`);
-    this.newValidate = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
     this.createBefore = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[CreateCallbackProperties<N>]>(`${namePrefix}.create.before`);
     this.newSync = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>(`${namePrefix}.new.sync`);
     this.createAfter = new CallbackChainHook<ObjectsByCollectionName[N],[AfterCreateCallbackProperties<N>]>(`${namePrefix}.create.after`);
