@@ -373,8 +373,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
       itemsPerPage={10}
       terms={{
         view:"reviewVoting",
-        before: `${reviewYear+1}-01-01`,
-        after: `${reviewYear}-01-01`,
+        reviewYear: reviewYear,
         limit: 3,
       }}
     >
