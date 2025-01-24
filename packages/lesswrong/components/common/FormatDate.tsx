@@ -18,7 +18,7 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   date: Date | string,
   format?: string,
   includeAgo?: boolean,
-  tooltip?: boolean,
+  tooltip?: React.ReactNode | boolean,
   /**
    * For the machine-readable (but not visible) datetime attribute that is set
    * on the <time> tag, whether to render as a full datetime or just a date
@@ -49,7 +49,11 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   );
 
   if (tooltip) {
-    return <LWTooltip title={<ExpandedDate date={date}/>}>
+    return <LWTooltip title={
+      (typeof tooltip === 'boolean'
+        ? <ExpandedDate date={date}/>
+        : tooltip)
+    }>
       {formatted}
     </LWTooltip>
   } else {
