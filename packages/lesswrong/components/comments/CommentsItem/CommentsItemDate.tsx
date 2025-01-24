@@ -56,6 +56,10 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
     position: "relative",
     top: -2,
   },
+  editedMarker: {
+    paddingLeft: 2,
+    fontSize: 12,
+  },
 }));
 
 type CommentsItemDateProps = UseCommentLinkProps & {
@@ -64,7 +68,7 @@ type CommentsItemDateProps = UseCommentLinkProps & {
 };
 
 const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsItemDateProps) => {
-  const { FormatDate, ForumIcon } = Components
+  const { FormatDate, LWTooltip } = Components
   const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
@@ -80,14 +84,16 @@ const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsIte
     dateFormat = undefined;
   }
 
-  const linkContents = (<>
+  const linkContents = (<LWTooltip
+    title={<CommentDateTooltip comment={comment}/>}
+  >
     <FormatDate
       date={comment.postedAt}
       format={dateFormat}
-      tooltip={<CommentDateTooltip comment={comment}/>}
+      tooltip={false}
     />
-    {markCommentAsEdited(comment) && "*"}
-  </>);
+    {markCommentAsEdited(comment) && <span className={classes.editedMarker}>{"*"}</span>}
+  </LWTooltip>);
   
   return (
     <span className={classNames(
