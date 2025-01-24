@@ -1484,7 +1484,7 @@ ensureIndex(Posts,
 const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
 
 // Nominations for the (≤)2020 review are determined by the number of votes
-Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+Posts.addView("reviewVotingNew", (terms: PostsViewTerms) => {
   if (!terms.reviewYear) {
     throw new Error("reviewYear is required for reviewVoting view");
   }
@@ -1514,6 +1514,11 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
     }
   }
 })
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1, tagRelevance: 1, createdAt: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);
+
 
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
