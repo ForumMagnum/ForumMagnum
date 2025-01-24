@@ -25,7 +25,7 @@ class ElasticController {
     
     const parsedBody = queryRequestSchema.safeParse(body);
     if (!parsedBody.success) {
-      res.status(400).send("Expected an array of queries");
+      res.status(400).send("Expected an array of queries or an object with options");
       return;
     }
     const parsedRequest = parsedBody.data;
@@ -39,10 +39,6 @@ class ElasticController {
       queries = body.queries;
     }
 
-    /*if (!Array.isArray(body)) {
-      res.status(400).send("Expected an array of queries");
-      return;
-    }*/
     try {
       const results = await Promise.all(queries.map(q =>
         this.searchService.runQuery(q, searchOptions)));
