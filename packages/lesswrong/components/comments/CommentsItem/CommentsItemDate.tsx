@@ -5,8 +5,14 @@ import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ExpandedDate } from '@/components/common/FormatDate';
 
-const styles = (theme: ThemeType) => ({
+// The amount of time during which you can edit a comment, without it causing
+// the comment to be marked as edited.
+const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
+
+const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI ? {
       marginLeft: 2,
@@ -50,16 +56,16 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: -2,
   },
-});
+}));
 
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
   preventDateFormatting?: boolean,
-  classes: ClassesType<typeof styles>
 };
 
-const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, ForumIcon } = Components
+  const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
   
@@ -78,7 +84,9 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
     <FormatDate
       date={comment.postedAt}
       format={dateFormat}
+      tooltip={<CommentDateTooltip comment={comment}/>}
     />
+    {markCommentAsEdited(comment) && "*"}
   </>);
   
   return (
@@ -96,9 +104,26 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
   );
 }
 
-const CommentsItemDateComponent = registerComponent(
-  'CommentsItemDate', CommentsItemDate, {styles}
-);
+const markCommentAsEdited = (comment: CommentsList): boolean => {
+  if (!comment.lastEditedAt) return false;
+  const timeBetweenPostingAndEditingMs = new Date(comment.lastEditedAt).getTime() - new Date(comment.postedAt).getTime();
+  return (timeBetweenPostingAndEditingMs > EDIT_GRACE_PERIOD);
+}
+
+const CommentDateTooltip = ({comment}: {
+  comment: CommentsList
+}) => {
+  if (markCommentAsEdited(comment) && comment.lastEditedAt) {
+    return <>
+      <div>Posted <ExpandedDate date={comment.postedAt} /></div>
+      <div>Last edited <ExpandedDate date={comment.lastEditedAt} /></div>
+    </>
+  } else {
+    return <ExpandedDate date={comment.postedAt} />
+  }
+}
+
+const CommentsItemDateComponent = registerComponent('CommentsItemDate', CommentsItemDate);
 
 declare global {
   interface ComponentTypes {
