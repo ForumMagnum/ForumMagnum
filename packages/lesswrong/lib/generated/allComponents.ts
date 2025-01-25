@@ -726,7 +726,6 @@ importComponent("RelatedQuestionsList", () => require("../../components/question
 importComponent("LWQuickTakesCollapsedListItem", () => require("../../components/quickTakes/LWQuickTakesCollapsedListItem.tsx"));
 importComponent("QuickTakesCollapsedListItem", () => require("../../components/quickTakes/QuickTakesCollapsedListItem.tsx"));
 importComponent("QuickTakesEntry", () => require("../../components/quickTakes/QuickTakesEntry.tsx"));
-importComponent("QuickTakesList", () => require("../../components/quickTakes/QuickTakesList.tsx"));
 importComponent("QuickTakesListItem", () => require("../../components/quickTakes/QuickTakesListItem.tsx"));
 importComponent("QuickTakesSection", () => require("../../components/quickTakes/QuickTakesSection.tsx"));
 importComponent("EARecentDiscussionItem", () => require("../../components/recentDiscussion/EARecentDiscussionItem.tsx"));
