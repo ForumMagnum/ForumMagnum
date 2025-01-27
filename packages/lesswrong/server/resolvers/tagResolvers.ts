@@ -14,6 +14,7 @@ import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import pick from 'lodash/pick';
+import isEmpty from 'lodash/isEmpty';
 import * as _ from 'underscore';
 import {
   defaultSubforumSorting,
@@ -168,6 +169,19 @@ addGraphQLSchema(`
     documentDeletions: [DocumentDeletion!]
   }
 `);
+
+interface TagUpdates {
+  tag: Partial<DbTag>;
+  revisionIds: string[] | null;
+  commentCount: number | null;
+  commentIds: string[] | null;
+  lastRevisedAt: Date | null;
+  lastCommentedAt: Date | null;
+  added: number | null;
+  removed: number | null;
+  users: Partial<DbUser>[] | null;
+  documentDeletions: CategorizedDeletionEvent[] | null;
+}
 
 function getRootCommentsInTimeBlockSelector(before: Date, after: Date) {
   return {
@@ -365,6 +379,18 @@ async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, su
   return deletionEventsByTagId;
 }
 
+function isTagUpdateEmpty(tagUpdate: TagUpdates) {
+  return !tagUpdate.revisionIds?.length
+      && !tagUpdate.commentCount
+      && !tagUpdate.commentIds?.length
+      && !tagUpdate.lastRevisedAt
+      && !tagUpdate.lastCommentedAt
+      && !tagUpdate.added
+      && !tagUpdate.removed
+      && !tagUpdate.users?.length
+      && !tagUpdate.documentDeletions?.length;
+}
+
 addGraphQLResolvers({
   Mutation: {
     async mergeTags(
@@ -539,7 +565,7 @@ addGraphQLResolvers({
 
       // TODO: figure out if we want to get relevant user ids based on all revisions, or just contentful ones
 
-      return tags.map(tag => {
+      const tagUpdates = tags.map(tag => {
         const relevantTagRevisions = contentfulRevisions.filter(rev=>rev.documentId===tag._id);
         const relevantLensRevisions = contentfulRevisions.filter(rev=>lensIdsByTagId[tag._id!]?.includes(rev.documentId!));
         const relevantSummaryRevisions = contentfulRevisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
@@ -564,6 +590,10 @@ addGraphQLResolvers({
           documentDeletions: relevantDocumentDeletions,
         };
       });
+      
+      // Filter out empty tag updates, which we might have because we're no longer filtering out revisions with no content changes
+      // These can happen when e.g. a tag's name is changed, since the tag update automatically creates a zero-diff revision
+      return tagUpdates.filter(tagUpdate => !isTagUpdateEmpty(tagUpdate));
     },
     
     async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
