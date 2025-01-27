@@ -23,6 +23,7 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'BRqBvkjskZ6c2G6rn', // The Upcoming PEPFAR Cut Will Kill Millions, Many of Them Children
   'bYXjejHrvq65jFL9s', // Implications of the inference scaling paradigm for AI safety
   'j5um9ZhyDCiDXaDqd', // Long-distance development policy
   'kMz9C5ExGEfqqbr3c', // Cage-free Wins in Africa in 2024
