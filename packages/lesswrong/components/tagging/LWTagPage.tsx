@@ -204,17 +204,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       borderRadius: theme.borderRadius.small * 1.5,
     },
   },
-  aboveLensTab: { //UNUSED
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    marginBottom: 4,
-    color: theme.palette.grey[400],
-    fontWeight: 700,
-    alignSelf: 'center',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
   contributorRow: {
     ...theme.typography.body1,
     color: theme.palette.grey[600],
@@ -237,19 +226,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     ...theme.typography.body2,
     color: theme.palette.grey[600],
     fontWeight: 550,
-  },
-  requirementsAndAlternatives: { //UNUSED
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '4px',
-  },
-  relationshipPill: { //UNUSED
-    textWrapMode: 'nowrap',
-    width: 'max-content',
-  },
-  alternatives: { //UNUSED
-    marginLeft: 16,
   },
   alternativeArrowIcon: {
     width: 16,
@@ -280,38 +256,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     //   transparent 100%
     // )`,
     opacity: 1,
-  },
-  subjectsContainer: { //UNUSED
-    // overflow: 'hidden',
-    display: 'flex',
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  subjectsHeader: { //UNUSED
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    marginBottom: 4,
-    color: theme.palette.grey[600],
-    minWidth: 'fit-content',
-  },
-  subjectsList: { //UNUSED
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  subject: { //UNUSED
-    textWrap: 'nowrap',
-    marginLeft: 6,
-    // If it's not the last subject, add a comma
-    '&:not(:last-child)::after': {
-      content: '","',
-    },
-  },
-  linkedTagsTitle: { //UNUSED
-    color: theme.palette.grey[600],
-    fontWeight: 550,
-    fontSize: '1.2rem',
-    marginLeft: 4,
-    display: 'inline',
   },
   tocContributors: {
     display: 'flex',
@@ -440,13 +384,6 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
     changeCallback={changeCallback}
     cancelCallback={cancelCallback}
   />
-}
-
-function htmlNodeListToArray(nodes: NodeList): Node[] {
-  let ret: Node[] = [];
-  for (let i=0; i<nodes.length; i++)
-    ret.push(nodes.item(i)!);
-  return ret;
 }
 
 const pathDescriptions = {
