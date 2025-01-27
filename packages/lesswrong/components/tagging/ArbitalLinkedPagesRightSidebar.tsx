@@ -7,6 +7,33 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
+  rightColumn: {
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    },
+    width: 300,
+    '&:hover': {
+      '& $rightColumnOverflowFade': {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+    paddingRight: 30,
+  },
+  rightColumnContent: {},
+  rightColumnOverflowFade: {
+    position: "relative",
+    zIndex: 2,
+    height: 140,
+    width: "100%",
+    // background: `linear-gradient(0deg, 
+    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
+    //   ${theme.palette.panelBackground.translucent} 70%,
+    //   transparent 100%
+    // )`,
+    opacity: 1,
+  },
+
   linkedTagsHeader: {
     position: 'relative',
     fontSize: '1.0rem',
@@ -23,14 +50,7 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
     },
     marginTop: -8,
   },
-  linkedTagsList: {
-    display: 'block',
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    zIndex: 1,
-    width: '100%',
-  },
+  linkedTagsList: {},
   linkedTagsSection: {
     marginBottom: 20,
   },
@@ -137,6 +157,20 @@ interface ArbitalLinkedPage {
   _id: string,
   name: string,
   slug: string,
+}
+
+const LWTagPageRightColumn = ({tag, selectedLens}: {
+  tag: TagPageFragment
+  selectedLens: TagLens,
+}) => {
+  const classes = useStyles(styles);
+
+  return <div className={classes.rightColumn}>
+    <div className={classes.rightColumnContent}>
+      <Components.SideItemsSidebar/>
+    </div>
+    {/*<div className={classes.rightColumnOverflowFade} />*/}
+  </div>
 }
 
 const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
@@ -309,12 +343,14 @@ function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] 
 }
 
 
+const LWTagPageRightColumnComponent = registerComponent('LWTagPageRightColumn', LWTagPageRightColumn);
 const ArbitalLinkedPagesRightSidebarComponent = registerComponent('ArbitalLinkedPagesRightSidebar', ArbitalLinkedPagesRightSidebar);
 const ArbitalRelationshipsSmallScreenComponent = registerComponent('ArbitalRelationshipsSmallScreen', ArbitalRelationshipsSmallScreen);
 const ParentsAndChildrenSmallScreenComponent = registerComponent('ParentsAndChildrenSmallScreen', ParentsAndChildrenSmallScreen);
 
 declare global {
   interface ComponentTypes {
+    LWTagPageRightColumn: typeof LWTagPageRightColumnComponent
     ArbitalLinkedPagesRightSidebar: typeof ArbitalLinkedPagesRightSidebarComponent
     ArbitalRelationshipsSmallScreen: typeof ArbitalRelationshipsSmallScreenComponent
     ParentsAndChildrenSmallScreen: typeof ParentsAndChildrenSmallScreenComponent

@@ -231,32 +231,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     width: 16,
     height: 16,
   },
-  rightColumn: {
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-    width: 300,
-    '&:hover': {
-      '& $rightColumnOverflowFade': {
-        opacity: 0,
-        pointerEvents: 'none',
-      },
-    },
-    paddingRight: 30,
-  },
-  rightColumnContent: {},
-  rightColumnOverflowFade: {
-    position: "relative",
-    zIndex: 2,
-    height: 140,
-    width: "100%",
-    // background: `linear-gradient(0deg, 
-    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
-    //   ${theme.palette.panelBackground.translucent} 70%,
-    //   transparent 100%
-    // )`,
-    opacity: 1,
-  },
   tocContributors: {
     display: 'flex',
     flexDirection: 'column',
@@ -567,7 +541,7 @@ const LWTagPage = () => {
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, ContentStyles, CommentsListCondensed,
     MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    PathInfo, ArbitalLinkedPagesRightSidebar, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
+    PathInfo, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
   } = Components;
   const classes = useStyles(styles);
 
@@ -812,6 +786,9 @@ const LWTagPage = () => {
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
+        <Components.SideItem>
+          <Components.ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+        </Components.SideItem>
         { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
@@ -972,14 +949,6 @@ const LWTagPage = () => {
     </div>
   );
 
-  const rightColumn = (<div className={classes.rightColumn}>
-    <div className={classes.rightColumnContent}>
-      <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
-      <Components.SideItemsSidebar/>
-    </div>
-    <div className={classes.rightColumnOverflowFade} />
-  </div>);
-
   const multiColumnToc = (
     <MultiToCLayout
       segments={[
@@ -992,7 +961,7 @@ const LWTagPage = () => {
         },
         {
           centralColumn: tagBodySection,
-          rightColumn
+          rightColumn: <LWTagPageRightColumn tag={tag} selectedLens={selectedLens}/>
         },
         {
           centralColumn: tagPostsAndCommentsSection,
