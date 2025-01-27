@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -33,6 +33,9 @@ import HistoryIcon from '@material-ui/icons/History';
 import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
+import type { ContentItemBody } from "../common/ContentItemBody";
+import { useVote } from "../votes/withVote";
+import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -1186,13 +1189,7 @@ const LWTagPage = () => {
           }}
         >
           <ContentStyles contentType="tag">
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description||"<em>This page is a stub.</em>"}}
-              description={`tag ${tag.name}`}
-              className={classes.description}
-              onContentReady={initializeRadioHandlers}
-            />
-            <PathInfo tag={tag} lens={selectedLens ?? null} />
+            <TagOrLensBody tag={tag} selectedLens={selectedLens} description={description}/>
           </ContentStyles>
         </div>
       </AnalyticsContext>
@@ -1339,6 +1336,7 @@ const LWTagPage = () => {
   const rightColumn = (<div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
       <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+      <Components.SideItemsSidebar/>
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);
@@ -1400,10 +1398,54 @@ const LWTagPage = () => {
           refetchTag={refetchTag}
           updateSelectedLens={updateSelectedLens}
         />
-        {multiColumnToc}
+        <Components.SideItemsContainer>
+          {multiColumnToc}
+        </Components.SideItemsContainer>
       </div>
     </TagPageContext.Provider>
   </AnalyticsContext>
+}
+
+const TagOrLensBody = ({tag, selectedLens, description}: {
+  tag: TagPageFragment,
+  selectedLens: TagLens|undefined,
+  description: string,
+}) => {
+  const { ContentItemBody, InlineReactSelectionWrapper, HoveredReactionContextProvider, PathInfo } = Components;
+  const classes = useStyles(styles);
+
+  const contentRef = useRef<ContentItemBody>(null);
+  const votingSystem = getVotingSystemByName("reactionsAndLikes");
+  const mainLensIsSelected = !selectedLens || selectedLens?._id === 'main-tab';
+  const voteProps = useVote(
+    mainLensIsSelected ? tag : selectedLens,
+    mainLensIsSelected ? "Tags" : "MultiDocuments",
+    votingSystem
+  );
+  const inlineReactHighlights = votingSystem.getTagOrLensHighlights?.({
+    tagOrLens: selectedLens ?? tag,
+    voteProps
+  });
+
+  return <HoveredReactionContextProvider voteProps={voteProps}>
+    <InlineReactSelectionWrapper
+      voteProps={voteProps}
+      contentRef={contentRef}
+      styling="tag"
+    >
+      <>
+        <ContentItemBody
+          ref={contentRef}
+          dangerouslySetInnerHTML={{__html: description||"<em>This page is a stub.</em>"}}
+          description={`tag ${tag.name}`}
+          className={classes.description}
+          replacedSubstrings={inlineReactHighlights}
+          onContentReady={initializeRadioHandlers}
+        />
+        <PathInfo tag={tag} lens={selectedLens ?? null} />
+      </>
+    </InlineReactSelectionWrapper>
+  </HoveredReactionContextProvider>
 }
 
 const LWTagPageComponent = registerComponent("LWTagPage", LWTagPage);
