@@ -161,7 +161,7 @@ interface ArbitalLinkedPage {
 
 const LWTagPageRightColumn = ({tag, selectedLens}: {
   tag: TagPageFragment
-  selectedLens: TagLens,
+  selectedLens: TagLens|undefined,
 }) => {
   const classes = useStyles(styles);
 
@@ -169,7 +169,6 @@ const LWTagPageRightColumn = ({tag, selectedLens}: {
     <div className={classes.rightColumnContent}>
       <Components.SideItemsSidebar/>
     </div>
-    {/*<div className={classes.rightColumnOverflowFade} />*/}
   </div>
 }
 
