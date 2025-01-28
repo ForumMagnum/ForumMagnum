@@ -23,6 +23,7 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import classNames from 'classnames';
+import { randomId } from '@/lib/random';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -155,6 +156,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   if (!pageMarkdown) return "";
   const { slugsByPageId, titlesByPageId, pageInfosByPageId, domainsByPageId } = conversionContext;
   const { ForumIcon } = Components;
+  const footnotes: Array<{
+    footnoteId: string
+    contentsHtml: string
+  }> = [];
   //var that = this;
 
   // Store an array of page aliases that failed to load, so that we don't keep trying to reload them
@@ -616,11 +621,19 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var noteSpanRegexp = new RegExp(notEscaped + '(%+)note: ?([\\s\\S]+?)\\2', 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(noteSpanRegexp, function(whole, prefix, bars, markdown) {
-        // TODO
-        if (isEditor) {
+        /*if (isEditor) {
           return prefix + '<span class=\'conditional-text\'>' + markdown + '</span>';
         }
-        return prefix + '<span class=\'markdown-note\' arb-text-popover-anchor>' + markdown + '</span>';
+        return prefix + '<span class=\'markdown-note\' arb-text-popover-anchor>' + markdown + '</span>';*/
+
+        const footnoteId = randomId();
+        const footnoteIndex = footnotes.length+1;
+        footnotes.push({
+          footnoteId,
+          contentsHtml: markdown,
+        });
+        const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteIndex}]`);
+        return `<sup class="footnote-ref"><a href="#fn-${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup>`;
       });
     });
 
@@ -975,7 +988,17 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     pageMarkdown = pageMarkdown + "\n\n%start-path(["+pageId+"])%";
   }
   
-  const html = converter.makeHtml(pageMarkdown);
+  let html = converter.makeHtml(pageMarkdown);
+  
+  if (footnotes.length > 0) {
+    html += `<section class="footnotes"><ol class="footnotes-list">`;
+    for (const footnote of footnotes) {
+      const returnLinkHtml = `<a href="#fnref-${footnote.footnoteId}">↩︎</a>`;
+      html += `<li id="fn-${footnote.footnoteId}" class="footnote-item"><p>${footnote.contentsHtml}${returnLinkHtml}</p></li>`;
+    }
+    html += `</ol></section>`;
+  }
+  
   try {
     const {html: htmlWithImagesMoved} = await convertImagesInHTML(html, "arbital", ()=>true, conversionContext.imageUrlsCache);
     return htmlWithImagesMoved;
@@ -995,7 +1018,7 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
   }
   
   // Next, encode the LaTeX string to protect it from subsequent markdown
-  // processig. Without this, things like brackets inside of LaTeX strings
+  // processing. Without this, things like brackets inside of LaTeX strings
   // would get interpreted as links and get replaced with <a> tags, which of
   // course makes them unsuitable for feeding into mathjax.
   // We use an Arbital-specific janky escaping system, where a character can
@@ -1003,14 +1026,18 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
   // matches the behavior of `escapeCharacters_callback` in
   // Markdown.Converter.ts. This escaping will be undone later by
   // `converter.makeHtml`.
-  const encodedLatex = latex.replace(/[^a-zA-Z0-9]/g, (ch) => {
-    return "~E" + ch.charCodeAt(0) + "E";
-  });
+  const encodedLatex = encodeToPreventFurtherMarkdownProcessing(latex);
   
   if (inline)
     return `<span class="math-tex">\\\\(${encodedLatex}\\\\)</span>`;
   else
     return `<span class="math-tex">\\\\[${encodedLatex}\\\\]</span>`;
+}
+
+const encodeToPreventFurtherMarkdownProcessing = (s: string): string => {
+  return s.replace(/[^a-zA-Z0-9]/g, (ch) => {
+    return "~E" + ch.charCodeAt(0) + "E";
+  });
 }
 
 function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings, contentsHtml: string) {
