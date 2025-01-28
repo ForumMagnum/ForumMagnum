@@ -195,14 +195,16 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
         </SectionTitle>
 
         <AnalyticsContext pageSectionContext="tagFilterSettings">
-          <div className={classNames({
-            [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-            [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-          })}>
-            <TagFilterSettings
-              filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
-            />
-          </div>
+          {(filterSettingsVisibleDesktop || filterSettingsVisibleMobile) && (
+            <div className={classNames({
+              [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+              [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+            })}>
+              <TagFilterSettings
+                filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+              />
+            </div>
+          )}
         </AnalyticsContext>
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
