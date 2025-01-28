@@ -256,9 +256,6 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
-      biography {
-        ...RevisionDisplay
-      }
       profileImageId
       
       # Author moderation info
