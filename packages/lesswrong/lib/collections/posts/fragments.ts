@@ -290,7 +290,7 @@ registerFragment(`
       ...CommentsList
     }
     tags {
-      ...TagPreviewFragment
+      ...TagBasicInfo
     }
     socialPreviewData {
       _id
@@ -354,6 +354,9 @@ registerFragment(`
     canonicalSource
     noIndex
     viewCount
+    tags {
+      ...TagPreviewFragment
+    }
     socialPreviewData {
       _id
       text
