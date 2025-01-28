@@ -19,7 +19,7 @@ export type SelectedTag = {
   parentTagId?: string,
 };
 
-export type QuickTakesTag = ChecklistTag | TagFragment;
+export type QuickTakesTag = ChecklistTag | TagPreviewFragment;
 
 export type QuickTakesTags = {
   loading: true,
@@ -56,7 +56,7 @@ export const useQuickTakesTags = (initialSelectedTagIds: string[] = []): QuickTa
       view: "coreAndSubforumTags",
     },
     collectionName: "Tags",
-    fragmentName: "TagFragment",
+    fragmentName: "TagPreviewFragment",
     limit: 100,
   });
 
