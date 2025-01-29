@@ -52,7 +52,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
     }
   }, [truncatedHtml]);
 
-  const showSuffix = (wasTruncated || hasHeightLimit);
+  const showSuffix = (wasTruncated || (hasHeightLimit && !expanded));
 
   return <>
     <div
