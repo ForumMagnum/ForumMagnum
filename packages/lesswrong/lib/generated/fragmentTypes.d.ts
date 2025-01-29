@@ -2343,6 +2343,18 @@ interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment 
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
 }
 
+interface reviewAdminDashboard { // fragment on ReviewVotes
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: reviewAdminDashboard_user|null,
+}
+
+interface reviewAdminDashboard_user { // fragment on Users
+  readonly displayName: string,
+  readonly karma: number,
+}
+
 interface localGroupsBase { // fragment on Localgroups
   readonly _id: string,
   readonly createdAt: Date,
@@ -4421,6 +4433,7 @@ interface FragmentTypes {
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
   reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
+  reviewAdminDashboard: reviewAdminDashboard
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
@@ -4626,7 +4639,7 @@ interface FragmentTypesByCollection {
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
-  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"|"reviewAdminDashboard"
   AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
@@ -4789,6 +4802,7 @@ interface CollectionNamesByFragmentName {
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
   reviewVoteWithUserAndPost: "ReviewVotes"
+  reviewAdminDashboard: "ReviewVotes"
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"

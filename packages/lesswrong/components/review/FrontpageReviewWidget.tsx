@@ -405,6 +405,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
               <SettingsButton showIcon={false} label={`What is this?`}/>
             </Link>
           </LWTooltip>}
+          {!showFrontpageItems && currentUser?.isAdmin && <Link to={`/reviewAdmin/${reviewYear}`}><SettingsButton showIcon={false} label={`Admin Dashboard`}/></Link>}
         </SectionTitle>
 
         {reviewTimeline}

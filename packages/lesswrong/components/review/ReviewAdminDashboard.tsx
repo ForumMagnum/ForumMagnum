@@ -6,7 +6,6 @@ import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useLocation } from '../../lib/routeUtil';
-import { getUserEmail } from "../../lib/collections/users/helpers";
 
 
 const styles = (theme: ThemeType) => ({
@@ -42,18 +41,18 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
 
   // TODO: fix the bug where for some reason this doesn't work for 2020 votes
   const { results: votes, loading: votesLoading } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 2800, year: year},
+    terms: {view: "reviewVotesAdminDashboard", limit: 10000, year: year},
     collectionName: "ReviewVotes",
-    fragmentName: "reviewVoteWithUserAndPost",
+    fragmentName: "reviewAdminDashboard",
     fetchPolicy: 'network-only',
   })
 
-  const { results: users, loading: usersLoading } = useMulti({
-    terms: {view: "reviewAdminUsers", limit: 500},
-    collectionName: "Users",
-    fragmentName: "UsersWithReviewInfo",
-    fetchPolicy: 'network-only'
-  })
+  // const { results: users, loading: usersLoading } = useMulti({
+  //   terms: {view: "reviewAdminUsers", limit: 500},
+  //   collectionName: "Users",
+  //   fragmentName: "UsersWithReviewInfo",
+  //   fetchPolicy: 'network-only'
+  // })
 
   if (!userIsAdmin(currentUser)) {
     return <Error404/>
@@ -81,9 +80,6 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
         <PostsItemMetaInfo className={classes.author}>
           <b>Username</b>
         </PostsItemMetaInfo>
-        <PostsItemMetaInfo className={classes.author}>
-          <b>Email</b>
-        </PostsItemMetaInfo>
       </div>
       <p><i>Users with at least 1 vote</i></p>
       {votes && userRows.map((userRow, i) => {
@@ -101,12 +97,9 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
           <PostsItemMetaInfo className={classes.author}>
             {userRow[1][0].user?.displayName}
           </PostsItemMetaInfo>
-          <PostsItemMetaInfo className={classes.author}>
-            {getUserEmail(userRow[1][0].user)}
-          </PostsItemMetaInfo>
         </div>
       })}
-      <p><i>1000+ karma users</i></p>
+      {/* <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
       {users && users.map((user, i) => {
         return <div key={user._id} className={classes.voteItem}>
@@ -122,11 +115,8 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
           <PostsItemMetaInfo className={classes.author}>
             <UsersNameDisplay user={user}/>
           </PostsItemMetaInfo>
-          <PostsItemMetaInfo className={classes.author}>
-            {user.email} 
-          </PostsItemMetaInfo>
         </div>
-      })}
+      })} */}
     </div>
 
     <div>
