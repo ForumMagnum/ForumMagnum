@@ -133,7 +133,7 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
 
     <div>
       <Typography variant="display1">All Votes ({totalCount})</Typography>
-      {totalCount > 5000 && <p><em>Only showing first 5000</em></p>}
+      {totalCount && totalCount > 5000 && <p><em>Only showing first 5000</em></p>}
       <br/>
       {votesLoading && <Loading/>}
       <div className={classes.voteItem} >
