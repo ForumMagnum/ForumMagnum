@@ -158,10 +158,11 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
 }));
 
-const LensTabBar = ({lenses, selectedLens, switchLens}: {
+const LensTabBar = ({lenses, selectedLens, switchLens, getSelectedLensUrlPath}: {
   lenses: TagLens[],
   selectedLens: TagLens|undefined,
   switchLens: (lensId: string) => void,
+  getSelectedLensUrlPath: (lensId: string) => string,
 }) => {
   const classes = useStyles(styles);
   if (!(lenses.length > 1)) return null;
@@ -186,15 +187,17 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
       value={lens._id}
       lens={lens}
       isSelected={selectedLens?._id === lens._id}
+      getSelectedLensUrlPath={getSelectedLensUrlPath}
     />)}
   </Tabs>
 }
 
 // We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
-const LensTab = ({ lens, value, isSelected, ...tabProps }: {
+const LensTab = ({ lens, value, isSelected, getSelectedLensUrlPath, onClick, onChange, ...tabProps }: {
   lens: TagLens,
   value: string
   isSelected: boolean,
+  getSelectedLensUrlPath: (lensId: string) => string,
 }
   & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>
 ) => {
@@ -210,17 +213,41 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
     <TagOrLensLikeButton lens={lens} isSelected={isSelected} className={classes.likeButton}/>
   </div>;
   
+  // In the case where the user is cmd-clicking to open a link in a new tab (or doing something other than just clicking), we want to prevent the tab from being selected
+  // The way we accomplish this is by wrapping the tab in an anchor tag, and then checking if the click was a special click (cmd-click, shift-click, etc.)
+  // If it was, we let the click event propagate to the anchor tag as normal, while not passing the tab's onChange and onClick handlers to it, to avoid the tab being selected
+  // Otherwise (if it was a regular click), we stop the click event from propagating to prevent it from reaching the anchor tag and manually call the tab's onChange and onClick handlers
+  // This is pretty dumb and we should probably just rewrite lens tabs to not use MUI's Tab/Tabs.
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const specialClick = e.ctrlKey || e.shiftKey || e.metaKey || e.altKey || e.button !== 0;
+    if (specialClick) {
+      return;
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+    const fakeChangeEvent: React.ChangeEvent<{ checked: boolean }> = {
+      ...e,
+      target: { ...e.target, checked: false },
+      currentTarget: { ...e.currentTarget, checked: false }
+    };
+    onChange?.(fakeChangeEvent, value);
+    onClick?.(e);
+  };
 
   return (
-    <div className={classes.lensTabContainer}>
-      <Tab
-        className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-        value={value}
-        label={label}
-        classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
-        {...tabProps}
-      ></Tab>
-    </div>
+    <a href={getSelectedLensUrlPath(lens._id)}>
+      <div className={classes.lensTabContainer}>
+        <Tab
+          className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
+          value={value}
+          label={label}
+          classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
+          {...tabProps}
+          onClick={handleClick}
+        ></Tab>
+      </div>
+    </a>
   );
 };
 

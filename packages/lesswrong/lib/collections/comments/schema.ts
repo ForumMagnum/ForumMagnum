@@ -65,6 +65,18 @@ const schema: SchemaType<"Comments"> = {
     onInsert: (document, currentUser) => new Date(),
     nullable: false
   },
+  lastEditedAt: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    nullable: true,
+    onCreate: () => new Date(),
+    onUpdate: ({oldDocument, newDocument}) => {
+      if (oldDocument.contents?.html !== newDocument.contents?.html) {
+        return new Date();
+      }
+    }
+  },
   // The comment author's name
   author: {
     type: String,

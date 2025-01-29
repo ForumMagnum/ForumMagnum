@@ -8,11 +8,17 @@ export type PingbackDocument = {
   documentId: string,
 };
 
+export interface SegmentedUrl {
+  pathname: string
+  search: string
+  hash: string
+}
+
 export type RouterLocation = {
   // Null in 404
   currentRoute: Route|null,
   RouteComponent: any,
-  location: any,
+  location: SegmentedUrl,
   pathname: string,
   url: string,
   hash: string,

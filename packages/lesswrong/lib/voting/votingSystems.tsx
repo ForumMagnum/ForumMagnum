@@ -12,6 +12,7 @@ import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import { isEAForum } from '../instanceSettings';
+import { TagLens } from '../arbital/useTagLenses';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo|TagBasicInfo|ConceptItemFragment
 
@@ -70,6 +71,10 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   }) => ContentReplacedSubstringComponentInfo[]
   getPostHighlights?: (props: {
     post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => ContentReplacedSubstringComponentInfo[]
+  getTagOrLensHighlights?: (props: {
+    tagOrLens: TagLens|TagPageFragment,
     voteProps: VotingProps<VoteableTypeClient>
   }) => ContentReplacedSubstringComponentInfo[]
 }
