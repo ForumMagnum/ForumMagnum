@@ -364,9 +364,6 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     };
   }
   configureSentryScope(requestContext);
-  if (performanceMetricLoggingEnabled.get()) {
-    setAsyncStoreValue('resolverContext', requestContext);
-  }
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side

@@ -809,7 +809,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
-          {lightconeFundraiserActive.get() && (post._id === '5n2ZQcbc7r4R8mvqc') &&
+          {(post._id === '5n2ZQcbc7r4R8mvqc') &&
             <FundraisingThermometer onPost />}
         </div>
       </div>
