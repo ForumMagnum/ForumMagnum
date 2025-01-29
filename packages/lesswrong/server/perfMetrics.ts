@@ -10,7 +10,6 @@ import { getClientIP } from './utils/getClientIP';
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
-  resolverContext?: ResolverContext;
   requestPerfMetric?: IncompletePerfMetric;
   inDbRepoMethod?: boolean;
 }
