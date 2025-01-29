@@ -1,6 +1,6 @@
 import { getCollection } from '@/lib/vulcan-lib';
 import moment from 'moment';
-import { randomId } from '@/lib/random';
+import { randomLowercaseId } from '@/lib/random';
 import { isServer } from '@/lib/executionEnvironment';
 
 // Get relative link to conversation (used only in session)
@@ -72,7 +72,7 @@ export const getUnusedSlug = async function <N extends CollectionNameWithSlug>(
     if (index <= 10) {
       suffix = '-'+index;
     } else {
-      const randomIndex = randomId(index<20 ? 4 : 8);
+      const randomIndex = randomLowercaseId(index<20 ? 4 : 8);
       suffix = '-'+randomIndex;
     }
   }
