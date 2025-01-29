@@ -128,8 +128,11 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
   '& .SubmitToFrontpageCheckbox-submitToFrontpageWrapper': {
     display: 'none',
   },
-  '& .PostsNewForm-formSubmit, & .PostsEditForm-formSubmit': {
-    display: 'none',
+  '& .PostSubmit-submitButtons': {
+    justifyContent: 'flex-end',
+    '& button:last-child': {
+      display: 'none',
+    },
   },
 
   '& .FormGroupPostTopBar-tabs': {

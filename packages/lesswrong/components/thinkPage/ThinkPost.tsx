@@ -20,6 +20,14 @@ import { useDisplayGlossary } from '../posts/PostsPage/PostBody';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import { PostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
+const formContainerStyles = (theme: ThemeType) => ({
+  maxWidth: 715,
+  width: '100%',
+  ...postFormSectionStyles(theme),
+  marginLeft: "auto",
+  marginRight: "auto",
+});
+
 const styles = (theme: ThemeType) => ({
   title: {
     marginBottom: theme.spacing.unit * 4
@@ -52,14 +60,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   formContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    maxWidth: 715,
-    width: '100%',
-    ...postFormSectionStyles(theme),
-    marginLeft: "auto",
-    marginRight: "auto",
+    ...formContainerStyles(theme),
   }
 });
 

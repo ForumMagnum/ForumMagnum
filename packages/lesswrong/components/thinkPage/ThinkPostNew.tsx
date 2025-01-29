@@ -2,10 +2,15 @@
 import React from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
+import { postFormSectionStyles } from './ThinkWrapper';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
+  formContainer: {
+    maxWidth: 715,
+    width: '100%',
+    ...postFormSectionStyles(theme),
+    marginLeft: "auto",
+    marginRight: "auto",
   }
 });
 
@@ -17,7 +22,9 @@ export const ThinkPostNew = ({classes}: {
   const { PostsNewForm, ThinkWrapper } = Components;
 
   return <ThinkWrapper>
-    <PostsNewForm showTableOfContents={false} />
+    <div className={classes.formContainer}> 
+      <PostsNewForm showTableOfContents={false} />
+    </div>
   </ThinkWrapper>
 }
 
