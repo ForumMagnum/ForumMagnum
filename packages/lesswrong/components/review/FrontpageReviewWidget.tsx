@@ -372,7 +372,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <PostsList2 
       itemsPerPage={10}
       terms={{
-        view:"reviewVotingNew",
+        view:"frontpageReviewWidget",
         reviewYear: reviewYear,
         limit: 3,
       }}

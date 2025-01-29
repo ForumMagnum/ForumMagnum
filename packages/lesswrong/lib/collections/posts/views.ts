@@ -1484,7 +1484,30 @@ ensureIndex(Posts,
 const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
 
 // Nominations for the (≤)2020 review are determined by the number of votes
-Posts.addView("reviewVotingNew", (terms: PostsViewTerms) => {
+Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      $or: [{[`tagRelevance.${longformReviewTagId}`]: {$gte: 1}}, {positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) }}],
+      _id: { $nin: reviewExcludedPostIds }
+    },
+    options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        lastCommentedAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1, tagRelevance: 1, createdAt: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);
+
+Posts.addView("frontpageReviewWidget", (terms: PostsViewTerms) => {
   if (!terms.reviewYear) {
     throw new Error("reviewYear is required for reviewVoting view");
   }
@@ -1514,10 +1537,6 @@ Posts.addView("reviewVotingNew", (terms: PostsViewTerms) => {
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1, tagRelevance: 1, createdAt: 1 }),
-  { name: "posts.positiveReviewVoteCount", }
-);
 
 
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
