@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import merge from 'lodash/merge';
 
 // 'Maximum documents per request'
-const maxDocumentsPerRequestSetting = 10000 //new DatabasePublicSetting<number>('maxDocumentsPerRequest', 10000)
+const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
 
 /**
  * Given a view (which gets translated into a mongo query), provide a string

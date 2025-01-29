@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import groupBy from 'lodash/groupBy';
@@ -38,13 +38,16 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()
+  
+  const [sortField, setSortField] = useState('votes');
 
   // TODO: fix the bug where for some reason this doesn't work for 2020 votes
-  const { results: votes, loading: votesLoading } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 10000, year: year},
+  const { results: votes, loading: votesLoading, totalCount } = useMulti({
+    terms: {view: "reviewVotesAdminDashboard", limit: 5000, year: year},
     collectionName: "ReviewVotes",
     fragmentName: "reviewAdminDashboard",
     fetchPolicy: 'network-only',
+    enableTotal: true
   })
 
   // const { results: users, loading: usersLoading } = useMulti({
@@ -60,7 +63,16 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
 
   const userRows = sortBy(
     Object.entries(groupBy(votes, (vote) => vote.userId)),
-    obj => -obj[1].length
+    obj => {
+      const user = obj[1][0].user;
+      if (sortField === 'votes') {
+        return -obj[1].length;
+      } else if (sortField === 'karma') {
+        return -(user?.karma || 0);
+      } else {
+        return 0;
+      }
+    }
   ) 
 
   return <div className={classes.root}>
@@ -72,10 +84,10 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
           <b>Count</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
-          <b>Votes</b>
+          <b onClick={() => setSortField('votes')}><a>Votes</a></b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
-          <b>Karma</b>
+          <b onClick={() => setSortField('karma')}><a>Karma</a></b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.author}>
           <b>Username</b>
@@ -120,7 +132,8 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
     </div>
 
     <div>
-      <Typography variant="display1">All Votes ({votes?.length})</Typography>
+      <Typography variant="display1">All Votes ({totalCount})</Typography>
+      {totalCount > 5000 && <p><em>Only showing first 5000</em></p>}
       <br/>
       {votesLoading && <Loading/>}
       <div className={classes.voteItem} >
