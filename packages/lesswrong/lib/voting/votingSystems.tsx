@@ -14,7 +14,7 @@ import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../
 import { isEAForum } from '../instanceSettings';
 import { TagLens } from '../arbital/useTagLenses';
 
-export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
+export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo|TagBasicInfo|ConceptItemFragment
 
 export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
   document: T,
