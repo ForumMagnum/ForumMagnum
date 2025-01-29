@@ -62,7 +62,7 @@ type EmbeddingsResult = {
  * actually encoding length. In the vast majority of cases, no more than 2
  * iterations of the loop should be necessary.
  */
-const trimText = (
+export const trimText = (
   text: string,
   model: TiktokenModel,
   maxTokens: number,

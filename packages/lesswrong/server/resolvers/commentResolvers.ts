@@ -1,7 +1,7 @@
 import {addGraphQLMutation, addGraphQLResolvers} from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
-import { accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
@@ -9,6 +9,8 @@ import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { fetchFragmentSingle } from '../fetchFragment';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import { getEmbeddingsFromApi } from '../commentEmbeddings';
 
 const specificResolvers = {
   Mutation: {
@@ -82,6 +84,30 @@ createPaginatedResolver({
   },
   cacheMaxAgeMs: 300000, // 5 mins
 });
+
+// const COMMENT_SEARCH_EMBEDDING_CACHE: Record<string, number[]> = {};
+
+defineQuery({
+  name: "CommentEmbeddingSearch",
+  resultType: "[Comment]",
+  argTypes: "(query: String!, scoreBias: Float)",
+  fn: async (root, args: { query: string, scoreBias: number | null }, context) => {
+    const { repos } = context;
+    const { query, scoreBias } = args;
+    // TODO: figure out what we want to do about caching or long-term storage of query embeddings
+    // const cachedEmbeddings = COMMENT_SEARCH_EMBEDDING_CACHE[query];
+    const { embeddings } = await getEmbeddingsFromApi(query, 'query');
+
+    // cachedEmbeddings
+    //   ? { embeddings: cachedEmbeddings }
+    //   : await getEmbeddingsFromApi(query);
+
+    // COMMENT_SEARCH_EMBEDDING_CACHE[query] = embeddings;
+
+    const comments = await repos.commentEmbeddings.searchCommentsByEmbedding(embeddings, { scoreBias: scoreBias ?? 0 });
+    return await accessFilterMultiple(context.currentUser, context.Comments, comments, context);
+  }
+})
 
 type TopicRecommendation = {
   comment: DbComment,

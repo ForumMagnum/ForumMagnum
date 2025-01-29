@@ -121,6 +121,19 @@ interface DbCollection extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type CommentEmbeddingsCollection = CollectionBase<"CommentEmbeddings">;
+
+interface DbCommentEmbedding extends DbObject {
+  __collectionName?: "CommentEmbeddings"
+  commentId: string
+  commentHash: string
+  lastGeneratedAt: Date
+  model: string
+  embeddings: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type CommentModeratorActionsCollection = CollectionBase<"CommentModeratorActions">;
 
 interface DbCommentModeratorAction extends DbObject {
@@ -2012,6 +2025,7 @@ interface CollectionsByName {
   CkEditorUserSessions: CkEditorUserSessionsCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
+  CommentEmbeddings: CommentEmbeddingsCollection
   CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -2099,6 +2113,7 @@ interface ObjectsByCollectionName {
   CkEditorUserSessions: DbCkEditorUserSession
   ClientIds: DbClientId
   Collections: DbCollection
+  CommentEmbeddings: DbCommentEmbedding
   CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
@@ -2186,6 +2201,7 @@ interface ObjectsByTypeName {
   CkEditorUserSession: DbCkEditorUserSession
   ClientId: DbClientId
   Collection: DbCollection
+  CommentEmbedding: DbCommentEmbedding
   CommentModeratorAction: DbCommentModeratorAction
   Comment: DbComment
   Conversation: DbConversation

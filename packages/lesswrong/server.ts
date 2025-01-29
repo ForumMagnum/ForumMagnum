@@ -220,6 +220,7 @@ import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 import './server/embeddings';
+import './server/commentEmbeddings';
 
 // EA Forum wrapped
 import './server/wrapped/sendWrappedNotifications';

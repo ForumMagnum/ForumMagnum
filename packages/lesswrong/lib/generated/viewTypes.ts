@@ -6,6 +6,7 @@ type ChaptersViewName = "SequenceChapters";
 type CkEditorUserSessionsViewName = never
 type ClientIdsViewName = "getClientId";
 type CollectionsViewName = never
+type CommentEmbeddingsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
 type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"checkedByModGPT"|"postCommentsTop"|"postCommentsRecentReplies"|"postCommentsMagic"|"afPostCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"profileRecentComments"|"profileComments"|"allRecentComments"|"recentComments"|"afSubmissions"|"rejected"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"defaultModeratorResponses"|"repliesToAnswer"|"answersAndReplies"|"topShortform"|"shortform"|"shortformFrontpage"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"reviews"|"tagDiscussionComments"|"tagSubforumComments"|"latestSubforumDiscussion"|"moderatorComments"|"debateResponses"|"recentDebateResponses"|"forumEventComments"|"alignmentSuggestedComments"|"rss";
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
@@ -92,6 +93,7 @@ interface ViewTermsByCollectionName {
   CkEditorUserSessions: ViewTermsBase
   ClientIds: ClientIdsViewTerms
   Collections: CollectionsViewTerms
+  CommentEmbeddings: ViewTermsBase
   CommentModeratorActions: CommentModeratorActionsViewTerms
   Comments: CommentsViewTerms
   Conversations: ConversationsViewTerms

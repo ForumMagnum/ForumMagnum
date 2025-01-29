@@ -1053,6 +1053,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: "All Comments with Reacts"
     },
     {
+      name: 'Comment Embedding Search',
+      path: '/commentEmbeddingSearch',
+      componentName: 'CommentEmbeddingSearchPage',
+      title: "Comment Embedding Search"
+    },
+    {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',

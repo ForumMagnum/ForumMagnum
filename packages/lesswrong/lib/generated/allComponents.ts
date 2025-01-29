@@ -51,6 +51,7 @@ importComponent("CollectionsTooltip", () => require("../../components/collection
 importComponent("AllComments", () => require("../../components/comments/AllComments.tsx"));
 importComponent("CantCommentExplanation", () => require("../../components/comments/CantCommentExplanation.tsx"));
 importComponent("CommentById", () => require("../../components/comments/CommentById.tsx"));
+importComponent("CommentEmbeddingSearchPage", () => require("../../components/comments/CommentEmbeddingSearchPage.tsx"));
 importComponent("CommentFrame", () => require("../../components/comments/CommentFrame.tsx"));
 importComponent("CommentOnPostWithReplies", () => require("../../components/comments/CommentOnPostWithReplies.tsx"));
 importComponent(["CommentOnSelectionPageWrapper", "SelectedTextToolbar", "CommentOnSelectionContentWrapper"], () => require("../../components/comments/CommentOnSelection.tsx"));
