@@ -68,7 +68,7 @@ const schema: SchemaType<"Tags"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
-    onInsert: async (tag) => {
+    onCreate: async ({document: tag}) => {
       const basicSlug = slugify(tag.name);
       return await getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },

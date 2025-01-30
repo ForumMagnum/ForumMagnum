@@ -449,7 +449,7 @@ async function main() {
   let serverCli: string[] = [
     "node",
     ...(!isProduction ? ["--inspect"] : []),
-    "-r", "source-map-support/register",
+    "--enable-source-maps",
     "--", `${getOutputDir()}/server/js/serverBundle.js`,
     "--settings", settingsFile,
     ...(opts.shell ? ["--shell"] : []),
@@ -502,7 +502,8 @@ async function main() {
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
       "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
       "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
-      "cheerio", "vite", "@vitejs/plugin-react",
+      "cheerio", "vite", "@vitejs/plugin-react", "@google-cloud", "@aws-sdk",
+      "@anthropic-ai/sdk", "openai", "@googlemaps",
     ],
   })
   

@@ -139,10 +139,21 @@ interface DbComment extends DbObject {
   parentCommentId: string | null
   topLevelCommentId: string | null
   postedAt: Date
+  lastEditedAt: Date | null
   author: string | null
   postId: string | null
   tagId: string | null
   forumEventId: string | null
+  forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    },
+  } | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   subforumStickyPriority: number | null
   userId: string
@@ -461,12 +472,16 @@ interface DbForumEvent extends DbObject {
   endDate: Date
   darkColor: string
   lightColor: string
+  bannerTextColor: string
   contrastColor: string | null
-  tagId: string
+  tagId: string | null
   postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
+  eventFormat: "BASIC" | "POLL" | "STICKERS"
+  maxStickersPerUser: number
   customComponent: string | null
+  commentPrompt: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

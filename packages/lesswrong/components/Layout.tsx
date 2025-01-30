@@ -590,8 +590,8 @@ const Layout = ({currentUser, children, classes}: {
                   <CloudinaryImage2
                     loading="lazy"
                     className={classes.backgroundImage}
-                    publicId="ohabryka_Thomas_W._Schaller_abstract_aquarelle_painting_orbs_wi_08f5e970-d4a5-482f-83c2-a4cb1d388ade_jueaoj"
-                    darkPublicId={"DarkOrbs4_gi8ndc"}
+                    publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+                    darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
                   />
                 </div>}
                 {!renderSunshineSidebar &&

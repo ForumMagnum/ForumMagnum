@@ -10,17 +10,6 @@ import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 
-const styles = (theme: ThemeType) => ({
-  frontpageReviewWidget: {
-    marginTop: 42,
-    marginBottom: 20,
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 24,
-      marginBottom: 10
-    }
-  }
-})
-
 const getStructuredData = () => ({
   "@context": "http://schema.org",
   "@type": "WebSite",
@@ -49,7 +38,7 @@ const getStructuredData = () => ({
   }),
 })
 
-const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
@@ -62,15 +51,12 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
         <React.Fragment>
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
-          {lightconeFundraiserActive.get() && <SingleColumnSection>
-            <FundraisingThermometer />
-          </SingleColumnSection>}
           {reviewIsActive() && <>
             {getReviewPhase() === "RESULTS" && <SingleColumnSection>
               <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
             </SingleColumnSection>}
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
-              <FrontpageReviewWidget reviewYear={REVIEW_YEAR} className={classes.frontpageReviewWidget}/>
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
@@ -110,7 +96,7 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-const LWHomeComponent = registerComponent('LWHome', LWHome, {styles});
+const LWHomeComponent = registerComponent('LWHome', LWHome);
 
 declare global {
   interface ComponentTypes {

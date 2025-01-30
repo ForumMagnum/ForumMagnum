@@ -3,6 +3,7 @@ import crypto from "@/server/utils/wrapNodeCrypto";
 
 // Excludes 0O1lIUV
 const unmistakableChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTWXYZ23456789";
+const lowercaseUnmistakableChars = "abcdefghijkmnopqrstuvwxyz23456789";
 
 export type RandIntCallback = (max: number) => number;
 
@@ -28,23 +29,32 @@ export const ID_LENGTH = 17;
  * other. If run on the server and not supplying a custom RNG then it's
  * cryptographically secure, otherwise it's not.
  */
-export const randomId = (length=ID_LENGTH, randIntCallback?: RandIntCallback) => {
+export const randomId = (length=ID_LENGTH, randIntCallback?: RandIntCallback, allowedChars?: string) => {
+  const chars = allowedChars ?? unmistakableChars;
   if (bundleIsServer && !randIntCallback) {
     const bytes = crypto.randomBytes(length);
     const result: Array<string> = [];
     for (let byte of bytes) {
       // Discards part of each byte and has modulo bias. Doesn't matter in
       // this context.
-      result.push(unmistakableChars[byte % unmistakableChars.length]);
+      result.push(chars[byte % chars.length]);
     }
     return result.join('');
   } else {
     const rand = randIntCallback ?? randInt;
     const result: Array<string> = [];
     for (let i=0; i<length; i++)
-      result.push(unmistakableChars[rand(unmistakableChars.length)]);
+      result.push(chars[rand(chars.length)]);
     return result.join('');
   }
+}
+
+/**
+ * Like randomId, but doesn't use uppercase letters (which makes it suitable
+ * for using in slugs).
+ */
+export const randomLowercaseId = (length=ID_LENGTH, randIntCallback?: RandIntCallback) => {
+  return randomId(length, randIntCallback, lowercaseUnmistakableChars);
 }
 
 /**

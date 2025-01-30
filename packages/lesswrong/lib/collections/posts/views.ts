@@ -1503,6 +1503,35 @@ ensureIndex(Posts,
   { name: "posts.positiveReviewVoteCount", }
 );
 
+Posts.addView("frontpageReviewWidget", (terms: PostsViewTerms) => {
+  if (!terms.reviewYear) {
+    throw new Error("reviewYear is required for reviewVoting view");
+  }
+  return {
+    selector: {
+      $or: [
+        {[`tagRelevance.${longformReviewTagId}`]: {$gte: 1}},
+        {
+          $and: [
+            {postedAt: {$gte: moment.utc(`${terms.reviewYear}-01-01`).toDate()}},
+            {postedAt: {$lt: moment.utc(`${terms.reviewYear+1}-01-01`).toDate()}},
+            {positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) }}
+          ]
+        }
+      ],
+      _id: { $nin: reviewExcludedPostIds }
+    },
+    options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        lastCommentedAt: -1
+      },
+    }
+  }
+})
+
+
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
     selector: {

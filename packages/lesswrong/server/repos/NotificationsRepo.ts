@@ -122,6 +122,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."_id",
         n."type",
         n."link",
+        n."viewed",
         n."message",
         n."createdAt",
         n."extraData",

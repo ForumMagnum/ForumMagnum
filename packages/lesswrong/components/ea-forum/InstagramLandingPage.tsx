@@ -23,6 +23,11 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'fMEhpDrpbnHpcgsDE', // Facing up to the Price on Life
+  'JN3kHaiosmdA7kgNY', // The Game Board has been Flipped: Now is a good time to rethink what you’re doing
+  'BRqBvkjskZ6c2G6rn', // The Upcoming PEPFAR Cut Will Kill Millions, Many of Them Children
+  'bYXjejHrvq65jFL9s', // Implications of the inference scaling paradigm for AI safety
+  'j5um9ZhyDCiDXaDqd', // Long-distance development policy
   'kMz9C5ExGEfqqbr3c', // Cage-free Wins in Africa in 2024
   'KbREamTda2sZhKtTz', // Will a food carbon tax lead to more animals being slaughtered? A quantitative model
   'mMYSLTedzLpqwp2Fk', // The EA Opportunity Board is back
@@ -46,8 +51,6 @@ const postIds = [
   'HXqzmahbjJwwiX9Si', // ARMoR
   'XmtyNTS8eaT2PMzx4', // NAO
   'rsRDu3u3wF6ctcQPn', // THL
-  'CmAWaNXxJmmhLnuAi', // THL UK
-  'kt2XH8htHGEsC3GSc', // Legal Impact for Chickens
   'k8NLM6QoEjMkEGEmG', // Donation election results
 ]
 

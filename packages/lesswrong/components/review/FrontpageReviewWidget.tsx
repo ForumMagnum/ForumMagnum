@@ -41,7 +41,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   reviewSectionTitle: {
-  marginBottom: -2
+    marginTop: -24,
+    marginBottom: -2,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: -16,
+    }
   },
   reviewPhaseTitle: {
     fontSize: "3rem",
@@ -368,9 +372,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <PostsList2 
       itemsPerPage={10}
       terms={{
-        view:"reviewVoting",
-        before: `${reviewYear+1}-01-01`,
-        after: `${reviewYear}-01-01`,
+        view:"frontpageReviewWidget",
+        reviewYear: reviewYear,
         limit: 3,
       }}
     >

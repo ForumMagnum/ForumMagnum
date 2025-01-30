@@ -15,12 +15,17 @@ import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../lib/collections/posts';
 import { getAtPath, setAtPath } from '../../lib/helpers';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 import crypto from 'crypto';
+import Papa from 'papaparse';
+import fs from "node:fs";
+import { sleep } from '@/lib/utils/asyncUtils';
+import SideCommentCaches from '@/lib/collections/sideCommentCaches/collection';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
-type CloudinaryCredentials = {
+export type CloudinaryCredentials = {
   cloud_name: string,
   api_key: string,
   api_secret: string,
@@ -49,7 +54,7 @@ const getCloudinaryCredentials = () => {
 };
 
 /** If an image has already been re-hosted, return its CDN URL. Otherwise null. */
-async function findAlreadyMovedImage(identifier: string): Promise<string|null> {
+export async function findAlreadyMovedImage(identifier: string): Promise<string|null> {
   const image = await Images.findOne({identifier});
   return image?.cdnHostedUrl ?? null;
 }
@@ -59,13 +64,45 @@ async function findAlreadyMovedImage(identifier: string): Promise<string|null> {
  * it will return the existing cloudinary URL.
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
-  const upload = async (credentials: CloudinaryCredentials) => await cloudinary.v2.uploader.upload(
-    oldUrl,
-    {
-      folder: `mirroredImages/${originDocumentId}`,
-      ...credentials
+  const upload = async (credentials: CloudinaryCredentials) => {
+    // First try mirroring the existing URL. If that fails, try retrieving the
+    // image from archive.org. If that still fails, let the exception escape,
+    // which (in some contexts) will add it to a list of failed images.
+    //
+    // Note that loading images from archive.org this way is unreliable, even if
+    // when archive.org definitely has the image. We don't auto-retry because
+    // the unreliability is in some way rate-limit-related, and we have a pretty
+    // conservative sleep in between tries. Once an image is successfully
+    // recovered from archive.org it stays recovered (we save it in Cloudinary
+    // along with its original URL), so you can keep retrying the overall
+    // mirroring process until you've got all the images.
+    try {
+      return await cloudinary.v2.uploader.upload(
+        oldUrl,
+        {
+          folder: `mirroredImages/${originDocumentId}`,
+          ...credentials
+        }
+      );
+    } catch(e1) {
+      try {
+        const archiveDotOrgUrl = imageUrlToArchiveDotOrgUrl(oldUrl);
+        // In order to not risk hitting rate limits, sleep for half a second before each archive.org image
+        await sleep(500);
+        // eslint-disable-next-line no-console
+        console.log(`Failed to upload ${oldUrl}; trying ${archiveDotOrgUrl}`);
+        return await cloudinary.v2.uploader.upload(
+          archiveDotOrgUrl,
+          {
+            folder: `mirroredImages/${originDocumentId}`,
+            ...credentials
+          }
+        );
+      } catch(e2) {
+        throw e1;
+      }
     }
-  );
+  }
 
   return getOrCreateCloudinaryImage({identifier: oldUrl, identifierType: 'originalUrl', upload})
 }
@@ -102,7 +139,7 @@ export async function uploadBufferToCloudinary(buffer: Buffer) {
  * Returns a cloudinary url of the image corresponding to `identifier`, uploads the image if it doesn't
  * already exist in cloudinary
  */
-async function getOrCreateCloudinaryImage({
+export async function getOrCreateCloudinaryImage({
   identifier,
   identifierType,
   upload,
@@ -165,10 +202,11 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
+export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string, failedUrls: string[]}> {
   const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
+  const failedUrls: string[] = [];
   
   for (let imgTag of imgTags) {
     const urls = getImageUrlsFromImgTag(cheerio(imgTag));
@@ -180,14 +218,22 @@ export async function convertImagesInHTML(html: string, originDocumentId: string
   }
 
   // Upload all the images to Cloudinary (slow)
+  // This section was previously parallelized (with a Promise.all), but this
+  // would cause it to fail when other servers (notably arcive.org) rejected
+  // the concurrent requests for being too fast (which is hard to distinguish
+  // from failing for other reasons), so it's no longer parallelized.
   const mirrorUrls: Record<string,string> = {};
-  await Promise.all(imgUrls.map(async (url) => {
+  for (const url of imgUrls) {
     // resolve to the url of the image on cloudinary
-    const movedImage = await moveImageToCloudinary({oldUrl: url, originDocumentId})
-    if (movedImage) {
-      mirrorUrls[url] = movedImage;
+    try {
+      const movedImage = await moveImageToCloudinary({oldUrl: url, originDocumentId})
+      if (movedImage) {
+        mirrorUrls[url] = movedImage;
+      }
+    } catch(e) {
+      failedUrls.push(url);
     }
-  }));
+  }
 
   // cheerio is not guarantueed to return the same html so explicitly count
   // the number of images that were converted
@@ -214,7 +260,11 @@ export async function convertImagesInHTML(html: string, originDocumentId: string
     }
   }
   
-  return {count, html: parsedHtml.html()};
+  return {
+    count,
+    html: parsedHtml.html(),
+    failedUrls,
+  };
 }
 
 function getImageUrlsFromImgTag(tag: any): string[] {
@@ -261,7 +311,10 @@ export async function convertImagesInObject<N extends CollectionNameString>(
   _id: string,
   fieldName = "contents",
   urlFilterFn: (url: string) => boolean = ()=>true
-): Promise<number> {
+): Promise<{
+  numUploaded: number
+  failedUrls: string[]
+}> {
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
@@ -271,14 +324,14 @@ export async function convertImagesInObject<N extends CollectionNameString>(
     if (!obj) {
       // eslint-disable-next-line no-console
       console.error(`Cannot convert images in ${collectionName}.${_id}: ID not found`);
-      return 0;
+      return {numUploaded: 0, failedUrls: []};
     }
     
     const latestRev = await getLatestRev(_id, fieldName);
     if (!latestRev) {
       // If this field doesn't have a latest rev, it's empty (common eg for
       // moderation guidelines).
-      return 0;
+      return {numUploaded: 0, failedUrls: []};
     }
     
     const newVersion = getNextVersion(latestRev, "patch", false);
@@ -293,12 +346,12 @@ export async function convertImagesInObject<N extends CollectionNameString>(
     // const oldHtml = (obj as AnyBecauseHard)?.[fieldName]?.html;
     const oldHtml = latestRev.html;
     if (!oldHtml) {
-      return 0;
+      return {numUploaded: 0, failedUrls: []};
     }
-    const {count: uploadCount, html: newHtml} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
+    const {count: uploadCount, html: newHtml, failedUrls} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
     if (!uploadCount) {
       logger("No images to convert.");
-      return 0;
+      return {numUploaded: 0, failedUrls: []};
     } else {
       logger(`Converted ${uploadCount} images`)
     }
@@ -327,12 +380,24 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       }
     });
     totalUploaded += uploadCount;
-    return totalUploaded;
+    
+    // HACK: If this is a post's contents, delete any corresponding entry in SideCommentCaches. This is necessary because the cache determines if it's valid based on editedAt, rather than the ID of the latest revision, and we just created a revision without bumping editedAt.
+    if (collectionName === "Posts" && fieldName === "contents") {
+      await SideCommentCaches.rawRemove({ postId: _id });
+    }
+    
+    return {
+      numUploaded: totalUploaded,
+      failedUrls,
+    };
   } catch (e) {
     // Always catch the error because the obj should mostly load fine without rehosting the images
     // eslint-disable-next-line no-console
     console.error("Error in convertImagesInObject", e)
-    return 0
+    return {
+      numUploaded: 0,
+      failedUrls: [],
+    };
   }
 }
 
@@ -412,3 +477,148 @@ Globals.convertImagesInObject = convertImagesInObject;
 Globals.rehostPostMetaImages = rehostPostMetaImages;
 Globals.rehostPostMetaImagesById = rehostPostMetaImagesById;
 Globals.rehostAllPostMetaImages = rehostAllPostMetaImages;
+
+type ImageUploadStats = {
+  documentCount: number
+  uploadedImageCount: number
+  failedUrls: Array<{originDocumentId: string, url: string}>
+}
+
+function getEmptyImageUploadStats(): ImageUploadStats {
+  return {
+    documentCount: 0,
+    uploadedImageCount: 0,
+    failedUrls: [],
+  }
+}
+
+/**
+ * When saving content with <img> tags in it, we download the image, mirror
+ * it in on our own CDN, and save a mapping form the original URL to our
+ * mirror in the Images collection. This is to protect against old image links
+ * disappearing, or having rate-limits affecting cross-site loading, etc.
+ *
+ * When importing content, eg from Arbital, some image links may have *already*
+ * disappeared, in which case we can't download them for mirroring. Those
+ * images might be manually recoverable from sources like archive.org, but
+ * after downloading them we have to get them into the Images collection.
+ *
+ * This script takes a CSV file where the first column is image URLs (that are
+ * presumably no longer accessible), and the second column is local file paths
+ * for the corresponding images. For each pair, it uploads the image to our
+ * CDN and records that in the Images collection. Any images that are already
+ * present in the Images collection will be skipped.
+ */
+async function importImageMirrors(csvFilename: string) {
+  const csvStr = fs.readFileSync(csvFilename, 'utf-8');
+  const parsedCsv = Papa.parse(csvStr, {
+    delimiter: ',',
+    skipEmptyLines: true,
+  });
+  if (parsedCsv.errors?.length > 0) {
+    for (const error of parsedCsv.errors) {
+      // eslint-disable-next-line no-console
+      console.error(`${error.row}: ${error.message}`);
+    }
+    throw new Error("Error parsing CSV");
+  }
+  
+  let alreadyMovedCount = 0;
+  let skippedCount = 0;
+  let uploadedCount = 0;
+  let failedCount = 0;
+  
+  for (const row of parsedCsv.data) {
+    const [originDocumentId, originalUrl, altUrlOrPath] = (row as any);
+    
+    const alreadyMovedImage = await findAlreadyMovedImage(originalUrl);
+    if (alreadyMovedImage) {
+      alreadyMovedCount++;
+    } else if (!altUrlOrPath || altUrlOrPath.length===0) {
+      // No alternate source provided for this image
+      skippedCount++;
+      continue;
+    } else {
+      // An alternate source is provided which looks like a URL
+      const upload = async (credentials: CloudinaryCredentials) => await cloudinary.v2.uploader.upload(
+        altUrlOrPath,
+        {
+          folder: `mirroredImages/${originDocumentId}`,
+          ...credentials
+        }
+      );
+    
+      try {
+        await getOrCreateCloudinaryImage({identifier: originalUrl, identifierType: 'originalUrl', upload})
+        uploadedCount++;
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        failedCount++;
+      }
+    }
+  }
+  
+  // eslint-disable-next-line no-console
+  console.log(`Finished processing images. Already moved: ${alreadyMovedCount}, skipped: ${skippedCount}, uploaded: ${uploadedCount}, failed: ${failedCount}`);
+}
+
+export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, urlFilter = (url: string) => true) {
+  let stats = getEmptyImageUploadStats();
+
+  await forEachDocumentBatchInCollection({
+    collection: Posts,
+    batchSize: 100,
+    filter: postFilter,
+    callback: async (posts) => {
+      const uploadResults = await Promise.all(
+        posts.map(async (post) => {
+          const {numUploaded, failedUrls} = await convertImagesInObject("Posts", post._id, "contents", urlFilter)
+          stats.documentCount++;
+          stats.uploadedImageCount += numUploaded;
+          for (const failedUrl of failedUrls) {
+            stats.failedUrls.push({originDocumentId: post._id, url: failedUrl});
+          }
+          return {numUploaded, failedUrls, originDocumentId: post._id};
+        })
+      );
+    }
+  });
+
+  saveImageUploadResults(stats);
+}
+
+export async function rehostImagesInPost(_id: string) {
+  let stats = getEmptyImageUploadStats();
+  const {numUploaded, failedUrls} = await convertImagesInObject("Posts", _id, "contents")
+  stats.documentCount++;
+  stats.uploadedImageCount += numUploaded;
+  for (const failedUrl of failedUrls) {
+    stats.failedUrls.push({originDocumentId: _id, url: failedUrl});
+  }
+  saveImageUploadResults(stats);
+}
+
+function saveImageUploadResults(stats: ImageUploadStats) {
+  // eslint-disable-next-line no-console
+  console.log(`Converted ${stats.uploadedImageCount} images in ${stats.documentCount} documents`);
+
+  if (stats.failedUrls.length > 0) {
+    // eslint-disable-next-line no-console
+    console.error(`Failed to upload ${stats.failedUrls.length} images. Failed images written to failed_image_uploads.csv. To restore broken images, fill in the third column with other URLs or local filenames and run \`Globals.importImageMirrorUrls("failed_image_uploads.csv")\``);
+    fs.writeFileSync("failed_image_uploads.csv", Papa.unparse(
+      stats.failedUrls.map(({originDocumentId, url}) => [originDocumentId, url, ""]))
+    );
+  }
+}
+
+Globals.importImageMirrors = importImageMirrors;
+Globals.rehostImagesInPost = rehostImagesInPost;
+Globals.rehostImagesInAllPosts = rehostImagesInAllPosts;
+
+function imageUrlToArchiveDotOrgUrl(imageUrl: string): string {
+  // In archive.org URLs, /web/<date>if_/<url> is the version of that URL on or
+  // after the given date (it will redirect to replace the given date with the
+  // actual date of the snapshot).
+  return `https://web.archive.org/web/19000101000000id_/${imageUrl}`;
+}

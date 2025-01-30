@@ -372,6 +372,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/cookiePolicy',
       subItem: true,
     }, {
+      id: 'copyright',
+      title: preferredHeadingCase('Copyright'),
+      link: '/posts/KK6AE8HzPkR2KnqSg/new-forum-license-creative-commons',
+      subItem: true,
+    }, {
       id: 'divider2',
       divider: true,
     }, {

@@ -552,10 +552,10 @@ function voteTypeIsDown(voteType: string): boolean {
 }
 
 function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {
-  if (votingSystem.name !== "default") {
-    // If using a non-default voting system, include neutral votes in the vote
-    // count, because they may have an effect that's not captured in their power.
-    return true;
+  // Exclude neutral votes (i.e. those without a karma change) from the vote count,
+  // because it causes confusion in the UI
+  if (vote.voteType === 'neutral') {
+    return false;
   }
   
   if (af) {

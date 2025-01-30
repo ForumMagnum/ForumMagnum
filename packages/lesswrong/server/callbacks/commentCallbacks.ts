@@ -20,6 +20,10 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
 import { userShortformPostTitle } from '@/lib/collections/users/helpers';
+import { randomId } from '@/lib/random';
+import isEqual from 'lodash/isEqual';
+import type { ForumEventCommentMetadata } from '@/lib/collections/forumEvents/types';
+import { ForumEventsRepo } from '../repos';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -47,7 +51,10 @@ export const getAdminTeamAccount = async () => {
  */
 export const noDeletionPmReason = 'Requested account deletion';
 
-getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").createBefore.add(async function createShortformPost (comment, {currentUser}) {
+  if (!currentUser) {
+    throw new Error("Must be logged in");
+  }
   if (comment.shortform && !comment.postId) {
     if (currentUser.shortformFeedId) {
       return ({
@@ -82,7 +89,8 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
       postId: post.data._id
     })
   }
-  return comment
+  
+  return comment;
 });
 
 getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment, _, context: ResolverContext) {
@@ -136,7 +144,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
 // comments.remove.async                            //
 //////////////////////////////////////////////////////
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePostCommenters (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemovePostCommenters ({document: comment}) {
   const { postId } = comment;
 
   if (postId) {
@@ -150,7 +158,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
   }
 });
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemoveChildrenComments (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemoveChildrenComments ({document: comment, currentUser}) {
 
   const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch();
 
@@ -226,12 +234,11 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   }
 }
 
-getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (comment: DbComment) {
+getCollectionHooks("Comments").createValidate.add(function NewCommentsEmptyCheck (validationErrors, {document: comment}) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
-  return comment;
 });
 
 interface SendModerationPMParams {
@@ -597,6 +604,55 @@ getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnC
         type: REJECTED_COMMENT,
         endedAt: new Date()
       }
+    })
+  }
+});
+
+/**
+ * Run side effects based on the `forumEventMetadata` that is submitted.
+ */
+async function forumEventSideEffects({ comment, forumEventMetadata }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; }) {
+  if (forumEventMetadata.eventFormat === "STICKERS") {
+    const sticker = forumEventMetadata.sticker
+
+    if (!comment.forumEventId) {
+      throw new Error("Comment must have forumEventId")
+    }
+
+    const {_id, x, y, theta, emoji} = sticker ?? {};
+
+    if (!sticker || !_id || !x || !y || !theta) {
+      throw new Error("Must include sticker")
+    }
+
+    if (!emoji) {
+      throw new Error("No emoji selected")
+    }
+
+    const forumEventId = comment.forumEventId;
+    const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
+
+    await new ForumEventsRepo().addSticker({ forumEventId, stickerData });
+    captureEvent("addForumEventSticker", {
+      forumEventId,
+      stickerData,
     });
   }
+}
+
+getCollectionHooks("Comments").newSync.add(async (comment: DbComment, _, context: ResolverContext) => {
+  if (comment.forumEventMetadata) {
+    // Side effects may need to reference the comment, so set the _id now
+    comment._id = comment._id || randomId();
+    await forumEventSideEffects({ comment, forumEventMetadata: comment.forumEventMetadata });
+  }
+  return comment;
+});
+
+getCollectionHooks("Comments").editSync.add(async (modifier, comment: DbComment) => {
+  const newMetadata = modifier.$set?.forumEventMetadata;
+  if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
+    await forumEventSideEffects({ comment, forumEventMetadata: newMetadata });
+  }
+  return modifier
 });

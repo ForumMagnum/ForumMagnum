@@ -154,7 +154,7 @@ interface MergedViewQueryAndOptions<T extends DbObject> {
 export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoExpression<T extends DbObject> = `$${keyof T & string}` | { [k in `$${string}`]: any }
 type MongoProjection<T extends DbObject> = { [K in keyof T]?: 0 | 1 | boolean } | Record<string, MongoExpression<T>>;
-type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+type MongoModifier<T extends DbObject|DbInsertion<DbObject>> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type FindFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
   selector?: string | MongoSelector<T>,
@@ -384,7 +384,10 @@ type EditableCollectionNames = {
 
 type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
-type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
+type DbInsertion<T extends DbObject> = Omit<
+  ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>,
+  "_id"
+>
 
 type SpotlightDocumentType = 'Post' | 'Sequence';
 interface SpotlightFirstPost {
