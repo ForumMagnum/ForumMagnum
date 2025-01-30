@@ -16,8 +16,6 @@ import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
-import { LwAfDomainWhitelist } from "@/lib/routeUtil";
-import partition from "lodash/partition";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -137,36 +135,10 @@ async function getProvidedPosts(query: string, context: ResolverContext): Promis
   return posts;
 }
 
-export const getLinksContents = async (query: string, context: ResolverContext) => {
-  const links = Array.from(query.matchAll(/\[.*?\]\((https?:\/\/[^\s)]+)\)/g)).map(match => match[1]);
-  const [lesswrongLinks, externalLinks] = partition(links, link => {
-    try {
-      const url = new URL(link);
-      const hostname = url.hostname.replace(/^www\./, '');
-      return LwAfDomainWhitelist.onsiteDomains.includes(hostname) || 
-             LwAfDomainWhitelist.mirrorDomains.includes(hostname);
-    } catch {
-      return false;
-    }
-  });
-  const lwPostIds = lesswrongLinks.flatMap(link => {
-    const postIdRegex = /\/posts\/([a-zA-Z0-9]{17})\//;
-    const url = new URL(link);
-    const match = url.pathname.match(postIdRegex);
-    return match ? match[1] : null;
-  });
-
-  const externalPosts = await Promise.all(externalLinks.map(link => fetchWebsiteHtmlContent(link, context)));
-  const externalPostIds = externalPosts.map(post => post.postId);
-
-  return [...lwPostIds, ...externalPostIds].filter(id => id !== null) as string[];
-}
-
 const ragModeMapping = {
   'CurrentPost': 'current-post-only',
   'Search': 'both',
   'None': 'none',
-  'Links': 'links',
   // 'Recommendation': 'recommendation',
   'Provided': 'provided',
   // 'Rationality Tutor': 'rationality-tutor',
@@ -183,7 +155,6 @@ async function getContextualPosts({ content: query, ragMode, currentPost, postCo
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
   const useCurrentPost = ['current-post-only', 'current-post-and-search', 'both'].includes(contextSelectionCode);
   const useCurrentPostSearchEmbeddings = ['current-post-and-search', 'both'].includes(contextSelectionCode);
-  const useLinks = ['links'].includes(contextSelectionCode);
 
 
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
@@ -196,20 +167,13 @@ async function getContextualPosts({ content: query, ragMode, currentPost, postCo
     ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id, 10)
     : Promise.resolve([]);
 
-  const linksPromise = useLinks ? getLinksContents(query, context) : Promise.resolve([]);
-
-  const [
-    querySearchIds, currentPostSearchIds, 
-    linksIds] = await Promise.all([
+  const [querySearchIds, currentPostSearchIds] = await Promise.all([
     querySearchPromise,
     currentPostSearchPromise,
-    linksPromise,
   ]);
 
-  const deduplicatedSearchResultIds = uniq([
-    ...querySearchIds, ...currentPostSearchIds,
-    ...linksIds
-  ]);
+  const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
+
   // TODO: Clean up somehow. This is kind of ugly but this is where the decision is being made about whether or not to use the current post in the context window.
   const posts: LlmPost[] = await getPostsWithContents(deduplicatedSearchResultIds, context);
   if (useCurrentPost && currentPost && !deduplicatedSearchResultIds.includes(currentPost._id)) {
