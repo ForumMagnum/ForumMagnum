@@ -4,12 +4,6 @@ import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { z } from "zod";
 
-/*export type SearchQuery = {
-  indexName: string;
-  query: string;
-  params: QueryParameters;
-}*/
-
 /**
  * The is the schema of the request sent from the InstantSearch frontend to
  * Algolia, and we implement this same interface in Elasticsearch.
