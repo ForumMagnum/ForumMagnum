@@ -151,6 +151,34 @@ interface MergedViewQueryAndOptions<T extends DbObject> {
   syntheticFields?: Partial<Record<keyof T, MongoSelector<T>>>
 }
 
+type ApplyProjection<
+  T extends DbObject,
+  Projection extends MongoProjection<T> | undefined
+> =
+  Projection extends undefined
+    ? T // If no projection, return the raw DbObject
+    :
+      Omit< // Otherwise, calculate the included and excluded fields
+        Pick< // Include fields from T marked with 1 or true in the projection
+          T,
+          keyof Projection & keyof T & {
+            [K in keyof Projection]: Projection[K] extends 1 | true ? K : never;
+          }[keyof Projection]
+        >,
+        { // Exclude fields from T marked with 0 or false in the projection
+          [K in keyof Projection]: Projection[K] extends 0 | false ? K : never;
+        }[keyof Projection]
+      > & (
+        Projection extends {_id: 0 | false} // Include id unless explicitly excluded
+          ? {}
+          : {_id: T extends {_id: infer IdType} ? IdType : never}
+      ) & {
+        // Include arbitrary fields not in T with type `unknown`
+        [K in Exclude<keyof Projection, keyof T>]: Projection[K] extends 1 | true
+          ? unknown
+          : never;
+      };
+
 export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoExpression<T extends DbObject> = `$${keyof T & string}` | { [k in `$${string}`]: any }
 type MongoProjection<T extends DbObject> = { [K in keyof T]?: 0 | 1 | boolean } | Record<string, MongoExpression<T>>;
@@ -160,10 +188,7 @@ type FindFn<T extends DbObject> = <Projection extends MongoProjection<T> | undef
   selector?: string | MongoSelector<T>,
   options?: MongoFindOptions<T>,
   projection?: Projection
-) => FindResult<Projection extends undefined
-  ? T
-  : Pick<T, keyof T & keyof Projection>
->;
+) => FindResult<ApplyProjection<T, Projection>>;
 
 type MongoFindOptions<T extends DbObject> = Partial<{
   sort: MongoSort<T>,
@@ -186,11 +211,7 @@ type FindOneFn<T extends DbObject> = <Projection extends MongoProjection<T> | un
   selector?: string | MongoSelector<T>,
   options?: MongoFindOneOptions<T>,
   projection?: Projection
-) => Promise<
-  Projection extends undefined
-    ? T | null
-    : Pick<T, keyof T & keyof Projection> | null
->;
+) => Promise<ApplyProjection<T, Projection> | null>;
 
 type MongoFindOneOptions<T extends DbObject> = Partial<{
   sort: MongoSort<T>
