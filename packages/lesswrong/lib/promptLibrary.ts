@@ -21,5 +21,5 @@ Then, rewrite the text to be more right-branching, while changing as little of t
 export const danglingSentencesPrompt: Prompt = {
   title: "Fix Dangling Sentences",
   description: "Identify dangling sentences and suggest fixes",
-  prompt: `Given the following post, identify any sentences that are dangling, and leave suggestions with your best guess of how to finish the sentence, considering the context of the sentence and the author's voice`
+  prompt: `Given the following post, identify any sentences that are dangling, and leave suggestions with your best guess of how to finish the sentence, considering the context of the sentence and the author's voice.`
 }

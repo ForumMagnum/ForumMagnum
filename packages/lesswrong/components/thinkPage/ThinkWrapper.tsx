@@ -83,21 +83,7 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
     },
     '& ul > li': {
       lineHeight: '1.4',
-      // position: "relative",
-      // marginBottom: "1em",
-      // maxHeight: "1.4em",
-      // overflow: "hidden",
     },
-    // experimentation with hacks to make long bullet lists more readable
-    // '& ul > li:after': {
-    //   content: '""',
-    //   display: 'block',
-    //   height: '1em',
-    //   visibility: 'hidden',
-    //   // Add some space between the last line of the list item and the next list item
-    //   marginTop: '2em',
-    //   marginBottom: '2em',
-    // },
     '& li li': {
       marginTop: '0 !important',
       marginBottom: '0 !important',

@@ -35,7 +35,7 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
   adminOptions: {
     name: "adminOptions",
     order: 25,
-    label: preferredHeadingCase("Admin"),
+    label: preferredHeadingCase("Admin Options"),
     startCollapsed: true,
   },
   paymentInfo: {

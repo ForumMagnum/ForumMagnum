@@ -105,22 +105,22 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
   const { query } = useLocation();
   const [active, setActive] = useState(false);
 
-  const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
-
   const limit = query.limit ? parseInt(query.limit) : 100;
-  
-  const { results: drafts = [], loading: draftsLoading, loadMoreProps: draftsLoadMoreProps } = useMulti({
-    terms: {
-      view: "drafts",
-      userId: currentUser?._id,
-      sortDraftsBy: currentSorting,
-      limit,
-    },
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: "cache-first",
-  });
+
+  // TODO: Add back in  
+  // const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
+  // const { results: drafts = [], loading: draftsLoading, loadMoreProps: draftsLoadMoreProps } = useMulti({
+  //   terms: {
+  //     view: "drafts",
+  //     userId: currentUser?._id,
+  //     sortDraftsBy: currentSorting,
+  //     limit,
+  //   },
+  //   collectionName: "Posts",
+  //   fragmentName: 'PostsListWithVotes',
+  //   fetchPolicy: 'cache-and-network',
+  //   nextFetchPolicy: "cache-first",
+  // });
 
   const { data, loading, fetchMore, networkStatus } = useQuery(gql`
     query getReadHistory($limit: Int) {
@@ -154,7 +154,7 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
 
   const { create: createSequence, loading: createSequenceLoading } = useCreate({
     collectionName: "Sequences",
-    fragmentName: "PostsListWithVotes",
+    fragmentName: "SequencesPageWithChaptersFragment",
   })
 
 
@@ -192,7 +192,7 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
     }
   }
 
-  const { ThinkSideItem, ThinkOmnibar, ForumIcon, Row, Loading, ThinkSidePost, ThinkSideSequence } = Components
+  const { ThinkSideItem, ThinkOmnibar, ForumIcon, Row, Loading, ThinkSidePost, ThinkSideSequence, LWTooltip } = Components
 
   let documentSideComponent
   if (identifyDocument(document) === 'Post') {
@@ -203,8 +203,10 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
 
   return <div className={classes.root}>
     <Row gap={8} justifyContent="flex-start">
-      <ForumIcon icon="Document" className={classes.icon} onClick={handleNewPostClick} />
-      <ForumIcon icon="Book" className={classes.icon} onClick={handleNewSequenceClick} />
+      <LWTooltip title="Create a new post">
+        <ForumIcon icon="Document" className={classes.icon} onClick={handleNewPostClick} /></LWTooltip>
+      <LWTooltip title="Create a new sequence">
+        <ForumIcon icon="Book" className={classes.icon} onClick={handleNewSequenceClick} /></LWTooltip>
       <ThinkOmnibar setActive={setActive} />
       {createPostLoading && <Loading />}
     </Row>

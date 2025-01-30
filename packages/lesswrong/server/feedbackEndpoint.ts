@@ -28,7 +28,7 @@ export function addFeedbackEndpoint(app: Express) {
     const context = await getContextFromReqAndRes({ req, res, isSSR: false });
     const currentUser = context.currentUser;
 
-    if (!currentUser) {
+    if (!currentUser || !currentUser.isAdmin) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 

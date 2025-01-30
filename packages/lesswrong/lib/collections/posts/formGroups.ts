@@ -38,7 +38,7 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   socialPreview: {
     name: "socialPreview",
     order: 23,
-    label: preferredHeadingCase("Link Preview"),
+    label: preferredHeadingCase("Edit Link Preview"),
     startCollapsed: !isFriendlyUI,
   },
   highlight: {
@@ -50,7 +50,7 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   adminOptions: {
     name: "adminOptions",
     order: 25,
-    label: preferredHeadingCase("Admin"),
+    label: preferredHeadingCase("Admin Options"),
     startCollapsed: true,
   },
   moderationGroup: {
@@ -105,7 +105,7 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
     order: isEAForum ? 20 : 70,
     name: "tags",
     label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `${taggingNamePluralCapitalSetting.get()}`,
-    startCollapsed: true
+    startCollapsed: false
   },
   glossary: {
     order: 65,

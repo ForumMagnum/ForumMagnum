@@ -230,7 +230,7 @@ const SequencesPage = ({ documentId, classes }: {
                 </Link>}
                 {!allowSubscribeToSequencePosts && canEdit && <span className={classes.leftAction}>
                   <SectionSubtitle>
-                    <a onClick={showEdit}>dit</a>
+                    <a onClick={showEdit}>Edit</a>
                   </SectionSubtitle>
                 </span>}
               </SectionFooter>

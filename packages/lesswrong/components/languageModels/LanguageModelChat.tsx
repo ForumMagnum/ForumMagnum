@@ -47,6 +47,9 @@ const styles = (theme: ThemeType) => ({
     minHeight: 60,
     '& .ck.ck-content': {
       minHeight: 60,
+      '&::before': {
+        color: theme.palette.error.main + ' !important',
+      }
     },
     ...ckEditorStyles(theme),
     overflowY: 'scroll',
@@ -83,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   editorButtons: {
     display: "flex",
     justifyContent: "flex-end",
-    padding: "10px",
+    padding: 4,
   },
   welcomeGuide: {
     margin: 10,

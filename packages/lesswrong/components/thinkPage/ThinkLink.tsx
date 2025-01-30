@@ -22,12 +22,12 @@ export const getThinkPostUrl = (document: PostsListWithVotes, forceEdit?: boolea
 
 export const getThinkSequenceUrl = (document: SequencesPageTitleFragment, forceEdit?: boolean) => {
   const edit = (document.draft || forceEdit) ? '?edit=true' : ''
-  return `/think/seq/${document._id}${edit}`
+  return `/think/s/${document._id}${edit}`
 }
 
 export const getThinkSequencePostUrl = (post: PostsListWithVotes, sequenceId: string, forceEdit?: boolean) => {
   const edit = (post.draft || forceEdit) ? '?edit=true' : ''
-  return `/think/seq/${sequenceId}/post/${post._id}/${post.slug}${edit}`
+  return `/think/s/${sequenceId}/post/${post._id}/${post.slug}${edit}`
 }
 
 export const getThinkUrl = (document: PostsListWithVotes | SequencesPageTitleFragment, forceEdit?: boolean) => {
