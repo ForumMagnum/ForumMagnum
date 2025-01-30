@@ -124,9 +124,10 @@ async function checkRecentRepost(post: DbPost): Promise<DbPost> {
 }
 
 getCollectionHooks("Posts").newSync.add(checkRecentRepost);
-getCollectionHooks("Posts").updateBefore.add(
-  (_data, { newDocument }) => checkRecentRepost(newDocument),
-);
+getCollectionHooks("Posts").updateBefore.add(async (data, { newDocument }) => {
+  await checkRecentRepost(newDocument);
+  return data;
+});
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
   if (document.debate && !document.coauthorStatuses?.length) {
