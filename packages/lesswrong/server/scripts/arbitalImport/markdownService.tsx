@@ -224,7 +224,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     }
     
     function pageAliasToPageId(alias: string): string|null {
-      return (alias in slugsByPageId) ? alias : null;
+      if (alias in slugsByPageId || alias in titlesByPageId)
+        return alias;
+      else
+        return null;
     }
     function pageIdToUrl(pageId: string): string {
       if (conversionContext.linksById[pageId]) {
