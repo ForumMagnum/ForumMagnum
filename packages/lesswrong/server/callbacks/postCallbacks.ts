@@ -105,6 +105,29 @@ if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   );
 }
 
+async function CheckRecentRepost(post: DbPost): Promise<DbPost> {
+  if (!post.draft) {
+    const oneHourAgo = new Date(Date.now() - (60 * 60 * 1000));
+    const existing = await Posts.findOne({
+      _id: {$ne: post._id},
+      title: post.title,
+      userId: post.userId,
+      draft: {$ne: true},
+      deletedDraft: {$ne: true},
+      createdAt: {$gt: oneHourAgo},
+    });
+    if (existing) {
+      throw new Error(`You recently published another post titled "${post.title}"`);
+    }
+  }
+  return post;
+}
+
+getCollectionHooks("Posts").newSync.add(CheckRecentRepost);
+getCollectionHooks("Posts").updateBefore.add(
+  (_data, { newDocument }) => CheckRecentRepost(newDocument),
+);
+
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
   if (document.debate && !document.coauthorStatuses?.length) {
     throw new Error('Dialogue must have at least one co-author!');
