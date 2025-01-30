@@ -1,5 +1,4 @@
 import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
-import type { SearchQuery } from "./SearchQuery";
 import type { SearchResult } from "./SearchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
 import { indexNameToConfig } from "./ElasticConfig";
@@ -9,6 +8,7 @@ import {
   SEARCH_ORIGIN_DATE,
 } from "./ElasticQuery";
 import moment from "moment";
+import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
 
 type SanitizedIndexName = {
   index: string | string[],
@@ -36,33 +36,39 @@ class ElasticService {
     private client = new ElasticClient(),
   ) {}
 
-  async runQuery({indexName, params}: SearchQuery): Promise<SearchResult> {
+  async runQuery({indexName, params}: SearchQuery, options: SearchOptions): Promise<SearchResult> {
     const start = Date.now();
 
     const {index, sorting} = this.sanitizeIndexName(indexName);
     const search = params.query ?? "";
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
-    const result = await (
-      Array.isArray(index)
-        ? this.client.multiSearch({
-          indexes: index,
-          search,
-          offset: page * hitsPerPage,
-          limit: hitsPerPage,
-        })
-        : this.client.search({
-          index,
-          sorting,
-          search,
-          offset: page * hitsPerPage,
-          limit: hitsPerPage,
-          preTag: params.highlightPreTag,
-          postTag: params.highlightPostTag,
-          filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
-          coordinates: this.parseLatLng(params.aroundLatLng),
-        })
-    );
+    const skipSearch = search==="" && options.emptyStringSearchResults==="empty";
+    const result = skipSearch
+      ? {hits: {
+          total: 0,
+          hits: [],
+        }}
+      : await (
+        Array.isArray(index)
+          ? this.client.multiSearch({
+            indexes: index,
+            search,
+            offset: page * hitsPerPage,
+            limit: hitsPerPage,
+          })
+          : this.client.search({
+            index,
+            sorting,
+            search,
+            offset: page * hitsPerPage,
+            limit: hitsPerPage,
+            preTag: params.highlightPreTag,
+            postTag: params.highlightPostTag,
+            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+            coordinates: this.parseLatLng(params.aroundLatLng),
+          })
+      );
 
     const nbHits = typeof result.hits.total === "number"
       ? result.hits.total
