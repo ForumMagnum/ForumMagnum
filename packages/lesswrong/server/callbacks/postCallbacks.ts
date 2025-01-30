@@ -105,7 +105,7 @@ if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   );
 }
 
-async function CheckRecentRepost(post: DbPost): Promise<DbPost> {
+async function checkRecentRepost(post: DbPost): Promise<DbPost> {
   if (!post.draft) {
     const oneHourAgo = new Date(Date.now() - (60 * 60 * 1000));
     const existing = await Posts.findOne({
@@ -123,9 +123,9 @@ async function CheckRecentRepost(post: DbPost): Promise<DbPost> {
   return post;
 }
 
-getCollectionHooks("Posts").newSync.add(CheckRecentRepost);
+getCollectionHooks("Posts").newSync.add(checkRecentRepost);
 getCollectionHooks("Posts").updateBefore.add(
-  (_data, { newDocument }) => CheckRecentRepost(newDocument),
+  (_data, { newDocument }) => checkRecentRepost(newDocument),
 );
 
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
