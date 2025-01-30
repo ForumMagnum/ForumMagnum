@@ -23,7 +23,7 @@ export const ThinkPostNew = ({classes}: {
 
   return <ThinkWrapper>
     <div className={classes.formContainer}> 
-      <PostsNewForm showTableOfContents={false} />
+      <PostsNewForm showTableOfContents={false} fields={['title', 'contents']} />
     </div>
   </ThinkWrapper>
 }

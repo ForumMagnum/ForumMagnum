@@ -248,8 +248,9 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
-const PostsNewForm = ({classes, showTableOfContents}: {
+const PostsNewForm = ({classes, showTableOfContents, fields}: {
   showTableOfContents?: boolean,
+  fields?: string[],
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -413,6 +414,7 @@ const PostsNewForm = ({classes, showTableOfContents}: {
             eventForm={eventForm}
             debateForm={debateForm}
             repeatErrors
+            {...(fields ? {fields: fields} : {})}
             addFields={addFields}
             noSubmitOnCmdEnter
             formComponents={{
