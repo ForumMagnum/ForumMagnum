@@ -24,6 +24,7 @@ registerFragment(`
       wordCount
     }
     postedAt
+    lastEditedAt
     repliesBlockedUntil
     userId
     deleted

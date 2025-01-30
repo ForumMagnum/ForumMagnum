@@ -1,8 +1,12 @@
 import { Application, Request, Response, json } from "express";
-import { isValidSearchQuery } from "./SearchQuery";
 import ElasticService from "./ElasticService";
 import { UsersRepo } from "../../repos";
 import uniq from "lodash/uniq";
+import { SearchOptions, SearchQuery, queryRequestSchema } from "@/lib/search/NativeSearchClient";
+
+const defaultSearchOptions: SearchOptions = {
+  emptyStringSearchResults: "default"
+};
 
 class ElasticController {
   constructor(
@@ -17,12 +21,28 @@ class ElasticController {
 
   private async onSearch(req: Request, res: Response) {
     const {body} = req;
-    if (!Array.isArray(body)) {
-      res.status(400).send("Expected an array of queries");
+    let searchOptions: SearchOptions;
+    let queries: SearchQuery[] = [];
+    
+    const parsedBody = queryRequestSchema.safeParse(body);
+    if (!parsedBody.success) {
+      res.status(400).send("Expected an array of queries or an object with options");
       return;
     }
+    const parsedRequest = parsedBody.data;
+    
+    
+    if (Array.isArray(parsedRequest)) {
+      searchOptions = defaultSearchOptions
+      queries = body;
+    } else if ('queries' in parsedRequest) {
+      searchOptions = body.options ?? defaultSearchOptions;
+      queries = body.queries;
+    }
+
     try {
-      const results = await Promise.all(body.map(this.onQuery.bind(this)));
+      const results = await Promise.all(queries.map(q =>
+        this.searchService.runQuery(q, searchOptions)));
       for (const result of results) {
         const resultIds = result.hits.map(r=>r._id);
         if (uniq(resultIds).length !== resultIds.length) {
@@ -34,13 +54,6 @@ class ElasticController {
     } catch (e) {
       this.handleError(res, e);
     }
-  }
-
-  private onQuery(query: unknown) {
-    if (!isValidSearchQuery(query)) {
-      throw new Error("Invalid query");
-    }
-    return this.searchService.runQuery(query);
   }
 
   private async onSearchUserFacets(req: Request, res: Response) {

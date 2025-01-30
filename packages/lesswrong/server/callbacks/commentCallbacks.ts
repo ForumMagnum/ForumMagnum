@@ -51,7 +51,10 @@ export const getAdminTeamAccount = async () => {
  */
 export const noDeletionPmReason = 'Requested account deletion';
 
-getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").createBefore.add(async function createShortformPost (comment, {currentUser}) {
+  if (!currentUser) {
+    throw new Error("Must be logged in");
+  }
   if (comment.shortform && !comment.postId) {
     if (currentUser.shortformFeedId) {
       return ({
@@ -86,7 +89,8 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
       postId: post.data._id
     })
   }
-  return comment
+  
+  return comment;
 });
 
 getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment, _, context: ResolverContext) {
@@ -140,7 +144,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
 // comments.remove.async                            //
 //////////////////////////////////////////////////////
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePostCommenters (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemovePostCommenters ({document: comment}) {
   const { postId } = comment;
 
   if (postId) {
@@ -154,7 +158,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
   }
 });
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemoveChildrenComments (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemoveChildrenComments ({document: comment, currentUser}) {
 
   const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch();
 
@@ -230,12 +234,11 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   }
 }
 
-getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (comment: DbComment) {
+getCollectionHooks("Comments").createValidate.add(function NewCommentsEmptyCheck (validationErrors, {document: comment}) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
-  return comment;
 });
 
 interface SendModerationPMParams {

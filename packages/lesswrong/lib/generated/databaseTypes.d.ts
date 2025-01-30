@@ -139,6 +139,7 @@ interface DbComment extends DbObject {
   parentCommentId: string | null
   topLevelCommentId: string | null
   postedAt: Date
+  lastEditedAt: Date | null
   author: string | null
   postId: string | null
   tagId: string | null
