@@ -178,13 +178,13 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['admins'],
     control: 'datetime',
     group: formGroups.adminOptions,
-    onInsert: (post, currentUser) => {
+    onCreate: ({document: post, currentUser}) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && postGetDefaultStatus(currentUser!) === postStatuses.STATUS_APPROVED) {
         return new Date();
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier, newDocument: post}) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && modifier.$set.status === postStatuses.STATUS_APPROVED) {
         return new Date();
@@ -256,10 +256,10 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: false,
     canRead: ['guests'],
-    onInsert: async (post) => {
+    onCreate: async ({document: post}) => {
       return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
-    onEdit: async (modifier, post) => {
+    onUpdate: async ({modifier, newDocument: post}) => {
       if (modifier.$set.title) {
         return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
@@ -280,7 +280,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (post: DbPost) => post.postedAt || new Date(),
+    onCreate: ({document: post}) => post.postedAt || new Date(),
   },
   // Count of how many times the post's link was clicked
   clickCount: {
@@ -315,12 +315,12 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['admins'],
     canUpdate: ['admins', 'sunshineRegiment'],
     control: 'select',
-    onInsert: (document, currentUser) => {
+    onCreate: ({document, currentUser}) => {
       if (!document.status) {
         return postGetDefaultStatus(currentUser!);
       }
     },
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
         return postGetDefaultStatus(currentUser!);
@@ -335,7 +335,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: false,
     canRead: ['guests'],
-    onInsert: (post) => {
+    onCreate: ({document: post}) => {
       // Set the post's isFuture to true if necessary
       if (post.postedAt) {
         const postTime = new Date(post.postedAt).getTime();
@@ -345,7 +345,7 @@ const schema: SchemaType<"Posts"> = {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier, newDocument: post}) => {
       // Set the post's isFuture to true if necessary
       if (modifier.$set.postedAt) {
         const postTime = new Date(modifier.$set.postedAt).getTime();
@@ -371,12 +371,12 @@ const schema: SchemaType<"Posts"> = {
     control: 'checkbox',
     order: 10,
     group: formGroups.adminOptions,
-    onInsert: (post) => {
+    onCreate: ({document: post}) => {
       if(!post.sticky) {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier}) => {
       if (!modifier.$set.sticky) {
         return false;
       }
@@ -421,7 +421,7 @@ const schema: SchemaType<"Posts"> = {
     denormalized: true,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onEdit: async (modifier, document, currentUser) => {
+    onUpdate: async ({modifier, document, currentUser}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
         return await userGetDisplayNameById(modifier.$set.userId)
@@ -1533,7 +1533,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     ...(!requireReviewToFrontpagePostsSetting.get() && {
-      onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
+      onCreate: ({document: {isEvent, submitToFrontpage, draft}}) => eaFrontpageDateDefault(
         isEvent,
         submitToFrontpage,
         draft,
@@ -2066,7 +2066,7 @@ const schema: SchemaType<"Posts"> = {
     nullable: false,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (document) => document.baseScore ?? 0,
+    onCreate: ({document}) => document.baseScore ?? 0,
   },
   // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
@@ -2074,7 +2074,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 2 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 2 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 30
   scoreExceeded30Date: {
@@ -2082,7 +2082,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 30 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 30 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 45
   scoreExceeded45Date: {
@@ -2090,7 +2090,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 45 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 45 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 75
   scoreExceeded75Date: {
@@ -2098,7 +2098,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 75 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 75 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 125
   scoreExceeded125Date: {
@@ -2106,7 +2106,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 125 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 125 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 200
   scoreExceeded200Date: {
@@ -2114,7 +2114,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 200 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 200 ? new Date() : null
   },
   bannedUserIds: {
     type: Array,
@@ -2489,12 +2489,12 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     control: 'checkbox',
-    onInsert: (post) => {
+    onCreate: ({document: post}) => {
       if(!post.metaSticky) {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier}) => {
       if (!modifier.$set.metaSticky) {
         return false;
       }
@@ -2923,7 +2923,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       if (modifier.$set?.rejected && currentUser) {
         return modifier.$set.rejectedByUserId || currentUser._id
       }
@@ -3032,7 +3032,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    onInsert: () => new Date(),
+    onCreate: () => new Date(),
   },
 
   afSticky: {
@@ -3047,12 +3047,12 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForumAdmins', 'admins'],
     control: 'checkbox',
-    onInsert: (post: DbPost) => {
+    onCreate: ({document: post}) => {
       if(!post.afSticky) {
         return false;
       }
     },
-    onEdit: (modifier: MongoModifier<DbPost>, post: DbPost) => {
+    onUpdate: ({modifier}) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }
