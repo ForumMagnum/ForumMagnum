@@ -1,4 +1,4 @@
-//eslint-disable no-console
+/* eslint-disable no-console */
 
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
