@@ -21,7 +21,7 @@ mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
 
-export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided', 'Links'] as const;
+export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
 export type RagModeType = typeof RAG_MODE_SET[number];
 
 const ClientMessageSchema = z.object({

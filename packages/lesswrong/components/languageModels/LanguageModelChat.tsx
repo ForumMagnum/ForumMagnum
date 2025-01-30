@@ -554,7 +554,7 @@ export const ChatInterface = ({classes}: {
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
   const { getLlmFeedbackCommand } = useEditorCommands();
 
-  const [ragMode, setRagMode] = useState<RagModeType>('Links');
+  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
   const { flash } = useMessages();
 
   const messagesRef = useRef<HTMLDivElement>(null);
