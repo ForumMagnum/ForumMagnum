@@ -598,7 +598,10 @@ addGraphQLResolvers({
     
     async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
       const sample = await Tags.aggregate([
-        {$match: {deleted: false, adminOnly: false}},
+        {$match: {
+          deleted: false, adminOnly: false,
+          isPlaceholderPage: false,
+        }},
         {$sample: {size: 1}}
       ]).toArray();
       if (!sample || !sample.length)
