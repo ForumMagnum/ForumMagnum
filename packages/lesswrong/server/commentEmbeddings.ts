@@ -1,8 +1,6 @@
-import Comments from "../lib/collections/comments/collection";
-import { CommentEmbeddingsRepo } from "./repos";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
-import { Globals } from "./vulcan-lib";
+import { createAdminContext, Globals } from "./vulcan-lib";
 import md5 from "md5";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { trimText } from "./embeddings";
@@ -10,6 +8,8 @@ import mapValues from "lodash/mapValues";
 import { EMBEDDINGS_VECTOR_SIZE } from "@/lib/collections/commentEmbeddings/schema";
 import { VoyageAIClient } from "voyageai";
 import { EmbedResponseDataItem } from "voyageai/api/types";
+import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 type EmbeddingsResult = {
   embeddings: number[],
@@ -45,9 +45,11 @@ const getEmbeddingsFromVoyage = async <T extends string | Record<string, string>
   embeddings: T extends string ? number[] : Record<string, number[]>,
   model: string
 }> => {
+  type EmbeddingReturnType = T extends string ? number[] : Record<string, number[]>;
+
   if (isAnyTest) {
     return {
-      embeddings: [] as unknown as T extends string ? number[] : Record<string, number[]>,
+      embeddings: [] as unknown as EmbeddingReturnType,
       model: "test",
     };
   }
@@ -77,13 +79,13 @@ const getEmbeddingsFromVoyage = async <T extends string | Record<string, string>
         ids.map((id, idx) => [id, embeddings[idx].embedding])
       );
 
-      return { embeddings: mappedEmbeddings as T extends string ? number[] : Record<string, number[]>, model: VOYAGE_MODEL };
+      return { embeddings: mappedEmbeddings as EmbeddingReturnType, model: VOYAGE_MODEL };
     } else {
       const embeddings = result.data?.[0].embedding;
       if (!embeddings?.length) {
         throw new Error(`Invalid Voyage API response for single embedding`);
       }
-      return { embeddings: embeddings as T extends string ? number[] : Record<string, number[]>, model: VOYAGE_MODEL };
+      return { embeddings: embeddings as EmbeddingReturnType, model: VOYAGE_MODEL };
     }
   } catch (err) {
     if (err instanceof Error) {
@@ -160,20 +162,29 @@ export const getEmbeddingsFromApi = async <T extends string | Record<string, str
   }
 };
 
-const getEmbeddingsForComment = async (comment: DbComment): Promise<EmbeddingsWithHash> => {
+const enrichCommentDocumentForEmbedding = (comment: CommentsListWithParentMetadata) => {
   const text = htmlToTextDefault(comment.contents?.html ?? "");
-  const { embeddings, model } = await getEmbeddingsFromApi(text);
-  const hash = md5(text);
-  return { hash, embeddings: embeddings as number[], model };
+  const { user, post } = comment;
+  const parentPostTitleNode = `<parent-post-title>${post?.title}</parent-post-title>`;
+  const commentAuthorNode = `<comment-author>${userGetDisplayName(user)}</comment-author>`;
+  const commentTextNode = `<comment-text>${text}</comment-text>`;
+  return `<comment>\n${parentPostTitleNode}\n${commentAuthorNode}\n${commentTextNode}\n</comment>`;
+}
+
+const getEmbeddingsForComment = async (comment: CommentsListWithParentMetadata): Promise<EmbeddingsWithHash> => {
+  const enrichedComment = enrichCommentDocumentForEmbedding(comment);
+  const { embeddings, model } = await getEmbeddingsFromApi(enrichedComment);
+  const hash = md5(enrichedComment);
+  return { hash, embeddings: embeddings, model };
 };
 
 const getEmbeddingsForComments = async (
-  comments: DbComment[]
+  comments: CommentsListWithParentMetadata[]
 ): Promise<Record<string, EmbeddingsWithHash>> => {
   const textMappings: Record<string, string> = Object.fromEntries(
     comments.map((comment) => [
       comment._id,
-      htmlToTextDefault(comment.contents?.html ?? "")
+      enrichCommentDocumentForEmbedding(comment)
     ]).filter(([_, text]) => !!text)
   );
 
@@ -192,20 +203,27 @@ const getEmbeddingsForComments = async (
 };
 
 export const updateCommentEmbeddings = async (commentId: string) => {
-  const comment = await Comments.findOne(commentId);
+  const context = createAdminContext();
+  const { currentUser, repos } = context;
+  const comment = await fetchFragmentSingle({
+    collectionName: 'Comments',
+    fragmentName: 'CommentsListWithParentMetadata',
+    selector: { _id: commentId },
+    context,
+    currentUser,
+  });
   if (!comment) throw new Error(`Comment ${commentId} not found`);
   
   const { hash, embeddings, model } = await getEmbeddingsForComment(comment);
-  const repo = new CommentEmbeddingsRepo();
-  await repo.setCommentEmbeddings(commentId, hash, model, embeddings);
+  await repos.commentEmbeddings.setCommentEmbeddings(commentId, hash, model, embeddings);
 };
 
-const batchUpdateCommentEmbeddings = async (comments: DbComment[]) => {
-  const repo = new CommentEmbeddingsRepo();
+const batchUpdateCommentEmbeddings = async (comments: CommentsListWithParentMetadata[], context: ResolverContext) => {
+  const { repos } = context;
   const commentEmbeddings = await getEmbeddingsForComments(comments);
   
   const updates = Object.entries(commentEmbeddings).map(([commentId, { hash, model, embeddings }]) => 
-    repo.setCommentEmbeddings(commentId, hash, model, embeddings)
+    repos.commentEmbeddings.setCommentEmbeddings(commentId, hash, model, embeddings)
   );
 
   // eslint-disable-next-line no-console
@@ -214,21 +232,30 @@ const batchUpdateCommentEmbeddings = async (comments: DbComment[]) => {
 };
 
 export const updateMissingCommentEmbeddings = async () => {
-  let startDate = new Date("2024-01-29");
+  const context = createAdminContext();
+  const { currentUser, repos } = context;
+
+  let startDate = new Date("2023-01-29");
   let batchCount = 0;
-  let comments: DbComment[] = [];
+  let comments: CommentsListWithParentMetadata[] = [];
   let first = true;
   while (comments.length || first) {
     batchCount++;
     // eslint-disable-next-line no-console
     console.log(`Comment embeddings batch ${batchCount}`);
     first = false;
-    const ids = await new CommentEmbeddingsRepo().getCommentIdsWithoutEmbeddings(startDate);
-    comments = await Comments.find({ _id: { $in: ids } }).fetch();
+    const ids = await repos.commentEmbeddings.getCommentIdsWithoutEmbeddings(startDate, 300);
+    comments = await fetchFragment({
+      collectionName: 'Comments',
+      fragmentName: 'CommentsListWithParentMetadata',
+      selector: { _id: { $in: ids } },
+      context,
+      currentUser,
+    });
     // eslint-disable-next-line no-console
     console.log(`Found ${comments.length} comments for ${ids.length} ids`);
-    await batchUpdateCommentEmbeddings(comments);
-    startDate = comments[comments.length - 1]?.createdAt;
+    await batchUpdateCommentEmbeddings(comments, context);
+    startDate = comments[comments.length - 1]?.postedAt;
   }
 };
 

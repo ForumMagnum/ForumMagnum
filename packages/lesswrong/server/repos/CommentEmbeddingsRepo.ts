@@ -37,7 +37,7 @@ class CommentEmbeddingsRepo extends AbstractRepo<"CommentEmbeddings"> {
     `, [randomId(), commentId, commentHash, now, JSON.stringify(embeddings), model]);
   }
 
-  async getCommentIdsWithoutEmbeddings(createdAtCutoff?: Date): Promise<string[]> {
+  async getCommentIdsWithoutEmbeddings(postedAtCutoff?: Date, limit = 100): Promise<string[]> {
     const results = await this.getRawDb().any<{ _id: string }>(`
       SELECT c."_id"
       FROM "Comments" c
@@ -46,10 +46,10 @@ class CommentEmbeddingsRepo extends AbstractRepo<"CommentEmbeddings"> {
       AND COALESCE((c.contents ->> 'wordCount')::INTEGER, 0) > 0
       AND c.deleted IS FALSE
       AND c."deletedPublic" IS FALSE
-      ${createdAtCutoff ? `AND c."createdAt" > $1` : ''}
-      ORDER BY c."createdAt" ASC
-      LIMIT 100
-    `, [createdAtCutoff]);
+      ${postedAtCutoff ? `AND c."postedAt" > $1` : ''}
+      ORDER BY c."postedAt" ASC
+      LIMIT $2
+    `, [postedAtCutoff, limit]);
 
     return results.map(({ _id }) => _id);
   }

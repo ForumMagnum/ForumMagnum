@@ -4,6 +4,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentNode, gql, useQuery } from '@apollo/client';
 import Input from '@material-ui/core/Input';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import Button from '@material-ui/core/Button';
 
 const styles = defineStyles('CommentEmbeddingSearchPage', (theme: ThemeType) => ({
   root: {},
@@ -11,7 +12,9 @@ const styles = defineStyles('CommentEmbeddingSearchPage', (theme: ThemeType) => 
     marginBottom: theme.spacing.unit * 2,
     marginRight: theme.spacing.unit * 2,
   },
-  scoreBiasInput: {},
+  scoreBiasInput: {
+    marginRight: theme.spacing.unit * 2,
+  },
 }));
 
 const getCommentEmbeddingSearchQuery = (() => {
@@ -56,14 +59,13 @@ export const CommentEmbeddingSearchPage = () => {
     setUserQuery(query);
   }, {
     rateLimitMs: 300,
-    callOnLeadingEdge: false,
+    callOnLeadingEdge: true,
     onUnmount: "cancelPending",
     allowExplicitCallAfterUnmount: false,
   });
 
   const handleUserInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDisplayQuery(e.target.value);
-    updateUserQuery(e.target.value);
   }
 
   return <SingleColumnSection>
@@ -79,6 +81,11 @@ export const CommentEmbeddingSearchPage = () => {
       onChange={(e) => setScoreBias(Number(e.target.value))}
       placeholder="Score bias (0-1)"
     />
+    <Button onClick={() => {
+      updateUserQuery(displayQuery);
+    }}>
+      Submit
+    </Button>
     <div className={classes.root}>
       {loading && !!userQuery && <Loading />}
       <div>
