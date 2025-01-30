@@ -567,6 +567,10 @@ declare global {
         green: ColorString,
       },
     },
+    forumEvent: {
+      draftSticker: ColorString,
+      stickerMobileOverlay: ColorString,
+    },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },

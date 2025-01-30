@@ -1,6 +1,6 @@
 import { getCollection } from '@/lib/vulcan-lib';
 import moment from 'moment';
-import { randomId } from '@/lib/random';
+import { randomLowercaseId } from '@/lib/random';
 import { isServer } from '@/lib/executionEnvironment';
 
 // Get relative link to conversation (used only in session)

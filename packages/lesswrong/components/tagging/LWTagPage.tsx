@@ -1003,7 +1003,7 @@ const LWTagPage = () => {
     }
   });
 
-  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
+  const { selectedLensId, selectedLens, updateSelectedLens, getSelectedLensUrlPath, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
   const switchLens = useCallback((lensId: string) => {
@@ -1285,6 +1285,7 @@ const LWTagPage = () => {
         lenses={lenses}
         selectedLens={selectedLens}
         switchLens={switchLens}
+        getSelectedLensUrlPath={getSelectedLensUrlPath}
       />}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>

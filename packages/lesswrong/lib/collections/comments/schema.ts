@@ -10,6 +10,7 @@ import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
+import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -64,6 +65,18 @@ const schema: SchemaType<"Comments"> = {
     onInsert: (document, currentUser) => new Date(),
     nullable: false
   },
+  lastEditedAt: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    nullable: true,
+    onCreate: () => new Date(),
+    onUpdate: ({oldDocument, newDocument}) => {
+      if (oldDocument.contents?.html !== newDocument.contents?.html) {
+        return new Date();
+      }
+    }
+  },
   // The comment author's name
   author: {
     type: String,
@@ -110,7 +123,7 @@ const schema: SchemaType<"Comments"> = {
     canCreate: ['members'],
     hidden: true,
   },
-  // If this comment is associated with a forum event, the _id of the forumEvent.
+  /** If this comment is associated with a forum event, the _id of the forumEvent. */
   forumEventId: {
     ...foreignKeyField({
       idFieldName: "forumEventId",
@@ -120,6 +133,19 @@ const schema: SchemaType<"Comments"> = {
       nullable: true,
     }),
     optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
+  },
+  /**
+   * Extra data regarding how this comment relates to the `forumEventId`. Currently
+   * this is used for "STICKERS" events, to trigger the creation of a sticker on the
+   * frontpage banner as a side effect.
+   */
+  forumEventMetadata: {
+    type: ForumEventCommentMetadataSchema,
+    optional: true,
+    blackbox: true,
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,

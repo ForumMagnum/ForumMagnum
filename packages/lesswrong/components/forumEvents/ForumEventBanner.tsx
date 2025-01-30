@@ -1,7 +1,8 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
 type BannerType = "frontpage" | "postpage";
 
@@ -14,22 +15,34 @@ export const ForumEventBanner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
   const {ForumEventFrontpageBanner, ForumEventPostPageBanner} = Components;
+  const {currentForumEvent} = useCurrentForumEvent();
   
   if (!hasForumEvents) {
     return null;
   }
-  
-  switch (bannerType) {
-  case "frontpage":
-    return (
-      <ForumEventFrontpageBanner />
-    );
-  case "postpage":
-    return (
-      <ForumEventPostPageBanner />
-    );
-  default:
+
+  if (!currentForumEvent) {
     return null;
+  }
+
+  const {darkColor, lightColor, bannerTextColor} = currentForumEvent;
+
+  // Define background color with a CSS variable to be accessed in the styles
+  const style = {
+    "--forum-event-background": darkColor,
+    "--forum-event-foreground": lightColor,
+    "--forum-event-banner-text": bannerTextColor
+  } as CSSProperties;
+
+  const wrapWithStyles = (content: JSX.Element) => <span style={style}>{content}</span>;
+
+  switch (bannerType) {
+    case "frontpage":
+      return wrapWithStyles(<ForumEventFrontpageBanner />);
+    case "postpage":
+      return wrapWithStyles(<ForumEventPostPageBanner />);
+    default:
+      return null;
   }
 }
 
