@@ -61,6 +61,7 @@ import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
+import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
@@ -296,7 +297,8 @@ export type ForumIconName =
   "Add" |
   "Book" |
   "CrossReactionCap" |
-  "Dictionary";
+  "Dictionary" |
+  "Copy" ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -425,7 +427,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
     Add: MuiAddIcon,
-    Dictionary: DictionaryIcon
+    Dictionary: DictionaryIcon,
+    Copy: CopyIcon
   },
   default: {
     Book: MuiImportContactsIcon,
@@ -554,6 +557,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReactionCap: CrossReactionCapIcon,
     Add: MuiAddIcon,
     Dictionary: DictionaryIcon,
+    Copy: CopyIcon,
   },
 };
 

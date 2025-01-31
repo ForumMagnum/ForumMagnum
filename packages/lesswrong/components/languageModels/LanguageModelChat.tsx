@@ -121,6 +121,8 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: "auto",
+    display: "flex",
+    alignItems: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginLeft: 10
   },
@@ -148,9 +150,16 @@ const styles = (theme: ThemeType) => ({
   loadingSpinner: {
     marginTop: 10
   },
+  iconButton: {
+    cursor: "pointer",
+    opacity: 0.8,
+    marginRight: 8
+  },
+  disabledIconButton: {
+    opacity: 0.3,
+    cursor: "default",
+  }
 });
-
-const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
 const LLMChatMessage = ({message, classes}: {
   message: LlmMessagesFragment | NewLlmMessage,
@@ -306,9 +315,9 @@ function useCurrentPostContext(): CurrentPostContext {
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
+  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody, ForumIcon, LWTooltip } = Components;
 
-  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
+  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading, orderedConversationsLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
@@ -416,11 +425,11 @@ export const ChatInterface = ({classes}: {
 
   const conversationSelect = <Select 
     onChange={onSelect} 
-    value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
+    value={currentConversation?._id ?? orderedConversations[0]?._id}
     disableUnderline
     className={classes.select}
     MenuProps={{style: {zIndex: 10000000002}}} // TODO: figure out sensible z-index stuff
-    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
+    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title}
     >
       {
         orderedConversations.map(({ title, _id }, index) => (
@@ -429,9 +438,6 @@ export const ChatInterface = ({classes}: {
             <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
           </MenuItem>
       ))}
-      <MenuItem value={NEW_CONVERSATION_MENU_ITEM} className={classes.menuItem}>
-        New Conversation
-      </MenuItem>
     </Select>;
 
     const ragModeSelect = <Select 
@@ -449,13 +455,13 @@ export const ChatInterface = ({classes}: {
 
 
   const options = <div className={classes.options}>
-    <Button onClick={() => setCurrentConversation()}>
-      New Chat
-    </Button>
-    <Button onClick={exportHistoryToClipboard} disabled={!currentConversation}>
-      Export
-    </Button>
-    {conversationSelect}
+    <LWTooltip title="Start a new conversation">
+      <ForumIcon icon="Add" onClick={() => setCurrentConversation()} className={classes.iconButton} />
+    </LWTooltip>
+    <LWTooltip title={`Copy conversation to clipboard`}>
+      <ForumIcon icon="Copy" onClick={exportHistoryToClipboard} className={classNames(classes.iconButton, {[classes.disabledIconButton]: !currentConversation })} />
+    </LWTooltip>
+    {orderedConversationsLoading ? <Loading /> : conversationSelect}
     {ragModeSelect}
   </div>  
 

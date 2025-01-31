@@ -1059,7 +1059,6 @@ importComponent("SubforumWikiTab", () => require("../../components/tagging/subfo
 importComponent("TagSubforumPage2", () => require("../../components/tagging/subforums/TagSubforumPage2.tsx"));
 importComponent("ThemePickerMenu", () => require("../../components/themes/ThemePickerMenu.tsx"));
 importComponent("ThinkLink", () => require("../../components/thinkPage/ThinkLink.tsx"));
-importComponent("ThinkOmnibar", () => require("../../components/thinkPage/ThinkOmnibar.tsx"));
 importComponent("ThinkPost", () => require("../../components/thinkPage/ThinkPost.tsx"));
 importComponent("ThinkPostEdit", () => require("../../components/thinkPage/ThinkPostEdit.tsx"));
 importComponent("ThinkPostNew", () => require("../../components/thinkPage/ThinkPostNew.tsx"));

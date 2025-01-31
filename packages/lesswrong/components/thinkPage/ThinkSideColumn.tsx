@@ -192,7 +192,7 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
     }
   }
 
-  const { ThinkSideItem, ThinkOmnibar, ForumIcon, Row, Loading, ThinkSidePost, ThinkSideSequence, LWTooltip } = Components
+  const { ThinkSideItem, ForumIcon, Row, Loading, ThinkSidePost, ThinkSideSequence, LWTooltip } = Components
 
   let documentSideComponent
   if (identifyDocument(document) === 'Post') {
@@ -207,7 +207,6 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
         <ForumIcon icon="Document" className={classes.icon} onClick={handleNewPostClick} /></LWTooltip>
       <LWTooltip title="Create a new sequence">
         <ForumIcon icon="Book" className={classes.icon} onClick={handleNewSequenceClick} /></LWTooltip>
-      <ThinkOmnibar setActive={setActive} />
       {createPostLoading && <Loading />}
     </Row>
     {documentSideComponent}
