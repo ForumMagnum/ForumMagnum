@@ -20,6 +20,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { promptLibrary } from '@/lib/promptLibrary';
+import { useEditorCommands } from '../editor/EditorCommandsContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -311,6 +312,67 @@ function useCurrentPostContext(): CurrentPostContext {
   }
 
   return {};
+}
+
+
+const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typeof styles>, prompt: Prompt}) => {
+  const { ForumIcon, Row, LWTooltip, Loading } = Components;
+
+  const [edit, setEdit] = useState(false);
+  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
+  const { getLlmFeedbackCommand, cancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId } = useEditorCommands();
+
+  const handleSubmit = useCallback(async () => {
+    if (getLlmFeedbackCommand) {
+      await getLlmFeedbackCommand(userFeedbackPrompt, prompt.title);
+    }
+    // setEdit(false);
+  }, [getLlmFeedbackCommand, userFeedbackPrompt, prompt.title]);
+
+  const handleCancel = useCallback(() => {
+    if (cancelLlmFeedbackCommand) {
+      cancelLlmFeedbackCommand();
+    }
+    // setEdit(false);
+  }, [cancelLlmFeedbackCommand]);
+
+  if (!getLlmFeedbackCommand) {
+    return null;
+  }
+
+  if (prompt.title === llmFeedbackCommandLoadingSourceId) {
+    return <div className={classes.postSuggestionsButton} onClick={handleCancel}>
+      <Row alignItems="center" gap={4}>
+        <LWTooltip title="Generating suggestions, click to cancel" placement="left">
+          <Loading />
+        </LWTooltip>
+      </Row>
+    </div>
+  }
+
+  return <div onClick={handleSubmit} className={classes.postSuggestionsButton}>
+    <Row alignItems="center" gap={4}>
+      <LWTooltip title={prompt.description} placement="left">
+        <div>{prompt.title}</div>
+      </LWTooltip>
+      <LWTooltip title={edit ? "Cancel" : "Edit Prompt"} placement="right"> 
+        <ForumIcon className={classes.suggestionIcon} icon={edit ? "Clear" : "Edit"} onClick={() => setEdit(!edit)}/>
+      </LWTooltip>
+    </Row>
+    {/* <div className={classes.postSuggestionsWrapper} style={{display: edit ? "block" : "none"}}>
+      <Input
+        id="user-feedback-prompt-input"
+        className={classes.userFeedbackPromptInput}
+        type="text"
+        placeholder="Prompt"
+        value={userFeedbackPrompt}
+        onChange={(e) => setUserFeedbackPrompt(e.target.value)}
+        multiline
+        rows={15}
+        disableUnderline
+      />
+    </div> */}
+  </div>
 }
 
 export const ChatInterface = ({classes}: {
