@@ -147,6 +147,11 @@ const styles = (theme: ThemeType) => ({
   gsLoadingHeart: {
     cursor: "wait !important",
   },
+  votingImage: {
+    width: '55vw',
+    maxWidth: '1000px',
+    marginLeft: '-22px'
+  },
 });
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
@@ -267,6 +272,7 @@ const ReviewVotingCanvas = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const { pathname, currentRoute } = useLocation();
+  const { CloudinaryImage2 } = Components;
   const currentUser = useCurrentUser();
   const showHearts = currentRoute?.path === "/";
 
@@ -390,39 +396,42 @@ const ReviewVotingCanvas = ({
   
 
   return (
-    <AnalyticsContext pageSectionContext="header" siteEvent="reviewVoting2022">
-      <div
-        {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
-        ref={headerRef}
-        className={classNames(classes.rootGivingSeason, {
-          [classes.gsCanPlaceHeart]: hoverPos,
-          [classes.gsLoadingHeart]: isAddingHeart || isRemovingHeart,
-        })}
-      >
-          <div className={classes.gsHearts}>
-            <DeferRender ssr={false}>
-              {hearts.map((heart) => (
-                <Heart
-                  key={heart.userId}
-                  heart={heart}
-                  currentUser={currentUser}
-                  removeHeart={removeHeart}
-                  classes={classes}
-                />
-              ))}
-              {hoverPos &&
-                <Heart
-                  heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
-                  currentUser={currentUser}
-                  removeHeart={removeHeart}
-                  classes={classes}
-                  disabled={!userHasVotedEnough}
-                />
-              }
-            </DeferRender>
-          </div>
-      </div>
-    </AnalyticsContext>
+    <>
+      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+      <AnalyticsContext pageSectionContext="header" siteEvent="reviewVoting2022">
+        <div
+          {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
+          ref={headerRef}
+          className={classNames(classes.rootGivingSeason, {
+            [classes.gsCanPlaceHeart]: hoverPos,
+            [classes.gsLoadingHeart]: isAddingHeart || isRemovingHeart,
+          })}
+        >
+            <div className={classes.gsHearts}>
+              <DeferRender ssr={false}>
+                {hearts.map((heart) => (
+                  <Heart
+                    key={heart.userId}
+                    heart={heart}
+                    currentUser={currentUser}
+                    removeHeart={removeHeart}
+                    classes={classes}
+                  />
+                ))}
+                {hoverPos &&
+                  <Heart
+                    heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
+                    currentUser={currentUser}
+                    removeHeart={removeHeart}
+                    classes={classes}
+                    disabled={!userHasVotedEnough}
+                  />
+                }
+              </DeferRender>
+            </div>
+        </div>
+      </AnalyticsContext>
+    </>
   );
 }
 

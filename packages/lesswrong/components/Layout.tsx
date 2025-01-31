@@ -35,6 +35,7 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { shouldDisplayReviewVotingCanvas, getReviewPhase } from '@/lib/reviewUtils';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -458,8 +459,9 @@ const Layout = ({currentUser, children, classes}: {
       GlobalHotkeys,
       LanguageModelLauncherButton,
       LlmChatWrapper,
-      TabNavigationMenuFooter
-      
+      TabNavigationMenuFooter,
+      ReviewVotingCanvas,
+      LWBackgroundImage
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -582,17 +584,41 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {isLW && standaloneNavigation && <div className={classes.imageColumn}>
-                  {/* Background image shown in the top-right corner of LW. The
-                    * loading="lazy" prevents downloading the image if the
-                    * screen-size is such that the image will be hidden by a
-                    * breakpoint. */}
-                  <CloudinaryImage2
-                    loading="lazy"
-                    className={classes.backgroundImage}
-                    publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-                    darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
-                  />
+                {isLW && <LWBackgroundImage />}
+                {isLW && getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <div className={classes.backgroundImage}>
+                  <ReviewVotingCanvas />
+                </div>}
+                {isLW && (getReviewPhase() !== 'VOTING' || !standaloneNavigation) && <>
+                  {currentRoute?.name !== 'home' && <div className={classes.imageColumn}> 
+                    {/* Background image shown in the top-right corner of LW. The
+                      * loading="lazy" prevents downloading the image if the
+                      * screen-size is such that the image will be hidden by a
+                      * breakpoint. */}
+                    <CloudinaryImage2
+                      loading="lazy"
+                      className={classes.backgroundImage}
+                      publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+                      darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+                      />
+                  </div>}
+                </>}
+                
+                {isLW && standaloneNavigation && <>
+                  {currentRoute?.name !== 'home' && <div className={classes.imageColumn}> 
+                    {/* Background image shown in the top-right corner of LW. The
+                      * loading="lazy" prevents downloading the image if the
+                      * screen-size is such that the image will be hidden by a
+                      * breakpoint. */}
+                    <CloudinaryImage2
+                      loading="lazy"
+                      className={classes.backgroundImage}
+                      publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+                      darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+                    />
+                  </div>}
+                </>}
+                {shouldDisplayReviewVotingCanvas() && currentRoute?.name === 'home' && <div className={classes.backgroundImage}>
+                  <ReviewVotingCanvas />
                 </div>}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&

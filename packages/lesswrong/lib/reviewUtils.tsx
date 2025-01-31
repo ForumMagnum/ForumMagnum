@@ -1,7 +1,7 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLWorAF } from "./instanceSettings"
+import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment';
@@ -51,7 +51,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 const TIMEZONE_OFFSET = isDevelopment 
-  ? -24*4 // we start testing each phase a few days before it starts
+  ? 8//-24*4 // we start testing each phase a few days before it starts
   : 8 // Pacific Time
 
 export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
@@ -66,6 +66,13 @@ export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${r
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
 export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+
+export const shouldDisplayReviewVotingCanvas = () => {
+  const currentDate = moment.utc()
+  const reviewPhaseEnd = getReviewPhaseEnd(REVIEW_YEAR)
+  const votingPhaseEnd = getVotingPhaseEnd(REVIEW_YEAR)
+  return isLW && (currentDate < reviewPhaseEnd && currentDate < votingPhaseEnd)
+}
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
