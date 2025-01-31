@@ -19,8 +19,9 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
-import { promptLibrary } from '@/lib/promptLibrary';
+import { Prompt, promptLibrary } from '@/lib/promptLibrary';
 import { useEditorCommands } from '../editor/EditorCommandsContext';
+import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,10 +30,11 @@ const styles = (theme: ThemeType) => ({
   subRoot: {
     display: "flex",
     flexDirection: "column",
-    height: "100%"
+    height: "100%",
+    paddingLeft: 8,
+    paddingRight: 8,
   },
   submission: {
-    margin: 10,
     display: "flex",
     padding: 20,
     ...theme.typography.commentStyle,
@@ -52,8 +54,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inputTextbox: {
-    margin: 10,
     marginTop: 20,
+    marginBottom: 10,
     borderRadius: 4,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
@@ -78,10 +80,10 @@ const styles = (theme: ThemeType) => ({
   editorButtons: {
     display: "flex",
     justifyContent: "flex-end",
-    padding: "10px",
+    paddingRight: 8,
+    paddingBottom: 8,
   },
   welcomeGuide: {
-    margin: 10,
     display: "flex",
     flexDirection: "column",
   },
@@ -99,7 +101,6 @@ const styles = (theme: ThemeType) => ({
   },
   chatMessage: {
     padding: 20,
-    margin: 10,
     borderRadius: 10,
     backgroundColor: theme.palette.grey[100],
   },
@@ -157,10 +158,52 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
     marginRight: 8
   },
-  disabledIconButton: {
+  userFeedbackPromptInput: {
+    borderRadius: 4,
+    width: "100%",
+    ...theme.typography.body2,
+  },
+  postSuggestionsButton: {
+    border: theme.palette.border.commentBorder,
+    cursor: 'pointer',
+    opacity: 0.8,
+    alignSelf: 'flex-start',
+    ...theme.typography.body2,
+    width: "100%",
+    fontSize: "1.1rem",
+    marginBottom: 4,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 4,
+    whiteSpace: "nowrap",
+    '& $suggestionIcon': {
+      opacity: 0,
+    },
+    '&:hover $suggestionIcon': {
+      opacity: .5,
+    },
+  },
+  postSuggestionsList: {
+    display: "flex",
+    flex: 1,
+    gap: "8px",
+    maxHeight: 32,
+    flexWrap: "wrap",
+    overflow: "hidden",
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: "1.1rem",
+  },
+  suggestionIcon: {
+    width: 16,
+    height: 16,
+  },
+  disabledButton: {
     opacity: 0.3,
     cursor: "default",
-  }
+  },
 });
 
 const LLMChatMessage = ({message, classes}: {
@@ -194,7 +237,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
-    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
+    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. ',
     mention: mentionPluginConfiguration,
   };
 
@@ -314,7 +357,6 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
-
 const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typeof styles>, prompt: Prompt}) => {
   const { ForumIcon, Row, LWTooltip, Loading } = Components;
 
@@ -337,7 +379,13 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
   }, [cancelLlmFeedbackCommand]);
 
   if (!getLlmFeedbackCommand) {
-    return null;
+    return <div className={classNames(classes.postSuggestionsButton, classes.disabledButton)}>
+      <Row alignItems="center" gap={4}>
+        <LWTooltip title="Enable collaborative editing to get AI suggestions" placement="left">
+          {prompt.title}
+        </LWTooltip>
+      </Row>
+    </div>
   }
 
   if (prompt.title === llmFeedbackCommandLoadingSourceId) {
@@ -355,11 +403,11 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
       <LWTooltip title={prompt.description} placement="left">
         <div>{prompt.title}</div>
       </LWTooltip>
-      <LWTooltip title={edit ? "Cancel" : "Edit Prompt"} placement="right"> 
+      {!edit && <LWTooltip title={edit ? "Cancel" : "Edit Prompt"} placement="right"> 
         <ForumIcon className={classes.suggestionIcon} icon={edit ? "Clear" : "Edit"} onClick={() => setEdit(!edit)}/>
-      </LWTooltip>
+      </LWTooltip>}
     </Row>
-    {/* <div className={classes.postSuggestionsWrapper} style={{display: edit ? "block" : "none"}}>
+    <div style={{display: edit ? "block" : "none"}}>
       <Input
         id="user-feedback-prompt-input"
         className={classes.userFeedbackPromptInput}
@@ -368,10 +416,10 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
         value={userFeedbackPrompt}
         onChange={(e) => setUserFeedbackPrompt(e.target.value)}
         multiline
-        rows={15}
         disableUnderline
       />
-    </div> */}
+    </div>
+    {edit && <Button onClick={() => setEdit(false)}>Submit</Button>}
   </div>
 }
 
@@ -522,19 +570,14 @@ export const ChatInterface = ({classes}: {
       <ForumIcon icon="Add" onClick={() => setCurrentConversation()} className={classes.iconButton} />
     </LWTooltip>
     <LWTooltip title={`Copy conversation to clipboard`}>
-      <ForumIcon icon="Copy" onClick={exportHistoryToClipboard} className={classNames(classes.iconButton, {[classes.disabledIconButton]: !currentConversation })} />
+      <ForumIcon icon="Copy" onClick={exportHistoryToClipboard} className={classNames(classes.iconButton, {[classes.disabledButton]: !currentConversation })} />
     </LWTooltip>
     {orderedConversationsLoading ? <Loading /> : conversationSelect}
     {ragModeSelect}
-  </div>  
-
+  </div>
+  const renderEditorFeedbackPrompts = !currentConversation?.messages?.length
   const editorFeedbackPrompts = <div>
-    {promptLibrary.editorFeedback.map((prompt) => (
-      <div key={prompt.title}>
-        <h3>{prompt.title}</h3>
-        <p>{prompt.description}</p>
-      </div>
-    ))}
+    {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} classes={classes} />)}
   </div>
 
   const handleSubmit = useCallback(async (message: string) => {
@@ -546,7 +589,7 @@ export const ChatInterface = ({classes}: {
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}
-    {currentConversation?.messages?.length !== 0 && editorFeedbackPrompts}
+    {editorFeedbackPrompts}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
     <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
     {options}
