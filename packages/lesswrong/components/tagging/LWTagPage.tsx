@@ -22,7 +22,7 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtil
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { DocumentContributorsInfo, DocumentContributorWithStats, MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
@@ -36,6 +36,7 @@ import { TagPageContext } from "./TagPageContext";
 import type { ContentItemBody } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
+import { useDisplayedContributors } from "./ContributorsList";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -213,15 +214,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     lineHeight: 'inherit',
     marginBottom: 8,
   },
-  contributorNameWrapper: {
-    flex: 1,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '15px',
-    },
-  },
-  contributorName: {
-    fontWeight: 550,
-  },
   lastUpdated: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -230,17 +222,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   alternativeArrowIcon: {
     width: 16,
     height: 16,
-  },
-  tocContributors: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    marginBottom: 12
-  },
-  tocContributor: {
-    marginLeft: 16,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.greyAlpha(0.5),
   },
   unselectedEditForm: {
     display: 'none',
@@ -285,28 +266,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   }
 
   return selectedLens.title;
-}
-
-function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
-  const contributors = filterWhereFieldsNotNull(contributorsInfo?.contributors ?? [], 'user');
-  if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
-    return { topContributors: contributors, smallContributors: [] };
-  }
-
-  const totalAttributionChars = contributors.reduce((acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
-
-  if (totalAttributionChars === 0) {
-    return { topContributors: contributors, smallContributors: [] };
-  }
-
-  const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
-  const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
-  const topContributors = initialTopContributors.length <= 3 
-    ? sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
-    : initialTopContributors;
-  const smallContributors = sortedContributors.filter(contributor => !topContributors.includes(contributor));
-
-  return { topContributors, smallContributors };
 }
 
 const PostsListHeading: FC<{
@@ -484,16 +443,6 @@ function initializeRadioHandlers() {
 if (isClient) {
   Object.assign(window, { startPath });
   Object.assign(window, { handleRadioChange });
-}
-
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: FieldsNotNull<DocumentContributorWithStats, 'user'>[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
-  const { UsersNameDisplay } = Components;
-  const classes = useStyles(styles);
-
-  return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-    <UsersNameDisplay user={user} tooltipPlacement="top" className={classes.contributorName} />
-    {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
-  </span>))}</>;
 }
 
 function getTagQueryOptions(
@@ -855,19 +804,11 @@ const LWTagPage = () => {
     </div>
   );
 
-  const tocContributors = <div className={classes.tocContributors}>
-    {topContributors.map(({ user }: { user: UsersMinimumInfo }, idx: number) => (
-      <span className={classes.tocContributor} key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-        <UsersNameDisplay key={user._id} user={user} className={classes.contributorName} />
-      </span>
-    ))}
-  </div>;
-
   const fixedPositionTagToc = (
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={tocContributors}
+      heading={<Components.ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover
@@ -924,22 +865,7 @@ const LWTagPage = () => {
         }
       </div>
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
-        <div className={classes.contributorNameWrapper}>
-          <span>Written by </span>
-          <ContributorsList 
-            contributors={topContributors} 
-            onHoverContributor={onHoverContributor} 
-            endWithComma={smallContributors.length > 0} 
-          />
-          {smallContributors.length > 0 && <LWTooltip 
-            title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} 
-            clickable 
-            placement="top"
-          >
-            et al.
-          </LWTooltip>
-          }
-        </div>
+        <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
         {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
