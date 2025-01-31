@@ -428,7 +428,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReactionCap: CrossReactionCapIcon,
     Add: MuiAddIcon,
     Dictionary: DictionaryIcon,
-    Copy: CopyIcon
+    Copy: CopyIcon,
   },
   default: {
     Book: MuiImportContactsIcon,
