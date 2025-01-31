@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
-import { isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
@@ -295,8 +295,8 @@ const schema: SchemaType<"Tags"> = {
   wikiOnly: {
     type: Boolean,
     canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: [...(isLW ? ['members' as const] : []), 'sunshineRegiment', 'admins'],
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
