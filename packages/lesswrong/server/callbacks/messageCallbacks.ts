@@ -5,12 +5,11 @@ import { loadByIds } from '../../lib/loaders';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib';
 
-getCollectionHooks("Messages").newValidate.add(function NewMessageEmptyCheck (message: DbMessage) {
+getCollectionHooks("Messages").createValidate.add(function NewMessageEmptyCheck (validationErrors, {document: message}) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");
   }
-  return message;
 });
 
 getCollectionHooks("Messages").createAsync.add(function unArchiveConversations({document}) {

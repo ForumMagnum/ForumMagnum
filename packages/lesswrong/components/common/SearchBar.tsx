@@ -178,7 +178,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     <div className={classes.rootChild}>
       <InstantSearch
         indexName={getSearchIndexName("Posts")}
-        searchClient={getSearchClient()}
+        searchClient={getSearchClient({emptyStringSearchResults: "empty"})}
         onSearchStateChange={queryStateControl}
       >
         <div className={classNames(

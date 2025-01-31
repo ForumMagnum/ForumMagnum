@@ -536,7 +536,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           );
           // Do surgery on the DOM
           if (range) {
-            const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            const reduced = reduceRangeToText(range);
+            if (!reduced) continue;
+            const subRanges = splitRangeIntoReplaceableSubRanges(reduced);
             let first=true;
             for (let subRange of subRanges) {
               const reducedRange = reduceRangeToText(subRange);
