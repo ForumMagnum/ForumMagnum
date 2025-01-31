@@ -295,6 +295,9 @@ defineMutation({
       validate: false
     });
 
+    // We normally don't set the contents_latest field on autosaves, because authors don't
+    // necessaarily want to update their live post with changes. But, we enable it for drafts,
+    // because it's useful for people viewing drafts to 
     const contentsLatestUpdate = post.draft ? { contents_latest: createdRevision._id} : {}
     await Posts.rawUpdateOne({ _id: postId }, { $set: { modifiedAt: createdRevision.createdAt, ...contentsLatestUpdate }})
 
