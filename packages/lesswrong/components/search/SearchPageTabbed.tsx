@@ -355,7 +355,7 @@ const SearchPageTabbed = ({classes}: {
   return <div className={classes.root}>
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
-      searchClient={getSearchClient()}
+      searchClient={getSearchClient({emptyStringSearchResults: "default"})}
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
     >

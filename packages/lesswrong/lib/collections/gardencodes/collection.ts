@@ -34,7 +34,7 @@ const schema: SchemaType<"GardenCodes"> = {
     optional: true,
     canRead: ['guests'],
     nullable: false,
-    onInsert: (gardenCode) => {
+    onCreate: () => {
       return generateCode(4)
     },
   },
@@ -76,7 +76,7 @@ const schema: SchemaType<"GardenCodes"> = {
     control: 'datetime',
     label: "Start Time",
     optional: true,
-    onInsert: () => new Date(),
+    onCreate: () => new Date(),
     order: 20
   },
   endTime: {
@@ -89,7 +89,7 @@ const schema: SchemaType<"GardenCodes"> = {
     optional: true,
     nullable: false,
     order: 25,
-    onInsert: (gardenCode) => {
+    onCreate: ({document: gardenCode}) => {
       return moment(gardenCode.startTime).add(12, 'hours').toDate()
     }
   },

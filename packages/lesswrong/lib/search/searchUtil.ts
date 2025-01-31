@@ -1,8 +1,9 @@
-import NativeSearchClient from "./NativeSearchClient";
+import NativeSearchClient, { SearchOptions } from "./NativeSearchClient";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 import { algoliaPrefixSetting } from '../publicSettings';
 import type { Client } from "algoliasearch/lite";
 import {isElasticEnabled} from '../instanceSettings'
+import stringify from "json-stringify-deterministic";
 
 export const searchIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const;
 export type SearchIndexCollectionName = typeof searchIndexedCollectionNames[number];
@@ -74,17 +75,18 @@ export const collectionIsSearchIndexed = (collectionName: CollectionNameString):
 // TODO: Hide search-UI if neither Elastic nor Algolia is configured
 export const isSearchEnabled = () => isElasticEnabled
 
-let searchClient: Client | null = null;
+let searchClientsByOptions: Record<string,Client> = {};
 
-const getNativeSearchClient = (): Client | null => {
-  if (!searchClient) {
-    searchClient = new NativeSearchClient();
+const getNativeSearchClient = (options: SearchOptions): Client | null => {
+  const optionsStr = stringify(options);
+  if (!searchClientsByOptions[optionsStr]) {
+    searchClientsByOptions[optionsStr] = new NativeSearchClient(options);
   }
-  return searchClient;
+  return searchClientsByOptions[optionsStr];
 }
 
-export const getSearchClient = (): Client => {
-  const client = getNativeSearchClient();
+export const getSearchClient = (options?: SearchOptions): Client => {
+  const client = getNativeSearchClient(options ?? {emptyStringSearchResults: "default"});
   if (!client) {
     throw new Error("Couldn't initialize search client");
   }
