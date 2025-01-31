@@ -64,7 +64,7 @@ export const ThinkSidePost = ({classes, post, sectionData}: {
   return <div className={classes.root}>
     {post.title && <div className={classes.title}>{post.title}</div>}
     {sections?.map((section, index) => (
-      <Link key={index} className={classes.section} to={`#${section.anchor}`} onClick={() => jumpToAnchor(section.anchor)}>
+      <Link key={index} className={classes.section} to={`#${section.anchor}`} onClick={() => jumpToAnchor(section.anchor)} style={{marginLeft: (section.level - 1) * 12}}>
         {section.title}
       </Link>
     ))}

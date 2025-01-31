@@ -6,21 +6,33 @@ import { sectionStyles } from './ThinkSidePost';
   
 const styles = (theme: ThemeType) => ({
   root: {
+    padding: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit,
+    borderRadius: 3,
+    marginTop: theme.spacing.unit * 1.5,
+    marginLeft: -6,
+    background: theme.palette.background.primaryTranslucent
+  },
+  section: {
+    marginLeft: theme.spacing.unit * 1.5,
     ...sectionStyles(theme),
-  }
+  },
+  title: {
+    ...sectionStyles(theme),
+  },
 });
 
 export const ThinkSideSequence = ({classes, sequence  }: {
   classes: ClassesType<typeof styles>,
   sequence: SequencesPageWithChaptersFragment
 }) => {
-  console.log('sequence', sequence);
+  console.log('sequence2', sequence);
   
   return <div className={classes.root}>
-    <h3>{sequence.title}</h3>
+    <h3 className={classes.title}>{sequence.title}</h3>
     {sequence.chapters.map((chapter) => <div key={chapter._id}>
       <h4>{chapter.title}</h4>
-      {chapter.posts.map((post) => <div key={post._id}>
+      {chapter.posts.map((post) => <div key={post._id} className={classes.section}>
         <p>{post.title}</p>
       </div>)}
     </div>)}
