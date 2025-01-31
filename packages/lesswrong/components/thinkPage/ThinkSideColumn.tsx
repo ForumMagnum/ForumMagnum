@@ -32,6 +32,8 @@ const styles = (theme: ThemeType) => ({
     top: 0,
     display: 'flex',
     flexDirection: 'column',
+    height: 'calc(100vh - 100px)',
+    overflowY: 'scroll',
     ...theme.typography.body2,
     '& h3': {
       marginTop: 10,
@@ -127,7 +129,7 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
       UserReadHistory(limit: $limit) {
         posts {
           ...PostsListWithVotes
-          lastVisitedAt
+        lastVisitedAt
         }
       }
     }
@@ -193,7 +195,6 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
   }
 
   const { ThinkSideItem, ForumIcon, Row, Loading, ThinkSidePost, ThinkSideSequence, LWTooltip } = Components
-
   let documentSideComponent
   if (identifyDocument(document) === 'Post') {
     documentSideComponent = <ThinkSidePost post={document as PostsPage} sectionData={sectionData} />

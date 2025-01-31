@@ -249,7 +249,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
     <SectionTitle title={title} titleClassName={classes.conversationViewerTitle} />
     {!messages?.length && <div>No messages in this conversation</div>}
     {messages?.length && messages.map((message, idx) => {
-      return <LlmChatMessage key={idx} message={message} index={idx} />
+      return <LlmChatMessage key={idx} message={message} />
     })}
   </div> 
 }

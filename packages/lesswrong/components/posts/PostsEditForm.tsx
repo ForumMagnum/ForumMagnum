@@ -210,7 +210,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
           }}
           noSubmitOnCmdEnter
           repeatErrors
-          
+          {...(fields ? {fields: fields} : {})}
           addFields={addFields}
 
           editFormFetchPolicy={editFormFetchPolicy}

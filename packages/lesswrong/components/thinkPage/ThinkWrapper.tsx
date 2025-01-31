@@ -126,6 +126,9 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
   '& .FormGroupPostTopBar-tabs': {
     display: 'none',
   },
+  '& .form-section-tags': {
+    display: 'none',
+  },
   '& .form-section-glossary': {
     display: 'none',
   },

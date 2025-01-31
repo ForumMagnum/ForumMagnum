@@ -19,6 +19,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import { promptLibrary } from '@/lib/promptLibrary';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -465,6 +466,15 @@ export const ChatInterface = ({classes}: {
     {ragModeSelect}
   </div>  
 
+  const editorFeedbackPrompts = <div>
+    {promptLibrary.editorFeedback.map((prompt) => (
+      <div key={prompt.title}>
+        <h3>{prompt.title}</h3>
+        <p>{prompt.description}</p>
+      </div>
+    ))}
+  </div>
+
   const handleSubmit = useCallback(async (message: string) => {
     if (autosaveEditorState) {
       await autosaveEditorState();
@@ -474,6 +484,7 @@ export const ChatInterface = ({classes}: {
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}
+    {currentConversation?.messages?.length !== 0 && editorFeedbackPrompts}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
     <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
     {options}

@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { postFormSectionStyles, ThinkWrapper } from './ThinkWrapper';
@@ -19,6 +19,8 @@ import { useVote } from '@/components/votes/withVote';
 import { useDisplayGlossary } from '../posts/PostsPage/PostBody';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import { PostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import { useUpdate } from '@/lib/crud/withUpdate';
+import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
 
 const formContainerStyles = (theme: ThemeType) => ({
   maxWidth: 715,
@@ -51,6 +53,9 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     pointerEvents: 'none',
   },
+  editorHide: {
+    display: 'none',
+  },
   editButton: {
     ...theme.typography.body2,
     color: theme.palette.grey[500],
@@ -64,18 +69,28 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPost = ({classes, post, sequence}: {
+export const ThinkPost = ({classes, post, sequence, refetchPost, refetchSequence}: {
   classes: ClassesType<typeof styles>,
   post: PostsPage,
   sequence?: SequencesPageWithChaptersFragment,
+  refetchPost?: () => void,
+  refetchSequence?: () => void,
 }) => {
   const { LWPostsPageHeader, ThinkWrapper, ContentStyles, ContentItemBody, ForumIcon, InlineReactSelectionWrapper, PostsEditForm, SideItemsSidebar, Error404, GlossarySidebar, LWTooltip, SideItemsContainer } = Components;
 
   const { params: { postId }, query: { edit, key } } = useLocation();
   const [isEditing, setIsEditing] = useState(edit === 'true');
 
-  const handleEditClick = () => {
+  const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
+
+  const handleEditClick = async () => {
     setIsEditing(!isEditing);
+    if (autosaveEditorState) {
+      await autosaveEditorState();
+      if (refetchPost) {
+        refetchPost();
+      }
+    }
   };
 
   const sectionData = useDynamicTableOfContents({
@@ -134,7 +149,7 @@ export const ThinkPost = ({classes, post, sequence}: {
               }
             />
           )}
-          <div className={classes.postContainer}>
+          <div className={classes.postContainer} id="postContent">
             {post && <InlineReactSelectionWrapper
                 commentBodyRef={contentRef}
                 voteProps={voteProps}
@@ -150,7 +165,7 @@ export const ThinkPost = ({classes, post, sequence}: {
                     />
                   </ContentStyles>
                 </div>
-                <div className={classNames(classes.formContainer, !isEditing && classes.hide)}>
+                <div className={classNames(classes.formContainer, !isEditing && classes.editorHide)}>
                   <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']} />
                 </div>
               </InlineReactSelectionWrapper>

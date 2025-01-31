@@ -11,14 +11,14 @@ export const ThinkPostPage = () => {
 
   const { params: {postId, sequenceId} } = useLocation();
 
-  const { document: post, loading } = useSingle({
+  const { document: post, loading, refetch: refetchPost } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsPage",
     skip: !postId
   });
 
-  const { document: sequence, loading: sequenceLoading } = useSingle({
+  const { document: sequence, loading: sequenceLoading, refetch: refetchSequence } = useSingle({
     documentId: sequenceId,
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
@@ -38,7 +38,7 @@ export const ThinkPostPage = () => {
   if (!post && !loading) return <ThinkWrapper><Error404/></ThinkWrapper>;
   if (!post && loading) return <ThinkWrapper><Loading/></ThinkWrapper>;
 
-  return <ThinkPost post={post} sequence={sequence} />
+  return <ThinkPost post={post} sequence={sequence} refetchPost={refetchPost} refetchSequence={refetchSequence} />
 }
 
 const ThinkPostWrapperComponent = registerComponent('ThinkPostPage', ThinkPostPage);
