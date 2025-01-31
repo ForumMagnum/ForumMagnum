@@ -33,7 +33,7 @@ import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/uti
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
-import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties } from '../mutationCallbacks';
+import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { logFieldChanges } from '../fieldChanges';
 import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
@@ -56,8 +56,8 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
 
   return {
     currentUser, collection, context,
-    document: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    newDocument: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    document: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
+    newDocument: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     schema
   };
 };
@@ -73,7 +73,7 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
 ) => {
   let { document } = mutatorParams;
   const callbackProperties = mutatorParamsToCallbackProps(mutatorParams);
-  const { collection, context, currentUser } = callbackProperties;
+  const { collection, context } = callbackProperties;
 
   const hooks = getCollectionHooks(collection.collectionName);
   
@@ -83,12 +83,6 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
   validationErrors = await hooks.createValidate.runCallbacks({
     iterator: validationErrors,
     properties: [callbackProperties],
-    ignoreExceptions: false,
-  });
-  // OpenCRUD backwards compatibility
-  document = await hooks.newValidate.runCallbacks({
-    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
-    properties: [currentUser, validationErrors],
     ignoreExceptions: false,
   });
   if (validationErrors.length) {
@@ -172,7 +166,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   note: clone arguments in case callbacks modify them
 
   */
-  logger('field onCreate/onInsert callbacks')
+  logger('field onCreate callbacks')
   const start = Date.now();
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
@@ -181,9 +175,6 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
-    } else if (schemaField.onInsert) {
-      // OpenCRUD backwards compatibility
-      autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)
@@ -212,20 +203,12 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('before callbacks')
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
-    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [properties],
-  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
-  logger('newBefore')
-  // OpenCRUD backwards compatibility
-  document = await hooks.newBefore.runCallbacks({
-    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [
-      currentUser
-    ]
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
-    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [currentUser, context]
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
@@ -235,7 +218,9 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('inserting into database');
-  (document as any)._id = await collection.rawInsert(document as ObjectsByCollectionName[N]);
+  const insertedId = await collection.rawInsert(document as ObjectsByCollectionName[N]);
+  const documentWithId = {_id: insertedId, ...document} as ObjectsByCollectionName[N];
+  const afterCreateProperties: AfterCreateCallbackProperties<N> = {...properties, document: documentWithId, newDocument: documentWithId};
 
   /*
 
@@ -247,7 +232,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('createAfter')
   document = await hooks.createAfter.runCallbacks({
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [properties],
+    properties: [afterCreateProperties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newAfter')
   // OpenCRUD backwards compatibility
@@ -258,7 +243,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   // note: query for document to get fresh document with collection-hooks effects applied
   let completedDocument = document as ObjectsByCollectionName[N];
-  const queryResult = await collection.findOne(document._id);
+  const queryResult = await collection.findOne(insertedId);
   if (queryResult)
     completedDocument = queryResult;
 
@@ -271,7 +256,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('async callbacks')
   logger('createAsync')
   await hooks.createAsync.runCallbacksAsync(
-    [{ ...properties, document: completedDocument }],
+    [{ ...afterCreateProperties, document: completedDocument, newDocument: completedDocument }],
   );
   logger('newAsync')
   // OpenCRUD backwards compatibility
@@ -371,14 +356,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
       properties: [properties],
       ignoreExceptions: false,
     });
-    // OpenCRUD backwards compatibility
-    data = modifierToData(
-      await hooks.editValidate.runCallbacks({
-        iterator: dataToModifier(data),
-        properties: [document, currentUser, validationErrors],
-        ignoreExceptions: false,
-      })
-    );
 
     // LESSWRONG - added custom message (showing all validation errors instead of a generic message)
     if (validationErrors.length) {
@@ -396,20 +373,13 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   onUpdate
 
   */
-  logger('field onUpdate/onEdit callbacks')
+  logger('field onUpdate callbacks')
+  const dataAsModifier = dataToModifier(clone(data));
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
     const schemaField = schema[fieldName];
     if (schemaField.onUpdate) {
-      autoValue = await schemaField.onUpdate({...properties, fieldName});
-    } else if (schemaField.onEdit) {
-      // OpenCRUD backwards compatibility
-      autoValue = await schemaField.onEdit(
-        dataToModifier(clone(data)),
-        oldDocument,
-        currentUser,
-        document
-      );
+      autoValue = await schemaField.onUpdate({...properties, fieldName, modifier: dataAsModifier});
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onUpdate returned a value to update for ${fieldName}: ${autoValue}`)
@@ -428,18 +398,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     iterator: data,
     properties: [properties],
   });
-  logger('editBefore')
-  // OpenCRUD backwards compatibility
-  data = modifierToData(
-    await hooks.editBefore.runCallbacks({
-      iterator: dataToModifier(data),
-      properties: [
-        oldDocument,
-        currentUser,
-        document
-      ]
-    })
-  );
   logger('editSync')
   data = modifierToData(
     await hooks.editSync.runCallbacks({
@@ -497,15 +455,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   document = await hooks.updateAfter.runCallbacks({
     iterator: document,
     properties: [properties],
-  });
-  logger('editAfter')
-  // OpenCRUD backwards compatibility
-  document = await hooks.editAfter.runCallbacks({
-    iterator: document,
-    properties: [
-      oldDocument,
-      currentUser
-    ]
   });
 
   /*
@@ -587,12 +536,6 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
       properties: [properties],
       ignoreExceptions: false,
     });
-    // OpenCRUD backwards compatibility
-    document = await hooks.removeValidate.runCallbacks({
-      iterator: document,
-      properties: [currentUser],
-      ignoreExceptions: false,
-    });
 
     if (validationErrors.length) {
       console.log(validationErrors); // eslint-disable-line no-console
@@ -621,15 +564,6 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
     iterator: document,
     properties: [properties],
   });
-  // OpenCRUD backwards compatibility
-  await hooks.removeBefore.runCallbacks({
-    iterator: document,
-    properties: [currentUser]
-  });
-  await hooks.removeSync.runCallbacks({
-    iterator: document,
-    properties: [currentUser]
-  });
 
   /*
 
@@ -650,12 +584,6 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   */
   await hooks.deleteAsync.runCallbacksAsync([properties]);
-  // OpenCRUD backwards compatibility
-  await hooks.removeAsync.runCallbacksAsync([
-    document,
-    currentUser,
-    collection
-  ]);
 
   return { data: document };
 };

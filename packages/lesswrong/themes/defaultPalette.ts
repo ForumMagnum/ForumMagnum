@@ -548,7 +548,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   editor: {
     commentPanelBackground: "#ffffff",
     sideCommentEditorBackground: "#f3f7fb",
-    commentMarker: "#fef7a9",
+    // Color used for background highlighting of CEditor side-comments. In some
+    // contexts with short line height (in particular, dialogues), this
+    // highlight bleeds over adjacent lines and covers up descenders. Partially
+    // mitigate this by making it a high-intensity color at 50% transparency
+    // rather than a low-intensity color at full opacity.
+    commentMarker: "rgba(255,241,82,.5)",
     commentMarkerActive: "#fdf05d",
   },
   blockquoteHighlight: {

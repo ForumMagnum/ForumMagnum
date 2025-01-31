@@ -303,7 +303,6 @@
     "setimmediate": "^1.0.5",
     "shallowequal": "^1.1.0",
     "simpl-schema": "^1.5.0",
-    "source-map-support": "^0.5.19",
     "speakingurl": "^9.0.0",
     "stripe": "^17.4.0",
     "tlds": "^1.203.1",

@@ -32,7 +32,7 @@ const schema: SchemaType<"ElicitQuestionPredictions"> = {
   },
   createdAt: {
     type: Date,
-    onInsert: (prediction) => prediction.createdAt ?? new Date(),
+    onCreate: ({document: prediction}) => prediction.createdAt ?? new Date(),
     ...commonFields(false)
   },
   notes: {
