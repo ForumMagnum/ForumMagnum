@@ -15,7 +15,8 @@ export const Row = ({classes, justifyContent="space-between", alignItems="center
   gap?: number,
   children: React.ReactNode
 }) => {
-  return <div className={classes.root} style={{justifyContent, alignItems, gap: gap ? `${gap}px` : '0px'}}>
+  const gapStyle = gap ? {gap: `${gap}px`} : {};
+  return <div className={classes.root} style={{justifyContent, alignItems, ...gapStyle}}>
     {children}
   </div>;
 }
