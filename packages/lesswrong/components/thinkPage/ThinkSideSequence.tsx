@@ -26,7 +26,6 @@ export const ThinkSideSequence = ({classes, sequence  }: {
   classes: ClassesType<typeof styles>,
   sequence: SequencesPageWithChaptersFragment
 }) => {
-  console.log('sequence2', sequence);
   
   return <div className={classes.root}>
     <h3 className={classes.title}>{sequence.title}</h3>

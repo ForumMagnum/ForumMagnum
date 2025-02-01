@@ -622,7 +622,7 @@ const CKPostEditor = ({
       setGetLlmFeedbackCommand(null);
       setCancelLlmFeedbackCommand(null);
     };
-  }, [getLlmFeedback, cancelLlmFeedback, isCollaborative]);
+  }, [getLlmFeedback, cancelLlmFeedback, isCollaborative, setGetLlmFeedbackCommand, setCancelLlmFeedbackCommand]);
 
   return <div>
     {isBlockOwnershipMode && <>

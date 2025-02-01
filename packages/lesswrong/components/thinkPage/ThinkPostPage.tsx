@@ -5,15 +5,26 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { useLocation } from '@/lib/routeUtil';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 
+
+/*
+
+THINK is an alternate layout for post reading/editing, in which:
+ - On the left column, you have a condensed Table of Contents, followed by a chronological list of all posts you've recently read
+ - The central column has both the post editor, and the rendered post body (with only one-at-a-time displayed visibly. This allows a) rapid switching between editing and reading, and b) while editing, you can see side-comments)
+ - It's intended to 
+
+*/
 export const ThinkPostPage = () => {
 
   const { Error404, Loading, ThinkPost, ThinkWrapper } = Components;
 
-  const { params: {postId, sequenceId} } = useLocation();
+  const { params: {postId: postIdFromParams, sequenceId}, query: {postId: postIdFromQuery} } = useLocation();
+
+  const postId = postIdFromParams || postIdFromQuery;
 
   const { document: post, loading, refetch: refetchPost } = useSingle({
     documentId: postId,
-    collectionName: "Posts",
+collectionName: "Posts",
     fragmentName: "PostsPage",
     skip: !postId
   });
