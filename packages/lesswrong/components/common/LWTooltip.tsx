@@ -39,6 +39,7 @@ export type LWTooltipProps = {
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
   forceOpen?: boolean,
+  fallbackPlacements?: PopperPlacementType[],
 }
 
 const LWTooltip = ({
@@ -61,6 +62,7 @@ const LWTooltip = ({
   className,
   classes,
   forceOpen,
+  fallbackPlacements,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);
@@ -125,6 +127,7 @@ const LWTooltip = ({
       clickable={delayedClickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
+      fallbackPlacements={fallbackPlacements}
     >
       <div className={classNames(
         tooltip && classes.tooltip,

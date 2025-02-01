@@ -6,6 +6,8 @@ import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
 import type { State } from '@popperjs/core/lib/types';
 
+const SECOND_TOOLTIP_SELECTOR = '#lw-popper-tooltip';
+
 const styles = (theme: ThemeType) => ({
   popper: {
     position: "absolute",
@@ -49,6 +51,8 @@ const LWPopper = ({
   open,
   anchorEl,
   placement,
+  fallbackPlacements,
+  checkForSecondTooltip = false,
   clickable = true,
   hideOnTouchScreens,
   updateRef
@@ -61,6 +65,8 @@ const LWPopper = ({
   flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
+  fallbackPlacements?: PopperPlacementType[],
+  checkForSecondTooltip?: boolean,
   anchorEl: any,
   className?: string,
   clickable?: boolean,
@@ -69,12 +75,20 @@ const LWPopper = ({
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
-  const flipModifier = !flip && allowOverflow ? [
+  const flipModifier = flip !== false ? [
+    {
+      name: 'flip',
+      enabled: true,
+      options: {
+        fallbackPlacements: fallbackPlacements,
+      },
+    },
+  ] : [
     {
       name: 'flip',
       enabled: false,
     }
-  ] : [];
+  ];
 
   const preventOverflowModifier = [
     {
@@ -84,17 +98,35 @@ const LWPopper = ({
     }
   ];
 
+  // Custom modifier to check for a second tooltip
+  const secondTooltipModifier = checkForSecondTooltip ? [
+    {
+      name: 'checkSecondTooltip',
+      enabled: true,
+      phase: 'main',
+      fn({ state }: { state: State }) {
+        // Logic to check for a second tooltip below the anchor element
+        const secondTooltipExists = document.querySelector(SECOND_TOOLTIP_SELECTOR); // Replace with actual selector
+        if (secondTooltipExists) {
+          // Adjust placement to 'left-end' if a second tooltip is detected
+          state.placement = 'left-end';
+        }
+      },
+    }
+  ] : [];
+
   const { styles, attributes, update } = usePopper(anchorEl, popperElement, {
     placement,
     modifiers: [
       {
         name: 'computeStyles',
         options: {
-          gpuAcceleration: false, // true by default
+          gpuAcceleration: false,
         },
       },
       ...flipModifier,
-      ...preventOverflowModifier
+      ...preventOverflowModifier,
+      ...secondTooltipModifier,
     ],
   });
 
@@ -102,37 +134,41 @@ const LWPopper = ({
     updateRef.current = update
   }
 
-  if (!open)
-    return null;
-  
+  if (!open) return null;
+
   // In some cases, interacting with something inside a popper will cause a rerender that detaches the anchorEl
   // This happened in hovers on in-line reacts, and the button to create a new react ended up on the top-left corner of the page
   if (anchorEl && !anchorEl.isConnected) {
     return null;
   }
-  
+
   // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
   // context, by placing the Popper element directly into the document root
   // Rest of usage from https://popper.js.org/react-popper/v2/
-  return <>{
-    createPortal(
-      <div
-        ref={setPopperElement}
-        className={classNames({
-          [classes.tooltip]: tooltip,
-          [classes.default]: !tooltip,
-          [classes.noMouseEvents]: !clickable,
-          [classes.hideOnTouchScreens]: hideOnTouchScreens},
-          className
-        )}
-        style={styles.popper}
-        {...attributes.popper}
-      >
-        { children }
-      </div>,
-      document.body
-    )
-  }</>
+  return (
+    <>
+      {createPortal(
+        <div
+          id={SECOND_TOOLTIP_SELECTOR}
+          ref={setPopperElement}
+          className={classNames(
+            {
+              [classes.tooltip]: tooltip,
+              [classes.default]: !tooltip,
+              [classes.noMouseEvents]: !clickable,
+              [classes.hideOnTouchScreens]: hideOnTouchScreens,
+            },
+            className
+          )}
+          style={styles.popper}
+          {...attributes.popper}
+        >
+          {children}
+        </div>,
+        document.body
+      )}
+    </>
+  );
 };
 
 const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});
