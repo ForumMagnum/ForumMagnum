@@ -9,6 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -132,6 +133,7 @@ const FooterTag = ({
   className,
   classes,
   noBackground = false, 
+  tagTooltipPlacement,
 }: {
   tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
@@ -144,7 +146,8 @@ const FooterTag = ({
   neverCoreStyling?: boolean,
   hideRelatedTags?: boolean,
   className?: string,
-  noBackground?: boolean
+  noBackground?: boolean,
+  tagTooltipPlacement?: PopperPlacementType,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -172,6 +175,7 @@ const FooterTag = ({
         PreviewWrapper={PreviewWrapper}
         hideRelatedTags={hideRelatedTags}
         popperClassName={classes.tooltip}
+        placement={tagTooltipPlacement}
       >
         <span className={classNames(classes.root, className, {
           [classes.core]: !neverCoreStyling && tag.core,

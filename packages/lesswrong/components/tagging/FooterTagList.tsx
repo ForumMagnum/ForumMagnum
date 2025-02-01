@@ -17,6 +17,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -134,6 +135,7 @@ const FooterTagList = ({
   noBackground = false,
   neverCoreStyling = false,
   tagRight = true,
+  tagTooltipPlacement
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -153,6 +155,7 @@ const FooterTagList = ({
   noBackground?: boolean,
   neverCoreStyling?: boolean,
   tagRight?: boolean,
+  tagTooltipPlacement?: PopperPlacementType
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -348,6 +351,7 @@ const FooterTagList = ({
               tag={tag}
               hideScore={hideScore}
               smallText={smallText}
+              tagTooltipPlacement={tagTooltipPlacement}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
               link={link}
               noBackground={noBackground}
