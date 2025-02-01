@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useLocation } from '../lib/routeUtil';
@@ -32,6 +31,26 @@ const styles = (theme: ThemeType) => ({
     ['@media(max-width: 1000px)']: {
       display: 'none'
     },
+  },
+  reviewVotingCanvas: {
+    position: 'absolute',
+    width: '57vw',
+    height: '100vh',
+    '& img': {
+      width: '100%',
+      height: '100vh',
+      position: 'relative',
+      right: -40,
+      objectFit: 'cover',
+    },
+    maxWidth: '1000px',
+    top: '-57px',
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
   },
   // from LessOnline
   // bannerText: {
@@ -112,41 +131,12 @@ const styles = (theme: ThemeType) => ({
   //     margin: 4
   //   }
   // },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: '100vh',
-    width: '50vw',
-    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
-    zIndex: -1,
-  },
-  reviewVotingCanvas: {
-    position: 'absolute',
-    width: '57vw',
-    height: '100vh',
-    '& img': {
-      width: '100%',
-      height: '100vh',
-      position: 'relative',
-      right: -40,
-      objectFit: 'cover',
-    },
-    maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
-  },
-  lessOnlineBannerDateAndLocation: {
-    ...theme.typography.commentStyle,
-    fontSize: '16px !important',
-    fontStyle: 'normal',
-    marginBottom: '16px !important',
-  },
+  // lessOnlineBannerDateAndLocation: {
+  //   ...theme.typography.commentStyle,
+  //   fontSize: '16px !important',
+  //   fontStyle: 'normal',
+  //   marginBottom: '16px !important',
+  // },
 });
 
 export const LWBackgroundImage = ({classes, standaloneNavigation}: {
