@@ -121,6 +121,7 @@ const styles = (theme: ThemeType) => ({
   gsHearts: {
     position: "relative",
     height: '100vh',
+    width: 'calc(100vw - 1100px)',
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -290,7 +291,7 @@ const ReviewVotingCanvas = ({
 
   const {data, refetch} = useQuery(heartsQuery, {
     variables: {
-      electionName: "reviewVoting2022"
+      electionName: "reviewVoting2023"
     },
     skip: !showHearts,
   });
@@ -333,7 +334,7 @@ const ReviewVotingCanvas = ({
   const addHeart = useCallback(async (x: number, y: number, theta: number) => {
     const result = await rawAddHeart({
       variables: {
-        electionName: "reviewVoting2022",
+        electionName: "reviewVoting2023",
         x,
         y,
         theta,
@@ -346,7 +347,7 @@ const ReviewVotingCanvas = ({
   const removeHeart = useCallback(async () => {
     const result = await rawRemoveHeart({
       variables: {
-        electionName: "reviewVoting2022",
+        electionName: "reviewVoting2023",
       }
     });
     const newHearts = result.data?.RemoveGivingSeasonHeart;
@@ -410,7 +411,7 @@ const ReviewVotingCanvas = ({
   return (
     <>
       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-      <AnalyticsContext pageSectionContext="header" siteEvent="reviewVoting2022">
+      <AnalyticsContext pageSectionContext="header" siteEvent="reviewVoting2023">
         <div
           {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
           ref={headerRef}

@@ -1,9 +1,8 @@
 // TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { shouldDisplayReviewVotingCanvas } from '@/lib/reviewUtils';
 import { useLocation } from '../lib/routeUtil';
-import { getReviewPhase } from '@/lib/reviewUtils';
+import { getReviewPhase } from '../lib/reviewUtils';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -29,6 +28,7 @@ const styles = (theme: ThemeType) => ({
     top: 0,
     right: 0,
     height: "100vh",
+    width: '57vw',
     ['@media(max-width: 1000px)']: {
       display: 'none'
     },

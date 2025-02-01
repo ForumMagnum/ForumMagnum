@@ -86,7 +86,7 @@ const givingSeasonResolvers = {
       {electionName}: {electionName: string},
       context: ResolverContext,
     ): Promise<GivingSeasonHeart[]> => {
-      if (electionName !== 'reviewVoting2022') {
+      if (electionName !== 'reviewVoting2023') {
         throw new Error('Invalid electionName!');
       }
       
@@ -108,7 +108,7 @@ const givingSeasonResolvers = {
         throw new Error("Permission denied");
       }
       if (
-        electionName !== 'reviewVoting2022' || 
+        electionName !== 'reviewVoting2023' || 
         typeof x !== "number" || x < 0 || x > 1 ||
         typeof y !== "number" || y < 0 || y > 1 ||
         typeof theta !== "number" || theta < -25 || theta > 25
@@ -142,7 +142,7 @@ const givingSeasonResolvers = {
         throw new Error("Permission denied");
       }
 
-      if (electionName !== 'reviewVoting2022') {
+      if (electionName !== 'reviewVoting2023') {
         throw new Error('Invalid electionName!');
       }
 

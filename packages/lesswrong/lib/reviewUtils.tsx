@@ -67,13 +67,6 @@ export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${revie
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-05`).add(TIMEZONE_OFFSET, 'hours')
 export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-10`).add(TIMEZONE_OFFSET, 'hours')
 
-export const shouldDisplayReviewVotingCanvas = () => {
-  const currentDate = moment.utc()
-  const reviewPhaseEnd = getReviewPhaseEnd(REVIEW_YEAR)
-  const votingPhaseEnd = getVotingPhaseEnd(REVIEW_YEAR)
-  return isLW && (currentDate < reviewPhaseEnd && currentDate < votingPhaseEnd)
-}
-
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
