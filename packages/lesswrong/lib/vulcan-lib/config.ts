@@ -27,11 +27,7 @@ SimpleSchema.extendOptions([
   'group', // form fieldset group
 
   'onCreate', // field insert callback
-  'onInsert', // field insert callback (OpenCRUD backwards compatibility)
-
   'onUpdate', // field edit callback
-  'onEdit', // field edit callback (OpenCRUD backwards compatibility)
-
   'onDelete', // field remove callback
 
   'canRead', // who can view the field

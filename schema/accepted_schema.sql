@@ -208,6 +208,7 @@ CREATE TABLE "Comments" (
   "parentCommentId" VARCHAR(27),
   "topLevelCommentId" VARCHAR(27),
   "postedAt" TIMESTAMPTZ NOT NULL,
+  "lastEditedAt" TIMESTAMPTZ,
   "author" TEXT,
   "postId" VARCHAR(27),
   "tagId" VARCHAR(27),

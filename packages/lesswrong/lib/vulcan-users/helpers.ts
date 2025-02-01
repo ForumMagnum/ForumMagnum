@@ -42,7 +42,12 @@ export const userFindLast = async function<N extends CollectionNameWithCreatedAt
   collection: CollectionBase<N>,
   filter?: MongoSelector<ObjectsByCollectionName[N]>,
 ): Promise<ObjectsByCollectionName[N]|null> {
-  return await collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
+  const sortOption = { createdAt: -1 } as MongoSort<ObjectsByCollectionName[N]>
+  const result = await collection.findOne(
+    { ...filter, userId: user._id },
+    { sort: sortOption },
+  );
+  return result;
 };
 
 export const userTimeSinceLast = async function<N extends CollectionNameWithCreatedAt>(

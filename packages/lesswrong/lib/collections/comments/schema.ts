@@ -62,21 +62,33 @@ const schema: SchemaType<"Comments"> = {
     type: Date,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
+    onCreate: () => new Date(),
     nullable: false
+  },
+  lastEditedAt: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    nullable: true,
+    onCreate: () => new Date(),
+    onUpdate: ({oldDocument, newDocument}) => {
+      if (oldDocument.contents?.html !== newDocument.contents?.html) {
+        return new Date();
+      }
+    }
   },
   // The comment author's name
   author: {
     type: String,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onInsert: async (document, currentUser) => {
+    onCreate: async ({document}) => {
       // if userId is changing, change the author name too
       if (document.userId) {
         return await userGetDisplayNameById(document.userId)
       }
     },
-    onEdit: async (modifier, document, currentUser) => {
+    onUpdate: async ({modifier}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
         return await userGetDisplayNameById(modifier.$set.userId)
@@ -331,7 +343,7 @@ const schema: SchemaType<"Comments"> = {
     denormalized: true,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
+    onCreate: () => new Date(),
   },
 
   // The semver-style version of the post that this comment was made against
@@ -546,7 +558,7 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['sunshineRegiment', 'admins'],
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier}) => {
       if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
         return new Date()
       }
@@ -567,7 +579,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
         return modifier.$set.deletedByUserId || currentUser._id
       }
@@ -780,7 +792,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       if (modifier.$set?.rejected && currentUser) {
         return modifier.$set.rejectedByUserId || currentUser._id
       }

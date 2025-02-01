@@ -339,7 +339,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['admins'],
     canCreate: ['members'],
     hidden: true,
-    onInsert: user => {
+    onCreate: ({document: user}) => {
       if (!user.username && user.services?.twitter?.screenName) {
         return user.services.twitter.screenName;
       }
@@ -1775,8 +1775,7 @@ const schema: SchemaType<"Users"> = {
     type: Number,
     denormalized: true,
     optional: true,
-    onInsert: (document, currentUser) => 0,
-
+    onCreate: () => 0,
 
     ...denormalizedCountOfReferences({
       fieldName: "frontpagePostCount",
@@ -2589,7 +2588,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ["guests"],
     canUpdate: [userOwns, "admins"],
     hidden: true,
-    onInsert: (user) => user.createdAt,
+    onCreate: ({document: user}) => user.createdAt,
     ...schemaDefaultValue(new Date(0)),
   },
 

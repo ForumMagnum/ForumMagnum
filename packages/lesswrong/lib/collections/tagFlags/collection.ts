@@ -32,10 +32,10 @@ const schema: SchemaType<"TagFlags"> = {
     optional: true,
     nullable: false,
     canRead: ['guests'],
-    onInsert: async (tagFlag) => {
+    onCreate: async ({document: tagFlag}) => {
       return await getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
-    onEdit: async (modifier, tagFlag) => {
+    onUpdate: async ({modifier, newDocument: tagFlag}) => {
       if (modifier.$set.name) {
         return await getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }

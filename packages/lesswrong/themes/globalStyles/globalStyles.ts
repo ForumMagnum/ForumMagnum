@@ -100,6 +100,15 @@ const globalStyle = (theme: ThemeType) => ({
     "--ck-color-list-button-on-background": theme.palette.buttons.mentions.selected,
     "--ck-color-list-button-on-background-focus": theme.palette.buttons.mentions.selectedHover,
   },
+  
+  // CkEditor's inline comments have a yellow background highlight. In some
+  // contexts with short line height (dialogue), this highlight bleeds over
+  // adjacent lines. Partially mitigate this by removing the default top and
+  // bottom border, which added 3px of overlap.
+  ".ck-comment-marker": {
+    borderTop: "none !important",
+    borderBottom: "none !important",
+  },
 
   // Starting in v38, CkEditor puts a "powered by CkEditor" badge in the corner
   // when focused. This is removed by putting a `licenseKey` in the ckeditor
