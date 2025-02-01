@@ -7,7 +7,7 @@ import { CloudinaryPropsType } from "../common/CloudinaryImage2";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
-import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
+import { REVIEW_YEAR, eligibleToNominate, reviewElectionName } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
@@ -291,7 +291,7 @@ const ReviewVotingCanvas = ({
 
   const {data, refetch} = useQuery(heartsQuery, {
     variables: {
-      electionName: "reviewElectionName"
+      electionName: reviewElectionName
     },
     skip: !showHearts,
   });
@@ -334,7 +334,7 @@ const ReviewVotingCanvas = ({
   const addHeart = useCallback(async (x: number, y: number, theta: number) => {
     const result = await rawAddHeart({
       variables: {
-        electionName: "reviewElectionName",
+        electionName: reviewElectionName,
         x,
         y,
         theta,
@@ -347,7 +347,7 @@ const ReviewVotingCanvas = ({
   const removeHeart = useCallback(async () => {
     const result = await rawRemoveHeart({
       variables: {
-        electionName: "reviewElectionName",
+        electionName: reviewElectionName,
       }
     });
     const newHearts = result.data?.RemoveGivingSeasonHeart;
@@ -411,7 +411,7 @@ const ReviewVotingCanvas = ({
   return (
     <>
       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-      <AnalyticsContext pageSectionContext="header" siteEvent="reviewElectionName">
+      <AnalyticsContext pageSectionContext="header" siteEvent={reviewElectionName}>
         <div
           {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
           ref={headerRef}
