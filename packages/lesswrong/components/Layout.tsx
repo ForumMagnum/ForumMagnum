@@ -35,7 +35,6 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
-import { shouldDisplayReviewVotingCanvas, getReviewPhase } from '@/lib/reviewUtils';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -117,128 +116,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
-  },
-  imageColumn: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: "100vh",
-    ['@media(max-width: 1000px)']: {
-      display: 'none'
-    },
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
-  },
-  frontpageImage: {
-    right: -50,
-    height: '82vh',
-    objectFit: 'cover',
-    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
-    zIndex: -2,
-    position: 'relative',
-  },
-  bannerText: {
-    ...theme.typography.postStyle,
-    ['@media(max-width: 1375px)']: {
-      width: 250
-    },
-    ['@media(max-width: 1325px)']: {
-      width: 200
-    },
-    ['@media(max-width: 1200px)']: {
-      display: "none"
-    },
-    position: 'absolute',
-    right: 16,
-    bottom: 79,
-    color: theme.palette.grey[900],
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    textAlign: "right",
-    width: 300,
-    '& h2': {
-      fontSize: '2.4rem',
-      lineHeight: '2.6rem',
-      marginTop: 20,
-      marginBottom: 0,
-      textShadow: `
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-      `,
-      '& a:hover': {
-        opacity: 1
-      }
-    },
-    '& h3': {
-      fontSize: '20px',
-      margin: 0,
-      lineHeight: '1.2',
-      marginBottom: 6,
-      textShadow: `
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-      `,
-    },
-    '& button': {
-      ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.primary.main,
-      opacity: .9,
-      border: 'none',
-      color: theme.palette.text.alwaysWhite,
-      fontWeight: 600,
-      borderRadius: '3px',
-      textAlign: 'center',
-      padding: 8,
-      fontSize: '14px',
-      marginTop: 6
-    },
-    '& p': {
-      ...commentBodyStyles(theme),
-      fontSize: '14px',
-      marginBottom: 10,
-    },
-    '& p a': {
-      color: theme.palette.primary.main,
-    }
-  },
-  ticketPricesRaise: {
-    ...theme.typography.commentStyle,
-    fontStyle: 'italic',
-    fontSize: 14,
-    marginTop: 10,
-    '& p': {
-      margin: 4
-    }
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: '100vh',
-    width: '50vw',
-    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
-    zIndex: -1,
-  },
-  lessOnlineBannerDateAndLocation: {
-    ...theme.typography.commentStyle,
-    fontSize: '16px !important',
-    fontStyle: 'normal',
-    marginBottom: '16px !important',
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -584,7 +461,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {isLW && <LWBackgroundImage />}
+                {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper

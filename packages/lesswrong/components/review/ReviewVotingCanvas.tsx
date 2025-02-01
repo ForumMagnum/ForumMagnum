@@ -21,6 +21,18 @@ export type GivingSeasonHeart = {
 }
 
 const styles = (theme: ThemeType) => ({
+  backgroundImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: -70,
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
   rootGivingSeason: {
     opacity: 0,
     transition: "opacity 0.25s ease",
