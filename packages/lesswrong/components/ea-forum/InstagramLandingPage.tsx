@@ -23,6 +23,8 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'fMEhpDrpbnHpcgsDE', // Facing up to the Price on Life
+  'JN3kHaiosmdA7kgNY', // The Game Board has been Flipped: Now is a good time to rethink what you’re doing
   'BRqBvkjskZ6c2G6rn', // The Upcoming PEPFAR Cut Will Kill Millions, Many of Them Children
   'bYXjejHrvq65jFL9s', // Implications of the inference scaling paradigm for AI safety
   'j5um9ZhyDCiDXaDqd', // Long-distance development policy
