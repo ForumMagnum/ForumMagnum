@@ -27,6 +27,8 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) =>
 export type PostsItemConfig = {
   /** post: The post displayed.*/
   post: PostsListWithVotes,
+  // a custom post link to override the default one
+  postLink?: string,
   /** tagRel: (Optional) The relationship between this post and a tag. If
   /* provided, UI will be shown with the score and voting on this post's
   /* relevance to that tag.*/
@@ -102,6 +104,7 @@ const areNewComments = (lastCommentedAt: Date | null, lastVisitedAt: Date | null
 
 export const usePostsItem = ({
   post,
+  postLink,
   tagRel = null,
   defaultToShowComments = false,
   sequenceId,
@@ -183,15 +186,23 @@ export const usePostsItem = ({
   const hadUnreadComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt);
   const hasNewPromotedComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentPromotedAt);
 
-  let postLink = post.draft && !post.debate
-    ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
-    : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  let newPostLink;
+  if (!postLink) {
+    newPostLink = post.draft && !post.debate
+      ? `/editPost?${qs.stringify({
+          postId: post._id,
+          eventForm: post.isEvent,
+        })}`
+      : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  } else {
+    newPostLink = postLink;
+  }
 
   if (recombeeRecommId && recombeeEnabledSetting.get()) {
-    postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
+    newPostLink = `${newPostLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
     // These shouldn't ever both be present at the same time
   } else if (vertexAttributionId && vertexEnabledSetting.get()) {
-    postLink = `${postLink}?${VERTEX_ATTRIBUTION_ID_QUERY_PARAM}=${vertexAttributionId}`
+    newPostLink = `${newPostLink}?${VERTEX_ATTRIBUTION_ID_QUERY_PARAM}=${vertexAttributionId}`
   }
 
   const showDismissButton = Boolean(currentUser && resumeReading);
@@ -223,8 +234,8 @@ export const usePostsItem = ({
 
   return {
     post,
-    postLink,
-    commentsLink: postLink + "#comments",
+    postLink: newPostLink,
+    commentsLink: newPostLink + "#comments",
     commentCount: postGetCommentCount(post),
     primaryTag: hideTag ? null : postGetPrimaryTag(post),
     tagRel,

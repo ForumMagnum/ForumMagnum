@@ -20,6 +20,7 @@ import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/uti
 import { parseDocumentFromString } from '../../lib/domParser';
 import { extractTableOfContents } from '../../lib/tableOfContents';
 import { htmlContainsFootnotes } from '../utils/htmlUtil';
+import { Posts } from '@/lib/collections/posts';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({
@@ -293,6 +294,12 @@ defineMutation({
       currentUser,
       validate: false
     });
+
+    // We normally don't set the contents_latest field on autosaves, because authors don't
+    // necessaarily want to update their live post with changes. But, we enable it for drafts,
+    // because it's useful for people viewing drafts to 
+    const contentsLatestUpdate = post.draft ? { contents_latest: createdRevision._id} : {}
+    await Posts.rawUpdateOne({ _id: postId }, { $set: { modifiedAt: createdRevision.createdAt, ...contentsLatestUpdate }})
 
     // TODO: not sure if we need these?  The aren't called by `saveDocumentRevision` in `ckEditorWebhook.ts` after creating a new revision from ckeditor's cloud autosave
     await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: createdRevision._id }]);

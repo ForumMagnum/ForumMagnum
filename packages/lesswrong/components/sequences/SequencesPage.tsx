@@ -10,7 +10,7 @@ import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicS
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
-import { allowSubscribeToSequencePosts } from '../../lib/betas';
+import { allowSubscribeToSequencePosts, userCanUseThink } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
 
@@ -187,7 +187,7 @@ const SequencesPage = ({ documentId, classes }: {
     f: "auto",
     g: "auto:faces",
   }) : undefined;
-    
+  
   return <AnalyticsContext pageContext="sequencesPage">
     <div className={classes.root}>
       <HeadTags
@@ -225,9 +225,12 @@ const SequencesPage = ({ documentId, classes }: {
                   <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
                   {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
                 </div>
+                {userCanUseThink(currentUser) && <Link className={classes.leftAction} to={`/think/sequence/${document._id}`}>
+                  Think
+                </Link>}
                 {!allowSubscribeToSequencePosts && canEdit && <span className={classes.leftAction}>
                   <SectionSubtitle>
-                    <a onClick={showEdit}>edit</a>
+                    <a onClick={showEdit}>Edit</a>
                   </SectionSubtitle>
                 </span>}
               </SectionFooter>

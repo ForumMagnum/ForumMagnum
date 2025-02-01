@@ -130,6 +130,7 @@ interface LlmChatContextType {
   orderedConversations: LlmConversation[];
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
+  orderedConversationsLoading: boolean;
   submitMessage: (args: SubmitMessageArgs) => void;
   setCurrentConversation: (conversationId?: string) => void;
   archiveConversation: (conversationId: string) => void;
@@ -155,7 +156,7 @@ const LlmChatWrapper = ({children}: {
     fragmentName: "LlmConversationsFragment"
   })
 
-  const { results: userLlmConversations } = useMulti({
+  const { results: userLlmConversations, loading: conversationsLoading } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsFragment",
     terms: { view: "llmConversationsWithUser", userId: currentUser?._id, limit: 50 }, //TODO: Figure out what to do when people have many conversations
@@ -173,7 +174,7 @@ const LlmChatWrapper = ({children}: {
 
   const sortedConversations = useMemo(() => {
     const llmConversationsList = conversations ? Object.values(conversations) : [];
-    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
+    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt).reverse();
   }, [conversations]);
 
   const [currentConversationId, setCurrentConversationId] = useState<string>();
@@ -558,10 +559,11 @@ const LlmChatWrapper = ({children}: {
     currentConversation,
     currentConversationLoading,
     orderedConversations: sortedConversations,
+    orderedConversationsLoading: conversationsLoading,
     submitMessage,
     setCurrentConversation,
     archiveConversation,
-  }), [submitMessage, setCurrentConversation, archiveConversation, currentConversationLoading, currentConversation, sortedConversations]);
+  }), [submitMessage, setCurrentConversation, archiveConversation, currentConversationLoading, currentConversation, sortedConversations, conversationsLoading]);
 
   return <LlmChatContext.Provider value={llmChatContext}>
     {children}

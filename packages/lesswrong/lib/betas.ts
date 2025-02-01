@@ -134,3 +134,4 @@ export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
 
+export const userCanUseThink = (currentUser: UsersCurrent|DbUser|null) => isLW && isAdmin(currentUser)

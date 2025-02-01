@@ -54,32 +54,34 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo, children}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
   higherContrast?: boolean,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  children?: React.ReactNode
 }) => {
   const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
+      {children}
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
           <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
       </AnalyticsContext>}
       {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
-        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+      <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>}
       <PostActionsButton post={post} className={classNames(classes.postActionsButton, post.shortform && classes.postActionsButtonShortform)} flip />
-  </div>;
+    </div>;
 }
 
 const LWPostsPageHeaderTopRightComponent = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});

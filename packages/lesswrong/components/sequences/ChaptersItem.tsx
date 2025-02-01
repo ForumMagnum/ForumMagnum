@@ -1,6 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { useLocation } from '@/lib/routeUtil';
+import { sequence } from 'fp-ts/lib/Traversable';
+import { getThinkSequencePostUrl } from '../thinkPage/ThinkLink';
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -38,6 +41,9 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
     setEdit(false);
   }, []);
 
+  const { pathname } = useLocation();
+  const isThink = pathname.includes('/think');
+
   const { ChaptersEditForm, ChapterTitle, SectionFooter,
     SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
@@ -69,8 +75,9 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
           {chapter.posts.map(post => {
+            const postLinkProps = isThink ? {postLink: getThinkSequencePostUrl(post, chapter.sequenceId)} : {};
             return <div key={chapter._id + post._id}>
-              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox {...postLinkProps}/>
             </div>
           })}
         </AnalyticsContext>

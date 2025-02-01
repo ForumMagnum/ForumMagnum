@@ -1775,6 +1775,44 @@ if (isLW) {
   });
 }
 
+if (isLW) {
+addRoute({
+      title: "Think Page",
+      name: 'thinkPage',
+      path: '/think',
+      redirect: () => '/think/posts/new',
+    },
+    {
+      name: 'thinkPagePost',
+      path: '/think/posts/:postId/:slug',
+      componentName: 'ThinkPostPage',
+      background: 'white',
+      title: "Think: Read Post"
+    },
+    {
+      name: 'thinkPagePostEdit',
+      path: '/think/editPost',
+      componentName: 'ThinkPostPage',
+      title: "Think: Edit Post",
+      background: 'white',
+    },
+    {
+      name: 'thinkPageNewPost',
+      path: '/think/posts/new',
+      componentName: 'ThinkPostNew',
+      title: "Think: New Post",
+      background: 'white',
+    },
+    {
+      name: 'thinkPageSequence',
+      path: '/think/s/:sequenceId/',
+      componentName: 'ThinkSequence',
+      title: "Think: Sequence",
+      background: 'white',
+    }
+  );
+}
+
 if (hasSurveys) {
   addRoute(
     {

@@ -69,6 +69,7 @@ import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 import DialogueCommentBox from './ckeditor5-dialogue-comments/dialogue-comment-box';
 import InternalBlockLinks from './internal-block-links';
+import LLMFeedback from './llm-feedback';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
@@ -156,7 +157,8 @@ const collaborativeEditorPlugins = [
 	TrackChanges,
 	TrackChangesData,
 	PresenceList,
-	DialogueCommentBox
+	DialogueCommentBox,
+	LLMFeedback
 ];
 
 

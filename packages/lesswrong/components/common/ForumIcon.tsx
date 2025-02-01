@@ -61,6 +61,7 @@ import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
+import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
@@ -120,6 +121,8 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import MuiAddIcon from "@material-ui/icons/Add";
+import MuiImportContactsIcon from "@material-ui/icons/ImportContacts";
 
 
 /**
@@ -290,11 +293,16 @@ export type ForumIconName =
   "FullscreenExit" |
   "TickReaction" |
   "CrossReaction" |
+  "CrossReactionCap"|
+  "Add" |
+  "Book" |
   "CrossReactionCap" |
-  "Dictionary";
+  "Dictionary" |
+  "Copy" ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
+    Book: MuiImportContactsIcon,
     VolumeUp: SpeakerWaveIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
@@ -418,9 +426,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
-    Dictionary: DictionaryIcon
+    Add: MuiAddIcon,
+    Dictionary: DictionaryIcon,
+    Copy: CopyIcon,
   },
   default: {
+    Book: MuiImportContactsIcon,
     VolumeUp: SpeakerWaveIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
@@ -544,7 +555,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
     Dictionary: DictionaryIcon,
+    Copy: CopyIcon,
   },
 };
 

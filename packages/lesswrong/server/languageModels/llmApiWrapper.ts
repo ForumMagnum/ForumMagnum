@@ -176,7 +176,19 @@ export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T):
     const responseContent = firstContentBlock.input;
     const validatedTerm = zodParser.safeParse(responseContent);
     if (!validatedTerm.success) {
-      throw new Error('Invalid tool use response from Anthropic!');
+      // eslint-disable-next-line no-console
+      console.log('Failed to parse tool use response from Anthropic with primary schema, trying backup...', { responseContent });
+      // lol
+      return await sendMessagesToLlm({
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'user', content: `Please fix the following malformed JSON and return it according to the provided schema: <JSON>${JSON.stringify(responseContent)}</JSON>` }
+        ],
+        zodParser,
+        name,
+        maxTokens,
+      });
     }
 
     return validatedTerm.data as SendLLMMessageReturnTypes<T>;

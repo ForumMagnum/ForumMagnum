@@ -31,7 +31,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled, isLW } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
@@ -62,6 +62,7 @@ import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
+import { addFeedbackEndpoint } from './feedbackEndpoint';
 import { getCommandLineArguments } from './commandLine';
 
 /**
@@ -350,6 +351,9 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
+  if (isLW) {
+    addFeedbackEndpoint(app);
+  }
   
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
