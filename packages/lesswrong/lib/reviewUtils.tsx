@@ -18,12 +18,15 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
   throw Error("Not a valid Review Year")
 }
 
+
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR: ReviewYear = 2023
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
+
+export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
 
 // This is broken out partly to allow EA Forum or other fora to do reviews with different names
 // (previously EA Forum did a "decade review" rather than a single year review)
