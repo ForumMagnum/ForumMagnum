@@ -146,38 +146,27 @@ export const LWBackgroundImage = ({classes, standaloneNavigation}: {
   const { ReviewVotingCanvas, CloudinaryImage2 } = Components
   const { currentRoute } = useLocation();
 
+  {/* Background image shown in the top-right corner of LW. The
+  * loading="lazy" prevents downloading the image if the
+  * screen-size is such that the image will be hidden by a
+  * breakpoint. */}
+
+  const defaultImage = <div className={classes.imageColumn}> 
+    <CloudinaryImage2
+      loading="lazy"
+      className={classes.backgroundImage}
+      publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+      darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+    />
+  </div>
+
   return <div className={classes.root}>
       {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && 
         <ReviewVotingCanvas />}
-      {(getReviewPhase() !== 'VOTING' || !standaloneNavigation) && <>
-        {currentRoute?.name === 'home' && <div className={classes.imageColumn}> 
-          {/* Background image shown in the top-right corner of LW. The
-            * loading="lazy" prevents downloading the image if the
-            * screen-size is such that the image will be hidden by a
-            * breakpoint. */}
-          <CloudinaryImage2
-            loading="lazy"
-            className={classes.backgroundImage}
-            publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-            darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
-            />
-        </div>}
-      </>}
       
-      {standaloneNavigation && <>
-        {currentRoute?.name !== 'home' && <div className={classes.imageColumn}> 
-          {/* Background image shown in the top-right corner of LW. The
-            * loading="lazy" prevents downloading the image if the
-            * screen-size is such that the image will be hidden by a
-            * breakpoint. */}
-          <CloudinaryImage2
-            loading="lazy"
-            className={classes.backgroundImage}
-            publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-            darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
-          />
-        </div>}
-      </>}
+      {getReviewPhase() === 'VOTING' && currentRoute?.name !== 'home' && standaloneNavigation &&defaultImage}
+
+      {(getReviewPhase() !== 'VOTING' || !standaloneNavigation) && defaultImage}
   </div>;
 }
 
