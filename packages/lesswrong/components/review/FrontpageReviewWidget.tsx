@@ -7,7 +7,7 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId, getVotingPhaseEnd } from '../../lib/reviewUtils';
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
 
@@ -227,7 +227,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
   const nominationStartDate = getReviewStart(reviewYear)
   const nominationEndDate = getNominationPhaseEnd(reviewYear)
   const reviewEndDate = getReviewPhaseEnd(reviewYear)
-  const voteEndDate = getResultsPhaseEnd(reviewYear)
+  const voteEndDate = getVotingPhaseEnd(reviewYear)
 
   // These should be calculated at render
   const currentDate = moment.utc()

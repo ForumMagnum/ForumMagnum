@@ -78,7 +78,7 @@ export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = forumSelect({EAForum: 4, defaul
 /**
  * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
  */
-export const isActionActive = (moderatorAction: DbModeratorAction) => {
+export const isActionActive = (moderatorAction: Pick<DbModeratorAction, "endedAt">) => {
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 }
 

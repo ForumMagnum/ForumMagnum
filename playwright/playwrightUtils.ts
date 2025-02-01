@@ -59,7 +59,7 @@ class Database {
 const db = new Database(5433);
 const crosspostDb = new Database(5434);
 
-const uniqueId = new class {
+export const uniqueId = new class {
   private usedUserIds = new Set<number>();
 
   get() {

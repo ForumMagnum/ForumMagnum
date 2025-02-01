@@ -76,7 +76,7 @@ const schema: SchemaType<"Localgroups"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    onInsert: () => new Date(),
+    onCreate: () => new Date(),
     hidden: true,
   },
 
