@@ -54,7 +54,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 const TIMEZONE_OFFSET = isDevelopment 
-  ? -24*4 // we start testing each phase a few days before it starts
+  ? -24*2 // we start testing each phase a few days before it starts
   : 8 // Pacific Time
 
 export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {

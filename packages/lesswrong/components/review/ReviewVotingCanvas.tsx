@@ -165,6 +165,23 @@ const styles = (theme: ThemeType) => ({
     maxWidth: '1000px',
     marginLeft: '-22px'
   },
+  callToAction: {
+    ...theme.typography.headerStyle,
+    fontWeight: 700,
+    textAlign: 'center',
+    fontSize: 30,
+    width: 'calc(100vw - 1250px)',
+    minWidth: 200,
+    zIndex: 1,
+    position: 'absolute',
+    top: 230,
+    left: 10,
+    textShadow: '0 0 5px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 1), 0 0 15px rgba(255, 255, 255, 1), 0 0 20px rgba(255, 255, 255, 1)',
+    [theme.breakpoints.down("lg")]: {
+      fontSize: 28,
+      left: -30
+    },
+  }
 });
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
@@ -408,7 +425,9 @@ const ReviewVotingCanvas = ({
 
   return (
     <>
-      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_inoyl6"/>
+      <h3 className={classes.callToAction}>LESSWRONG needs YOU to VOTE</h3>
+
       <AnalyticsContext pageSectionContext="header" siteEvent={reviewElectionName}>
         <div
           {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
