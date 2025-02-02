@@ -7,7 +7,7 @@ import { CloudinaryPropsType } from "../common/CloudinaryImage2";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
-import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
+import { REVIEW_YEAR, eligibleToNominate, reviewElectionName } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
@@ -21,6 +21,18 @@ export type GivingSeasonHeart = {
 }
 
 const styles = (theme: ThemeType) => ({
+  backgroundImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: -70,
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
   rootGivingSeason: {
     opacity: 0,
     transition: "opacity 0.25s ease",
@@ -109,6 +121,7 @@ const styles = (theme: ThemeType) => ({
   gsHearts: {
     position: "relative",
     height: '100vh',
+    width: 'calc(100vw - 1100px)',
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -146,6 +159,11 @@ const styles = (theme: ThemeType) => ({
   },
   gsLoadingHeart: {
     cursor: "wait !important",
+  },
+  votingImage: {
+    width: '55vw',
+    maxWidth: '1000px',
+    marginLeft: '-22px'
   },
 });
 
@@ -267,12 +285,13 @@ const ReviewVotingCanvas = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const { pathname, currentRoute } = useLocation();
+  const { CloudinaryImage2 } = Components;
   const currentUser = useCurrentUser();
   const showHearts = currentRoute?.path === "/";
 
   const {data, refetch} = useQuery(heartsQuery, {
     variables: {
-      electionName: "reviewVoting2022"
+      electionName: reviewElectionName
     },
     skip: !showHearts,
   });
@@ -315,7 +334,7 @@ const ReviewVotingCanvas = ({
   const addHeart = useCallback(async (x: number, y: number, theta: number) => {
     const result = await rawAddHeart({
       variables: {
-        electionName: "reviewVoting2022",
+        electionName: reviewElectionName,
         x,
         y,
         theta,
@@ -328,7 +347,7 @@ const ReviewVotingCanvas = ({
   const removeHeart = useCallback(async () => {
     const result = await rawRemoveHeart({
       variables: {
-        electionName: "reviewVoting2022",
+        electionName: reviewElectionName,
       }
     });
     const newHearts = result.data?.RemoveGivingSeasonHeart;
@@ -387,42 +406,43 @@ const ReviewVotingCanvas = ({
     }
   }, [normalizeCoords, addHeart, flash, userHasVotedEnough]);
 
-  
-
   return (
-    <AnalyticsContext pageSectionContext="header" siteEvent="reviewVoting2022">
-      <div
-        {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
-        ref={headerRef}
-        className={classNames(classes.rootGivingSeason, {
-          [classes.gsCanPlaceHeart]: hoverPos,
-          [classes.gsLoadingHeart]: isAddingHeart || isRemovingHeart,
-        })}
-      >
-          <div className={classes.gsHearts}>
-            <DeferRender ssr={false}>
-              {hearts.map((heart) => (
-                <Heart
-                  key={heart.userId}
-                  heart={heart}
-                  currentUser={currentUser}
-                  removeHeart={removeHeart}
-                  classes={classes}
-                />
-              ))}
-              {hoverPos &&
-                <Heart
-                  heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
-                  currentUser={currentUser}
-                  removeHeart={removeHeart}
-                  classes={classes}
-                  disabled={!userHasVotedEnough}
-                />
-              }
-            </DeferRender>
-          </div>
-      </div>
-    </AnalyticsContext>
+    <>
+      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+      <AnalyticsContext pageSectionContext="header" siteEvent={reviewElectionName}>
+        <div
+          {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
+          ref={headerRef}
+          className={classNames(classes.rootGivingSeason, {
+            [classes.gsCanPlaceHeart]: hoverPos,
+            [classes.gsLoadingHeart]: isAddingHeart || isRemovingHeart,
+          })}
+        >
+            <div className={classes.gsHearts}>
+              <DeferRender ssr={false}>
+                {hearts.map((heart) => (
+                  <Heart
+                    key={heart.userId}
+                    heart={heart}
+                    currentUser={currentUser}
+                    removeHeart={removeHeart}
+                    classes={classes}
+                  />
+                ))}
+                {hoverPos &&
+                  <Heart
+                    heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
+                    currentUser={currentUser}
+                    removeHeart={removeHeart}
+                    classes={classes}
+                    disabled={!userHasVotedEnough}
+                  />
+                }
+              </DeferRender>
+            </div>
+        </div>
+      </AnalyticsContext>
+    </>
   );
 }
 
