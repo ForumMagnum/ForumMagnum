@@ -2,9 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase } from '../lib/reviewUtils';
-import classNames from 'classnames';
+import { defineStyles, useStyles } from './hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
     position: 'absolute',
     right: 0,
@@ -137,12 +137,12 @@ const styles = (theme: ThemeType) => ({
   //   fontStyle: 'normal',
   //   marginBottom: '16px !important',
   // },
-});
+}));
 
-export const LWBackgroundImage = ({classes, standaloneNavigation}: {
-  classes: ClassesType<typeof styles>,
+export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
+  const classes = useStyles(styles);
   const { ReviewVotingCanvas, CloudinaryImage2 } = Components
   const { currentRoute } = useLocation();
 
@@ -166,7 +166,7 @@ export const LWBackgroundImage = ({classes, standaloneNavigation}: {
   </div>;
 }
 
-const LWBackgroundImageComponent = registerComponent('LWBackgroundImage', LWBackgroundImage, {styles});
+const LWBackgroundImageComponent = registerComponent('LWBackgroundImage', LWBackgroundImage);
 
 declare global {
   interface ComponentTypes {

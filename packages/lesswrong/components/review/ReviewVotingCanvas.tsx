@@ -406,8 +406,6 @@ const ReviewVotingCanvas = ({
     }
   }, [normalizeCoords, addHeart, flash, userHasVotedEnough]);
 
-  
-
   return (
     <>
       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
