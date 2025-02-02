@@ -28,10 +28,14 @@ const styles = (theme: ThemeType) => ({
     top: -70,
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
+    height: 'auto',
+    marginLeft: '-22px',
+    // [theme.breakpoints.down(1450)]: {
+    //   width: '50vw',
+    // },
+    // [theme.breakpoints.up(2000)]: {
+    //   right: '0px',
+    // }
   },
   rootGivingSeason: {
     opacity: 0,
@@ -160,32 +164,51 @@ const styles = (theme: ThemeType) => ({
   gsLoadingHeart: {
     cursor: "wait !important",
   },
-  votingImage: {
-    width: '55vw',
-    maxWidth: '1000px',
-    height: 'auto',
-    marginLeft: '-22px'
-  },
   callToAction: {
     ...theme.typography.headerStyle,
     fontWeight: 700,
     textAlign: 'center',
     fontSize: 30,
-    width: 'calc(100vw - 1250px)',
-    minWidth: 200,
-    maxWidth: 300,
+    width: 300,
     color: theme.palette.greyAlpha(.7),
     zIndex: theme.zIndexes.reviewVotingCanvas,
     position: 'absolute',
     top: 270,
-    left: 60,
-    textShadow: '0 0 5px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 1), 0 0 15px rgba(255, 255, 255, 1), 0 0 20px rgba(255, 255, 255, 1)',
-    [theme.breakpoints.up(1600)]: {
-      right: 60,
+    right: 300,
+    [theme.breakpoints.down(1800)]: {
+      right: 260,
     },
-    [theme.breakpoints.down("lg")]: {
+    [theme.breakpoints.down(1700)]: {
+      right: 220,
       fontSize: 28,
-      left: -30
+    },
+    [theme.breakpoints.down(1600)]: {
+      right: 200,
+      width: 250,
+    },
+    [theme.breakpoints.down(1550)]: {
+      right: 200,
+      width: 240,
+      top: 225,
+    },
+    [theme.breakpoints.down(1520)]: {
+      right: 'unset',
+      left: 10,
+      width:175,
+      top: 225
+    },
+    [theme.breakpoints.down(1475)]: {
+      left: 10,
+      top: 625,
+      width: 250,
+      fontSize: 26
+    },
+    [theme.breakpoints.down(1350)]: {
+      fontSize: 26,
+      right: 'unset',
+      left: -40,
+      width: 225,
+      top: 625
     },
   }
 });
@@ -431,7 +454,7 @@ const ReviewVotingCanvas = ({
 
   return (
     <>
-      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_darkmoe_ixccjs"/>
+      <CloudinaryImage2 className={classes.backgroundImage} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_darkmoe_ixccjs"/>
       <h3 className={classes.callToAction}>LESSWRONG needs YOU to VOTE</h3>
 
       <AnalyticsContext pageSectionContext="header" siteEvent={reviewElectionName}>
