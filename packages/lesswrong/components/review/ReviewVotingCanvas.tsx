@@ -163,6 +163,7 @@ const styles = (theme: ThemeType) => ({
   votingImage: {
     width: '55vw',
     maxWidth: '1000px',
+    height: 'auto',
     marginLeft: '-22px'
   },
   callToAction: {
@@ -172,11 +173,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: 30,
     width: 'calc(100vw - 1250px)',
     minWidth: 200,
-    zIndex: 1,
+    maxWidth: 300,
+    color: theme.palette.greyAlpha(.7),
+    zIndex: theme.zIndexes.reviewVotingCanvas,
     position: 'absolute',
-    top: 230,
-    left: 10,
+    top: 270,
+    left: 60,
     textShadow: '0 0 5px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 1), 0 0 15px rgba(255, 255, 255, 1), 0 0 20px rgba(255, 255, 255, 1)',
+    [theme.breakpoints.up(1600)]: {
+      right: 60,
+    },
     [theme.breakpoints.down("lg")]: {
       fontSize: 28,
       left: -30
@@ -425,7 +431,7 @@ const ReviewVotingCanvas = ({
 
   return (
     <>
-      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_inoyl6"/>
+      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_darkmoe_ixccjs"/>
       <h3 className={classes.callToAction}>LESSWRONG needs YOU to VOTE</h3>
 
       <AnalyticsContext pageSectionContext="header" siteEvent={reviewElectionName}>

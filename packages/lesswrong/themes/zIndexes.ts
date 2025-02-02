@@ -3,6 +3,7 @@ export const defaultZIndexes = {
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   reviewExpandButton: 1,
+  reviewVotingCanvas: 1,
   modTopBar: 1,
   spotlightItem: 1,
   editorPresenceList: 1,
