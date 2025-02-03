@@ -241,11 +241,11 @@ const TagPreview = ({
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {tagShowTitle(tag) && <div className={classNames(classes.title, { [classes.extraTitleMargin]: hasMultipleSummaries })}>
-        {tag.name}
-      </div>}
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
+      </div>}
+      {tagShowTitle(tag) && <div className={classNames(classes.title, { [classes.extraTitleMargin]: hasMultipleSummaries })}>
+        {tag.name}
       </div>}
       <div className={classes.mainContent}>
         {hasDescription && <div className={classes.description}>
