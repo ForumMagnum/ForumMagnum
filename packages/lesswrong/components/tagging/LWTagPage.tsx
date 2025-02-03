@@ -4,7 +4,7 @@ import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'r
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetHistoryUrl, tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -30,7 +30,6 @@ import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@material-ui/icons/History';
-import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
 import type { ContentItemBody } from "../common/ContentItemBody";

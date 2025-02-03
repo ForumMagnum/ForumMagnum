@@ -128,7 +128,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   description: {
-    ...(isFriendlyUI && { marginTop: 16 }),
+    ...(!isFriendlyUI && { marginTop: 16 }),
   },
 }));
 
