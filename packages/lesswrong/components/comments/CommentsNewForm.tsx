@@ -486,7 +486,11 @@ const CommentsNewForm = ({
           })
           : undefined
         }>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning
+            contentType="comment"
+            lastRateLimitExpiry={lastRateLimitExpiry}
+            rateLimitMessage={rateLimitMessage}
+          />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()

@@ -1561,7 +1561,7 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
       // relative stability of the seeded frontend sort
       sort: {
         lastCommentedAt: -1
-      }
+      },
     }
   }
 })

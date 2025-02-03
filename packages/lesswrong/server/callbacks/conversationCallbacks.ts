@@ -26,7 +26,7 @@ async function flagOrBlockUserOnManyDMs({
   oldConversation?: DbConversation,
   currentUser: DbUser|null,
   context: ResolverContext,
-}): Promise<Partial<DbConversation>> {
+}): Promise<void> {
   const logger = loggerConstructor('callbacks-conversations');
   logger('flagOrBlockUserOnManyDMs()')
   if (!currentUser) {
@@ -34,12 +34,12 @@ async function flagOrBlockUserOnManyDMs({
   }
   if (currentUser.reviewedByUserId && !currentUser.snoozedUntilContentCount) {
     logger('User has been fully approved, ignoring')
-    return currentConversation;
+    return;
   }
   // if the participants didn't change, we can ignore it
   if (!currentConversation.participantIds) {
     logger('No change to participantIds, ignoring')
-    return currentConversation;
+    return;
   }
 
   // Old conversation *should* be completely redundant with
@@ -85,15 +85,16 @@ async function flagOrBlockUserOnManyDMs({
   }
   
   logger('flagOrBlockUserOnManyDMs() return')
-  return currentConversation;
 }
 
 getCollectionHooks("Conversations").createBefore.add(async function flagUserOnManyDMsCreate(document, properties) {
-  return flagOrBlockUserOnManyDMs({currentConversation: document, currentUser: properties.currentUser, context: properties.context});
+  await flagOrBlockUserOnManyDMs({currentConversation: document, currentUser: properties.currentUser, context: properties.context});
+  return document;
 });
 
 getCollectionHooks("Conversations").updateBefore.add(async function flagUserOnManyDMsCreate(data, properties) {
-  return flagOrBlockUserOnManyDMs({currentConversation: data, oldConversation: properties.oldDocument, currentUser: properties.currentUser, context: properties.context});
+  await flagOrBlockUserOnManyDMs({currentConversation: data, oldConversation: properties.oldDocument, currentUser: properties.currentUser, context: properties.context});
+  return data;
 });
 
 getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument}) {

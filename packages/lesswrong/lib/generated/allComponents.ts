@@ -1,6 +1,7 @@
 // Generated file - run "yarn generate" to update
 import { importComponent } from '../vulcan-lib';
 
+importComponent("LWBackgroundImage", () => require("../../components/LWBackgroundImage.tsx"));
 importComponent("Layout", () => require("../../components/Layout.tsx"));
 importComponent("AdminGoogleServiceAccount", () => require("../../components/admin/AdminGoogleServiceAccount.tsx"));
 importComponent("AdminHome", () => require("../../components/admin/AdminHome.tsx"));
