@@ -143,7 +143,6 @@ const postEditorPlugins = [
 	BlockToolbar,
 	FontFamily,
 	FontSize,
-	CTAButton,
 	ConditionalVisibility,
 	// FontColor,
 	// FontBackgroundColor,

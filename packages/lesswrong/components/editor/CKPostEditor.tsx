@@ -26,7 +26,6 @@ import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
-import type { CTAButtonPluginConfiguration } from './ctaButton/ctaButton';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
 
@@ -481,16 +480,6 @@ const CKPostEditor = ({
       }
     },
   };
-  const ctaButtonPluginConfiguration: CTAButtonPluginConfiguration = {
-    renderCTAButtonSettingsInto: (element, initialState, setDocumentState) => {
-      if (portalContext) {
-        portalContext.createPortal(element, <Components.EditCTAButtonSettings
-          initialState={initialState}
-          setDocumentState={setDocumentState}
-        />);
-      }
-    },
-  };
 
   const {results: anyDialogue} = useMulti({
     collectionName: "Posts",
@@ -574,7 +563,6 @@ const CKPostEditor = ({
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
-    ctaButton: ctaButtonPluginConfiguration,
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
   };
