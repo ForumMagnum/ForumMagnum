@@ -120,6 +120,8 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import MuiAddIcon from "@material-ui/icons/Add";
+import MuiImportContactsIcon from "@material-ui/icons/ImportContacts";
 
 
 /**
@@ -290,11 +292,15 @@ export type ForumIconName =
   "FullscreenExit" |
   "TickReaction" |
   "CrossReaction" |
+  "CrossReactionCap"|
+  "Add" |
+  "Book" |
   "CrossReactionCap" |
   "Dictionary";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
+    Book: MuiImportContactsIcon,
     VolumeUp: SpeakerWaveIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
@@ -418,9 +424,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
     Dictionary: DictionaryIcon
   },
   default: {
+    Book: MuiImportContactsIcon,
     VolumeUp: SpeakerWaveIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
@@ -544,6 +552,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
     Dictionary: DictionaryIcon,
   },
 };

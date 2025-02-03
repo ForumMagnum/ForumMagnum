@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext, forwardRef, useImperativeHandle } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
@@ -18,16 +18,24 @@ import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import Input from '@material-ui/core/Input/Input';
+import { danglingSentencesPrompt, Prompt, rightBranchingPrompt } from '@/lib/promptLibrary';
+import { useEditorCommands } from '../editor/EditorCommandsContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: "calc(100vh - 190px)"
+    overflowY: "scroll",
+    background: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: 6,
+    padding: 6,
   },
   subRoot: {
     display: "flex",
     flexDirection: "column",
-    height: "100%"
+    height: "100%",
+    ...theme.typography.body2,
   },
   submission: {
     margin: 10,
@@ -44,15 +52,14 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     paddingLeft: 20,
     paddingTop: 20,
-    fontSize: '1.0rem',
+    fontSize: theme.typography.body2.fontSize,
     '& blockquote, & li': {
       fontSize: '1.0rem'
     }
   },
   inputTextbox: {
     margin: 10,
-    marginTop: 20,
-    borderRadius: 4,
+    borderRadius: 8,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflowY: 'hidden',
@@ -61,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexBasis: "auto",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   submitButton:{
     width: "fit-content",
@@ -80,8 +87,10 @@ const styles = (theme: ThemeType) => ({
   },
   welcomeGuide: {
     margin: 10,
+    marginTop: 9,
     display: "flex",
     flexDirection: "column",
+    borderRadius: 8
   },
   welcomeGuideText: {
     padding: 20,
@@ -91,20 +100,18 @@ const styles = (theme: ThemeType) => ({
   welcomeGuideButton: {
     cursor: "pointer",
     opacity: 0.8,
-    alignSelf: "flex-end",
-    fontStyle: "italic",
-    marginBottom: 4
+    alignSelf: "flex-start",
+    fontStyle: "italic"
   },
   chatMessage: {
     padding: 20,
     margin: 10,
-    borderRadius: 10,
+    borderRadius: 8,
     backgroundColor: theme.palette.grey[100],
-  },
-  chatMessageContent: {
+    position: "relative",
   },
   userMessage: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.panelBackground.translucent
   },
   errorMessage: {
     backgroundColor: theme.palette.error.light,
@@ -140,38 +147,196 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center"
   },
   deleteConvoIcon: {
-    marginLeft: 10,
     cursor: "pointer",
-    opacity: 0.8,
-    width: 16
+    opacity: 0,
+    width: 16,
+    height: 16,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    marginLeft: "auto",
+    flexGrow: 1,
+    '&:hover': {
+      opacity: 1,
+    },
   },
   loadingSpinner: {
     marginTop: 10
   },
+  convoListExpanded: {
+    maxHeight: "unset !important",
+  },
+  chatMessageContent: {
+    maxHeight: 50,
+    overflow: "hidden",
+  },
+  chatMessageContentExpand: {
+    maxHeight: "50vh",
+    overflowY: "scroll"
+  },
+  collapsedIcon: {
+    transform: "rotate(-90deg)",
+  },
+  expandCollapseIcon: {
+    cursor: "pointer",
+    color: theme.palette.grey[400],
+    '&:hover': {
+      color: theme.palette.grey[600],
+    },
+    height: 16,
+    width: 16,
+    position: "absolute",
+    left: 6,
+    top: 6,
+  },
+  conversation2Item: {
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    position: "relative",
+    width: "calc(50% - 8px)",
+    border: theme.palette.border.faint,
+    borderRadius: 4,
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 4,
+    paddingBottom: 4,
+    '&:hover $convoIcon, &:hover $deleteConvoIcon': {
+      opacity: 1,
+    },
+  },
+  convoList: {
+    display: "flex",
+    gap: "8px",
+    flexWrap: "wrap",
+    maxHeight: 30,
+    overflow: "hidden",
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: "1.1rem",
+  },
+  convosListWrapper: {
+    padding: 6,
+    display: "flex",
+  },
+  convosButtons: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  convoItemIcons: {
+    opacity: 0,
+    position: "absolute",
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    right: 0,
+    top: 0,
+  },
+  convoIcon: {
+    cursor: "pointer",
+    height: 16,
+    width: 16,
+    opacity: 0,
+    margin: 4,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
+  suggestionIcon: {
+    cursor: "pointer",
+    height: 16,
+    width: 16,
+    opacity: 0.5,
+    marginLeft: 8,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
+  icon: {
+    cursor: "pointer",
+    height: 20,
+    width: 20,
+    marginTop: 6,
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
+  userFeedbackPromptInput: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 4,
+    padding: '4px 7px',
+    width: 240
+  },
+  postSuggestionsButton: {
+    border: theme.palette.border.faint,
+    cursor: 'pointer',
+    opacity: 0.8,
+    width: "calc(50% - 8px)",
+    alignSelf: 'flex-start',
+    ...theme.typography.body2,
+    fontSize: "1.1rem",
+    marginBottom: 4,
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 6,
+    paddingRight: 6,
+    borderRadius: 4,
+    whiteSpace: "nowrap",
+    '& $suggestionIcon': {
+      opacity: 0,
+    },
+    '&:hover $suggestionIcon': {
+      opacity: .5,
+    },
+  },
+  postSuggestionsWrapper: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 4,
+    padding: '4px 7px',
+    width: 240
+  },
+  postSuggestionsList: {
+    display: "flex",
+    flex: 1,
+    gap: "8px",
+    maxHeight: 32,
+    flexWrap: "wrap",
+    overflow: "hidden",
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: "1.1rem",
+  }
 });
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
-const LLMChatMessage = ({message, classes}: {
+const LLMChatMessage = ({message, classes, index}: {
   message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
+  index: number,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
+  const { ContentItemBody, ContentStyles, ForumIcon, Row } = Components;
+  const [expanded, setExpanded] = useState(true);
 
   const { role, content } = message;
 
-  return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
-    <ContentItemBody
-      className={classNames(classes.chatMessage, {
-        [classes.userMessage]: role === 'user',
-        [classes.errorMessage]: role === 'error'
-      })}
-      dangerouslySetInnerHTML={{__html: content}}
-    />
-  </ContentStyles>
+  return <Row alignItems="flex-start">
+    <div className={classNames(classes.chatMessage, 
+      role === 'user' && classes.userMessage,
+      role === 'error' && classes.errorMessage,
+    )}>
+      <ForumIcon icon={"ExpandMore"} className={classNames(classes.expandCollapseIcon, !expanded && classes.collapsedIcon)} onClick={() => setExpanded(!expanded)} />
+      <ContentStyles contentType="llmChat">
+        <ContentItemBody
+          className={classNames(classes.chatMessageContent, expanded && classes.chatMessageContentExpand)}
+          dangerouslySetInnerHTML={{__html: content}}
+        />
+      </ContentStyles>
+    </div>
+  </Row>
 }
 
-const LLMInputTextbox = ({onSubmit, classes}: {
+const LLMInputTextbox = ({ onSubmit, classes }: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -181,7 +346,6 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
-  // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
     mention: mentionPluginConfiguration,
@@ -193,77 +357,77 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     setCurrentMessage('');
   }, [onSubmit]);
 
-  // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
-  // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
-  // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
-  useEffect(() => {
-    const currentEditorRefValue = ckEditorRef.current;
-
-    const options = { capture: true };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-        event.stopPropagation();
-        event.preventDefault();
-        submitEditorContentAndClear();
-      }
-    };
-  
-    const internalEditorRefInstance = (currentEditorRefValue as AnyBecauseHard).domContainer?.current;
-    if (internalEditorRefInstance) {
-      internalEditorRefInstance.addEventListener('keydown', handleKeyDown, options);
+  useGlobalKeydown((event: KeyboardEvent) => {
+    // Submit on Ctrl/Cmd + Enter
+    if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
+      event.stopPropagation();
+      event.preventDefault();
+      submitEditorContentAndClear();
     }
 
-    return () => {
-      const internalEditorRefInstance = (currentEditorRefValue as AnyBecauseHard)?.domContainer?.current;
-      if (internalEditorRefInstance) {
-        internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
+    // Insert current page URL on Ctrl/Cmd + Shift + U
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'l') {
+      event.stopPropagation();
+      event.preventDefault();
+      const editor = editorRef.current;
+      if (editor) {
+        editor.model.change((writer) => {
+          const insertPosition = editor.model.document.selection.getFirstPosition();
+          const url = window.location.href;
+          if (insertPosition) {
+            writer.insertText(url, insertPosition);
+          }
+          // Focus the editor after inserting text
+          editor.editing.view.focus();
+        });
       }
     }
-  }, [onSubmit, submitEditorContentAndClear]);
+  });
 
   const submitButton = <div className={classes.editorButtons}>
     <Button
       type='submit'
       id='llm-submit-button'
-      className={classes.submitButton} 
+      className={classes.submitButton}
       onClick={submitEditorContentAndClear}
     >
       Submit
     </Button>
   </div>;
 
-  // TODO: styling and debouncing
-  return <ContentStyles className={classes.inputTextbox} contentType='comment'>
-    <div className={classes.editor}>
-      <CKEditor
-        data={currentMessage}
-        ref={ckEditorRef}
-        editor={getCkCommentEditor()}
-        isCollaborative={false}
-        onChange={(_event, editor: Editor) => {
-          // debouncedValidateEditor(editor.model.document)
-          // If transitioning from empty to nonempty or nonempty to empty,
-          // bypass throttling. These cases don't have the performance
-          // implications that motivated having throttling in the first place,
-          // and this prevents a timing bug with form-clearing on submit.
-          setCurrentMessage(editor.getData());
-
-          // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
-          //   throttledSetCkEditor.cancel();
-          //   setCurrentMessage(editor.getData());
-          // } else {
-          //   throttledSetCkEditor(() => editor.getData())
-          // }
-        }}
-        onReady={(editor) => {
-          editorRef.current = editor;
-        }}
-        config={editorConfig}
-      />
-    </div>
-    {submitButton}
-  </ContentStyles>
-}
+  return (
+    <ContentStyles className={classes.inputTextbox} contentType='comment'>
+      <div className={classes.editor}>
+        <CKEditor
+          data={currentMessage}
+          ref={ckEditorRef}
+          editor={getCkCommentEditor()} // Unsure if this should be kept. forumTypeSetting.get()
+          isCollaborative={false}
+          onChange={(_event, editor: Editor) => {
+            // debouncedValidateEditor(editor.model.document)
+            // If transitioning from empty to nonempty or nonempty to empty,
+            // bypass throttling. These cases don't have the performance
+            // implications that motivated having throttling in the first place,
+            // and this prevents a timing bug with form-clearing on submit.
+            setCurrentMessage(editor.getData());
+  
+            // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+            //   throttledSetCkEditor.cancel();
+            //   setCurrentMessage(editor.getData());
+            // } else {
+            //   throttledSetCkEditor(() => editor.getData())
+            // }
+          }}
+          onReady={(editor) => {
+            editorRef.current = editor;
+          }}
+          config={editorConfig}
+        />
+      </div>
+      {submitButton}
+    </ContentStyles>
+  );
+};
 
 const welcomeGuideHtml = [
   `<h1>Welcome to the LessWrong LLM Chat!</h1>`,
@@ -303,21 +467,98 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
+const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typeof styles>, prompt: Prompt}) => {
+  const { ForumIcon, Row, LWTooltip, Loading } = Components;
+
+  const [edit, setEdit] = useState(false);
+  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
+  const { getLlmFeedbackCommand, cancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId } = useEditorCommands();
+
+  const handleSubmit = useCallback(async () => {
+    if (getLlmFeedbackCommand) {
+      await getLlmFeedbackCommand(userFeedbackPrompt, prompt.title);
+    }
+    // setEdit(false);
+  }, [getLlmFeedbackCommand, userFeedbackPrompt, prompt.title]);
+
+  const handleCancel = useCallback(() => {
+    if (cancelLlmFeedbackCommand) {
+      cancelLlmFeedbackCommand();
+    }
+    // setEdit(false);
+  }, [cancelLlmFeedbackCommand]);
+
+  if (!getLlmFeedbackCommand) {
+    return null;
+  }
+
+  if (prompt.title === llmFeedbackCommandLoadingSourceId) {
+    return <div className={classes.postSuggestionsButton} onClick={handleCancel}>
+      <Row alignItems="center" gap={4}>
+        <LWTooltip title="Generating suggestions, click to cancel" placement="left">
+          <Loading />
+        </LWTooltip>
+      </Row>
+    </div>
+  }
+
+  return <div onClick={handleSubmit} className={classes.postSuggestionsButton}>
+    <Row alignItems="center" gap={4}>
+      <LWTooltip title={prompt.description} placement="left">
+        <div>{prompt.title}</div>
+      </LWTooltip>
+      <LWTooltip title={edit ? "Cancel" : "Edit Prompt"} placement="right"> 
+        <ForumIcon className={classes.suggestionIcon} icon={edit ? "Clear" : "Edit"} onClick={() => setEdit(!edit)}/>
+      </LWTooltip>
+    </Row>
+    {/* <div className={classes.postSuggestionsWrapper} style={{display: edit ? "block" : "none"}}>
+      <Input
+        id="user-feedback-prompt-input"
+        className={classes.userFeedbackPromptInput}
+        type="text"
+        placeholder="Prompt"
+        value={userFeedbackPrompt}
+        onChange={(e) => setUserFeedbackPrompt(e.target.value)}
+        multiline
+        rows={15}
+        disableUnderline
+      />
+    </div> */}
+  </div>
+}
+
+export const PostSuggestionPromptList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
+  const { ForumIcon, LWTooltip } = Components;
+  const [isListExpanded, setIsListExpanded] = useState(false);
+
+  return <div className={classes.convosListWrapper}>
+    <LWTooltip title={isListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
+      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isListExpanded && classes.collapsedIcon)} onClick={() => setIsListExpanded(!isListExpanded)} />
+    </LWTooltip>
+    <div className={classNames(classes.postSuggestionsList, isListExpanded && classes.convoListExpanded)}>
+      {children}
+    </div>
+  </div>
+}
+
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
+  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody, ForumIcon, LWTooltip } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
+  const { getLlmFeedbackCommand } = useEditorCommands();
 
-  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
+  const [ragMode, setRagMode] = useState<RagModeType>('Links');
   const { flash } = useMessages();
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
   const previousMessagesLengthRef = useRef(0);
+
+  const [isConvoListExpanded, setIsConvoListExpanded] = useState(false);
 
   // Scroll to bottom when new messages are added or the content of the last message grows due to streaming
   useEffect(() => {
@@ -386,7 +627,7 @@ export const ChatInterface = ({classes}: {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <LlmChatMessage key={index} message={message} />
+      <LlmChatMessage key={index} message={message} index={index} />
     ))}
   </div>
 
@@ -414,50 +655,39 @@ export const ChatInterface = ({classes}: {
     archiveConversation(conversationId);
   };
 
-  const conversationSelect = <Select 
-    onChange={onSelect} 
-    value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
+  const ragModeSelect = <Select 
+    onChange={(e) => setRagMode(e.target.value as RagModeType)}
+    value={ragMode}
     disableUnderline
-    className={classes.select}
-    MenuProps={{style: {zIndex: 10000000002}}} // TODO: figure out sensible z-index stuff
-    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
-    >
-      {
-        orderedConversations.map(({ title, _id }, index) => (
-          <MenuItem key={index} value={_id} className={classes.menuItem}>
-            {title ?? "...Title Pending..."}
-            <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
-          </MenuItem>
-      ))}
-      <MenuItem value={NEW_CONVERSATION_MENU_ITEM} className={classes.menuItem}>
-        New Conversation
+    className={classes.ragModeSelect}
+  >
+    {RAG_MODE_SET.map((ragMode) => (
+      <MenuItem key={ragMode} value={ragMode}>
+        {ragMode}
       </MenuItem>
-    </Select>;
+    ))}
+  </Select>
 
-    const ragModeSelect = <Select 
-      onChange={(e) => setRagMode(e.target.value as RagModeType)}
-      value={ragMode}
-      disableUnderline
-      className={classes.ragModeSelect}
-    >
-      {RAG_MODE_SET.map((ragMode) => (
-        <MenuItem key={ragMode} value={ragMode}>
-          {ragMode}
-        </MenuItem>
-      ))}
-    </Select>
+  const copyFirstMessageToClipboard = (conversationId: string) => {
+    const conversation = orderedConversations.find(c => c._id === conversationId);
+    if (conversation) {
+      void navigator.clipboard.writeText(conversation.messages[0].content);
+      flash('First message copied to clipboard');
+    }
+  }
 
+  {/* <LWTooltip title="Copy Chat History to Clipboard">
+    <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
+  </LWTooltip> */}
 
   const options = <div className={classes.options}>
-    <Button onClick={() => setCurrentConversation()}>
-      New Chat
-    </Button>
-    <Button onClick={exportHistoryToClipboard} disabled={!currentConversation}>
-      Export
-    </Button>
-    {conversationSelect}
-    {ragModeSelect}
-  </div>  
+    <LWTooltip title="New LLM Chat">
+      <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+    </LWTooltip>
+    <LWTooltip title="Copy Chat History to Clipboard">
+      <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
+    </LWTooltip>
+  </div>
 
   const handleSubmit = useCallback(async (message: string) => {
     if (autosaveEditorState) {
@@ -466,14 +696,33 @@ export const ChatInterface = ({classes}: {
     submitMessage({ query: message, ragMode, currentPostId, postContext });
   }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
 
-  return <div className={classes.subRoot}>
-    {messagesForDisplay}
-    {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-    {options}
-  </div>
-}
+  const [expandConvosList, setExpandConvosList] = useState<boolean>(false);
 
+  return <>
+    <div className={classes.subRoot}>
+      {messagesForDisplay}
+      {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
+      <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
+      <div className={classes.convoList}>
+        <LWTooltip title="New LLM Chat">
+          <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+        </LWTooltip>
+        {orderedConversations.map(({ title, _id, messages }, index) => (
+          <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
+            {title ?? "...Title Pending..."}
+          </div>
+        ))}
+        {orderedConversations.length > 2 && <span onClick={() => setExpandConvosList(!expandConvosList)}>
+          {expandConvosList ? "Fewer" : "More"}
+        </span>}
+      </div>
+      {!!getLlmFeedbackCommand && <PostSuggestionPromptList classes={classes}>
+        <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
+        <PostSuggestionsPromptInput classes={classes} prompt={danglingSentencesPrompt} />
+      </PostSuggestionPromptList>}
+    </div>
+  </>
+}
 
 // Wrapper component needed so we can use deferRender
 export const LanguageModelChat = ({classes}: {

@@ -14,9 +14,9 @@ import { useTracking } from '@/lib/analyticsEvents';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
-function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) {
+export function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) {
   const { captureEvent } = useTracking();
-  const [showAllTerms, setShowAllTerms] = useState(false);
+  const [showAllTerms, setShowAllTerms] = useState(true);
 
   const postHasGlossary = 'glossary' in post;
 

@@ -21,7 +21,7 @@ mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
 
-export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
+export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided', 'Links'] as const;
 export type RagModeType = typeof RAG_MODE_SET[number];
 
 const ClientMessageSchema = z.object({
@@ -173,7 +173,7 @@ const LlmChatWrapper = ({children}: {
 
   const sortedConversations = useMemo(() => {
     const llmConversationsList = conversations ? Object.values(conversations) : [];
-    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
+    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt).reverse();
   }, [conversations]);
 
   const [currentConversationId, setCurrentConversationId] = useState<string>();

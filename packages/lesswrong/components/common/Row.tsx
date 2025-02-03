@@ -8,13 +8,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const Row = ({classes, justifyContent="space-between", alignItems="center", children}: {
+export const Row = ({classes, justifyContent="space-between", alignItems="center", children, gap}: {
   classes: ClassesType<typeof styles>,
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch",
   justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch",
+  gap?: number,
   children: React.ReactNode
 }) => {
-  return <div className={classes.root} style={{justifyContent, alignItems}}>
+  return <div className={classes.root} style={{justifyContent, alignItems, gap: gap ? `${gap}px` : '0px'}}>
     {children}
   </div>;
 }

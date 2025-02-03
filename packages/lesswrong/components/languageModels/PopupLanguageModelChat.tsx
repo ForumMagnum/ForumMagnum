@@ -12,19 +12,27 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    background: theme.palette.panelBackground.default,
-    width: 500,
-    maxHeight: "calc(100vh - 80px)",
+    background: "unset",
+    width: 425,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
     position: "fixed",
     right: theme.spacing.unit,
-    bottom: theme.spacing.unit,
+    top: '50vh',
+    transform: 'translateY(-50%)',
     zIndex: theme.zIndexes.languageModelChat,
+    boxShadow: 'unset',
+    paddingLeft: 3,
+    paddingRight: 3,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
   expanded: {
+    background: theme.palette.panelBackground.default,
     width: 650,
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
   title: {
     ...theme.typography.commentStyle,
@@ -60,22 +68,21 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
+    position: "absolute",
+    top: 14,
+    right: 10,
   },
   header: {
-    backgroundColor: theme.palette.grey[100],
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    position: "relative",
+    position: "absolute",
+    top: 0,
+    right: 0,
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
   },
   editor: {
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
+    position: "relative",
+    boxShadow: `0px 0px 5px 0px ${theme.palette.background.pageActiveAreaBackground}`,
+    borderRadius: 6,
   },
 });
 
@@ -104,21 +111,11 @@ const PopupLanguageModelChat = ({onClose, classes}: {
 
   return <Paper className={classNames(classes.root, {[classes.expanded]: expanded})}>
     <AnalyticsContext pageSectionContext='llmChatPopup'>
-      <div className={classes.header}>
-        <div className={classes.title}>
-          {title}
-          <LWTooltip title="LLM chat is under development. Reviewing user conversations helps with product decisions.">
-            <div className={classes.privacyWarning}>
-              Warning! Conversation may be viewed by the LW dev team
-            </div>
-          </LWTooltip>
-        </div>
+      <div className={classes.editor}>
         <div className={classes.icons}>
           <ForumIcon icon={expanded ? "FullscreenExit" : "Fullscreen"} className={classes.icon} onClick={toggleExpanded} />
           <CloseIcon className={classes.icon} onClick={handleClose} />
         </div>
-      </div>
-      <div className={classes.editor}>
         <LanguageModelChat />
       </div>
     </AnalyticsContext>

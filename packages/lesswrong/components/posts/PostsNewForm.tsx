@@ -135,7 +135,18 @@ export const styles = (theme: ThemeType) => ({
     fill: theme.palette.primary.main,
     marginRight: -4
   },
-  editorGuideLink: {}
+  editorGuideLink: {},
+  userFeedbackPromptInput: {
+    marginTop: 310,
+    position: 'absolute',
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 4,
+    padding: '4px 7px',
+    width: 240,
+    ['@media (max-width: 1590px)']: {
+      display: 'none',
+    },
+  }
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -237,7 +248,8 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
-const PostsNewForm = ({classes}: {
+const PostsNewForm = ({classes, showTableOfContents}: {
+  showTableOfContents?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -365,53 +377,60 @@ const PostsNewForm = ({classes}: {
     addFields.push('glossary');
   }
 
+  const editor = <div className={classes.postForm}>
+    <RecaptchaWarning currentUser={currentUser}>
+      <PostsAcceptTos currentUser={currentUser} />
+      {postWillBeHidden && <NewPostModerationWarning />}
+      {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+      <DeferRender ssr={false}>
+          <WrappedSmartForm
+            collectionName="Posts"
+            mutationFragment={getFragment('PostsPage')}
+            prefilledProps={prefilledProps}
+            successCallback={(post: any, options: any) => {
+              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+              if (options?.submitOptions?.noReload) {
+                // First prefetch the relevant post fragments to hydrate the apollo cache, then do the navigation after that's done
+                void prefetchPostFragmentsForRedirect(post._id).then(() => {
+                  const editPostUrl = `${postGetEditUrl(post._id, false, post.linkSharingKey)}&autosaveRedirect=true`;
+                  navigate(editPostUrl, { replace: true });
+                });
+              } else if (options?.submitOptions?.redirectToEditor) {
+                navigate(postGetEditUrl(post._id));
+              } else {
+                // If they are publishing a non-draft post, show the share popup
+                const showSharePopup = !isLWorAF && !post.draft
+                const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                const url  = postGetPageUrl(post);
+                navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+
+                const postDescription = post.draft ? "Draft" : "Post";
+                if (!showSharePopup) {
+                  flash({ messageString: `${postDescription} created`, type: 'success'});
+                }
+              }
+            }}
+            eventForm={eventForm}
+            debateForm={debateForm}
+            repeatErrors
+            addFields={addFields}
+            noSubmitOnCmdEnter
+            formComponents={{
+              FormSubmit: NewPostsSubmit
+            }}
+          />
+      </DeferRender>
+    </RecaptchaWarning>
+  </div>
+
+
+  if (!showTableOfContents) {
+    return editor;
+  }
+
   return (
     <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
-      <div className={classes.postForm}>
-        <RecaptchaWarning currentUser={currentUser}>
-          <PostsAcceptTos currentUser={currentUser} />
-          {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <DeferRender ssr={false}>
-              <WrappedSmartForm
-                collectionName="Posts"
-                mutationFragment={getFragment('PostsPage')}
-                prefilledProps={prefilledProps}
-                successCallback={(post: any, options: any) => {
-                  if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                  if (options?.submitOptions?.noReload) {
-                    // First prefetch the relevant post fragments to hydrate the apollo cache, then do the navigation after that's done
-                    void prefetchPostFragmentsForRedirect(post._id).then(() => {
-                      const editPostUrl = `${postGetEditUrl(post._id, false, post.linkSharingKey)}&autosaveRedirect=true`;
-                      navigate(editPostUrl, { replace: true });
-                    });
-                  } else if (options?.submitOptions?.redirectToEditor) {
-                    navigate(postGetEditUrl(post._id));
-                  } else {
-                    // If they are publishing a non-draft post, show the share popup
-                    const showSharePopup = !isLWorAF && !post.draft
-                    const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                    const url  = postGetPageUrl(post);
-                    navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
-
-                    const postDescription = post.draft ? "Draft" : "Post";
-                    if (!showSharePopup) {
-                      flash({ messageString: `${postDescription} created`, type: 'success'});
-                    }
-                  }
-                }}
-                eventForm={eventForm}
-                debateForm={debateForm}
-                repeatErrors
-                addFields={addFields}
-                noSubmitOnCmdEnter
-                formComponents={{
-                  FormSubmit: NewPostsSubmit
-                }}
-              />
-          </DeferRender>
-        </RecaptchaWarning>
-      </div>
+      {editor}
     </DynamicTableOfContents>
 
   );

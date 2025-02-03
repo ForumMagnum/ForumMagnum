@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 
 type PostsPageContextPayload = {
-  fullPost: PostsWithNavigation|PostsWithNavigationAndRevision|null
+  fullPost: PostsWithNavigation|PostsWithNavigationAndRevision|PostsPage|null
   postPreload: PostsListWithVotes|null
 }
 

@@ -62,6 +62,7 @@ import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
+import { addFeedbackEndpoint } from './feedbackEndpoint';
 import { getCommandLineArguments } from './commandLine';
 
 /**
@@ -350,6 +351,7 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
+  addFeedbackEndpoint(app);
   
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the

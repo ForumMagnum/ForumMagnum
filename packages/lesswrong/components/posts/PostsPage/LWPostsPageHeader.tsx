@@ -131,14 +131,16 @@ const styles = (theme: ThemeType) => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showAuthors=true, topRightExtras}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  showAuthors?: boolean,
+  topRightExtras?: React.ReactNode,
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
 
@@ -180,7 +182,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
       </AnalyticsContext>
       <div>
         <span className={classes.topRight}>
-          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
+          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo}>
+            {topRightExtras}
+          </LWPostsPageHeaderTopRight>
         </span>
         {post && <span className={classes.audioPlayerWrapper}>
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
@@ -191,7 +195,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
           <PostsPageTitle post={post} />
           <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>
-              <PostsAuthors post={post} pageSectionContext="post_header" />
+              {showAuthors && <PostsAuthors post={post} pageSectionContext="post_header" />}
             </div>
             {crosspostNode}
             {!post.isEvent && <div className={classes.date}>

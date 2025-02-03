@@ -9,8 +9,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const TemplateComponent = ({classes}: {
+export const ThinkSideChapter = ({classes, chapter}: {
   classes: ClassesType<typeof styles>,
+  chapter: ChaptersFragment 
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   return <div className={classes.root}>
@@ -18,10 +19,10 @@ export const TemplateComponent = ({classes}: {
   </div>;
 }
 
-const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent, {styles});
+const ThinkSideChapterComponent = registerComponent('ThinkSideChapter', ThinkSideChapter, {styles});
 
 declare global {
   interface ComponentTypes {
-    TemplateComponent: typeof TemplateComponentComponent
+    ThinkSideChapter: typeof ThinkSideChapterComponent
   }
 }

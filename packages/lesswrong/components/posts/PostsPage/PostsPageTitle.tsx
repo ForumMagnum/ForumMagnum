@@ -46,7 +46,9 @@ const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
     ...postPageTitleStyles(theme)
   },
   draft: {
-    color: theme.palette.text.dim4
+    color: theme.palette.text.dim4,
+    fontSize: isFriendlyUI ? "1em" : "0.5em",
+    display: isFriendlyUI ? "inline" : "block",
   },
   question: {
     color: theme.palette.text.dim3,
