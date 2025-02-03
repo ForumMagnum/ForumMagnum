@@ -9,6 +9,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
+import { MAIN_TAB_ID } from "@/lib/arbital/useTagLenses";
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
@@ -107,7 +108,19 @@ const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
   const { Loading, TagHoverPreview } = Components;
 
   const { selectedLens } = useTagPageContext() ?? {};
-  const excludedPingbackTagIds = selectedLens?._id ? [selectedLens._id] : undefined;
+
+  // We don't want to show pingbacks from the lens that the redlink is in
+  // If we're on the main tab, the "lens" is synthetic and derived from the tag itself, but the _id is hardcoded to be the "MAIN_TAB_ID" const
+  // In that case, we take the parentDocumentId, which is the tag's actual id.
+  let excludedPingbackTagIds: string[] | undefined;
+  if (selectedLens) {
+    const tagId = selectedLens._id === MAIN_TAB_ID
+      ? selectedLens.parentDocumentId
+      : selectedLens._id;
+      
+    excludedPingbackTagIds = [tagId];
+  }
+
   const { results: pingbacks, loading, totalCount } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
 
   if (loading) {
@@ -115,8 +128,8 @@ const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
   } 
 
   if (pingbacks && pingbacks.length === 0) {
-    // note that this message gets viewied by the user in combination with the longer redlink description below
-    return <div>The linked page does not exist, it is a red link.</div>;
+    // note that this message gets viewed by the user in combination with the longer redlink description in `RedLinkTooltip`
+    return <div>The linked page does not exist; it is a red link.</div>;
   }
 
   return <div>
@@ -146,7 +159,7 @@ const RedLinkTooltip = ({ tag, slug }: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { Typography, ContentStyles, TagHoverPreview, Loading } = Components;
+  const { Typography, ContentStyles } = Components;
   const title = inferRedLinkTitle(tag, slug ?? null);
 
   if (!tag) {
