@@ -22,7 +22,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
       paddingRight: 16,
     } : {
       width: 500,
-      paddingBottom: 6,
+      paddingBottom: 8,
     }),
     [theme.breakpoints.down('xs')]: {
       width: "100%",
