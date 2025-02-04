@@ -38,6 +38,8 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     fontSize: "0.9rem",
     verticalAlign: "middle",
     paddingBottom: 2,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
   },
   likeCountButtonRow: {
     ...theme.typography.commentStyle,
@@ -89,6 +91,7 @@ const ReactionsAndLikesVote  = ({
   
   const toggleLike = async (ev: React.MouseEvent) => {
     ev.stopPropagation();
+    ev.preventDefault();
 
     if (!currentUser) {
       openDialog({
@@ -125,8 +128,11 @@ const ReactionsAndLikesVote  = ({
 
   return <div className={className}>
     <LWTooltip title={voteScoreTooltip}>
-    <div className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})} onClick={toggleLike} onMouseDown={(e) => e.stopPropagation()}>
-      <ForumIcon icon={currentUserLikesIt ? "ThumbUp" : "ThumbUpOutline"} className={classes.icon} />
+      <div
+        className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})}
+        onClick={toggleLike}
+      >
+        <ForumIcon icon={currentUserLikesIt ? "ThumbUp" : "ThumbUpOutline"} className={classes.icon} />
         {likeCount>0 && likeCountElement}
       </div>
     </LWTooltip>

@@ -22,7 +22,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
       paddingRight: 16,
     } : {
       width: 500,
-      paddingBottom: 6,
+      paddingBottom: 8,
     }),
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -47,9 +47,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     paddingLeft: 16,
     paddingRight: 16,
     paddingTop: 12,
-  },
-  extraTitleMargin: {
-    marginBottom: 8,
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -128,7 +125,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   description: {
-    ...(isFriendlyUI && { marginTop: 16 }),
+    ...(!isFriendlyUI && { marginTop: 16 }),
   },
 }));
 
@@ -241,12 +238,10 @@ const TagPreview = ({
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {tagShowTitle(tag) && <div className={classNames(classes.title, { [classes.extraTitleMargin]: hasMultipleSummaries })}>
-        {tag.name}
-      </div>}
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
+      <TagPreviewTitle tag={tag} />
       <div className={classes.mainContent}>
         {hasDescription && <div className={classes.description}>
           <TagPreviewDescription 
@@ -336,6 +331,21 @@ const TagPreview = ({
       </div>
     </div>
   );
+}
+
+const TagPreviewTitle = ({tag}: {
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
+}) => {
+  const classes = useStyles(styles);
+  
+  if (!tagShowTitle(tag)) {
+    return null;
+  }
+
+  // TODO Add comment count and like count
+  return <div className={classNames(classes.title)}>
+    {tag.name}
+  </div>
 }
 
 const TagPreviewComponent = registerComponent("TagPreview", TagPreview);

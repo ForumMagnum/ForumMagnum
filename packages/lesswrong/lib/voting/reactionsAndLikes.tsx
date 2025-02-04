@@ -9,6 +9,7 @@ import keyBy from 'lodash/keyBy';
 import uniq from 'lodash/uniq';
 import { userGetDisplayName } from "../collections/users/helpers";
 import sortBy from 'lodash/sortBy';
+import type { TagLens } from "../arbital/useTagLenses";
 
 /**
  * Reactions-and-likes voting
@@ -123,6 +124,12 @@ registerVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
     voteProps: VotingProps<VoteableTypeClient>
   }) => {
     return getDocumentHighlights(voteProps);
-  }
+  },
+  getTagOrLensHighlights: ({tagOrLens, voteProps}: {
+    tagOrLens: TagLens|TagPageFragment,
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    return getDocumentHighlights(voteProps);
+  },
 });
 

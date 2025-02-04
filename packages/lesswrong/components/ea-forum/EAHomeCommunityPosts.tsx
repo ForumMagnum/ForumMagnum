@@ -27,7 +27,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",
     onCollapseEvent: "communityPostsSectionCollapsed",
-    defaultExpanded: "loggedIn",
+    defaultExpanded: "all",
     cookieName: SHOW_COMMUNITY_POSTS_SECTION_COOKIE,
   });
   const now = useCurrentTime();

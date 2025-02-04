@@ -360,13 +360,13 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
 const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
-  // Delay is by default 60 minutes between when you create an account, and
+  // Delay is by default 5 minutes between when you create an account, and
   // when we send the welcome email. The theory is that users creating new
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
   // LW wants people to see site intro before posting
-  defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 60},
+  defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
     void sendWelcomeMessageTo(userId);

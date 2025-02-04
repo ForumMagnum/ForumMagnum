@@ -5,6 +5,7 @@ import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
+import { hasWikiLenses } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -51,7 +52,7 @@ const TagHoverPreview = ({
   const linkTarget = normalizeTagLink(href);
 
   const isRead = tag?.isRead;
-  const isRedLink = (!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage;
+  const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
 
   const {TagsTooltip} = Components;
   return (

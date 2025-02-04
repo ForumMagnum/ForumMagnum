@@ -1,5 +1,6 @@
 import { useMulti, UseMultiOptions } from "@/lib/crud/withMulti";
 import { useTagBySlug } from "../tagging/useTag";
+import { hasWikiLenses } from "@/lib/betas";
 
 export function useTagOrLens<TagFragmentTypeName extends FragmentTypesByCollection['Tags']>(
   slug: string,
@@ -25,7 +26,7 @@ export function useTagOrLens<TagFragmentTypeName extends FragmentTypesByCollecti
     },
     // Having a limit of 1 makes this fail if we have copies of this lens for deleted tags which don't get returned for permissions reasons
     // so we get as many as we can and assume that we'll only ever actually get at most one back
-    skip: !slug,
+    skip: !hasWikiLenses || !slug,
   });
 
   return {

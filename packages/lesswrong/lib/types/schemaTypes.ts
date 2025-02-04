@@ -207,7 +207,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     fieldName: string
     modifier: MongoModifier<ObjectsByCollectionName[N]>
   }) => any,
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 
   countOfReferences?: {
     foreignCollectionName: CollectionNameString
