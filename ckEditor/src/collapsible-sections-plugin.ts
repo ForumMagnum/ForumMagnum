@@ -70,9 +70,6 @@ export default class CollapsibleSections extends Plugin {
         tooltip: true
       });
 
-      // Bind the state of the button to the command.
-      buttonView.bind('isOn', 'isEnabled').to(command, 'isEnabled', 'isEnabled');
-
       // Execute the command when the button is clicked (executed).
       this.listenTo(buttonView, 'execute', () => this.editor.execute('insertCollapsibleSection'));
 

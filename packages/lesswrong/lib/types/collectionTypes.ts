@@ -59,16 +59,8 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
     updateOne: any,
     updateMany: any
   }
-  find: (
-    selector?: MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ) => FindResult<ObjectsByCollectionName[N]>;
-  findOne: (
-    selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ) => Promise<ObjectsByCollectionName[N]|null>;
+  find: FindFn<ObjectsByCollectionName[N]>;
+  findOne: FindOneFn<ObjectsByCollectionName[N]>;
   findOneArbitrary: () => Promise<ObjectsByCollectionName[N]|null>
   
   /**
@@ -106,6 +98,26 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
+interface DefaultMutationBase {
+  description: string,
+  name: string,
+  mutation: (root: void, { data }: AnyBecauseTodo, context: ResolverContext) => Promise<any>,
+}
+
+interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
+  check: (user: DbUser | null, document: T | null) => Promise<boolean> | boolean,
+}
+
+type DefaultMutations<T extends DbObject> = Partial<{
+  create: DefaultMutationWithCheck<T>,
+  new: DefaultMutationWithCheck<T>,
+  update: DefaultMutationWithCheck<T>,
+  edit: DefaultMutationWithCheck<T>,
+  upsert: DefaultMutationBase,
+  delete: DefaultMutationWithCheck<T>,
+  remove: DefaultMutationWithCheck<T>,
+}>;
+
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
@@ -114,7 +126,7 @@ type CollectionOptions<N extends CollectionNameString> = {
   generateGraphQLSchema?: boolean,
   collection?: any,
   resolvers?: any,
-  mutations?: any,
+  mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
@@ -159,19 +171,76 @@ interface MergedViewQueryAndOptions<T extends DbObject> {
   syntheticFields?: Partial<Record<keyof T, MongoSelector<T>>>
 }
 
+type ApplyProjection<
+  T extends DbObject,
+  Projection extends MongoProjection<T> | undefined
+> =
+  Projection extends undefined
+    ? T // If no projection, return the raw DbObject
+    :
+      Omit< // Otherwise, calculate the included and excluded fields
+        Pick< // Include fields from T marked with 1 or true in the projection
+          T,
+          keyof Projection & keyof T & {
+            [K in keyof Projection]: Projection[K] extends 1 | true ? K : never;
+          }[keyof Projection]
+        >,
+        { // Exclude fields from T marked with 0 or false in the projection
+          [K in keyof Projection]: Projection[K] extends 0 | false ? K : never;
+        }[keyof Projection]
+      > & (
+        Projection extends {_id: 0 | false} // Include id unless explicitly excluded
+          ? {}
+          : {_id: T extends {_id: infer IdType} ? IdType : never}
+      ) & {
+        // Include arbitrary fields not in T with type `unknown`
+        [K in Exclude<keyof Projection, keyof T>]: Projection[K] extends 1 | true
+          ? unknown
+          : never;
+      };
+
 export type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
-type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+type MongoExpression<T extends DbObject> = `$${keyof T & string}` | { [k in `$${string}`]: any }
+type MongoProjection<T extends DbObject> = { [K in keyof T]?: 0 | 1 | boolean } | Record<string, MongoExpression<T>>;
+type MongoModifier<T extends DbObject|DbInsertion<DbObject>> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+
+type FindFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
+  selector?: string | MongoSelector<T>,
+  options?: MongoFindOptions<T>,
+  projection?: Projection
+) => FindResult<ApplyProjection<T, Projection>>;
 
 type MongoFindOptions<T extends DbObject> = Partial<{
   sort: MongoSort<T>,
   limit: number,
   skip: number,
+  
+  // FIXME This option is actually ignored (the correct place for a projection
+  // is in the third argument of `find`). However removing it from the type
+  // annotation here exposes a bunch of places that thought they were doing a
+  // projection but weren't, which then need a bunch of related type-annotation
+  // changes to account for that, and need to be checked to make sure they
+  // aren't actually relying on a field that they projected away.
   projection: MongoProjection<T>,
+
   collation: CollationDocument,
   comment?: string,
 }>;
-type MongoFindOneOptions<T extends DbObject> = any; //TODO
+
+type FindOneFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
+  selector?: string | MongoSelector<T>,
+  options?: MongoFindOneOptions<T>,
+  projection?: Projection
+) => Promise<ApplyProjection<T, Projection> | null>;
+
+type MongoFindOneOptions<T extends DbObject> = Partial<{
+  sort: MongoSort<T>
+
+  // Projection is a third argument to findOne, not something that goes in the
+  // options array
+  projection: never
+}>;
+
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
@@ -182,6 +251,7 @@ export type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
 type FieldOrDottedPath<T> = keyof T | `${keyof T&string}.${string}`
 type MongoIndexKeyObj<T> = Partial<Record<FieldOrDottedPath<T>,1|-1|"2dsphere">>;
 type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
+
 type MongoEnsureIndexOptions<T> = {
   partialFilterExpression?: Record<string, any>,
   unique?: boolean,
@@ -324,7 +394,7 @@ type CollectionFragmentTypeName = {
   [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
 }[keyof FragmentTypes];
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments";
 
 interface EditableFieldContents {
   html: string
@@ -355,7 +425,10 @@ type EditableCollectionNames = {
 
 type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
-type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
+type DbInsertion<T extends DbObject> = Omit<
+  ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>,
+  "_id"
+>
 
 type SpotlightDocumentType = 'Post' | 'Sequence';
 interface SpotlightFirstPost {
@@ -414,4 +487,7 @@ type DeleteMutatorParams<N extends CollectionNameString> = {
 };
 type DeleteMutator = <N extends CollectionNameString>(args: DeleteMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>
 
+type CollectionNameWithPingbacks = {
+  [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never
+}[CollectionNameString];
 }

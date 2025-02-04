@@ -18,6 +18,7 @@ import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType) => ({
@@ -178,7 +179,7 @@ export const getPostEditorGuide = (classes: ClassesType<typeof styles>) => {
           <div className={classes.editorGuide}>
             <QuestionIcon className={classes.editorGuideIcon} />
             <div className={classes.editorGuideLink}>
-              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+              <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>Editor Guide / FAQ</Link>
             </div>
           </div>
         </LWTooltip>
@@ -371,7 +372,11 @@ const PostsNewForm = ({classes}: {
         <RecaptchaWarning currentUser={currentUser}>
           <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+          {rateLimitNextAbleToPost && <RateLimitWarning
+            contentType="post"
+            lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
+            rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}
+          />}
           <DeferRender ssr={false}>
               <WrappedSmartForm
                 collectionName="Posts"

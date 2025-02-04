@@ -63,6 +63,7 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
+import { makeAbsolute } from '@/lib/vulcan-lib/utils';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -244,7 +245,6 @@ export function startWebserver() {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes({req, res, isSSR: false});
       configureSentryScope(context);
-      setAsyncStoreValue('resolverContext', context);
       return context;
     },
     plugins: [new ApolloServerLogging()],
@@ -469,7 +469,7 @@ export function startWebserver() {
     if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(makeAbsolute(redirectUrl));
     } else {
       trySetResponseStatus({ response, status: status || 200 });
       const ssrMetadata: SSRMetadata = {

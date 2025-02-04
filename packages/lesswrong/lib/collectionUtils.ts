@@ -17,10 +17,12 @@ export function addUniversalFields<N extends CollectionNameString>({
   collection,
   schemaVersion = 1,
   createdAtOptions = {},
+  legacyDataOptions = {},
 }: {
   collection: CollectionBase<N>,
   schemaVersion?: number
   createdAtOptions?: Partial<CollectionFieldPermissions>,
+  legacyDataOptions?: Partial<CollectionFieldPermissions>,
 }): void {
   addFieldsDict(collection, {
     _id: {
@@ -42,7 +44,7 @@ export function addUniversalFields<N extends CollectionNameString>({
       nullable: false,
       hidden: true,
       canRead: ['guests'],
-      onInsert: () => new Date(),
+      onCreate: () => new Date(),
       ...createdAtOptions,
     },
     legacyData: {
@@ -54,6 +56,7 @@ export function addUniversalFields<N extends CollectionNameString>({
       canRead: ['admins'],
       canCreate: ['admins'],
       canUpdate: ['admins'],
+      ...legacyDataOptions,
     },
   })
   ensureIndex(collection, {schemaVersion: 1});

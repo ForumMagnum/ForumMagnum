@@ -1,18 +1,19 @@
 import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser, logout, setPostContent } from "./playwrightUtils";
+import { createNewPost, loginNewUser, logout, setPostContent, uniqueId } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
   await loginNewUser(context);
   await page.goto("/newPost");
 
   // Create a post with a title and body
-  const title = "Test post 123";
-  const body = "Test body 123";
+  const n = uniqueId.get();
+  const title = `Test post ${n}`;
+  const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
   await page.getByText("Submit").click();
 
   // Submitting navigates to the post page - check our new post is there
-  await page.waitForURL("/posts/**/test-post-123**");
+  await page.waitForURL(`/posts/**/test-post-${n}**`);
   await expect(page.getByText(title)).toBeVisible();
   await expect(page.getByText(body)).toBeVisible();
 
@@ -98,4 +99,30 @@ test("admins can move posts to draft", async ({page, context}) => {
   await page.reload();
   await expect(page.getByText("you don't have access")).toBeVisible();
   await expect(page.getByText(post.title)).not.toBeVisible();
+});
+
+test("cannot create posts with duplicate title", async ({page, context}) => {
+  await loginNewUser(context);
+
+  // Create a post with a title and body
+  await page.goto("/newPost");
+  const n = uniqueId.get();
+  const title = `Test post ${n}`;
+  const body = `Test body ${n}`;
+  await setPostContent(page, {title, body});
+  await page.getByText("Submit").click();
+
+  // Submitting navigates to the post page - check our new post is there
+  await page.waitForURL(`/posts/**/test-post-${n}**`);
+  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(body)).toBeVisible();
+
+  // Create another post with the same title
+  await page.goto("/newPost");
+  await setPostContent(page, {title, body});
+  await page.getByText("Submit").click();
+
+  // We should get an error
+  const error = page.getByText("You recently published another post titled").first();
+  await expect(error).toBeVisible();
 });

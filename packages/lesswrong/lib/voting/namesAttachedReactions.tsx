@@ -24,6 +24,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
   userCanActivate: isLW,
   description: "Reacts (Two-axis plus Names-attached reactions)",
+  hasInlineReacts: true,
   getCommentVotingComponent: () => Components.NamesAttachedReactionsVoteOnComment,
   getCommentBottomComponent: () => Components.NamesAttachedReactionsCommentBottom,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
@@ -93,57 +94,16 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     };
   },
 
-  isAllowedExtendedVote: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
+  isAllowedExtendedVote: ({ user, document, oldExtendedScore, extendedVote, skipRateLimits }: {
+    user: UsersCurrent|DbUser,
+    document: DbVoteableType,
+    oldExtendedScore: NamesAttachedReactionsScore,
+    extendedVote: NamesAttachedReactionsVote,
+    skipRateLimits?: boolean,
+  }) => {
     // Are there any reacts in this vote?
     if (extendedVote?.reacts && extendedVote.reacts.length>0) {
-      // Users cannot antireact to reactions on their own comments
-      if (some(extendedVote.reacts, r=>r.vote==="disagreed")) {
-        if (user._id===document.userId) {
-          return {allowed: false, reason: `You cannot antireact to reactions on your own comments`};
-        }
-      }
-      
-      const userKarma = user.karma;
-
-      // If the user is disagreeing with a react, they need at least
-      // downvoteExistingReactKarmaThreshold karma
-      if (userKarma < downvoteExistingReactKarmaThreshold.get()
-        && some(extendedVote.reacts, r=>r.vote==="disagreed"))
-      {
-        return {allowed: false, reason: `You need at least ${downvoteExistingReactKarmaThreshold.get()} karma to antireact`};
-      }
-
-      // If the user is using any react at all, they need at least
-      // existingReactKarmaThreshold karma for it to be a valid vote.
-      if (userKarma<addNameToExistingReactKarmaThreshold.get()) {
-        return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
-      }
-      
-      // If the user is using a react which no one else has used on this comment
-      // before, they need at least newReactKarmaThreshold karma for it to be a
-      // valid vote.
-      if (userKarma<addNewReactKarmaThreshold.get()) {
-        for (let reaction of extendedVote.reacts) {
-          if (!(reaction.react in oldExtendedScore.reacts)) {
-            return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};
-          }
-        }
-      }
-      
-      // There should be no duplicate entries in the list of reactions. Entries
-      // are duplicates if their reaction-type and quote both match.
-      // TODO: version below is wrong (checks only reaction type, not quote)
-      /*const reactionTypesUsed: EmojiReactName[] = extendedVote.reacts.map(r=>r.react);
-      if (uniq(reactionTypesUsed).length !== reactionTypesUsed.length) {
-        return {allowed: false, reason: "Duplicate reaction detected"};
-      }*/
-
-      // All reactions used should be reactions that exist
-      for (let reaction of extendedVote.reacts) {
-        if (!(reaction.react in namesAttachedReactionsByName)) {
-          return {allowed: false, reason: `Unrecognized reaction: ${reaction.react}`};
-        }
-      }
+      return isVoteWithReactsAllowed({user, document, oldExtendedScore, extendedVote, skipRateLimits});
     }
 
     return {allowed: true};
@@ -169,7 +129,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   }
 });
 
-function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): ContentReplacedSubstringComponentInfo[] {
+export function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): ContentReplacedSubstringComponentInfo[] {
   const normalizedReactionsScore = getNormalizedReactionsListFromVoteProps(voteProps);
   if (!normalizedReactionsScore?.reacts) {
     return [];
@@ -209,6 +169,69 @@ function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Cont
     });
   }
   return result;
+}
+
+export function isVoteWithReactsAllowed({user, document, oldExtendedScore, extendedVote, skipRateLimits}: {
+  user: UsersCurrent|DbUser,
+  document: DbVoteableType,
+  oldExtendedScore: NamesAttachedReactionsScore,
+  extendedVote: NamesAttachedReactionsVote,
+  skipRateLimits?: boolean,
+}): {allowed: true}|{allowed: false, reason: string} {
+  if (!extendedVote.reacts) {
+    return {allowed: true};
+  }
+
+  // Users cannot antireact to reactions on their own comments
+  if (some(extendedVote.reacts, r=>r.vote==="disagreed")) {
+    if (user._id===document.userId) {
+      return {allowed: false, reason: `You cannot antireact to reactions on your own comments`};
+    }
+  }
+  
+  const userKarma = user.karma;
+
+  // If the user is disagreeing with a react, they need at least
+  // downvoteExistingReactKarmaThreshold karma
+  if (!skipRateLimits && userKarma < downvoteExistingReactKarmaThreshold.get()
+    && some(extendedVote.reacts, r=>r.vote==="disagreed"))
+  {
+    return {allowed: false, reason: `You need at least ${downvoteExistingReactKarmaThreshold.get()} karma to antireact`};
+  }
+
+  // If the user is using any react at all, they need at least
+  // existingReactKarmaThreshold karma for it to be a valid vote.
+  if (!skipRateLimits && userKarma<addNameToExistingReactKarmaThreshold.get()) {
+    return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
+  }
+  
+  // If the user is using a react which no one else has used on this comment
+  // before, they need at least newReactKarmaThreshold karma for it to be a
+  // valid vote.
+  if (!skipRateLimits && userKarma<addNewReactKarmaThreshold.get()) {
+    for (let reaction of extendedVote.reacts) {
+      if (!(reaction.react in oldExtendedScore.reacts)) {
+        return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};
+      }
+    }
+  }
+  
+  // There should be no duplicate entries in the list of reactions. Entries
+  // are duplicates if their reaction-type and quote both match.
+  // TODO: version below is wrong (checks only reaction type, not quote)
+  /*const reactionTypesUsed: EmojiReactName[] = extendedVote.reacts.map(r=>r.react);
+  if (uniq(reactionTypesUsed).length !== reactionTypesUsed.length) {
+    return {allowed: false, reason: "Duplicate reaction detected"};
+  }*/
+
+  // All reactions used should be reactions that exist
+  for (let reaction of extendedVote.reacts) {
+    if (!(reaction.react in namesAttachedReactionsByName)) {
+      return {allowed: false, reason: `Unrecognized reaction: ${reaction.react}`};
+    }
+  }
+  
+  return {allowed: true};
 }
 
 export type EmojiReactName = string;
@@ -251,7 +274,7 @@ export type NamesAttachedReactionsScore = {
   reacts: NamesAttachedReactionsList,
 };
 
-function addReactsVote(
+export function addReactsVote(
   old: NamesAttachedReactionsList|undefined,
   voteReacts: UserVoteOnSingleReaction[],
   currentUser: UsersCurrent
@@ -274,7 +297,7 @@ function addReactsVote(
   return updatedReactions;
 }
 
-function removeReactsVote(old: NamesAttachedReactionsList|undefined, currentUser: UsersCurrent): NamesAttachedReactionsList {
+export function removeReactsVote(old: NamesAttachedReactionsList|undefined, currentUser: UsersCurrent): NamesAttachedReactionsList {
   let updatedReactions: NamesAttachedReactionsList = old ? mapValues(old,
     (reactionsByType: UserReactInfo[]) => (
       reactionsByType.filter(userIdAndName => userIdAndName.userId !== currentUser._id)

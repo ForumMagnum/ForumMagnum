@@ -152,7 +152,11 @@ const PostsEditForm = ({ documentId, version, classes }: {
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
-        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+        {rateLimitNextAbleToPost && <RateLimitWarning
+          contentType="post"
+          lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
+          rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}
+        />}
         <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
