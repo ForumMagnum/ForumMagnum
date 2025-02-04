@@ -7,17 +7,14 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { compareVersionNumbers } from '../../lib/editor/utils';
-import { toDictionary } from '../../lib/utils/toDictionary';
-import { loadByIds } from '../../lib/loaders';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
-import take from 'lodash/take';
-import filter from 'lodash/filter';
+import pick from 'lodash/pick';
+import isEmpty from 'lodash/isEmpty';
 import * as _ from 'underscore';
 import {
   defaultSubforumSorting,
@@ -26,12 +23,11 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { VotesRepo, TagsRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
@@ -39,6 +35,9 @@ import { updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
+import { contributorsField } from '../utils/contributorsFieldHelper';
+import { loadByIds } from '@/lib/loaders';
+import { hasWikiLenses } from '@/lib/betas';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -146,6 +145,17 @@ for (const sortBy of subforumSortings) {
 }
 
 addGraphQLSchema(`
+  type DocumentDeletion {
+    userId: String
+    documentId: String!
+    netChange: String!
+    type: String
+    docFields: MultiDocument
+    createdAt: Date!
+  }
+`);
+
+addGraphQLSchema(`
   type TagUpdates {
     tag: Tag!
     revisionIds: [String!]
@@ -156,8 +166,230 @@ addGraphQLSchema(`
     added: Int
     removed: Int
     users: [User!]
+    documentDeletions: [DocumentDeletion!]
   }
 `);
+
+interface TagUpdates {
+  tag: Partial<DbTag>;
+  revisionIds: string[] | null;
+  commentCount: number | null;
+  commentIds: string[] | null;
+  lastRevisedAt: Date | null;
+  lastCommentedAt: Date | null;
+  added: number | null;
+  removed: number | null;
+  users: Partial<DbUser>[] | null;
+  documentDeletions: CategorizedDeletionEvent[] | null;
+}
+
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date) {
+  return {
+    deleted: false,
+    postedAt: {$lt: before, $gt: after},
+    topLevelCommentId: null,
+    tagId: {$exists: true, $ne: null},
+    tagCommentType: "DISCUSSION",
+  };
+}
+
+function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: Date, after: Date) {
+  return {
+    name: 'fieldChanges',
+    $or: [
+      { 'properties.before.deleted': {$exists: true} },
+      { 'properties.after.deleted': {$exists: true} },
+    ],
+    documentId: {$in: documentIds},
+    createdAt: {$lt: before, $gt: after},
+  };
+}
+
+async function getRevisionAndCommentUsers(revisions: DbRevision[], rootComments: DbComment[], context: ResolverContext) {
+  const revisionUserIds = revisions.map(tr => tr.userId);
+  const commentUserIds = rootComments.map(rc => rc.userId);
+  const userIds = filterNonnull(_.uniq([...revisionUserIds, ...commentUserIds]));
+
+  const usersAll = await loadByIds(context, "Users", userIds);
+  const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context);
+
+  // We need the cast because `keyBy` doesn't like it when you try to key on an optional field,
+  // so it defaults to the overloaded version, which ends up treating the array as the object in question
+  // and the return type is something dumb.
+  // Of course _id on users isn't actually ever going to be missing, but `accessFilterMultiple` doesn't know that (and there is at least one collection where that'd be true, i.e. CronHistories).
+  return keyBy(users, u => u._id) as Record<string, Partial<DbUser>>;
+}
+
+async function getMultiDocumentsByTagId(revisions: DbRevision[], context: ResolverContext) {
+  const { MultiDocuments } = context;
+
+  // Get the ids of MultiDocuments that have revisions in the given time interval
+  const revisionMultiDocumentIds = revisions.filter(r=>r.collectionName==="MultiDocuments").map(r=>r.documentId);
+  const multiDocumentIds = filterNonnull(_.uniq(revisionMultiDocumentIds));
+
+  const multiDocumentsUnfiltered = await loadByIds(context, "MultiDocuments", multiDocumentIds);
+  const multiDocuments = await accessFilterMultiple(context.currentUser, MultiDocuments, multiDocumentsUnfiltered, context);
+
+  const lenses = multiDocuments.filter(md=>md.fieldName === "description" && md.collectionName === "Tags");
+  const summaries = multiDocuments.filter(md=>md.fieldName === "summary");
+
+  // Group the lenses and summaries by the tag they belong to
+  const lensesByTagId = groupBy(lenses, md => md.parentDocumentId);
+  const summariesByTagId = groupBy(summaries, md => md.parentDocumentId);
+
+  return { lensesByTagId, summariesByTagId };
+
+}
+
+async function getTopLevelTags(revisions: DbRevision[], rootComments: DbComment[], lensIdsByTagId: Record<string, string[]>, summaryIdsByTagId: Record<string, string[]>, context: ResolverContext) {
+  const revisionTagIds = revisions.filter(r=>r.collectionName==="Tags").map(r=>r.documentId);
+  const commentTagIds = rootComments.map(c=>c.tagId);
+  const tagIds = [...revisionTagIds, ...commentTagIds];
+  const lensTagIds = Object.keys(lensIdsByTagId);
+  const summaryTagIds = Object.keys(summaryIdsByTagId);
+  const topLevelTagIds = filterNonnull(_.uniq([...tagIds, ...lensTagIds, ...summaryTagIds]));
+
+  const tagsUnfiltered = await loadByIds(context, "Tags", topLevelTagIds);
+  return await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
+}
+
+function getNetDeletionsByDocumentId(documentDeletions: DbLWEvent[]) {
+  const deletionsByDocumentId = groupBy(documentDeletions, d=>d.documentId);
+
+  // For each document, get the starting state and ending state, and then return an "event" signifying the net change _if_ there was a net change
+  const deletionEventsByDocumentId = filterNonnull(
+    Object.entries(deletionsByDocumentId).map(([documentId, deletions]) => {
+      const sortedDeletions = orderBy(deletions, d=>d.createdAt, 'asc');
+      const firstDeletionEvent = sortedDeletions[0];
+      const lastDeletionEvent = sortedDeletions[sortedDeletions.length - 1];
+
+      if (!firstDeletionEvent || !lastDeletionEvent) {
+        return null;
+      }
+
+      const startingDeleted = firstDeletionEvent.properties.before.deleted;
+      const endingDeleted = lastDeletionEvent.properties.after.deleted;
+      if (startingDeleted === endingDeleted) {
+        return null;
+      }
+
+      const netChange = endingDeleted ? 'deleted' : 'restored';
+      const netChangeEvent = {
+        userId: lastDeletionEvent.userId,
+        documentId,
+        netChange,
+        createdAt: lastDeletionEvent.createdAt,
+      }
+      return [documentId, netChangeEvent] as const;
+    })
+  );
+
+  return Object.fromEntries(deletionEventsByDocumentId);
+}
+
+interface GetDocumentDeletionsInTimeBlockArgs {
+  before: Date,
+  after: Date,
+  lensesByTagId: Record<string, Partial<DbMultiDocument>[]>,
+  summariesByTagId: Record<string, Partial<DbMultiDocument>[]>,
+  context: ResolverContext,
+}
+
+interface CategorizedDeletionEvent {
+  documentId: string;
+  type?: 'lens' | 'summary';
+  userId: string | null;
+  docFields?: Pick<Partial<DbMultiDocument>, 'slug' | 'tabTitle' | 'tabSubtitle'>;
+  createdAt: Date;
+}
+
+function hydrateDocumentDeletionEvent(deletionEvent: CategorizedDeletionEvent, lenses: Partial<DbMultiDocument>[], summaries: Partial<DbMultiDocument>[]): CategorizedDeletionEvent {
+  const { documentId } = deletionEvent;
+  const lens = lenses.find(lens => lens._id === documentId);
+  if (lens) {
+    const docFields = pick(lens, ['_id', 'slug', 'tabTitle', 'tabSubtitle']);
+    return { ...deletionEvent, type: 'lens', docFields };
+  }
+  const summary = summaries.find(summary => summary._id === documentId);
+  if (summary) {
+    const docFields = pick(summary, ['_id', 'slug', 'tabTitle', 'tabSubtitle']);
+    return { ...deletionEvent, type: 'summary', docFields };
+  }
+  return deletionEvent;
+}
+
+function getParentTagId(documentId: string, lensesByTagId: Record<string, Partial<DbMultiDocument>[]>, summariesByTagId: Record<string, Partial<DbMultiDocument>[]>) {
+  const matchingLensTagId = Object.keys(lensesByTagId)
+    .find(tagId => lensesByTagId[tagId]
+    .some(lens => lens._id === documentId));
+
+  if (matchingLensTagId) {
+    return matchingLensTagId;
+  }
+
+  const matchingSummaryTagId = Object.keys(summariesByTagId)
+    .find(tagId => summariesByTagId[tagId]
+    .some(summary => summary._id === documentId));
+
+  if (matchingSummaryTagId) {
+    return matchingSummaryTagId;
+  }
+
+  return null;
+}
+
+async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, summariesByTagId, context}: GetDocumentDeletionsInTimeBlockArgs) {
+  if (!hasWikiLenses) {
+    return {};
+  }
+
+  const { LWEvents } = context;
+
+  const lenses = Object.values(lensesByTagId).flat();
+  const summaries = Object.values(summariesByTagId).flat();
+
+  const lensIds = filterNonnull(_.uniq(lenses.map(l => l._id)));
+  const summaryIds = filterNonnull(_.uniq(summaries.map(s => s._id)));
+  const documentIds = _.uniq([...lensIds, ...summaryIds]);
+
+  const documentDeletionsSelector = getDocumentDeletionsInTimeBlockSelector(documentIds, before, after);
+  const documentDeletions = await LWEvents.find(documentDeletionsSelector).fetch();
+
+  const documentDeletionEvents = getNetDeletionsByDocumentId(documentDeletions);
+
+  // First, categorize the deletions by whether they were for a lens or summary
+  const categorizedDeletionEvents: Record<string, CategorizedDeletionEvent> = mapValues(
+    documentDeletionEvents,
+    (deletionEvent) => hydrateDocumentDeletionEvent(deletionEvent, lenses, summaries)
+  );
+
+  // Then group by the tag that each deletion event's document is a child of
+  const deletionEventsByTagId: Record<string, CategorizedDeletionEvent[]> = {};
+
+  Object.values(categorizedDeletionEvents).reduce((acc, deletionEvent) => {
+    const { documentId } = deletionEvent;
+    const prev = acc[documentId] ?? [];
+    const matchingTagId = getParentTagId(documentId, lensesByTagId, summariesByTagId);
+    if (matchingTagId) {
+      acc[matchingTagId] = [...prev, deletionEvent];
+    }
+    return acc;
+  }, deletionEventsByTagId);
+
+  return deletionEventsByTagId;
+}
+
+function isTagUpdateEmpty(tagUpdate: TagUpdates) {
+  return !tagUpdate.revisionIds?.length
+      && !tagUpdate.commentCount
+      && !tagUpdate.commentIds?.length
+      && !tagUpdate.lastRevisedAt
+      && !tagUpdate.lastCommentedAt
+      && !tagUpdate.added
+      && !tagUpdate.removed
+      && !tagUpdate.users?.length
+      && !tagUpdate.documentDeletions?.length;
+}
 
 addGraphQLResolvers({
   Mutation: {
@@ -297,59 +529,79 @@ addGraphQLResolvers({
       if(moment.duration(moment(before).diff(after)).as('hours') > 30)
         throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
       
-      // Get revisions to tags in the given time interval
-      const tagRevisions = await Revisions.find({
-        collectionName: "Tags",
-        fieldName: "description",
-        editedAt: {$lt: before, $gt: after},
-        $or: [
-          {"changeMetrics.added": {$gt: 0}},
-          {"changeMetrics.removed": {$gt: 0}}
-        ],
-      }).fetch();
+      const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after);
+
+      // Get
+      // - revisions to tags, lenses, and summaries in the given time interval
+      // - root comments on tags in the given time interval
+      const [revisions, rootComments] = await Promise.all([
+        context.repos.revisions.getRevisionsInTimeBlock(before, after),
+        Comments.find(rootCommentsSelector).fetch()
+      ]);
       
-      // Get root comments on tags in the given time interval
-      const rootComments = await Comments.find({
-        deleted: false,
-        postedAt: {$lt: before, $gt: after},
-        topLevelCommentId: null,
-        tagId: {$exists: true, $ne: null},
-        tagCommentType: "DISCUSSION",
-      }).fetch();
-      
-      const userIds = filterNonnull(_.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)]))
-      const usersAll = await loadByIds(context, "Users", userIds)
-      const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
-      const usersById = keyBy(users, u => u._id);
-      
-      // Get the tags themselves
-      const tagIds = filterNonnull(_.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]))
-      const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
-      const tags = await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
-      
-      return tags.map(tag => {
-        const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
-        const relevantRootComments = _.filter(rootComments, c=>c.tagId===tag._id);
-        const relevantUsersIds = filterNonnull(_.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]))
-        const relevantUsers = _.map(relevantUsersIds, userId=>usersById[userId]);
+      const [usersById, { lensesByTagId, summariesByTagId }] = await Promise.all([
+        getRevisionAndCommentUsers(revisions, rootComments, context),
+        getMultiDocumentsByTagId(revisions, context),
+      ]);
+
+      const lensIdsByTagId = mapValues(lensesByTagId, lenses => lenses.map(l => l._id!));
+      const summaryIdsByTagId = mapValues(summariesByTagId, summaries => summaries.map(s => s._id!));
+
+      const [tags, documentDeletionsByTagId] = await Promise.all([
+        getTopLevelTags(revisions, rootComments, lensIdsByTagId, summaryIdsByTagId, context),
+        getDocumentDeletionsInTimeBlock({
+          before,
+          after,
+          lensesByTagId,
+          summariesByTagId,
+          context,
+        }),
+      ]);
+
+      // We use all revisions above because we use content-less revisions to figure out
+      // what documents have been deleted (since updating the `deleted` field of a tag or multidoc creates a new revision, even if the content hasn't changed).
+      // But for actually showing revisions with diffs, we only want to show the ones that have content changes.
+      const contentfulRevisions = revisions.filter(rev => rev.changeMetrics.added > 0 || rev.changeMetrics.removed > 0);
+
+      // TODO: figure out if we want to get relevant user ids based on all revisions, or just contentful ones
+
+      const tagUpdates = tags.map(tag => {
+        const relevantTagRevisions = contentfulRevisions.filter(rev=>rev.documentId===tag._id);
+        const relevantLensRevisions = contentfulRevisions.filter(rev=>lensIdsByTagId[tag._id!]?.includes(rev.documentId!));
+        const relevantSummaryRevisions = contentfulRevisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
+        const relevantRevisions = [...relevantTagRevisions, ...relevantLensRevisions, ...relevantSummaryRevisions];
+
+        const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!];
+
+        const relevantRootComments = rootComments.filter(c=>c.tagId===tag._id);
+        const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
+        const relevantUsers = relevantUsersIds.map(userId=>usersById[userId]);
         
         return {
           tag,
-          revisionIds: _.map(relevantRevisions, r=>r._id),
+          revisionIds: relevantRevisions.map(r=>r._id),
           commentCount: relevantRootComments.length + sumBy(relevantRootComments, c=>c.descendentCount),
-          commentIds: _.map(relevantRootComments, c=>c._id),
+          commentIds: relevantRootComments.map(c=>c._id),
           lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
           added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
           users: relevantUsers,
+          documentDeletions: relevantDocumentDeletions,
         };
       });
+      
+      // Filter out empty tag updates, which we might have because we're no longer filtering out revisions with no content changes
+      // These can happen when e.g. a tag's name is changed, since the tag update automatically creates a zero-diff revision
+      return tagUpdates.filter(tagUpdate => !isTagUpdateEmpty(tagUpdate));
     },
     
     async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
       const sample = await Tags.aggregate([
-        {$match: {deleted: false, adminOnly: false}},
+        {$match: {
+          deleted: false, adminOnly: false,
+          isPlaceholderPage: false,
+        }},
         {$sample: {size: 1}}
       ]).toArray();
       if (!sample || !sample.length)
@@ -404,55 +656,47 @@ addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [Ta
 addGraphQLQuery('RandomTag: Tag!');
 addGraphQLQuery('ActiveTagCount: Int!');
 
-type ContributorWithStats = {
-  user: Partial<DbUser>,
-  contributionScore: number,
-  numCommits: number,
-  voteCount: number,
-};
-type ContributorStats = {
-  contributionScore: number,
-  numCommits: number,
-  voteCount: number,
-};
-type ContributorStatsList = Partial<Record<string,ContributorStats>>;
+defineQuery({
+  name: "TagPreview",
+  schema: `
+    type TagPreviewWithSummaries {
+      tag: Tag!
+      lens: MultiDocument
+      summaries: [MultiDocument!]!
+    }
+  `,
+  resultType: "TagPreviewWithSummaries",
+  argTypes: "(slug: String!, hash: String)",
+  fn: async (root, { slug, hash }: { slug: string, hash: string | null }, context) => {
+    const { Tags, MultiDocuments, repos, currentUser } = context;
+
+    const tagWithSummaries = await repos.tags.getTagWithSummaries(slug);
+
+    if (!tagWithSummaries) return null;
+
+    const { summaries, lens, ...tag } = tagWithSummaries;
+
+    const [filteredTag, filteredLens, filteredSummaries] = await Promise.all([
+      accessFilterSingle(currentUser, Tags, tag, context),
+      accessFilterSingle(currentUser, MultiDocuments, lens, context),
+      accessFilterMultiple(currentUser, MultiDocuments, summaries, context)
+    ]);
+
+    if (!filteredTag) return null;
+
+    return {
+      tag: filteredTag,
+      lens: filteredLens,
+      summaries: filteredSummaries,
+    };
+  },
+});
 
 augmentFieldsDict(Tags, {
-  contributors: {
-    resolveAs: {
-      arguments: 'limit: Int, version: String',
-      type: "TagContributorsList",
-      resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
-        contributors: ContributorWithStats[],
-        totalCount: number,
-      }> => {
-        const contributionStatsByUserId = await getContributorsList(tag, version||null);
-        const contributorUserIds = Object.keys(contributionStatsByUserId);
-        const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
-        const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
-        const usersById = keyBy(contributorUsers, u => u._id) as Record<string, Partial<DbUser>>;
-  
-        const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
-        
-        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
-          user: usersById[userId],
-          ...contributionStatsByUserId[userId]!,
-        }));
-        
-        if (limit) {
-          return {
-            contributors: take(topContributors, limit),
-            totalCount: topContributors.length,
-          }
-        } else {
-          return {
-            contributors: topContributors,
-            totalCount: topContributors.length,
-          }
-        }
-      }
-    }
-  },
+  contributors: contributorsField({
+    collectionName: 'Tags',
+    fieldName: 'description',
+  }),
   tableOfContents: {
     resolveAs: {
       arguments: 'version: String',
@@ -482,76 +726,34 @@ augmentFieldsDict(TagRels, {
   },
 });
 
-async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
-  if (version)
-    return await buildContributorsList(tag, version);
-  else if (tag.contributionStats)
-    return tag.contributionStats;
-  else
-    return await updateDenormalizedContributorsList(tag);
+function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
+  const tagsByIdMap = keyBy(tags, '_id');
+  return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
 }
 
-async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
-  if (!(tag?._id))
-    throw new Error("Invalid tag");
-  
-  const tagRevisions: DbRevision[] = await Revisions.find({
-    collectionName: "Tags",
-    fieldName: "description",
-    documentId: tag._id,
-    $or: [
-      {"changeMetrics.added": {$gt: 0}},
-      {"changeMetrics.removed": {$gt: 0}}
-    ],
-  }).fetch();
-  
-  const selfVotes = await new VotesRepo().getSelfVotes(tagRevisions.map(r => r._id));
-  const selfVotesByUser = groupBy(selfVotes, v=>v.userId);
-  const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
-    selfVotes => {
-      const totalSelfVotePower = sumBy(selfVotes, v=>v.power)
-      const strongestSelfVote = _.max(selfVotes, v=>v.power)?.power
-      const numSelfVotes = selfVotes.length;
-      return {
-        excludedPower: totalSelfVotePower - strongestSelfVote,
-        excludedVoteCount: numSelfVotes>0 ? (numSelfVotes-1) : 0,
-      };
+defineQuery({
+  name: "TagsByCoreTagId",
+  schema: `
+    type TagWithTotalCount {
+      tags: [Tag!]!
+      totalCount: Int!
     }
-  );
-  
-  const filteredTagRevisions = version
-    ? _.filter(tagRevisions, r=>compareVersionNumbers(version, r.version)>=0)
-    : tagRevisions;
-  
-  const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
-  const contributorUserIds: string[] = Object.keys(revisionsByUserId);
-  const contributionStatsByUserId: Partial<Record<string,ContributorStats>> = toDictionary(contributorUserIds,
-    userId => userId,
-    userId => {
-      const revisionsByThisUser = filter(tagRevisions, r=>r.userId===userId);
-      const totalRevisionScore = sumBy(revisionsByUserId[userId], r=>r.baseScore)||0
-      const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]
-      const excludedPower = selfVoteAdjustment?.excludedPower || 0;
-      const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
+  `,
+  resultType: "TagWithTotalCount!",
+  argTypes: "(coreTagId: String, limit: Int, searchTagIds: [String])",
+  fn: async (_root: void, args: { coreTagId: string | null; limit?: number; searchTagIds?: string[] }, context: ResolverContext) => {
+    const { coreTagId, limit = 20, searchTagIds } = args;
 
-      return {
-        contributionScore: totalRevisionScore - excludedPower,
-        numCommits: revisionsByThisUser.length,
-        voteCount: sumBy(revisionsByThisUser, r=>r.voteCount ?? 0) - excludedVoteCount,
-      };
-    }
-  );
-  return contributionStatsByUserId;
-}
+    const { tags: unsortedTags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
+      coreTagId,
+      limit,
+      searchTagIds
+    );
+    
+    const tags = searchTagIds?.length
+      ? sortTagsByIdOrder(unsortedTags, searchTagIds)
+      : unsortedTags;
 
-export async function updateDenormalizedContributorsList(tag: DbTag): Promise<ContributorStatsList> {
-  const contributionStats = await buildContributorsList(tag, null);
-  
-  if (JSON.stringify(tag.contributionStats) !== JSON.stringify(contributionStats)) {
-    await Tags.rawUpdateOne({_id: tag._id}, {$set: {
-      contributionStats: contributionStats,
-    }});
-  }
-  
-  return contributionStats;
-}
+    return { tags, totalCount };
+  },
+});

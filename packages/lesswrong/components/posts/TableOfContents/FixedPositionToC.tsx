@@ -301,7 +301,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   }, [])
 
   useEffect(() => {
-    const postContent = document.getElementById('postContent');
+    const postContent = document.getElementById('postContent') ?? document.getElementById('tagContent');
     if (!postContent) return;
     const newNormalizedSections = getSectionsWithOffsets(postContent, filteredSections);
 

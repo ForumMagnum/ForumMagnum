@@ -1,9 +1,23 @@
-import { Tags } from '../../lib/collections/tags/collection';
 import { annotateAuthors } from '../attributeEdits';
+import { getCollection } from '../vulcan-lib';
 
-export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
-  const html = await annotateAuthors(tag._id, "Tags", "description");
-  await Tags.rawUpdateOne({_id: tag._id}, {$set: {
+export type UpdateDenormalizedHtmlAttributionsOptions = {
+  document: DbTag;
+  collectionName: 'Tags';
+  fieldName: 'description';
+} | {
+  document: DbMultiDocument;
+  collectionName: 'MultiDocuments';
+  fieldName: 'contents';
+}
+
+export async function updateDenormalizedHtmlAttributions(
+  updateOptions: UpdateDenormalizedHtmlAttributionsOptions
+) {
+  const { document, collectionName, fieldName } = updateOptions;
+  const html = await annotateAuthors(document._id, collectionName, fieldName);
+  const collection = getCollection(collectionName);
+  await collection.rawUpdateOne({ _id: document._id }, { $set: {
     htmlWithContributorAnnotations: html,
   }});
   return html;

@@ -4,6 +4,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const CoronavirusFrontpageWidget = ({settings}: {
   settings: RecommendationsAlgorithm & { hideCoronavirus?: boolean }
@@ -33,14 +34,14 @@ const CoronavirusFrontpageWidget = ({settings}: {
     <div>
       <SectionSubtitle>
         <LWTooltip title={"View all posts related to COVID-19"} placement="top-start">
-          <Link to="/tag/coronavirus">Coronavirus Tag</Link>
+          <Link to={tagGetUrl({slug: "coronavirus"})}>Coronavirus Tag</Link>
         </LWTooltip>
       </SectionSubtitle>
       <AnalyticsContext listContext={"coronavirusWidget"} capturePostItemOnMount>
         <RecommendationsList algorithm={samplingAlgorithm} />
       </AnalyticsContext>
       {!currentUser && <SectionFooter>
-        <Link to={"/tag/coronavirus"}>
+        <Link to={tagGetUrl({slug: "coronavirus"})}>
           View All Coronavirus Posts
         </Link>
       </SectionFooter>}

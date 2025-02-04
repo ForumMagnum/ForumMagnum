@@ -26,6 +26,7 @@ import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/edit
 // callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
+  skipDenormalizedAttributions?: boolean
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
@@ -49,7 +50,7 @@ ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
-  dataWithDiscardedSuggestions?: string
+  dataWithDiscardedSuggestions?: string,
 }) {
 
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
@@ -198,7 +199,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const oldRevision = oldRevisionId
         ? await fetchFragmentSingle({
           collectionName: "Revisions",
-          fragmentName: "RevisionEdit",
+          fragmentName: "RevisionMetadata",
           selector: {_id: oldRevisionId},
           currentUser: null,
           skipFiltering: true,

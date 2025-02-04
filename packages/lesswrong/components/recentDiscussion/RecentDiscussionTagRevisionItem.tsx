@@ -20,7 +20,7 @@ function RecentDiscussionTagRevisionItem({
   tag: TagBasicInfo,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
-  revision: RevisionMetadataWithChangeMetrics,
+  revision: RevisionHistoryEntry,
   documentId: string,
 }) {
   const { TagRevisionItem } = Components
