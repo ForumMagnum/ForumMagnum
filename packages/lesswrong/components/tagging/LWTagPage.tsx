@@ -553,7 +553,7 @@ const LWTagPage = () => {
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
-  const [editing, _setEditing] = useState(!!query.edit);
+  const [editing, _setEditing] = useState(query.edit === "true");
   const [formDirty, setFormDirty] = useState(false);
 
   // Usually, we want to warn the user before closing the editor when they have unsaved changes
@@ -602,12 +602,17 @@ const LWTagPage = () => {
     //tagFlagId handled as default case below
   }
 
+  // Coalesce between query.focus and query.flagId
+  const focusOrFlagId = query.focus ?? query.flagId;
+
   const { results: otherTagsWithNavigation } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
+    terms: ["allPages", "myPages"].includes(focusOrFlagId)
+      ? multiTerms[focusOrFlagId]
+      : { view: "tagsByTagFlag", tagFlagId: focusOrFlagId },
     collectionName: "Tags",
     fragmentName: 'TagWithFlagsFragment',
-    limit: 1500,
-    skip: !query.flagId
+    limit: 5000,
+    skip: !focusOrFlagId,
   })
 
   useOnSearchHotkey(() => setTruncated(false));
@@ -630,25 +635,38 @@ const LWTagPage = () => {
   }, [setEditing, updateSelectedLens]);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
+
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
   // 2. Then we have the real position
   // 3. Then we remove the tagFlag, we still want it to have the right next button
   const [nextTagPosition, setNextTagPosition] = useState<number | null>(null);
+
   useEffect(() => {
     // Initial list position setting
-    if (tagPositionInList && tagPositionInList >= 0) {
-      setNextTagPosition(tagPositionInList + 1)
+    if (tagPositionInList !== undefined && tagPositionInList >= 0) {
+      setNextTagPosition(tagPositionInList + 1);
     }
-    if (nextTagPosition !== null && tagPositionInList && tagPositionInList < 0) {
+    if (
+      nextTagPosition !== null &&
+      tagPositionInList !== undefined &&
+      tagPositionInList < 0
+    ) {
       // Here we want to decrement the list positions by one, because we removed the original tag and so
       // all the indices are moved to the next
-      setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
+      setNextTagPosition((prevNextTagPosition) => (prevNextTagPosition || 1) - 1);
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tagPositionInList])
-  const nextTag = otherTagsWithNavigation && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithNavigation[nextTagPosition]
-  
+  }, [tagPositionInList]);
+
+  const nextTag =
+    otherTagsWithNavigation &&
+    nextTagPosition !== null &&
+    nextTagPosition >= 0 &&
+    otherTagsWithNavigation[nextTagPosition];
+
+  console.log("in tag page", {nextTagPosition, otherTagsWithNavigationNames: otherTagsWithNavigation?.map(tag => tag.name), nextTag})
+
   const expandAll = useCallback(() => {
     setTruncated(false)
   }, []);
@@ -883,9 +901,9 @@ const LWTagPage = () => {
             documentId={query.flagId}
           />
         </Link>
-        {nextTag && <span onClick={() => setEditing(true)}><Link
+        {nextTag && <span onClick={() => setEditing(false)}><Link
           className={classes.nextLink}
-          to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+          to={tagGetUrl(nextTag, {flagId: query.flagId, edit: false})}>
             Next Tag ({nextTag.name})
         </Link></span>}
       </span>}

@@ -31,6 +31,7 @@ Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
       wikiOnly: false,
       ...(terms.excludedTagIds ? { _id: {$nin: terms.excludedTagIds} } : {}),
       ...(!userIsAdminOrMod(currentUser) ? { deleted: false, adminOnly: false } : {}),
+      isPlaceholderPage: false,
     }
   };
 });
@@ -76,7 +77,9 @@ Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: Resolve
 Tags.addView('allPagesByNewest', (terms: TagsViewTerms) => {
   return {
     selector: {
-      wikiOnly: viewFieldAllowAny
+      wikiOnly: viewFieldAllowAny,
+      deleted: false,
+      
     },
     options: {sort: {createdAt: -1}},
   }
