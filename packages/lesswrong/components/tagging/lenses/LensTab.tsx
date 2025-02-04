@@ -165,6 +165,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
   lensSubtitle: {
     ...theme.typography.subtitle,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     textTransform: 'none',
     textAlign: 'left',
     fontSize: '1em',
