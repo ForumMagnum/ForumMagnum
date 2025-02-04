@@ -337,6 +337,10 @@ const TagPreviewTitle = ({tag}: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
 }) => {
   const classes = useStyles(styles);
+  
+  if (!tagShowTitle(tag)) {
+    return null;
+  }
 
   // TODO Add comment count and like count
   return <div className={classNames(classes.title)}>
