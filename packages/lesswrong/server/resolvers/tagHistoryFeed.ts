@@ -18,6 +18,7 @@ defineFeedResolver<Date>({
     tagRevision: Revision
     tagDiscussionComment: Comment
     lensRevision: Revision
+    summaryRevision: Revision
   `,
   resolver: async ({limit=25, cutoff, offset, args, context}: {
     limit?: number,
@@ -36,14 +37,16 @@ defineFeedResolver<Date>({
     
     type SortKeyType = Date
     
-    const lenses = await MultiDocuments.find({
+    const lensesAndSummaries = await MultiDocuments.find({
       parentDocumentId: tagId,
-      fieldName: "description",
     }).fetch();
+    const lenses = lensesAndSummaries.filter(md => md.fieldName==="description");
     const lensIds = (historyOptions.lensId && historyOptions.lensId !== "all")
       ? [historyOptions.lensId]
       : lenses.map(lens => lens._id);
-      
+    const summaries = lensesAndSummaries.filter(md => md.fieldName==="summary");
+    const summaryIds = summaries.map(summary => summary._id);
+
     const result = await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
@@ -100,6 +103,22 @@ defineFeedResolver<Date>({
           doQuery: async (limit: number, cutoff: Date|null): Promise<DbRevision[]> => {
             return await Revisions.find({
               documentId: {$in: lensIds},
+              collectionName: "MultiDocuments",
+              fieldName: "contents",
+              ...(cutoff ? {editedAt: {$lt: cutoff}} : {}),
+            }, {
+              sort: {editedAt: -1},
+              limit,
+            }).fetch();
+          },
+        } : null),
+        // Summary edits
+        (historyOptions.showSummaryEdits ? {
+          type: "summaryRevision",
+          getSortKey: (rev: DbRevision) => rev.editedAt,
+          doQuery: async (limit: number, cutoff: Date|null): Promise<DbRevision[]> => {
+            return await Revisions.find({
+              documentId: {$in: summaryIds},
               collectionName: "MultiDocuments",
               fieldName: "contents",
               ...(cutoff ? {editedAt: {$lt: cutoff}} : {}),

@@ -84,6 +84,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment RevisionHistorySummaryEdit on Revision {
+    ...RevisionHistoryEntry
+    summary {
+      ...MultiDocumentParentDocument
+    }
+  }
+`);
+
+registerFragment(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {

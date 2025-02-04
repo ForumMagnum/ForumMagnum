@@ -1064,6 +1064,7 @@ importComponent("WikiTagNestedList", () => require("../../components/tagging/Wik
 importComponent("WriteNewButton", () => require("../../components/tagging/WriteNewButton.tsx"));
 importComponent("ArbitalImportRevisionDetails", () => require("../../components/tagging/history/ArbitalImportRevisionDetails.tsx"));
 importComponent("LensRevisionItem", () => require("../../components/tagging/history/LensRevisionItem.tsx"));
+importComponent("SummaryRevisionItem", () => require("../../components/tagging/history/SummaryRevisionItem.tsx"));
 importComponent("TagHistoryPage", () => require("../../components/tagging/history/TagHistoryPage.tsx"));
 importComponent(["LensTabBar", "LensTab", "TagOrLensLikeButton"], () => require("../../components/tagging/lenses/LensTab.tsx"));
 importComponent("NewLensDialog", () => require("../../components/tagging/lenses/NewLensDialog.tsx"));

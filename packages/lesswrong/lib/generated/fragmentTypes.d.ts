@@ -2059,6 +2059,10 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
   readonly user: UsersMinimumInfo|null,
 }
 
+interface RevisionHistorySummaryEdit extends RevisionHistoryEntry { // fragment on Revisions
+  readonly summary: MultiDocumentParentDocument|null,
+}
+
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
   readonly tag: TagHistoryFragment|null,
   readonly lens: MultiDocumentParentDocument|null,
@@ -4547,6 +4551,7 @@ interface FragmentTypes {
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
+  RevisionHistorySummaryEdit: RevisionHistorySummaryEdit
   RevisionTagFragment: RevisionTagFragment
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
@@ -4772,7 +4777,7 @@ interface FragmentTypesByCollection {
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
-  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"SunshineCurationPostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"PostForReviewWinnerItem"|"PostsTwitterAdmin"|"SuggestAlignmentPost"
@@ -4936,6 +4941,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadata: "Revisions"
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
+  RevisionHistorySummaryEdit: "Revisions"
   RevisionTagFragment: "Revisions"
   RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"

@@ -24,14 +24,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
+const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
   tag: TagBasicInfo,
-  lens?: MultiDocumentContentDisplay | TagLens,
+  url: string,
+  itemDescription?: React.ReactNode,
   revision: RevisionHistoryEntry,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
-  const revUrl = tagGetRevisionLink(tag, revision.version, lens);
+  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -44,13 +44,12 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   }
   
   return <>
-    {/* TODO: should we link to the lens via the lens title? */}
-    {lens && <div>Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` (${lens.tabSubtitle})` : ""}`}</div>}
+    {itemDescription}
     <span className={classes.username}>
-      <UsersName documentId={revision.userId}/>
+      <UsersNameDisplay user={revision.user}/>
     </span>
     {" "}
-    <Link to={revUrl}>
+    <Link to={url}>
       <LWTooltip title="View Selected Revision"><>
         <MetaInfo>
           v{revision.version}
@@ -69,7 +68,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
       </LWTooltip>
     </>}
     <MetaInfo>
-      <Link to={revUrl}>
+      <Link to={url}>
         <ChangeMetricsDisplay changeMetrics={revision.changeMetrics}/>
         {" "}
         {revision.commitMessage}

@@ -13,7 +13,6 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 export const SINGLE_LINE_PADDING_TOP = 5
 
 export const singleLineStyles = (theme: ThemeType) => ({
-  display: "flex",
   borderRadius: 3,
   backgroundColor: theme.palette.panelBackground.singleLineComment,
   '&:hover': {
@@ -34,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   commentInfo: {
+    display: "flex",
     ...singleLineStyles(theme)
   },
   username: {
