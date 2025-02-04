@@ -145,7 +145,6 @@ const FooterTag = ({
   noBackground = false,
   hoverable,
 }: {
-  //tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
   hideIcon?: boolean,
