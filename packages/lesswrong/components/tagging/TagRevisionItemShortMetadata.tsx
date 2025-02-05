@@ -1,8 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
-import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { useDialog } from '../common/withDialog';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 

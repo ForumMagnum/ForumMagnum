@@ -74,34 +74,6 @@ const TagRevisionItem = ({
           {contents}
         </div>
       </Components.SingleLineFeedEvent>
-  /*if (collapsed && !expanded) {
-    return <Components.SingleLineFeedEvent
-      icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
-      frame expands setExpanded={setExpanded}
-    >
-      <TagRevisionItemShortMetadata tag={tag} revision={revision} url={url} />
-    </Components.SingleLineFeedEvent>
-  }
-
-  return <div className={classNames({[classes.container]: !noContainer})}>
-    {headingStyle==="full" &&
-      <TagRevisionItemFullMetadata tag={tag} revision={revision} />}
-    {headingStyle==="abridged" &&
-      <div><TagRevisionItemShortMetadata tag={tag} revision={revision} url={url} /></div>}
-
-    {!!(added || removed || !previousRevision) && <ContentStyles contentType="comment">
-      <CompareRevisions
-        trim={true}
-        collectionName="Tags" fieldName="description"
-        documentId={documentId}
-        versionBefore={previousRevision?.version||null}
-        versionAfter={revision.version}
-      />
-    </ContentStyles>}
-    {showDiscussionLink && <div className={classes.discussionButtonPositioning}>
-      <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
-    </div>}
-  </div>*/
 }
 
 const TagRevisionItemComponent = registerComponent("TagRevisionItem", TagRevisionItem, {hocs: [withErrorBoundary]});

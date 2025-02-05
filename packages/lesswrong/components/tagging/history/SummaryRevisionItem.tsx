@@ -30,7 +30,9 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   const shortDescription = summary
     ? <div>Summary: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
     : <div>(Deleted summary)</div>
-  const url = ''; //TODO
+
+  // TODO: There isn't a valid permalink-URL for revisions to summaries, currently.
+  const url = '';
 
   return <Components.SingleLineFeedEvent
     icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}

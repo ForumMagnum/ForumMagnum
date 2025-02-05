@@ -267,8 +267,10 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     }
   }
 
-  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
-    throw new Error("Revisions are only voteable if they're revisions of tags");
+  if (collectionName==="Revisions") {
+    if ((document as DbRevision).collectionName!=='Tags' && (document as DbRevision).collectionName!=='MultiDocuments')
+      throw new Error("Revisions are only voteable if they're revisions of wiki pages, tags, lenses, or summaries");
+  }
   
   const existingVote = await getExistingVote({document, user});
   let showVotingPatternWarning = false;
