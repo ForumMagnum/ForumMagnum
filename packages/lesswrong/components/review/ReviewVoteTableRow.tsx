@@ -242,12 +242,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
 
   const allVotes = post.reviewVotesAllKarma || []
 
-  let displayedVotes = allVotes
-  switch (voteTooltip) {
-    case 'Showing all votes':
-      break;
-  }
-
   let positiveVoteCountText = "0"
   let positiveVoteCountTooltip = "0 positive votes"
   if (post.positiveReviewVoteCount === 1) {
@@ -337,7 +331,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
           <LWTooltip title={voteTooltip} placement="top-end">
             <div className={classes.voteResults}>
-              { displayedVotes.map((v, i)=>
+              { allVotes.map((v, i)=>
                 <span className={classes.reviewVote} key={`${post._id}${i}H`}>
                   {v}
                 </span>
