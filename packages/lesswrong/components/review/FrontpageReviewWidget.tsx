@@ -203,10 +203,14 @@ export function ReviewOverviewTooltip() {
   const nominationStartDate = getReviewStart(REVIEW_YEAR)
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
   const reviewEndDate = getReviewPhaseEnd(REVIEW_YEAR)
-  const voteEndDate = getResultsPhaseEnd(REVIEW_YEAR)
-  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDate.format('MMM Do')}</span>
-  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
-  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
+
+  const nominationEndDateDisplay = getNominationPhaseEndDisplay(REVIEW_YEAR)
+  const reviewEndDateDisplay = getReviewPhaseEndDisplay(REVIEW_YEAR)
+  const voteEndDateDisplay = getVotingPhaseEndDisplay(REVIEW_YEAR)
+
+  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDateDisplay.format('MMM Do')}</span>
+  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDateDisplay.format('MMM Do')}</span>
+  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDateDisplay.format('MMM Do')}</span>
   
   return <div>
     <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
@@ -228,6 +232,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
   const nominationEndDate = getNominationPhaseEnd(reviewYear)
   const reviewEndDate = getReviewPhaseEnd(reviewYear)
   const voteEndDate = getVotingPhaseEnd(reviewYear)
+
+  const nominationEndDateDisplay = getNominationPhaseEndDisplay(reviewYear)
+  const reviewEndDateDisplay = getReviewPhaseEndDisplay(reviewYear)
+  const voteEndDateDisplay = getVotingPhaseEndDisplay(reviewYear)
 
   // These should be calculated at render
   const currentDate = moment.utc()
@@ -272,7 +280,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <div className={classes.nominationBlock}>
       <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Nomination Voting</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{getNominationPhaseEndDisplay(reviewYear).format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDateDisplay.format('MMM Do')}</div>
         {activeRange === "NOMINATIONS" && <div
           className={classes.coloredProgress}
           style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
@@ -282,14 +290,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <div className={classes.reviewBlock}>     
       <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Discussion</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{getReviewPhaseEndDisplay(reviewYear).format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDateDisplay.format('MMM Do')}</div>
         {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
       </LWTooltip>   
     </div>
     <div className={classes.votingBlock}>
       <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{getVotingPhaseEndDisplay(reviewYear).format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDateDisplay.format('MMM Do')}</div>
         {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
       </LWTooltip>
     </div>
