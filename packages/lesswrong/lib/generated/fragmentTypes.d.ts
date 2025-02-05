@@ -1101,6 +1101,7 @@ interface emailHistoryFragment { // fragment on LWEvents
 }
 
 interface FieldChangeFragment { // fragment on non-collection type
+  readonly _id: any,
   readonly createdAt: any,
   readonly userId: any,
   readonly documentId: any,
@@ -2690,7 +2691,7 @@ interface TagFragment_description { // fragment on Revisions
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
-  readonly lenses: Array<MultiDocumentContentDisplay>,
+  readonly lensesIncludingDeleted: Array<MultiDocumentContentDisplay>,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags

@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getAvailableLenses, TagLens } from '@/lib/arbital/useTagLenses';
+import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
 import { RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -76,7 +76,7 @@ const TagHistoryPage = () => {
   const { slug } = params;
   const focusedUser: string = query.user;
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
-  const lenses = useMemo(() => getAvailableLenses(tag), [tag]);
+  const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);
   const lensesById = keyBy(lenses, l=>l._id);
   const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, SummaryRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent, SectionTitle, ForumIcon } = Components;
   const [settings, setSettings] = useState(defaultTagHistorySettings);
@@ -209,7 +209,7 @@ const TagHistoryPage = () => {
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
             >
               <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
-                return <span key={fieldName}>{fieldName} from {metadataChanges.before[fieldName]} to {metadataChanges.after[fieldName]}</span>
+                return <span key={fieldName}>{fieldName} from {""+metadataChanges.before[fieldName]} to {""+metadataChanges.after[fieldName]}</span>
               })}</div>
             </SingleLineFeedEvent>
           },
@@ -221,7 +221,7 @@ const TagHistoryPage = () => {
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
             >
               <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
-                return <span key={fieldName}>{fieldName} from {metadataChanges.before[fieldName]} to {metadataChanges.after[fieldName]}</span>
+                return <span key={fieldName}>{fieldName} from {""+metadataChanges.before[fieldName]} to {""+metadataChanges.after[fieldName]}</span>
               })}</div>
             </SingleLineFeedEvent>
           },

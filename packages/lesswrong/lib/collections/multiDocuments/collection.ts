@@ -86,10 +86,6 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
     }
   }
 
-  if (multiDocument.deleted) {
-    return userOwns(user, multiDocument);
-  }
-
   return true;
 };
 

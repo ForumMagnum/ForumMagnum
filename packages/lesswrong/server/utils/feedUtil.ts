@@ -72,9 +72,11 @@ export function fieldChangesSubquery<N extends CollectionNameString>({type, coll
         limit, cutoff,
         cutoffField: "createdAt",
         sortDirection: "desc",
+        applyPermissions: false,
       });
       return events
         .map((event: DbLWEvent): FieldChangeResult<N> => ({
+          _id: event._id,
           createdAt: event.createdAt,
           userId: event.userId!,
           documentId: event.documentId!,
@@ -266,6 +268,7 @@ function isNonEmptyObject(obj: {}): boolean {
 
 async function queryWithCutoff<N extends CollectionNameString>({
   context, collection, selector, limit, cutoffField, cutoff, sortDirection,
+  applyPermissions=true,
 }: {
   context: ResolverContext,
   collection: CollectionBase<N>,
@@ -274,6 +277,7 @@ async function queryWithCutoff<N extends CollectionNameString>({
   cutoffField: keyof ObjectsByCollectionName[N],
   cutoff: any,
   sortDirection: SortDirection,
+  applyPermissions?: boolean,
 }) {
   const collectionName = collection.collectionName;
   const {currentUser} = context;
@@ -293,5 +297,9 @@ async function queryWithCutoff<N extends CollectionNameString>({
     limit,
   }).fetch();
 
-  return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+  if (applyPermissions) {
+    return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+  } else {
+    return resultsRaw;
+  }
 }

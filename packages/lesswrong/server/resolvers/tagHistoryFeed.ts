@@ -137,7 +137,7 @@ defineFeedResolver<Date>({
           collection: Tags,
           context,
           documentIds: [tagRaw._id],
-          fieldNames: ["name", "shortName", "subtitle", "core"],
+          fieldNames: ["name", "shortName", "subtitle", "core", "deleted"],
         }) : null),
         // Lens and summary metadata changes
         (historyOptions.showMetadata ? fieldChangesSubquery({
@@ -145,7 +145,7 @@ defineFeedResolver<Date>({
           collection: MultiDocuments,
           context,
           documentIds: [...lensIds, ...summaryIds],
-          fieldNames: ["title", "tabTitle", "tabSubtitle"],
+          fieldNames: ["title", "tabTitle", "tabSubtitle", "deleted"],
         }) : null),
       ],
     });

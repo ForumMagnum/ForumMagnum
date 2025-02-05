@@ -54,6 +54,7 @@ registerFragment(`
 
 addGraphQLSchema(`
   type FieldChange {
+    _id: String!
     createdAt: Date!
     userId: String!
     documentId: String!
@@ -63,6 +64,7 @@ addGraphQLSchema(`
 `);
 
 export type FieldChangeResult<N extends CollectionNameString> = {
+  _id: string
   createdAt: Date
   userId: string
   documentId: string
@@ -72,6 +74,7 @@ export type FieldChangeResult<N extends CollectionNameString> = {
 
 registerFragment(`
   fragment FieldChangeFragment on FieldChange {
+    _id
     createdAt
     userId
     documentId
