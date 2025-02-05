@@ -36,8 +36,9 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+
 export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
-export const reviewResultsPostPath = "/reviewVoting"
+export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
 export const longformReviewTagId = "aRnXghESsn4HDm872"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
