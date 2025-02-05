@@ -20,6 +20,7 @@ defineFeedResolver<Date>({
     lensRevision: Revision
     summaryRevision: Revision
     wikiMetadataChanged: FieldChange
+    lensOrSummaryMetadataChanged: FieldChange
   `,
   resolver: async ({limit=25, cutoff, offset, args, context}: {
     limit?: number,
@@ -130,14 +131,22 @@ defineFeedResolver<Date>({
             }).fetch();
           },
         } : null),
-        // Metadata changes
-        fieldChangesSubquery({
+        // Tag metadata changes
+        (historyOptions.showMetadata ? fieldChangesSubquery({
           type: "wikiMetadataChanged",
           collection: Tags,
           context,
           documentIds: [tagRaw._id],
           fieldNames: ["name", "shortName", "subtitle", "core"],
-        }),
+        }) : null),
+        // Lens and summary metadata changes
+        (historyOptions.showMetadata ? fieldChangesSubquery({
+          type: "lensOrSummaryMetadataChanged",
+          collection: MultiDocuments,
+          context,
+          documentIds: [...lensIds, ...summaryIds],
+          fieldNames: ["title", "tabTitle", "tabSubtitle"],
+        }) : null),
       ],
     });
     return result;

@@ -30,6 +30,7 @@ export const MultiDocuments = createCollection({
     },
     removeCheck: () => false,
   }),
+  logChanges: true,
 });
 
 addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });

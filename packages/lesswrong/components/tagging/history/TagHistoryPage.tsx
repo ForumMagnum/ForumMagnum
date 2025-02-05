@@ -214,6 +214,18 @@ const TagHistoryPage = () => {
             </SingleLineFeedEvent>
           },
         },
+        lensOrSummaryMetadataChanged: {
+          fragmentName: "FieldChangeFragment",
+          render: (metadataChanges: FieldChangeFragment) => {
+            return <SingleLineFeedEvent
+              icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
+            >
+              <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
+                return <span key={fieldName}>{fieldName} from {metadataChanges.before[fieldName]} to {metadataChanges.after[fieldName]}</span>
+              })}</div>
+            </SingleLineFeedEvent>
+          },
+        },
       }}
     />
     </RevealHiddenBlocksContext.Provider>
