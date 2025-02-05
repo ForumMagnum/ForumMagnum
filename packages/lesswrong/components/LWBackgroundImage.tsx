@@ -138,6 +138,26 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   //   fontStyle: 'normal',
   //   marginBottom: '16px !important',
   // },
+  votingResultsImage: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    width: '57vw',
+    '& h1': {
+      ...theme.typography.headerStyle,
+      fontSize: '2.4rem',
+      lineHeight: '2.6rem',
+      marginTop: 20,
+      marginBottom: 0,
+    },
+    '& h3': {
+      ...theme.typography.commentStyle,
+      fontSize: '14px',
+      margin: 0,
+      lineHeight: '1.2',
+      marginBottom: 6,
+    }
+  }
 }));
 
 export const LWBackgroundImage = ({standaloneNavigation}: {
@@ -161,20 +181,23 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div> : null
 
   const reviewCompleteImage = <div>
-      <h1><Link to="/reviewVoting">View Results</Link></h1>
+      <div className={classes.votingResultsImage}>
+        <h1>Thank You for Voting!</h1>
+        <h3><Link to="/reviewVoting">View Results</Link></h3>
+      </div>
       <CloudinaryImage2
         loading="lazy"
         className={classes.backgroundImage}
-        publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-        darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+        publicId="happyWizard_mmmnjx"
+        darkPublicId={"happyWizard_mmmnjx"}
       />
   </div>
 
-  const renderDefaultImage = currentRoute?.name !== 'home' || !(getReviewPhase() === 'VOTING' || getReviewPhase() === 'COMPLETE')
+  const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' &&getReviewPhase() !== 'RESULTS')
 
   return <div className={classes.root}>
       {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
-      {getReviewPhase() === 'COMPLETE' && currentRoute?.name === 'home' && reviewCompleteImage}
+      {getReviewPhase() === 'RESULTS' && currentRoute?.name === 'home' && reviewCompleteImage}
       {renderDefaultImage && defaultImage}
   </div>;
 }
