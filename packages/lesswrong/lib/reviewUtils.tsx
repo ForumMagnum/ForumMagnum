@@ -82,7 +82,6 @@ export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => moment.u
 export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(reviewPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours').subtract(1, 'days')
 export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(votingPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours').subtract(1, 'days')
 
-
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
