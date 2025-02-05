@@ -84,7 +84,7 @@ export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(v
 
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
-  if (reviewYear !== REVIEW_YEAR) {
+  if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
   const currentDate = moment.utc()
