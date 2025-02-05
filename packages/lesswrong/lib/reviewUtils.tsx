@@ -18,7 +18,6 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
   throw Error("Not a valid Review Year")
 }
 
-
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR: ReviewYear = 2023
 
@@ -38,6 +37,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
 export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
+export const reviewResultsPostPath = "/reviewVoting"
 export const longformReviewTagId = "aRnXghESsn4HDm872"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);

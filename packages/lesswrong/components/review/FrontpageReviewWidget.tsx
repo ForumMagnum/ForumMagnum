@@ -203,7 +203,7 @@ export function ReviewOverviewTooltip() {
   const nominationStartDate = getReviewStart(REVIEW_YEAR)
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
   const reviewEndDate = getReviewPhaseEnd(REVIEW_YEAR)
-  const voteEndDate = getResultsPhaseEnd(REVIEW_YEAR)
+  const voteEndDate = getVotingPhaseEnd(REVIEW_YEAR)
   const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDate.format('MMM Do')}</span>
   const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
   const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
