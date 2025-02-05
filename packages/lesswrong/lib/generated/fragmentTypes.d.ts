@@ -1100,6 +1100,14 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface FieldChangeFragment { // fragment on non-collection type
+  readonly createdAt: any,
+  readonly userId: any,
+  readonly documentId: any,
+  readonly before: any,
+  readonly after: any,
+}
+
 interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
@@ -4485,6 +4493,7 @@ interface FragmentTypes {
   lastEventFragment: lastEventFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  FieldChangeFragment: FieldChangeFragment
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
@@ -4792,6 +4801,7 @@ interface FragmentTypesByCollection {
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
+  FieldChanges: "FieldChangeFragment"
   JargonTerms: "JargonTermsDefaultFragment"|"JargonTerms"|"JargonTermsPost"|"JargonTermsWithPostInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
@@ -4875,6 +4885,7 @@ interface CollectionNamesByFragmentName {
   lastEventFragment: "LWEvents"
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
+  FieldChangeFragment: never
   JargonTermsDefaultFragment: "JargonTerms"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"

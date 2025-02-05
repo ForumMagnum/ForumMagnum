@@ -3,7 +3,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
+import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery, fieldChangesSubquery } from '../utils/feedUtil';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { defaultTagHistorySettings, TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
 import { MAIN_TAB_ID } from '@/lib/arbital/useTagLenses';
@@ -19,6 +19,7 @@ defineFeedResolver<Date>({
     tagDiscussionComment: Comment
     lensRevision: Revision
     summaryRevision: Revision
+    wikiMetadataChanged: FieldChange
   `,
   resolver: async ({limit=25, cutoff, offset, args, context}: {
     limit?: number,
@@ -32,6 +33,7 @@ defineFeedResolver<Date>({
     const {currentUser} = context;
     
     const tagRaw = await Tags.findOne({_id: tagId});
+    if (!tagRaw) throw new Error("Tag not found");
     const tag = await accessFilterSingle(currentUser, Tags, tagRaw, context);
     if (!tag) throw new Error("Tag not found");
     
@@ -128,6 +130,14 @@ defineFeedResolver<Date>({
             }).fetch();
           },
         } : null),
+        // Metadata changes
+        fieldChangesSubquery({
+          type: "wikiMetadataChanged",
+          collection: Tags,
+          context,
+          documentIds: [tagRaw._id],
+          fieldNames: ["name", "shortName", "subtitle", "core"],
+        }),
       ],
     });
     return result;

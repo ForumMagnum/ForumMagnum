@@ -55,6 +55,7 @@ export interface TagHistorySettings {
   showSummaryEdits: boolean,
   showComments: boolean,
   showTagging: boolean
+  showMetadata: boolean,
   lensId: string
 }
 
@@ -65,6 +66,7 @@ export const defaultTagHistorySettings: TagHistorySettings = {
   showSummaryEdits: true,
   showComments: true,
   showTagging: true,
+  showMetadata: true,
   lensId: "all",
 };
 
@@ -199,7 +201,19 @@ const TagHistoryPage = () => {
               </SingleLineFeedEvent>
             </div>
           }
-        }
+        },
+        wikiMetadataChanged: {
+          fragmentName: "FieldChangeFragment",
+          render: (metadataChanges: FieldChangeFragment) => {
+            return <SingleLineFeedEvent
+              icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
+            >
+              <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
+                return <span key={fieldName}>{fieldName} from {metadataChanges.before[fieldName]} to {metadataChanges.after[fieldName]}</span>
+              })}</div>
+            </SingleLineFeedEvent>
+          },
+        },
       }}
     />
     </RevealHiddenBlocksContext.Provider>
@@ -261,6 +275,14 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
         onChange={ev => setSettings({...settings, showComments: ev.target.checked})}
       />
       <span className={classes.label}>Show comments</span>
+    </div>
+    <div className={classes.checkboxSetting}>
+      <Checkbox
+        className={classes.checkbox}
+        checked={settings.showMetadata}
+        onChange={ev => setSettings({...settings, showMetadata: ev.target.checked})}
+      />
+      <span className={classes.label}>Show metadata</span>
     </div>
     {hasWikiLenses && lenses.length > 1 && <div>
       Lens
