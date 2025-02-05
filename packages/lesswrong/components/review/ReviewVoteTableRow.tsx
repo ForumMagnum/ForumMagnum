@@ -240,18 +240,10 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
 
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
-  const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
-  const afVotes = post.reviewVotesAF || []
 
   let displayedVotes = allVotes
   switch (voteTooltip) {
-    case 'Showing votes by 1000+ Karma LessWrong users':
-      displayedVotes = highVotes;
-      break;
-    case 'Showing votes from Alignment Forum members':
-      displayedVotes = afVotes;
-      break;
     case 'Showing all votes':
       break;
   }

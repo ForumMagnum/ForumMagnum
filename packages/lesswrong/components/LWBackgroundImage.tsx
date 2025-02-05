@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
+import { Link } from '../lib/reactRouterWrapper';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -159,10 +160,22 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     />
   </div> : null
 
+  const reviewCompleteImage = <div>
+      <h1><Link to="/reviewVoting">View Results</Link></h1>
+      <CloudinaryImage2
+        loading="lazy"
+        className={classes.backgroundImage}
+        publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+        darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+      />
+  </div>
+
+  const renderDefaultImage = currentRoute?.name !== 'home' || !(getReviewPhase() === 'VOTING' || getReviewPhase() === 'COMPLETE')
+
   return <div className={classes.root}>
       {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
-      {getReviewPhase() === 'VOTING' && currentRoute?.name !== 'home' && defaultImage}
-      {getReviewPhase() !== 'VOTING' && defaultImage}
+      {getReviewPhase() === 'COMPLETE' && currentRoute?.name === 'home' && reviewCompleteImage}
+      {renderDefaultImage && defaultImage}
   </div>;
 }
 

@@ -6,6 +6,7 @@ import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
 import { Globals } from "./vulcan-lib";
+import { userBigVotePower } from "@/lib/voting/voteTypes";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -18,11 +19,15 @@ const getValue = (vote: DbReviewVote, total: number): number|null => {
   return getCostData({costTotal:total})[vote.qualitativeScore].value
 }
 
-function updatePost(postList: Record<string,Array<number>>, vote: DbReviewVote, total: number) {
+function updatePost(postList: Record<string,Array<number>>, vote: DbReviewVote, total: number, user?: DbUser) {
+  const value = getValue(vote, total)
+  if (value === null) return
+  const votePower = user ? userBigVotePower(user.karma ?? 0, 1) : 1
+  const finalValue = value * votePower
   if (postList[vote.postId] === undefined) {
-    postList[vote.postId] = [getValue(vote, total)!]
+    postList[vote.postId] = [finalValue]
   } else {
-    postList[vote.postId].push(getValue(vote, total)!)
+    postList[vote.postId].push(finalValue)
   }
 }
 
@@ -33,37 +38,33 @@ type reviewVotePhase = 'nominationVote'|'finalVote'
 async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase, postIds: Array<string>) {
   let postsAllUsers: Record<string,Array<number>> = {}
   let postsHighKarmaUsers: Record<string,Array<number>> = {}
-  let postsAFUsers: Record<string,Array<number>> = {}
+  // let postsAFUsers: Record<string,Array<number>> = {}
 
   for (let userId of Object.keys(votesByUserId)) {
-    // eslint-disable-next-line no-console
-    console.log(userId)
     const user = usersByUserId[userId][0]
     
     const userVotes = votesByUserId[userId]
     const filteredUserVotes = votePhase === 'finalVote' ? userVotes.filter(vote => postIds.includes(vote.postId)) : userVotes
 
     const costTotal = filteredUserVotes.reduce((total,vote) => total + getCost(vote), 0)
-    // eslint-disable-next-line no-console
-    console.log(userId, costTotal, (costTotal > 500) ? "500+" : "")
     for (let vote of votesByUserId[userId]) {
       if (!vote.qualitativeScore) continue
-              
+            
+      // store the non-multiplied vote values on the finalReviewVotesAllKarma
       updatePost(postsAllUsers, vote, costTotal)
 
-      if (user.karma >= 1000) {
-        updatePost(postsHighKarmaUsers, vote, costTotal)
-      }
-      
-      if (user.groups?.includes('alignmentForum')) {
-        updatePost(postsAFUsers, vote, costTotal)
-      }
+      // store the strong-vote multiplied vote values on the finalReviewVotesHighKarma
+      updatePost(postsHighKarmaUsers, vote, costTotal, user)
+      // // store the AF-multiplied vote values on the finalReviewVotesAF
+      // if (user.groups?.includes('alignmentForum')) {
+      //   updatePost(postsAFUsers, vote, costTotal, user)
+      // }
     }
   }
 
   for (let postId in postsAllUsers) {
     // eslint-disable-next-line no-console
-    console.log("Updating vote totals for All Users")
+    console.log("Updating vote totals for All Users", postId)
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
 
@@ -82,7 +83,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   }
   for (let postId in postsHighKarmaUsers) {
     // eslint-disable-next-line no-console
-    console.log("Updating vote totals for High Karma Users")
+    console.log("Updating vote totals for High Karma Users", postId )
     const reviewVoteScoreHighKarma = postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0)
     const reviewVotesHighKarma = postsHighKarmaUsers[postId].sort((a,b) => b - a)
 
@@ -96,25 +97,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesHighKarma: reviewVotesHighKarma,
         finalReviewVoteScoreHighKarma: reviewVoteScoreHighKarma,
-      }})
-    }
-  }
-  for (let postId in postsAFUsers) {
-    // eslint-disable-next-line no-console
-    console.log("Updating vote totals for AF Users")
-    const reviewVoteScoreAF =  postsAFUsers[postId].reduce((x, y) => x + y, 0)
-    const reviewVotesAF =  postsAFUsers[postId].sort((a,b) => b - a)
-
-    if (votePhase === 'nominationVote') {
-      await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesAF,
-        reviewVoteScoreAF,
-      }})
-    }
-    if (votePhase === 'finalVote') {
-      await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesAF: reviewVotesAF,
-        finalReviewVoteScoreAF: reviewVoteScoreAF,
       }})
     }
   }
@@ -152,7 +134,7 @@ Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `
-    <style>
+<style>
       .votingResultsPost .item-count {
         white-space: pre;
         text-align: center;
@@ -203,6 +185,8 @@ export async function createVotingPostHtml () {
         margin-left:auto;
         padding-top:8px;
         padding-bottom:8px;
+        flex-wrap:wrap;
+        width:350px;
       }
       .votingResultsPost .post-author  {
         font-size: 14px;
@@ -238,8 +222,8 @@ export async function createVotingPostHtml () {
   
   // we weight the high karma user's votes 3x higher than baseline
   posts.sort((post1, post2) => {
-    const score1 = (post1.finalReviewVoteScoreHighKarma*2) + post1.finalReviewVoteScoreAllKarma
-    const score2 = (post2.finalReviewVoteScoreHighKarma*2) + post2.finalReviewVoteScoreAllKarma
+    const score1 = post1.finalReviewVoteScoreHighKarma
+    const score2 = post2.finalReviewVoteScoreHighKarma
     return score2 - score1
   })
 
@@ -268,12 +252,12 @@ export async function createVotingPostHtml () {
     </tr>`
   }).join("")
 
-  return `<div class="votingResultsPost">
+  return `<div><div class="votingResultsPost">
     ${style}
     <table>
       ${postsHtml}
     </table>
-  </div>`
+  </div></div>`
 }
 
 //
@@ -304,3 +288,45 @@ export async function createVotingPostHtml () {
 //   .sort({reviewVoteScoreAllKarma:-1})
 
 // MAKE SURE TO UPDATE LIMIT OF QUERY IN UI
+
+
+// SELECT 
+//   title,
+//   _id,
+//   "userId",
+//   author,
+//   af,
+//   "reviewCount",
+//   "finalReviewVotesHighKarma",
+//   "finalReviewVoteScoreAllKarma",
+//   "finalReviewVoteScoreHighKarma",
+//   "positiveReviewVoteCount",
+//   "finalReviewVotesAllKarma"
+// FROM "Posts"
+// WHERE 
+//   "postedAt" >= '2023-01-01' 
+//   AND "postedAt" < '2024-01-01'
+//   AND "positiveReviewVoteCount" > 0
+// ORDER BY "reviewVoteScoreHighKarma" DESC
+
+
+// SELECT 
+//   title,
+//   _id,
+//   "userId",
+//   author,
+//   af,
+//   "reviewCount",
+//   "reviewVotesHighKarma",
+//   "reviewVoteScoreAllKarma",
+//   "reviewVoteScoreHighKarma",
+//   "positiveReviewVoteCount",
+//   "reviewVotesAllKarma",
+//   "reviewVotesAF",
+//   "reviewVoteScoreAF"
+// FROM "Posts"
+// WHERE 
+//   "postedAt" >= '2023-01-01' 
+//   AND "postedAt" < '2024-01-01'
+//   AND "positiveReviewVoteCount" > 0
+// ORDER BY "reviewVoteScoreHighKarma" DESC
