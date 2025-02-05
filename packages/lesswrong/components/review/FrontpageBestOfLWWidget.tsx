@@ -13,7 +13,6 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.frontpageSplashImage,
     maxWidth: SECTION_WIDTH,
     margin: "auto",
-    marginTop: 200,
     marginBottom:20
   },
   image: {
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType) => ({
 
 export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   method: 'sample',
-  count: 2,
+  count: 3,
   scoreOffset: 0,
   scoreExponent: 0,
   personalBlogpostModifier: 0,
@@ -77,11 +76,10 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   });
   
   return <div className={classes.root}>
-    <Link className={classes.imageWrapper} to="/posts/zajNa9fdr8JYJpxrG/voting-results-for-the-2021-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
     <SingleColumnSection>
-      <div className={classes.title}><SectionTitle title={`Best of LessWrong ${reviewYear}`}>
+      <div className={classes.title}><SectionTitle title={`${reviewYear} LessWrong Review: Results`}>
       </SectionTitle></div>
-      {postVoting && <PostsItem post={postVoting} translucentBackground forceSticky />}
+      {/* {postVoting && <PostsItem post={postVoting} translucentBackground forceSticky />} */}
       <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
     </SingleColumnSection>
   </div>;

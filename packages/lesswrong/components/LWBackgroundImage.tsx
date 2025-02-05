@@ -22,7 +22,18 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       right: '0px',
     }
   },
-
+  reviewResultsImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: '-70px',
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
   imageColumn: {
     position: 'absolute',
     top: 0,
@@ -187,7 +198,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       </div>
       <CloudinaryImage2
         loading="lazy"
-        className={classes.backgroundImage}
+        className={classes.reviewResultsImage}
         publicId="happyWizard_mmmnjx"
         darkPublicId={"happyWizard_mmmnjx"}
       />
