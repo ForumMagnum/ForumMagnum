@@ -83,7 +83,7 @@ export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(r
 export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(votingPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours').subtract(1, 'days')
 
 
-function recomputeReviewPhase(reviewYear: ReviewYear = REVIEW_YEAR): ReviewPhase {
+function recomputeReviewPhase(reviewYear: ReviewYear): ReviewPhase {
   if (reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
