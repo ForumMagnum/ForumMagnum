@@ -54,7 +54,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 const TIMEZONE_OFFSET = isDevelopment 
-  ? -24*2 // we start testing each phase a few days before it starts
+  ? 8//-24*2 // we start testing each phase a few days before it starts
   : 8 // Pacific Time
 
 export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
@@ -64,14 +64,27 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
   return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
 }
 
-export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
-export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
-export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
-export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-05`).add(TIMEZONE_OFFSET, 'hours')
-export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-10`).add(TIMEZONE_OFFSET, 'hours')
+const reviewStart = (reviewYear: ReviewYear) => `${reviewYear+1}-12-02`
+const nominationPhaseEnd = (reviewYear: ReviewYear) => `${reviewYear+1}-12-16`
+const reviewPhaseEnd = (reviewYear: ReviewYear) => `${reviewYear+2}-01-16`
+const votingPhaseEnd = (reviewYear: ReviewYear) => `${reviewYear+2}-02-06`
+const resultsPhaseEnd = (reviewYear: ReviewYear) => `${reviewYear+2}-02-10`
 
-function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
-  if (reviewYear && reviewYear !== REVIEW_YEAR) {
+export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(reviewStart(reviewYear)).add(TIMEZONE_OFFSET, 'hours')
+export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(nominationPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(reviewPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(votingPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours')
+export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(resultsPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours')
+
+// these displays are used to show the end of the phase in the review widget,
+// because people often interpret the end of the phase as the end of the day
+export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(nominationPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours').subtract(1, 'days')
+export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(reviewPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours').subtract(1, 'days')
+export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => moment.utc(votingPhaseEnd(reviewYear)).add(TIMEZONE_OFFSET, 'hours').subtract(1, 'days')
+
+
+function recomputeReviewPhase(reviewYear: ReviewYear = REVIEW_YEAR): ReviewPhase {
+  if (reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
   const currentDate = moment.utc()

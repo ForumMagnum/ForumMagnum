@@ -7,7 +7,7 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId, getVotingPhaseEnd } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId, getVotingPhaseEnd, getNominationPhaseEndDisplay, getReviewPhaseEndDisplay, getVotingPhaseEndDisplay } from '../../lib/reviewUtils';
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
 
@@ -272,7 +272,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <div className={classes.nominationBlock}>
       <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Nomination Voting</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{getNominationPhaseEndDisplay(reviewYear).format('MMM Do')}</div>
         {activeRange === "NOMINATIONS" && <div
           className={classes.coloredProgress}
           style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
@@ -282,14 +282,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     <div className={classes.reviewBlock}>     
       <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Discussion</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{getReviewPhaseEndDisplay(reviewYear).format('MMM Do')}</div>
         {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
       </LWTooltip>   
     </div>
     <div className={classes.votingBlock}>
       <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
         <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
-        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDate.format('MMM Do')}</div>
+        <div className={classNames(classes.blockText, classes.hideOnMobile)}>{getVotingPhaseEndDisplay(reviewYear).format('MMM Do')}</div>
         {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
       </LWTooltip>
     </div>
