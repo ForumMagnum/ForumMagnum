@@ -204,9 +204,14 @@ export function ReviewOverviewTooltip() {
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
   const reviewEndDate = getReviewPhaseEnd(REVIEW_YEAR)
   const voteEndDate = getResultsPhaseEnd(REVIEW_YEAR)
-  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDate.format('MMM Do')}</span>
-  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
-  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
+
+  const nominationEndDateDisplay = getNominationPhaseEndDisplay(REVIEW_YEAR)
+  const reviewEndDateDisplay = getReviewPhaseEndDisplay(REVIEW_YEAR)
+  const voteEndDateDisplay = getVotingPhaseEndDisplay(REVIEW_YEAR)
+
+  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDateDisplay.format('MMM Do')}</span>
+  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDateDisplay.format('MMM Do')}</span>
+  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDateDisplay.format('MMM Do')}</span>
   
   return <div>
     <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
