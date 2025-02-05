@@ -67,8 +67,14 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
 export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
-export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-05`).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
 export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-10`).add(TIMEZONE_OFFSET, 'hours')
+
+// these displays are used to show the end of the phase in the review widget,
+// because people often interpret the end of the phase as the end of the day
+export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNominationPhaseEnd(reviewYear).subtract(1, 'days')
+export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
+export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
