@@ -300,3 +300,27 @@ export async function createVotingPostHtml () {
 //   AND "postedAt" < '2024-01-01'
 //   AND "positiveReviewVoteCount" > 0
 // ORDER BY "reviewVoteScoreHighKarma" DESC
+
+const createReviewWinners = async () => {
+  const posts = await Posts.find({
+    postedAt: {
+      $gte:moment(`${REVIEW_YEAR}-01-01`).toDate(), 
+      $lt:moment(`${REVIEW_YEAR+1}-01-01`).toDate()
+    }, 
+    finalReviewVoteScoreAllKarma: {$gte: 1},
+    reviewCount: {$gte: 1},
+    positiveReviewVoteCount: {$gte: 1}
+  }, {sort: {finalReviewVoteScoreAllKarma: -1}}).fetch()
+
+  // posts.map(post => {
+  //   createMutator({
+  //     collection: "ReviewWinner",
+  //     document: {
+  //       postId: post._id,
+  //       year: REVIEW_YEAR,
+  //       winner: true
+  //     }
+  //   })
+  // })
+  
+}
