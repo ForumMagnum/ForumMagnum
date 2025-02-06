@@ -384,6 +384,51 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [userId, start, end]);
     return result?.discussionCount ?? 0;
   }
+
+  /**
+   * Return an array of { commentId: string; userId: string }, where the `commentId`s correspond to
+   * the parents of the given comment, starting with the most recent (and not including the comment given)
+   */
+  async getParentCommentIds({
+    commentId,
+    limit = 20,
+  }: {
+    commentId: string;
+    limit?: number;
+  }): Promise<Array<{ commentId: string; userId: string }>> {
+    return this.getRawDb().any<{ commentId: string; userId: string }>(
+      `
+      -- CommentsRepo.getParentCommentIdsAndUserIds
+      WITH RECURSIVE parent_comments AS (
+        SELECT
+          "parentCommentId"
+        FROM
+          "Comments"
+        WHERE
+          "_id" = $1
+        UNION
+        SELECT
+          c."parentCommentId"
+        FROM
+          "Comments" c
+          INNER JOIN parent_comments pc ON c."_id" = pc."parentCommentId"
+      )
+      SELECT
+        pc."parentCommentId" AS "commentId",
+        c."userId"
+      FROM
+        parent_comments pc
+      LEFT JOIN "Comments" c ON c._id = pc."parentCommentId"
+      WHERE
+        pc."parentCommentId" IS NOT NULL
+        AND c.deleted IS NOT TRUE
+        AND c."deletedPublic" IS NOT TRUE
+      ORDER BY
+        c."postedAt" LIMIT $2;
+    `,
+      [commentId, limit]
+    );
+  }
 }
 
 recordPerfMetrics(CommentsRepo);
