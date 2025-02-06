@@ -110,12 +110,8 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
     description: "Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points. (i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)"
   },
   reviewVoteScoreHighKarma: {
-    title: "Vote Total (1000+ Karma Users)",
+    title: "Nomination Vote Total",
     description: "Shows the most likely winners of the review, based on the preliminary vote. Find over/underappreciated posts to review."
-  },
-  reviewVoteScoreAllKarma: {
-    title: "Vote Total (All Users)",
-    description: "Sorts by vote total from all users, without weighting by karma."
   },
   reviewVoteScoreAF: {
     title: "Vote Total (Alignment Forum Users)",
@@ -146,16 +142,8 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
     description: "Sort by the number of positive reviews on the post"
   },
   finalReviewVoteScoreHighKarma: {
-    title: "Final Vote Total (1000+ Karma Users)",
-    description: "Sort by the total number of votes on the post, weighted by the number of karma users who voted on it"
-  },
-  finalReviewVoteScoreAllKarma: {
-    title: "Final Vote Total (All Users)",
-    description: "Sort by the total number of votes on the post, weighted by the number of karma users who voted on it"
-  },
-  finalReviewVoteScoreAF: {
-    title: "Final Vote Total (Alignment Forum Users)",
-    description: "Sort by the total number of votes on the post, weighted by the number of karma users who voted on it"
+    title: "Final Vote Total",
+    description: "Sort by the total number of votes on the post, weighted by the karma of the users who voted on it"
   },
 }
 
@@ -251,16 +239,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreHighKarma'].title}</span>
                 </LWTooltip>
               </MenuItem>}
-              {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
-                <LWTooltip title={sortingInfo['reviewVoteScoreAllKarma'].description} placement="left">
-                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreAllKarma'].title}</span>
-                </LWTooltip>
-              </MenuItem>}
-              {reviewPhase === "REVIEWS" && (isLWorAF) && <MenuItem value={'reviewVoteScoreAF'}>
-                <LWTooltip title={sortingInfo['reviewVoteScoreAF'].description} placement="left">
-                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreAF'].title}</span>
-                </LWTooltip>
-              </MenuItem>}
               <MenuItem value={'yourVote'}>
                 <LWTooltip title={sortingInfo['yourVote'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['yourVote'].title}</span>
@@ -298,16 +276,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
               {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
                 <LWTooltip title={sortingInfo['finalReviewVoteScoreHighKarma'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['finalReviewVoteScoreHighKarma'].title}</span>
-                </LWTooltip>
-              </MenuItem>}
-              {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreAllKarma'}>
-                <LWTooltip title={sortingInfo['finalReviewVoteScoreAllKarma'].description} placement="left">
-                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['finalReviewVoteScoreAllKarma'].title}</span>
-                </LWTooltip>
-              </MenuItem>}
-              {reviewPhase === "COMPLETE" && isLW && <MenuItem value={'finalReviewVoteScoreAF'}>
-                <LWTooltip title={sortingInfo['finalReviewVoteScoreAF'].description}>
-                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['finalReviewVoteScoreAF'].title}</span>
                 </LWTooltip>
               </MenuItem>}
             </Select>
