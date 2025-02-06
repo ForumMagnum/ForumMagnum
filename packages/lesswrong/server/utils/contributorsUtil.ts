@@ -6,12 +6,13 @@ import { compareVersionNumbers } from '@/lib/editor/utils';
 import { VotesRepo } from '../repos';
 import toDictionary from '@/lib/utils/toDictionary';
 import { getCollection } from '../vulcan-lib';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 export type ContributorStats = {
   contributionScore: number;
   numCommits: number;
   voteCount: number;
-  currentAttributionCharCount: number;
+  currentAttributionCharCount?: number;
 };
 
 export type ContributorWithStats = {
@@ -19,7 +20,7 @@ export type ContributorWithStats = {
   contributionScore: number,
   numCommits: number,
   voteCount: number,
-  currentAttributionCharCount: number,
+  currentAttributionCharCount?: number,
 };
 
 export type ContributorStatsList = Partial<Record<string,ContributorWithStats>>;
@@ -118,12 +119,18 @@ interface GetContributorsListOptions {
   version: string | null;
 }
 
+function contributionStatsNeedInvalidation(contributionStats: ContributorStatsMap): boolean {
+  if (!isLWorAF) return false;
+
+  return Object.values(contributionStats).some(stats => stats?.currentAttributionCharCount === undefined);
+}
+
 export async function getContributorsList(options: GetContributorsListOptions): Promise<ContributorStatsMap> {
   const { document, collectionName, fieldName, version } = options;
 
   if (version) {
     return await buildContributorsList({ document, collectionName, fieldName, version });
-  } else if (document.contributionStats && Object.values(document.contributionStats)) {
+  } else if (document.contributionStats && Object.values(document.contributionStats) && !contributionStatsNeedInvalidation(document.contributionStats)) {
     return document.contributionStats;
   } else {
     return await updateDenormalizedContributorsList({ document, collectionName, fieldName });

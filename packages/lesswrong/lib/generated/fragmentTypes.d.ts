@@ -1338,7 +1338,6 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
@@ -1351,7 +1350,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
-  readonly tags: Array<TagPreviewFragment>,
+  readonly tags: Array<TagBasicInfo>,
   readonly socialPreviewData: any,
   readonly feedId: string,
   readonly totalDialogueResponseCount: number,
@@ -1405,6 +1404,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly viewCount: number,
+  readonly tags: Array<TagPreviewFragment>,
   readonly socialPreviewData: any,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,

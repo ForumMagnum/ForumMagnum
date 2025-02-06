@@ -35,6 +35,7 @@ import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
+import { userGetDisplayName } from '@/lib/collections/users/helpers';
 
 type ArbitalImportOptions = {
   /**
@@ -634,6 +635,17 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
   );
    
   //fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
+
+  // Links to Arbital user-profile pages go to corresponding LW user pages based on matching
+  for (const [arbitalUserId,lwUser] of Object.entries(matchedUsers)) {
+    if (lwUser) {
+      if (arbitalUserId in linksById) {
+        console.warn(`Arbital page ID ${arbitalUserId} may be being imported as both a wiki page and a user-matching?`);
+      }
+      linksById[arbitalUserId] = `/users/${lwUser.slug}`;
+      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser);
+    }
+  }
   
   // Determine URLs for links to lensIds
   for (const lens of database.lenses) {

@@ -44,7 +44,7 @@ export function addUniversalFields<N extends CollectionNameString>({
       nullable: false,
       hidden: true,
       canRead: ['guests'],
-      onInsert: () => new Date(),
+      onCreate: () => new Date(),
       ...createdAtOptions,
     },
     legacyData: {

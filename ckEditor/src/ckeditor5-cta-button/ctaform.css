@@ -9,13 +9,13 @@
 	border: 0.5px solid #E1E1E1;
 	background: var(--palette-panelBackground-default);
 	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.10);
-	/*padding: 12px;*/
+	padding: 12px;
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-/*.ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-label {
+.ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-label {
 	text-transform: uppercase;
 	font-size: 11px;
 	font-weight: 700;
@@ -44,7 +44,7 @@
 .ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-input:hover,
 .ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-input:focus {
 	background: var(--palette-grey-300);
-}*/
+}
 
 .ck.ck.ck.ck.ck.ck-cta-balloon {
 	box-shadow: none;
