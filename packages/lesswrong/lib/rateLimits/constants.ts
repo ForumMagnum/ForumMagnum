@@ -21,6 +21,8 @@ const timeframe = <A extends AutoRateLimit['actionType']>(timeframeString: Timef
   }
 };
 
+const eaDefaultMessage = `<a href="https://forum.effectivealtruism.org/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum">Click here</a> to read more about EA Forum norms.`
+
 const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   POSTS: [
   ],
@@ -29,13 +31,13 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('4 Comments per 30 minutes'),
       isActive: (user) => (user.karma < 30),
       rateLimitType: "lowKarma",
-      rateLimitMessage: "You'll be able to post more comments as your karma increases.",
+      rateLimitMessage: `You'll be able to post more comments as your karma increases. ${eaDefaultMessage}`,
       appliesToOwnPosts: true
     }, {
       ...timeframe('4 Comments per 30 minutes'),
       isActive: (user, features) => features.downvoteRatio >= 0.3,
       rateLimitType: "downvoteRatio",
-      rateLimitMessage: "",
+      rateLimitMessage: `You've written more than 3 comments in the last 30 minutes. ${eaDefaultMessage}`,
       appliesToOwnPosts: true
     },
   ]

@@ -4,6 +4,18 @@ import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
+import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
+import Tags from '@/lib/collections/tags/collection';
+import { editableCollectionsFields } from '@/lib/editor/make_editable';
+import { getCollection } from '@/lib/vulcan-lib/getCollection';
+import { dataToHTML } from './editor/conversionUtils';
+import { EditorContents } from '@/components/editor/Editor';
+import { Globals } from "@/lib/vulcan-lib/config";
+import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
+import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { getLatestRev } from './editor/utils';
+
+type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of
@@ -11,7 +23,7 @@ import { getUrlClass } from './utils/getUrlClass';
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
+export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
@@ -71,3 +83,51 @@ const extractLinks = (html: string): Array<string> => {
   return targets;
 }
 
+export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
+  type T = ObjectsByCollectionName[N];
+  const collection = getCollection(collectionName);
+  await forEachDocumentBatchInCollection({
+    collection,
+    callback: async (batch) => {
+      await Promise.all(batch.map(async (doc: ObjectsByCollectionName[N]) => {
+        for (const editableField of editableCollectionsFields[collectionName]) {
+          const editableFieldOptions = editableCollectionsFieldOptions[collectionName][editableField];
+          if (!editableFieldOptions.pingbacks) continue;
+          const fieldContents = editableFieldOptions.normalized
+            ? await getLatestRev(doc._id, editableField)
+            : doc[editableField as keyof T] as AnyBecauseHard;
+          const html = fieldContents?.html ?? "";
+          const pingbacks = await htmlToPingbacks(html, [{
+            collectionName, documentId: doc._id
+          }]);
+          
+          if (JSON.stringify(doc.pingbacks) !== JSON.stringify(pingbacks)) {
+            await collection.rawUpdateOne(
+              {_id: doc._id},
+              {$set: {pingbacks}}
+            );
+          }
+        }
+      }));
+    },
+  });
+}
+
+Globals.recomputePingbacks = recomputePingbacks;
+Globals.showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
+  type T = ObjectsByCollectionName[N];
+  const collection = getCollection(collectionName);
+  const doc = await collection.findOne({_id});
+  if (!doc) return;
+  
+  for (const editableField of editableCollectionsFields[collectionName]) {
+    if (!editableCollectionsFieldOptions[collectionName][editableField].pingbacks) continue;
+    const fieldContents = doc[editableField as keyof T] as AnyBecauseHard;
+    const html = fieldContents?.html ?? "";
+    const pingbacks = await htmlToPingbacks(html, [{
+      collectionName, documentId: doc._id
+    }]);
+    // eslint-disable-next-line no-console
+    console.log(pingbacks);
+  }
+}

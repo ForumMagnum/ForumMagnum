@@ -25,6 +25,7 @@ import { parseDocumentFromString } from '../../lib/domParser';
 import { extractTableOfContents } from '../../lib/tableOfContents';
 import Jimp from 'jimp';
 import axios from 'axios';
+import escape from 'lodash/escape';
 
 export const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -97,9 +98,19 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
     }
 
     const errorHandler = (id: AnyBecauseTodo, wrapperNode: AnyBecauseTodo, sourceFormula: AnyBecauseTodo, sourceFormat: AnyBecauseTodo, errors: AnyBecauseTodo) => {
+      // This error handler runs for each LaTeX formula with an error in the
+      // document, and provides a JSDOM node for the element that wraps the
+      // formula. We handle this by making a (text) error message, and adding
+      // it as text in the DOM under wrapperNode.
+      // We use innerHTML and escape with `lodash/escape` rather than using
+      // innerText (which would normally be safer) because JSDOM doesn't seem
+      // to have innerText as a writeable prop.
+
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
-      reject(`Error in $${sourceFormula}$: ${errors}`)
+
+      const errorMessage = "Invalid LaTeX $"+sourceFormula+": "+errors;
+      wrapperNode.innerHTML = escape(errorMessage);
     }
 
     const callbackAndMarkFinished = (dom: any, css: string) => {

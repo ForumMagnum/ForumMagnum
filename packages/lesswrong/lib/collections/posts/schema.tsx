@@ -1,4 +1,4 @@
-import { slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
@@ -41,7 +41,6 @@ import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 
@@ -249,21 +248,6 @@ const schema: SchemaType<"Posts"> = {
     placeholder: "Title",
     control: 'EditTitle',
     group: formGroups.title,
-  },
-  // Slug
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    onCreate: async ({document: post}) => {
-      return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
-    },
-    onUpdate: async ({modifier, newDocument: post}) => {
-      if (modifier.$set.title) {
-        return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
-      }
-    }
   },
   // Count of how many times the post's page was viewed
   viewCount: {
