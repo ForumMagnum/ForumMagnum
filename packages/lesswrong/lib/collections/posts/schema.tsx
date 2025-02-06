@@ -1,4 +1,4 @@
-import { slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
@@ -41,7 +41,6 @@ import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 
@@ -249,21 +248,6 @@ const schema: SchemaType<"Posts"> = {
     placeholder: "Title",
     control: 'EditTitle',
     group: formGroups.title,
-  },
-  // Slug
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    onCreate: async ({document: post}) => {
-      return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
-    },
-    onUpdate: async ({modifier, newDocument: post}) => {
-      if (modifier.$set.title) {
-        return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
-      }
-    }
   },
   // Count of how many times the post's page was viewed
   viewCount: {
@@ -896,6 +880,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
   // Results (sum) of the quadratic votes when filtering only for users with >1000 karma
+  // NOTE: as of the 2023 Review (in 2025), this is now used to store the voting power including
+  // karma weighting (from the Strong Vote multiplier)
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
@@ -903,6 +889,8 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for users with >1000 karma
+  // NOTE: as of the 2023 Review (in 2025), this is now used to store the voting power including
+  // karma weighting (from the Strong Vote multiplier)
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
@@ -914,6 +902,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
   // Results (sum) of the quadratic votes for all users
+  // uses the raw voting power, without karma multiplier
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
@@ -967,6 +956,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
 
+  // DEPRECATED. Af Users didn't really vote in interesting enough ways to justify the UI complexity
+  // of displaying these.
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,

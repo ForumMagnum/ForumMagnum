@@ -1,6 +1,5 @@
 import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { slugify } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
@@ -13,12 +12,16 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
+import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
+import { summariesField } from '../helpers/summariesField';
+import uniqBy from 'lodash/uniqBy';
+import { LikesList } from '@/lib/voting/reactionsAndLikes';
 
 addGraphQLSchema(`
   type TagContributor {
     user: User
     contributionScore: Int!
+    currentAttributionCharCount: Int
     numCommits: Int!
     voteCount: Int!
   }
@@ -26,11 +29,31 @@ addGraphQLSchema(`
     contributors: [TagContributor!]
     totalCount: Int!
   }
+  type UserLikingTag {
+    _id: String!
+    displayName: String!
+  }
 `);
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   relevance: { label: preferredHeadingCase('Most Relevant') },
   ...SORT_ORDER_OPTIONS,
+}
+
+// Define the helper function at an appropriate place in your file
+async function getTagMultiDocuments(
+  context: ResolverContext,
+  tagId: string,
+) {
+  const { MultiDocuments } = context;
+  return await getWithLoader(
+    context,
+    MultiDocuments,
+    'multiDocumentsForTag',
+    { collectionName: 'Tags', fieldName: 'description' },
+    'parentDocumentId',
+    tagId,
+  );
 }
 
 const schema: SchemaType<"Tags"> = {
@@ -59,44 +82,6 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     nullable: true,
     group: formGroups.advancedOptions,
-  },
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    canCreate: ['admins', 'sunshineRegiment'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
-    onCreate: async ({document: tag}) => {
-      const basicSlug = slugify(tag.name);
-      return await getUnusedSlugByCollectionName('Tags', basicSlug, true);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const isUsed = await slugIsUsed("Tags", data.slug)
-        if (isUsed) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
-        }
-      } else if (data.name && data.name !== oldDocument.name) {
-        return await getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
-      }
-    }
-  },
-  oldSlugs: {
-    type: Array,
-    optional: true,
-    canRead: ['guests'],
-    onUpdate: ({data, oldDocument}) => {
-      if ((data.slug && data.slug !== oldDocument.slug) || (data.name && data.name !== oldDocument.name))  {
-        return [...(oldDocument.oldSlugs || []), oldDocument.slug]
-      } 
-    }
-  },
-  'oldSlugs.$': {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
   },
   core: {
     label: "Core Tag (moderators check whether it applies when reviewing new posts)",
@@ -661,6 +646,166 @@ const schema: SchemaType<"Tags"> = {
     group: formGroups.advancedOptions,
     label: "No Index",
     tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
+  },
+  lenses: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[MultiDocument!]!',
+    canRead: ['guests'],
+    optional: true,
+    graphqlArguments: `lensSlug: String, version: String`,
+    resolver: async (tag: DbTag, { lensSlug, version }, context: ResolverContext) => {
+      const { MultiDocuments, Revisions } = context;
+      const multiDocuments = await MultiDocuments.find(
+        { parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' },
+        { sort: { index: 1 } }
+      ).fetch();
+
+      let revisions;
+      if (version && lensSlug) {
+        // Find the MultiDocument with the matching slug or oldSlug
+        const versionedLens = multiDocuments.find(md => (md.slug === lensSlug) || (md.oldSlugs && md.oldSlugs.includes(lensSlug)));
+        
+        if (versionedLens) {
+          const versionedLensId = versionedLens._id;
+          const nonVersionedLensRevisionIds = multiDocuments
+            .filter(md => md._id !== versionedLensId)
+            .map(md => md.contents_latest);
+
+          const selector = {
+            $or: [
+              { documentId: versionedLensId, version },
+              { _id: { $in: nonVersionedLensRevisionIds } },
+            ],
+          };
+
+          revisions = await Revisions.find(selector).fetch();
+        }
+      }
+
+      if (!revisions) {
+        const revisionIds = multiDocuments.map(md => md.contents_latest);
+        revisions = await Revisions.find({ _id: { $in: revisionIds } }).fetch();
+      }
+
+      const revisionsById = new Map(revisions.map(rev => [rev.documentId || rev._id, rev]));
+      const unfilteredResults = multiDocuments.map(md => ({
+        ...md,
+        contents: revisionsById.get(md._id),
+      }));
+
+      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+    },
+    sqlResolver: ({ field, resolverArg }) => {
+      return `(
+        SELECT ARRAY_AGG(
+          JSONB_SET(
+            TO_JSONB(md.*),
+            '{contents}'::TEXT[],
+            TO_JSONB(r.*),
+            true
+          )
+          ORDER BY md."index" ASC
+        ) AS contents
+        FROM "MultiDocuments" md
+        LEFT JOIN "Revisions" r
+          ON r._id = CASE
+            WHEN (
+              md.slug = ${resolverArg("lensSlug")}::TEXT OR
+              ( md."oldSlugs" IS NOT NULL AND
+                ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
+              )
+            ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
+              SELECT r._id FROM "Revisions" r
+              WHERE r."documentId" = md._id 
+              AND r.version = ${resolverArg("version")}::TEXT 
+              LIMIT 1
+            )
+            ELSE md.contents_latest
+          END
+        WHERE md."parentDocumentId" = ${field("_id")}
+          AND md."collectionName" = 'Tags'
+          AND md."fieldName" = 'description'
+          LIMIT 1
+      )`;
+    },
+  }),
+  'lenses.$': {
+    type: Object,
+    optional: true,
+  },
+  
+  /**
+   * Placeholder pages are pages that have been linked to, but haven't properly
+   * been created. This is the same as Arbital redlinks. They semi-exist as
+   * wiki pages so that they can have pingbacks (which are used to see how many
+   * pages are linking to them), and so you can vote on creating them.
+   */
+  isPlaceholderPage: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    ...schemaDefaultValue(false),
+  },
+
+  ...summariesField('Tags', { group: formGroups.summaries }),
+
+  isArbitalImport: resolverOnlyField({
+    type: Boolean,
+    canRead: ['guests'],
+    resolver: (tag: DbTag) => tag.legacyData?.arbitalPageId !== undefined,
+  }),
+
+  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'Tags' }),
+
+  coreTagId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+  },
+
+  maxScore: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (tag, args, context) => {
+      const multiDocuments = await getTagMultiDocuments(context, tag._id);
+
+      const tagScore = tag.baseScore ?? 0;
+      const multiDocScores = multiDocuments.map(md => md.baseScore ?? 0);
+      const allScores = [tagScore, ...multiDocScores];
+      const maxScore = Math.max(...allScores);
+
+      return maxScore;
+    },
+  }),
+
+  usersWhoLiked: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[UserLikingTag!]!',
+    canRead: ['guests'],
+    resolver: async (tag, args, context): Promise<LikesList> => {
+      const multiDocuments = await getTagMultiDocuments(context, tag._id);
+
+      const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked ?? [];
+      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked ?? []);
+      const usersWhoLiked: LikesList = uniqBy(
+        tagUsersWhoLiked.concat(multiDocUsersWhoLiked),
+        '_id'
+      );
+      return usersWhoLiked;
+    },
+  }),
+  'usersWhoLiked.$': {
+    type: new SimpleSchema({
+      _id: { type: String },
+      displayName: { type: String },
+    }),
+    optional: true,
   },
 }
 

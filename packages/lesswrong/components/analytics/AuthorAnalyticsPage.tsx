@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, capitalize, registerComponent, slugify } from "../../lib/vulcan-lib";
+import { Components, capitalize, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { useMulti } from "../../lib/crud/withMulti";
@@ -12,6 +12,7 @@ import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
+import { slugify } from "@/lib/utils/slugify";
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -210,7 +211,7 @@ const AuthorAnalyticsPage = ({ classes }: {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location, search: `?${qs.stringify(newQuery)}` });
     setRestoreScrollPos(window.scrollY)
   };
 

@@ -1,8 +1,8 @@
-import { slugify } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
+import { slugify } from '@/lib/utils/slugify';
 
 registerMigration({
   name: "fixCapitalizedSlugs",

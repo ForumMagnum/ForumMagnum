@@ -175,29 +175,38 @@ function htmlToTokens(html: string){
     var currentWord = '';
     var currentAtomicTag = '';
     var words: Array<any> = [];
+    var inQuotes = false;
     for (var i = 0; i < html.length; i++){
         var char = html[i];
         switch (mode){
             case 'tag':
-                var atomicTag = isStartOfAtomicTag(currentWord);
-                if (atomicTag){
-                    mode = 'atomic_tag';
-                    currentAtomicTag = atomicTag;
+                if (!inQuotes && char === '"') {
+                    inQuotes = true;
                     currentWord += char;
-                } else if (isStartofHTMLComment(currentWord)){
-                    mode = 'html_comment';
+                } else if (inQuotes && char === '"' && currentWord[currentWord.length-1] !== '\\') {
+                    inQuotes = false;
                     currentWord += char;
-                } else if (isEndOfTag(char)){
-                    currentWord += '>';
-                    words.push(createToken(currentWord));
-                    currentWord = '';
-                    if (isWhitespace(char)){
-                        mode = 'whitespace';
-                    } else {
-                        mode = 'char';
-                    }
                 } else {
-                    currentWord += char;
+                    var atomicTag = isStartOfAtomicTag(currentWord);
+                    if (atomicTag){
+                        mode = 'atomic_tag';
+                        currentAtomicTag = atomicTag;
+                        currentWord += char;
+                    } else if (isStartofHTMLComment(currentWord)){
+                        mode = 'html_comment';
+                        currentWord += char;
+                    } else if (!inQuotes && isEndOfTag(char)){
+                        currentWord += '>';
+                        words.push(createToken(currentWord));
+                        currentWord = '';
+                        if (isWhitespace(char)){
+                            mode = 'whitespace';
+                        } else {
+                            mode = 'char';
+                        }
+                    } else {
+                        currentWord += char;
+                    }
                 }
                 break;
             case 'atomic_tag':

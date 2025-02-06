@@ -3,7 +3,7 @@ import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
-import { collectionNameToTypeName, getFragmentText } from '../../lib/vulcan-lib';
+import { collectionNameToTypeName, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { isAF } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
@@ -21,7 +21,7 @@ const getVoteMutationQuery = (typeName: string) => {
         showVotingPatternWarning
       }
     }
-    ${getFragmentText(`WithVote${typeName}` as any)}
+    ${fragmentTextForQuery(`WithVote${typeName}` as any)}
   `
 }
 

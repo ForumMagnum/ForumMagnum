@@ -98,6 +98,26 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
+interface DefaultMutationBase {
+  description: string,
+  name: string,
+  mutation: (root: void, { data }: AnyBecauseTodo, context: ResolverContext) => Promise<any>,
+}
+
+interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
+  check: (user: DbUser | null, document: T | null) => Promise<boolean> | boolean,
+}
+
+type DefaultMutations<T extends DbObject> = Partial<{
+  create: DefaultMutationWithCheck<T>,
+  new: DefaultMutationWithCheck<T>,
+  update: DefaultMutationWithCheck<T>,
+  edit: DefaultMutationWithCheck<T>,
+  upsert: DefaultMutationBase,
+  delete: DefaultMutationWithCheck<T>,
+  remove: DefaultMutationWithCheck<T>,
+}>;
+
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
@@ -106,7 +126,7 @@ type CollectionOptions<N extends CollectionNameString> = {
   generateGraphQLSchema?: boolean,
   collection?: any,
   resolvers?: any,
-  mutations?: any,
+  mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
@@ -374,7 +394,7 @@ type CollectionFragmentTypeName = {
   [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
 }[keyof FragmentTypes];
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments";
 
 interface EditableFieldContents {
   html: string
@@ -467,4 +487,7 @@ type DeleteMutatorParams<N extends CollectionNameString> = {
 };
 type DeleteMutator = <N extends CollectionNameString>(args: DeleteMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>
 
+type CollectionNameWithPingbacks = {
+  [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never
+}[CollectionNameString];
 }

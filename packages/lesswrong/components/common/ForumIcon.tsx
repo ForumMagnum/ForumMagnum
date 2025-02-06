@@ -80,6 +80,7 @@ import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
 import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
@@ -120,7 +121,11 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-
+import MuiArrowDownRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
+import MuiDragIndicatorIcon from '@material-ui/icons/DragIndicator';
+import MuiNoteAddOutlinedIcon from '@material-ui/icons/NoteAddOutlined';
+import ThumbsUpIcon from '@material-ui/icons/ThumbUp';
+import ThumbUpOutlineIcon from '@material-ui/icons/ThumbUpOutlined';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -291,7 +296,12 @@ export type ForumIconName =
   "TickReaction" |
   "CrossReaction" |
   "CrossReactionCap" |
-  "Dictionary";
+  "Dictionary" |
+  "ArrowDownRight" |
+  "DragIndicator" |
+  "NoteAdd" |
+  "ThumbUp" |
+  "ThumbUpOutline";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -418,7 +428,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
-    Dictionary: DictionaryIcon
+    Dictionary: DictionaryIcon,
+    ArrowDownRight: MuiArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -545,6 +560,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
     Dictionary: DictionaryIcon,
+    ArrowDownRight: ArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
 };
 
