@@ -50,6 +50,10 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
     enableTotal: true
   })
 
+  // NOTE: this is for showing top-karma users and seeing if they voted
+  // it didn't seem that important, and with the 5000 vote limit, it seemed
+  // not worth the extra load time. But leaving in incase we want to revert
+
   // const { results: users, loading: usersLoading } = useMulti({
   //   terms: {view: "reviewAdminUsers", limit: 500},
   //   collectionName: "Users",
