@@ -40,7 +40,7 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
     posts = posts?.slice(0, remainingItemCount)
     // Count how many notifications the posts will show
     const postNotificationCount = posts?.reduce((acc, post) => {
-      return acc + (post.scoreChange > 0 ? 1 : 0) + (Object.keys(post.eaAddedReacts ?? {}).length ?? 0)
+      return acc + (post.scoreChange === 0 ? 0 : 1) + (Object.keys(post.eaAddedReacts ?? {}).length ?? 0)
     }, 0) ?? 0
     // If we have n items, hide the rest
     if (posts && postNotificationCount >= remainingItemCount) {
@@ -55,7 +55,7 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
       comments = comments?.slice(0, remainingItemCount)
       // Count how many notifications the comments will show
       const commentNotificationCount = comments?.reduce((acc, comment) => {
-        return acc + (comment.scoreChange > 0 ? 1 : 0) + (Object.keys(comment.eaAddedReacts ?? {}).length ?? 0)
+        return acc + (comment.scoreChange === 0 ? 0 : 1) + (Object.keys(comment.eaAddedReacts ?? {}).length ?? 0)
       }, 0) ?? 0
       // If we have n items, hide the rest
       if (comments && commentNotificationCount >= remainingItemCount) {
