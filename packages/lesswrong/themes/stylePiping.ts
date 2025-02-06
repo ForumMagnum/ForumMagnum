@@ -348,6 +348,14 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   }
 });
 
+const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
+  "& .conditionallyVisibleBlock": {
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    padding: 8,
+  },
+});
+
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
 // are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
@@ -371,7 +379,7 @@ const ctaButtonStyles = (theme: ThemeType) => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: theme.borderRadius.default,
+    borderRadius: isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -549,6 +557,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {

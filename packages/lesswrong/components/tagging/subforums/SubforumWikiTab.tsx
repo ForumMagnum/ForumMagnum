@@ -8,7 +8,7 @@ import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPage';
+import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPageUtils';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';

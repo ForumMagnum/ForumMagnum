@@ -8,10 +8,10 @@ import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { slugify } from '../lib/vulcan-lib/utils';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
+import { slugify } from "@/lib/utils/slugify";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {

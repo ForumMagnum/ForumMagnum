@@ -2,6 +2,7 @@ import React, { useRef, useEffect, RefObject } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import { useMulti } from "@/lib/crud/withMulti";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +49,25 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const tags = post.tags;
+  // The post passed in as an argument might have a post fragment that contains
+  // tags with preview text included, or it might not. In the latter case,
+  // start a request to fetch the tags, so that we can display them if they're
+  // hovered.
+  const { results, loading } = useMulti({
+    terms: {
+      view: "tagsOnPost",
+      postId: post._id,
+    },
+    collectionName: "TagRels",
+    fragmentName: "TagRelMinimumFragment",
+    limit: 100,
+    skip: !post.tags.length || ('description' in post.tags[0]),
+    ssr: false,
+  });
+  
+  const tags = results
+    ? results.map(tagRel => tagRel.tag)
+    : post.tags;
 
   useEffect(() => {
     if (!tags?.length) {
@@ -74,9 +93,9 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
     <div className={classNames(classes.root, className)} ref={ref}>
       <span className={classNames(classes.item, classes.placeholder)} />
       <div className={classes.scratch} aria-hidden="true">
-        {tags.map((tag) =>
+        {tags.map((tag) => tag &&
           <span key={tag._id} className={classes.item}>
-            <FooterTag tag={tag} smallText />
+            <FooterTag tag={tag} smallText hoverable="ifDescriptionPresent" />
           </span>
         )}
         <span className={classes.more}>

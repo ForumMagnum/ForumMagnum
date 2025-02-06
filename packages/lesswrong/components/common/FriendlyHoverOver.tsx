@@ -33,6 +33,7 @@ export type FriendlyHoverOverProps = {
   onShow?: () => void,
   onHide?: () => void,
   children: ReactNode,
+  forceOpen?: boolean,
   classes: ClassesType<typeof styles>,
 }
 
@@ -54,6 +55,7 @@ const FriendlyHoverOver = ({
   onShow,
   onHide,
   children,
+  forceOpen,
   classes,
 }: FriendlyHoverOverProps) => {
   const {LWTooltip} = Components;
@@ -72,6 +74,7 @@ const FriendlyHoverOver = ({
       onShow={onShow}
       onHide={onHide}
       className={className}
+      forceOpen={forceOpen}
     >
       {children}
     </LWTooltip>

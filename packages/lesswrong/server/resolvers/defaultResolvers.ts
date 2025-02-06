@@ -161,7 +161,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
       if (createIfMissing && docs.length === 0) {
-        await collection.options.mutations.create.mutation(root, {data: createIfMissing}, context)
+        await collection.options.mutations?.create?.mutation(root, {data: createIfMissing}, context)
         docs = await fetchDocs();
       }
 
