@@ -6,6 +6,7 @@ import UnarchiveIcon from "@material-ui/icons/Unarchive";
 import CloseIcon from "@material-ui/icons/Close";
 import { useCurrentUser } from "../common/withUser";
 import { isBookUI } from "../../themes/forumTheme";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 export const MENU_WIDTH = 18;
 
@@ -13,20 +14,7 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 const archiveDraftTooltip = "Archive this draft (hide from list)";
 const restoreDraftTooltip = "Restore this draft (include in your main draft list)";
 
-type DismissButtonProps = Pick<UsePostsItem, "showDismissButton" | "onDismiss">;
-
-export const DismissButton: FC<DismissButtonProps> = ({
-  showDismissButton,
-  onDismiss,
-}) => showDismissButton
-  ? (
-    <Components.LWTooltip title={dismissRecommendationTooltip} placement="right">
-      <CloseIcon onClick={onDismiss} />
-    </Components.LWTooltip>
-  )
-  : null;
-
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemTrailingButtons", (theme: ThemeType) => ({
   actions: {
     opacity: 0,
     display: "flex",
@@ -35,7 +23,6 @@ const styles = (theme: ThemeType) => ({
     right: -MENU_WIDTH - 6,
     width: MENU_WIDTH,
     height: "100%",
-    cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
     [theme.breakpoints.down('sm')]: {
@@ -57,7 +44,10 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+  dismissButton: {
+    cursor: "pointer",
+  },
+}));
 
 type PostsItemTrailingButtonsProps = Pick<
   UsePostsItem,
@@ -69,7 +59,16 @@ type PostsItemTrailingButtonsProps = Pick<
   "resumeReading" |
   "onDismiss" |
   "onArchive"
-> & {classes: ClassesType<typeof styles>};
+>;
+
+export const DismissButton = ({ onDismiss }: {
+  onDismiss: ()=>void
+}) => {
+  const classes = useStyles(styles);
+  return <Components.LWTooltip title={dismissRecommendationTooltip} placement="right">
+    <CloseIcon className={classes.dismissButton} onClick={onDismiss} />
+  </Components.LWTooltip>
+};
 
 const PostsItemTrailingButtons = ({
   post,
@@ -80,8 +79,8 @@ const PostsItemTrailingButtons = ({
   resumeReading,
   onDismiss,
   onArchive,
-  classes,
 }: PostsItemTrailingButtonsProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   if (!showTrailingButtons || showMostValuableCheckbox) {
     return null;
@@ -92,7 +91,7 @@ const PostsItemTrailingButtons = ({
   return (
     <>
       {(showDismissButton || resumeReading || isBookUI) && <div className={classes.actions}>
-        <DismissButton {...{showDismissButton, onDismiss}} />
+        {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
         {isBookUI && !resumeReading && currentUser && <PostActionsButton post={post} vertical autoPlace />}
       </div>}
       {showArchiveButton && <div className={classes.archiveButton}>
@@ -109,11 +108,7 @@ const PostsItemTrailingButtons = ({
   );
 }
 
-const PostsItemTrailingButtonsComponent = registerComponent(
-  "PostsItemTrailingButtons",
-  PostsItemTrailingButtons,
-  {styles},
-);
+const PostsItemTrailingButtonsComponent = registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtons);
 
 declare global {
   interface ComponentTypes {
