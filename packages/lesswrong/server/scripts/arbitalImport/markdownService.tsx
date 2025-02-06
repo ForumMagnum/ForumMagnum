@@ -812,9 +812,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\[ ([^\\]]+?)\\]' + noParen, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(spaceTextRegexp, function(whole, prefix, text) {
-        var url = getLinkHtml(slugify(text), {text});
-        return prefix + '<a href="' + url + '" class="intrasite-link red-link" page-id="">' +
-          text + '</a>';
+        return prefix + getLinkHtml(slugify(text), {text});
       });
     });
 
