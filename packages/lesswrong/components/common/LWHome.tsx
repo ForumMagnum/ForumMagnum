@@ -52,14 +52,11 @@ const LWHome = () => {
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
-            {getReviewPhase() === "RESULTS" && <SingleColumnSection>
-              <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
-            </SingleColumnSection>}
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
               <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
             </SingleColumnSection>}
           </>}
-          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}
