@@ -8,6 +8,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
@@ -115,9 +116,13 @@ const ReactionsAndLikesVote  = ({
     }
   }
 
+  const maxUsersToShow = 10;
+
   const voteScoreTooltip = <div>
     {<div><strong>Click to {currentUserLikesIt ? "unlike" : "like"}</strong></div>}
-    {usersWhoLiked.length > 0 && <div>Liked by: {usersWhoLiked.map(u => u.displayName).join(", ")}</div>}
+    {usersWhoLiked.length > 0 && <div>Liked by: {usersWhoLiked.slice(0, maxUsersToShow).map(u => u.displayName).join(", ")}
+      {usersWhoLiked.length > maxUsersToShow && <span> +{usersWhoLiked.length - maxUsersToShow} others</span>}
+    </div>}
     {userIsAdmin(currentUser) && <div>(admin visible only) baseScore: {baseScore}</div>}
   </div>
   
@@ -127,7 +132,7 @@ const ReactionsAndLikesVote  = ({
   
 
   return <div className={className}>
-    <LWTooltip title={voteScoreTooltip}>
+    <LWTooltip title={voteScoreTooltip} disabled={!!isMobile()}>
       <div
         className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})}
         onClick={toggleLike}
