@@ -38,7 +38,6 @@ type reviewVotePhase = 'nominationVote'|'finalVote'
 async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase, postIds: Array<string>) {
   let postsAllUsers: Record<string,Array<number>> = {}
   let postsHighKarmaUsers: Record<string,Array<number>> = {}
-  // let postsAFUsers: Record<string,Array<number>> = {}
 
   for (let userId of Object.keys(votesByUserId)) {
     const user = usersByUserId[userId][0]
