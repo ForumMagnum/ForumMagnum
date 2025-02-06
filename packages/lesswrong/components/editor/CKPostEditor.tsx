@@ -450,7 +450,6 @@ const CKPostEditor = ({
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
   const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
-  // const [loadingLlmFeedback, setLoadingLlmFeedback] = useState(false);
   const loadingLlmFeedbackAbortControllerRef = useRef<(() => void) | null>(null);
 
   // Get the linkSharingKey, if it exists
