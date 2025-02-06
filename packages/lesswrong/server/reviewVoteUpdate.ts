@@ -55,10 +55,6 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
 
       // store the strong-vote multiplied vote values on the finalReviewVotesHighKarma
       updatePost(postsHighKarmaUsers, vote, costTotal, user)
-      // // store the AF-multiplied vote values on the finalReviewVotesAF
-      // if (user.groups?.includes('alignmentForum')) {
-      //   updatePost(postsAFUsers, vote, costTotal, user)
-      // }
     }
   }
 
@@ -264,31 +260,7 @@ export async function createVotingPostHtml () {
 // Once you've run the migration, you should copy the results into a spreadsheet for easier analysis, and for posterity.
 // 
 
-// This is the code to run in NosqlBooster or equivalent. 
-// After running it, you may need to download the results as a csv and then
-// import them into Google Sheets. (NosqlBooster doesn't have an easy copy-paste
-// table option. Other tools might be fewer steps)
-
-// db.posts.find({postedAt: {$gte:ISODate("2021-01-01"), $lt:ISODate("2022-01-01")}, positiveReviewVoteCount: {$gt:0}})
-//   .projection({
-//     title:1, 
-//     _id:1, 
-//     userId:1, 
-//     author:1, 
-//     af: 1,
-//     reviewCount:1, 
-//     positiveReviewVoteCount:1, 
-//     reviewVotesAllKarma:1, 
-//     reviewVoteScoreAllKarma:1, 
-//     reviewVotesHighKarma:1, 
-//     reviewVoteScoreHighKarma:1, 
-//     reviewVotesAF:1, 
-//     reviewVoteScoreAF:1
-//   })
-//   .sort({reviewVoteScoreAllKarma:-1})
-
 // MAKE SURE TO UPDATE LIMIT OF QUERY IN UI
-
 
 // SELECT 
 //   title,
@@ -308,7 +280,6 @@ export async function createVotingPostHtml () {
 //   AND "postedAt" < '2024-01-01'
 //   AND "positiveReviewVoteCount" > 0
 // ORDER BY "reviewVoteScoreHighKarma" DESC
-
 
 // SELECT 
 //   title,

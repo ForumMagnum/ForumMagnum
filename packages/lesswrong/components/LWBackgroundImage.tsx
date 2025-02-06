@@ -29,10 +29,6 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     top: '-70px',
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
   },
   imageColumn: {
     position: 'absolute',
@@ -153,7 +149,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     position: 'relative',
     zIndex: theme.zIndexes.reviewVotingCanvas,
     top: 715,
-    right: 200,
+    right: 250,
     width: 200,
     opacity: .6,
     textAlign: 'center',
@@ -222,7 +218,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' &&getReviewPhase() !== 'RESULTS')
+  const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS')
 
   return <div className={classes.root}>
       {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
