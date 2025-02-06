@@ -32,7 +32,7 @@ Vulcan.updateBaseScores = wrapVulcanAsyncScript('updateBaseScores', async () => 
     await bulkUpdateWithJS({
       collection,
       updateFunction: async (document: AnyBecauseObsolete) => {
-        const scoreFields = await recalculateDocumentScores(document, context)
+        const scoreFields = await recalculateDocumentScores(document, collection.collectionName, context)
         return {$set: {...scoreFields}}
       }
     })

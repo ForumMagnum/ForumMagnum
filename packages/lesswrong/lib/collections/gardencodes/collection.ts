@@ -1,13 +1,11 @@
 import { createCollection } from '../../vulcan-lib';
-import { slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 function generateCode(length: number) {
   let result = '';
@@ -36,7 +34,7 @@ const schema: SchemaType<"GardenCodes"> = {
     optional: true,
     canRead: ['guests'],
     nullable: false,
-    onInsert: (gardenCode) => {
+    onCreate: () => {
       return generateCode(4)
     },
   },
@@ -70,15 +68,6 @@ const schema: SchemaType<"GardenCodes"> = {
   //   canCreate: ['members', 'admins', 'sunshineRegiment'],
   //   label: "Your Walled Garden Username"
   // },
-  slug: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    nullable: false,
-    onInsert: async (gardenCode) => {
-      return await getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
-    },
-  },
   startTime: {
     type: Date,
     canRead: ['guests'],
@@ -87,7 +76,7 @@ const schema: SchemaType<"GardenCodes"> = {
     control: 'datetime',
     label: "Start Time",
     optional: true,
-    onInsert: () => new Date(),
+    onCreate: () => new Date(),
     order: 20
   },
   endTime: {
@@ -100,7 +89,7 @@ const schema: SchemaType<"GardenCodes"> = {
     optional: true,
     nullable: false,
     order: 25,
-    onInsert: (gardenCode) => {
+    onCreate: ({document: gardenCode}) => {
       return moment(gardenCode.startTime).add(12, 'hours').toDate()
     }
   },
@@ -197,6 +186,12 @@ export const GardenCodes: GardenCodesCollection = createCollection({
 });
 
 addUniversalFields({collection: GardenCodes})
+
+addSlugFields({
+  collection: GardenCodes,
+  getTitle: (gc) => gc.title,
+  includesOldSlugs: false,
+});
 
 makeEditable({
   collection: GardenCodes,

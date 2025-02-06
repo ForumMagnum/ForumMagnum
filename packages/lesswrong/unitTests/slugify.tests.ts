@@ -1,4 +1,4 @@
-import { slugify } from "../lib/vulcan-lib";
+import { slugify } from "@/lib/utils/slugify";
 
 describe("slugify", () => {
   it("converts latin text", () => {

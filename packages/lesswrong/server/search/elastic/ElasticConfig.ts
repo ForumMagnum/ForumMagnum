@@ -366,7 +366,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
   Tags: {
     fields: [
-      "name^3",
+      "name^30",
       "description",
     ],
     snippet: "description",
@@ -378,6 +378,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         scoring: {type: "bool"},
       },
       {
+        field: "baseScore",
+        order: "desc",
+        weight: 0.5,
+        scoring: {type: "numeric", pivot: 20},
+      },
+      {
         field: "postCount",
         order: "desc",
         weight: 0.25,
@@ -387,6 +393,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},
+      {term: {isPlaceholderPage: false}},
       {term: {adminOnly: false}},
     ],
     mappings: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLWorAF } from "./instanceSettings"
+import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment';
@@ -25,6 +25,8 @@ export const REVIEW_YEAR: ReviewYear = 2023
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
+export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
+
 // This is broken out partly to allow EA Forum or other fora to do reviews with different names
 // (previously EA Forum did a "decade review" rather than a single year review)
 export function getReviewTitle(reviewYear: ReviewYear): string {
@@ -34,7 +36,9 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+
 export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
+export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
 export const longformReviewTagId = "aRnXghESsn4HDm872"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
@@ -51,7 +55,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 const TIMEZONE_OFFSET = isDevelopment 
-  ? -24*4 // we start testing each phase a few days before it starts
+  ? -24*2 // we start testing each phase a few days before it starts
   : 8 // Pacific Time
 
 export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
@@ -64,8 +68,14 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
 export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
-export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
-export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-10`).add(TIMEZONE_OFFSET, 'hours')
+
+// these displays are used to show the end of the phase in the review widget,
+// because people often interpret the end of the phase as the end of the day
+export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNominationPhaseEnd(reviewYear).subtract(1, 'days')
+export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
+export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {

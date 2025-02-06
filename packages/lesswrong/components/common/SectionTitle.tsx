@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
+import { slugify } from '@/lib/utils/slugify';
 
 export const sectionTitleStyle = isFriendlyUI
   ? (theme: ThemeType) => ({
