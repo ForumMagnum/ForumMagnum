@@ -995,9 +995,9 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   if (footnotes.length > 0) {
     html += `<section class="footnotes"><ol class="footnotes-list">`;
     for (const footnote of footnotes) {
-      const returnLinkHtml = `<a href="#fnref-${footnote.footnoteId}">↩︎</a>`;
+      const returnLinkHtml = `<span class="footnote-back-link"><sup><strong><a href="#fnref-${footnote.footnoteId}">^︎</a></strong></sup></span>`;
       const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
-      html += `<li id="fn-${footnote.footnoteId}" class="footnote-item"><p>${contentsHtml}${returnLinkHtml}</p></li>`;
+      html += `<li id="fn-${footnote.footnoteId}" class="footnote-item" data-footnote-id="${footnote.footnoteId}">${returnLinkHtml}<div class="footnote-content">${contentsHtml}</div></li>`;
     }
     html += `</ol></section>`;
   }
