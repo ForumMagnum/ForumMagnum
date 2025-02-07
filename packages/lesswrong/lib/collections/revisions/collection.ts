@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils'
 import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
@@ -15,9 +15,10 @@ export const Revisions: RevisionsCollection = createCollection({
   typeName: 'Revision',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
-  // No mutations (revisions are insert-only immutable, and are created as a
-  // byproduct of creating/editing documents in other collections).
-  // mutations: getDefaultMutations('Revisions'),
+  // This has mutators because of a few mutable metadata fields (eg
+  // skipAttributions), but most parts of revisions are create-only immutable.
+  mutations: getDefaultMutations('Revisions'),
+  logChanges: true,
 });
 addUniversalFields({
   collection: Revisions,

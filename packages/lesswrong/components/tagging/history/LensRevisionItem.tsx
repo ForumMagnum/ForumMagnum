@@ -44,6 +44,7 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
           documentId={documentId}
           versionBefore={null}
           versionAfter={revision.version}
+          revisionAfter={revision}
         />
       </ContentStyles>
 

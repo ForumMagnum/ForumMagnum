@@ -736,6 +736,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly hasFootnotes: boolean|null,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly skipAttributions: boolean,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
@@ -2065,6 +2066,7 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
   readonly collectionName: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly skipAttributions: boolean,
   readonly user: UsersMinimumInfo|null,
 }
 

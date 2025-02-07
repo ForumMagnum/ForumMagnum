@@ -75,7 +75,7 @@ const TagHistoryPage = () => {
   const { params, query } = useLocation();
   const { slug } = params;
   const focusedUser: string = query.user;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
+  const { tag, loading: loadingTag, error } = useTagBySlug(slug, "TagHistoryFragment");
   const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);
   const lensesById = keyBy(lenses, l=>l._id);
   const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, SummaryRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent, SectionTitle, ForumIcon } = Components;
@@ -83,10 +83,16 @@ const TagHistoryPage = () => {
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const collapseAll = settings.displayFormat === "dense" || !!focusedUser;
   
-  if (loadingTag || !tag) {
-    return <SingleColumnSection>
-      <Loading/>
-    </SingleColumnSection>
+  if (!tag) {
+    if (loadingTag) {
+      return <SingleColumnSection>
+        <Loading/>
+      </SingleColumnSection>
+    } else if (error) {
+      return <Components.ErrorPage error={error}/>
+    } else {
+      return <Components.Error404/>
+    }
   }
   
   return <SingleColumnSection>

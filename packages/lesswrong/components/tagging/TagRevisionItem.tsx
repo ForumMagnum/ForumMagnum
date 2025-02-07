@@ -58,6 +58,7 @@ const TagRevisionItem = ({
             documentId={documentId}
             versionBefore={previousRevision?.version||null}
             versionAfter={revision.version}
+            revisionAfter={revision}
           />
         </ContentStyles>}
         {showDiscussionLink && <div className={classes.discussionButtonPositioning}>

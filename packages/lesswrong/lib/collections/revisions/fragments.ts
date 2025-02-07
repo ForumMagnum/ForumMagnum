@@ -77,6 +77,7 @@ registerFragment(`
     collectionName
     changeMetrics
     legacyData
+    skipAttributions
     user {
       ...UsersMinimumInfo
     }

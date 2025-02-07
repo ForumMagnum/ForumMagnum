@@ -2552,6 +2552,7 @@ CREATE TABLE "Revisions" (
   "wordCount" DOUBLE PRECISION NOT NULL,
   "changeMetrics" JSONB NOT NULL,
   "googleDocMetadata" JSONB,
+  "skipAttributions" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
