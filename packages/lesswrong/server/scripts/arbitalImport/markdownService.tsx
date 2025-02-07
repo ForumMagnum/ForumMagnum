@@ -637,7 +637,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           contentsMarkdown: markdown,
         });
         const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteIndex}]`);
-        return `<sup class="footnote-ref"><a href="#fn-${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup>`;
+        return `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
       });
     });
 
@@ -993,13 +993,14 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   let html = converter.makeHtml(pageMarkdown);
   
   if (footnotes.length > 0) {
-    html += `<section class="footnotes"><ol class="footnotes-list">`;
-    for (const footnote of footnotes) {
-      const returnLinkHtml = `<span class="footnote-back-link"><sup><strong><a href="#fnref-${footnote.footnoteId}">^︎</a></strong></sup></span>`;
+    html += `<ol class="footnote-section footnotes" data-footnote-section role="doc-endnotes">`;
+    for (let i=0; i<footnotes.length; i++) {
+      const footnote = footnotes[i];
+      const returnLinkHtml = `<span class="footnote-back-link" data-footnote-back-link data-footnote-id="${footnote.footnoteId}"><sup><strong><a href="#fnref${footnote.footnoteId}">^︎</a></strong></sup></span>`;
       const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
-      html += `<li id="fn-${footnote.footnoteId}" class="footnote-item" data-footnote-id="${footnote.footnoteId}">${returnLinkHtml}<div class="footnote-content">${contentsHtml}</div></li>`;
+      html += `<li id="fn${footnote.footnoteId}" class="footnote-item" data-footnote-item data-footnote-index="${i+1}" data-footnote-id="${footnote.footnoteId}" role="doc-endnote">${returnLinkHtml}<div class="footnote-content" data-footnote-content>${contentsHtml}</div></li>`;
     }
-    html += `</ol></section>`;
+    html += `</ol>`;
   }
   
   try {
