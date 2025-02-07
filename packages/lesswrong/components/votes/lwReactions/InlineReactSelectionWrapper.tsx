@@ -37,7 +37,6 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
 
   const { AddInlineReactionButton, LWPopper } = Components;
-  const contentRefCurrent = contentRef?.current;
   
   const detectSelection = useCallback((e: MouseEvent): void => {
     function clearAll() {
@@ -54,17 +53,17 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
       return
     }
 
-    const selectionInCommentRef = contentRefCurrent?.containsNode(selectionAnchorNode);
+    const selectionInCommentRef = contentRef?.current?.containsNode(selectionAnchorNode);
     const selectionInPopupRef = popupRef && popupRef.current?.contains(selectionAnchorNode as Node);
 
     if (selectionInCommentRef && !selectionInPopupRef) {
-      const anchorEl = contentRefCurrent?.getAnchorEl();
+      const anchorEl = contentRef?.current?.getAnchorEl();
       
       if (anchorEl instanceof HTMLElement && selectedText.length > 1 ) {
         setAnchorEl(anchorEl);
         setQuote(selectedText);
         setYOffset(getYOffsetFromDocument(selection, commentTextRef));
-        const commentText = contentRefCurrent?.getText() ?? "";
+        const commentText = contentRef?.current?.getText() ?? "";
         // Count the number of occurrences of the quote in the raw text
         const count = countStringsInString(commentText, selectedText);
         setDisabledButton(count > 1)
@@ -75,7 +74,7 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
     if (!selectionInCommentRef && !selectionInPopupRef) {
       clearAll()
     }
-  }, [contentRefCurrent, commentTextRef]);
+  }, [contentRef, commentTextRef]);
   
   useEffect(() => { 
     document.addEventListener('selectionchange', detectSelection);
