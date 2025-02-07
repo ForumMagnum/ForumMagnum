@@ -1,12 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import { useDialog } from '../common/withDialog';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
@@ -145,8 +140,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     borderRadius: 12,
     backgroundColor: theme.palette.arbital.arbitalGreen,
     marginBottom: 24,
-    // fontFamily: theme.palette.fonts.sansSerifStack,
-    // make <a> children have the following styles
     ...theme.typography.commentStyle,
     color: theme.palette.text.alwaysWhite,
     "& a": {
@@ -163,7 +156,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
   arbitalLogo: {
     width: 100,
-    // don't hide overflow
     overflow: 'visible',
     padding: 8
   },
@@ -252,13 +244,10 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
 
-  const { WikiTagGroup, Loading, SectionButton, LWTooltip } = Components;
+  const { WikiTagGroup, Loading, NewWikiTagButton } = Components;
 
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
-
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
 
   const { results: priorityTagsRaw } = useMulti({
     collectionName: "Tags",
@@ -324,30 +313,7 @@ const AllWikiTagsPage = () => {
     <AnalyticsContext pageContext="allWikiTagsPage">
       <div>
         <div className={classes.addTagSection}>
-          <SectionButton>
-            {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <LWTooltip title="A WikiTag is a combination of a wiki page and a tag. It has either a wiki entry, a list of posts with that tag, or both!">
-              <Link
-                to={tagCreateUrl}
-                className={classes.addTagButton}
-              >
-                <AddBoxIcon/>
-                <span>New WikiTag</span>
-              </Link>
-            </LWTooltip>}
-            {!currentUser && <a 
-              onClick={(ev) => {
-                openDialog({
-                  componentName: "LoginPopup",
-                  componentProps: {}
-                });
-                ev.preventDefault();
-              }}
-              className={classes.addTagButton}
-            >
-              <AddBoxIcon/>
-              <span>New Wiki Page</span>
-            </a>}
-          </SectionButton>
+          <NewWikiTagButton />
         </div>
         <div className={classes.root}>
           <div className={classes.topSection}>
