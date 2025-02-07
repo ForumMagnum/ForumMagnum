@@ -40,6 +40,9 @@ import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from 
 import { useCurationEmailsCron } from '../lib/betas';
 import CommentsRepo from './repos/CommentsRepo';
 import uniq from 'lodash/uniq';
+import { DatabaseServerSetting } from './databaseSettings';
+
+const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', 2);
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
@@ -507,7 +510,11 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
 
   // 1. Notify users who are subscribed to the parent comment
   if (comment.parentCommentId) {
-    const parentComments: {commentId: string, userId: string}[] = await new CommentsRepo().getParentCommentIds({ commentId: comment._id });
+
+    const parentComments: { commentId: string; userId: string }[] = await new CommentsRepo().getParentCommentIds({
+      commentId: comment._id,
+      limit: commentAncestorsToNotifySetting.get(),
+    });
 
     let newReplyUserIds: string[] = [];
     let newReplyToYouUserIds: string[] = [];

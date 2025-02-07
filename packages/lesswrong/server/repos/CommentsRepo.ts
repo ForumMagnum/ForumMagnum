@@ -424,7 +424,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         AND c.deleted IS NOT TRUE
         AND c."deletedPublic" IS NOT TRUE
       ORDER BY
-        c."postedAt" LIMIT $2;
+        c."postedAt" DESC LIMIT $2;
     `,
       [commentId, limit]
     );
