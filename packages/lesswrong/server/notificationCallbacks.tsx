@@ -42,7 +42,7 @@ import CommentsRepo from './repos/CommentsRepo';
 import uniq from 'lodash/uniq';
 import { DatabaseServerSetting } from './databaseSettings';
 
-const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', 2);
+const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', 1);
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
