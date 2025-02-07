@@ -37,7 +37,6 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
 
   const { AddInlineReactionButton, LWPopper } = Components;
-  const contentRefCurrent = contentRef?.current;
   
   const detectSelection = useCallback((e: MouseEvent): void => {
     function clearAll() {
