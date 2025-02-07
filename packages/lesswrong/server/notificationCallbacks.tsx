@@ -537,8 +537,10 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
     newReplyUserIds = uniq(_.difference(newReplyUserIds, newReplyToYouUserIds));
     newReplyToYouUserIds = uniq(newReplyToYouUserIds);
 
-    await createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id});
-    await createNotifications({userIds: newReplyToYouUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id});
+    await Promise.all([
+      createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
+      createNotifications({userIds: newReplyToYouUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id})
+    ]);
 
     notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouUserIds];
   }
