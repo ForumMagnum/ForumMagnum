@@ -20,8 +20,12 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   graceWords?: number,
   expanded?: boolean,
   rawWordCount: number,
-  // Suffix, shown only if truncated
-  getTruncatedSuffix?: (props: {wordsLeft: number}) => React.ReactNode,
+  /**
+   * Suffix, shown only if truncated. If the truncation was due to the word
+   * count limit, includes the number of words left; if it was due to the height
+   * limit instead of the word-count limit, wordsLeft is null.
+   */
+  getTruncatedSuffix?: (props: {wordsLeft: number|null}) => React.ReactNode,
   // Alternate suffix, shown if truncated didn't happen (because it wasn't long
   // enough to need it)
   nonTruncatedSuffix?: React.ReactNode
@@ -68,7 +72,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
         nofollow={nofollow}
       />
     </div>
-    {showSuffix && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
+    {showSuffix && getTruncatedSuffix && getTruncatedSuffix({wordsLeft: hasHeightLimit ? null : wordsLeft})}
     {!showSuffix && nonTruncatedSuffix}
   </>
 }
