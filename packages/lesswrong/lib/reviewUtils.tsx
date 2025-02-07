@@ -20,6 +20,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR: ReviewYear = 2023
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`

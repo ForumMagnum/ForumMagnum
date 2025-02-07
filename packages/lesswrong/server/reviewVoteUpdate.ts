@@ -5,8 +5,11 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
-import { Globals } from "./vulcan-lib";
+import { createAdminContext, createMutator, Globals } from "./vulcan-lib";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
+import ReviewWinners from "@/lib/collections/reviewWinners/collection";
+import { Tags } from "@/lib/collections/tags/collection";
+import { ReviewWinnerCategory } from "@/lib/collections/reviewWinners/schema";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -310,17 +313,58 @@ const createReviewWinners = async () => {
     finalReviewVoteScoreAllKarma: {$gte: 1},
     reviewCount: {$gte: 1},
     positiveReviewVoteCount: {$gte: 1}
-  }, {sort: {finalReviewVoteScoreAllKarma: -1}}).fetch()
+  }, {sort: {finalReviewVoteScoreHighKarma: 1}, limit: 1}).fetch()
 
-  // posts.map(post => {
-  //   createMutator({
-  //     collection: "ReviewWinner",
-  //     document: {
-  //       postId: post._id,
-  //       year: REVIEW_YEAR,
-  //       winner: true
-  //     }
-  //   })
-  // })
-  
+  const tagIdsFromPosts = posts.map(post => Object.keys(post.tagRelevance))
+  const tagIds = [...new Set(tagIdsFromPosts.flat())]
+  const tags = await Tags.find({_id: {$in: tagIds}}).fetch()
+
+  const adminContext = createAdminContext();
+
+  const coreTags: DbTag[] = await Tags.find({name: {$in: ["Rationality", "World Modeling", "World Optimization", "Practical", "AI"]}}).fetch() ?? []
+
+  const aiStrategyTags = await Tags.find({name: {$in: ["AI Governance", "AI Timelines", "AI Takeoff", "AI Risk"]}}).fetch() ?? []
+
+  const getPostCoreTag = (post: DbPost) => {
+    const tagRelevance = post.tagRelevance
+    const coreTagsOnPost = coreTags.filter(tag => tagRelevance[tag._id] > 0)
+    const postHasAIStrategyTag = aiStrategyTags.some(tag => tagRelevance[tag._id] > 0)
+    const coreTagsMostRelevant = coreTagsOnPost.sort((a,b) => tagRelevance[b._id] - tagRelevance[a._id])[0]
+    if (coreTagsMostRelevant?.name === "AI") {
+      return postHasAIStrategyTag ? "ai strategy" : "ai safety"
+    } else {
+      return tagToCategory[coreTagsMostRelevant?.name]
+    }
+  }
+
+  const tagToCategory: Record<string,ReviewWinnerCategory> = {
+    "Rationality": "rationality",
+    "World Modeling": "modeling",
+    "World Optimization": "optimization",
+    "Practical": "practical"
+  }
+
+  await Promise.all(posts.map((post, idx) => {
+    // eslint-disable-next-line no-console
+    console.log(idx)
+    // eslint-disable-next-line no-console
+    console.log(post.title)
+
+    return createMutator({
+      collection: ReviewWinners,
+      document: {
+        postId: post._id,
+        reviewYear: REVIEW_YEAR,
+        category: getPostCoreTag(post),
+        reviewRanking: idx,
+        curatedOrder: 13 + idx,
+      },
+      context: adminContext,
+      currentUser: adminContext.currentUser,
+      validate: false
+    })
+  }))
+
 }
+
+Globals.createReviewWinners = createReviewWinners

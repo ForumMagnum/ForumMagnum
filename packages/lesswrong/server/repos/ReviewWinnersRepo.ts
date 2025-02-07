@@ -2,6 +2,7 @@ import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ReviewWinnerWithPost } from "../../lib/collections/reviewWinners/cache";
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "../../lib/reviewUtils";
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   constructor() {
@@ -87,7 +88,8 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
-    `);
+      WHERE rw."reviewYear" <= $1
+    `, [BEST_OF_LESSWRONG_PUBLISH_YEAR]);
 
     // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
     return postsWithMetadata.map(postWithMetadata => {

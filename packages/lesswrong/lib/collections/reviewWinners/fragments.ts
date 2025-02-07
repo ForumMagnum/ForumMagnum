@@ -7,7 +7,6 @@ registerFragment(`
     reviewYear
     curatedOrder
     reviewRanking
-    isAI
   }
 `);
 
@@ -21,7 +20,6 @@ registerFragment(`
     reviewYear
     curatedOrder
     reviewRanking
-    isAI
   }
 `);
 
@@ -36,7 +34,6 @@ registerFragment(`
     reviewWinnerArt {
       ...ReviewWinnerArtImages
     }
-    isAI
     competitorCount
   }
 `);
