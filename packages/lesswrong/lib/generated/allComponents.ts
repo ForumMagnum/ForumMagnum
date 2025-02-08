@@ -895,7 +895,6 @@ importComponent("SequencesSingle", () => require("../../components/sequences/Seq
 importComponent("SequencesSmallPostLink", () => require("../../components/sequences/SequencesSmallPostLink.tsx"));
 importComponent("SequencesSummary", () => require("../../components/sequences/SequencesSummary.tsx"));
 importComponent("SequencesTooltip", () => require("../../components/sequences/SequencesTooltip.tsx"));
-importComponent("TopPostsDisplaySettings", () => require("../../components/sequences/TopPostsDisplaySettings.tsx"));
 importComponent("TopPostsPage", () => require("../../components/sequences/TopPostsPage.tsx"));
 importComponent("NewShortformDialog", () => require("../../components/shortform/NewShortformDialog.tsx"));
 importComponent("ProfileShortform", () => require("../../components/shortform/ProfileShortform.tsx"));

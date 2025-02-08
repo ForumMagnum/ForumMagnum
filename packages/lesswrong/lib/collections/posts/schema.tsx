@@ -1230,14 +1230,6 @@ const schema: SchemaType<"Posts"> = {
       const winner = await getPostReviewWinnerInfo(post._id, context);
       return accessFilterSingle(currentUser, ReviewWinners, winner, context);
     },
-    sqlResolver: ({field, join}) => join({
-      table: "ReviewWinners",
-      type: "left",
-      on: {
-        postId: field("_id"),
-      },
-      resolver: (reviewWinnersField) => reviewWinnersField("*"),
-    })
   }),
 
   spotlight: resolverOnlyField({

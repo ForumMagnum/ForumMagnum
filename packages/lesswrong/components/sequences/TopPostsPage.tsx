@@ -6,17 +6,16 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
-
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionNamesSet, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo, reviewWinnerYearSet } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
 import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
+import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/publicSettings';
+import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -125,6 +124,7 @@ const styles = (theme: ThemeType) => ({
     flexWrap: 'wrap',
     rowGap: '20px',
     width: 1200,
+    marginTop: 24,
     [theme.breakpoints.down(1200)]: {
       width: 800
     },
@@ -549,20 +549,21 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
+function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult) {
   const sortedReviewWinners = [...reviewWinners];
-  switch (sortOrder) {
-    case 'curated':
-      return sortedReviewWinners.sort((a, b) => a.reviewWinner.curatedOrder - b.reviewWinner.curatedOrder);
-    case 'year':
-      return sortedReviewWinners.sort((a, b) => {
-        const yearDiff = a.reviewWinner.reviewYear - b.reviewWinner.reviewYear;
-        if (yearDiff === 0) {
-          return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
-        }
-        return yearDiff;
-      });
-  }
+  return sortedReviewWinners.sort((a, b) => {
+    const aCuratedOrder = a.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
+    const bCuratedOrder = b.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
+    const curatedOrderDiff = aCuratedOrder - bCuratedOrder
+    
+    // If one has curatedOrder and the other doesn't, prioritize the one with curatedOrder
+    if (curatedOrderDiff !== 0) {
+      return curatedOrderDiff
+    }
+  
+    // Otherwise sort by finalReviewVoteScoreHighKarma in descending order
+    return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
+  });
 }
 
 function getLeftOffset(index: number, columnLength: number) {
@@ -640,7 +641,7 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 }
 
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, Loading } = Components;
+  const { SectionTitle, HeadTags, ContentStyles, Loading } = Components;
 
   const location = useLocation();
   const { query } = location;
@@ -685,8 +686,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
   };
 
-  const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
-
   const { data, loading } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
@@ -697,7 +696,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   `);
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
-  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
+  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
@@ -719,8 +718,8 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return <PostsImageGrid {...props} />;
   }
 
-  const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
+  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
+  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
@@ -739,11 +738,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index, expandedNotYetMoved);
   });
 
-  const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl, coords }], index) => {
-    const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
-    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
-  });
-
   return (
     <>
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
@@ -753,16 +747,13 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           <div className={classes.description}>
             <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
             <ContentStyles contentType="post">
-              Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
+              When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
               <br /><br />
               For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
             </ContentStyles>
           </div>
-          <div>
-            <TopPostsDisplaySettings />
-            <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
-              {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
-            </div>
+          <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
+            {sectionGrid}
           </div>
           {loading && <Loading/>}
           <TopSpotlightsSection classes={classes} 
@@ -776,25 +767,43 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 }
 
+type YearSelectorState = PublishedReviewYear|'all'
+type CategorySelectorState = ReviewWinnerCategory|'all'
+
+function getInitialYear(yearQuery?: string): YearSelectorState {
+  if (!yearQuery) {
+    return BEST_OF_LESSWRONG_PUBLISH_YEAR
+  }
+  if (yearQuery === 'all') {
+    return 'all'
+  }
+  const yearQueryInt = parseInt(yearQuery);
+  if (publishedReviewYears.has(yearQueryInt)) {
+    return yearQueryInt
+  }
+  return BEST_OF_LESSWRONG_PUBLISH_YEAR
+}
+
 function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
   classes: ClassesType<typeof styles>,
-  yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>,
-  sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>,
+  yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo>,
+  sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo>,
   reviewWinnersWithPosts: PostsTopItemInfo[]
 }) {
   const { SpotlightItem, LWTooltip } = Components;
 
   const location = useLocation();
-  const { query } = location;
+  const { query: { year: yearQuery, category: categoryQuery } } = location;
 
-  const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
-  const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
+  const categories = [...reviewWinnerCategories]
 
-  const [year, setYear] = useState<ReviewWinnerYear|"all">(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === 'all' ? 'all' : 2022))
-  const [category, setCategory] = useState<ReviewWinnerSectionName|'all'>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : 'all')
+  const [year, setYear] = useState<YearSelectorState>(getInitialYear(yearQuery))
+
+  const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
+  const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
 
   useEffect(() => {
-    if (query.year) {
+    if (yearQuery) {
       const element = document.getElementById('year-category-section');
       if (element) {          
         window.scrollTo({
@@ -802,7 +811,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         });
       }
     }
-  }, [query.year]);
+  }, [yearQuery]);
 
   let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
 
@@ -837,13 +846,13 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     }
   })
 
-  const handleSetYear = (y: ReviewWinnerYear|'all') => {
+  const handleSetYear = (y: YearSelectorState) => {
     const newSearch = qs.stringify({year: y, category});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setYear(y);
   }
   
-  const handleSetCategory = (t: ReviewWinnerSectionName|'all') => {
+  const handleSetCategory = (t: CategorySelectorState) => {
     const newSearch = qs.stringify({year, category: t});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setCategory(t);
@@ -851,7 +860,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   return <div className={classes.postsByYearSectionCentered} id="year-category-section">
       <div className={classes.yearSelector}>
-        {years.map((y) => {
+        {[...publishedReviewYears].map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
             return post.reviewWinner?.reviewYear === y
           }).length

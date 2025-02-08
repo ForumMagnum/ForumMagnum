@@ -1,3 +1,4 @@
+import { reviewWinnerCategories } from "@/lib/reviewUtils";
 import { getWithCustomLoader } from "../../loaders";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
@@ -68,7 +69,7 @@ export const schema: SchemaType<"ReviewWinners"> = {
   },
   category: {
     type: String,
-    allowedValues: ['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'],
+    allowedValues: [...reviewWinnerCategories],
     nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
@@ -77,7 +78,8 @@ export const schema: SchemaType<"ReviewWinners"> = {
   },
   curatedOrder: {
     type: Number,
-    nullable: false,
+    nullable: true,
+    optional: true,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins']
@@ -91,7 +93,8 @@ export const schema: SchemaType<"ReviewWinners"> = {
   },
   isAI: {
     type: Boolean,
-    nullable: false,
+    nullable: true,
+    optional: true,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins']
