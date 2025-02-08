@@ -783,8 +783,11 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   const categories = [...reviewWinnerCategories]
 
-  const [year, setYear] = useState<ReviewYear|"all">(yearQuery && years.includes(yearQueryInt) ? yearQueryInt : (yearQuery === 'all' ? 'all' : BEST_OF_LESSWRONG_PUBLISH_YEAR))
-  const [category, setCategory] = useState<ReviewWinnerCategory|'all'>(categoryQuery && reviewWinnerCategories.has(categoryQuery) ? categoryQuery : 'all')
+  const defaultYear = (yearQuery && years.includes(yearQueryInt)) ? yearQueryInt : (yearQuery === 'all' ? 'all' : BEST_OF_LESSWRONG_PUBLISH_YEAR)
+  const [year, setYear] = useState<ReviewYear|"all">(defaultYear)
+
+  const defaultCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
+  const [category, setCategory] = useState<ReviewWinnerCategory|'all'>(defaultCategory)
 
   useEffect(() => {
     if (yearQuery) {
