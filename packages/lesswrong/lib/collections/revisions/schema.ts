@@ -265,6 +265,35 @@ const schema: SchemaType<"Revisions"> = {
       return await accessFilterSingle(currentUser, Posts, post, context);
     }
   }),
+  lens: resolverOnlyField({
+    type: "MultiDocument",
+    graphQLtype: "MultiDocument",
+    canRead: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const { currentUser, MultiDocuments } = context;
+      if (revision.collectionName !== "MultiDocuments") {
+        return null;
+      }
+      if (!revision.documentId) {
+        return null;
+      }
+      const lens = await context.loaders.MultiDocuments.load(revision.documentId);
+      if (lens.fieldName !== "description" || lens.collectionName !== "Tags") {
+        return null;
+      }
+      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+    },
+    sqlResolver: ({ field, join }) => join({
+      table: 'MultiDocuments',
+      on: {
+        _id: field('documentId'),
+        collectionName: "'Tags'",
+        fieldName: "'description'"
+      },
+      type: 'left',
+      resolver: (multiDocumentField) => multiDocumentField('*'),
+    })
+  }),
 };
 
 export default schema;

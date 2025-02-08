@@ -7,6 +7,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
+import type { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
 
 export const POSTED_AT_WIDTH = 38
 
@@ -99,21 +101,25 @@ const styles = (theme: ThemeType) => ({
       maxWidth: 160
     },
   },
+  tagRevision: {},
 });
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, lastRevisedAt, classes}: {
-  tag: TagBasicInfo,
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
+  tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
   commentIds?: string[],
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
+  documentDeletions?: DocumentDeletion[] | null,
   classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName } = Components;
+  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName, AllPostsPageTagDocDeletionItem } = Components;
   
+  documentDeletions ??= [];
+
   return <div className={classes.root} >
     <div className={classes.metadata} onClick={_ev => setExpanded(!expanded)}>
 
@@ -161,7 +167,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           <span>History</span>
         </Link>}
       
-      {revisionIds.length>0 && <Link to={`revisions/tag/${tag.slug}`} className={classes.subheading}>
+      {revisionIds.length>0 && <Link to={`revisions/${tagUrlBaseSetting.get()}/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
       {revisionIds.map(revId => <div key={revId}>
@@ -169,6 +175,16 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           tag={tag}
           documentId={tag._id}
           revisionId={revId}
+        />
+      </div>)}
+
+      {documentDeletions.length > 0 && <div className={classes.subheading}>
+        Deletions/Restorations
+      </div>}
+      {documentDeletions.length > 0 && documentDeletions.map(documentDeletion => <div className={classes.tagRevision} key={documentDeletion.documentId}>
+        <AllPostsPageTagDocDeletionItem
+          tag={tag}
+          documentDeletion={documentDeletion}
         />
       </div>)}
       

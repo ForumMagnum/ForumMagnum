@@ -5,6 +5,7 @@ import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
+import { hasWikiLenses } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -41,26 +42,33 @@ const TagHoverPreview = ({
   // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
 
-  const {tag} = useTagPreview(slug, hashId, {skip: noPrefetch});
-  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
+  const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
+  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
+  const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
-
+  const previewSlug = lensQuery ?? slug;
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
+
+  const isRead = tag?.isRead;
+  const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
 
   const {TagsTooltip} = Components;
   return (
     <TagsTooltip
-      tagSlug={slug}
+      tagSlug={previewSlug}
       hash={hashId}
       As="span"
       previewPostCount={postCount}
       noPrefetch={noPrefetch}
+      isRedLink={isRedLink}
     >
       <Link
         className={classNames(
           !showPostCount && classes.link,
+          isRead && "visited",
+          isRedLink && classes.redLink,
         )}
         to={linkTarget}
       >

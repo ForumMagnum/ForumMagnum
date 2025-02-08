@@ -1,12 +1,10 @@
 import { createCollection } from '../../vulcan-lib';
-import { slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 const schema: SchemaType<"TagFlags"> = {
   name: {
@@ -26,20 +24,6 @@ const schema: SchemaType<"TagFlags"> = {
     canCreate: ['admins', 'sunshineRegiment'], 
     order: 2,
     ...schemaDefaultValue(false),
-  },
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    onCreate: async ({document: tagFlag}) => {
-      return await getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
-    },
-    onUpdate: async ({modifier, newDocument: tagFlag}) => {
-      if (modifier.$set.name) {
-        return await getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
-      }
-    }
   },
   order: {
     type: Number,
@@ -87,6 +71,12 @@ export const TagFlags: TagFlagsCollection = createCollection({
 });
 
 addUniversalFields({collection: TagFlags})
+
+addSlugFields({
+  collection: TagFlags,
+  getTitle: (tf) => tf.name,
+  includesOldSlugs: false,
+});
 
 makeEditable({
   collection: TagFlags,

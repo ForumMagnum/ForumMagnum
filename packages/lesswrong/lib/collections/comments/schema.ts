@@ -461,7 +461,7 @@ const schema: SchemaType<"Comments"> = {
     graphQLtype: 'String!',
     canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
-      return getVotingSystemNameForDocument(comment, context)
+      return getVotingSystemNameForDocument(comment, "Comments", context)
     }
   }),
   // Legacy: Boolean used to indicate that post was imported from old LW database

@@ -349,15 +349,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     reSortPosts(sortPosts, sortReversed, tagFilter)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter, statusFilter])
 
-  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
-  switch (sortPosts) {
-    case ("reviewVoteScoreHighKarma"):
-      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
-      break;
-    case ("reviewVoteScoreAF"):
-      voteTooltip = "Showing votes from Alignment Forum members"
-      break;
-  }
+  let voteTooltip = "Showing votes from all LessWrong users" as voteTooltipType
 
   const handleSetExpandedPost = (post: PostsReviewVotingList) => {
     if (expandedPost?._id === post._id) {

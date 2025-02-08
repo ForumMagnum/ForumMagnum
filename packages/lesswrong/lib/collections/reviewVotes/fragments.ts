@@ -29,3 +29,18 @@ registerFragment(`
     }
   }
 `)
+
+registerFragment(`
+  fragment reviewAdminDashboard on ReviewVote {
+    _id
+    createdAt
+    userId
+    user {
+      _id
+      displayName
+      karma
+    }
+  }
+`)
+
+

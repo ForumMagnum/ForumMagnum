@@ -1,13 +1,11 @@
 import { createCollection } from '../../vulcan-lib';
-import { slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 function generateCode(length: number) {
   let result = '';
@@ -70,15 +68,6 @@ const schema: SchemaType<"GardenCodes"> = {
   //   canCreate: ['members', 'admins', 'sunshineRegiment'],
   //   label: "Your Walled Garden Username"
   // },
-  slug: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    nullable: false,
-    onCreate: async ({document: gardenCode}) => {
-      return await getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
-    },
-  },
   startTime: {
     type: Date,
     canRead: ['guests'],
@@ -197,6 +186,12 @@ export const GardenCodes: GardenCodesCollection = createCollection({
 });
 
 addUniversalFields({collection: GardenCodes})
+
+addSlugFields({
+  collection: GardenCodes,
+  getTitle: (gc) => gc.title,
+  includesOldSlugs: false,
+});
 
 makeEditable({
   collection: GardenCodes,

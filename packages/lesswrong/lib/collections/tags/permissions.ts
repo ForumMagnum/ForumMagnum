@@ -1,3 +1,4 @@
+import { membersGroup } from "@/lib/vulcan-users";
 import { canVoteOnTag } from "../../voting/tagRelVoteRules";
 import { CoauthoredPost } from "../posts/helpers";
 
@@ -8,3 +9,10 @@ export const shouldHideTagForVoting = (
   tag: TagWithVotePermissons,
   post: {userId?: string} & CoauthoredPost|null,
 ) => canVoteOnTag(tag?.canVoteOnRels, user, post, 'smallUpvote').fail;
+
+membersGroup.can([
+  'tags.smallDownvote',
+  'tags.bigDownvote',
+  'tags.smallUpvote',
+  'tags.bigUpvote',
+]);
