@@ -49,6 +49,7 @@ registerFragment(`
     reviewYear
     reviewRanking
     reviewWinnerArt {
+      _id
       splashArtImageUrl
       activeSplashArtCoordinates {
         ...SplashArtCoordinates

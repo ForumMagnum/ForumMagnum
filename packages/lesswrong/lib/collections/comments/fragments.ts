@@ -6,6 +6,7 @@ registerFragment(`
     postId
     tagId
     tag {
+      _id
       slug
     }
     relevantTagIds
@@ -196,6 +197,7 @@ registerFragment(`
   fragment CommentsListWithModerationMetadata on Comment {
     ...CommentWithRepliesFragment
     allVotes {
+      _id
       voteType
     }
   }
@@ -222,6 +224,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     contents {
+      _id
       markdown
     }
     post {

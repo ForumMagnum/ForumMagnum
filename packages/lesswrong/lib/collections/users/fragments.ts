@@ -444,6 +444,7 @@ registerFragment(`
     }
     usersContactedBeforeReview
     associatedClientIds {
+      _id
       clientId
       firstSeenReferrer
       firstSeenLandingPage

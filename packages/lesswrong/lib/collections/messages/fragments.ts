@@ -8,6 +8,7 @@ registerFragment(`
       profileImageId
     }
     contents {
+      _id
       html
       plaintextMainText
     }
