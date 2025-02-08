@@ -99,9 +99,6 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
     '& > span:first-child': {
       fontWeight: 550,
     },
-    '& a': {
-      color: theme.palette.link.color,
-    },
   },
   spaceAfterWord: {
     marginRight: 3,
