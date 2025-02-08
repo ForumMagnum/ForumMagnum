@@ -1,3 +1,4 @@
+import React from 'react';
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import { hookToHoc } from '../hocUtils';
@@ -27,6 +28,11 @@ export const useQueryCurrentUser = () => {
     refetchCurrentUser: refetch,
     currentUserLoading: loading,
   }
+}
+
+export const SeedCacheWithCurrentUser = () => {
+  useQueryCurrentUser();
+  return <div/>
 }
 
 export const withCurrentUser = hookToHoc(useQueryCurrentUser);

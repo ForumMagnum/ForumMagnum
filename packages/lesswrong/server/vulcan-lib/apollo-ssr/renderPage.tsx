@@ -5,7 +5,7 @@
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+import ReactDOM, { renderToString } from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
@@ -37,6 +37,8 @@ import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
 import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
+import { ApolloProvider } from '@apollo/client';
+import { SeedCacheWithCurrentUser } from '@/lib/crud/withCurrentUser';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -73,6 +75,7 @@ interface RenderRequestParams {
   res: Response,
   clientId?: string,
   userAgent?: string,
+  userAlreadyHasJSBundle: boolean,
 }
 
 interface RenderPriorityQueueSlot extends RequestData {
@@ -80,7 +83,7 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null, userAlreadyHasJSBundle: boolean) => {
   const startTime = new Date();
   
   const ip = getIpFromRequest(req)
@@ -130,7 +133,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     const rendered = await queueRenderRequest({
-      req, user, startTime, res, clientId, userAgent,
+      req, user, startTime, res, clientId, userAgent, userAlreadyHasJSBundle,
     });
 
     if (performanceMetricLoggingEnabled.get()) {
@@ -174,9 +177,13 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       setAsyncStoreValue('requestPerfMetric', perfMetric);
     }
 
-    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
-      req, user: null, startTime, res, clientId, userAgent
-    }));
+    const rendered = await cachedPageRender({
+      req, abTestGroups, userAgent,
+      renderFn: (req: Request) => queueRenderRequest({
+        req, user: null, startTime, res, clientId, userAgent, userAlreadyHasJSBundle
+      }),
+      userAlreadyHasJSBundle
+    });
     
     if (rendered.aborted) {
       return rendered;
@@ -351,7 +358,7 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
 
-const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent, userAlreadyHasJSBundle}: RenderRequestParams): Promise<RenderResult> => {
   const cacheFriendly = responseIsCacheable(res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
@@ -398,12 +405,19 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
-
   const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
   let htmlContent = '';
   try {
-    htmlContent = await renderToStringWithData(WrappedApp);
+    if (userAlreadyHasJSBundle) {
+      await renderToStringWithData(<ApolloProvider client={client}>
+        <SeedCacheWithCurrentUser/>
+      </ApolloProvider>);
+
+      htmlContent = renderToString(WrappedApp);
+    } else {
+      htmlContent = await renderToStringWithData(WrappedApp);
+    }
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
