@@ -12,6 +12,7 @@ import { updateDenormalizedHtmlAttributions } from "../tagging/updateDenormalize
 Globals.convertTagsToCkEditor = async (conversionUserSlug?: string) => {
   const conversionUser = await Users.findOne({ slug: conversionUserSlug ?? "lesswrong-internal" });
   if (!conversionUser) {
+    //eslint-disable-next-line no-console
     console.error(`You must provide a conversion account, which will own any revisions which are created for format conversion.`);
     return;
   }
