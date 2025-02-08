@@ -15,7 +15,7 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo } from '@/lib/publicSettings';
-import { reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo, ReviewYear, reviewYears, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR } from '@/lib/reviewUtils';
+import { reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo, ReviewYear, reviewYears, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -562,7 +562,7 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult) {
     }
   
     // Otherwise sort by finalReviewVoteScoreHighKarma in descending order
-    return (a.reviewWinner.reviewRanking ?? 0) - (b.reviewWinner.reviewRanking ?? 0);
+    return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
   });
 }
 
@@ -767,6 +767,23 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 }
 
+type YearSelectorState = PublishedReviewYear|'all'
+type CategorySelectorState = ReviewWinnerCategory|'all'
+
+function getInitialYear(yearQuery?: string): YearSelectorState {
+  if (!yearQuery) {
+    return BEST_OF_LESSWRONG_PUBLISH_YEAR
+  }
+  if (yearQuery === 'all') {
+    return 'all'
+  }
+  const yearQueryInt = parseInt(yearQuery);
+  if (publishedReviewYears.has(yearQueryInt)) {
+    return yearQueryInt
+  }
+  return BEST_OF_LESSWRONG_PUBLISH_YEAR
+}
+
 function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
   classes: ClassesType<typeof styles>,
   yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo>,
@@ -777,17 +794,13 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   const location = useLocation();
   const { query: { year: yearQuery, category: categoryQuery } } = location;
-  const yearQueryInt = parseInt(yearQuery) as ReviewYear
-
-  const years = [...reviewYears].filter(y => y <= BEST_OF_LESSWRONG_PUBLISH_YEAR) as ReviewYear[]
 
   const categories = [...reviewWinnerCategories]
 
-  const defaultYear = (yearQuery && years.includes(yearQueryInt)) ? yearQueryInt : (yearQuery === 'all' ? 'all' : BEST_OF_LESSWRONG_PUBLISH_YEAR)
-  const [year, setYear] = useState<ReviewYear|"all">(defaultYear)
+  const [year, setYear] = useState<YearSelectorState>(getInitialYear(yearQuery))
 
-  const defaultCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
-  const [category, setCategory] = useState<ReviewWinnerCategory|'all'>(defaultCategory)
+  const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
+  const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
 
   useEffect(() => {
     if (yearQuery) {
@@ -833,13 +846,13 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     }
   })
 
-  const handleSetYear = (y: ReviewYear|'all') => {
+  const handleSetYear = (y: YearSelectorState) => {
     const newSearch = qs.stringify({year: y, category});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setYear(y);
   }
   
-  const handleSetCategory = (t: ReviewWinnerCategory|'all') => {
+  const handleSetCategory = (t: CategorySelectorState) => {
     const newSearch = qs.stringify({year, category: t});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setCategory(t);
@@ -847,7 +860,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   return <div className={classes.postsByYearSectionCentered} id="year-category-section">
       <div className={classes.yearSelector}>
-        {years.map((y) => {
+        {[...publishedReviewYears].map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
             return post.reviewWinner?.reviewYear === y
           }).length

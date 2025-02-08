@@ -10,8 +10,16 @@ import { DatabasePublicSetting, ReviewYearGroupInfo, ReviewSectionInfo } from '.
 export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
 export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
-export const reviewYears = new TupleSet([2018, 2019, 2020, 2021, 2022, 2023] as const);
+/** Review year is the year under review, not the year in which the review takes place. */
+export const REVIEW_YEAR = 2023
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2022
+
+const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022] as const;
+export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
+export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
+
 export type ReviewYear = UnionOf<typeof reviewYears>;
+export type PublishedReviewYear = UnionOf<typeof publishedReviewYears>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
   const year = parseInt(yearParam)
@@ -21,9 +29,6 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
   throw Error("Not a valid Review Year")
 }
 
-/** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2023
-export const BEST_OF_LESSWRONG_PUBLISH_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
