@@ -6,8 +6,6 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
-
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
@@ -17,7 +15,7 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo } from '@/lib/publicSettings';
-import { reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo, ReviewYear, reviewYears, ReviewWinnerCategory, reviewWinnerCategories, REVIEW_YEAR } from '@/lib/reviewUtils';
+import { reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo, ReviewYear, reviewYears, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR } from '@/lib/reviewUtils';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -126,6 +124,7 @@ const styles = (theme: ThemeType) => ({
     flexWrap: 'wrap',
     rowGap: '20px',
     width: 1200,
+    marginTop: 24,
     [theme.breakpoints.down(1200)]: {
       width: 800
     },
@@ -642,7 +641,7 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 }
 
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, Loading } = Components;
+  const { SectionTitle, HeadTags, ContentStyles, Loading } = Components;
 
   const location = useLocation();
   const { query } = location;
@@ -686,8 +685,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       setFullyOpenGridIds([...fullyOpenGridIds, id]);
     }
   };
-
-  const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
   const { data, loading } = useQuery(gql`
     query GetAllReviewWinners {
@@ -741,11 +738,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index, expandedNotYetMoved);
   });
 
-  const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl, coords }], index) => {
-    const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
-    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
-  });
-
   return (
     <>
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
@@ -760,11 +752,8 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
             </ContentStyles>
           </div>
-          <div>
-            <TopPostsDisplaySettings />
-            <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
-              {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
-            </div>
+          <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
+            {sectionGrid}
           </div>
           {loading && <Loading/>}
           <TopSpotlightsSection classes={classes} 
@@ -788,12 +777,13 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   const location = useLocation();
   const { query: { year: yearQuery, category: categoryQuery } } = location;
-  const yearQueryInt = parseInt(yearQuery)
+  const yearQueryInt = parseInt(yearQuery) as ReviewYear
 
-  const years = [...reviewYears]
+  const years = [...reviewYears].filter(y => y <= BEST_OF_LESSWRONG_PUBLISH_YEAR) as ReviewYear[]
+
   const categories = [...reviewWinnerCategories]
 
-  const [year, setYear] = useState<ReviewYear|"all">(yearQuery && reviewYears.has(yearQueryInt) ? yearQueryInt : (yearQuery === 'all' ? 'all' : REVIEW_YEAR))
+  const [year, setYear] = useState<ReviewYear|"all">(yearQuery && years.includes(yearQueryInt) ? yearQueryInt : (yearQuery === 'all' ? 'all' : BEST_OF_LESSWRONG_PUBLISH_YEAR))
   const [category, setCategory] = useState<ReviewWinnerCategory|'all'>(categoryQuery && reviewWinnerCategories.has(categoryQuery) ? categoryQuery : 'all')
 
   useEffect(() => {
