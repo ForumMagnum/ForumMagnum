@@ -100,7 +100,7 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
       fontWeight: 550,
     },
     '& a': {
-      color: theme.palette.primary.main,
+      color: theme.palette.link.color,
     },
   },
   spaceAfterWord: {
