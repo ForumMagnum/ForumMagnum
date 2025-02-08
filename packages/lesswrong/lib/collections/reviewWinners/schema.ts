@@ -1,10 +1,6 @@
+import { reviewWinnerCategories } from "@/lib/reviewUtils";
 import { getWithCustomLoader } from "../../loaders";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
-import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
-
-export const categories = ['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const;
-const categoriesSet = new TupleSet(categories);
-export type ReviewWinnerCategory = UnionOf<typeof categoriesSet>;
 
 export const schema: SchemaType<"ReviewWinners"> = {
   postId: {
@@ -73,7 +69,7 @@ export const schema: SchemaType<"ReviewWinners"> = {
   },
   category: {
     type: String,
-    allowedValues: [...categories],
+    allowedValues: [...reviewWinnerCategories],
     nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],

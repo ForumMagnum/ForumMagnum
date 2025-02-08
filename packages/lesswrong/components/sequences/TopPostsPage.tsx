@@ -11,12 +11,13 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionNamesSet, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo, reviewWinnerYearSet } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
 import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
+import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo } from '@/lib/publicSettings';
+import { reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo, ReviewYear, reviewYears, ReviewWinnerCategory, reviewWinnerCategories, REVIEW_YEAR } from '@/lib/reviewUtils';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -719,8 +720,8 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return <PostsImageGrid {...props} />;
   }
 
-  const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
+  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
+  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
@@ -778,23 +779,24 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
 function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
   classes: ClassesType<typeof styles>,
-  yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>,
-  sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>,
+  yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo>,
+  sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo>,
   reviewWinnersWithPosts: PostsTopItemInfo[]
 }) {
   const { SpotlightItem, LWTooltip } = Components;
 
   const location = useLocation();
-  const { query } = location;
+  const { query: { year: yearQuery, category: categoryQuery } } = location;
+  const yearQueryInt = parseInt(yearQuery)
 
-  const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
-  const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
+  const years = [...reviewYears]
+  const categories = [...reviewWinnerCategories]
 
-  const [year, setYear] = useState<ReviewWinnerYear|"all">(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === 'all' ? 'all' : 2022))
-  const [category, setCategory] = useState<ReviewWinnerSectionName|'all'>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : 'all')
+  const [year, setYear] = useState<ReviewYear|"all">(yearQuery && reviewYears.has(yearQueryInt) ? yearQueryInt : (yearQuery === 'all' ? 'all' : REVIEW_YEAR))
+  const [category, setCategory] = useState<ReviewWinnerCategory|'all'>(categoryQuery && reviewWinnerCategories.has(categoryQuery) ? categoryQuery : 'all')
 
   useEffect(() => {
-    if (query.year) {
+    if (yearQuery) {
       const element = document.getElementById('year-category-section');
       if (element) {          
         window.scrollTo({
@@ -802,7 +804,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         });
       }
     }
-  }, [query.year]);
+  }, [yearQuery]);
 
   let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
 
@@ -837,13 +839,13 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     }
   })
 
-  const handleSetYear = (y: ReviewWinnerYear|'all') => {
+  const handleSetYear = (y: ReviewYear|'all') => {
     const newSearch = qs.stringify({year: y, category});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setYear(y);
   }
   
-  const handleSetCategory = (t: ReviewWinnerSectionName|'all') => {
+  const handleSetCategory = (t: ReviewWinnerCategory|'all') => {
     const newSearch = qs.stringify({year, category: t});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setCategory(t);

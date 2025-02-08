@@ -1,6 +1,6 @@
 import ReviewVotes from "../lib/collections/reviewVotes/collection"
 import Users from "../lib/collections/users/collection"
-import { getCostData, REVIEW_YEAR } from "../lib/reviewUtils"
+import { getCostData, REVIEW_YEAR, ReviewWinnerCategory } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
@@ -9,7 +9,6 @@ import { createAdminContext, createMutator, Globals } from "./vulcan-lib";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
 import ReviewWinners from "@/lib/collections/reviewWinners/collection";
 import { Tags } from "@/lib/collections/tags/collection";
-import { ReviewWinnerCategory } from "@/lib/collections/reviewWinners/schema";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -304,6 +303,48 @@ export async function createVotingPostHtml () {
 //   AND "positiveReviewVoteCount" > 0
 // ORDER BY "reviewVoteScoreHighKarma" DESC
 
+const fetchCategoryAssignmentTags = async () => {
+  const [coreTags, aiStrategyTags] = await Promise.all([
+    Tags.find({name: {$in: ["Rationality", "World Modeling", "World Optimization", "Practical", "AI"]}}).fetch(),
+    Tags.find({name: {$in: ["AI Governance", "AI Timelines", "AI Takeoff", "AI Risk"]}}).fetch()
+  ])
+  return {coreTags, aiStrategyTags}
+}
+
+const tagToCategory: Record<string,ReviewWinnerCategory> = {
+  "Rationality": "rationality",
+  "World Modeling": "modeling",
+  "World Optimization": "optimization",
+  "Practical": "practical"
+}
+
+const getPostCategory = (post: DbPost, coreTags: DbTag[], aiStrategyTags: DbTag[]) => {
+  const tagRelevance = post.tagRelevance
+  const coreTagsOnPost = coreTags.filter(tag => tagRelevance[tag._id] > 0)
+  const postHasAIStrategyTag = aiStrategyTags.some(tag => tagRelevance[tag._id] > 0)
+  const coreTagsMostRelevant = coreTagsOnPost.sort((a,b) => tagRelevance[b._id] - tagRelevance[a._id])[0]
+  if (coreTagsMostRelevant?.name === "AI") {
+    return postHasAIStrategyTag ? "ai strategy" : "ai safety"
+  } else {
+    return tagToCategory[coreTagsMostRelevant?.name]
+  }
+}
+
+const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
+  return createMutator({
+    collection: ReviewWinners,
+    document: {
+      postId: post._id,
+      reviewYear: REVIEW_YEAR,    
+      reviewRanking: idx,
+      category,
+    },
+    context: adminContext,
+    currentUser: adminContext.currentUser,
+    validate: false
+  })
+}
+
 const createReviewWinners = async () => {
   const posts = await Posts.find({
     postedAt: {
@@ -315,54 +356,13 @@ const createReviewWinners = async () => {
     positiveReviewVoteCount: {$gte: 1}
   }, {sort: {finalReviewVoteScoreHighKarma: 1}, limit: 1}).fetch()
 
-  const tagIdsFromPosts = posts.map(post => Object.keys(post.tagRelevance))
-  const tagIds = [...new Set(tagIdsFromPosts.flat())]
-  const tags = await Tags.find({_id: {$in: tagIds}}).fetch()
+  const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
 
   const adminContext = createAdminContext();
 
-  const coreTags: DbTag[] = await Tags.find({name: {$in: ["Rationality", "World Modeling", "World Optimization", "Practical", "AI"]}}).fetch() ?? []
-
-  const aiStrategyTags = await Tags.find({name: {$in: ["AI Governance", "AI Timelines", "AI Takeoff", "AI Risk"]}}).fetch() ?? []
-
-  const getPostCoreTag = (post: DbPost) => {
-    const tagRelevance = post.tagRelevance
-    const coreTagsOnPost = coreTags.filter(tag => tagRelevance[tag._id] > 0)
-    const postHasAIStrategyTag = aiStrategyTags.some(tag => tagRelevance[tag._id] > 0)
-    const coreTagsMostRelevant = coreTagsOnPost.sort((a,b) => tagRelevance[b._id] - tagRelevance[a._id])[0]
-    if (coreTagsMostRelevant?.name === "AI") {
-      return postHasAIStrategyTag ? "ai strategy" : "ai safety"
-    } else {
-      return tagToCategory[coreTagsMostRelevant?.name]
-    }
-  }
-
-  const tagToCategory: Record<string,ReviewWinnerCategory> = {
-    "Rationality": "rationality",
-    "World Modeling": "modeling",
-    "World Optimization": "optimization",
-    "Practical": "practical"
-  }
-
   await Promise.all(posts.map((post, idx) => {
-    // eslint-disable-next-line no-console
-    console.log(idx)
-    // eslint-disable-next-line no-console
-    console.log(post.title)
-
-    return createMutator({
-      collection: ReviewWinners,
-      document: {
-        postId: post._id,
-        reviewYear: REVIEW_YEAR,
-        category: getPostCoreTag(post),
-        reviewRanking: idx,
-        curatedOrder: 13 + idx,
-      },
-      context: adminContext,
-      currentUser: adminContext.currentUser,
-      validate: false
-    })
+    const category = getPostCategory(post, coreTags, aiStrategyTags)
+    return createReviewWinner(post, idx, category, adminContext)
   }))
 
 }

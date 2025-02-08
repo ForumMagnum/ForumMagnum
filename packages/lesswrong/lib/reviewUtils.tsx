@@ -4,15 +4,18 @@ import moment from "moment"
 import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
-import { isDevelopment } from './executionEnvironment';
+import { isDevelopment } from './executionEnvironment'; 
+import { DatabasePublicSetting, ReviewYearGroupInfo, ReviewSectionInfo } from './publicSettings';
 
-export const reviewYears = [2018, 2019, 2020, 2021, 2022, 2023] as const
-const years = new TupleSet(reviewYears);
-export type ReviewYear = UnionOf<typeof years>;
+export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
+export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
+
+export const reviewYears = new TupleSet([2018, 2019, 2020, 2021, 2022, 2023] as const);
+export type ReviewYear = UnionOf<typeof reviewYears>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
   const year = parseInt(yearParam)
-  if (years.has(year)) {
+  if (reviewYears.has(year)) {
     return year
   }
   throw Error("Not a valid Review Year")
@@ -23,10 +26,13 @@ export const REVIEW_YEAR: ReviewYear = 2023
 export const BEST_OF_LESSWRONG_PUBLISH_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
 export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
+
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerCategory, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
+
 
 // This is broken out partly to allow EA Forum or other fora to do reviews with different names
 // (previously EA Forum did a "decade review" rather than a single year review)
