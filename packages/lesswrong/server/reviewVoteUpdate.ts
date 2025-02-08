@@ -1,12 +1,14 @@
 import ReviewVotes from "../lib/collections/reviewVotes/collection"
 import Users from "../lib/collections/users/collection"
-import { getCostData, REVIEW_YEAR } from "../lib/reviewUtils"
+import { getCostData, REVIEW_YEAR, ReviewWinnerCategory } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
-import { Globals } from "./vulcan-lib";
+import { createAdminContext, createMutator, Globals } from "./vulcan-lib";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
+import ReviewWinners from "@/lib/collections/reviewWinners/collection";
+import { Tags } from "@/lib/collections/tags/collection";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -300,3 +302,91 @@ export async function createVotingPostHtml () {
 //   AND "postedAt" < '2024-01-01'
 //   AND "positiveReviewVoteCount" > 0
 // ORDER BY "reviewVoteScoreHighKarma" DESC
+
+
+// This fetches the tags used to assign posts to a ReviewWinnerCategory, which 
+// almost-but-not-exactly map to Core Tags.
+const fetchCategoryAssignmentTags = async () => {
+  const [coreTags, aiStrategyTags] = await Promise.all([
+    Tags.find({core: true, name: {$in: ["Rationality", "World Modeling", "World Optimization", "Practical", "AI"]}}).fetch(),
+    Tags.find({name: {$in: ["AI Governance", "AI Timelines", "AI Takeoff", "AI Risk"]}}).fetch()
+  ])
+  return {coreTags, aiStrategyTags}
+}
+
+const tagToCategory: Record<string,ReviewWinnerCategory> = {
+  "Rationality": "rationality",
+  "World Modeling": "modeling",
+  "World Optimization": "optimization",
+  "Practical": "practical"
+}
+
+// ReviewWinnerCatogories don't include "Community", and split AI into two major categories: 
+// Technical AI Safety ("ai safety") and AI Strategy. This function uses some heuristics to 
+// guess which category a post belongs to. 
+const getPostCategory = (post: DbPost, coreTags: DbTag[], aiStrategyTags: DbTag[]) => {
+  const tagRelevance = post.tagRelevance
+  const coreTagsOnPost = coreTags.filter(tag => tagRelevance[tag._id] > 0)
+  const postHasAIStrategyTag = aiStrategyTags.some(tag => tagRelevance[tag._id] > 0)
+  const mostRelevantCoreTag = coreTagsOnPost.sort((a,b) => tagRelevance[b._id] - tagRelevance[a._id])[0]
+  if (mostRelevantCoreTag?.name === "AI") {
+    return postHasAIStrategyTag ? "ai strategy" : "ai safety"
+  } else {
+    return tagToCategory[mostRelevantCoreTag?.name]
+  }
+}
+
+const getReviewWinnerPosts = async () => {
+  return await Posts.find({
+    postedAt: {
+      $gte:moment(`${REVIEW_YEAR}-01-01`).toDate(), 
+      $lt:moment(`${REVIEW_YEAR+1}-01-01`).toDate()
+    }, 
+    finalReviewVoteScoreAllKarma: {$gte: 1},
+    reviewCount: {$gte: 1},
+    positiveReviewVoteCount: {$gte: 1}
+  }, {sort: {finalReviewVoteScoreHighKarma: 1}, limit: 1}).fetch()
+}
+
+const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
+  return createMutator({
+    collection: ReviewWinners,
+    document: {
+      postId: post._id,
+      reviewYear: REVIEW_YEAR,    
+      reviewRanking: idx,
+      category,
+    },
+    context: adminContext,
+    currentUser: adminContext.currentUser,
+    validate: false
+  })
+}
+
+// This is for manually checking what the default assignments for post categories are, 
+// to sanity check that they make sense before running the final "createReviewWinners" script
+const checkReviewWinners = async () => {
+  const posts = await getReviewWinnerPosts()
+  const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
+
+  posts.forEach((post, idx) => {
+    const category = getPostCategory(post, coreTags, aiStrategyTags)
+    // eslint-disable-next-line no-console
+    console.log(idx, `${post.title} (${category})`, post.finalReviewVoteScoreHighKarma)
+  })
+}
+
+const createReviewWinners = async () => {
+  const posts = await getReviewWinnerPosts()
+  const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
+  const adminContext = createAdminContext();
+
+  await Promise.all(posts.map((post, idx) => {
+    const category = getPostCategory(post, coreTags, aiStrategyTags)
+    return createReviewWinner(post, idx, category, adminContext)
+  }))
+
+}
+
+Globals.createReviewWinners = createReviewWinners
+Globals.checkReviewWinners = checkReviewWinners

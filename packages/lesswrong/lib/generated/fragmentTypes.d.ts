@@ -954,9 +954,9 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
   readonly reviewYear: number,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
+  readonly isAI: boolean | null,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -1159,6 +1159,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
   readonly spotlight: SpotlightReviewWinner|null,
   readonly reviews: Array<CommentsList>,
+  readonly finalReviewVoteScoreHighKarma: number,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -4241,9 +4242,8 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
   readonly reviewYear: number,
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
 }
 
 interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
@@ -4251,27 +4251,25 @@ interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly postId: string,
   readonly post: PostsTopItemInfo,
   readonly reviewYear: number,
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
 }
 
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly postId: string,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerArtImages|null,
-  readonly isAI: boolean,
   readonly competitorCount: number|null,
 }
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt|null,

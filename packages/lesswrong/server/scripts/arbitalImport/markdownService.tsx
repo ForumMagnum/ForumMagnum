@@ -158,7 +158,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   const { ForumIcon } = Components;
   const footnotes: Array<{
     footnoteId: string
-    contentsHtml: string
+    contentsMarkdown: string
   }> = [];
   //var that = this;
 
@@ -212,7 +212,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const url = pageIdToUrl(linkedPageId);
         return `<a href="${url}">${linkText}</a>`;
       } else {
-        const url = `/w/${slugify(linkText)}`;
+        const linkSlug = trimmedAlias.length > 0 ? slugify(trimmedAlias) : slugify(linkText);
+        const url = `/w/${linkSlug}`;
         const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
           slug: slugify(linkText),
@@ -633,10 +634,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const footnoteIndex = footnotes.length+1;
         footnotes.push({
           footnoteId,
-          contentsHtml: markdown,
+          contentsMarkdown: markdown,
         });
         const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteIndex}]`);
-        return `<sup class="footnote-ref"><a href="#fn-${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup>`;
+        return `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
       });
     });
 
@@ -812,9 +813,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\[ ([^\\]]+?)\\]' + noParen, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(spaceTextRegexp, function(whole, prefix, text) {
-        var url = getLinkHtml(slugify(text), {text});
-        return prefix + '<a href="' + url + '" class="intrasite-link red-link" page-id="">' +
-          text + '</a>';
+        return prefix + getLinkHtml(slugify(text), {text});
       });
     });
 
@@ -994,12 +993,14 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   let html = converter.makeHtml(pageMarkdown);
   
   if (footnotes.length > 0) {
-    html += `<section class="footnotes"><ol class="footnotes-list">`;
-    for (const footnote of footnotes) {
-      const returnLinkHtml = `<a href="#fnref-${footnote.footnoteId}">↩︎</a>`;
-      html += `<li id="fn-${footnote.footnoteId}" class="footnote-item"><p>${footnote.contentsHtml}${returnLinkHtml}</p></li>`;
+    html += `<ol class="footnote-section footnotes" data-footnote-section role="doc-endnotes">`;
+    for (let i=0; i<footnotes.length; i++) {
+      const footnote = footnotes[i];
+      const returnLinkHtml = `<span class="footnote-back-link" data-footnote-back-link data-footnote-id="${footnote.footnoteId}"><sup><strong><a href="#fnref${footnote.footnoteId}">^︎</a></strong></sup></span>`;
+      const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
+      html += `<li id="fn${footnote.footnoteId}" class="footnote-item" data-footnote-item data-footnote-index="${i+1}" data-footnote-id="${footnote.footnoteId}" role="doc-endnote">${returnLinkHtml}<div class="footnote-content" data-footnote-content>${contentsHtml}</div></li>`;
     }
-    html += `</ol></section>`;
+    html += `</ol>`;
   }
   
   try {
