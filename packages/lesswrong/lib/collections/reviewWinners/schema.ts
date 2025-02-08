@@ -78,7 +78,8 @@ export const schema: SchemaType<"ReviewWinners"> = {
   },
   curatedOrder: {
     type: Number,
-    nullable: false,
+    nullable: true,
+    optional: true,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins']
