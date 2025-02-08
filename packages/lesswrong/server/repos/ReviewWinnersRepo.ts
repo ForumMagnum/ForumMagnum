@@ -11,14 +11,14 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   
   async updateCuratedOrder(reviewWinnerId: string, newCuratedOrder: number) {
     await this.getRawDb().tx(async (tx) => {
-      const { curatedOrder: currentOrder } = await tx.one<Pick<DbReviewWinner, 'curatedOrder'>>(`
-        SELECT "curatedOrder"
+      const { curatedOrder: currentOrder, category } = await tx.one<Pick<DbReviewWinner, 'curatedOrder' | 'category'>>(`
+        SELECT "curatedOrder", "category"
         FROM "ReviewWinners"
         WHERE _id = $1
       `, [reviewWinnerId]);
 
       // Moving it earlier in the curated ranking
-      if (newCuratedOrder < currentOrder) {
+      if (currentOrder === null || newCuratedOrder < currentOrder) {
         await tx.none(`
           UPDATE "ReviewWinners"
           SET "curatedOrder" = (SELECT MAX("curatedOrder") + 1 FROM "ReviewWinners")
@@ -30,12 +30,13 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           -- the old currentOrder (the "rightmost" boundary, hence the "<" comparison)
           SET "curatedOrder" = "curatedOrder" + 1
           WHERE "curatedOrder" >= $(newCuratedOrder)
-          AND "curatedOrder" < $(currentOrder);
+          AND ($(currentOrder) IS NULL OR "curatedOrder" < $(currentOrder))
+          AND "category" = $(category);
 
           UPDATE "ReviewWinners"
           SET "curatedOrder" = $(newCuratedOrder)
           WHERE _id = $(reviewWinnerId);
-        `, { newCuratedOrder, currentOrder, reviewWinnerId });
+        `, { newCuratedOrder, currentOrder, reviewWinnerId, category });
       // Moving it later in the curated ranking
       } else if (newCuratedOrder > currentOrder) {
         await tx.none(`
@@ -49,12 +50,13 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           -- the old currentOrder (the "leftmost" boundary, hence the ">" comparison)
           SET "curatedOrder" = "curatedOrder" - 1
           WHERE "curatedOrder" <= $(newCuratedOrder)
-          AND "curatedOrder" > $(currentOrder);
+          AND "curatedOrder" > $(currentOrder)
+          AND "category" = $(category);
 
           UPDATE "ReviewWinners"
           SET "curatedOrder" = $(newCuratedOrder)
           WHERE _id = $(reviewWinnerId);
-        `, { newCuratedOrder, currentOrder, reviewWinnerId });
+        `, { newCuratedOrder, currentOrder, reviewWinnerId, category });
       }
     });
   }

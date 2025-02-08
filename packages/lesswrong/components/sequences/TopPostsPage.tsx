@@ -550,20 +550,21 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
+function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult) {
   const sortedReviewWinners = [...reviewWinners];
-  switch (sortOrder) {
-    case 'curated':
-      return sortedReviewWinners.sort((a, b) => a.reviewWinner.curatedOrder - b.reviewWinner.curatedOrder);
-    case 'year':
-      return sortedReviewWinners.sort((a, b) => {
-        const yearDiff = a.reviewWinner.reviewYear - b.reviewWinner.reviewYear;
-        if (yearDiff === 0) {
-          return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
-        }
-        return yearDiff;
-      });
-  }
+  return sortedReviewWinners.sort((a, b) => {
+    const aCuratedOrder = a.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
+    const bCuratedOrder = b.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
+    const curatedOrderDiff = aCuratedOrder - bCuratedOrder
+    
+    // If one has curatedOrder and the other doesn't, prioritize the one with curatedOrder
+    if (curatedOrderDiff !== 0) {
+      return curatedOrderDiff
+    }
+  
+    // Otherwise sort by finalReviewVoteScoreHighKarma in descending order
+    return (a.reviewWinner.reviewRanking ?? 0) - (b.reviewWinner.reviewRanking ?? 0);
+  });
 }
 
 function getLeftOffset(index: number, columnLength: number) {
@@ -698,7 +699,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   `);
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
-  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
+  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
