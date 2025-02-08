@@ -283,7 +283,7 @@ const validateFragmentSelections = (fragmentDef: FragmentDefinitionNode | FieldN
   );
 
   const selectionResolverFieldMetadata = selectionSet.selections
-    .filter(selection => selection.kind === 'Field')
+    .filter((selection): selection is FieldNode => selection.kind === 'Field')
     .map(selection => {
       const { field, fieldName } = resolveFragmentFieldNode(selection, resolverFieldToOriginalFieldMap, schema);
       return { field, fieldName, selection };
