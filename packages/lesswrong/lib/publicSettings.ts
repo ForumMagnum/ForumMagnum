@@ -2,6 +2,7 @@ import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 import {forumSelect} from './forumTypeUtils'
 import {isEAForum} from './instanceSettings'
+import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -114,6 +115,9 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
+
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerCategory, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & { 
   leftHeightPct?: number;
