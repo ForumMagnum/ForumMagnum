@@ -16,7 +16,7 @@ const promptUrls = [
   "https://s.mj.run/W91s58GkTUs",
   "https://s.mj.run/D5okH4Ak-mw",
   "https://s.mj.run/1aM-y0W73aA",
-  "https://s.mj.run/JAlgYmUiOdc",
+  //"https://s.mj.run/JAlgYmUiOdc", this is no longer available
 ]
 
 const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
