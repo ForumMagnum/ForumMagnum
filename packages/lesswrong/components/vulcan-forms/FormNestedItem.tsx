@@ -55,7 +55,7 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
               variant="danger"
               size="small"
               iconButton
-              tabIndex="-1"
+              tabIndex={-1}
               onClick={() => {
                 removeItem(name);
               }}
