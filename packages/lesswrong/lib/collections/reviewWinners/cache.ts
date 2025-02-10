@@ -35,6 +35,6 @@ export async function getPostReviewWinnerInfo(postId: string, context: ResolverC
 
   return (
     REVIEW_WINNER_CACHE.reviewWinnersByPostId[postId] ??
-    await context.ReviewWinners.findOne({ postId, createdAt: {$lt: moment(`${BEST_OF_LESSWRONG_PUBLISH_YEAR}-01-01`).toDate()} })
+    await context.ReviewWinners.findOne({ postId, reviewYear: {$lte: BEST_OF_LESSWRONG_PUBLISH_YEAR} })
   );
 }
