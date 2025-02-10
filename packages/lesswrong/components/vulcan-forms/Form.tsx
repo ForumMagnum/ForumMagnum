@@ -344,7 +344,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       name: fieldName,
       datatype: fieldSchema.type,
       layout: this.props.layout || "horizontal",
-      input: fieldSchema.input || fieldSchema.control
+      input: fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
 

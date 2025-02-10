@@ -22,7 +22,8 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
-type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
+type FormInputBuiltinName = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
+type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
@@ -171,8 +172,6 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   order?: number,
   label?: string,
   tooltip?: string,
-  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
@@ -226,7 +225,7 @@ type FormField<N extends CollectionNameString> = Pick<
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
+  input: CollectionFieldSpecification<N>["control"]
   label: string
   help: string
   path: string

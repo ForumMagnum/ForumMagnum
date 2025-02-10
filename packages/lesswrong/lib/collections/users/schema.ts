@@ -385,7 +385,7 @@ const schema: SchemaType<"Users"> = {
   isAdmin: {
     type: Boolean,
     label: 'Admin',
-    input: 'checkbox',
+    control: 'checkbox',
     optional: true,
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
@@ -457,7 +457,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
-    input: 'text',
+    control: 'text',
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ownsOrIsMod,
