@@ -52,7 +52,7 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-export interface FormControlProps {
+interface FormControlProps {
   disabled: boolean;
   errors: any[];
   throwError: any;
@@ -65,10 +65,9 @@ export interface FormControlProps {
   currentUser: UsersCurrent | null;
   formProps: any;
   formComponents?: FormComponentOverridesType;
-  setFooterContent: (footerContent: React.ReactNode) => void;
 }
 
-interface FormGroupProps<N extends CollectionNameString> extends Omit<FormControlProps, 'setFooterContent'> {
+interface FormGroupProps<N extends CollectionNameString> extends FormControlProps {
   group: FormGroupType<N>
   fields: FormField<N>[]
 }
@@ -144,7 +143,6 @@ const FormGroup = ({
     currentUser,
     formProps,
     formComponents,
-    setFooterContent: setFooterContent
   };
 
   return (
@@ -156,12 +154,12 @@ const FormGroup = ({
       groupStyling={groupStyling}
       hasErrors={hasErrors()}
       {...layoutComponentProps}
-      formControlProps={formControlProps}
     >
       {fields.map(field => (
         <Components.FormComponent
           key={field.name}
           {...formControlProps}
+          setFooterContent={setFooterContent}
           {...field}
         />
       ))}

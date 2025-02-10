@@ -121,16 +121,13 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   // Get form input type, either based on input props, or by guessing based on form field type
   getInputType = (props?: any) => {
     const p = props || this.props;
+    if (p.input) return p.input;
+
     const fieldType = this.getFieldType();
-    const autoType =
-      fieldType === Number
-        ? 'number'
-        : fieldType === Boolean
-          ? 'checkbox'
-          : fieldType === Date
-            ? 'date'
-            : 'text';
-    return p.input || autoType;
+    if (fieldType === Number) return "number";
+    else if (fieldType === Boolean) return "checkbox";
+    else if (fieldType === Date) return 'date';
+    else return 'text';
   };
 
   // Function passed to form controls to clear their contents (set their value to null)
