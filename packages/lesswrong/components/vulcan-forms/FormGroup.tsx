@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
+import { FormComponentOverridesType } from './propTypes';
 
 const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {
@@ -63,7 +64,7 @@ export interface FormControlProps {
   formType: "new" | "edit";
   currentUser: UsersCurrent | null;
   formProps: any;
-  formComponents: ComponentTypes;
+  formComponents?: FormComponentOverridesType;
   setFooterContent: (footerContent: React.ReactNode) => void;
 }
 
@@ -98,9 +99,9 @@ const FormGroup = ({
     setCollapsed(!collapsed);
   }, [collapsed]);
 
-  const renderHeading = useCallback((FormComponents: ComponentTypes) => {
+  const renderHeading = useCallback(() => {
     const component = (
-      <FormComponents.FormGroupHeader
+      <Components.FormGroupHeader
         toggle={toggle}
         label={label}
         collapsed={collapsed}
@@ -122,11 +123,13 @@ const FormGroup = ({
     });
   }, [fields, errors]);
 
-  const FormComponents = mergeWithComponents(formComponents);
   const groupStyling = !(name === 'default' || (layoutComponentProps?.groupStyling === false));
   const showHeading = groupStyling && !hideHeader;
 
-  const LayoutComponent = layoutComponent ? Components[layoutComponent as ComponentWithProps<FormGroupLayoutProps>] : FormComponents.FormGroupLayout;
+  const LayoutComponent = 
+    (layoutComponent && Components[layoutComponent as ComponentWithProps<FormGroupLayoutProps>])
+    || formComponents?.FormGroupLayout
+    || Components.FormGroupLayout;
 
   const formControlProps: FormControlProps = {
     disabled,
@@ -140,7 +143,7 @@ const FormGroup = ({
     formType,
     currentUser,
     formProps,
-    formComponents: FormComponents,
+    formComponents,
     setFooterContent: setFooterContent
   };
 
@@ -148,7 +151,7 @@ const FormGroup = ({
     <LayoutComponent
       label={label}
       collapsed={collapsed}
-      heading={showHeading ? renderHeading(FormComponents) : null}
+      heading={showHeading ? renderHeading() : null}
       footer={footerContent}
       groupStyling={groupStyling}
       hasErrors={hasErrors()}
@@ -156,7 +159,7 @@ const FormGroup = ({
       formControlProps={formControlProps}
     >
       {fields.map(field => (
-        <FormComponents.FormComponent
+        <Components.FormComponent
           key={field.name}
           {...formControlProps}
           {...field}

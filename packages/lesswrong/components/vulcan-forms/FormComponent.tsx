@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
@@ -44,21 +44,13 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return shouldUpdate;
   }
 
-  /*
-
-  If this is an intl input, get _intl field instead
-
-  */
+  // If this is an intl input, get _intl field instead
   getPath = (props?: FormComponentWrapperProps<T>) => {
     const p = props || this.props;
     return p.path;
   };
 
-  /*
-  
-  Returns true if the passed input type is a custom 
-  
-  */
+  // Returns true if the passed input type is a custom 
   isCustomInput = (inputType: FormInputType) => {
     const isStandardInput = [
       'nested',
@@ -76,11 +68,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return !isStandardInput;
   };
 
-  /*
-  
-  Function passed to form controls (always controlled) to update their value
-  
-  */
+  // Function passed to form controls (always controlled) to update their value
   handleChange = (value: AnyBecauseTodo) => {
 
     // if value is an empty string, delete the field
@@ -98,11 +86,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     void this.props.updateCurrentValues({ [this.getPath()]: updateValue });
   };
 
-  /*
-
-  Get value from Form state through document and currentValues props
-
-  */
+  // Get value from Form state through document and currentValues props
   getValue = (props?: any, context?: any) => {
     const p = props || this.props;
     const c = context || this.context;
@@ -123,13 +107,9 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return value;
   };
 
-  /*
-
-  Get errors from Form state through context
-
-  Note: we use `includes` to get all errors from nested components, which have longer paths
-
-  */
+  // Get errors from Form state through context
+  //
+  // Note: we use `includes` to get all errors from nested components, which have longer paths
   getErrors = (errors?: any) => {
     errors = errors || this.props.errors;
     const fieldErrors = errors.filter(
@@ -138,11 +118,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return fieldErrors;
   };
 
-  /*
-
-  Get form input type, either based on input props, or by guessing based on form field type
-
-  */
+  // Get form input type, either based on input props, or by guessing based on form field type
   getInputType = (props?: any) => {
     const p = props || this.props;
     const fieldType = this.getFieldType();
@@ -157,11 +133,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return p.input || autoType;
   };
 
-  /*
-  
-  Function passed to form controls to clear their contents (set their value to null)
-  
-  */
+  // Function passed to form controls to clear their contents (set their value to null)
   clearField = (event: AnyBecauseTodo) => {
     if (event) {
       event.preventDefault();
@@ -173,14 +145,9 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     void this.props.updateCurrentValues({ [this.props.path]: newVal });
   };
 
-  /*
-  
-  Function passed to FormComponentInner to help with rendering the component
-  
-  */
+  // Function passed to FormComponentInner to help with rendering the component
   getFormInput = () => {
     const inputType = this.getInputType();
-    const FormComponents = mergeWithComponents(this.props.formComponents);
 
     // if input is a React component, use it
     if (typeof this.props.input === 'function') {
@@ -191,57 +158,53 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
 
       switch (inputType) {
         case 'text':
-          return FormComponents.FormComponentDefault;
+          return Components.FormComponentDefault;
 
         case 'number':
-          return FormComponents.FormComponentNumber;
+          return Components.FormComponentNumber;
 
         case 'url':
-          return FormComponents.FormComponentUrl;
+          return Components.FormComponentUrl;
 
         case 'email':
-          return FormComponents.FormComponentEmail;
+          return Components.FormComponentEmail;
 
         case 'textarea':
-          return FormComponents.FormComponentTextarea;
+          return Components.FormComponentTextarea;
 
         case 'checkbox':
-          return FormComponents.FormComponentCheckbox;
+          return Components.FormComponentCheckbox;
 
         case 'checkboxgroup':
-          return FormComponents.FormComponentCheckboxGroup;
+          return Components.FormComponentCheckboxGroup;
 
         case 'radiogroup':
-          return FormComponents.FormComponentRadioGroup
+          return Components.FormComponentRadioGroup
 
         case 'select':
-          return FormComponents.FormComponentSelect;
+          return Components.FormComponentSelect;
 
         case 'datetime':
-          return FormComponents.FormComponentDateTime;
+          return Components.FormComponentDateTime;
 
         case 'date':
-          return FormComponents.FormComponentDate;
+          return Components.FormComponentDate;
 
         default:
-          if (this.props.input && (FormComponents as AnyBecauseTodo)[this.props.input]) {
-            return (FormComponents as AnyBecauseTodo)[this.props.input];
+          if (this.props.input && (Components as AnyBecauseTodo)[this.props.input]) {
+            return (Components as AnyBecauseTodo)[this.props.input];
           } else if (this.isArrayField()) {
             return Components.FormNestedArray;
           } else if (this.isObjectField()) {
-            return FormComponents.FormNestedObject;
+            return Components.FormNestedObject;
           } else {
-            return FormComponents.FormComponentDefault;
+            return Components.FormComponentDefault;
           }
       }
     }
   };
 
-  /*
-
-  Get field field value type
-
-  */
+  // Get field field value type
   getFieldType = () => {
     return this.props.datatype[0].type;
   };
@@ -252,32 +215,29 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return this.getFieldType() instanceof SimpleSchema;
   };
   render() {
-    const FormComponents = mergeWithComponents(this.props.formComponents);
-
     if (!this.props.input && this.props.nestedInput) {
       if (this.isArrayField()) {
         return (
-          <FormComponents.FormNestedArray
+          <Components.FormNestedArray
             {...this.props}
-            formComponents={FormComponents}
+            formComponents={this.props.formComponents}
             errors={this.getErrors()}
             value={this.getValue()}
           />
         );
       } else if (this.isObjectField()) {
         return (
-          <FormComponents.FormNestedObject
+          <Components.FormNestedObject
             {...this.props}
-            formComponents={FormComponents}
+            formComponents={this.props.formComponents}
             errors={this.getErrors()}
-            value={this.getValue()}
           />
         );
       }
     }
 
     const formComponent = (
-      <FormComponents.FormComponentInner
+      <Components.FormComponentInner
         {...this.props}
         inputType={this.getInputType()}
         value={this.getValue()}
@@ -286,7 +246,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         onChange={this.handleChange}
         clearField={this.clearField}
         formInput={this.getFormInput()}
-        formComponents={FormComponents}
+        formComponents={this.props.formComponents}
       />
     );
 

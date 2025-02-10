@@ -58,6 +58,11 @@ type SmartFormCallbacks = {
   revertCallback?: any
 }
 
+export type FormComponentOverridesType = {
+  FormSubmit?: any
+  FormGroupLayout?: any
+};
+
 export interface WrappedSmartFormProps<T extends CollectionNameString> extends SmartFormCallbacks {
   collectionName: T
 
@@ -73,7 +78,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   repeatErrors?: boolean
   noSubmitOnCmdEnter?: boolean
   warnUnsavedChanges?: boolean
-  formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
+  formComponents?: FormComponentOverridesType
   
   // Wasn't in propTypes but used
   id?: string
@@ -150,7 +155,7 @@ declare global {
     clearFieldErrors: any
     currentUser?: UsersCurrent|null
     tooltip?: string
-    formComponents: ComponentTypes
+    formComponents?: FormComponentOverridesType
     locale?: string
     max?: number
     nestedInput: any

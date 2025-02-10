@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import type { FormComponentOverridesType } from './propTypes';
 
 const FormNestedItemLayout = ({ content, removeButton }: {
   content: React.ReactNode
@@ -27,18 +28,17 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
   path: string
   removeItem: (i: string) => void
   itemIndex: number
-  formComponents: ComponentTypes
+  formComponents: FormComponentOverridesType
   hideRemove: boolean
 }, { errors }: {
   errors: any[]
 }) => {
-  const FormComponents = mergeWithComponents(formComponents);
   const isArray = typeof itemIndex !== 'undefined';
   return (
-    <FormComponents.FormNestedItemLayout
+    <Components.FormNestedItemLayout
       content={nestedFields.map((field: AnyBecauseTodo, i: number) => {
         return (
-          <FormComponents.FormComponent
+          <Components.FormComponent
             key={i}
             {...props}
             {...field}

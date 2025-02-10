@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, instantiateComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, instantiateComponent, Components } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { HIGHLIGHT_DURATION } from '../../comments/CommentFrame';
 import { withLocation } from '../../../lib/routeUtil';
@@ -108,11 +108,8 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
       beforeComponent,
       afterComponent,
       errors,
-      formComponents,
       classes,
     } = this.props;
-
-    const FormComponents = formComponents;
 
     const hasErrors = errors && errors.length;
 
@@ -132,7 +129,7 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
       <div className={classNames(inputClass, {[classes.highlightAnimation]: this.state.highlight})} ref={this.scrollRef}>
         {instantiateComponent(beforeComponent, properties)}
         <FormInput {...properties}/>
-        {hasErrors ? <FormComponents.FieldErrors errors={errors} /> : null}
+        {hasErrors ? <Components.FieldErrors errors={errors} /> : null}
         {this.renderClear()}
         {instantiateComponent(afterComponent, properties)}
       </div>
