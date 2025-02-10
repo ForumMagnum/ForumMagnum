@@ -54,6 +54,7 @@ registerFragment(`
     reviews {
       ...CommentsList
     }
+    finalReviewVoteScoreHighKarma
   }
 `);
 

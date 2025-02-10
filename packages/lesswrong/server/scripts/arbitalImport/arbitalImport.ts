@@ -2196,13 +2196,17 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
 
   // Update each tag's coreTagId field
   await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
-    const tag = await Tags.findOne({ slug: ta.slug });
+    const tag = await Tags.findOne({ $or: [{ slug: ta.slug }, { oldSlugs: ta.slug }], deleted: false });
     if (!tag) {
       console.warn(`Tag with slug "${ta.slug}" not found. Skipping.`);
       return;
     }
 
-    const coreTagName = ta.coreTagNames[0];
+    let coreTagName = ta.coreTagNames[0];
+    // TODO: make a decision about this later
+    if (coreTagName === 'Math') {
+      coreTagName = 'World Modeling';
+    }
     const coreTagId = coreTagIdsByName[coreTagName];
     if (!coreTagId) {
       console.warn(`Core tag "${coreTagName}" not found. Skipping.`);
