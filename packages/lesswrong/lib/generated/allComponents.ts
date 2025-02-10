@@ -421,7 +421,6 @@ importComponent("SingleTagItem", () => require("../../components/form-components
 importComponent("SingleUsersItem", () => require("../../components/form-components/SingleUsersItem.tsx"));
 importComponent("SocialPreviewUpload", () => require("../../components/form-components/SocialPreviewUpload.tsx"));
 importComponent("SubforumNotifications", () => require("../../components/form-components/SubforumNotifications.tsx"));
-importComponent("SubmitButton", () => require("../../components/form-components/SubmitButton.tsx"));
 importComponent("TagFlagToggleList", () => require("../../components/form-components/TagFlagToggleList.tsx"));
 importComponent("TagMultiselect", () => require("../../components/form-components/TagMultiselect.tsx"));
 importComponent("TagSelect", () => require("../../components/form-components/TagSelect.tsx"));
