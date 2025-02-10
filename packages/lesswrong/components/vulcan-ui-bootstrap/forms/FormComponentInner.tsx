@@ -1,11 +1,12 @@
-import React, { PureComponent } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, instantiateComponent, Components } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { HIGHLIGHT_DURATION } from '../../comments/CommentFrame';
-import { withLocation } from '../../../lib/routeUtil';
+import { useLocation } from '../../../lib/routeUtil';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FormComponentInner", (theme: ThemeType) => ({
   formComponentClear: {
     "& span": {
       position: "relative",
@@ -27,46 +28,48 @@ const styles = (theme: ThemeType) => ({
   highlightAnimation: {
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
-});
+}));
 
-class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
-  scrollRef: React.RefObject<HTMLDivElement>;
+const FormComponentInner = (props: any) => {
+  const [highlight, setHighlight] = useState(false);
+  const classes = useStyles(styles);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { query } = useLocation();
 
-  constructor(props: AnyBecauseTodo) {
-    super(props);
+  const {
+    inputClassName,
+    name,
+    input,
+    beforeComponent,
+    afterComponent,
+    errors,
+  } = props;
 
-    this.state = {highlight: false};
-    this.scrollRef = React.createRef<HTMLDivElement>()
-  }
 
-  componentDidMount(): void {
-    // If highlightField is set to this field, scroll it into view and highlight it
-    const { query } = this.props.location;
-    const { name } = this.props;
-
+  // If highlightField is set to this field, scroll it into view and highlight it
+  useEffect(() => {
     // NOTE: If you are grepping for highlightField because you tried it and it didn't work, it's possible that
     // this is because the field is of type FormNestedArray or FormNestedObject. Currently these fields don't
     // support highlighting (see packages/lesswrong/components/vulcan-forms/FormComponent.tsx for where these fields are rendered)
     if (name && name === query?.highlightField) {
-      this.scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-      this.setState({highlight: true});
+      scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      setHighlight(true);
       setTimeout(() => {
-        this.setState({highlight: false});
+        setHighlight(false);
       }, HIGHLIGHT_DURATION * 1000);
     }
-  }
+  }, []);
 
-  renderClear = () => {
-    const { classes } = this.props;
+  const renderClear = () => {
     if (
-      ['datetime', 'time', 'select', 'radiogroup', 'SelectLocalgroup'].includes(this.props.input) &&
-      !this.props.hideClear
+      ['datetime', 'time', 'select', 'radiogroup', 'SelectLocalgroup'].includes(props.input) &&
+      !props.hideClear
     ) {
       return (
         <a
           className={classes.formComponentClear}
           title="Clear field"
-          onClick={this.props.clearField}
+          onClick={props.clearField}
         >
           <span>✕</span>
         </a>
@@ -74,8 +77,8 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
     }
   };
 
-  getProperties = () => {
-    const { name, path, options, label, onChange, value, disabled, inputType } = this.props;
+  const getProperties = () => {
+    const { name, path, options, label, onChange, value, disabled, inputType } = props;
 
     // these properties are whitelisted so that they can be safely passed to the actual form input
     // and avoid https://facebook.github.io/react/warnings/unknown-prop.html warnings
@@ -91,50 +94,38 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
       },
       value,
       disabled,
-      ...this.props.inputProperties,
+      ...props.inputProperties,
     };
 
     return {
-      ...this.props,
+      ...props,
       inputProperties,
     };
   };
 
-  render() {
-    const {
-      inputClassName,
-      name,
-      input,
-      beforeComponent,
-      afterComponent,
-      errors,
-      classes,
-    } = this.props;
+  const hasErrors = errors && errors.length;
 
-    const hasErrors = errors && errors.length;
+  const inputName = typeof input === 'function' ? input.name : input;
+  const inputClass = classNames(
+    'form-input',
+    inputClassName,
+    `input-${name}`,
+    `form-component-${inputName || 'default'}`,
+    { 'input-error': hasErrors }
+  );
+  const properties = getProperties();
 
-    const inputName = typeof input === 'function' ? input.name : input;
-    const inputClass = classNames(
-      'form-input',
-      inputClassName,
-      `input-${name}`,
-      `form-component-${inputName || 'default'}`,
-      { 'input-error': hasErrors }
-    );
-    const properties = this.getProperties();
+  const FormInput = props.formInput;
 
-    const FormInput = this.props.formInput;
-
-    return (
-      <div className={classNames(inputClass, {[classes.highlightAnimation]: this.state.highlight})} ref={this.scrollRef}>
-        {instantiateComponent(beforeComponent, properties)}
-        <FormInput {...properties}/>
-        {hasErrors ? <Components.FieldErrors errors={errors} /> : null}
-        {this.renderClear()}
-        {instantiateComponent(afterComponent, properties)}
-      </div>
-    );
-  }
+  return (
+    <div className={classNames(inputClass, {[classes.highlightAnimation]: highlight})} ref={scrollRef}>
+      {instantiateComponent(beforeComponent, properties)}
+      <FormInput {...properties}/>
+      {hasErrors ? <Components.FieldErrors errors={errors} /> : null}
+      {renderClear()}
+      {instantiateComponent(afterComponent, properties)}
+    </div>
+  );
 }
 
 (FormComponentInner as any).propTypes = {
@@ -151,7 +142,7 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
   classes: PropTypes.any,
 };
 
-const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner, {styles, hocs: [withLocation]});
+const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner, {styles});
 
 declare global {
   interface ComponentTypes {
