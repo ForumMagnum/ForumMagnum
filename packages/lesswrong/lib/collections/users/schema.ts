@@ -187,7 +187,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as const,
+  control: "NotificationTypeSettingsWidget" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
