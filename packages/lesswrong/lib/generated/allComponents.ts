@@ -1180,7 +1180,6 @@ importComponent("FormWrapper", () => require("../../components/vulcan-forms/Form
 importComponent("FormComponentCheckboxGroup", () => require("../../components/vulcan-ui-bootstrap/forms/Checkboxgroup.tsx"));
 importComponent("FormComponentEmail", () => require("../../components/vulcan-ui-bootstrap/forms/Email.tsx"));
 importComponent("FormComponentInner", () => require("../../components/vulcan-ui-bootstrap/forms/FormComponentInner.tsx"));
-importComponent("FormControl", () => require("../../components/vulcan-ui-bootstrap/forms/FormControl.tsx"));
 importComponent("FormItem", () => require("../../components/vulcan-ui-bootstrap/forms/FormItem.tsx"));
 importComponent("FormComponentTextarea", () => require("../../components/vulcan-ui-bootstrap/forms/Textarea.tsx"));
 importComponent("FormComponentUrl", () => require("../../components/vulcan-ui-bootstrap/forms/Url.tsx"));
