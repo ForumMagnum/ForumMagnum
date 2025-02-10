@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
@@ -39,11 +38,6 @@ const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormCo
     />
   </div>
 }
-
-(SequencesListEditor as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-};
 
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.

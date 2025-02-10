@@ -98,15 +98,11 @@ const noSharePermissionTooltip = isFriendlyUI
   ? "You need at least 1 karma or to be approved by a moderator to share this post"
   : "You need at least 1 karma or to be approved by a mod to share";
 
-const PostSharingSettings = ({document, formType, value, classes}: {
-  formType: "edit"|"new",
+const PostSharingSettings = ({document, formType, value, updateCurrentValues, classes}: FormComponentProps<SharingSettings> & {
   document: PostsEditQueryFragment,
-  value: SharingSettings,
-  path: string,
-  label: string,
   classes: ClassesType<typeof styles>
 }, context: any) => {
-  const {updateCurrentValues, submitForm} = context;
+  const {submitForm} = context;
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
@@ -185,7 +181,6 @@ const PostSharingSettings = ({document, formType, value, classes}: {
 }
 
 (PostSharingSettings as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   submitForm: PropTypes.func,
 };

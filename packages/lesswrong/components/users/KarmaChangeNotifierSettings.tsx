@@ -1,5 +1,4 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -69,9 +68,7 @@ export const karmaNotificationTimingChoices: Record<string,KarmaNotificationTimi
   },
 };
 
-interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
-  path: any,
-  value: KarmaChangeSettingsType,
+interface KarmaChangeNotifierSettingsProps extends FormComponentProps<KarmaChangeSettingsType>, WithStylesProps {
   timezone?: any,
 }
 
@@ -81,7 +78,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
-    this.context.updateCurrentValues({
+    void this.props.updateCurrentValues({
       [this.props.path]: settings
     });
   }
@@ -221,10 +218,6 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
       }
     </div>
   }
-};
-
-(KarmaChangeNotifierSettings as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
 };
 
 const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings, {
