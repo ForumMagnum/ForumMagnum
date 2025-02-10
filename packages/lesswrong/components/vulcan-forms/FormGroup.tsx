@@ -67,20 +67,15 @@ export interface FormControlProps {
   setFooterContent: (footerContent: React.ReactNode) => void;
 }
 
-interface FormGroupProps extends FormGroupSafeType<CollectionNameString>, Omit<FormControlProps, 'setFooterContent'> {
-  fields: FormField<any>[]
+interface FormGroupProps<N extends CollectionNameString> extends Omit<FormControlProps, 'setFooterContent'> {
+  group: FormGroupType<N>
+  fields: FormField<N>[]
 }
 
 const FormGroup = ({
-  name,
+  group,
   fields,
   formComponents,
-  layoutComponent,
-  label,
-  hideHeader,
-  layoutComponentProps,
-  startCollapsed,
-  helpText,
   disabled,
   errors,
   throwError,
@@ -92,8 +87,9 @@ const FormGroup = ({
   formType,
   currentUser,
   formProps
-}: FormGroupProps) => {
+}: FormGroupProps<CollectionNameString>) => {
   const { query } = useLocation();
+  const { name, label, startCollapsed, helpText, hideHeader, layoutComponent, layoutComponentProps } = group;
   const highlightInFields = query.highlightField && fields.map(f => f.name).includes(query.highlightField);
   const [collapsed, setCollapsed] = useState((startCollapsed && !highlightInFields) || false);
   const [footerContent, setFooterContent] = useState<React.ReactNode>(null);
@@ -170,7 +166,7 @@ const FormGroup = ({
   );
 };
 
-const FormGroupComponent = registerComponent<FormGroupProps>('FormGroup', FormGroup, {});
+const FormGroupComponent = registerComponent('FormGroup', FormGroup);
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg

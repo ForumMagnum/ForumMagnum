@@ -236,7 +236,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   /**
    * Get all field groups
    */
-  getFieldGroups = () => {
+  getFieldGroups = (): FormGroupType<N>[] => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
     let fields = this.getFieldNames(this.props).map((fieldName: string) => {
@@ -1036,7 +1036,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
         {this.getFieldGroups().map((group, i) => (
           <FormComponents.FormGroup
-            {...group}
+            group={group}
             fields={group.fields as FormField<any>[]}
             errors={this.state.errors}
             throwError={this.throwError}
