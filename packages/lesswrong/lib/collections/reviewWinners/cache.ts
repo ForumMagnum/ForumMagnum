@@ -1,4 +1,4 @@
-import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from "@/lib/reviewUtils";
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "@/lib/reviewUtils";
 import keyBy from "lodash/keyBy";
 import mapValues from "lodash/mapValues";
 import moment from "moment";
