@@ -181,7 +181,6 @@ const PostSharingSettings = ({document, formType, value, updateCurrentValues, cl
 }
 
 (PostSharingSettings as any).contextTypes = {
-  addToSuccessForm: PropTypes.func,
   submitForm: PropTypes.func,
 };
 

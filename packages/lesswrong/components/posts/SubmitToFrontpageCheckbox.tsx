@@ -82,21 +82,16 @@ const forumDefaultTooltip: ForumOptions<FC<{classes?: ClassesType<typeof styles>
 
 const defaultTooltip = forumSelect(forumDefaultTooltip)
 
-export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
+export interface SubmitToFrontpageCheckboxProps extends FormButtonProps, WithStylesProps {
   fieldName?: string,
-  currentValues: any,
-  document: any,
   label: any,
   tooltip: any,
 }
 
 class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps> {
-  declare context: AnyBecauseTodo
-
   handleClick = () => {
     const { fieldName = "submitToFrontpage" } = this.props
-    const { updateCurrentValues } = this.context
-    updateCurrentValues({[fieldName]: !this.getCurrentValue()})
+    void this.props.updateCurrentValues({[fieldName]: !this.getCurrentValue()})
   }
   
   getCurrentValue = () => {
@@ -131,10 +126,6 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
     </div>
   }
 };
-
-(SubmitToFrontpageCheckbox as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-}
 
 
 const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox, {styles});
