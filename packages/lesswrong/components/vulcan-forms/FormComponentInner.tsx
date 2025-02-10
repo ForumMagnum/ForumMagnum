@@ -77,32 +77,6 @@ const FormComponentInner = (props: any) => {
     }
   };
 
-  const getProperties = () => {
-    const { name, path, options, label, onChange, value, disabled, inputType } = props;
-
-    // these properties are whitelisted so that they can be safely passed to the actual form input
-    // and avoid https://facebook.github.io/react/warnings/unknown-prop.html warnings
-    const inputProperties = {
-      name,
-      path,
-      options,
-      label,
-      onChange: (event: AnyBecauseTodo) => {
-        // FormComponent's handleChange expects value as argument; look in target.checked or target.value
-        const inputValue = inputType === 'checkbox' ? event.target.checked : event.target.value;
-        onChange(inputValue);
-      },
-      value,
-      disabled,
-      ...props.inputProperties,
-    };
-
-    return {
-      ...props,
-      inputProperties,
-    };
-  };
-
   const hasErrors = errors && errors.length;
 
   const inputName = typeof input === 'function' ? input.name : input;
@@ -113,7 +87,7 @@ const FormComponentInner = (props: any) => {
     `form-component-${inputName || 'default'}`,
     { 'input-error': hasErrors }
   );
-  const properties = getProperties();
+  const properties = {...props};
 
   const FormInput = props.formInput;
 
