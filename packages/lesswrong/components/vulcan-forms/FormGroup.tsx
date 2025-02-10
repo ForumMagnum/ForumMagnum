@@ -62,7 +62,6 @@ interface FormControlProps {
   addToDeletedValues: any;
   clearFieldErrors: any;
   formType: "new" | "edit";
-  currentUser: UsersCurrent | null;
   formProps: any;
   formComponents?: FormComponentOverridesType;
 }
@@ -85,7 +84,6 @@ const FormGroup = ({
   addToDeletedValues,
   clearFieldErrors,
   formType,
-  currentUser,
   formProps
 }: FormGroupProps<CollectionNameString>) => {
   const { query } = useLocation();
@@ -140,7 +138,6 @@ const FormGroup = ({
     addToDeletedValues,
     clearFieldErrors,
     formType,
-    currentUser,
     formProps,
     formComponents,
   };

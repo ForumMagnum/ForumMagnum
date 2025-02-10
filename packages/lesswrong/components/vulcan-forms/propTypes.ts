@@ -153,7 +153,6 @@ declare global {
     errors: any[]
     addToDeletedValues: any
     clearFieldErrors: any
-    currentUser?: UsersCurrent|null
     tooltip?: string
     formComponents?: FormComponentOverridesType
     locale?: string

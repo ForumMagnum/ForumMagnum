@@ -1045,7 +1045,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
             addToDeletedValues={this.addToDeletedValues}
             clearFieldErrors={this.clearFieldErrors}
             formType={this.getFormType()}
-            currentUser={this.props.currentUser}
             disabled={this.state.disabled}
             formComponents={this.props.formComponents}
             formProps={this.props.formProps}
