@@ -406,7 +406,6 @@ importComponent("ImageUpload2", () => require("../../components/form-components/
 importComponent("ImageUploadDefaultsDialog", () => require("../../components/form-components/ImageUploadDefaultsDialog.tsx"));
 importComponent(["LocationPicker", "LocationFormComponent"], () => require("../../components/form-components/LocationFormComponent.tsx"));
 importComponent("ManageSubscriptionsLink", () => require("../../components/form-components/ManageSubscriptionsLink.tsx"));
-importComponent("MuiInput", () => require("../../components/form-components/MuiInput.tsx"));
 importComponent("MuiTextField", () => require("../../components/form-components/MuiTextField.tsx"));
 importComponent("MultiSelectButtons", () => require("../../components/form-components/MultiSelectButtons.tsx"));
 importComponent("PodcastEpisodeInput", () => require("../../components/form-components/PodcastEpisodeInput.tsx"));
