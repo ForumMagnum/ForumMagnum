@@ -41,8 +41,9 @@ import { useCurationEmailsCron } from '../lib/betas';
 import CommentsRepo from './repos/CommentsRepo';
 import uniq from 'lodash/uniq';
 import { DatabaseServerSetting } from './databaseSettings';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
-const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', 1);
+const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
