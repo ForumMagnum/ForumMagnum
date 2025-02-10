@@ -57,7 +57,7 @@ ${title}
 
 ${essay}`
 
-const getEssays = async (): Promise<Essay[]> => {
+const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   const postIds = await ReviewWinners
     .find({}, { projection: { postId: 1 }, sort: { reviewRanking: 1 } })
     .fetch();
@@ -89,7 +89,7 @@ const getEssays = async (): Promise<Essay[]> => {
 type Essay = {post: PostsPage, title: string, content: string, toGenerate: number}
 type MyMidjourneyResponse = {messageId: "string", uri?: string, progress: number, error?: string}
 
-const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {
+const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
   const completion = await openAiClient.chat.completions.create({
     messages: [{role: "user", content: llm_prompt(essay.title, content)}],
@@ -113,7 +113,7 @@ const getElements = async (openAiClient: OpenAI, essay: {title: string, content:
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error parsing response:', error);
-    if (tryCount < 2) return getElements(openAiClient, essay, tryCount + 1)
+    if (tryCount < 2) return getPromptTextElements(openAiClient, essay, tryCount + 1)
     return []
   }
 }
@@ -136,11 +136,11 @@ const pressMidjourneyButton = async (messageId: string, button: string) => {
     .then(checkOnJob)
 }
 
-const saveImage = async (el: string, essay: Essay, url: string) => {
-  const newUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: `splashArtImagePrompt${el}`})
+const saveImage = async (prompt: string, essay: Essay, url: string) => {
+  const newUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: `splashArtImagePrompt${prompt}`})
   if (!newUrl) {
     // eslint-disable-next-line no-console
-    console.error("Failed to upload image to cloudinary", el, essay)
+    console.error("Failed to upload image to cloudinary", prompt, essay)
     return
   }
   await createMutator({
@@ -148,7 +148,7 @@ const saveImage = async (el: string, essay: Essay, url: string) => {
     context: createAdminContext(),
     document: {
       postId: essay.post._id, 
-      splashArtImagePrompt: el,
+      splashArtImagePrompt: prompt,
       splashArtImageUrl: newUrl
     }
   })
@@ -217,7 +217,6 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
     // eslint-disable-next-line no-console
     console.error('Error generating image:', error);
   }
-
 }
 
 async function generateCoverImages({limit = 2}: {
@@ -227,23 +226,27 @@ async function generateCoverImages({limit = 2}: {
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');
   }
-  const essays = (await getEssays()).slice(0, limit)
+  const essays = (await getEssaysWithoutEnoughArt()).slice(0, limit)
 
   return await essays.reduce(async (prev: Promise<string[]>, essay: Essay): Promise<string[]> => {
 
     const prevUrls = await prev
-    const images = await getElements(openAiClient, essay)
+    // 
+    const imageUrls = await getPromptTextElements(openAiClient, essay)
+      // go through text elements, limit it to the amount we need
+      // for each of them , 
       .then((els: string[]) =>
         els.slice(0,Math.min(limit, essay.toGenerate))
           .reduce(async (prev, el) => {
-            const ims = await prev
-            const im = await getEssayPromptJointImageMessage(el)
+            const existingImageUrls = await prev
+            // get the image from midjourney
+            const newImageUrls = await getEssayPromptJointImageMessage(el)
               .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, essay, x.messageId))
               .then(urls => filterNonnull(urls))
-            return [...ims, ...im]
+            return [...existingImageUrls, ...newImageUrls]
           }, Promise.resolve([]) as Promise<string[]>))
 
-    return [...prevUrls, ...images]
+    return [...prevUrls, ...imageUrls]
   }, Promise.resolve([]) as Promise<string[]>)
 }
 

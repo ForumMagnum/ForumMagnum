@@ -31,7 +31,7 @@ export async function getPostReviewWinnerInfo(postId: string, context: ResolverC
   if (cacheStale) {
     void updateReviewWinnerCache(context);
   }
-
+  // console.log("REVIEW_WINNER_CACHE.reviewWinnersByPostId[postId]", REVIEW_WINNER_CACHE.reviewWinnersByPostId[postId])
   return (
     REVIEW_WINNER_CACHE.reviewWinnersByPostId[postId] ??
     await context.ReviewWinners.findOne({ postId })
