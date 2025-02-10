@@ -6,28 +6,15 @@ import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
 
-interface FormComponentState {
-  charsRemaining?: number
-  charsCount?: number
-}
-
-class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>,FormComponentState> {
+class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>> {
   declare context: AnyBecauseTodo
 
   constructor(props: FormComponentWrapperProps<T>) {
     super(props);
-
     this.state = {};
   }
 
-  UNSAFE_componentWillMount() {
-    if (this.showCharsRemaining()) {
-      const value = this.getValue();
-      this.updateCharacterCount(value);
-    }
-  }
-
-  shouldComponentUpdate(nextProps: FormComponentWrapperProps<T>, nextState: FormComponentState) {
+  shouldComponentUpdate(nextProps: FormComponentWrapperProps<T>) {
     // allow custom controls to determine if they should update
     if (this.isCustomInput(this.getInputType(nextProps))) {
       return true;
@@ -46,14 +33,12 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const deleteChanged =
       includesPathOrChildren(deletedValues) !==
       includesPathOrChildren(this.props.deletedValues);
-    const charsChanged = nextState.charsRemaining !== this.state.charsRemaining;
     const disabledChanged = nextProps.disabled !== this.props.disabled;
 
     const shouldUpdate =
       valueChanged ||
       errorChanged ||
       deleteChanged ||
-      charsChanged ||
       disabledChanged;
 
     return shouldUpdate;
@@ -111,24 +96,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
       ? { locale: this.props.locale, value }
       : value;
     void this.props.updateCurrentValues({ [this.getPath()]: updateValue });
-
-    // for text fields, update character count on change
-    if (this.showCharsRemaining()) {
-      this.updateCharacterCount(value);
-    }
-  };
-
-  /*
-  
-  Updates the state of charsCount and charsRemaining as the users types
-  
-  */
-  updateCharacterCount = (value: AnyBecauseTodo) => {
-    const characterCount = value ? value.length : 0;
-    this.setState({
-      charsRemaining: (this.props.max||0) - characterCount,
-      charsCount: characterCount
-    });
   };
 
   /*
@@ -154,18 +121,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
       value = formType === 'new' && defaultValue ? defaultValue : nullValue;
     }
     return value;
-  };
-
-  /*
-
-  Whether to keep track of and show remaining chars
-
-  */
-  showCharsRemaining = (props?: any) => {
-    const p = props || this.props;
-    return (
-      p.max && ['url', 'email', 'textarea', 'text'].includes(this.getInputType(p))
-    );
   };
 
   /*
@@ -216,9 +171,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     // @ts-ignore (anything can get passed in to props via the "form" schema value)
     const newVal = (this.props.input === 'SelectLocalgroup' && this.props.multiselect) ? [] : null;
     void this.props.updateCurrentValues({ [this.props.path]: newVal });
-    if (this.showCharsRemaining()) {
-      this.updateCharacterCount(null);
-    }
   };
 
   /*
@@ -327,12 +279,10 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const formComponent = (
       <FormComponents.FormComponentInner
         {...this.props}
-        {...this.state}
         inputType={this.getInputType()}
         value={this.getValue()}
         errors={this.getErrors()}
         document={this.context.getDocument()}
-        showCharsRemaining={!!this.showCharsRemaining()}
         onChange={this.handleChange}
         clearField={this.clearField}
         formInput={this.getFormInput()}

@@ -108,8 +108,6 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
       beforeComponent,
       afterComponent,
       errors,
-      showCharsRemaining,
-      charsRemaining,
       formComponents,
       classes,
     } = this.props;
@@ -136,9 +134,6 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
         <FormInput {...properties}/>
         {hasErrors ? <FormComponents.FieldErrors errors={errors} /> : null}
         {this.renderClear()}
-        {showCharsRemaining && (
-          <div className={classNames('form-control-limit', { danger: charsRemaining < 10 })}>{charsRemaining}</div>
-        )}
         {instantiateComponent(afterComponent, properties)}
       </div>
     );
@@ -155,10 +150,6 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
   errors: PropTypes.array.isRequired,
   help: PropTypes.node,
   onChange: PropTypes.func.isRequired,
-  showCharsRemaining: PropTypes.bool.isRequired,
-  charsRemaining: PropTypes.number,
-  charsCount: PropTypes.number,
-  charsMax: PropTypes.number,
   inputComponent: PropTypes.func,
   classes: PropTypes.any,
 };
