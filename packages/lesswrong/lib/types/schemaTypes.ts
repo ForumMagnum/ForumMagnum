@@ -22,7 +22,7 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
-type FormInputBuiltinName = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
+type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
 type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';

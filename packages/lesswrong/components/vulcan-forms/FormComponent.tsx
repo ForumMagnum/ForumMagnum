@@ -55,9 +55,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const isStandardInput = [
       'nested',
       'number',
-      'url',
-      'email',
-      'textarea',
       'checkbox',
       'checkboxgroup',
       'select',
@@ -159,15 +156,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
 
         case 'number':
           return Components.FormComponentNumber;
-
-        case 'url':
-          return Components.FormComponentUrl;
-
-        case 'email':
-          return Components.FormComponentEmail;
-
-        case 'textarea':
-          return Components.FormComponentTextarea;
 
         case 'checkbox':
           return Components.FormComponentCheckbox;
