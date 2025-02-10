@@ -1013,6 +1013,7 @@ importComponent("NewTagItem", () => require("../../components/tagging/NewTagItem
 importComponent("NewTagPage", () => require("../../components/tagging/NewTagPage.tsx"));
 importComponent("NewTagsList", () => require("../../components/tagging/NewTagsList.tsx"));
 importComponent("NewWikiTagButton", () => require("../../components/tagging/NewWikiTagButton.tsx"));
+importComponent("NewWikiTagMenu", () => require("../../components/tagging/NewWikiTagMenu.tsx"));
 importComponent("PathInfo", () => require("../../components/tagging/PathInfo.tsx"));
 importComponent("PostsItemTagRelevance", () => require("../../components/tagging/PostsItemTagRelevance.tsx"));
 importComponent("PostsTagsList", () => require("../../components/tagging/PostsTagsList.tsx"));

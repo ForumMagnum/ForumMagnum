@@ -83,7 +83,12 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
                 <DropdownItem title="Wiki Only" to={`${tagCreateUrl}?type=wiki`} />
                 <DropdownItem title="Wiki + Tag" to={tagCreateUrl} />
                 <DropdownDivider />
-                <DropdownItem title={<span><em>What's the difference?</em></span>} to="/w/what-s-a-wikitag" />
+                <DropdownItem 
+                  title={<span><em>What's the difference?</em></span>} 
+                  // tooltip="A wikitag is combination of a wiki page and a tag for a concept. (The tag part is optional.)"
+                  to="/w/what-s-a-wikitag"
+                  onClick={() => forceUnHover()}
+                />
               </div>
             </DropdownMenu>
           </Paper>
