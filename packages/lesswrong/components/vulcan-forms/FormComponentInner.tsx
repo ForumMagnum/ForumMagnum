@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, instantiateComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent, instantiateComponent, Components } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { HIGHLIGHT_DURATION } from '../../comments/CommentFrame';
-import { useLocation } from '../../../lib/routeUtil';
+import { HIGHLIGHT_DURATION } from '../comments/CommentFrame';
+import { useLocation } from '@/lib/routeUtil';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("FormComponentInner", (theme: ThemeType) => ({
