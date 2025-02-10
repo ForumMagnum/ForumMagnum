@@ -58,7 +58,7 @@ const FormComponentInner = (props: any) => {
         setHighlight(false);
       }, HIGHLIGHT_DURATION * 1000);
     }
-  }, []);
+  }, [name, query?.highlightField]);
 
   const renderClear = () => {
     if (
