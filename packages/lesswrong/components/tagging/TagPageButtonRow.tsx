@@ -115,8 +115,8 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   setEditing: (editing: boolean) => void,
   hideLabels?: boolean,
   className?: string,
-  refetchTag: () => Promise<void>,
-  updateSelectedLens: (lensId: string) => void,
+  refetchTag?: () => Promise<void>,
+  updateSelectedLens?: (lensId: string) => void,
   classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
@@ -135,6 +135,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
       return;
     }
 
+    if (!refetchTag || !updateSelectedLens) return;
     openDialog({
       componentName: "NewLensDialog",
       componentProps: {
@@ -162,6 +163,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
   const canCreateLens = !editing
     && canEdit
+    && (!refetchTag || !updateSelectedLens)
     && (undeletedLensCount < 5)
     && isLWorAF;
 
