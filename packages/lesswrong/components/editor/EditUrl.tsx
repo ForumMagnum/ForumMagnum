@@ -71,7 +71,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   }
 
   const updateValue = (value: string | null) => {
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: value,
     });
   }
