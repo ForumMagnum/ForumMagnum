@@ -844,7 +844,6 @@ const LWTagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {selectedLens?.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        {/* intentionally don't pass in refetchTag or updateSelectedLens here to avoid showing newLens button mobile for clutter reasons */}
         <TagPageButtonRow
           tag={tag}
           selectedLens={selectedLens}
@@ -852,6 +851,8 @@ const LWTagPage = () => {
           setEditing={setEditing}
           hideLabels={true}
           className={classNames(classes.editMenu, classes.mobileButtonRow)}
+          refetchTag={refetchTag}
+          updateSelectedLens={updateSelectedLens}
         />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
