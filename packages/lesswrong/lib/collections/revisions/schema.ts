@@ -307,7 +307,7 @@ const schema: SchemaType<"Revisions"> = {
         return null;
       }
       const lens = await context.loaders.MultiDocuments.load(revision.documentId);
-      if (lens.fieldName !== "summary" || lens.collectionName !== "Tags") {
+      if (lens.fieldName !== "summary") {
         return null;
       }
       return await accessFilterSingle(currentUser, MultiDocuments, lens, context);

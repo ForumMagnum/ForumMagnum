@@ -2070,7 +2070,24 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 }
 
 interface RevisionHistorySummaryEdit extends RevisionHistoryEntry { // fragment on Revisions
-  readonly summary: MultiDocumentParentDocument|null,
+  readonly summary: RevisionHistorySummaryEdit_summary|null,
+}
+
+interface RevisionHistorySummaryEdit_summary extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
+  readonly parentTag: RevisionHistorySummaryEdit_summary_parentTag|null,
+  readonly parentLens: RevisionHistorySummaryEdit_summary_parentLens|null,
+}
+
+interface RevisionHistorySummaryEdit_summary_parentTag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+}
+
+interface RevisionHistorySummaryEdit_summary_parentLens { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions

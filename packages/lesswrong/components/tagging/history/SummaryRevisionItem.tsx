@@ -27,9 +27,17 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   const documentId = revision.documentId;
 
   const summary = revision.summary;
-  const shortDescription = summary
-    ? <div>Summary: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
-    : <div>(Deleted summary)</div>
+  
+  function getShortDescription() {
+    if (summary?.parentLens) {
+      return <div>Summary of lens {summary.parentLens.tabTitle}: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
+    } else if (summary?.parentTag) {
+      return <div>Summary: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
+    } else {
+      return <div>(Deleted summary)</div>
+    }
+  }
+  const shortDescription = getShortDescription();
 
   // TODO: There isn't a valid permalink-URL for revisions to summaries, currently.
   const url = '';
