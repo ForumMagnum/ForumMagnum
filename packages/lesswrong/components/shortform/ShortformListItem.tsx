@@ -161,7 +161,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
         </div>
       }
       <div className={classes.tag}>
-        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText />}
+        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText hoverable={true} />}
       </div>
       <div className={classes.preview}>
         {comment.contents?.plaintextMainText}

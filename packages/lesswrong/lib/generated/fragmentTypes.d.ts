@@ -954,9 +954,9 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
   readonly reviewYear: number,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
+  readonly isAI: boolean | null,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -1168,6 +1168,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
   readonly spotlight: SpotlightReviewWinner|null,
   readonly reviews: Array<CommentsList>,
+  readonly finalReviewVoteScoreHighKarma: number,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -1347,7 +1348,6 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
@@ -1360,7 +1360,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
-  readonly tags: Array<TagPreviewFragment>,
+  readonly tags: Array<TagBasicInfo>,
   readonly socialPreviewData: any,
   readonly feedId: string,
   readonly totalDialogueResponseCount: number,
@@ -1414,6 +1414,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly viewCount: number,
+  readonly tags: Array<TagPreviewFragment>,
   readonly socialPreviewData: any,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
@@ -2369,6 +2370,19 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
+}
+
+interface reviewAdminDashboard { // fragment on ReviewVotes
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: reviewAdminDashboard_user|null,
+}
+
+interface reviewAdminDashboard_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly karma: number,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -4241,9 +4255,8 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
   readonly reviewYear: number,
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
 }
 
 interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
@@ -4251,27 +4264,25 @@ interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly postId: string,
   readonly post: PostsTopItemInfo,
   readonly reviewYear: number,
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
 }
 
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly postId: string,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerArtImages|null,
-  readonly isAI: boolean,
   readonly competitorCount: number|null,
 }
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt|null,
@@ -4589,6 +4600,7 @@ interface FragmentTypes {
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
   reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
+  reviewAdminDashboard: reviewAdminDashboard
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
@@ -4813,7 +4825,7 @@ interface FragmentTypesByCollection {
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
-  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"|"reviewAdminDashboard"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -4981,6 +4993,7 @@ interface CollectionNamesByFragmentName {
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
   reviewVoteWithUserAndPost: "ReviewVotes"
+  reviewAdminDashboard: "ReviewVotes"
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"

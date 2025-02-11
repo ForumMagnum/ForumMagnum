@@ -346,6 +346,7 @@ const FooterTagList = ({
               key={tag._id}
               tagRel={tagRel}
               tag={tag}
+              hoverable="ifDescriptionPresent"
               hideScore={hideScore}
               smallText={smallText}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}

@@ -23,6 +23,7 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'wYjMsKsEkDPgHeAbS', // Four Ideas You Already Agree With
   'fMEhpDrpbnHpcgsDE', // Facing up to the Price on Life
   'JN3kHaiosmdA7kgNY', // The Game Board has been Flipped: Now is a good time to rethink what you’re doing
   'BRqBvkjskZ6c2G6rn', // The Upcoming PEPFAR Cut Will Kill Millions, Many of Them Children
