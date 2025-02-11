@@ -2,7 +2,7 @@ import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
 
-export const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
+const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
 
 interface ShiftSpotlightItemParams {
   startBound: number;
@@ -37,6 +37,8 @@ const schema: SchemaType<"Spotlights"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     order: 10,
+    // TODO: remove this once old clients have cycled out and aren't querying this field anymore
+    // Has been replaced by the post, sequence, and tag fields
     resolveAs: {
       fieldName: 'document',
       addOriginalField: true,
