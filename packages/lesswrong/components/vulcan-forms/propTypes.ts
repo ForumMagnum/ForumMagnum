@@ -166,13 +166,12 @@ declare global {
   interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
     beforeComponent?: any
     afterComponent?: any
-    inputType: FormInputType
     formInput: React.ComponentType<FormComponentProps<T>>
     onChange: any
     value: T
     clearField: (ev?: AnyBecauseTodo) => void
   }
-  type FormComponentProps<T> = Omit<FormComponentInnerWrapperProps<T>, "input"|"formInput"|"inputType">
+  type FormComponentProps<T> = Omit<FormComponentInnerWrapperProps<T>, "input"|"formInput">
 
   interface FormButtonProps {
     submitLabel: React.ReactNode;

@@ -19,8 +19,6 @@ export const ContentType = new SimpleSchema({
   )
 })
 
-SimpleSchema.extendOptions([ 'inputType' ]);
-
 // Graphql doesn't allow union types that include scalars, which is necessary
 // to accurately represent the data field the ContentType simple schema.
 

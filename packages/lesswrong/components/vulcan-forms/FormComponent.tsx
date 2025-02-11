@@ -222,7 +222,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const formComponent = (
       <Components.FormComponentInner
         {...this.props}
-        inputType={this.getInputType()}
         value={this.getValue()}
         errors={this.getErrors()}
         document={this.context.getDocument()}
