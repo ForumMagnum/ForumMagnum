@@ -192,10 +192,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
     />
   </>;
 
-  const newLensTooltip = (<div>
-    Click to create a new lens for this tag.
-  </div>);
-
   return <div className={classNames(classes.buttonsRow, className)}>
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
@@ -245,10 +241,10 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
       </a>
     </LWTooltip>}
     
-    <Components.TagPageActionsMenuButton
+    {isLWorAF && <Components.TagPageActionsMenuButton
       tagOrLens={selectedLens}
       createLens={canCreateLens ? handleNewLensClick : null}
-    />
+    />}
   </div>
 }
 
