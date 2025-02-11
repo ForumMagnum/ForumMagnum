@@ -68,7 +68,7 @@ export const SpotlightsPage = ({classes}: {
         level: 1
       },
       ...upcomingSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
+        title: 'title' in spotlight.document ? spotlight.document.title : spotlight.document.name,
         anchor: spotlight._id,
         level: 2
       })),
@@ -79,7 +79,7 @@ export const SpotlightsPage = ({classes}: {
           level: 1
         },
         ...draftSpotlights.map(spotlight => ({
-          title: spotlight.document.title,
+          title: 'title' in spotlight.document ? spotlight.document.title : spotlight.document.name,
           anchor: spotlight._id,
           level: 2
         }))

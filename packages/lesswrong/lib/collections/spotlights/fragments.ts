@@ -41,8 +41,14 @@ registerFragment(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     document {
+      __typename
       _id
-      slug
+      ... on Post {
+        slug
+      }
+      ... on Tag {
+        slug
+      }
     }
   }
 `);
@@ -50,16 +56,38 @@ registerFragment(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     document {
-      _id
-      title
-      slug
-      user {
+      __typename
+      ... on Post {
         _id
-        displayName
+        title
         slug
+        user {
+          _id
+          displayName
+          slug
+        }
+        reviews {
+          ...CommentsList
+        }
       }
-      reviews {
-        ...CommentsList
+      ... on Sequence {
+        _id
+        title
+        user {
+          _id
+          displayName
+          slug
+        }
+      }
+      ... on Tag {
+        _id
+        name
+        slug
+        user {
+          _id
+          displayName
+          slug
+        }
       }
     }
     sequenceChapters {

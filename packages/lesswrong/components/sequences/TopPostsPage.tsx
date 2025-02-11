@@ -830,7 +830,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
     ...post.spotlight,
-    document: post,
+    document: { ...post, __typename: 'Post' as const },
     ranking: post.reviewWinner?.reviewRanking
   })).sort((a, b) => {
     const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.document?._id)

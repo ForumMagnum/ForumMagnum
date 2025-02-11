@@ -15,7 +15,6 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { gql, useMutation } from '@apollo/client';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 
 const TEXT_WIDTH = 350;
@@ -375,6 +374,26 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
+  if (spotlight.customTitle) return spotlight.customTitle;
+
+  switch (spotlight.document.__typename) {
+    case "Post":
+      return spotlight.document.title;
+    case "Tag":
+      return spotlight.document.name;
+    case "Sequence":
+      return spotlight.document.title;
+  }
+}
+
+function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
+  if (spotlight.document?.__typename === "Post") {
+    return spotlight.document.reviews;
+  }
+  return [];
+}
+
 export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
@@ -466,6 +485,8 @@ export const SpotlightItem = ({
 
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
+  const spotlightReviews = getSpotlightDisplayReviews(spotlight);
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
       id={spotlight._id}
@@ -479,7 +500,7 @@ export const SpotlightItem = ({
           <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
             <div className={classes.title}>
               <Link to={url}>
-                {spotlight.customTitle ?? spotlight.document.title}
+                {getSpotlightDisplayTitle(spotlight)}
               </Link>
               <span className={classes.editDescriptionButton}>
                 {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
@@ -515,7 +536,7 @@ export const SpotlightItem = ({
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
           {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
-          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlight.document?.reviews?.length ?? 0) * 30}px)`}}>
+          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
             <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
           </div>}
           {spotlight.spotlightImageId && <CloudinaryImage2
@@ -530,7 +551,7 @@ export const SpotlightItem = ({
           />}
         </div>
         <div className={classes.reviews}>
-          {spotlight.document?.reviews?.map(review => <div key={review._id} className={classes.review}>
+          {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
             <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
           </div>)}
         </div>

@@ -3,6 +3,21 @@
     "types": [
       {
         "kind": "UNION",
+        "name": "SpotlightDocument",
+        "possibleTypes": [
+          {
+            "name": "Sequence"
+          },
+          {
+            "name": "Post"
+          },
+          {
+            "name": "Tag"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
         "name": "Voteable",
         "possibleTypes": [
           {

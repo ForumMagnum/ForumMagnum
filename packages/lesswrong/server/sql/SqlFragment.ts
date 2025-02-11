@@ -155,6 +155,16 @@ class SqlFragment {
         continue;
       }
 
+      // Add new case for inline fragments
+      match = line.match(/^\.\.\.\s+on\s+([a-zA-Z0-9-_]+)\s*{$/);
+      if (match?.[1]) {
+        // For inline fragments, we merge their entries into the current level
+        // since they're just type refinements of the same fields
+        const fragmentEntries = this.parseEntries();
+        entries = merge(entries, fragmentEntries);
+        continue;
+      }
+
       throw new Error(`Parse error in fragment "${this.getName()}": "${line}"`);
     }
     return entries;

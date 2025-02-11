@@ -1,9 +1,32 @@
 import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
-import { graphqlTypeToCollectionName } from "../../vulcan-lib/collections";
 import { isLWorAF } from "../../instanceSettings";
+import { defineUnion, GraphQLUnionTypeResolver } from "@/lib/vulcan-lib/graphql";
 
-const DOCUMENT_TYPES = ['Sequence', 'Post'];
+export const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
+
+const getSpotlightDocumentType: GraphQLUnionTypeResolver<typeof SPOTLIGHT_DOCUMENT_TYPES> = (doc) => {
+  if ('isDeleted' in doc) {
+    return 'Sequence';
+  }
+
+  if ('canonicalSequenceId' in doc) {
+    return 'Post';
+  }
+
+  if ('name' in doc) {
+    return 'Tag';
+  }
+
+  const exhaustiveCheck: never = doc;
+  return exhaustiveCheck;
+}
+
+const SPOTLIGHT_DOCUMENT_UNION = defineUnion({
+  name: "SpotlightDocument",
+  types: SPOTLIGHT_DOCUMENT_TYPES,
+  resolveType: getSpotlightDocumentType
+});
 
 interface ShiftSpotlightItemParams {
   startBound: number;
@@ -41,10 +64,8 @@ const schema: SchemaType<"Spotlights"> = {
     resolveAs: {
       fieldName: 'document',
       addOriginalField: true,
-      // TODO: try a graphql union type?
-      type: 'Post!',
-      // TODO: make a sql resolver and loader and stuff
-      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
+      type: `${SPOTLIGHT_DOCUMENT_UNION}!`,
+      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbTag> | null> => {
         switch(spotlight.documentType) {
           case "Post": {
             const document = await context.loaders.Posts.load(spotlight.documentId);
@@ -53,6 +74,10 @@ const schema: SchemaType<"Spotlights"> = {
           case "Sequence": {
             const document = await context.loaders.Sequences.load(spotlight.documentId);
             return accessFilterSingle(context.currentUser, context.Sequences, document, context);
+          }
+          case "Tag": {
+            const document = await context.loaders.Tags.load(spotlight.documentId);
+            return accessFilterSingle(context.currentUser, context.Tags, document, context);
           }
         }
       }
@@ -68,10 +93,10 @@ const schema: SchemaType<"Spotlights"> = {
     typescriptType: 'SpotlightDocumentType',
     control: 'select',
     form: {
-      options: () => DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
+      options: () => SPOTLIGHT_DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
     },
-    ...schemaDefaultValue(DOCUMENT_TYPES[0]),
-    allowedValues: DOCUMENT_TYPES,
+    ...schemaDefaultValue(SPOTLIGHT_DOCUMENT_TYPES[0]),
+    allowedValues: [...SPOTLIGHT_DOCUMENT_TYPES],
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
