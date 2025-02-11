@@ -132,7 +132,7 @@ const ReactionsAndLikesVote  = ({
   
 
   return <div className={className}>
-    <LWTooltip title={voteScoreTooltip} disabled={!!isMobile()}>
+    <LWTooltip title={voteScoreTooltip} disabledOnMobile={true}>
       <div
         className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})}
         onClick={toggleLike}
