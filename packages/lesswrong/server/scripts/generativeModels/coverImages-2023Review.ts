@@ -7,10 +7,13 @@ import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collecti
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import shuffle from 'lodash/shuffle';
 import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
+import { fal } from '@fal-ai/client';
+import { falApiKey } from '@/lib/instanceSettings.ts';
+import type { RunOptions, Result } from '@fal-ai/client';
+import sample from 'lodash/sample';
 
-const FAL_API_KEY = '58d6adef-e55d-4149-9d2a-ae9f75f38741:2b8d3ce1154bcc3c66ec87b60d62cc42'
 
-const promptUrls = [
+const promptImageUrls = [
   "https://s.mj.run/W91s58GkTUs",
   "https://s.mj.run/D5okH4Ak-mw",
   "https://s.mj.run/1aM-y0W73aA",
@@ -140,46 +143,35 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
 }
 
 
+fal.config({
+  credentials: falApiKey.get(),
+});
 
 const generateImage = async (prompt: string, imageUrl?: string): Promise<string> => {
   // eslint-disable-next-line no-console
   console.log(`generating image for ${prompt}`)
   try {
-    const body: any = {
-      prompt: prompt,
-      negative_prompt: "text, writing, words, low quality, blurry",
-      num_inference_steps: 25,
-      guidance_scale: 7.5,
-      size: {
-        width: 1600,
-        height: 900
+    const runOptions = {
+      input: {
+        prompt: prompt,
+        negative_prompt: "text, writing, words, low quality, blurry",
+        num_inference_stepasdfs2: 25,
+        guidance_scale: 7.5,
+        image_size: {
+          width: 900,
+          height: 1600
+        },
+        ...(imageUrl ? {
+          image_url: imageUrl,
+          strength: 10
+        } : {})
       }
-    };
-
-    // Add image_url if provided
-    if (imageUrl) {
-      body.image_url = imageUrl;
-      body.strength = 0.7; // Controls how much to preserve from original image (0-1)
     }
+    const result = await fal.run('110602490-fast-sdxl', runOptions);
 
-    const response = await fetch('https://110602490-fast-sdxl.gateway.alpha.fal.ai/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${FAL_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
-
-    const result = await response.json();
     // eslint-disable-next-line no-console
     console.log(result)
-    return result.images[0].url;
+    return result.data.images[0].url;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error generating image:', error);
@@ -189,7 +181,7 @@ const generateImage = async (prompt: string, imageUrl?: string): Promise<string>
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `${shuffle(promptUrls)[0]} topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
+  return `topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
 }
 
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
@@ -211,11 +203,9 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
   const prompts = await getPrompts(openAiClient, essay)
 
   const results = Promise.all(prompts.map(async (prompt) => {
-    const imageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-
-    const image = await generateImage(prompt, imageUrl)
+    const image = await generateImage(prompt, sample(promptImageUrls))
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
-    return {title: essay.title, prompt, imageUrl, reviewWinnerArt}
+    return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))
   return results
 }
