@@ -374,22 +374,21 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
-  if (spotlight.customTitle) return spotlight.customTitle;
+export function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
+  const { customTitle, post, sequence, tag } = spotlight;
+  if (customTitle) return customTitle;
 
-  switch (spotlight.document.__typename) {
-    case "Post":
-      return spotlight.document.title;
-    case "Tag":
-      return spotlight.document.name;
-    case "Sequence":
-      return spotlight.document.title;
-  }
+  if (post) return post.title;
+  if (sequence) return sequence.title;
+  if (tag) return tag.name;
+
+  // We should never reach this
+  return "";
 }
 
 function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
-  if (spotlight.document?.__typename === "Post") {
-    return spotlight.document.reviews;
+  if (spotlight.post) {
+    return spotlight.post.reviews;
   }
   return [];
 }
@@ -485,6 +484,7 @@ export const SpotlightItem = ({
 
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
+  const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const spotlightReviews = getSpotlightDisplayReviews(spotlight);
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
@@ -526,12 +526,12 @@ export const SpotlightItem = ({
                 :
                 <ContentItemBody
                   dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                  description={`${spotlight.documentType} ${spotlight.document._id}`}
+                  description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                 />
               }
             </div>}
-            {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+            {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
+              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
             </Typography>}
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>

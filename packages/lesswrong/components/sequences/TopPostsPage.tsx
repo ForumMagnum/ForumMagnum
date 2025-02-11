@@ -830,11 +830,13 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
     ...post.spotlight,
-    document: { ...post, __typename: 'Post' as const },
+    post,
+    tag: null,
+    sequence: null,
     ranking: post.reviewWinner?.reviewRanking
   })).sort((a, b) => {
-    const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.document?._id)
-    const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.document?._id)
+    const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.post?._id)
+    const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.post?._id)
     if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
       return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
     } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
@@ -890,22 +892,22 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
       </div>
       <div className={classes.spotlightCheckmarkRow}>
         {filteredSpotlights.map((spotlight) => {
-          const post = reviewWinnersWithPosts.find(post => post._id === spotlight.document?._id)
+          const post = reviewWinnersWithPosts.find(post => post._id === spotlight.post?._id)
           const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
           const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
           const postAuthor = post?.user?.displayName
-          const tooltip = <><div>{spotlight.document?.title}</div>
+          const tooltip = <><div>{spotlight.post?.title}</div>
           <div><em>by {postAuthor}</em></div>
           {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
 
           return <LWTooltip key={spotlight._id} title={tooltip}>
-            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.document?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.post?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
           </LWTooltip>
         })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}>
-          <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.document?.reviewWinner?.reviewYear}`}>
+        {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.post?.isRead && classes.spotlightIsNotRead )}>
+          <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.post?.reviewWinner?.reviewYear}`}>
             <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
           </LWTooltip>
           <SpotlightItem spotlight={spotlight} showSubtitle={false} />

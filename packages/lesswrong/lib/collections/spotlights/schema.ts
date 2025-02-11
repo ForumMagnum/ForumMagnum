@@ -1,32 +1,8 @@
 import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
-import { defineUnion, GraphQLUnionTypeResolver } from "@/lib/vulcan-lib/graphql";
 
 export const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
-
-const getSpotlightDocumentType: GraphQLUnionTypeResolver<typeof SPOTLIGHT_DOCUMENT_TYPES> = (doc) => {
-  if ('isDeleted' in doc) {
-    return 'Sequence';
-  }
-
-  if ('canonicalSequenceId' in doc) {
-    return 'Post';
-  }
-
-  if ('name' in doc) {
-    return 'Tag';
-  }
-
-  const exhaustiveCheck: never = doc;
-  return exhaustiveCheck;
-}
-
-const SPOTLIGHT_DOCUMENT_UNION = defineUnion({
-  name: "SpotlightDocument",
-  types: SPOTLIGHT_DOCUMENT_TYPES,
-  resolveType: getSpotlightDocumentType
-});
 
 interface ShiftSpotlightItemParams {
   startBound: number;
@@ -64,7 +40,7 @@ const schema: SchemaType<"Spotlights"> = {
     resolveAs: {
       fieldName: 'document',
       addOriginalField: true,
-      type: `${SPOTLIGHT_DOCUMENT_UNION}!`,
+      type: `Post!`,
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbTag> | null> => {
         switch(spotlight.documentType) {
           case "Post": {
@@ -83,6 +59,60 @@ const schema: SchemaType<"Spotlights"> = {
       }
     },
   },
+
+  post: resolverOnlyField({
+    type: Object,
+    graphQLtype: "Post",
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost> | null> => {
+      if (spotlight.documentType !== "Post") {
+        return null;
+      }
+
+      const post = await context.loaders.Posts.load(spotlight.documentId);
+      if (!post) {
+        return null;
+      }
+
+      return accessFilterSingle(context.currentUser, context.Posts, post, context);
+    }
+  }),
+
+  sequence: resolverOnlyField({
+    type: Object,
+    graphQLtype: "Sequence",
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbSequence> | null> => {
+      if (spotlight.documentType !== "Sequence") {
+        return null;
+      }
+
+      const sequence = await context.loaders.Sequences.load(spotlight.documentId);
+      if (!sequence) {
+        return null;
+      }
+
+      return accessFilterSingle(context.currentUser, context.Sequences, sequence, context);
+    }
+  }),
+
+  tag: resolverOnlyField({
+    type: Object,
+    graphQLtype: "Tag",
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbTag> | null> => {
+      if (spotlight.documentType !== "Tag") {
+        return null;
+      }
+
+      const tag = await context.loaders.Tags.load(spotlight.documentId);
+      if (!tag) {
+        return null;
+      }
+
+      return accessFilterSingle(context.currentUser, context.Tags, tag, context);
+    }
+  }),
   
   /**
    * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.

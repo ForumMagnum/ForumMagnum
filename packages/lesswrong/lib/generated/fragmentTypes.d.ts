@@ -3859,87 +3859,71 @@ interface SpotlightReviewWinner_description { // fragment on Revisions
   readonly html: string,
 }
 
-interface SpotlightHeaderEventSubtitle_document_Base {
-  readonly __typename: string,
-}
-
-interface SpotlightHeaderEventSubtitle_document_Post {
-  readonly __typename: "Post",
-  readonly _id: string,
-  readonly slug: string,
-}
-
-interface SpotlightHeaderEventSubtitle_document_Tag {
-  readonly __typename: "Tag",
-  readonly _id: string,
-  readonly slug: string,
-}
-
-type SpotlightHeaderEventSubtitle_document = SpotlightHeaderEventSubtitle_document_Base & (
-  | SpotlightHeaderEventSubtitle_document_Post
-  | SpotlightHeaderEventSubtitle_document_Tag
-);
-
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
-  readonly document: SpotlightHeaderEventSubtitle_document,
+  readonly post: SpotlightHeaderEventSubtitle_post|null,
+  readonly sequence: SpotlightHeaderEventSubtitle_sequence|null,
+  readonly tag: SpotlightHeaderEventSubtitle_tag|null,
 }
 
-interface SpotlightDisplay_document_Base {
-  readonly __typename: string,
-}
-
-interface SpotlightDisplay_document_Post_user { // fragment on Users
+interface SpotlightHeaderEventSubtitle_post { // fragment on Posts
   readonly _id: string,
-  readonly displayName: string,
   readonly slug: string,
 }
 
-interface SpotlightDisplay_document_Post {
-  readonly __typename: "Post",
+interface SpotlightHeaderEventSubtitle_sequence { // fragment on Sequences
+  readonly _id: string,
+}
+
+interface SpotlightHeaderEventSubtitle_tag { // fragment on Tags
+  readonly _id: string,
+  readonly slug: string,
+}
+
+interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
+  readonly post: SpotlightDisplay_post|null,
+  readonly sequence: SpotlightDisplay_sequence|null,
+  readonly tag: SpotlightDisplay_tag|null,
+  readonly sequenceChapters: Array<ChaptersFragment>,
+  readonly description: SpotlightDisplay_description|null,
+}
+
+interface SpotlightDisplay_post { // fragment on Posts
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
-  readonly user: SpotlightDisplay_document_Post_user|null,
+  readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
 
-interface SpotlightDisplay_document_Sequence_user { // fragment on Users
+interface SpotlightDisplay_post_user { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
   readonly slug: string,
 }
 
-interface SpotlightDisplay_document_Sequence {
-  readonly __typename: "Sequence",
+interface SpotlightDisplay_sequence { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
-  readonly user: SpotlightDisplay_document_Sequence_user|null,
+  readonly user: SpotlightDisplay_sequence_user|null,
 }
 
-interface SpotlightDisplay_document_Tag_user { // fragment on Users
+interface SpotlightDisplay_sequence_user { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
   readonly slug: string,
 }
 
-interface SpotlightDisplay_document_Tag {
-  readonly __typename: "Tag",
+interface SpotlightDisplay_tag { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
-  readonly user: SpotlightDisplay_document_Tag_user|null,
+  readonly user: SpotlightDisplay_tag_user|null,
 }
 
-type SpotlightDisplay_document = SpotlightDisplay_document_Base & (
-  | SpotlightDisplay_document_Post
-  | SpotlightDisplay_document_Sequence
-  | SpotlightDisplay_document_Tag
-);
-
-interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
-  readonly document: SpotlightDisplay_document,
-  readonly sequenceChapters: Array<ChaptersFragment>,
-  readonly description: SpotlightDisplay_description|null,
+interface SpotlightDisplay_tag_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly slug: string,
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions

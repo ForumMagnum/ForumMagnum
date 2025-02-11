@@ -1,13 +1,16 @@
 import { tagGetUrl } from "../tags/helpers";
 
-export const getSpotlightUrl = <T extends { document: SpotlightDisplay_document | SpotlightHeaderEventSubtitle_document }>(spotlight: T): string => {
-  const { document } = spotlight;
-  switch (document.__typename) {
-    case "Sequence":
-      return `/s/${document._id}`;
-    case "Post":
-      return `/posts/${document._id}/${document.slug}`;
-    case "Tag":
-      return tagGetUrl(document);
+export const getSpotlightUrl = <T extends SpotlightDisplay | SpotlightHeaderEventSubtitle>(spotlight: T): string => {
+  const { post, sequence, tag } = spotlight;
+  if (post) {
+    return `/posts/${post._id}/${post.slug}`;
+  } else if (sequence) {
+    return `/s/${sequence._id}`;
+  } else if (tag) {
+    return tagGetUrl(tag);
+  } else {
+    // eslint-disable-next-line no-console
+    console.error("Invalid spotlight", spotlight);
+    return "";
   }
 };

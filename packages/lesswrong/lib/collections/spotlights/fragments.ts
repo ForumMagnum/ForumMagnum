@@ -40,54 +40,52 @@ registerFragment(`
 registerFragment(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
-    document {
-      __typename
+    post {
       _id
-      ... on Post {
-        slug
-      }
-      ... on Tag {
-        slug
-      }
+      slug
+    }
+    sequence {
+      _id
+    }
+    tag {
+      _id
+      slug
     }
   }
 `);
 registerFragment(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
-    document {
-      __typename
-      ... on Post {
+    post {
+      _id
+      title
+      slug
+      user {
         _id
-        title
+        displayName
         slug
-        user {
-          _id
-          displayName
-          slug
-        }
-        reviews {
-          ...CommentsList
-        }
       }
-      ... on Sequence {
-        _id
-        title
-        user {
-          _id
-          displayName
-          slug
-        }
+      reviews {
+        ...CommentsList
       }
-      ... on Tag {
+    }
+    sequence {
+      _id
+      title
+      user {
         _id
-        name
+        displayName
         slug
-        user {
-          _id
-          displayName
-          slug
-        }
+      }
+    }
+    tag {
+      _id
+      name
+      slug
+      user {
+        _id
+        displayName
+        slug
       }
     }
     sequenceChapters {

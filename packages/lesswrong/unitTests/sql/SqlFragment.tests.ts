@@ -112,60 +112,6 @@ describe("SqlFragment", () => {
       },
     });
   });
-  it("can parse inline fragments in union types", () => {
-    const getFragment = () => null;
-    const fragment = new SqlFragment(`
-      fragment TestFragment on TestCollection {
-        unionField {
-          __typename
-          _id
-          ... on TypeA {
-            fieldA
-            sharedField
-          }
-          ... on TypeB {
-            fieldB
-            sharedField
-          }
-        }
-      }
-    `, getFragment);
-    const entries = fragment.getParsedEntries();
-    expect(entries).toStrictEqual({
-      unionField: {
-        type: "pick",
-        name: "unionField",
-        args: [],
-        entries: {
-          __typename: {
-            type: "field",
-            name: "__typename",
-            args: [],
-          },
-          _id: {
-            type: "field",
-            name: "_id",
-            args: [],
-          },
-          fieldA: {
-            type: "field",
-            name: "fieldA",
-            args: [],
-          },
-          fieldB: {
-            type: "field",
-            name: "fieldB",
-            args: [],
-          },
-          sharedField: {
-            type: "field",
-            name: "sharedField",
-            args: [],
-          },
-        },
-      },
-    });
-  });
 });
 
 describe('getResolverCollection', () => {
