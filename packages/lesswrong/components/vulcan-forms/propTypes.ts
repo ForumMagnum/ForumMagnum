@@ -141,7 +141,7 @@ declare global {
     name: string
     label?: string
     placeholder?: string
-    input?: FormInputType
+    input: FormInputType
     datatype: any
     path: string
     disabled?: boolean
@@ -163,9 +163,16 @@ declare global {
     setFooterContent?: any
     hideClear?: boolean
   }
-  interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
+  interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
+    beforeComponent?: any
+    afterComponent?: any
+    inputType: FormInputType
+    formInput: React.ComponentType<FormComponentProps<T>>
+    onChange: any
     value: T
+    clearField: (ev?: AnyBecauseTodo) => void
   }
+  type FormComponentProps<T> = Omit<FormComponentInnerWrapperProps<T>, "input"|"formInput"|"inputType">
 
   interface FormButtonProps {
     submitLabel: React.ReactNode;

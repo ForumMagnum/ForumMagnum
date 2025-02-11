@@ -225,7 +225,7 @@ type FormField<N extends CollectionNameString> = Pick<
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<N>["control"]
+  input: FormInputType
   label: string
   help: string
   path: string

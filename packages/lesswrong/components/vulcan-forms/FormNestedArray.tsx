@@ -18,7 +18,8 @@ const FormNestedArrayLayout = ({ hasErrors, label, content }: {
 );
 const FormNestedArrayLayoutComponent = registerComponent('FormNestedArrayLayout', FormNestedArrayLayout);
 
-interface FormNestedArrayProps<T>  extends FormComponentProps<T>{
+interface FormNestedArrayProps<T> extends FormComponentWrapperProps<T> {
+  value: T
   minCount?: number
   maxCount?: number
 }

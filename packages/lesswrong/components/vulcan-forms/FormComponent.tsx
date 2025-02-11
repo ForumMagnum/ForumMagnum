@@ -116,7 +116,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   };
 
   // Get form input type, either based on input props, or by guessing based on form field type
-  getInputType = (props?: any) => {
+  getInputType = (props?: any): FormInputType => {
     const p = props || this.props;
     if (p.input) return p.input;
 
@@ -205,7 +205,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         return (
           <Components.FormNestedArray
             {...this.props}
-            formComponents={this.props.formComponents}
             errors={this.getErrors()}
             value={this.getValue()}
           />
@@ -214,7 +213,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         return (
           <Components.FormNestedObject
             {...this.props}
-            formComponents={this.props.formComponents}
             errors={this.getErrors()}
           />
         );
@@ -231,7 +229,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         onChange={this.handleChange}
         clearField={this.clearField}
         formInput={this.getFormInput()}
-        formComponents={this.props.formComponents}
       />
     );
 

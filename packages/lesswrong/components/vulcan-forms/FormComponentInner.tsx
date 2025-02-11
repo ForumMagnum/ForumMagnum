@@ -30,14 +30,13 @@ const styles = defineStyles("FormComponentInner", (theme: ThemeType) => ({
   },
 }));
 
-const FormComponentInner = (props: any) => {
+const FormComponentInner = (props: FormComponentInnerWrapperProps<any>) => {
   const [highlight, setHighlight] = useState(false);
   const classes = useStyles(styles);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { query } = useLocation();
 
   const {
-    inputClassName,
     name,
     input,
     beforeComponent,
@@ -79,10 +78,9 @@ const FormComponentInner = (props: any) => {
 
   const hasErrors = errors && errors.length;
 
-  const inputName = typeof input === 'function' ? input.name : input;
+  const inputName = input;
   const inputClass = classNames(
     'form-input',
-    inputClassName,
     `input-${name}`,
     `form-component-${inputName || 'default'}`,
     { 'input-error': hasErrors }
@@ -103,7 +101,6 @@ const FormComponentInner = (props: any) => {
 }
 
 (FormComponentInner as any).propTypes = {
-  inputClassName: PropTypes.string,
   name: PropTypes.string.isRequired,
   input: PropTypes.any,
   beforeComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),

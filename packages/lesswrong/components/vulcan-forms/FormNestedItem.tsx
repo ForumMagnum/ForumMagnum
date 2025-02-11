@@ -22,7 +22,7 @@ const FormNestedItemLayout = ({ content, removeButton }: {
 );
 const FormNestedItemLayoutComponent = registerComponent('FormNestedItemLayout', FormNestedItemLayout);
 
-const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentProps<any> & {
+const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentWrapperProps<any> & {
   nestedFields: any
   name: string
   path: string
