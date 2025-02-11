@@ -430,7 +430,7 @@ type DbInsertion<T extends DbObject> = Omit<
   "_id"
 >
 
-type SpotlightDocumentType = 'Post' | 'Sequence';
+type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 interface SpotlightFirstPost {
   _id: string;
   title: string;
