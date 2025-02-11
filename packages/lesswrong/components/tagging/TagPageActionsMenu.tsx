@@ -95,7 +95,6 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
 
   return <DropdownMenu>
     {!!createLens && <MenuItem onClick={createLens}>
-      <ForumIcon icon='NoteAdd' />
       New Lens
     </MenuItem>}
     {userIsAdminOrMod(currentUser) && isLensPage && <MenuItem onClick={promoteLens}>
