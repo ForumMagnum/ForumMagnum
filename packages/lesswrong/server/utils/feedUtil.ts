@@ -83,7 +83,7 @@ export function fieldChangesSubquery<N extends CollectionNameString>({type, coll
           before: pick(event.properties.before, fieldNames),
           after: pick(event.properties.after, fieldNames),
         }))
-        .filter(fieldChangeResult => Object.keys(fieldChangeResult).length > 0);
+        .filter(fieldChangeResult => Object.keys(fieldChangeResult.after).length > 0);
     },
   };
 }
