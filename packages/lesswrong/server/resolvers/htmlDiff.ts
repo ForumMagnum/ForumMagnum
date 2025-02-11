@@ -67,7 +67,6 @@ export function normalizeHtmlForDiff(html: string): string {
       case "&#x201D;":
         return "”";
       default:
-        console.log(entityStr);
         return entityStr;
     }
   }
