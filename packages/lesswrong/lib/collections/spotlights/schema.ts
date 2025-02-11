@@ -72,10 +72,6 @@ const schema: SchemaType<"Spotlights"> = {
       }
 
       const post = await context.loaders.Posts.load(spotlight.documentId);
-      if (!post) {
-        return null;
-      }
-
       return accessFilterSingle(context.currentUser, context.Posts, post, context);
     }
   }),
@@ -90,10 +86,6 @@ const schema: SchemaType<"Spotlights"> = {
       }
 
       const sequence = await context.loaders.Sequences.load(spotlight.documentId);
-      if (!sequence) {
-        return null;
-      }
-
       return accessFilterSingle(context.currentUser, context.Sequences, sequence, context);
     }
   }),
@@ -108,10 +100,6 @@ const schema: SchemaType<"Spotlights"> = {
       }
 
       const tag = await context.loaders.Tags.load(spotlight.documentId);
-      if (!tag) {
-        return null;
-      }
-
       return accessFilterSingle(context.currentUser, context.Tags, tag, context);
     }
   }),
