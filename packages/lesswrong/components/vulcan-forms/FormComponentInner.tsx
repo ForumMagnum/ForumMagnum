@@ -113,7 +113,7 @@ const FormComponentInner = (props: FormComponentInnerWrapperProps<any>) => {
   classes: PropTypes.any,
 };
 
-const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner, {styles});
+const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner);
 
 declare global {
   interface ComponentTypes {
