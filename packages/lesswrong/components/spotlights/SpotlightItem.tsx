@@ -66,8 +66,15 @@ const styles = (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      color: theme.palette.grey[100],
-      background: theme.palette.panelBackground.default,
+      ...(isFriendlyUI ? {
+        color: theme.palette.grey[100],
+        background: theme.palette.panelBackground.default,
+      } : {
+        // This button is on top of an image that doesn't invert in dark mode, so
+        // we can't use palette-colors that invert
+        color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
+        background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
+      }),
     }
   },
   contentContainer: {
