@@ -121,7 +121,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton, TagPageActionsMenuButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -258,6 +258,8 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
         Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
       </a>
     </LWTooltip>}
+    
+    <Components.TagPageActionsMenuButton tagOrLens={selectedLens} />
   </div>
 }
 

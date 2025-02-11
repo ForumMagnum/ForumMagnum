@@ -25,7 +25,7 @@ import {
 } from '../../lib/collections/tags/subforumHelpers';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { defineQuery } from '../utils/serverGraphqlUtil';
+import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
@@ -38,6 +38,9 @@ import { getToCforTag } from '../tableOfContents';
 import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
+import { randomId } from '@/lib/random';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -756,4 +759,80 @@ defineQuery({
 
     return { tags, totalCount };
   },
+});
+
+defineMutation({
+  name: "promoteLensToMain",
+  resultType: "Boolean",
+  argTypes: "(lensId: String!)",
+  fn: async (root, args: {lensId: string}, context) => {
+    const { lensId } = args;
+    if (!userIsAdminOrMod(context.currentUser)) {
+      throw new Error("Only admins can promote lenses to main");
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`Promoting lens ${lensId} to main`);
+    
+    // Find the lens and corresponding tag
+    const lensMultiDocument = await context.loaders.MultiDocuments.load(lensId);
+    if (!lensMultiDocument) throw new Error("Lens ID not found: "+lensId);
+    const tagId = lensMultiDocument.parentDocumentId;
+    const tag = await context.loaders.Tags.load(tagId);
+    if (!tag) throw new Error("Could not find corresponding tag for lens ID: "+lensId);
+    
+    // Swap revisions
+    const tagRevisions = await Revisions.find({ documentId: tagId }).fetch();
+    const lensRevisions = await Revisions.find({ documentId: lensId }).fetch();
+    const latestTagRevisionId = tag.description_latest;
+    const latestLensRevisionId = lensMultiDocument.contents_latest;
+    console.log(`Moving ${tagRevisions.length} revisions from tag to lens`);
+    await Revisions.rawUpdateMany(
+      {_id: {$in: tagRevisions.map(r => r._id)}},
+      {$set: {
+        documentId: lensMultiDocument._id,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      }}
+    )
+    console.log(`Moving ${lensRevisions.length} revisions from lens to tag`);
+    await Revisions.rawUpdateMany(
+      {_id: {$in: lensRevisions.map(r => r._id)}},
+      {$set: {
+        documentId: tag._id,
+        collectionName: "Tags",
+        fieldName: "description",
+      }}
+    )
+    
+    // Swap the description_latest field
+    await Tags.rawUpdateOne(
+      {_id: tagId},
+      {$set: {
+        description_latest: latestLensRevisionId
+      }}
+    );
+    await MultiDocuments.rawUpdateOne(
+      {_id: latestLensRevisionId},
+      {$set: {
+        contents_latest: latestTagRevisionId
+      }}
+    );
+
+    // Recompute denormalized fields
+    await updateDenormalizedHtmlAttributions({
+      document: tag,
+      collectionName: "Tags",
+      fieldName: "description",
+    });
+    await updateDenormalizedHtmlAttributions({
+      document: lensMultiDocument,
+      collectionName: "MultiDocuments",
+      fieldName: "contents",
+    });
+    
+    // eslint-disable-next-line no-console
+    console.log(`Finished promoting lens ${lensId} to main`);
+    return true;
+  }
 });

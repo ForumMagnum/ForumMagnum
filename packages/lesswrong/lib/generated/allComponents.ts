@@ -1036,6 +1036,7 @@ importComponent("TagHistoryPageTitle", () => require("../../components/tagging/T
 importComponent("TagHoverPreview", () => require("../../components/tagging/TagHoverPreview.tsx"));
 importComponent("TagIntroSequence", () => require("../../components/tagging/TagIntroSequence.tsx"));
 importComponent("TagMergePage", () => require("../../components/tagging/TagMergePage.tsx"));
+importComponent(["TagPageActionsMenuButton", "TagPageActionsMenu"], () => require("../../components/tagging/TagPageActionsMenu.tsx"));
 importComponent("TagPageButtonRow", () => require("../../components/tagging/TagPageButtonRow.tsx"));
 importComponent("TagPageRouter", () => require("../../components/tagging/TagPageRouter.tsx"));
 importComponent("TagPageTitle", () => require("../../components/tagging/TagPageTitle.tsx"));
