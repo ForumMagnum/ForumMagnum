@@ -57,10 +57,14 @@ ${essay}`
 
 
 const saveImage = async (prompt: string, essay: Essay, url: string) => {
-  const newUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: `splashArtImagePrompt${prompt}`})
+  // Take first 32 characters of the prompt, removing any whitespace
+  const shortPrompt = prompt.trim().replace(/\s+/g, '_').slice(0, 32);
+  const originId = `${essay.title}_${shortPrompt}_${Math.random()}`;
+  
+  const newUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: originId})
   if (!newUrl) {
     // eslint-disable-next-line no-console
-    console.error("Failed to upload image to cloudinary", prompt, essay)
+    console.error("Failed to upload image to cloudinary", {prompt, essay})
     return
   }
   const reviewWinnerArt = await createMutator({
@@ -216,7 +220,7 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
   return results
 }
 
-const getEssayPrompts = async () => {
+const getReviewWinnerArts = async () => {
   const essays = (await getEssaysWithoutEnoughArt()).slice(0, 1)
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
@@ -232,4 +236,4 @@ const getEssayPrompts = async () => {
   console.log(results)
 }
 
-Globals.getEssayPrompts = getEssayPrompts
+Globals.getReviewWinnerArts = getReviewWinnerArts

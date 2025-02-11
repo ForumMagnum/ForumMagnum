@@ -1228,7 +1228,6 @@ const schema: SchemaType<"Posts"> = {
       }
       const { currentUser, ReviewWinners } = context;
       const winner = await getPostReviewWinnerInfo(post._id, context);
-      console.log("winner", winner)
       return accessFilterSingle(currentUser, ReviewWinners, winner, context);
     },
   }),
