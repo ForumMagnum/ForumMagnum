@@ -123,6 +123,9 @@ declare global {
     fundraisingThermometer: {
       shadow: ColorString,
     },
+    arbital: {
+      arbitalGreen: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -165,6 +168,7 @@ declare global {
       red: ColorString,
       alwaysWhite: ColorString,
       alwaysBlack: ColorString,
+      alwaysLightGrey: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
@@ -348,6 +352,7 @@ declare global {
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,

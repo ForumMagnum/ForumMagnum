@@ -17,4 +17,10 @@ export const formGroups: Partial<Record<string, FormGroupType<"Tags">>> = {
     label: "Subforum Comment Guidelines",
     startCollapsed: true,
   },
+  summaries: {
+    order: 50,
+    name: "summaries",
+    label: "Summaries",
+    startCollapsed: false,
+  }
 };

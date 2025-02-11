@@ -24,6 +24,14 @@ jest.mock("../components/editor/DraftJSEditor", () => {
 import "../server";
 
 describe('JSS', () => {
+  /**
+   * Check that component styles use only colors from the theme, when
+   * instantiated with the default theme. It is okay to use non-palette colors
+   * conditionally, eg with
+   *    `theme.palette.type==="dark" ? "#123456" : theme.palette.panelBackground.default`
+   * since the main purpose of this test is to make sure you don't forget about
+   * dark mode and accidentally make something black-on-black.
+   */
   it('uses only colors from the theme palette', () => {
     importAllComponents();
     const realTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;

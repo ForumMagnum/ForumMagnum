@@ -120,7 +120,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   if (enableInlineReactsOnPosts) {
     return <InlineReactSelectionWrapper
-      commentBodyRef={contentRef}
+      contentRef={contentRef}
       voteProps={voteProps}
       styling="post"
     >

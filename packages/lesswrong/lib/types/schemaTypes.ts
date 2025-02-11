@@ -194,7 +194,6 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     context: ResolverContext,
     document: ObjectsByCollectionName[N],
     newDocument: ObjectsByCollectionName[N],
-    schema: SchemaType<N>,
     fieldName: string
   }) => any,
   onUpdate?: (args: {
@@ -205,12 +204,11 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,
-    schema: SchemaType<N>,
     fieldName: string
     modifier: MongoModifier<ObjectsByCollectionName[N]>
   }) => any,
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
-  
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
+
   countOfReferences?: {
     foreignCollectionName: CollectionNameString
     foreignFieldName: string

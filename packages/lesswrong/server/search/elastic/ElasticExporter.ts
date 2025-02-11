@@ -32,6 +32,13 @@ class ElasticExporter {
   constructor(
     private client = new ElasticClient(),
   ) {}
+  
+  async printClientInfo() {
+    const client = this.client.getClient();
+    const info = await client.info();
+    // eslint-disable-next-line no-console
+    console.log(info);
+  }
 
   async printInfo() {
     const client = this.client.getClient();
@@ -535,6 +542,8 @@ class ElasticExporter {
 }
 
 Globals.getElasticExporter = () => new ElasticExporter();
+Globals.ElasticExporter = ElasticExporter;
+Globals.printElasticClientInfo = () => new ElasticExporter().printClientInfo();
 
 Globals.elasticConfigureIndex = (collectionName: SearchIndexCollectionName) =>
   new ElasticExporter().configureIndex(collectionName);

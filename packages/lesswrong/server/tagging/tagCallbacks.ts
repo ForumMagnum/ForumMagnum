@@ -1,13 +1,13 @@
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
+import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 import { updatePostDenormalizedTags } from './helpers';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -157,9 +157,15 @@ export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: Vote
 
 export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
   if (vote.collectionName !== "Revisions") return;
-  if (votedRevision.collectionName !== "Tags") return;
-  
-  const tag = await Tags.findOne({_id: votedRevision.documentId});
-  if (!tag) return;
-  await updateDenormalizedContributorsList(tag);
+  if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
+
+  if (votedRevision.collectionName === "Tags") {
+    const tag = await Tags.findOne({_id: votedRevision.documentId});
+    if (!tag) return;
+    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description' });
+  } else if (votedRevision.collectionName === "MultiDocuments") {
+    const multiDocument = await MultiDocuments.findOne({_id: votedRevision.documentId});
+    if (!multiDocument) return;
+    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents' });
+  }
 }

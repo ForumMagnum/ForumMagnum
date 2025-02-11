@@ -202,7 +202,12 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string, failedUrls: string[]}> {
+export async function convertImagesInHTML(
+  html: string,
+  originDocumentId: string,
+  urlFilterFn: (url: string) => boolean = () => true,
+  imageUrlsCache?: Record<string,string>
+): Promise<{count: number, html: string, failedUrls: string[]}> {
   const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
@@ -218,11 +223,11 @@ export async function convertImagesInHTML(html: string, originDocumentId: string
   }
 
   // Upload all the images to Cloudinary (slow)
+  const mirrorUrls: Record<string,string> = imageUrlsCache ?? {};
   // This section was previously parallelized (with a Promise.all), but this
   // would cause it to fail when other servers (notably arcive.org) rejected
   // the concurrent requests for being too fast (which is hard to distinguish
   // from failing for other reasons), so it's no longer parallelized.
-  const mirrorUrls: Record<string,string> = {};
   for (const url of imgUrls) {
     // resolve to the url of the image on cloudinary
     try {

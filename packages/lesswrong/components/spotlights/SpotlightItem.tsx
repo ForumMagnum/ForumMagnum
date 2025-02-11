@@ -48,7 +48,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
-    overflow: "hidden", // prevent background image from overflowing if we get styling mismatches in the future, since it depends on the exact height of the review SingleLineComment
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
@@ -67,8 +66,15 @@ const styles = (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      color: theme.palette.grey[100],
-      background: theme.palette.panelBackground.default,
+      ...(isFriendlyUI ? {
+        color: theme.palette.grey[100],
+        background: theme.palette.panelBackground.default,
+      } : {
+        // This button is on top of an image that doesn't invert in dark mode, so
+        // we can't use palette-colors that invert
+        color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
+        background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
+      }),
     }
   },
   contentContainer: {
@@ -515,6 +521,7 @@ export const SpotlightItem = ({
             </Typography>}
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
+          {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
           {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlight.document?.reviews?.length ?? 0) * 30}px)`}}>
             <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
           </div>}

@@ -1,3 +1,4 @@
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "@/lib/reviewUtils";
 import keyBy from "lodash/keyBy";
 import mapValues from "lodash/mapValues";
 import moment from "moment";
@@ -34,6 +35,6 @@ export async function getPostReviewWinnerInfo(postId: string, context: ResolverC
 
   return (
     REVIEW_WINNER_CACHE.reviewWinnersByPostId[postId] ??
-    await context.ReviewWinners.findOne({ postId })
+    await context.ReviewWinners.findOne({ postId, reviewYear: {$lte: BEST_OF_LESSWRONG_PUBLISH_YEAR} })
   );
 }

@@ -77,7 +77,12 @@ const CompareRevisions = ({
         rawWordCount={wordCount}
         graceWords={20}
         expanded={expanded}
-        getTruncatedSuffix={({wordsLeft}: {wordsLeft: number}) => <div className={classes.expand} onClick={() => setExpanded(true)}> Read More ({wordsLeft} more words)</div>}
+        getTruncatedSuffix={({wordsLeft}: {wordsLeft: number|null}) =>
+          <div className={classes.expand} onClick={() => setExpanded(true)}>
+            {wordsLeft && <>Read More ({wordsLeft} more words)</>}
+            {!wordsLeft && <>Read More</>}
+          </div>
+        }
         dangerouslySetInnerHTML={{__html: diffResultHtml}}
         description={`tag ${documentId}`}
       />

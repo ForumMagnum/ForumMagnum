@@ -38,6 +38,12 @@ import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/Pos
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from './curationEmails/cron';
 import { useCurationEmailsCron } from '../lib/betas';
+import CommentsRepo from './repos/CommentsRepo';
+import uniq from 'lodash/uniq';
+import { DatabaseServerSetting } from './databaseSettings';
+import { forumSelect } from '@/lib/forumTypeUtils';
+
+const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
@@ -491,6 +497,8 @@ getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVote
 const sendNewCommentNotifications = async (comment: DbComment) => {
   const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
+  if (comment.legacyData?.arbitalPageId) return;
+  
   if (post?.isEvent) {
     await notifyRsvps(comment, post);
   }
@@ -499,32 +507,50 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
   // if e.g. they're both the author of the post and the author of a comment being replied to)
   let notifiedUsers: Array<string> = [];
 
+
+
   // 1. Notify users who are subscribed to the parent comment
   if (comment.parentCommentId) {
-    const parentComment = await Comments.findOne(comment.parentCommentId)
-    if (parentComment) {
+
+    const parentComments: { commentId: string; userId: string }[] = await new CommentsRepo().getParentCommentIds({
+      commentId: comment._id,
+      limit: commentAncestorsToNotifySetting.get(),
+    });
+
+    let newReplyUserIds: string[] = [];
+    let newReplyToYouUserIds: string[] = [];
+
+    for (const {commentId, userId} of parentComments) {
       const subscribedUsers = await getSubscribedUsers({
-        documentId: comment.parentCommentId,
+        documentId: commentId,
         collectionName: "Comments",
         type: subscriptionTypes.newReplies,
-        potentiallyDefaultSubscribedUserIds: [parentComment.userId],
+        potentiallyDefaultSubscribedUserIds: [userId],
         userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
       })
       const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
-      
+
       // Don't notify the author of their own comment, and filter out the author
       // of the parent-comment to be treated specially (with a newReplyToYou
       // notification instead of a newReply notification).
-      let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
-      await createNotifications({userIds: parentCommentSubscriberIdsToNotify, notificationType: 'newReply', documentType: 'comment', documentId: comment._id});
+      newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, commentId])]
 
-      // Separately notify author of comment with different notification, if
-      // they are subscribed, and are NOT the author of the comment
-      if (subscribedUserIds.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
-        await createNotifications({userIds: [parentComment.userId], notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id});
-        notifiedUsers = [...notifiedUsers, parentComment.userId];
+      // Separately notify authors of replies to their own comments
+      if (subscribedUserIds.includes(userId) && userId !== comment.userId) {
+        newReplyToYouUserIds = [...newReplyToYouUserIds, ...subscribedUserIds]
       }
     }
+
+    // Take the difference as a precaution to prevent double-notifying
+    newReplyUserIds = uniq(_.difference(newReplyUserIds, newReplyToYouUserIds));
+    newReplyToYouUserIds = uniq(newReplyToYouUserIds);
+
+    await Promise.all([
+      createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
+      createNotifications({userIds: newReplyToYouUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id})
+    ]);
+
+    notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouUserIds];
   }
 
   // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)

@@ -22,6 +22,7 @@ import ReadStatusesRepo from "./ReadStatusesRepo";
 import RecommendationsCachesRepo from "./RecommendationsCachesRepo";
 import ReviewWinnersRepo from "./ReviewWinnersRepo";
 import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
+import RevisionsRepo from "./RevisionsRepo";
 import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
@@ -71,6 +72,7 @@ const allRepos = {
   recommendationsCaches: RecommendationsCachesRepo,
   reviewWinners: ReviewWinnersRepo,
   reviewWinnerArts: ReviewWinnerArtsRepo,
+  revisions: RevisionsRepo,
   sequences: SequencesRepo,
   sideComments: SideCommentCachesRepo,
   splashArtCoordinates: SplashArtCoordinatesRepo,
@@ -128,6 +130,7 @@ export {
   PostsRepo,
   ReadStatusesRepo,
   RecommendationsCachesRepo,
+  RevisionsRepo,
   SequencesRepo,
   SideCommentCachesRepo,
   SplashArtCoordinatesRepo,

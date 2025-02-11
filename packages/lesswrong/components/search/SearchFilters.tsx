@@ -141,7 +141,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
       />
     </>}
     {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
-      attribute="tags"
+      attribute="tags._id"
       defaultRefinement={tagsFilter}
       tagsFilter={tagsFilter}
       setTagsFilter={handleUpdateTagsFilter}

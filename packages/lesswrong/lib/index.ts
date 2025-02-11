@@ -11,6 +11,7 @@ import './permissions';
 // ## Voting
 import './voting/voteTypes';
 import './voting/votingSystems';
+import './voting/reactionsAndLikes';
 import './voting/namesAttachedReactions';
 
 //MomentJS configuration
@@ -126,6 +127,7 @@ import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
 import './collections/tags/schema';
+import './collections/tags/permissions';
 
 import './collections/tweets/collection'
 
@@ -255,6 +257,11 @@ import './collections/postEmbeddings/collection';
 import './collections/sideCommentCaches/collection';
 import './collections/sideCommentCaches/fragments';
 
+// MultiDocuments
+import "./collections/multiDocuments/collection";
+import "./collections/multiDocuments/fragments";
+import "./collections/multiDocuments/views";
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -313,8 +320,9 @@ import './collections/dialogueMatchPreferences/views';
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
 
-// Arbital link cache
+// Arbital
 import './collections/arbitalCache/collection';
+import './collections/arbitalTagContentRels/collection';
 
 // Review winners
 import './collections/reviewWinners/collection';

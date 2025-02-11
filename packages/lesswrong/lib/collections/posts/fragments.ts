@@ -54,6 +54,7 @@ registerFragment(`
     reviews {
       ...CommentsList
     }
+    finalReviewVoteScoreHighKarma
   }
 `);
 
@@ -256,9 +257,6 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
-      biography {
-        ...RevisionDisplay
-      }
       profileImageId
       
       # Author moderation info
@@ -293,7 +291,7 @@ registerFragment(`
       ...CommentsList
     }
     tags {
-      ...TagPreviewFragment
+      ...TagBasicInfo
     }
     socialPreviewData {
       _id
@@ -357,6 +355,9 @@ registerFragment(`
     canonicalSource
     noIndex
     viewCount
+    tags {
+      ...TagPreviewFragment
+    }
     socialPreviewData {
       _id
       text
