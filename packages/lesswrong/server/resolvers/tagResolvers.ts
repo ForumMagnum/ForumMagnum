@@ -786,7 +786,7 @@ defineMutation({
     const lensRevisions = await Revisions.find({ documentId: lensId }).fetch();
     const latestTagRevisionId = tag.description_latest;
     const latestLensRevisionId = lensMultiDocument.contents_latest;
-    console.log(`Moving ${tagRevisions.length} revisions from tag to lens`);
+    console.log(`Moving ${tagRevisions.length} revisions from tag to lens`); //eslint-disable-line no-console
     await Revisions.rawUpdateMany(
       {_id: {$in: tagRevisions.map(r => r._id)}},
       {$set: {
@@ -795,7 +795,7 @@ defineMutation({
         fieldName: "contents",
       }}
     )
-    console.log(`Moving ${lensRevisions.length} revisions from lens to tag`);
+    console.log(`Moving ${lensRevisions.length} revisions from lens to tag`); //eslint-disable-line no-console
     await Revisions.rawUpdateMany(
       {_id: {$in: lensRevisions.map(r => r._id)}},
       {$set: {

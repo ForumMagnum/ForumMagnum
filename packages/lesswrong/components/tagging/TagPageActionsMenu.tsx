@@ -22,8 +22,9 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
 }))
 
-const TagPageActionsMenuButton = ({tagOrLens}: {
+const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
   tagOrLens: TagLens|undefined
+  createLens: (() => void)|null,
 }) => {
   const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -46,7 +47,7 @@ const TagPageActionsMenuButton = ({tagOrLens}: {
     </span>
     <Menu
       onClick={() => {
-        captureEvent("commentMenuClicked", {open: false})
+        captureEvent("tagPageMenuClicked")
         setAnchorEl(null)
       }}
       open={Boolean(anchorEl)}
@@ -55,13 +56,15 @@ const TagPageActionsMenuButton = ({tagOrLens}: {
     >
       {everOpened && <TagPageActionsMenu
         tagOrLens={tagOrLens}
+        createLens={createLens}
       />}
     </Menu>
   </>
 }
 
-const TagPageActionsMenu = ({tagOrLens}: {
+const TagPageActionsMenu = ({tagOrLens, createLens}: {
   tagOrLens: TagLens
+  createLens: (() => void)|null,
 }) => {
   const { DropdownMenu, MenuItem, ForumIcon, LWTooltip } = Components;
   const currentUser = useCurrentUser();
@@ -91,8 +94,12 @@ const TagPageActionsMenu = ({tagOrLens}: {
   }
 
   return <DropdownMenu>
+    {!!createLens && <MenuItem onClick={createLens}>
+      <ForumIcon icon='NoteAdd' />
+      New Lens
+    </MenuItem>}
     {userIsAdminOrMod(currentUser) && isLensPage && <MenuItem onClick={promoteLens}>
-      Promote lens
+      Make {tagOrLens.tabTitle ?? "This Lens"} Main
       {" "}
       <LWTooltip title={<>
         <p>Swaps the currently selected lens ({tagOrLens.tabTitle}) with the Main lens. All revisions on this lens will become revisions of the main lens, and vise versa. The tab title and other lens metadata will not be changed.</p>

@@ -126,13 +126,12 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
 
   const numFlags = tag.tagFlagsIds?.length
 
-  function handleNewLensClick(e: React.MouseEvent<HTMLAnchorElement>) {
+  function handleNewLensClick() {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
         componentProps: {},
       });
-      e.preventDefault();
       return;
     }
 
@@ -162,7 +161,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
   
   const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
-  const showNewLensButton = !editing
+  const canCreateLens = !editing
     && canEdit
     && !!(refetchTag && updateSelectedLens)
     && (undeletedLensCount < 5)
@@ -215,17 +214,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
         </span>
       </a>)}
     </LWTooltip>}
-    {showNewLensButton && <LWTooltip
-      className={classes.buttonTooltip}
-      title={newLensTooltip}      
-    >
-      <a className={classNames(classes.button, classes.newLensIcon)} onClick={handleNewLensClick}>
-        <ForumIcon icon='NoteAdd' />
-        <span className={classes.buttonLabel}>
-          {!hideLabels && "New Lens"}
-        </span>
-      </a>
-    </LWTooltip>}
     {<Link
       className={classes.button}
       to={tagGetHistoryUrl(tag)}
@@ -259,7 +247,10 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
       </a>
     </LWTooltip>}
     
-    <Components.TagPageActionsMenuButton tagOrLens={selectedLens} />
+    <Components.TagPageActionsMenuButton
+      tagOrLens={selectedLens}
+      createLens={canCreateLens ? handleNewLensClick : null}
+    />
   </div>
 }
 
