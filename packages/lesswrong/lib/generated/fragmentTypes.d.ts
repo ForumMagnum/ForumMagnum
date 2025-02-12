@@ -1849,6 +1849,7 @@ interface CommentsList { // fragment on Comments
 }
 
 interface CommentsList_tag { // fragment on Tags
+  readonly _id: string,
   readonly slug: string,
 }
 

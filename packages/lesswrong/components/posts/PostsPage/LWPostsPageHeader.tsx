@@ -7,6 +7,7 @@ import { parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import { BestOfLWPostsPageSplashImage } from './BestOfLWPostsPageSplashImage';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -126,21 +127,36 @@ const styles = (theme: ThemeType) => ({
   },
   readTime: {
     marginRight: 20,
+  },
+  splashPageTitle: {
+    '&&': {
+      fontSize: '5.5rem',
+    }
+  },
+  splashPageTitleLong: {
+    '&&': {
+      fontSize: '4.5rem',
+    }
+  },
+  titleSectionWithSplashPageHeader: {
+    marginBottom: 140,
   }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
+const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
+  fullPost?: PostsWithNavigation|PostsWithNavigationAndRevision,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  showSplashPageHeader?: boolean
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
+  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount, BestOfLWPostsPageSplashImage } = Components;
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
@@ -171,6 +187,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     </a>
   </LWTooltip> : null;
 
+  const splashPageTitleClass = post.title.length > 100 ? classes.splashPageTitleLong : classes.splashPageTitle;
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
@@ -186,9 +203,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
         </span>}
       </div>
-      <div className={classes.titleSection}>
+      <div className={classNames(classes.titleSection, {[classes.titleSectionWithSplashPageHeader]: showSplashPageHeader})}>
         <div className={classes.title}>
-          <PostsPageTitle post={post} />
+          <PostsPageTitle post={post} className={showSplashPageHeader ? splashPageTitleClass : undefined}/>
           <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>
               <PostsAuthors post={post} pageSectionContext="post_header" />

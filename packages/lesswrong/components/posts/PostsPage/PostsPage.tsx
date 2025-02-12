@@ -44,6 +44,7 @@ import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
+import { BestOfLWPostsPageSplashImage } from './BestOfLWPostsPageSplashImage';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -794,15 +795,17 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+          {isBookUI && <LWPostsPageHeader
             post={post}
+            fullPost={fullPost}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
+            showSplashPageHeader={showSplashPageHeader}
             />}
-          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
+          {!isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
@@ -855,9 +858,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
       {isBookUI && header}
-      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
-        {post.title}
-      </h1>}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
@@ -990,20 +990,16 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       />
     : undefined
 
+  const splashPageHeader = showSplashPageHeader && fullPost && <BestOfLWPostsPageSplashImage post={fullPost} />
+
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
+    {splashPageHeader}
     <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
-      // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
-      // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
-      post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
-      showEmbeddedPlayer={showEmbeddedPlayer}
-      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-    />}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[

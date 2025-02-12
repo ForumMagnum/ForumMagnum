@@ -4,6 +4,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -73,8 +74,9 @@ const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   },
 }));
 
-const PostsPageTitle = ({post}: {
+const PostsPageTitle = ({post, className}: {
   post: PostsDetails|PostsList,
+  className?: string
 }) => {
   const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
@@ -99,7 +101,7 @@ const PostsPageTitle = ({post}: {
           [ Parent Question — {parentPost.title} ]
         </Link>
       </Typography>}
-      <Typography variant="display3" className={classes.root}>
+      <Typography variant="display3" className={classNames(classes.root, className)}>
         <Link to={postGetPageUrl(post)} className={classes.link}>
           {post.draft && <span className={classes.draft}>[Draft] </span>}
           {mostOfTitle}{mostOfTitle && " "}
