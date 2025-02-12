@@ -34,19 +34,21 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
     Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` (${lens.tabSubtitle})` : ""}`}
   </div>
 
+  const diffBody = <ContentStyles contentType="comment" className={classes.contentStyle}>
+    <CompareRevisions
+      trim={true}
+      collectionName="MultiDocuments" fieldName="contents"
+      documentId={documentId}
+      versionBefore={null}
+      versionAfter={revision.version}
+    />
+  </ContentStyles>
+
   const contents = (collapsed && !expanded)
     ? <TagRevisionItemShortMetadata tag={tag} itemDescription={lensShortDescription} url={revUrl} revision={revision} />
     : <>
         <div><TagRevisionItemShortMetadata tag={tag} itemDescription={lensShortDescription} url={revUrl} revision={revision} /></div>
-        <ContentStyles contentType="comment" className={classes.contentStyle}>
-          <CompareRevisions
-            trim={true}
-            collectionName="MultiDocuments" fieldName="contents"
-            documentId={documentId}
-            versionBefore={null}
-            versionAfter={revision.version}
-          />
-        </ContentStyles>
+        {diffBody}
       </>
 
   return (noContainer
@@ -54,6 +56,7 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
     : <Components.SingleLineFeedEvent
         icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
+        tooltip={!(expanded || !collapsed) && diffBody}
       >
         <div className={classes.container}>
           {contents}

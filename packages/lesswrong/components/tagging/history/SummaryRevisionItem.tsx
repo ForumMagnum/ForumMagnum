@@ -37,22 +37,25 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   // TODO: There isn't a valid permalink-URL for revisions to summaries, currently.
   const url = '';
 
+  const diffBody = <ContentStyles contentType="comment">
+    <CompareRevisions
+      trim={true}
+      collectionName="MultiDocuments" fieldName="contents"
+      documentId={documentId}
+      versionBefore={null}
+      versionAfter={revision.version}
+    />
+  </ContentStyles>
+
   return <Components.SingleLineFeedEvent
     icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
     frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
+    tooltip={(collapsed && !expanded) && diffBody}
   >
     {(collapsed && !expanded) && <TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} />}
     {!(collapsed && !expanded) && <>
       <div><TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} /></div>
-      <ContentStyles contentType="comment">
-        <CompareRevisions
-          trim={true}
-          collectionName="MultiDocuments" fieldName="contents"
-          documentId={documentId}
-          versionBefore={null}
-          versionAfter={revision.version}
-        />
-      </ContentStyles>
+      {diffBody}
     </>}
   </Components.SingleLineFeedEvent>
 }

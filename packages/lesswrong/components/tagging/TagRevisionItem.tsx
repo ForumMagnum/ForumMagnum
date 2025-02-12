@@ -37,11 +37,21 @@ const TagRevisionItem = ({
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles, ForumIcon } = Components
+  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles, ForumIcon, LWTooltip } = Components
   const [expanded, setExpanded] = useState(false);
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
   const url = tagGetRevisionLink(tag, revision.version);
+  
+  const diffBody = !!(added || removed || !previousRevision) && <ContentStyles contentType="comment">
+    <CompareRevisions
+      trim={true}
+      collectionName="Tags" fieldName="description"
+      documentId={documentId}
+      versionBefore={previousRevision?.version||null}
+      versionAfter={revision.version}
+    />
+  </ContentStyles>
 
   const contents = (collapsed && !expanded)
     ? <TagRevisionItemShortMetadata tag={tag} revision={revision} url={url} />
@@ -51,15 +61,7 @@ const TagRevisionItem = ({
         {headingStyle==="abridged" &&
           <div><TagRevisionItemShortMetadata tag={tag} revision={revision} url={url} /></div>}
     
-        {!!(added || removed || !previousRevision) && <ContentStyles contentType="comment">
-          <CompareRevisions
-            trim={true}
-            collectionName="Tags" fieldName="description"
-            documentId={documentId}
-            versionBefore={previousRevision?.version||null}
-            versionAfter={revision.version}
-          />
-        </ContentStyles>}
+        {diffBody}
         {showDiscussionLink && <div className={classes.discussionButtonPositioning}>
           <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
         </div>}
@@ -69,6 +71,7 @@ const TagRevisionItem = ({
     : <Components.SingleLineFeedEvent
         icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
+        tooltip={!(expanded || !collapsed) && diffBody}
       >
         <div className={classes.container}>
           {contents}
