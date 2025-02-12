@@ -14,7 +14,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-57px',
+    top: '-70px',
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
