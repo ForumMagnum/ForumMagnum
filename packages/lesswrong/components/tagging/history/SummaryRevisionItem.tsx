@@ -5,11 +5,6 @@ import { tagHistoryStyles } from './TagHistoryPage';
 
 const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   container: {
-    /*background: theme.palette.panelBackground.default,
-    border: theme.palette.border.commentBorder,
-    padding: '4px 12px 12px 12px',
-    borderRadius:3,
-    marginBottom: 16,*/
   },
   username: {
   },

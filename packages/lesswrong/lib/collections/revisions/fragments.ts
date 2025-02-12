@@ -89,10 +89,14 @@ registerFragment(`
     summary {
       ...MultiDocumentMinimumInfo
       parentTag {
-        _id name
+        _id
+        name
       }
       parentLens {
-        _id title tabTitle tabSubtitle
+        _id
+        title
+        tabTitle
+        tabSubtitle
       }
     }
   }
