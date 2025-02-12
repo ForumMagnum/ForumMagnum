@@ -10,6 +10,7 @@ import { useHover } from '../common/withHover';
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
+    cursor: "pointer",
     color: theme.palette.primary.dark,
     marginBottom: -10,
     display: 'flex',
@@ -51,7 +52,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
     return (
       <div className={className}>
         <SectionButton onClick={handleLogin}>
-          <div className={classes.addTagButton} style={{ cursor: "pointer" }}>
+          <div className={classes.addTagButton}>
             <AddBoxIcon />
             {!hideLabel && <span>New Wikitag</span>}
           </div>
@@ -85,7 +86,6 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
                 <DropdownDivider />
                 <DropdownItem 
                   title={<span><em>What's the difference?</em></span>} 
-                  // tooltip="A wikitag is combination of a wiki page and a tag for a concept. (The tag part is optional.)"
                   to="/w/what-s-a-wikitag"
                   onClick={() => forceUnHover()}
                 />
