@@ -78,7 +78,7 @@ const TagHistoryPage = () => {
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
   const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);
   const lensesById = keyBy(lenses, l=>l._id);
-  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, SummaryRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent, SectionTitle, ForumIcon } = Components;
+  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, SummaryRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent, SectionTitle, ForumIcon, DeferRender } = Components;
   const [settings, setSettings] = useState(defaultTagHistorySettings);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const collapseAll = settings.displayFormat === "dense" || !!focusedUser;
@@ -89,7 +89,7 @@ const TagHistoryPage = () => {
     </SingleColumnSection>
   }
   
-  return <SingleColumnSection>
+  return <SingleColumnSection><DeferRender ssr={false}>
     <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
         <Components.SettingsButton label="Settings" />
@@ -230,7 +230,7 @@ const TagHistoryPage = () => {
     />
     </RevealHiddenBlocksContext.Provider>
     </div>
-  </SingleColumnSection>
+  </DeferRender></SingleColumnSection>
 }
 
 const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
