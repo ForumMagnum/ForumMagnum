@@ -312,16 +312,6 @@ const schema: SchemaType<"Revisions"> = {
       }
       return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
     },
-    sqlResolver: ({ field, join }) => join({
-      table: 'MultiDocuments',
-      on: {
-        _id: field('documentId'),
-        collectionName: "'Tags'",
-        fieldName: "'summary'"
-      },
-      type: 'left',
-      resolver: (multiDocumentField) => multiDocumentField('*'),
-    })
   }),
 };
 
