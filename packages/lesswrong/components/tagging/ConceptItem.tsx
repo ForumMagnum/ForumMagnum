@@ -146,12 +146,14 @@ interface ConceptItemProps {
   wikitag: ConceptItemFragment;
   isTitleItem?: boolean;
   showArbitalIcon?: boolean;
+  noLinkOrHoverOnTitle?: boolean;
 }
 
 const ConceptItem = ({
   wikitag,
   isTitleItem,
-  showArbitalIcon
+  showArbitalIcon,
+  noLinkOrHoverOnTitle
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
 
@@ -163,16 +165,19 @@ const ConceptItem = ({
   const titleItem = (
     <div className={classes.titleItem}>
       <div className={classes.titleItemTitle}>
-        <TagsTooltip
-          tagSlug={wikitag.slug}
-          noPrefetch
-          previewPostCount={0}
-          placement='right-start'
-        >
-          <Link to={tagGetUrl({ slug: wikitag.slug })}>
-            {wikitag.name}
-          </Link>
-        </TagsTooltip>
+        {noLinkOrHoverOnTitle
+          ? wikitag.name
+          : <TagsTooltip
+              tagSlug={wikitag.slug}
+              noPrefetch
+              previewPostCount={0}
+              placement='right-start'
+          >
+            <Link to={tagGetUrl({ slug: wikitag.slug })}>
+              {wikitag.name}
+            </Link>
+          </TagsTooltip>
+        }
       </div>
     </div>
   );

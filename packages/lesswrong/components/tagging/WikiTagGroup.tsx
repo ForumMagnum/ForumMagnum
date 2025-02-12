@@ -61,11 +61,13 @@ const WikiTagGroup = ({
   searchTagIds,
   initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
   showArbitalIcons = false,
+  noLinkOrHoverOnTitle = false,
 }: {
   coreTag: ConceptItemFragment
   searchTagIds: string[] | null;
   initialLimit?: number;
   showArbitalIcons?: boolean;
+  noLinkOrHoverOnTitle?: boolean;
 }) => {
   const classes = useStyles(styles);
   const [limit, setLimit] = useState(initialLimit);
@@ -142,6 +144,7 @@ const WikiTagGroup = ({
           wikitag={coreTag}
           isTitleItem
           showArbitalIcon={showArbitalIcons}
+          noLinkOrHoverOnTitle={noLinkOrHoverOnTitle}
         />
       </div>
       {showLoadingSpinner && <Loading />}

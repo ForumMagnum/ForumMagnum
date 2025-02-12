@@ -10,6 +10,7 @@ type UseHoverProps = {
   eventProps?: EventProps,
   onEnter?: () => void,
   onLeave?: () => void,
+  disabledOnMobile?: boolean,
 }
 
 export type UseHoverEventHandlers = {
@@ -17,7 +18,7 @@ export type UseHoverEventHandlers = {
   onMouseLeave: (ev: React.MouseEvent) => void,
 }
 
-export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}): {
+export const useHover = ({eventProps, onEnter, onLeave, disabledOnMobile}: UseHoverProps = {}): {
   eventHandlers: UseHoverEventHandlers,
   hover: boolean,
   everHovered: boolean,
@@ -42,6 +43,10 @@ export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}): {
   }, [captureEvent])
 
   const handleMouseOver = useCallback((event: React.MouseEvent) => {
+    if (disabledOnMobile && isMobile()) {
+      return;
+    }
+
     setHover((currentValue) => {
       // Sometimes the event is retriggered by moving the mouse inside the
       // hovered element, if the hovered element contains children which can
@@ -57,7 +62,7 @@ export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}): {
     mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
-  }, [captureHoverEvent, onEnter])
+  }, [captureHoverEvent, onEnter, disabledOnMobile])
 
   const handleMouseLeave = useCallback(() => {
     setHover((currentValue) => {
