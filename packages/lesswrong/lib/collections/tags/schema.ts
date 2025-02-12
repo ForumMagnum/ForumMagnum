@@ -340,6 +340,7 @@ const schema: SchemaType<"Tags"> = {
     label: "Flags: ",
     order: 30,
     optional: true,
+    hidden: true,
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins']

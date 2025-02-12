@@ -21,6 +21,6 @@ export const formGroups: Partial<Record<string, FormGroupType<"Tags">>> = {
     order: 50,
     name: "summaries",
     label: "Summaries",
-    startCollapsed: false,
+    startCollapsed: true,
   }
 };
