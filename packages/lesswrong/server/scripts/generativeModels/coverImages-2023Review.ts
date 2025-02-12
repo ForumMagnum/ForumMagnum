@@ -1,4 +1,6 @@
 import OpenAI from 'openai';
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { createAdminContext, createMutator, Globals } from '../../vulcan-lib/index.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
@@ -14,9 +16,10 @@ import sample from 'lodash/sample';
 
 
 const promptImageUrls = [
-  "https://s.mj.run/W91s58GkTUs",
-  "https://s.mj.run/D5okH4Ak-mw",
-  "https://s.mj.run/1aM-y0W73aA",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705201417/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_xvecay.png"
+  // "https://s.mj.run/W91s58GkTUs",
+  // "https://s.mj.run/D5okH4Ak-mw",
+  // "https://s.mj.run/1aM-y0W73aA",
   //"https://s.mj.run/JAlgYmUiOdc", this is no longer available
 ]
 
@@ -51,6 +54,11 @@ IDEAS: A JSON list of 3 visual metaphors, like ["a sea of thousands of people, o
 CHECK: For each metaphor, write out the metaphor and answer (a) does the metaphor contain writing or refer to the content of written materials or say that words should appear in the image? (yes/no) (b) Does the metaphor ask for any symbols respresenting concepts? (yes/no) Is it 5 to 15 words long? (yes/no)
 CORRECTIONS: If any of the metaphors contain writing or refer to the content of written materials, please provide a corrected version of the metaphor.
 METAPHORS: A JSON list of your final 3 visual metaphors.
+
+You must respond in valid JSON format with the following structure:
+{  
+  "metaphors": ["metaphor 1", "metaphor 2", "metaphor 3"]
+}
 
 ===
 
@@ -113,27 +121,32 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
 
 type Essay = {post: PostsPage, title: string, content: string, toGenerate: number}
 
+const TextResponseFormat = zodResponseFormat(z.object({
+  metaphors: z.array(z.string()),
+}), "TextResponseFormat")
+
 const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
   const completion = await openAiClient.chat.completions.create({
     messages: [{role: "user", content: llm_prompt(essay.title, content)}],
-    model: "gpt-4",
+    model: "o3-mini",
+    response_format:TextResponseFormat
   }).catch((error) => {
     if (error instanceof OpenAI.APIError && error.status === 400 && error.code === 'context_length_exceeded') {
       return openAiClient.chat.completions.create({
         messages: [{role: "user", content: llm_prompt(essay.title, content.slice(0, 8_000) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-8_000))}],
-        model: "gpt-4",
+        model: "o3-mini-2025-1-31",
+        response_format: TextResponseFormat
       })
     } else {
       // eslint-disable-next-line no-console
-      console.error(error)
+      console.error("THIS IS THE ERROR",error)
       return undefined
     }
   })
-
-
   try {
-    return JSON.parse((completion?.choices[0].message.content || '').split('METAPHORS: ')[1])
+    const json = completion?.choices[0].message.content
+    return JSON.parse(json ?? "{}").metaphors
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error parsing response:', error);
@@ -142,12 +155,11 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
   }
 }
 
-
 fal.config({
-  credentials: falApiKey.get(),
+  credentials: "58d6adef-e55d-4149-9d2a-ae9f75f38741:2b8d3ce1154bcc3c66ec87b60d62cc42"
 });
 
-const generateImage = async (prompt: string, imageUrl?: string): Promise<string> => {
+const generateImage = async (prompt: string, imageUrl: string): Promise<string> => {
   // eslint-disable-next-line no-console
   console.log(`generating image for ${prompt}`)
   try {
@@ -155,19 +167,17 @@ const generateImage = async (prompt: string, imageUrl?: string): Promise<string>
       input: {
         prompt: prompt,
         negative_prompt: "text, writing, words, low quality, blurry",
-        num_inference_stepasdfs2: 25,
+        num_inference_steps: 25,
         guidance_scale: 7.5,
         image_size: {
-          width: 900,
-          height: 1600
+          width: 1600,
+          height: 1200
         },
-        ...(imageUrl ? {
-          image_url: imageUrl,
-          strength: 10
-        } : {})
+        image_url: imageUrl,
+        image_strength: 2
       }
     }
-    const result = await fal.run('110602490-fast-sdxl', runOptions);
+    const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
 
     // eslint-disable-next-line no-console
     console.log(result)
@@ -203,7 +213,7 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
   const prompts = await getPrompts(openAiClient, essay)
 
   const results = Promise.all(prompts.map(async (prompt) => {
-    const image = await generateImage(prompt, sample(promptImageUrls))
+    const image = await generateImage(prompt, promptImageUrls[0])
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))

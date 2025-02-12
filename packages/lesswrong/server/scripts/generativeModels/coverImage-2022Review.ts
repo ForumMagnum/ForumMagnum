@@ -107,14 +107,33 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
     }
   })
 
-
   try {
-    return JSON.parse((completion?.choices[0].message.content || '').split('METAPHORS: ')[1])
+    const content = completion?.choices[0].message.content || '';
+    const parts = content.split('METAPHORS: ');
+    
+    if (parts.length < 2) {
+      // eslint-disable-next-line no-console
+      console.error('Invalid response format - missing METAPHORS section:', content);
+      if (tryCount < 2) return getPromptTextElements(openAiClient, essay, tryCount + 1);
+      return [];
+    }
+    
+    const jsonStr = parts[1].trim();
+    if (!jsonStr) {
+      // eslint-disable-next-line no-console
+      console.error('Empty METAPHORS section');
+      if (tryCount < 2) return getPromptTextElements(openAiClient, essay, tryCount + 1);
+      return [];
+    }
+    
+    return JSON.parse(jsonStr);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error parsing response:', error);
-    if (tryCount < 2) return getPromptTextElements(openAiClient, essay, tryCount + 1)
-    return []
+    // eslint-disable-next-line no-console
+    console.error('Response content:', completion?.choices[0].message.content);
+    if (tryCount < 2) return getPromptTextElements(openAiClient, essay, tryCount + 1);
+    return [];
   }
 }
 

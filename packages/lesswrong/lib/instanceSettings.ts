@@ -314,7 +314,7 @@ export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId
 
 export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
-export const falApiKey = new PublicInstanceSetting<string>('fal.apiKey', "", "optional")
+export const falApiKey = new PublicInstanceSetting<string>('fal.ai.apiKey', "", "optional")
 
 export const jargonBotClaudeKey = new PublicInstanceSetting<string>('anthropic.jargonBotClaudeKey', "", "optional")
 
