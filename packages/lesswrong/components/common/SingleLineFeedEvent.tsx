@@ -2,7 +2,6 @@ import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-import { singleLineStyles } from '../comments/SingleLineComment';
 
 const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {
@@ -16,10 +15,13 @@ const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 0,
     padding: 12,
-    paddingTop: 0,
+    paddingTop: 6,
     color: theme.palette.text.dim60,
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.faint,
+  },
+  expandable: {
+    cursor: "pointer",
   },
   itemDot: {
     display: "inline-block",
@@ -47,8 +49,9 @@ const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
 }));
 
 
-const SingleLineFeedEvent = ({expands=false, setExpanded, frame, icon, children}: {
+const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame, icon, children}: {
   expands?: boolean,
+  expanded?: boolean,
   setExpanded?: (expanded: boolean) => void,
   frame?: boolean,
   icon: React.ReactNode,
@@ -62,7 +65,7 @@ const SingleLineFeedEvent = ({expands=false, setExpanded, frame, icon, children}
     }
   }
 
-  return <div className={classes.root} onClick={handleClick}>
+  return <div className={classNames(classes.root, expands && !expanded && classes.expandable)} onClick={handleClick}>
     <div className={classNames(classes.icon, frame && classes.iconNextToFrame)}>{icon}</div>
     <div className={classNames(classes.contents, frame && classes.frame)}>
       {children}

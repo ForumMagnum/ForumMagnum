@@ -68,7 +68,7 @@ const TagRevisionItem = ({
     ? contents
     : <Components.SingleLineFeedEvent
         icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
-        frame expands setExpanded={setExpanded}
+        frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
       >
         <div className={classes.container}>
           {contents}

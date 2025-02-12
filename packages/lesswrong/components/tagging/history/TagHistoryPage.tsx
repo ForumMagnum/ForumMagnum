@@ -45,7 +45,7 @@ export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType
     height: 16,
   },
   commentIcon: {
-    marginTop: 12,
+    marginTop: 6,
   },
 }));
 
@@ -294,7 +294,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
         checked={settings.showMetadata}
         onChange={ev => setSettings({...settings, showMetadata: ev.target.checked})}
       />
-      <span className={classes.label}>Show metadata</span>
+      <span className={classes.label}>Show changes to metadata</span>
     </div>
     {hasWikiLenses && lenses.length > 1 && <div>
       Lens

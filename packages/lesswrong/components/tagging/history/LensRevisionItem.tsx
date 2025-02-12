@@ -36,22 +36,24 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
 
   const contents = (collapsed && !expanded)
     ? <TagRevisionItemShortMetadata tag={tag} itemDescription={lensShortDescription} url={revUrl} revision={revision} />
-    : <ContentStyles contentType="comment" className={classes.contentStyle}>
-        <div><TagRevisionItemShortMetadata tag={tag} revision={revision} itemDescription={lensShortDescription} url={revUrl} /></div>
-        <CompareRevisions
-          trim={true}
-          collectionName="MultiDocuments" fieldName="contents"
-          documentId={documentId}
-          versionBefore={null}
-          versionAfter={revision.version}
-        />
-      </ContentStyles>
+    : <>
+        <div><TagRevisionItemShortMetadata tag={tag} itemDescription={lensShortDescription} url={revUrl} revision={revision} /></div>
+        <ContentStyles contentType="comment" className={classes.contentStyle}>
+          <CompareRevisions
+            trim={true}
+            collectionName="MultiDocuments" fieldName="contents"
+            documentId={documentId}
+            versionBefore={null}
+            versionAfter={revision.version}
+          />
+        </ContentStyles>
+      </>
 
   return (noContainer
     ? contents
     : <Components.SingleLineFeedEvent
         icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
-        frame expands setExpanded={setExpanded}
+        frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
       >
         <div className={classes.container}>
           {contents}

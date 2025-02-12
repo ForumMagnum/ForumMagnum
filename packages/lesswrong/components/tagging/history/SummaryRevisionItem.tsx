@@ -39,19 +39,21 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
 
   return <Components.SingleLineFeedEvent
     icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
-    frame expands setExpanded={setExpanded}
+    frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
   >
     {(collapsed && !expanded) && <TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} />}
-    {!(collapsed && !expanded) && <ContentStyles contentType="comment">
+    {!(collapsed && !expanded) && <>
       <div><TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} /></div>
-      <CompareRevisions
-        trim={true}
-        collectionName="MultiDocuments" fieldName="contents"
-        documentId={documentId}
-        versionBefore={null}
-        versionAfter={revision.version}
-      />
-    </ContentStyles>}
+      <ContentStyles contentType="comment">
+        <CompareRevisions
+          trim={true}
+          collectionName="MultiDocuments" fieldName="contents"
+          documentId={documentId}
+          versionBefore={null}
+          versionAfter={revision.version}
+        />
+      </ContentStyles>
+    </>}
   </Components.SingleLineFeedEvent>
 }
 
