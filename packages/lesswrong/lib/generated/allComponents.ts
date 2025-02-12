@@ -1047,7 +1047,6 @@ importComponent("TagRelevanceButton", () => require("../../components/tagging/Ta
 importComponent("TagRevisionItem", () => require("../../components/tagging/TagRevisionItem.tsx"));
 importComponent("TagRevisionItemFullMetadata", () => require("../../components/tagging/TagRevisionItemFullMetadata.tsx"));
 importComponent("TagRevisionItemShortMetadata", () => require("../../components/tagging/TagRevisionItemShortMetadata.tsx"));
-importComponent("TagRevisionItemWrapper", () => require("../../components/tagging/TagRevisionItemWrapper.tsx"));
 importComponent("TagSearchHit", () => require("../../components/tagging/TagSearchHit.tsx"));
 importComponent("TagSmallPostLink", () => require("../../components/tagging/TagSmallPostLink.tsx"));
 importComponent("TagTableOfContents", () => require("../../components/tagging/TagTableOfContents.tsx"));
