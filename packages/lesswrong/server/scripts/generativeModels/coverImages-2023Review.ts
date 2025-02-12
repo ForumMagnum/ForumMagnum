@@ -191,7 +191,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
+  return `Aquarelle artwork of ${lowerCased}, in the style of ethereal watercolor washes, juxtaposition of hard and soft lines, muted colors, textured paper drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps`
 }
 
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
