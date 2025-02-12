@@ -97,6 +97,26 @@ const schema: SchemaType<"MultiDocuments"> = {
       resolver: (tagField) => tagField('*'),
     }),
   }),
+  parentLens: resolverOnlyField({
+    type: Object,
+    graphQLtype: 'MultiDocument',
+    canRead: ['guests'],
+    resolver: async (multiDocument, _, context) => {
+      const { loaders, currentUser, MultiDocuments } = context;
+      if (multiDocument.collectionName !== 'MultiDocuments') {
+        return null;
+      }
+
+      const parentMultiDocuments = await loaders.MultiDocuments.load(multiDocument.parentDocumentId);
+      return accessFilterSingle(currentUser, MultiDocuments, parentMultiDocuments, context);
+    },
+    sqlResolver: ({ field, join }) => join({
+      table: 'MultiDocuments',
+      type: 'left',
+      on: { _id: field('parentDocumentId') },
+      resolver: (multiDocField) => multiDocField('*'),
+    }),
+  }),
   collectionName: {
     type: String,
     canRead: ['guests'],

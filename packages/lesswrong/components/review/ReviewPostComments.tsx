@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
   singleLinePlaceholder: {
     height: 30,
     width: "100%",
+    display: "flex",
     ...singleLineStyles(theme),
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,

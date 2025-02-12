@@ -294,6 +294,25 @@ const schema: SchemaType<"Revisions"> = {
       resolver: (multiDocumentField) => multiDocumentField('*'),
     })
   }),
+  summary: resolverOnlyField({
+    type: "MultiDocument",
+    graphQLtype: "MultiDocument",
+    canRead: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const { currentUser, MultiDocuments } = context;
+      if (revision.collectionName !== "MultiDocuments") {
+        return null;
+      }
+      if (!revision.documentId) {
+        return null;
+      }
+      const lens = await context.loaders.MultiDocuments.load(revision.documentId);
+      if (lens.fieldName !== "summary") {
+        return null;
+      }
+      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+    },
+  }),
 };
 
 export default schema;
