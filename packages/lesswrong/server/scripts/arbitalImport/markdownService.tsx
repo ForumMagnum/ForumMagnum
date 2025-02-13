@@ -631,12 +631,11 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return prefix + '<span class=\'markdown-note\' arb-text-popover-anchor>' + markdown + '</span>';*/
 
         const footnoteId = randomId();
-        const footnoteIndex = footnotes.length+1;
         footnotes.push({
           footnoteId,
           contentsMarkdown: markdown,
         });
-        const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteIndex}]`);
+        const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteId}]`);
         return `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
       });
     });
@@ -993,9 +992,16 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   let html = converter.makeHtml(pageMarkdown);
   
   if (footnotes.length > 0) {
+    // Number footnotes in the order their IDs first appear in the generated HTML
+    const sortedFootnotes = orderBy(footnotes, f=>html.indexOf(f.footnoteId));
+    for (let i=0; i<sortedFootnotes.length; i++) {
+      //html = html.replace(`[${sortedFootnotes[i].footnoteId}]`, i+1);
+      html = html.replace(`[${sortedFootnotes[i].footnoteId}]`, `[${i+1}]`);
+    }
+
     html += `<ol class="footnote-section footnotes" data-footnote-section role="doc-endnotes">`;
-    for (let i=0; i<footnotes.length; i++) {
-      const footnote = footnotes[i];
+    for (let i=0; i<sortedFootnotes.length; i++) {
+      const footnote = sortedFootnotes[i];
       const returnLinkHtml = `<span class="footnote-back-link" data-footnote-back-link data-footnote-id="${footnote.footnoteId}"><sup><strong><a href="#fnref${footnote.footnoteId}">^︎</a></strong></sup></span>`;
       const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
       html += `<li id="fn${footnote.footnoteId}" class="footnote-item" data-footnote-item data-footnote-index="${i+1}" data-footnote-id="${footnote.footnoteId}" role="doc-endnote">${returnLinkHtml}<div class="footnote-content" data-footnote-content>${contentsHtml}</div></li>`;
