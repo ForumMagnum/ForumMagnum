@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils'
-import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
+import { userCanDo, membersGroup, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
@@ -20,7 +20,7 @@ export const Revisions: RevisionsCollection = createCollection({
   mutations: getDefaultMutations('Revisions', {
     create: false ,update: true, upsert: false, delete: false,
     editCheck: (user: DbUser|null) => {
-      return userIsAdminOrMode(user);
+      return userIsAdminOrMod(user);
     }
   }),
   logChanges: true,
