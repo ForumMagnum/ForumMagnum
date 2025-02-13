@@ -240,21 +240,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
 
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
-  const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
-  const afVotes = post.reviewVotesAF || []
-
-  let displayedVotes = allVotes
-  switch (voteTooltip) {
-    case 'Showing votes by 1000+ Karma LessWrong users':
-      displayedVotes = highVotes;
-      break;
-    case 'Showing votes from Alignment Forum members':
-      displayedVotes = afVotes;
-      break;
-    case 'Showing all votes':
-      break;
-  }
 
   let positiveVoteCountText = "0"
   let positiveVoteCountTooltip = "0 positive votes"
@@ -345,7 +331,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
           <LWTooltip title={voteTooltip} placement="top-end">
             <div className={classes.voteResults}>
-              { displayedVotes.map((v, i)=>
+              { allVotes.map((v, i)=>
                 <span className={classes.reviewVote} key={`${post._id}${i}H`}>
                   {v}
                 </span>

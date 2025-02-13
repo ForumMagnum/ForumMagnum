@@ -1197,9 +1197,9 @@ interface DbReviewWinner extends DbObject {
   postId: string
   reviewYear: number
   category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical"
-  curatedOrder: number
+  curatedOrder: number | null
   reviewRanking: number
-  isAI: boolean
+  isAI: boolean | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1226,6 +1226,7 @@ interface DbRevision extends DbObject {
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
+  skipAttributions: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number

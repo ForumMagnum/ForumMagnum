@@ -6,7 +6,7 @@ import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
-const CONCEPT_ITEM_WIDTH = 300;
+const CONCEPT_ITEM_WIDTH = 280;
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   root: {
@@ -45,7 +45,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     overflow: "hidden",
   },
   titleText: {
-    wordBreak: "break-word",
+    wordBreak: "break-all",
     WebkitLineClamp: 1,
     WebkitBoxOrient: "vertical",
     display: "-webkit-box",
@@ -146,12 +146,14 @@ interface ConceptItemProps {
   wikitag: ConceptItemFragment;
   isTitleItem?: boolean;
   showArbitalIcon?: boolean;
+  noLinkOrHoverOnTitle?: boolean;
 }
 
 const ConceptItem = ({
   wikitag,
   isTitleItem,
-  showArbitalIcon
+  showArbitalIcon,
+  noLinkOrHoverOnTitle
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
 
@@ -163,16 +165,19 @@ const ConceptItem = ({
   const titleItem = (
     <div className={classes.titleItem}>
       <div className={classes.titleItemTitle}>
-        <TagsTooltip
-          tagSlug={wikitag.slug}
-          noPrefetch
-          previewPostCount={0}
-          placement='right-start'
-        >
-          <Link to={tagGetUrl({ slug: wikitag.slug })}>
-            {wikitag.name}
-          </Link>
-        </TagsTooltip>
+        {noLinkOrHoverOnTitle
+          ? wikitag.name
+          : <TagsTooltip
+              tagSlug={wikitag.slug}
+              noPrefetch
+              previewPostCount={0}
+              placement='right-start'
+          >
+            <Link to={tagGetUrl({ slug: wikitag.slug })}>
+              {wikitag.name}
+            </Link>
+          </TagsTooltip>
+        }
       </div>
     </div>
   );

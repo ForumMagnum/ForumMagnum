@@ -88,7 +88,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    lenses {
+    lensesIncludingDeleted {
       ...MultiDocumentContentDisplay
     }
   }

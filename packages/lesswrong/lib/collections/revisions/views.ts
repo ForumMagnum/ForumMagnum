@@ -9,6 +9,7 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     userId?: string
+    version?: string
   }
 }
 
@@ -48,6 +49,19 @@ Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
     }
   }
   return result;
+});
+
+Revisions.addView('revisionByVersionNumber', (terms: RevisionsViewTerms) => {
+  if (!terms.documentId) throw new Error("documentId is required for revisionByVersionNumber");
+  if (!terms.version) throw new Error("version is required for revisionByVersionNumber");
+  
+  return {
+    selector: {
+      documentId: terms.documentId,
+      version: terms.version,
+      ...(terms.fieldName && {fieldName: terms.fieldName}),
+    },
+  };
 });
 
 ensureIndex(Revisions, {collectionName:1, fieldName:1, editedAt:1, _id: 1, changeMetrics:1});

@@ -155,6 +155,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         updateType: 'initial',
         commitMessage,
         googleDocMetadata,
+        skipAttributions: false,
         changeMetrics,
         createdAt: editedAt,
       };
@@ -237,6 +238,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         commitMessage,
         changeMetrics,
         createdAt: editedAt,
+        skipAttributions: false,
       };
       
       const newRevisionDoc = await createMutator({

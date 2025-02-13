@@ -41,7 +41,7 @@ export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof 
 
   return <SingleColumnSection>
     <div className={classes.yearLinks}>
-      {reviewYears.map(year => <Link className={classNames(classes.yearLink, {[classes.selected]: year === reviewYear})} to={`/reviews/${year}`} key={year}>
+      {[...reviewYears].map(year => <Link className={classNames(classes.yearLink, {[classes.selected]: year === reviewYear})} to={`/reviews/${year}`} key={year}>
         {year}
       </Link>)}
     </div>

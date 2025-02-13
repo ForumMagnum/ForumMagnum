@@ -1,8 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useLocation } from '../lib/routeUtil';
-import { getReviewPhase } from '../lib/reviewUtils';
+import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
+import { Link } from '../lib/reactRouterWrapper';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -13,7 +14,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-57px',
+    top: '-70px',
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
@@ -21,7 +22,14 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       right: '0px',
     }
   },
-
+  reviewResultsImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: '-70px',
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+  },
   imageColumn: {
     position: 'absolute',
     top: 0,
@@ -137,6 +145,44 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   //   fontStyle: 'normal',
   //   marginBottom: '16px !important',
   // },
+  votingResultsLink: {
+    position: 'relative',
+    zIndex: theme.zIndexes.reviewVotingCanvas,
+    top: 715,
+    right: 250,
+    width: 200,
+    opacity: .6,
+    textAlign: 'center',
+    display: 'block',
+    '&:hover': {
+      opacity: .4,
+    },
+    [theme.breakpoints.down(1600)]: {
+      right: 100,
+      top: 690
+    },
+    [theme.breakpoints.down(1400)]: {
+      right: 35,
+      top: 650
+    },
+    '& h1': {
+      ...theme.typography.headerStyle,
+      fontSize: '2.8rem',
+      lineHeight: '2.6rem',
+      fontWeight: 600,
+      marginTop: 20,
+      marginBottom: 0,
+    },
+    '& h3': {
+      ...theme.typography.commentStyle,
+      fontSize: '1.4rem',
+      lineHeight: '1.2',
+      marginTop: 16,
+      marginBottom: 6,
+      fontStyle: 'italic',
+      opacity: .5,
+    }
+  }
 }));
 
 export const LWBackgroundImage = ({standaloneNavigation}: {
@@ -159,10 +205,25 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     />
   </div> : null
 
+  const reviewCompleteImage = <div>
+      <Link className={classes.votingResultsLink} to={reviewResultsPostPath}>
+        <h1>Thank YOU for Voting!</h1>
+        <h3>View Results</h3>
+      </Link>
+      <CloudinaryImage2
+        loading="lazy"
+        className={classes.reviewResultsImage}
+        publicId="happyWizard_mmmnjx"
+        darkPublicId={"happyWizard_mmmnjx"}
+      />
+  </div>
+
+  const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS')
+
   return <div className={classes.root}>
       {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
-      {getReviewPhase() === 'VOTING' && currentRoute?.name !== 'home' && defaultImage}
-      {getReviewPhase() !== 'VOTING' && defaultImage}
+      {getReviewPhase() === 'RESULTS' && currentRoute?.name === 'home' && reviewCompleteImage}
+      {renderDefaultImage && defaultImage}
   </div>;
 }
 

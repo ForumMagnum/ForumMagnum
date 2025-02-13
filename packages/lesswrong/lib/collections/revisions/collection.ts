@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
+import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils'
+import { userCanDo, membersGroup, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
@@ -15,9 +15,15 @@ export const Revisions: RevisionsCollection = createCollection({
   typeName: 'Revision',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
-  // No mutations (revisions are insert-only immutable, and are created as a
-  // byproduct of creating/editing documents in other collections).
-  // mutations: getDefaultMutations('Revisions'),
+  // This has mutators because of a few mutable metadata fields (eg
+  // skipAttributions), but most parts of revisions are create-only immutable.
+  mutations: getDefaultMutations('Revisions', {
+    create: false ,update: true, upsert: false, delete: false,
+    editCheck: (user: DbUser|null) => {
+      return userIsAdminOrMod(user);
+    }
+  }),
+  logChanges: true,
 });
 addUniversalFields({
   collection: Revisions,
