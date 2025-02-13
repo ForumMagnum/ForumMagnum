@@ -43,10 +43,10 @@ const TagCompareRevisions = () => {
   });
   
   if (!tag) {
-    return <LoadingOrErrorPage found={!!tag} loading={loadingTag} error={tagError} />
+    return <LoadingOrErrorPage loading={loadingTag} error={tagError} />
   }
   if (!revisionResults) {
-    return <LoadingOrErrorPage found={!!revisionResults} loading={loadingRevision} error={revisionError} />
+    return <LoadingOrErrorPage loading={loadingRevision} error={revisionError} />
   }
 
   const revision = revisionResults[0];

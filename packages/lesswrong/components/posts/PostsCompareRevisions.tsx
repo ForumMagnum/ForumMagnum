@@ -36,10 +36,10 @@ const PostsCompareRevisions = ({ classes }: {
   });
   
   if (!post) {
-    return <LoadingOrErrorPage found={!!post} loading={loadingPost} error={postError} />
+    return <LoadingOrErrorPage loading={loadingPost} error={postError} />
   }
   if (!revisionResults) {
-    return <LoadingOrErrorPage found={!!revisionResults} loading={loadingRevision} error={revisionError} />
+    return <LoadingOrErrorPage loading={loadingRevision} error={revisionError} />
   }
   if (!revisionResults.length) {
     return <ErrorPage error="Revision not found or you do not have access"/>

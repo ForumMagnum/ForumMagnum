@@ -11,13 +11,12 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
  *   const SamplePage() {
  *     const { document, loading, error } = useSingle(...);
  *     if (!document) {
- *       return <LoadingOrErrorPage found={!!document} loading={loading} error={error}/>
+ *       return <LoadingOrErrorPage loading={loading} error={error}/>
  *     }
  *   }
  *
  */
-const LoadingOrErrorPage = ({found, loading, error}: {
-  found: boolean
+const LoadingOrErrorPage = ({loading, error}: {
   loading: boolean
   error: any
 }) => {
