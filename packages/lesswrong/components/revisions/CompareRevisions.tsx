@@ -151,7 +151,6 @@ const RevisionsMenuActions = ({revision}: {
   });
 
   return <>
-    {/*<MenuItem>Permalink</MenuItem>*/}
     <MenuItem onClick={ev => {
       void updateRevision({
         selector: {_id: revision._id},
@@ -165,7 +164,6 @@ const RevisionsMenuActions = ({revision}: {
         : "Exclude this revision from attributions"
       }
     </MenuItem>
-    {/*<MenuItem>Delete this revision</MenuItem>*/}
   </>
 }
 
