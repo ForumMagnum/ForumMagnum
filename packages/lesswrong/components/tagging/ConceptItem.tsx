@@ -6,7 +6,7 @@ import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
-const CONCEPT_ITEM_WIDTH = 300;
+const CONCEPT_ITEM_WIDTH = 280;
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   root: {
@@ -45,7 +45,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     overflow: "hidden",
   },
   titleText: {
-    wordBreak: "break-word",
+    wordBreak: "break-all",
     WebkitLineClamp: 1,
     WebkitBoxOrient: "vertical",
     display: "-webkit-box",

@@ -250,7 +250,11 @@ const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPa
   </div>
 }
 
-const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}: {
+  arbitalLinkedPages?: ArbitalLinkedPagesFragment
+  selectedLens?: TagLens,
+  tag: TagPageFragment,
+}) => {
   const classes = useStyles(styles);
 
   if (!arbitalLinkedPages) {
@@ -259,6 +263,7 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPag
 
   const { TagsTooltip, ContentStyles } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
+  const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   
   return (
     <ContentStyles contentType="tag">
@@ -276,15 +281,15 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPag
             ))}
           </div>
         )}
-        {teaches.length > 0 && (
+        {teachesFiltered.length > 0 && (
           <div className={classes.relationshipRow}>
             <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
-            {teaches.map((subject: ArbitalLinkedPage, i: number) => (
+            {teachesFiltered.map((subject: ArbitalLinkedPage, i: number) => (
               <span key={subject.slug} className={classes.spaceAfterWord}>
                 <TagsTooltip tagSlug={subject.slug}>
                   <Link to={tagGetUrl(subject)}>{subject.name}</Link>
                 </TagsTooltip>
-                {i < teaches.length - 1 && ', '}
+                {i < teachesFiltered.length - 1 && ', '}
               </span>
             ))}
           </div>
