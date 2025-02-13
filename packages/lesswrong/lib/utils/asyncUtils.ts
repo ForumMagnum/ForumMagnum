@@ -109,3 +109,21 @@ export async function executeChunkedQueue<T, V>(
   const promiseGenerators = chunks.map((chunk) => () => func(chunk));
   return (await executePromiseQueue(promiseGenerators, maxConcurrent)).flat();
 }
+
+type PromiseObject = { [key: string]: Promise<any> };
+type UnwrapPromises<T extends PromiseObject> = {
+  [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K];
+};
+
+export async function namedPromiseAll<T extends PromiseObject>(
+  obj: T
+): Promise<UnwrapPromises<T>> {
+  const keys = Object.keys(obj);
+  const promises = Object.values(obj);
+  
+  const results = await Promise.all(promises);
+  
+  return Object.fromEntries(
+    keys.map((key, index) => [key, results[index]])
+  ) as UnwrapPromises<T>;
+}

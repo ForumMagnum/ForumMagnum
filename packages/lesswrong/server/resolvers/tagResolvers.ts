@@ -14,7 +14,6 @@ import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import pick from 'lodash/pick';
-import isEmpty from 'lodash/isEmpty';
 import * as _ from 'underscore';
 import {
   defaultSubforumSorting,
@@ -27,7 +26,7 @@ import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
@@ -38,9 +37,8 @@ import { getToCforTag } from '../tableOfContents';
 import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
-import { randomId } from '@/lib/random';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
+import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -782,54 +780,64 @@ defineMutation({
     if (!tag) throw new Error("Could not find corresponding tag for lens ID: "+lensId);
     
     // Swap revisions
-    const tagRevisions = await Revisions.find({ documentId: tagId }).fetch();
-    const lensRevisions = await Revisions.find({ documentId: lensId }).fetch();
+    const { tagRevisions, lensRevisions } = await namedPromiseAll({
+      tagRevisions: Revisions.find({ documentId: tagId }).fetch(),
+      lensRevisions: Revisions.find({ documentId: lensId }).fetch(),
+    });
     const latestTagRevisionId = tag.description_latest;
     const latestLensRevisionId = lensMultiDocument.contents_latest;
     console.log(`Moving ${tagRevisions.length} revisions from tag to lens`); //eslint-disable-line no-console
-    await Revisions.rawUpdateMany(
-      {_id: {$in: tagRevisions.map(r => r._id)}},
-      {$set: {
-        documentId: lensMultiDocument._id,
-        collectionName: "MultiDocuments",
-        fieldName: "contents",
-      }}
-    )
     console.log(`Moving ${lensRevisions.length} revisions from lens to tag`); //eslint-disable-line no-console
-    await Revisions.rawUpdateMany(
-      {_id: {$in: lensRevisions.map(r => r._id)}},
-      {$set: {
-        documentId: tag._id,
-        collectionName: "Tags",
-        fieldName: "description",
-      }}
-    )
+    await Promise.all([
+      // Move revs from tag to lens
+      Revisions.rawUpdateMany(
+        {_id: {$in: tagRevisions.map(r => r._id)}},
+        {$set: {
+          documentId: lensMultiDocument._id,
+          collectionName: "MultiDocuments",
+          fieldName: "contents",
+        }}
+      ),
+      // Move revs from lens to tag
+      Revisions.rawUpdateMany(
+        {_id: {$in: lensRevisions.map(r => r._id)}},
+        {$set: {
+          documentId: tag._id,
+          collectionName: "Tags",
+          fieldName: "description",
+        }}
+      )
+    ]);
     
     // Swap the description_latest field
-    await Tags.rawUpdateOne(
-      {_id: tagId},
-      {$set: {
-        description_latest: latestLensRevisionId
-      }}
-    );
-    await MultiDocuments.rawUpdateOne(
-      {_id: latestLensRevisionId},
-      {$set: {
-        contents_latest: latestTagRevisionId
-      }}
-    );
+    await Promise.all([
+      Tags.rawUpdateOne(
+        {_id: tagId},
+        {$set: {
+          description_latest: latestLensRevisionId
+        }}
+      ),
+      context.MultiDocuments.rawUpdateOne(
+        {_id: latestLensRevisionId},
+        {$set: {
+          contents_latest: latestTagRevisionId
+        }}
+      )
+    ]);
 
     // Recompute denormalized fields
-    await updateDenormalizedHtmlAttributions({
-      document: tag,
-      collectionName: "Tags",
-      fieldName: "description",
-    });
-    await updateDenormalizedHtmlAttributions({
-      document: lensMultiDocument,
-      collectionName: "MultiDocuments",
-      fieldName: "contents",
-    });
+    await Promise.all([
+      updateDenormalizedHtmlAttributions({
+        document: tag,
+        collectionName: "Tags",
+        fieldName: "description",
+      }),
+      updateDenormalizedHtmlAttributions({
+        document: lensMultiDocument,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      })
+    ]);
     
     // eslint-disable-next-line no-console
     console.log(`Finished promoting lens ${lensId} to main`);

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { useTracking } from '@/lib/analyticsEvents';
@@ -30,6 +29,7 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const [everOpened, setEverOpened] = useState(false);
   const { captureEvent } = useTracking({eventType: "tagPageMenuClicked", eventProps: {tagOrLensId: tagOrLens?._id, itemType: "tag"}});
+  const { ForumIcon } = Components;
   
   if (!tagOrLens) {
     return null;
@@ -43,7 +43,7 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
         setEverOpened(true);
       }}
     >
-      <MoreVertIcon className={classes.icon}/>
+      <ForumIcon icon="EllipsisVertical" className={classes.icon}/>
     </span>
     <Menu
       onClick={() => {
