@@ -1,4 +1,4 @@
-import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterSingle, schemaDefaultValue } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 import { addGraphQLSchema } from '../../vulcan-lib';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
@@ -98,7 +98,7 @@ const schema: SchemaType<"Revisions"> = {
   
   updateType: {
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canCreate: ['members'],
     type: String,
     allowedValues: ['initial', 'patch', 'minor', 'major'],
     optional: true
@@ -113,7 +113,7 @@ const schema: SchemaType<"Revisions"> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['members']
+    canCreate: ['members'],
   },
   userId: {
     ...foreignKeyField({
@@ -235,6 +235,21 @@ const schema: SchemaType<"Revisions"> = {
     optional: true,
     blackbox: true,
     canRead: ['guests']
+  },
+  
+  
+  /**
+   * If set, this revision will be skipped over when attributing text to
+   * contributors on wiki pages. Useful when reverting - if a bad edit and a
+   * reversion are marked with this flag, then attributions will be as-if the
+   * reverted edited never happened.
+   */
+  skipAttributions: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
   
   tag: resolverOnlyField({

@@ -50,6 +50,7 @@ const TagRevisionItem = ({
       documentId={documentId}
       versionBefore={previousRevision?.version||null}
       versionAfter={revision.version}
+      revisionAfter={revision}
     />
   </ContentStyles>
 

@@ -20,6 +20,12 @@ const styles = (theme: ThemeType) => ({
     marginRight: 16,
     verticalAlign: "baseline",
   },
+  skippedIcon: {
+    cursor: "pointer",
+    "--icon-size": "20px",
+    verticalAlign: "middle",
+    marginRight: 16,
+  },
 });
 
 const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
@@ -29,7 +35,7 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
   revision: RevisionHistoryEntry,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
+  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote, ForumIcon } = Components
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -58,6 +64,13 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
       </></LWTooltip>
     </Link>
     {" "}
+    {revision.skipAttributions && <>
+      <LWTooltip title="Excluded from author-attribution.">
+        <span className={classes.skippedIcon}>
+          <ForumIcon icon="Clear"/>
+        </span>
+      </LWTooltip>
+    </>}
     {revision.legacyData?.arbitalPageId && <>
       <LWTooltip title="Imported from Arbital. Click to view original Markdown.">
         <span onClick={showArbitalImportDetails}>

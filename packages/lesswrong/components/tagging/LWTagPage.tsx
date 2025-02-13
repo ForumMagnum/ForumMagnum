@@ -621,12 +621,11 @@ const LWTagPage = () => {
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 
-  if (loadingTag && !tag)
+  if (loadingTag && !tag) {
     return <Loading/>
-  if (tagError) {
-    return <Loading/> //TODO
-  }
-  if (!tag) {
+  } else if (tagError) {
+    return <Components.ErrorPage error={tagError}/>
+  } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
     }

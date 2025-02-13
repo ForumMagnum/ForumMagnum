@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { TagLens } from '@/lib/arbital/useTagLenses';
-import classNames from 'classnames';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { tagHistoryStyles } from './TagHistoryPage';
@@ -41,6 +40,7 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
       documentId={documentId}
       versionBefore={null}
       versionAfter={revision.version}
+      revisionAfter={revision}
     />
   </ContentStyles>
 

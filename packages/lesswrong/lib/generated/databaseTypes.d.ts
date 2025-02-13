@@ -1226,6 +1226,7 @@ interface DbRevision extends DbObject {
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
+  skipAttributions: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
