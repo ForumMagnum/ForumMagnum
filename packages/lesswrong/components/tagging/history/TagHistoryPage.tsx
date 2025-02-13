@@ -12,6 +12,7 @@ import Select from '@material-ui/core/Select';
 import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
+import DeferRender from '@/components/common/DeferRender';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
@@ -89,7 +90,7 @@ const TagHistoryPage = () => {
     </SingleColumnSection>
   }
   
-  return <SingleColumnSection>
+  return <SingleColumnSection><DeferRender ssr={false}>
     <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
         <Components.SettingsButton label="Settings" />
@@ -230,7 +231,7 @@ const TagHistoryPage = () => {
     />
     </RevealHiddenBlocks>
     </div>
-  </SingleColumnSection>
+  </DeferRender></SingleColumnSection>
 }
 
 const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
