@@ -2,21 +2,20 @@ import pick from 'lodash/pick'
 import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
-import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
-import { makeCrossSiteRequest } from "./resolvers";
-import type { UpdateCallbackProperties } from "../mutationCallbacks";
+import { extractDenormalizedData } from "./denormalizedFields";
+import { UpdateCallbackProperties, getCollectionHooks } from "../mutationCallbacks";
 import type { Crosspost, DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
 } from "@/server/crossposting/tokens";
-// import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
-// import { fetchFragmentSingle } from '../fetchFragment';
-// import {
-//   createCrosspostRoute,
-//   updateCrosspostRoute,
-// } from "@/lib/fmCrosspost/routes";
-// import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
+import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import {
+  createCrosspostRoute,
+  updateCrosspostRoute,
+} from "@/lib/fmCrosspost/routes";
+import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
+import Revisions from '@/lib/collections/revisions/collection';
 
 const assertPostIsCrosspostable = (
   post: DbPost,
@@ -63,62 +62,51 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   }
 
   // Grab the normalized contents from the revision
-  // TODO: Enable to this when V2 is deployed to both sites
-  // const revision = await getLatestContentsRevision(post);
+  const revision = await getLatestContentsRevision(post);
 
   const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
     postId: post._id,
     ...extractDenormalizedData(post),
-    // TODO: Enable to this when V2 is deployed to both sites
-    // originalContents: revision?.originalContents,
+    contents: {
+      originalContents: revision?.originalContents,
+      draft: revision?.draft ?? false,
+    },
   });
 
-  const { postId } = await makeCrossSiteRequest(
-    'crosspost',
-    { token },
-    'Failed to create crosspost'
+  const {postId} = await makeV2CrossSiteRequest(
+    createCrosspostRoute,
+    {token},
+    "Failed to create crosspost",
   );
-  // TODO: Switch to this when V2 is deployed to both sites
-  // const {postId} = await makeV2CrossSiteRequest(
-  //   createCrosspostRoute,
-  //   {token},
-  //   "Failed to create crosspost",
-  // );
 
   logger('crosspost successful, setting foreignPostId:', postId)
   post.fmCrosspost.foreignPostId = postId;
   return post;
 }
 
-const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
-  // TODO: Enable to this when V2 is deployed to both sites
-  // const postOriginalContents = await fetchFragmentSingle({
-  //   collectionName: "Posts",
-  //   fragmentName: "PostsOriginalContents",
-  //   currentUser: null,
-  //   selector: postId,
-  //   skipFiltering: true,
-  // })
-
+const updateCrosspost = async (
+  foreignPostId: string,
+  latestRevisionId: string | null,
+  denormalizedData: DenormalizedCrosspostData,
+) => {
+  const revision = latestRevisionId
+    ? await Revisions.findOne({_id: latestRevisionId})
+    : null;
   const token = await updateCrosspostToken.create({
     ...denormalizedData,
-    postId,
-    // TODO: Enable to this when V2 is deployed to both sites
-    // originalContents: postOriginalContents?.contents?.originalContents,
+    postId: foreignPostId,
+    contents: {
+      originalContents: revision?.originalContents,
+      draft: revision?.draft ?? false,
+    },
   });
-  await makeCrossSiteRequest(
-    'updateCrosspost',
-    { token },
-    "Failed to update crosspost draft status",
+  await makeV2CrossSiteRequest(
+    updateCrosspostRoute,
+    {token},
+    "Failed to update crosspost",
   );
-  // TODO: Switch to this when V2 is deployed to both sites
-  // await makeV2CrossSiteRequest(
-  //   updateCrosspostRoute,
-  //   {token},
-  //   "Failed to update crosspost",
-  // );
 }
 
 /**
@@ -131,7 +119,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
     console.warn("Cannot remove crosspost that doesn't exist");
     return;
   }
-  await updateCrosspost(post.fmCrosspost.foreignPostId, {
+  await updateCrosspost(post.fmCrosspost.foreignPostId, post.contents_latest, {
     ...extractDenormalizedData(post),
     draft: true,
   });
@@ -155,12 +143,12 @@ export async function handleCrosspostUpdate(
     logger('post is not a crosspost, returning')
     return data;
   }
-  if (
-    denormalizedFieldKeys.some(
-      (key) => data[key] !== undefined && data[key] !== oldDocument[key]
-    ) &&
-    fmCrosspost.foreignPostId
-  ) {
+  if (!fmCrosspost?.hostedHere) {
+    logger('post is not a hosted here, returning')
+    return data;
+  }
+
+  if (fmCrosspost.foreignPostId) {
     assertPostIsCrosspostable(newDocument, logger);
 
     logger('denormalized fields changed, updating crosspost')
@@ -178,7 +166,11 @@ export async function handleCrosspostUpdate(
       denormalizedData.deletedDraft = oldDocument.deletedDraft;
     }
     logger('denormalizedData:', denormalizedData)
-    await updateCrosspost(fmCrosspost.foreignPostId, denormalizedData);
+    const latestRevisionId =
+      data.contents_latest ??
+      newDocument.contents_latest ??
+      oldDocument.contents_latest;
+    await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
     logger('crosspost updated successfully')
     // TODO-HACK: Drafts are very bad news for crossposts, so we will unlink in
     // such cases. See sad message to users in ForeignCrosspostEditForm.tsx.
@@ -196,4 +188,9 @@ export async function handleCrosspostUpdate(
   }
 
   return performCrosspost({ ...newDocument, ...data });
+}
+
+export const addCrosspostingCallbacks = () => {
+  getCollectionHooks("Posts").newSync.add(performCrosspost);
+  getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
 }

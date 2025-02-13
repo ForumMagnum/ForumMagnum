@@ -24,6 +24,7 @@ import { initGatherTownCron } from './gatherTownCron';
 import { registerViewCronJobs } from './postgresView';
 import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
+import { addCrosspostingCallbacks } from './fmCrosspost/crosspost';
 import type { CommandLineArguments } from './commandLine';
 
 /**
@@ -59,6 +60,7 @@ export async function runServerOnStartupFunctions() {
   initLegacyRoutes();
   await startupSanityChecks();
   addAllEditableCallbacks();
+  addCrosspostingCallbacks(); // Must be done after editable callbacks
   await refreshKarmaInflationCache();
   initGoogleVertex();
   addElicitResolvers();
