@@ -1,4 +1,4 @@
-import { DeferredForumSelect } from '../lib/forumTypeUtils';
+import { forumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
@@ -29,8 +29,8 @@ export type ThemeMetadata = {
   label: string
 }
 
-export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "EAForum"
-  ? [
+export const themeMetadata: Array<ThemeMetadata> = forumSelect({
+  EAForum: [
     {
       name: "auto",
       label: "Auto",
@@ -43,8 +43,8 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
       name: "dark",
       label: "Dark",
     },
-  ]
-  : [
+  ],
+  default: [
     {
       name: "default",
       label: "Default",
@@ -57,7 +57,8 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
       name: "auto",
       label: "Auto",
     },
-  ];
+  ],
+});
 
 export function isValidSerializedThemeOptions(options: string|object): options is string | AbstractThemeOptions {
   try {
@@ -99,13 +100,11 @@ export function getForumType(themeOptions: AbstractThemeOptions) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = new DeferredForumSelect({
-  EAForum: {name: "auto"},
-  default: {name: "default"},
-} as const);
-
 export const getDefaultThemeOptions = (): AbstractThemeOptions =>
-  defaultThemeOptions.get();
+  forumSelect({
+    EAForum: {name: "auto"},
+    default: {name: "default"},
+  } as const)
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {

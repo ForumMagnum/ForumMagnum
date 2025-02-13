@@ -2,7 +2,6 @@ import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "@/lib/random";
-import { DeferredForumSelect } from "@/lib/forumTypeUtils";
 import { ForumTypeString } from "@/lib/instanceSettings";
 import { editableFieldIsNormalized } from "@/lib/editor/makeEditableOptions";
 
@@ -81,12 +80,9 @@ export abstract class Type {
 
     if (schema.defaultValue !== undefined && schema.defaultValue !== null) {
       const {defaultValue, ...rest} = schema;
-      const value = defaultValue instanceof DeferredForumSelect
-        ? defaultValue.get(forumType)
-        : defaultValue;
       return new DefaultValueType(
         Type.fromSchema(collection, fieldName, rest, indexSchema, forumType),
-        value,
+        defaultValue,
       );
     }
 

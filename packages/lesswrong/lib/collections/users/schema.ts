@@ -11,7 +11,7 @@ import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
-import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
+import { userThemeSettings, getDefaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
@@ -579,7 +579,7 @@ const schema: SchemaType<"Users"> = {
     type: userTheme,
     optional: true,
     nullable: true,
-    ...schemaDefaultValue(defaultThemeOptions),
+    ...schemaDefaultValue(getDefaultThemeOptions(), "deferred"),
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
