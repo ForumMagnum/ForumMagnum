@@ -17,7 +17,12 @@ export const Revisions: RevisionsCollection = createCollection({
   resolvers: getDefaultResolvers('Revisions'),
   // This has mutators because of a few mutable metadata fields (eg
   // skipAttributions), but most parts of revisions are create-only immutable.
-  mutations: getDefaultMutations('Revisions'),
+  mutations: getDefaultMutations('Revisions', {
+    create: false ,update: true, upsert: false, delete: false,
+    editCheck: (user: DbUser|null) => {
+      return userIsAdminOrMode(user);
+    }
+  }),
   logChanges: true,
 });
 addUniversalFields({
