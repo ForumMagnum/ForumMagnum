@@ -593,7 +593,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         /*var cachedValue = stateService.getMathjaxCacheValue(key);
         var style = cachedValue ? ('style=\'' + cachedValue.style + ';display:inline-block;\' ') : '';
         return prefix + '<span ' + style + 'arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, false);
       });
     });
     // Process $$mathjax$$ spans.
@@ -605,7 +605,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         /*var key = '$$' + encodedText + '$$';
         var style = cachedValue ? ('style=\'' + cachedValue.style + '\' ') : '';
         return prefix + '<span ' + style + 'class=\'mathjax-div\' arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, false);
       });
     });
     // Process $mathjax$ spans.
