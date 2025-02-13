@@ -322,21 +322,11 @@ const schema: SchemaType<"Revisions"> = {
         return null;
       }
       const lens = await context.loaders.MultiDocuments.load(revision.documentId);
-      if (lens.fieldName !== "summary" || lens.collectionName !== "Tags") {
+      if (lens.fieldName !== "summary") {
         return null;
       }
       return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
     },
-    sqlResolver: ({ field, join }) => join({
-      table: 'MultiDocuments',
-      on: {
-        _id: field('documentId'),
-        collectionName: "'Tags'",
-        fieldName: "'summary'"
-      },
-      type: 'left',
-      resolver: (multiDocumentField) => multiDocumentField('*'),
-    })
   }),
 };
 

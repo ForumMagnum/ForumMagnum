@@ -5,13 +5,14 @@ import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
-import { RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
+import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
+import DeferRender from '@/components/common/DeferRender';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
@@ -45,7 +46,7 @@ export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType
     height: 16,
   },
   commentIcon: {
-    marginTop: 12,
+    marginTop: 6,
   },
 }));
 
@@ -95,7 +96,7 @@ const TagHistoryPage = () => {
     }
   }
   
-  return <SingleColumnSection>
+  return <SingleColumnSection><DeferRender ssr={false}>
     <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
         <Components.SettingsButton label="Settings" />
@@ -110,7 +111,7 @@ const TagHistoryPage = () => {
     />
 
     <div className={classes.feed}>
-    <RevealHiddenBlocksContext.Provider value={true}>
+    <RevealHiddenBlocks>
     <MixedTypeFeed
       pageSize={25}
       resolverName="TagHistoryFeed"
@@ -234,9 +235,9 @@ const TagHistoryPage = () => {
         },
       }}
     />
-    </RevealHiddenBlocksContext.Provider>
+    </RevealHiddenBlocks>
     </div>
-  </SingleColumnSection>
+  </DeferRender></SingleColumnSection>
 }
 
 const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
@@ -300,7 +301,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
         checked={settings.showMetadata}
         onChange={ev => setSettings({...settings, showMetadata: ev.target.checked})}
       />
-      <span className={classes.label}>Show metadata</span>
+      <span className={classes.label}>Show changes to metadata</span>
     </div>
     {hasWikiLenses && lenses.length > 1 && <div>
       Lens

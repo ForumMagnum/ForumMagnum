@@ -47,7 +47,15 @@ defineFeedResolver<Date>({
     const lensIds = (historyOptions.lensId && historyOptions.lensId !== "all")
       ? [historyOptions.lensId]
       : lenses.map(lens => lens._id);
-    const summaries = lensesAndSummaries.filter(md => md.fieldName==="summary");
+    const summariesOfTag = lensesAndSummaries.filter(md => md.fieldName==="summary");
+    
+    const summariesOfLenses = lenses.length>0
+      ? await MultiDocuments.find({
+          parentDocumentId: {$in: lensIds},
+          fieldName: "summary",
+        }).fetch()
+      : [];
+    const summaries = [...summariesOfTag, ...summariesOfLenses];
     const summaryIds = summaries.map(summary => summary._id);
 
     const result = await mergeFeedQueries<SortKeyType>({

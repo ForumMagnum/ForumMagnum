@@ -28,6 +28,7 @@ export type LWTooltipProps = {
   inlineBlock?: boolean,
   As?: keyof JSX.IntrinsicElements,
   disabled?: boolean,
+  disabledOnMobile?: boolean,
   hideOnTouchScreens?: boolean,
   className?: string,
   analyticsProps?: AnalyticsProps,
@@ -50,6 +51,7 @@ const LWTooltip = ({
   inlineBlock=true,
   As="span",
   disabled=false,
+  disabledOnMobile=false,
   hideOnTouchScreens=false,
   analyticsProps,
   otherEventProps,
@@ -81,6 +83,7 @@ const LWTooltip = ({
       ...analyticsProps,
       ...otherEventProps,
     },
+    disabledOnMobile,
     onEnter: onShow,
     onLeave: () => {
       onHide?.();

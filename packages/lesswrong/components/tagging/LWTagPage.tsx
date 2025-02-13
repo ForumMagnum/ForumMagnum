@@ -764,10 +764,11 @@ const LWTagPage = () => {
 
   const tagPostsAndCommentsSection = (
     <div className={classes.centralColumn}>
-      {editing && <TagDiscussionSection
+      {/* disabling this for now as it clutters the page and isn't getting much use, but leaving here for future consideration of somehow restoring it */}
+      {/* {editing && <TagDiscussionSection
         key={tag._id}
         tag={tag}
-      />}
+      />} */}
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
@@ -869,7 +870,7 @@ const LWTagPage = () => {
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
         </div>}
       </div>}
-      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tag={tag} selectedLens={selectedLens} />
     </div>
   );
 

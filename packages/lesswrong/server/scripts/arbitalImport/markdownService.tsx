@@ -158,7 +158,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   const { ForumIcon } = Components;
   const footnotes: Array<{
     footnoteId: string
-    contentsHtml: string
+    contentsMarkdown: string
   }> = [];
   //var that = this;
 
@@ -212,7 +212,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const url = pageIdToUrl(linkedPageId);
         return `<a href="${url}">${linkText}</a>`;
       } else {
-        const url = `/w/${slugify(linkText)}`;
+        const linkSlug = trimmedAlias.length > 0 ? slugify(trimmedAlias) : slugify(linkText);
+        const url = `/w/${linkSlug}`;
         const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
           slug: slugify(linkText),
@@ -418,8 +419,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return '<div arb-hidden-text button-text=\'' + buttonText + '\'>' + html + '\n\n</div>';*/
         
         return `<details class="detailsBlock">
-          <summary class="detailsBlockTitle">${buttonText}</summary>
-          <div class="detailsBlockContent">${blockText}</div>
+          <summary class="detailsBlockTitle">\n${buttonText}\n</summary>
+          <div class="detailsBlockContent">\n${blockText}\n</div>
         </details>`;
       });
     });
@@ -592,7 +593,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         /*var cachedValue = stateService.getMathjaxCacheValue(key);
         var style = cachedValue ? ('style=\'' + cachedValue.style + ';display:inline-block;\' ') : '';
         return prefix + '<span ' + style + 'arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, false);
       });
     });
     // Process $$mathjax$$ spans.
@@ -604,7 +605,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         /*var key = '$$' + encodedText + '$$';
         var style = cachedValue ? ('style=\'' + cachedValue.style + '\' ') : '';
         return prefix + '<span ' + style + 'class=\'mathjax-div\' arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, false);
       });
     });
     // Process $mathjax$ spans.
@@ -630,13 +631,12 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return prefix + '<span class=\'markdown-note\' arb-text-popover-anchor>' + markdown + '</span>';*/
 
         const footnoteId = randomId();
-        const footnoteIndex = footnotes.length+1;
         footnotes.push({
           footnoteId,
-          contentsHtml: markdown,
+          contentsMarkdown: markdown,
         });
-        const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteIndex}]`);
-        return `<sup class="footnote-ref"><a href="#fn-${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup>`;
+        const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteId}]`);
+        return `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
       });
     });
 
@@ -812,9 +812,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\[ ([^\\]]+?)\\]' + noParen, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(spaceTextRegexp, function(whole, prefix, text) {
-        var url = getLinkHtml(slugify(text), {text});
-        return prefix + '<a href="' + url + '" class="intrasite-link red-link" page-id="">' +
-          text + '</a>';
+        return prefix + getLinkHtml(slugify(text), {text});
       });
     });
 
@@ -994,12 +992,21 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   let html = converter.makeHtml(pageMarkdown);
   
   if (footnotes.length > 0) {
-    html += `<section class="footnotes"><ol class="footnotes-list">`;
-    for (const footnote of footnotes) {
-      const returnLinkHtml = `<a href="#fnref-${footnote.footnoteId}">↩︎</a>`;
-      html += `<li id="fn-${footnote.footnoteId}" class="footnote-item"><p>${footnote.contentsHtml}${returnLinkHtml}</p></li>`;
+    // Number footnotes in the order their IDs first appear in the generated HTML
+    const sortedFootnotes = orderBy(footnotes, f=>html.indexOf(f.footnoteId));
+    for (let i=0; i<sortedFootnotes.length; i++) {
+      //html = html.replace(`[${sortedFootnotes[i].footnoteId}]`, i+1);
+      html = html.replace(`[${sortedFootnotes[i].footnoteId}]`, `[${i+1}]`);
     }
-    html += `</ol></section>`;
+
+    html += `<ol class="footnote-section footnotes" data-footnote-section role="doc-endnotes">`;
+    for (let i=0; i<sortedFootnotes.length; i++) {
+      const footnote = sortedFootnotes[i];
+      const returnLinkHtml = `<span class="footnote-back-link" data-footnote-back-link data-footnote-id="${footnote.footnoteId}"><sup><strong><a href="#fnref${footnote.footnoteId}">^︎</a></strong></sup></span>`;
+      const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
+      html += `<li id="fn${footnote.footnoteId}" class="footnote-item" data-footnote-item data-footnote-index="${i+1}" data-footnote-id="${footnote.footnoteId}" role="doc-endnote">${returnLinkHtml}<div class="footnote-content" data-footnote-content>${contentsHtml}</div></li>`;
+    }
+    html += `</ol>`;
   }
   
   try {
@@ -1051,7 +1058,7 @@ function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings
     "defaultVisible": isDefaultVisible,
     "defaultHidden": !isDefaultVisible,
   })
-  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
+  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">\n${contentsHtml}\n</div>`
 }
 
 type PathType = {
@@ -1084,4 +1091,3 @@ function pathToCtaButton(path: PathType, conversionContext: ArbitalConversionCon
   
   return `<a class="ck-cta-button" href="${url}">Start Reading</a>`;
 }
-

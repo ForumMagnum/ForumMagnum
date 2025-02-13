@@ -5,11 +5,6 @@ import { tagHistoryStyles } from './TagHistoryPage';
 
 const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   container: {
-    /*background: theme.palette.panelBackground.default,
-    border: theme.palette.border.commentBorder,
-    padding: '4px 12px 12px 12px',
-    borderRadius:3,
-    marginBottom: 16,*/
   },
   username: {
   },
@@ -27,29 +22,42 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   const documentId = revision.documentId;
 
   const summary = revision.summary;
-  const shortDescription = summary
-    ? <div>Summary: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
-    : <div>(Deleted summary)</div>
+  
+  function getShortDescription() {
+    if (summary?.parentLens) {
+      return <div>Summary of lens {summary.parentLens.tabTitle}: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
+    } else if (summary?.parentTag) {
+      return <div>Summary: {`${summary.tabTitle}${summary.tabSubtitle ? ` (${summary.tabSubtitle})` : ""}`}</div>
+    } else {
+      return <div>(Deleted summary)</div>
+    }
+  }
+  const shortDescription = getShortDescription();
 
   // TODO: There isn't a valid permalink-URL for revisions to summaries, currently.
   const url = '';
 
+  const diffBody = <ContentStyles contentType="comment">
+    <CompareRevisions
+      trim={true}
+      collectionName="MultiDocuments" fieldName="contents"
+      documentId={documentId}
+      versionBefore={null}
+      versionAfter={revision.version}
+      revisionAfter={revision}
+    />
+  </ContentStyles>
+
   return <Components.SingleLineFeedEvent
     icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
-    frame expands setExpanded={setExpanded}
+    frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
+    tooltip={(collapsed && !expanded) && diffBody}
   >
     {(collapsed && !expanded) && <TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} />}
-    {!(collapsed && !expanded) && <ContentStyles contentType="comment">
+    {!(collapsed && !expanded) && <>
       <div><TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} /></div>
-      <CompareRevisions
-        trim={true}
-        collectionName="MultiDocuments" fieldName="contents"
-        documentId={documentId}
-        versionBefore={null}
-        versionAfter={revision.version}
-        revisionAfter={revision}
-      />
-    </ContentStyles>}
+      {diffBody}
+    </>}
   </Components.SingleLineFeedEvent>
 }
 

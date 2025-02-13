@@ -1,6 +1,7 @@
 import { Application, Request, Response, json } from "express";
 import ElasticService from "./ElasticService";
 import { UsersRepo } from "../../repos";
+import uniq from "lodash/uniq";
 import { SearchOptions, SearchQuery, queryRequestSchema } from "@/lib/search/NativeSearchClient";
 
 const defaultSearchOptions: SearchOptions = {
@@ -42,6 +43,13 @@ class ElasticController {
     try {
       const results = await Promise.all(queries.map(q =>
         this.searchService.runQuery(q, searchOptions)));
+      for (const result of results) {
+        const resultIds = result.hits.map(r=>r._id);
+        if (uniq(resultIds).length !== resultIds.length) {
+          // eslint-disable-next-line no-console
+          console.error(`Search result set contained duplicate entries`);
+        }
+      }
       res.status(200).send(results);
     } catch (e) {
       this.handleError(res, e);

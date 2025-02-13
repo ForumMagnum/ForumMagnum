@@ -5,6 +5,7 @@ import { diff } from "../vendor/node-htmldiff/htmldiff";
 import { cheerioParse } from '../utils/htmlUtil'
 import cheerio from 'cheerio'
 import { extractVersionsFromSemver } from '../../lib/editor/utils';
+import { normalizeHtmlForDiff } from '../resolvers/htmlDiff';
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
@@ -114,7 +115,7 @@ const countCharsInTag = (parsedHtml: cheerio.Root, tagName: string): number => {
 }
 
 export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMetrics => {
-  const htmlDiff = diff(oldHtml, newHtml);
+  const htmlDiff = diff(normalizeHtmlForDiff(oldHtml), normalizeHtmlForDiff(newHtml));
   const parsedHtml = cheerioParse(htmlDiff);
 
   /// Given an HTML diff, where added sections are marked with <ins> and <del>

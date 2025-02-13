@@ -2514,9 +2514,9 @@ CREATE TABLE "ReviewWinners" (
   "postId" VARCHAR(27) NOT NULL,
   "reviewYear" DOUBLE PRECISION NOT NULL,
   "category" TEXT NOT NULL DEFAULT 'misc',
-  "curatedOrder" DOUBLE PRECISION NOT NULL,
+  "curatedOrder" DOUBLE PRECISION,
   "reviewRanking" DOUBLE PRECISION NOT NULL,
-  "isAI" BOOL NOT NULL,
+  "isAI" BOOL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB

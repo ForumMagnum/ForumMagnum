@@ -88,7 +88,17 @@ registerFragment(`
   fragment RevisionHistorySummaryEdit on Revision {
     ...RevisionHistoryEntry
     summary {
-      ...MultiDocumentParentDocument
+      ...MultiDocumentMinimumInfo
+      parentTag {
+        _id
+        name
+      }
+      parentLens {
+        _id
+        title
+        tabTitle
+        tabSubtitle
+      }
     }
   }
 `);

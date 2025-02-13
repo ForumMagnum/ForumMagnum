@@ -10,6 +10,7 @@ import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId, getVotingPhaseEnd, getNominationPhaseEndDisplay, getReviewPhaseEndDisplay, getVotingPhaseEndDisplay } from '../../lib/reviewUtils';
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -413,6 +414,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
               <SettingsButton showIcon={false} label={`What is this?`}/>
             </Link>
           </LWTooltip>}
+          {!showFrontpageItems && userIsAdmin(currentUser) && <Link to={`/reviewAdmin/${reviewYear}`}><SettingsButton showIcon={false} label={`Admin Dashboard`}/></Link>}
         </SectionTitle>
 
         {reviewTimeline}
