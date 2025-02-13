@@ -775,6 +775,9 @@ defineMutation({
     // Find the lens and corresponding tag
     const lensMultiDocument = await context.loaders.MultiDocuments.load(lensId);
     if (!lensMultiDocument) throw new Error("Lens ID not found: "+lensId);
+    if (lensMultiDocument.fieldName !== "description") {
+      throw new Error("lensId is not a lens");
+    }
     const tagId = lensMultiDocument.parentDocumentId;
     const tag = await context.loaders.Tags.load(tagId);
     if (!tag) throw new Error("Could not find corresponding tag for lens ID: "+lensId);
