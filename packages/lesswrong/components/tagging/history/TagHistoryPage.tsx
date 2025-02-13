@@ -5,7 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
-import { RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
+import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
@@ -104,7 +104,7 @@ const TagHistoryPage = () => {
     />
 
     <div className={classes.feed}>
-    <RevealHiddenBlocksContext.Provider value={true}>
+    <RevealHiddenBlocks>
     <MixedTypeFeed
       pageSize={25}
       resolverName="TagHistoryFeed"
@@ -228,7 +228,7 @@ const TagHistoryPage = () => {
         },
       }}
     />
-    </RevealHiddenBlocksContext.Provider>
+    </RevealHiddenBlocks>
     </div>
   </SingleColumnSection>
 }
