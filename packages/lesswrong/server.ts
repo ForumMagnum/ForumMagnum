@@ -128,6 +128,7 @@ import './server/gatherTownCron';
 
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
+import './server/callbacks/multiDocumentCallbacks';
 
 import './server/callbacks/commentCallbacks';
 import './server/callbacks/conversationCallbacks';
