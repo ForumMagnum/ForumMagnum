@@ -13,7 +13,7 @@ import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
 import { randomId } from '@/lib/random';
-import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition, JARGON_LLM_MODEL } from '@/components/jargon/GlossaryEditForm';
+import { defaultTermSelectionPrompt, defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition, JARGON_LLM_MODEL } from '@/components/jargon/GlossaryEditForm';
 import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiWrapper';
 import uniq from 'lodash/uniq';
 
@@ -134,13 +134,13 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
   }));
 }
 
-export const queryClaudeForTerms = async (markdown: string): Promise<JargonTermListResponse> => {
+export const queryClaudeForTerms = async (markdown: string, termSelectionPrompt: string): Promise<JargonTermListResponse> => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages = [{
     role: "user" as const, 
     content: [{
       type: "text" as const,
-      text: `${initialGlossaryPrompt} The post is: <Post>${markdown}</Post>.
+      text: `${termSelectionPrompt} The post is: <Post>${markdown}</Post>.
       
 The jargon terms are:`
     }]
@@ -262,7 +262,7 @@ export async function createEnglishExplanations({ post, excludeTerms, ...example
   // Conservatively limit the markdown to 500k characters, since Claude has a context window of 200k tokens.  (Real limit is probably closer to 3.5 characters per token.)
   const markdown = (originalMarkdown.length < 500_000) ? originalMarkdown : originalMarkdown.slice(0, 500_000);
 
-  const terms = await queryClaudeForTerms(markdown);
+  const terms = await queryClaudeForTerms(markdown, defaultTermSelectionPrompt);
   if (!terms.jargonTerms.length) {
     return [];
   }

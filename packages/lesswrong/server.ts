@@ -81,6 +81,7 @@ import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
 import "./server/scripts/exportAEStudiosData";
+import "./server/scripts/autogenerateJargonForUser";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";

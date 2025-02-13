@@ -19,6 +19,17 @@ import { removeJargonDot } from './GlossarySidebar';
 export const JARGON_LLM_MODEL = 'claude-3-5-sonnet-20241022';
 export const JARGON_LLM_MODEL_TITLE = JARGON_LLM_MODEL.toUpperCase()
 
+export const defaultTermSelectionPrompt = `Please provide a list of all the jargon terms (technical terms, acronyms, words used unusually in this context) in the following post that are not common knowledge on LessWrong.  Do not include terms that are will be familiar to educated laymen, or are easily understood from context, even by readers who are not domain experts.  As an example of terms to NOT include, consider "AI alignment" (very well established common knowledge on LessWrong), "abstract reasoning" (commonly understood term even outside of LessWrong), "game theory" (relatively basic academic concept, well understood within LessWrong), and "motivational systems" (not a technical term or jargon in any meaningful sense, easily understood from context).  Terms that are similar to these examples in terms of how common they are, or how likely they are to be known to LessWrong readers, should be excluded.  Please be context-aware.  Some posts will be highly technical, and will include many jargon terms, and it will be appropriate to return a comprehensive list of jargon terms.  Other posts will be more layman-friendly, and will not include many jargon terms, and it will be appropriate to return a short list of jargon terms, or even an empty list.
+
+Also avoid including terms that are 3+ word phrases unless it is a complete noun-phrase where all the words are an important part of the term.
+
+Then, use the "reasoning" field to reason about which terms should be excluded if you were to optimize even harder for avoiding "false positives" - terms which are most likely to already be known to LessWrong readers, which are therefore least likely to be beneficial to display in a glossary.
+
+Next, return that second list of terms in the "likelyKnownJargonTerms" field.  It's fine if the second list is empty, if the first list is composed entirely of terms that are highly technical.
+
+Finally, return a third list of terms in the "marginalTerms" field.  This should be a list of two to five terms that are not in the first list, but are the next most likely candidates for inclusion in a glossary.
+`
+
 export const defaultGlossaryPrompt = `You're a LessWrong Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
 We're about to provide you with the text of an essay, followed by a list of jargon terms present in that essay. 
@@ -52,7 +63,8 @@ export const defaultExampleDefinition = `<div>
   <p>These variables are not part of the data distribution, but can help explain the data distribution.</p>
 </div>`
 
-export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry[] } = {
+export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry[], termSelectionPrompt: string } = {
+  termSelectionPrompt: defaultTermSelectionPrompt,
   glossaryItems: [
     {
       "term": defaultExampleTerm,
@@ -313,6 +325,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { exampleTerm, setExampleTerm } = useLocalStorageState("exampleTerm", getPromptExampleStorageKey, defaultExampleTerm);
   const { exampleAltTerm, setExampleAltTerm } = useLocalStorageState("exampleAltTerm", getPromptExampleStorageKey, defaultExampleAltTerm);
   const { exampleDefinition, setExampleDefinition } = useLocalStorageState("exampleDefinition", getPromptExampleStorageKey, defaultExampleDefinition);
+  const { termSelectionPrompt, setTermSelectionPrompt } = useLocalStorageState("termSelectionPrompt", getPromptExampleStorageKey, defaultTermSelectionPrompt);
 
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
@@ -462,6 +475,15 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       value={exampleDefinition}
       className={classes.promptTextField}
       onChange={(e) => setExampleDefinition(e.target.value)}
+      multiline
+      fullWidth
+      variant="outlined"
+    />
+    <TextField
+      label="Term Selection Prompt"
+      value={termSelectionPrompt}
+      className={classes.promptTextField}
+      onChange={(e) => setTermSelectionPrompt(e.target.value)}
       multiline
       fullWidth
       variant="outlined"
