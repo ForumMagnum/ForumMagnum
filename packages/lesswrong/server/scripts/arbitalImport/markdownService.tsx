@@ -419,8 +419,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return '<div arb-hidden-text button-text=\'' + buttonText + '\'>' + html + '\n\n</div>';*/
         
         return `<details class="detailsBlock">
-          <summary class="detailsBlockTitle">${buttonText}</summary>
-          <div class="detailsBlockContent">${blockText}</div>
+          <summary class="detailsBlockTitle">\n${buttonText}\n</summary>
+          <div class="detailsBlockContent">\n${blockText}\n</div>
         </details>`;
       });
     });
@@ -1052,7 +1052,7 @@ function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings
     "defaultVisible": isDefaultVisible,
     "defaultHidden": !isDefaultVisible,
   })
-  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
+  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">\n${contentsHtml}\n</div>`
 }
 
 type PathType = {
@@ -1085,4 +1085,3 @@ function pathToCtaButton(path: PathType, conversionContext: ArbitalConversionCon
   
   return `<a class="ck-cta-button" href="${url}">Start Reading</a>`;
 }
-
