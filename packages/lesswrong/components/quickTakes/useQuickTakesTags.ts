@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { useMulti } from "../../lib/crud/withMulti";
 import type { ChecklistTag } from "../tagging/TagsChecklist";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 
 const filterDefined = <T>(values: (T | null | undefined)[]): T[] =>
   values.filter((value) => value !== null && value !== undefined) as T[];
@@ -19,7 +20,7 @@ export type SelectedTag = {
   parentTagId?: string,
 };
 
-export type QuickTakesTag = ChecklistTag | TagFragment;
+export type QuickTakesTag = ChecklistTag | TagPreviewFragment;
 
 export type QuickTakesTags = {
   loading: true,
@@ -56,8 +57,9 @@ export const useQuickTakesTags = (initialSelectedTagIds: string[] = []): QuickTa
       view: "coreAndSubforumTags",
     },
     collectionName: "Tags",
-    fragmentName: "TagFragment",
+    fragmentName: "TagPreviewFragment",
     limit: 100,
+    skip: !quickTakesTagsEnabledSetting.get(),
   });
 
   const tags: QuickTakesTag[] = [

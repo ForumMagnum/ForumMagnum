@@ -8,10 +8,11 @@ export function isMultiDocument(document: ObjectsByCollectionName[CollectionName
 export async function getRootDocument(multiDocument: DbMultiDocument) {
   const visitedDocumentIds = new Set<string>([multiDocument._id]);
   let parentCollection = getCollection(multiDocument.collectionName);
-  let parentDocument = await parentCollection.findOne({ _id: multiDocument.parentDocumentId });  
-  if (!parentDocument) {
+  const parentDocumentOrNull = await parentCollection.findOne({ _id: multiDocument.parentDocumentId });  
+  if (!parentDocumentOrNull) {
     return null;
   }
+  let parentDocument = parentDocumentOrNull;
 
   visitedDocumentIds.add(parentDocument._id);
 

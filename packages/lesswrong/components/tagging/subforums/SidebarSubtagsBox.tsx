@@ -128,6 +128,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
         <FooterTag
           key={tag._id}
           tag={tag}
+          hoverable={true}
           hideScore={true}
           hideRelatedTags
           PreviewWrapper={PreviewWrapper}
@@ -136,6 +137,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
           <FooterTag
             key={tag._id}
             tag={tag}
+            hoverable={true}
             hideScore={true}
             PreviewWrapper={PreviewWrapper}
           />

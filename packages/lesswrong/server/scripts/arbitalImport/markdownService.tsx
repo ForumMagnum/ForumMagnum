@@ -23,6 +23,7 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import classNames from 'classnames';
+import { randomId } from '@/lib/random';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -155,6 +156,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   if (!pageMarkdown) return "";
   const { slugsByPageId, titlesByPageId, pageInfosByPageId, domainsByPageId } = conversionContext;
   const { ForumIcon } = Components;
+  const footnotes: Array<{
+    footnoteId: string
+    contentsMarkdown: string
+  }> = [];
   //var that = this;
 
   // Store an array of page aliases that failed to load, so that we don't keep trying to reload them
@@ -207,7 +212,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const url = pageIdToUrl(linkedPageId);
         return `<a href="${url}">${linkText}</a>`;
       } else {
-        const url = `/w/${slugify(linkText)}`;
+        const linkSlug = trimmedAlias.length > 0 ? slugify(trimmedAlias) : slugify(linkText);
+        const url = `/w/${linkSlug}`;
         const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
           slug: slugify(linkText),
@@ -219,7 +225,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     }
     
     function pageAliasToPageId(alias: string): string|null {
-      return (alias in slugsByPageId) ? alias : null;
+      if (alias in slugsByPageId || alias in titlesByPageId)
+        return alias;
+      else
+        return null;
     }
     function pageIdToUrl(pageId: string): string {
       if (conversionContext.linksById[pageId]) {
@@ -410,8 +419,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return '<div arb-hidden-text button-text=\'' + buttonText + '\'>' + html + '\n\n</div>';*/
         
         return `<details class="detailsBlock">
-          <summary class="detailsBlockTitle">${buttonText}</summary>
-          <div class="detailsBlockContent">${blockText}</div>
+          <summary class="detailsBlockTitle">\n${buttonText}\n</summary>
+          <div class="detailsBlockContent">\n${blockText}\n</div>
         </details>`;
       });
     });
@@ -584,7 +593,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         /*var cachedValue = stateService.getMathjaxCacheValue(key);
         var style = cachedValue ? ('style=\'' + cachedValue.style + ';display:inline-block;\' ') : '';
         return prefix + '<span ' + style + 'arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, false);
       });
     });
     // Process $$mathjax$$ spans.
@@ -596,7 +605,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         /*var key = '$$' + encodedText + '$$';
         var style = cachedValue ? ('style=\'' + cachedValue.style + '\' ') : '';
         return prefix + '<span ' + style + 'class=\'mathjax-div\' arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, false);
       });
     });
     // Process $mathjax$ spans.
@@ -616,11 +625,18 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var noteSpanRegexp = new RegExp(notEscaped + '(%+)note: ?([\\s\\S]+?)\\2', 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(noteSpanRegexp, function(whole, prefix, bars, markdown) {
-        // TODO
-        if (isEditor) {
+        /*if (isEditor) {
           return prefix + '<span class=\'conditional-text\'>' + markdown + '</span>';
         }
-        return prefix + '<span class=\'markdown-note\' arb-text-popover-anchor>' + markdown + '</span>';
+        return prefix + '<span class=\'markdown-note\' arb-text-popover-anchor>' + markdown + '</span>';*/
+
+        const footnoteId = randomId();
+        footnotes.push({
+          footnoteId,
+          contentsMarkdown: markdown,
+        });
+        const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteId}]`);
+        return `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
       });
     });
 
@@ -796,9 +812,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\[ ([^\\]]+?)\\]' + noParen, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(spaceTextRegexp, function(whole, prefix, text) {
-        var url = getLinkHtml(slugify(text), {text});
-        return prefix + '<a href="' + url + '" class="intrasite-link red-link" page-id="">' +
-          text + '</a>';
+        return prefix + getLinkHtml(slugify(text), {text});
       });
     });
 
@@ -975,7 +989,26 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     pageMarkdown = pageMarkdown + "\n\n%start-path(["+pageId+"])%";
   }
   
-  const html = converter.makeHtml(pageMarkdown);
+  let html = converter.makeHtml(pageMarkdown);
+  
+  if (footnotes.length > 0) {
+    // Number footnotes in the order their IDs first appear in the generated HTML
+    const sortedFootnotes = orderBy(footnotes, f=>html.indexOf(f.footnoteId));
+    for (let i=0; i<sortedFootnotes.length; i++) {
+      //html = html.replace(`[${sortedFootnotes[i].footnoteId}]`, i+1);
+      html = html.replace(`[${sortedFootnotes[i].footnoteId}]`, `[${i+1}]`);
+    }
+
+    html += `<ol class="footnote-section footnotes" data-footnote-section role="doc-endnotes">`;
+    for (let i=0; i<sortedFootnotes.length; i++) {
+      const footnote = sortedFootnotes[i];
+      const returnLinkHtml = `<span class="footnote-back-link" data-footnote-back-link data-footnote-id="${footnote.footnoteId}"><sup><strong><a href="#fnref${footnote.footnoteId}">^︎</a></strong></sup></span>`;
+      const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
+      html += `<li id="fn${footnote.footnoteId}" class="footnote-item" data-footnote-item data-footnote-index="${i+1}" data-footnote-id="${footnote.footnoteId}" role="doc-endnote">${returnLinkHtml}<div class="footnote-content" data-footnote-content>${contentsHtml}</div></li>`;
+    }
+    html += `</ol>`;
+  }
+  
   try {
     const {html: htmlWithImagesMoved} = await convertImagesInHTML(html, "arbital", ()=>true, conversionContext.imageUrlsCache);
     return htmlWithImagesMoved;
@@ -995,7 +1028,7 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
   }
   
   // Next, encode the LaTeX string to protect it from subsequent markdown
-  // processig. Without this, things like brackets inside of LaTeX strings
+  // processing. Without this, things like brackets inside of LaTeX strings
   // would get interpreted as links and get replaced with <a> tags, which of
   // course makes them unsuitable for feeding into mathjax.
   // We use an Arbital-specific janky escaping system, where a character can
@@ -1003,14 +1036,18 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
   // matches the behavior of `escapeCharacters_callback` in
   // Markdown.Converter.ts. This escaping will be undone later by
   // `converter.makeHtml`.
-  const encodedLatex = latex.replace(/[^a-zA-Z0-9]/g, (ch) => {
-    return "~E" + ch.charCodeAt(0) + "E";
-  });
+  const encodedLatex = encodeToPreventFurtherMarkdownProcessing(latex);
   
   if (inline)
     return `<span class="math-tex">\\\\(${encodedLatex}\\\\)</span>`;
   else
     return `<span class="math-tex">\\\\[${encodedLatex}\\\\]</span>`;
+}
+
+const encodeToPreventFurtherMarkdownProcessing = (s: string): string => {
+  return s.replace(/[^a-zA-Z0-9]/g, (ch) => {
+    return "~E" + ch.charCodeAt(0) + "E";
+  });
 }
 
 function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings, contentsHtml: string) {
@@ -1021,7 +1058,7 @@ function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings
     "defaultVisible": isDefaultVisible,
     "defaultHidden": !isDefaultVisible,
   })
-  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
+  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">\n${contentsHtml}\n</div>`
 }
 
 type PathType = {
@@ -1054,4 +1091,3 @@ function pathToCtaButton(path: PathType, conversionContext: ArbitalConversionCon
   
   return `<a class="ck-cta-button" href="${url}">Start Reading</a>`;
 }
-

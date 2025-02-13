@@ -1,4 +1,3 @@
-import { mongoFind } from '../../mongoQueries';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { Books } from '../books/collection';
 import { Collections } from '../collections/collection';
@@ -31,7 +30,7 @@ export const getCollectionOrSequenceUrl = function (sequence: SequencesPageTitle
 }
 
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
-  const chapters = await mongoFind("Chapters", {sequenceId: sequenceId}, {sort: {number: 1}});
+  const chapters = await context.Chapters.find({sequenceId: sequenceId}, {sort: {number: 1}}).fetch();
   let allPostIds = _.flatten(_.pluck(chapters, 'postIds'))
   
   // Filter out nulls
@@ -50,7 +49,7 @@ export const sequenceGetAllPosts = async (sequenceId: string | null, context: Re
   const allPostIds = await sequenceGetAllPostIDs(sequenceId, context);
   
   // Retrieve those posts
-  const posts = await mongoFind("Posts", {_id:{$in:allPostIds}});
+  const posts = await context.Posts.find({_id:{$in:allPostIds}}).fetch();
   
   // Sort the posts retrieved back into reading order and return them
   const postsById = keyBy(posts, post=>post._id);

@@ -447,10 +447,21 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly postedAt: Date,
+  readonly lastEditedAt: Date | null,
   readonly author: string,
   readonly postId: string,
   readonly tagId: string,
   readonly forumEventId: string,
+  readonly forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    },
+  },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
   readonly userId: string,
@@ -611,12 +622,16 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly endDate: Date,
   readonly darkColor: string,
   readonly lightColor: string,
+  readonly bannerTextColor: string,
   readonly contrastColor: string | null,
-  readonly tagId: string,
+  readonly tagId: string | null,
   readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
+  readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
+  readonly commentPrompt: string | null,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
@@ -939,9 +954,9 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
   readonly reviewYear: number,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
+  readonly isAI: boolean | null,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -1085,6 +1100,15 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface FieldChangeFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly createdAt: any,
+  readonly userId: any,
+  readonly documentId: any,
+  readonly before: any,
+  readonly after: any,
+}
+
 interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
@@ -1144,6 +1168,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
   readonly spotlight: SpotlightReviewWinner|null,
   readonly reviews: Array<CommentsList>,
+  readonly finalReviewVoteScoreHighKarma: number,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -1323,7 +1348,6 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
@@ -1336,7 +1360,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
-  readonly tags: Array<TagPreviewFragment>,
+  readonly tags: Array<TagBasicInfo>,
   readonly socialPreviewData: any,
   readonly feedId: string,
   readonly totalDialogueResponseCount: number,
@@ -1390,6 +1414,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly viewCount: number,
+  readonly tags: Array<TagPreviewFragment>,
   readonly socialPreviewData: any,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
@@ -1783,6 +1808,7 @@ interface CommentsList { // fragment on Comments
   readonly title: string,
   readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
+  readonly lastEditedAt: Date | null,
   readonly repliesBlockedUntil: Date,
   readonly userId: string,
   readonly deleted: boolean,
@@ -1832,6 +1858,7 @@ interface CommentsList { // fragment on Comments
 }
 
 interface CommentsList_tag { // fragment on Tags
+  readonly _id: string,
   readonly slug: string,
 }
 
@@ -2041,6 +2068,27 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly user: UsersMinimumInfo|null,
+}
+
+interface RevisionHistorySummaryEdit extends RevisionHistoryEntry { // fragment on Revisions
+  readonly summary: RevisionHistorySummaryEdit_summary|null,
+}
+
+interface RevisionHistorySummaryEdit_summary extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
+  readonly parentTag: RevisionHistorySummaryEdit_summary_parentTag|null,
+  readonly parentLens: RevisionHistorySummaryEdit_summary_parentLens|null,
+}
+
+interface RevisionHistorySummaryEdit_summary_parentTag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+}
+
+interface RevisionHistorySummaryEdit_summary_parentLens { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
@@ -2340,6 +2388,19 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
+}
+
+interface reviewAdminDashboard { // fragment on ReviewVotes
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: reviewAdminDashboard_user|null,
+}
+
+interface reviewAdminDashboard_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly karma: number,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -2662,7 +2723,7 @@ interface TagFragment_description { // fragment on Revisions
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
-  readonly lenses: Array<MultiDocumentContentDisplay>,
+  readonly lensesIncludingDeleted: Array<MultiDocumentContentDisplay>,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
@@ -2996,12 +3057,15 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly endDate: Date,
   readonly darkColor: string,
   readonly lightColor: string,
+  readonly bannerTextColor: string,
   readonly contrastColor: string | null,
-  readonly tagId: string,
+  readonly tagId: string | null,
   readonly postId: string | null,
   readonly bannerImageId: string | null,
-  readonly includesPoll: boolean,
+  readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
+  readonly commentPrompt: string | null,
+  readonly maxStickersPerUser: number,
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
@@ -3774,7 +3838,7 @@ interface UserVotesWithDocument extends UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post",
+  readonly documentType: "Sequence" | "Post" | "Tag",
   readonly position: number,
   readonly duration: number,
   readonly customTitle: string | null,
@@ -3797,7 +3861,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post",
+  readonly documentType: "Sequence" | "Post" | "Tag",
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
   readonly spotlightSplashImageUrl: string | null,
@@ -3827,29 +3891,67 @@ interface SpotlightReviewWinner_description { // fragment on Revisions
 }
 
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
-  readonly document: SpotlightHeaderEventSubtitle_document,
+  readonly post: SpotlightHeaderEventSubtitle_post|null,
+  readonly sequence: SpotlightHeaderEventSubtitle_sequence|null,
+  readonly tag: SpotlightHeaderEventSubtitle_tag|null,
 }
 
-interface SpotlightHeaderEventSubtitle_document { // fragment on Posts
+interface SpotlightHeaderEventSubtitle_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+}
+
+interface SpotlightHeaderEventSubtitle_sequence { // fragment on Sequences
+  readonly _id: string,
+}
+
+interface SpotlightHeaderEventSubtitle_tag { // fragment on Tags
   readonly _id: string,
   readonly slug: string,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
-  readonly document: SpotlightDisplay_document,
+  readonly post: SpotlightDisplay_post|null,
+  readonly sequence: SpotlightDisplay_sequence|null,
+  readonly tag: SpotlightDisplay_tag|null,
   readonly sequenceChapters: Array<ChaptersFragment>,
   readonly description: SpotlightDisplay_description|null,
 }
 
-interface SpotlightDisplay_document { // fragment on Posts
+interface SpotlightDisplay_post { // fragment on Posts
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
-  readonly user: SpotlightDisplay_document_user|null,
+  readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
 
-interface SpotlightDisplay_document_user { // fragment on Users
+interface SpotlightDisplay_post_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly slug: string,
+}
+
+interface SpotlightDisplay_sequence { // fragment on Sequences
+  readonly _id: string,
+  readonly title: string,
+  readonly user: SpotlightDisplay_sequence_user|null,
+}
+
+interface SpotlightDisplay_sequence_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly slug: string,
+}
+
+interface SpotlightDisplay_tag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
+  readonly user: SpotlightDisplay_tag_user|null,
+}
+
+interface SpotlightDisplay_tag_user { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
   readonly slug: string,
@@ -4209,9 +4311,8 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
   readonly reviewYear: number,
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
 }
 
 interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
@@ -4219,27 +4320,25 @@ interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly postId: string,
   readonly post: PostsTopItemInfo,
   readonly reviewYear: number,
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewRanking: number,
-  readonly isAI: boolean,
 }
 
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly postId: string,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerArtImages|null,
-  readonly isAI: boolean,
   readonly competitorCount: number|null,
 }
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number,
+  readonly curatedOrder: number | null,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt|null,
@@ -4462,6 +4561,7 @@ interface FragmentTypes {
   lastEventFragment: lastEventFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  FieldChangeFragment: FieldChangeFragment
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
@@ -4528,6 +4628,7 @@ interface FragmentTypes {
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
+  RevisionHistorySummaryEdit: RevisionHistorySummaryEdit
   RevisionTagFragment: RevisionTagFragment
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
@@ -4555,6 +4656,7 @@ interface FragmentTypes {
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
   reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
+  reviewAdminDashboard: reviewAdminDashboard
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
@@ -4753,7 +4855,7 @@ interface FragmentTypesByCollection {
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
-  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"SunshineCurationPostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"PostForReviewWinnerItem"|"PostsTwitterAdmin"|"SuggestAlignmentPost"
@@ -4768,6 +4870,7 @@ interface FragmentTypesByCollection {
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
+  FieldChanges: "FieldChangeFragment"
   JargonTerms: "JargonTermsDefaultFragment"|"JargonTerms"|"JargonTermsPost"|"JargonTermsWithPostInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
@@ -4778,7 +4881,7 @@ interface FragmentTypesByCollection {
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
-  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"|"reviewAdminDashboard"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -4851,6 +4954,7 @@ interface CollectionNamesByFragmentName {
   lastEventFragment: "LWEvents"
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
+  FieldChangeFragment: never
   JargonTermsDefaultFragment: "JargonTerms"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
@@ -4917,6 +5021,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadata: "Revisions"
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
+  RevisionHistorySummaryEdit: "Revisions"
   RevisionTagFragment: "Revisions"
   RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
@@ -4944,6 +5049,7 @@ interface CollectionNamesByFragmentName {
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
   reviewVoteWithUserAndPost: "ReviewVotes"
+  reviewAdminDashboard: "ReviewVotes"
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"

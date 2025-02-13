@@ -99,7 +99,7 @@ const CommentBody = ({
   </ContentStyles>
 
   if (votingSystem.hasInlineReacts && voteProps) {
-    return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
+    return <InlineReactSelectionWrapper contentRef={commentBodyRef} voteProps={voteProps} styling="comment" >
       {contentBody}
     </InlineReactSelectionWrapper>
   } else {

@@ -1,7 +1,7 @@
 import { 
   forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet,
   taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting,
-  isLW, isLWorAF, tagUrlBaseSetting, taggingNameIsPluralized, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
+  isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';

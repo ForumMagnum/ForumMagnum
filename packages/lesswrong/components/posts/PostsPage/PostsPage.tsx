@@ -43,7 +43,7 @@ import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
-import { reviewIsActive } from '@/lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -809,7 +809,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
-          {lightconeFundraiserActive.get() && (post._id === '5n2ZQcbc7r4R8mvqc') &&
+          {(post._id === '5n2ZQcbc7r4R8mvqc') &&
             <FundraisingThermometer onPost />}
         </div>
       </div>
@@ -925,7 +925,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </div>
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
-      {reviewIsActive() && <div className={classes.reviewVoting}>
+      {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <div className={classes.reviewVoting}>
         <PostPageReviewButton post={post} />
       </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />

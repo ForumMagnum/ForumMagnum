@@ -256,7 +256,7 @@ export function useMulti<
   }
   
   return {
-    loading: loading || networkStatus === NetworkStatus.fetchMore,
+    loading: (loading || networkStatus === NetworkStatus.fetchMore) && !skip,
     loadingInitial: networkStatus === NetworkStatus.loading,
     loadingMore: networkStatus === NetworkStatus.fetchMore,
     results,

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { reviewIsActive } from '../../../lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -64,7 +64,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && <PostPageReviewButton post={post}/>}
+    {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <PostPageReviewButton post={post}/>}
 
     <AlignmentPendingApprovalMessage post={post} />
 

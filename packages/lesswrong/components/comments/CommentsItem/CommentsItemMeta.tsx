@@ -321,6 +321,7 @@ export const CommentsItemMeta = ({
         {relevantTagsTruncated.map(tag =>
           <FooterTag
             tag={tag}
+            hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
             neverCoreStyling={isBookUI}

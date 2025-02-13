@@ -4,6 +4,7 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import { getSpotlightDisplayTitle } from './SpotlightItem';
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -68,7 +69,7 @@ export const SpotlightsPage = ({classes}: {
         level: 1
       },
       ...upcomingSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
+        title: getSpotlightDisplayTitle(spotlight),
         anchor: spotlight._id,
         level: 2
       })),
@@ -79,7 +80,7 @@ export const SpotlightsPage = ({classes}: {
           level: 1
         },
         ...draftSpotlights.map(spotlight => ({
-          title: spotlight.document.title,
+          title: getSpotlightDisplayTitle(spotlight),
           anchor: spotlight._id,
           level: 2
         }))

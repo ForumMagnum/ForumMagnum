@@ -7,7 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/utils/isMobile'
-import { locationHashIsFootnote } from '../posts/PostsPage/CollapsedFootnotes';
+import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../posts/PostsPage/CollapsedFootnotes';
 import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
@@ -73,10 +73,11 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
       return <Components.FootnotePreview href={href} id={id} rel={rel}>
         {children}
       </Components.FootnotePreview>
+    } else if (locationHashIsFootnoteBackreference(href)) {
+      return <a href={href} id={id} rel={rel}>
+        {children}
+      </a>
     }
-    return <a href={href} id={id} rel={rel}>
-      {children}
-    </a>
   }
 
   try {
@@ -140,6 +141,11 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         return <Components.OWIDPreview href={href} id={id}>
           {children}
         </Components.OWIDPreview>
+      }
+      if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
+        return <Components.ArbitalPreview href={href} id={id}>
+          {children}
+        </Components.ArbitalPreview>
       }
       if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
         return <Components.EstimakerPreview href={href} id={id}>

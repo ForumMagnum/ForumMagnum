@@ -104,20 +104,22 @@ const styles = (theme: ThemeType) => ({
   tagRevision: {},
 });
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions = [], lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
   tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
   commentIds?: string[],
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
-  documentDeletions?: DocumentDeletion[],
+  documentDeletions?: DocumentDeletion[] | null,
   classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
   const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName, AllPostsPageTagDocDeletionItem } = Components;
   
+  documentDeletions ??= [];
+
   return <div className={classes.root} >
     <div className={classes.metadata} onClick={_ev => setExpanded(!expanded)}>
 

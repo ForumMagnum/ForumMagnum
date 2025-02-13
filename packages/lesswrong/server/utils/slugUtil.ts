@@ -1,4 +1,4 @@
-import { randomId } from "@/lib/random";
+import { randomLowercaseId } from "@/lib/random";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { slugify } from "@/lib/utils/slugify";
@@ -42,7 +42,7 @@ const getUnusedSlug = async function ({collectionsToCheck, slug, useOldSlugs=fal
     if (index <= 10) {
       suffix = '-'+index;
     } else {
-      const randomIndex = randomId(index<20 ? 4 : 8);
+      const randomIndex = randomLowercaseId(index<20 ? 4 : 8);
       suffix = '-'+randomIndex;
     }
   }
@@ -104,7 +104,7 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
 export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs}: {
   collection: CollectionBase<N>
   collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
-  getTitle: (obj: ObjectsByCollectionName[N]) => string,
+  getTitle: (obj: ObjectsByCollectionName[N]|DbInsertion<ObjectsByCollectionName[N]>) => string,
   onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
   includesOldSlugs: boolean
 }) {

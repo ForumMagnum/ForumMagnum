@@ -1,10 +1,10 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetHistoryUrl, tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -22,7 +22,7 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtil
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { DocumentContributorsInfo, DocumentContributorWithStats, MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
@@ -30,9 +30,12 @@ import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@material-ui/icons/History';
-import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
+import type { ContentItemBody } from "../common/ContentItemBody";
+import { useVote } from "../votes/withVote";
+import { getVotingSystemByName } from "@/lib/voting/votingSystems";
+import { useDisplayedContributors } from "./ContributorsList";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -201,17 +204,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       borderRadius: theme.borderRadius.small * 1.5,
     },
   },
-  aboveLensTab: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    marginBottom: 4,
-    color: theme.palette.grey[400],
-    fontWeight: 700,
-    alignSelf: 'center',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
   contributorRow: {
     ...theme.typography.body1,
     color: theme.palette.grey[600],
@@ -221,150 +213,14 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     lineHeight: 'inherit',
     marginBottom: 8,
   },
-  contributorNameWrapper: {
-    flex: 1,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '15px',
-    },
-  },
-  contributorName: {
-    fontWeight: 550,
-  },
   lastUpdated: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
     fontWeight: 550,
   },
-  requirementsAndAlternatives: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '4px',
-  },
-  relationshipPill: {
-    textWrapMode: 'nowrap',
-    width: 'max-content',
-  },
-  alternatives: {
-    marginLeft: 16,
-  },
   alternativeArrowIcon: {
     width: 16,
     height: 16,
-  },
-  rightColumn: {
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-    width: 300,
-    '&:hover': {
-      '& $rightColumnOverflowFade': {
-        opacity: 0,
-        pointerEvents: 'none',
-      },
-    },
-    paddingRight: 30,
-  },
-  rightColumnContent: {},
-  rightColumnOverflowFade: {
-    position: "relative",
-    zIndex: 2,
-    height: 140,
-    width: "100%",
-    // background: `linear-gradient(0deg, 
-    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
-    //   ${theme.palette.panelBackground.translucent} 70%,
-    //   transparent 100%
-    // )`,
-    opacity: 1,
-  },
-  subjectsContainer: {
-    // overflow: 'hidden',
-    display: 'flex',
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  subjectsHeader: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    marginBottom: 4,
-    color: theme.palette.grey[600],
-    minWidth: 'fit-content',
-  },
-  subjectsList: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  subject: {
-    textWrap: 'nowrap',
-    marginLeft: 6,
-    // If it's not the last subject, add a comma
-    '&:not(:last-child)::after': {
-      content: '","',
-    },
-  },
-  linkedTagsHeader: {
-    position: 'relative',
-    fontSize: '1.0rem',
-    marginBottom: 4,
-    color: theme.palette.grey[600],
-    minWidth: 'fit-content',
-    // whiteSpace: 'nowrap',
-    display: 'block',
-    cursor: 'pointer',
-    '&:hover': {
-      '& $linkedTagsList': {
-        display: 'block',
-      },
-    },
-    marginTop: -8,
-  },
-  linkedTagsTitle: {
-    color: theme.palette.grey[600],
-    fontWeight: 550,
-    fontSize: '1.2rem',
-    marginLeft: 4,
-    display: 'inline',
-  },
-  linkedTagsList: {
-    display: 'block',
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    zIndex: 1,
-    width: '100%',
-  },
-  linkedTagsSection: {
-    marginBottom: 20,
-  },
-  linkedTagsSectionTitle: {
-    ...theme.typography.subtitle,
-    fontWeight: 400,
-    fontSize: '1.0rem',
-    fontVariant: 'all-petite-caps',
-    marginBottom: 2,
-    whiteSpace: 'nowrap',
-  },
-  linkedTag: {
-    display: 'block',
-    fontSize: '1.0rem',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    width: '100%',
-    // marginBottom: 4,
-    // color: theme.palette.primary.main,
-  },
-  tocContributors: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    marginBottom: 12
-  },
-  tocContributor: {
-    marginLeft: 16,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.greyAlpha(0.5),
   },
   unselectedEditForm: {
     display: 'none',
@@ -377,98 +233,19 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   },
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
-  mobileRelationships: {
-    [theme.breakpoints.up('lg')]: {
-      display: 'none',
-    },
-    marginTop: 8,
-    display: 'flex',
-    flexWrap: 'wrap',
-    columnGap: '8px',
-    rowGap: 0,
+  revisionNotice: {
     ...theme.typography.body2,
-    '& > div > span:first-child': {
-      color: theme.palette.grey[600],
-    },
-    '& .break': {
-      flexBasis: '100%',
-      height: 0,
-    },
-  },
-  relationshipRow: {
     display: 'flex',
-    flexWrap: 'wrap',
-    width: 'fit-content',
-    flex: '0 1 auto',
-    minWidth: 'min-content',
-    '& > span:first-child': {
-      fontWeight: 550,
-    },
-    '& a': {
-      color: theme.palette.primary.main,
-    },
-  },
-  spaceAfterWord: {
-    marginRight: 3,
-  },
-  parentsAndChildrenSmallScreensRoot: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  parentChildRelationships: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[600],
-    display: 'flex',
-    flexDirection: 'column',
-    lineHeight: 'inherit',
-    marginTop: 32,
-    paddingTop: 20,
-    gap: '4px',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-  parentsOrChildrensSection: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  parentsOrChildrensSectionTitle: {
-    fontWeight: 550,
-    marginRight: 4,
-    color: theme.palette.grey[600],
-    whiteSpace: 'nowrap',
-  },
-  parentOrChild: {
-    fontSize: 'unset',
-    fontWeight: 400,
-    whiteSpace: 'nowrap',
-    display: 'inline-flex',
     alignItems: 'center',
-    '&:not(:last-child)::after': {
-      content: '", "',
-      marginRight: '4px',
-    },
+    color: theme.palette.error.dark,
+    fontWeight: 550,
+    marginBottom: 16,
   },
-  linkedTagMore: {
-    color: theme.palette.grey[550],
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.7,
-      },  
-    },
-    revisionNotice: {
-      ...theme.typography.body2,
-      display: 'flex',
-      alignItems: 'center',
-      color: theme.palette.error.dark,
-      fontWeight: 550,
-      marginBottom: 16,
-    },
-    historyIcon: {
-      height: 18,
-      width: 18,
-      marginRight: 4,
-    },
+  historyIcon: {
+    height: 18,
+    width: 18,
+    marginRight: 4,
+  },
 }));
 
 type ArbitalTagPageFragmentNames =
@@ -488,28 +265,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   }
 
   return selectedLens.title;
-}
-
-function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
-  const contributors = filterWhereFieldsNotNull(contributorsInfo?.contributors ?? [], 'user');
-  if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
-    return { topContributors: contributors, smallContributors: [] };
-  }
-
-  const totalAttributionChars = contributors.reduce((acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
-
-  if (totalAttributionChars === 0) {
-    return { topContributors: contributors, smallContributors: [] };
-  }
-
-  const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
-  const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
-  const topContributors = initialTopContributors.length <= 3 
-    ? sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
-    : initialTopContributors;
-  const smallContributors = sortedContributors.filter(contributor => !topContributors.includes(contributor));
-
-  return { topContributors, smallContributors };
 }
 
 const PostsListHeading: FC<{
@@ -561,150 +316,6 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
     changeCallback={changeCallback}
     cancelCallback={cancelCallback}
   />
-}
-
-interface ArbitalLinkedPage {
-  _id: string,
-  name: string,
-  slug: string,
-}
-
-const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPage, className?: string}) => {
-  const { TagsTooltip } = Components;
-  const classes = useStyles(styles);
-  return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
-    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
-      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
-    </TagsTooltip>
-  </div>
-}
-
-function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] {
-  return !!(list && list?.length > 0);
-}
-
-const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
-  title: string,
-  linkedPages: ArbitalLinkedPage[] | null,
-  children?: React.ReactNode,
-  limit?: number,
-}) => {
-  const classes = useStyles(styles);
-
-  if (!hasList(linkedPages)) {
-    return null;
-  }
-
-  return <div className={classes.linkedTagsSection}>
-    <div className={classes.linkedTagsSectionTitle}>{title}</div>
-    {linkedPages.slice(0, limit).map((linkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-    {children}
-  </div>
-}
-
-const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
-  tag: TagPageFragment,
-  selectedLens?: TagLens,
-  arbitalLinkedPages?: ArbitalLinkedPagesFragment,
-}) => {
-  const { ContentStyles } = Components;
-  
-  const classes = useStyles(styles);
-  const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
-
-  if (!arbitalLinkedPages) {
-    return null;
-  }
-
-  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster, parents, children } = arbitalLinkedPages;
-
-  const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
-  const childrenDefaultLimitToShow = 4;
-
-  return <ContentStyles contentType="tag">
-    <div className={classes.linkedTagsHeader}>
-      <div className={classes.linkedTagsList}>
-        <LinkedPageListSection title="Relies on" linkedPages={requirements} />
-        <LinkedPageListSection title="Teaches" linkedPages={teachesFiltered} />
-        <LinkedPageListSection title="Slower alternatives" linkedPages={slower} />
-        <LinkedPageListSection title="Less technical alternatives" linkedPages={lessTechnical} />
-        <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
-        <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
-        <LinkedPageListSection title="Parents" linkedPages={parents} />
-        <LinkedPageListSection title="Children" linkedPages={children} limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}>
-          {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
-            <div 
-              className={classes.linkedTagMore} 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsChildrenExpanded(true);
-              }}
-            >
-              and {children.length - childrenDefaultLimitToShow} more
-            </div>
-          )}
-        </LinkedPageListSection>
-
-      </div>
-    </div>
-  </ContentStyles>;
-}
-
-const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}: {
-  arbitalLinkedPages?: ArbitalLinkedPagesFragment,
-  selectedLens?: TagLens,
-  tag: TagPageFragment,
-}) => {
-  const classes = useStyles(styles);
-
-  if (!arbitalLinkedPages) {
-    return null;
-  }
-
-  const { TagsTooltip, ContentStyles } = Components;
-  const { requirements, teaches } = arbitalLinkedPages;
-  const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
-  
-  return (
-    <ContentStyles contentType="tag">
-      <div className={classes.mobileRelationships}>
-        {requirements.length > 0 && (
-          <div className={classes.relationshipRow}>
-            <span className={classes.spaceAfterWord}>{'Requires: '}</span>
-            {requirements.map((req: ArbitalLinkedPage, i: number) => (
-              <span key={req.slug} className={classes.spaceAfterWord}>
-                <TagsTooltip tagSlug={req.slug}>
-                  <Link to={tagGetUrl(req)}>{req.name}</Link>
-                </TagsTooltip>
-                {i < requirements.length - 1 && ', '}
-              </span>
-            ))}
-          </div>
-        )}
-        {teachesFiltered.length > 0 && (
-          <div className={classes.relationshipRow}>
-            <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
-            {teachesFiltered.map((subject: ArbitalLinkedPage, i: number) => (
-              <span key={subject.slug} className={classes.spaceAfterWord}>
-                <TagsTooltip tagSlug={subject.slug}>
-                  <Link to={tagGetUrl(subject)}>{subject.name}</Link>
-                </TagsTooltip>
-                {i < teachesFiltered.length - 1 && ', '}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </ContentStyles>
-  );
-}
-
-function htmlNodeListToArray(nodes: NodeList): Node[] {
-  let ret: Node[] = [];
-  for (let i=0; i<nodes.length; i++)
-    ret.push(nodes.item(i)!);
-  return ret;
 }
 
 const pathDescriptions = {
@@ -833,58 +444,6 @@ if (isClient) {
   Object.assign(window, { handleRadioChange });
 }
 
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: FieldsNotNull<DocumentContributorWithStats, 'user'>[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
-  const { UsersNameDisplay } = Components;
-  const classes = useStyles(styles);
-
-  return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-    <UsersNameDisplay user={user} tooltipPlacement="top" className={classes.contributorName} />
-    {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
-  </span>))}</>;
-}
-
-const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
-  const classes = useStyles(styles);
-  const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
-  const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
-  const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
-
-  const { ContentStyles } = Components;
-
-  if (parents.length === 0 && children.length === 0) return null;
-
-  return (
-    <ContentStyles contentType="tag" className={classes.parentsAndChildrenSmallScreensRoot}>
-      <div className={classes.parentChildRelationships}>
-        {parents.length > 0 && <div className={classes.parentsOrChildrensSection}>
-          <div className={classes.parentsOrChildrensSectionTitle}>Parents:</div>
-          {parents.map((parent: ArbitalLinkedPage) => (
-            <LinkedPageDisplay key={parent.slug} linkedPage={parent} className={classes.parentOrChild} />
-          ))}
-        </div>}
-        {children.length > 0 && <div className={classes.parentsOrChildrensSection}>
-          <div className={classes.parentsOrChildrensSectionTitle}>Children:</div>
-          {children.slice(0, isChildrenExpanded ? undefined : 2).map((child: ArbitalLinkedPage) => (
-            <LinkedPageDisplay key={child.slug} linkedPage={child} className={classes.parentOrChild} />
-          ))}
-          {!isChildrenExpanded && children.length > 2 && (
-            <div 
-              className={classes.linkedTagMore}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsChildrenExpanded(true);
-              }}
-            >
-              and {children.length - 2} more
-            </div>
-          )}
-        </div>}
-      </div>
-    </ContentStyles>
-  );
-};
-
 function getTagQueryOptions(
   revision: string | null,
   lensSlug: string | null,
@@ -930,7 +489,7 @@ const LWTagPage = () => {
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, ContentStyles, CommentsListCondensed,
     MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    PathInfo
+    PathInfo, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
   } = Components;
   const classes = useStyles(styles);
 
@@ -1008,7 +567,7 @@ const LWTagPage = () => {
     }
   });
 
-  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
+  const { selectedLensId, selectedLens, updateSelectedLens, getSelectedLensUrlPath, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
   const switchLens = useCallback((lensId: string) => {
@@ -1175,6 +734,9 @@ const LWTagPage = () => {
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
+        <Components.SideItem>
+          <Components.ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+        </Components.SideItem>
         { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
@@ -1191,13 +753,7 @@ const LWTagPage = () => {
           }}
         >
           <ContentStyles contentType="tag">
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description||"<em>This page is a stub.</em>"}}
-              description={`tag ${tag.name}`}
-              className={classes.description}
-              onContentReady={initializeRadioHandlers}
-            />
-            <PathInfo tag={tag} lens={selectedLens ?? null} />
+            <TagOrLensBody tag={tag} selectedLens={selectedLens} description={description}/>
           </ContentStyles>
         </div>
       </AnalyticsContext>
@@ -1247,19 +803,11 @@ const LWTagPage = () => {
     </div>
   );
 
-  const tocContributors = <div className={classes.tocContributors}>
-    {topContributors.map(({ user }: { user: UsersMinimumInfo }, idx: number) => (
-      <span className={classes.tocContributor} key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-        <UsersNameDisplay key={user._id} user={user} className={classes.contributorName} />
-      </span>
-    ))}
-  </div>;
-
   const fixedPositionTagToc = (
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={tocContributors}
+      heading={<Components.ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover
@@ -1290,6 +838,7 @@ const LWTagPage = () => {
         lenses={lenses}
         selectedLens={selectedLens}
         switchLens={switchLens}
+        getSelectedLensUrlPath={getSelectedLensUrlPath}
       />}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>
@@ -1315,22 +864,7 @@ const LWTagPage = () => {
         }
       </div>
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
-        <div className={classes.contributorNameWrapper}>
-          <span>Written by </span>
-          <ContributorsList 
-            contributors={topContributors} 
-            onHoverContributor={onHoverContributor} 
-            endWithComma={smallContributors.length > 0} 
-          />
-          {smallContributors.length > 0 && <LWTooltip 
-            title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} 
-            clickable 
-            placement="top"
-          >
-            et al.
-          </LWTooltip>
-          }
-        </div>
+        <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
         {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
@@ -1339,13 +873,6 @@ const LWTagPage = () => {
       <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tag={tag} selectedLens={selectedLens} />
     </div>
   );
-
-  const rightColumn = (<div className={classes.rightColumn}>
-    <div className={classes.rightColumnContent}>
-      <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
-    </div>
-    <div className={classes.rightColumnOverflowFade} />
-  </div>);
 
   const multiColumnToc = (
     <MultiToCLayout
@@ -1359,7 +886,7 @@ const LWTagPage = () => {
         },
         {
           centralColumn: tagBodySection,
-          rightColumn
+          rightColumn: <LWTagPageRightColumn tag={tag} selectedLens={selectedLens}/>
         },
         {
           centralColumn: tagPostsAndCommentsSection,
@@ -1404,10 +931,54 @@ const LWTagPage = () => {
           refetchTag={refetchTag}
           updateSelectedLens={updateSelectedLens}
         />
-        {multiColumnToc}
+        <Components.SideItemsContainer>
+          {multiColumnToc}
+        </Components.SideItemsContainer>
       </div>
     </TagPageContext.Provider>
   </AnalyticsContext>
+}
+
+const TagOrLensBody = ({tag, selectedLens, description}: {
+  tag: TagPageFragment,
+  selectedLens: TagLens|undefined,
+  description: string,
+}) => {
+  const { ContentItemBody, InlineReactSelectionWrapper, HoveredReactionContextProvider, PathInfo } = Components;
+  const classes = useStyles(styles);
+
+  const contentRef = useRef<ContentItemBody>(null);
+  const votingSystem = getVotingSystemByName("reactionsAndLikes");
+  const mainLensIsSelected = !selectedLens || selectedLens?._id === 'main-tab';
+  const voteProps = useVote(
+    mainLensIsSelected ? tag : selectedLens,
+    mainLensIsSelected ? "Tags" : "MultiDocuments",
+    votingSystem
+  );
+  const inlineReactHighlights = votingSystem.getTagOrLensHighlights?.({
+    tagOrLens: selectedLens ?? tag,
+    voteProps
+  });
+
+  return <HoveredReactionContextProvider voteProps={voteProps}>
+    <InlineReactSelectionWrapper
+      voteProps={voteProps}
+      contentRef={contentRef}
+      styling="tag"
+    >
+      <>
+        <ContentItemBody
+          ref={contentRef}
+          dangerouslySetInnerHTML={{__html: description||"<em>This page is a stub.</em>"}}
+          description={`tag ${tag.name}`}
+          className={classes.description}
+          replacedSubstrings={inlineReactHighlights}
+          onContentReady={initializeRadioHandlers}
+        />
+        <PathInfo tag={tag} lens={selectedLens ?? null} />
+      </>
+    </InlineReactSelectionWrapper>
+  </HoveredReactionContextProvider>
 }
 
 const LWTagPageComponent = registerComponent("LWTagPage", LWTagPage);

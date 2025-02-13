@@ -36,7 +36,7 @@ const schema: SchemaType<"Conversations"> = {
     type: Date,
     denormalized: true,
     canRead: ['members'],
-    onInsert: (document) => {
+    onCreate: () => {
       return new Date(); // if this is an insert, set latestActivity to current timestamp
     },
     optional: true,

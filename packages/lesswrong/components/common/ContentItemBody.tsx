@@ -152,13 +152,13 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
-      this.markConditionallyVisibleBlocks(element);
       this.collapseFootnotes(element);
       this.markHoverableLinks(element);
       this.markElicitBlocks(element);
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
       this.exposeInternalIds(element);
+      this.markConditionallyVisibleBlocks(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -536,7 +536,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           );
           // Do surgery on the DOM
           if (range) {
-            const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            const reduced = reduceRangeToText(range);
+            if (!reduced) continue;
+            const subRanges = splitRangeIntoReplaceableSubRanges(reduced);
             let first=true;
             for (let subRange of subRanges) {
               const reducedRange = reduceRangeToText(subRange);

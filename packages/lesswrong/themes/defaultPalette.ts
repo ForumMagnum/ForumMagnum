@@ -548,7 +548,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   editor: {
     commentPanelBackground: "#ffffff",
     sideCommentEditorBackground: "#f3f7fb",
-    commentMarker: "#fef7a9",
+    // Color used for background highlighting of CEditor side-comments. In some
+    // contexts with short line height (in particular, dialogues), this
+    // highlight bleeds over adjacent lines and covers up descenders. Partially
+    // mitigate this by making it a high-intensity color at 50% transparency
+    // rather than a low-intensity color at full opacity.
+    commentMarker: "rgba(255,241,82,.5)",
     commentMarkerActive: "#fdf05d",
   },
   blockquoteHighlight: {
@@ -593,6 +598,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       blue: "#16508C",
       green: "#006336",//"#0b7138",
     },
+  },
+  forumEvent: {
+    draftSticker: "#9BC4CC",
+    stickerMobileOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
