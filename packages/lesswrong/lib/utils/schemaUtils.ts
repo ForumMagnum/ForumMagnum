@@ -419,13 +419,8 @@ export function schemaDefaultValue<N extends CollectionNameString>(
   const fillIfMissing = ({ newDocument, fieldName }: {
     newDocument: ObjectsByCollectionName[N];
     fieldName: string;
-  }) => {
-    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
-      return defaultValue;
-    } else {
-      return undefined;
-    }
-  };
+  }) => newDocument[fieldName as keyof ObjectsByCollectionName[N]] ?? defaultValue;
+
   const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
     oldDocument: ObjectsByCollectionName[N];
     document: ObjectsByCollectionName[N];
