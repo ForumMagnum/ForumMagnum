@@ -32,7 +32,15 @@ export const trimHtmlDiff = (html: string): string => {
   
   rootElement.children().each(function(i, elem) {
     const e = $(elem)
-    if (!e.find('ins').length && !e.find('del').length) {
+    let isInsDel = false;
+    for (const node of e) {
+      if (node.type === 'tag') {
+        if (node.tagName === 'ins' || node.tagName === 'del') {
+          isInsDel = true;
+        }
+      }
+    }
+    if (!isInsDel && !e.find('ins').length && !e.find('del').length) {
       e.remove()
     }
   })
