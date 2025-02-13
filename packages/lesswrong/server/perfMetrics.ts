@@ -12,6 +12,7 @@ type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'paren
 interface AsyncLocalStorageContext {
   requestPerfMetric?: IncompletePerfMetric;
   inDbRepoMethod?: boolean;
+  overrideSqlQueryOpName?: string;
 }
 
 export const asyncLocalStorage = new AsyncLocalStorage<AsyncLocalStorageContext>();
@@ -86,7 +87,7 @@ export function addStartRenderTimeToPerfMetric() {
       console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to add start render time to it!');
       return;
     }
-    
+
     return {
       ...incompletePerfMetric,
       render_started_at: new Date()
@@ -102,10 +103,10 @@ const fiftyThreeBits = Math.pow(2, 53);
  */
 export function cyrb53Rand(str: string, seed = 0) {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-  for(let i = 0, ch; i < str.length; i++) {
-      ch = str.charCodeAt(i);
-      h1 = Math.imul(h1 ^ ch, 2654435761);
-      h2 = Math.imul(h2 ^ ch, 1597334677);
+  for (let i = 0, ch; i < str.length; i++) {
+    ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
   }
   h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
   h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
@@ -145,16 +146,18 @@ export function recordSqlQueryPerfMetric(sqlString: string, startTime: number, e
     return;
   }
 
+  const overrideOpName = store.overrideSqlQueryOpName;
+
   // We're already recording repo methods in their entirety,
   // so it doesn't seem helpful to separately record the raw SQL queries that get executed by them
   if (!store?.inDbRepoMethod) {
     const partialMetric = openPerfMetric({
       op_type: 'sql_query',
-      op_name: 'compiled', // TODO: what do we even record here?
+      op_name: overrideOpName ?? 'compiled',
       parent_trace_id: parentTraceId,
       sql_string: sqlString
     }, new Date(startTime));
-  
+
     closePerfMetric(partialMetric, new Date(endTime));
   }
 }
@@ -182,6 +185,19 @@ export function closeRequestPerfMetric() {
   setAsyncStoreValue('requestPerfMetric', undefined);
 }
 
+export function nameSqlQueryPerfMetric<T>(opName: string, fn: () => T): () => T {
+  if (!performanceMetricLoggingEnabled.get()) {
+    return fn;
+  }
+
+  const existingContext = asyncLocalStorage.getStore() ?? {};
+  return asyncLocalStorage.run(
+    { ...existingContext, overrideSqlQueryOpName: opName },
+    () => fn
+  );
+}
+
+
 export function perfMetricMiddleware(req: Request, res: Response, next: NextFunction) {
   if (!performanceMetricLoggingEnabled.get()) {
     return next();
@@ -199,7 +215,7 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
   res.on('finish', () => {
     closeRequestPerfMetric();
   });
-  
+
   // This starts an async context for requests that pass through this middleware
   asyncLocalStorage.run<void, []>({ requestPerfMetric: perfMetric }, next);
 }
