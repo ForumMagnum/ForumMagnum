@@ -1,6 +1,15 @@
 import React, { createContext, useContext } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { ConditionalVisibilitySettings } from './conditionalVisibility';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles("ConditionalVisibilityBlockDisplay", (theme) => ({
+  revealHiddenBlocks: {
+    "& .conditionallyVisibleBlock.defaultHidden": {
+      display: "block",
+    },
+  },
+}));
 
 export const RevealHiddenBlocksContext = createContext(false);
 
@@ -49,6 +58,17 @@ const ConditionalVisibilityBlockDisplay = ({options, children}: {
   } else {
     return null;
   }
+}
+
+export const RevealHiddenBlocks = ({children}: {
+  children: React.ReactNode
+}) => {
+  const classes = useStyles(styles);
+  return <RevealHiddenBlocksContext.Provider value={true}>
+    <div className={classes.revealHiddenBlocks}>
+      {children}
+    </div>
+  </RevealHiddenBlocksContext.Provider>
 }
 
 const ConditionalVisibilityBlockDisplayComponent = registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplay);

@@ -353,6 +353,9 @@ const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
     border: theme.palette.border.normal,
     borderRadius: 4,
     padding: 8,
+    "&.defaultHidden": {
+      display: "none",
+    },
   },
 });
 
