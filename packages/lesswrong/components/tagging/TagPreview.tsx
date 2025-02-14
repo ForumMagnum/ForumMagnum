@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { isLWorAF, taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -16,6 +16,7 @@ import { htmlToTextDefault } from '@/lib/htmlToText';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
+    color: theme.palette.text.normal,
     ...(isFriendlyUI ? {
       paddingTop: 8,
       paddingLeft: 16,
@@ -127,6 +128,23 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   description: {
     ...(!isFriendlyUI && { marginTop: 16 }),
   },
+  belowDescription: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: 10,
+  },
+  wordCount: {
+    marginRight: 8,
+    marginTop: -2,
+    fontSize: ".9rem",
+  },
+  wordCountIcon: {
+    "--icon-size": "16px",
+    verticalAlign: "middle",
+    marginRight: 2,
+  },
+  likeButtonWrapper: {
+  },
 }));
 
 function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
@@ -237,7 +255,7 @@ const TagPreview = ({
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
   const hasMultipleSummaries = summaryTabs.length > 1;
 
-  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
+  const { TagPreviewDescription, TagSmallPostLink, ForumIcon, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
@@ -253,6 +271,18 @@ const TagPreview = ({
             hash={hash} 
             {...(tag.summaries?.length ? { activeTab } : {})}
           />
+        </div>}
+        {isLWorAF && <div className={classes.belowDescription}>
+          {!!tag.description?.wordCount && <div className={classes.wordCount}>
+            <ForumIcon className={classes.wordCountIcon} icon="Document"/>
+            {tag.description.wordCount} words
+          </div>}
+          <div className={classes.likeButtonWrapper}>
+            <Components.TagOrLensLikeButton
+              lens={tag as any}
+              isSelected={false}
+            />
+          </div>
         </div>}
         {showRelatedTags &&
           <div className={classes.relatedTags}>
