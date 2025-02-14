@@ -85,7 +85,7 @@ const excludedArbitalPageIds = [
   '9l',
 ];
 
-async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
+export async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
   let connection: mysql.Connection | null = null;
 
   try {
