@@ -4,12 +4,13 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
-import { useDialog } from '../common/withDialog';
+import { useDialog } from '@/components/common/withDialog';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useHover } from '../common/withHover';
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
+    zIndex: theme.zIndexes.newWikiTagButton,
     cursor: "pointer",
     color: theme.palette.primary.dark,
     marginBottom: -10,
@@ -41,7 +42,9 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const handleLogin = () => {
+  const handleLogin = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     openDialog({
       componentName: "LoginPopup",
       componentProps: {},
