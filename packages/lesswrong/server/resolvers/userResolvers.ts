@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail, userCanEditUser, userGetDisplayName} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../commonQueries";
-import { isEAForum } from '../../lib/instanceSettings';
+import { airtableApiKeySetting, isEAForum } from '../../lib/instanceSettings';
 import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
@@ -302,3 +302,138 @@ createPaginatedResolver({
     return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
   }
 });
+
+addGraphQLSchema(`
+  type NetKarmaChangesForAuthorsOverPeriod {
+    userId: String,
+    netKarma: Int
+  }
+`)
+
+defineQuery({
+  name: "NetKarmaChangesForAuthorsOverPeriod",
+  argTypes: "(days: Int!, limit: Int!)",
+  resultType: "[NetKarmaChangesForAuthorsOverPeriod!]!",
+  fn: async (
+    _root: void,
+    {days, limit}: {days: number, limit: number},
+    context: ResolverContext,
+  ) => {
+    return await context.repos.votes.getNetKarmaChangesForAuthorsOverPeriod(days, limit);
+  }
+});
+
+type AirtableLeaderboardResultType = {
+  name: string;
+  leaderboardAmount?: number;
+};
+
+
+async function fetchAirtableRecords(): Promise<AirtableLeaderboardResultType[]> {
+  const baseId = "appUepxJdxacpehZz";
+  const tableName = "Donors";
+  const viewName = "LeaderBoard";
+
+  const apiKey = airtableApiKeySetting.get();
+  if (!apiKey) {
+    throw new Error("Can't fetch Airtable records without an API key");
+  }
+
+  const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}?view=${encodeURIComponent(viewName)}`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Airtable API responded with status ${response.status} - ${response.statusText}`);
+  }
+
+  // The data returned by Airtable has a "records" array.
+  // Each "record" has a "fields" object containing the columns we need.
+  const data = await response.json();
+  const records = data.records || [];
+
+  const unpackArray = (value: any) => Array.isArray(value) ? value[0] : value;
+
+  // Transform "records" into our AirtableLeaderboardResultType format
+  return records.map((record: any) => {
+    const name = unpackArray(record.fields?.["Leaderboard Display Name"]) ?? "Unknown";
+    const amountStr = unpackArray(record.fields?.["Leaderboard Amount"]) ?? "";
+    return {
+      name,
+      leaderboardAmount: amountStr === "" ? undefined : parseInt(amountStr, 10),
+    };
+  });
+}
+
+addGraphQLSchema(`
+  type AirtableLeaderboardResult {
+    name: String!
+    leaderboardAmount: Int
+  }
+`)
+
+let airtableCache: {
+  data?: AirtableLeaderboardResultType[];
+  timestamp: number;
+} = {
+  data: undefined,
+  timestamp: 0,
+};
+
+// We'll keep track of whether we have an in-flight promise so that we don't trigger multiple fetches simultaneously.
+let inFlightPromise: Promise<AirtableLeaderboardResultType[]> | null = null;
+
+// We'll consider data stale if it's older than 10 minutes.
+const STALE_TIME_MS = 1000 * 60 * 10;
+
+defineQuery({
+  name: "AirtableLeaderboards",
+  resultType: "[AirtableLeaderboardResult!]!",
+  fn: async () => {
+    if (airtableCache.data) {
+      const isStale = Date.now() - airtableCache.timestamp > STALE_TIME_MS;
+
+      // If the data is stale but no fetch is happening yet, start a new background fetch.
+      if (isStale && !inFlightPromise) {
+        void (async () => {
+          try {
+            inFlightPromise = fetchAirtableRecords();
+            const freshData = await inFlightPromise;
+            airtableCache.data = freshData;
+            airtableCache.timestamp = Date.now();
+          } finally {
+            inFlightPromise = null;
+          }
+        })();
+      }
+
+      // Regardless of staleness, return the cached data (stale-while-revalidate).
+      return airtableCache.data;
+    }
+
+    // If we have no data yet:
+    if (inFlightPromise) {
+      // If we're already fetching it, just await that same promise
+      // so we don't fire off multiple fetches.
+      return await inFlightPromise;
+    } else {
+      // Start a new fetch and wait for it before returning.
+      inFlightPromise = (async () => {
+        try {
+          const freshData = await fetchAirtableRecords();
+          airtableCache.data = freshData;
+          airtableCache.timestamp = Date.now();
+          return freshData;
+        } finally {
+          inFlightPromise = null;
+        }
+      })();
+
+      return await inFlightPromise;
+    }
+  },
+});
+
