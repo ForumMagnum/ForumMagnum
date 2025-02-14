@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '@/components/common/withDialog';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useHover } from '../common/withHover';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
@@ -53,14 +54,16 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
 
   if (!currentUser) {
     return (
-      <div className={className}>
-        <SectionButton onClick={handleLogin}>
-          <div className={classes.addTagButton}>
-            <AddBoxIcon />
-            {!hideLabel && <span>New Wikitag</span>}
-          </div>
-        </SectionButton>
-      </div>
+      <AnalyticsContext pageElementContext="newWikiTagButton">
+        <div className={className}>
+          <SectionButton onClick={handleLogin}>
+            <div className={classes.addTagButton}>
+              <AddBoxIcon />
+              {!hideLabel && <span>New Wikitag</span>}
+            </div>
+          </SectionButton>
+        </div>
+      </AnalyticsContext>
     );
   }
 
@@ -69,35 +72,37 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   }
 
   return (
-    <div {...eventHandlers} className={className}>
-      <SectionButton>
-        <div className={classes.addTagButton} style={{ cursor: "pointer" }}>
-          <AddBoxIcon />
-          {!hideLabel && <span>New Wikitag</span>}
-        </div>
-        <LWPopper
-          open={hover}
-          anchorEl={anchorEl}
-          placement="bottom-start"
-          className={classes.addTagDropdownPopper}
-        >
-          <Paper>
-            <DropdownMenu>
-              <div onClick={() => forceUnHover()}>
-                <DropdownItem title="Wiki Only" to={`${tagCreateUrl}?type=wiki`} />
-                <DropdownItem title="Wiki + Tag" to={tagCreateUrl} />
-                <DropdownDivider />
-                <DropdownItem 
-                  title={<span><em>What's the difference?</em></span>} 
-                  to="/w/what-s-a-wikitag"
-                  onClick={() => forceUnHover()}
-                />
-              </div>
-            </DropdownMenu>
-          </Paper>
-        </LWPopper>
-      </SectionButton>
-    </div>
+    <AnalyticsContext pageElementContext="newWikiTagButton">
+      <div {...eventHandlers} className={className}>
+        <SectionButton>
+          <div className={classes.addTagButton} style={{ cursor: "pointer" }}>
+            <AddBoxIcon />
+            {!hideLabel && <span>New Wikitag</span>}
+          </div>
+          <LWPopper
+            open={hover}
+            anchorEl={anchorEl}
+            placement="bottom-start"
+            className={classes.addTagDropdownPopper}
+          >
+            <Paper>
+              <DropdownMenu>
+                <div onClick={() => forceUnHover()}>
+                  <DropdownItem title="Wiki Only" to={`${tagCreateUrl}?type=wiki`} />
+                  <DropdownItem title="Wiki + Tag" to={tagCreateUrl} />
+                  <DropdownDivider />
+                  <DropdownItem 
+                    title={<span><em>What's the difference?</em></span>} 
+                    to="/w/what-s-a-wikitag"
+                    onClick={() => forceUnHover()}
+                  />
+                </div>
+              </DropdownMenu>
+            </Paper>
+          </LWPopper>
+        </SectionButton>
+      </div>
+    </AnalyticsContext>
   );
 };
 

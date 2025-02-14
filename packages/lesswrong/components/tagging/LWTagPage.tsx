@@ -484,12 +484,11 @@ function getTagQueryOptions(
 
 const LWTagPage = () => {
   const {
-    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    PathInfo, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
+    PostsList2, Loading, AddPostsToTag, Typography, ContentStyles,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, CommentsListCondensed,
+    TagPageButtonRow, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    MultiToCLayout, TableOfContents, FormatDate, LWTagPageRightColumn,
+    ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
   } = Components;
   const classes = useStyles(styles);
 
@@ -575,7 +574,8 @@ const LWTagPage = () => {
     // because we already do it inside of Form.tsx because of the route change
     setEditing(false, false);
     updateSelectedLens(lensId);
-  }, [setEditing, updateSelectedLens]);
+    captureEvent('tagPageLensSwitched', { lensId });
+  }, [setEditing, updateSelectedLens, captureEvent]);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
