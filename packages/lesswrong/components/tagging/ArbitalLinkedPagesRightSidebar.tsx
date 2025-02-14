@@ -194,29 +194,32 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
       <div className={classes.linkedTagsHeader}>
         <div className={classes.linkedTagsList}>
           <LinkedPageListSection title="Relies on" linkedPages={requirements} />
-        <LinkedPageListSection title="Teaches" linkedPages={teachesFiltered} />
-        <LinkedPageListSection title="Slower alternatives" linkedPages={slower} />
-        <LinkedPageListSection title="Less technical alternatives" linkedPages={lessTechnical} />
-        <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
-        <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
-        <LinkedPageListSection title="Parents" linkedPages={parents} />
-        <LinkedPageListSection title="Children" linkedPages={children} limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}>
-          {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
-            <div 
-              className={classes.linkedTagMore} 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsChildrenExpanded(true);
-              }}
-            >
-              and {children.length - childrenDefaultLimitToShow} more
-            </div>
-              )}
-            </LinkedPageListSection>
-
-          </div>
+          <LinkedPageListSection title="Teaches" linkedPages={teachesFiltered} />
+          <LinkedPageListSection title="Slower alternatives" linkedPages={slower} />
+          <LinkedPageListSection title="Less technical alternatives" linkedPages={lessTechnical} />
+          <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
+          <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
+          <LinkedPageListSection title="Parents" linkedPages={parents} />
+          <LinkedPageListSection 
+            title="Children" 
+            linkedPages={children} 
+            limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}
+          >
+            {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
+              <div 
+                className={classes.linkedTagMore} 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsChildrenExpanded(true);
+                }}
+              >
+                and {children.length - childrenDefaultLimitToShow} more
+              </div>
+            )}
+          </LinkedPageListSection>
         </div>
+      </div>
     </ContentStyles>
   </AnalyticsContext>;
 }
