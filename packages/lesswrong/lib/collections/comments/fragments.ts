@@ -6,6 +6,7 @@ registerFragment(`
     postId
     tagId
     tag {
+      _id
       slug
     }
     relevantTagIds

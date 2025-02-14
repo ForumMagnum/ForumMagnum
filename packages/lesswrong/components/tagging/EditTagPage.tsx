@@ -14,18 +14,21 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   changeCallback?: any,
   warnUnsavedChanges?: boolean,
 }) => {
-  return <Components.WrappedSmartForm
-    key={`${tag?._id}_${tag?.description?.version}`}
-    collectionName="Tags"
-    documentId={tag._id}
-    queryFragment={getFragment('TagEditFragment')}
-    mutationFragment={getFragment('TagWithFlagsFragment')}
-    successCallback={successCallback}
-    cancelCallback={cancelCallback}
-    addFields={isLWorAF ? ['summaries'] : []}
-    warnUnsavedChanges={warnUnsavedChanges}
-    changeCallback={changeCallback}
-  />
+  const { ContentStyles } = Components;
+  return <ContentStyles contentType="tag">
+    <Components.WrappedSmartForm
+      key={`${tag?._id}_${tag?.description?.version}`}
+      collectionName="Tags"
+      documentId={tag._id}
+      queryFragment={getFragment('TagEditFragment')}
+      mutationFragment={getFragment('TagWithFlagsFragment')}
+      successCallback={successCallback}
+      cancelCallback={cancelCallback}
+      addFields={isLWorAF ? ['summaries'] : []}
+      warnUnsavedChanges={warnUnsavedChanges}
+      changeCallback={changeCallback}
+    />
+  </ContentStyles>
 }
 
 const EditTagPage = () => {

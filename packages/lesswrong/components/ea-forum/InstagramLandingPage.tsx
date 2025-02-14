@@ -23,6 +23,8 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'rXYW9GPsmwZYu3doX', // What happens on the average day?
+  'H46HiaQp7YtfNiDZk', // Wild Animal Suffering is the Worst Thing in the World
   'wYjMsKsEkDPgHeAbS', // Four Ideas You Already Agree With
   'fMEhpDrpbnHpcgsDE', // Facing up to the Price on Life
   'JN3kHaiosmdA7kgNY', // The Game Board has been Flipped: Now is a good time to rethink what you’re doing

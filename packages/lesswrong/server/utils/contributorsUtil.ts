@@ -44,6 +44,7 @@ export async function buildContributorsList(options: BuildContributorsListOption
     collectionName,
     fieldName,
     documentId: document._id,
+    skipAttributions: false,
     $or: [
       { "changeMetrics.added": { $gt: 0 } },
       { "changeMetrics.removed": { $gt: 0 } },

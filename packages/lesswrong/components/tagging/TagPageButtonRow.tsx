@@ -121,18 +121,17 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton, TagPageActionsMenuButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
 
-  function handleNewLensClick(e: React.MouseEvent<HTMLAnchorElement>) {
+  function handleNewLensClick() {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
         componentProps: {},
       });
-      e.preventDefault();
       return;
     }
 
@@ -162,9 +161,9 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
   
   const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
-  const showNewLensButton = !editing
+  const canCreateLens = !editing
     && canEdit
-    && !!(refetchTag && updateSelectedLens)
+    && (!refetchTag || !updateSelectedLens)
     && (undeletedLensCount < 5)
     && isLWorAF;
 
@@ -195,10 +194,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
     />
   </>;
 
-  const newLensTooltip = (<div>
-    Click to create a new lens for this tag.
-  </div>);
-
   return <div className={classNames(classes.buttonsRow, className)}>
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
@@ -214,17 +209,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
           {!hideLabels && "Edit"}
         </span>
       </a>)}
-    </LWTooltip>}
-    {showNewLensButton && <LWTooltip
-      className={classes.buttonTooltip}
-      title={newLensTooltip}      
-    >
-      <a className={classNames(classes.button, classes.newLensIcon)} onClick={handleNewLensClick}>
-        <ForumIcon icon='NoteAdd' />
-        <span className={classes.buttonLabel}>
-          {!hideLabels && "New Lens"}
-        </span>
-      </a>
     </LWTooltip>}
     {<Link
       className={classes.button}
@@ -258,6 +242,11 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
         Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
       </a>
     </LWTooltip>}
+    
+    {isLWorAF && <Components.TagPageActionsMenuButton
+      tagOrLens={selectedLens}
+      createLens={canCreateLens ? handleNewLensClick : null}
+    />}
   </div>
 }
 

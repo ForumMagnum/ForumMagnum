@@ -30,6 +30,7 @@ export const MultiDocuments = createCollection({
     },
     removeCheck: () => false,
   }),
+  logChanges: true,
 });
 
 addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
@@ -83,10 +84,6 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
     if (!canAccessParent) {
       return false;
     }
-  }
-
-  if (multiDocument.deleted) {
-    return userOwns(user, multiDocument);
   }
 
   return true;

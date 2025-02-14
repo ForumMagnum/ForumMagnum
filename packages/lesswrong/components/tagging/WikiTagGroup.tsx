@@ -5,7 +5,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 
 
-const CONCEPT_ITEM_WIDTH = 300;
+// TODO: single source for here and ConceptItem, must be kept in sync
+const CONCEPT_ITEM_WIDTH = 280;
 const MAX_ITEMS_PER_COLUMN = 10;
 
 const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
@@ -33,6 +34,7 @@ const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     rowGap: "16px",
+    columnGap: "24px",
   },
   childrenListWrapped: {
     flexWrap: "wrap",
@@ -61,11 +63,13 @@ const WikiTagGroup = ({
   searchTagIds,
   initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
   showArbitalIcons = false,
+  noLinkOrHoverOnTitle = false,
 }: {
   coreTag: ConceptItemFragment
   searchTagIds: string[] | null;
   initialLimit?: number;
   showArbitalIcons?: boolean;
+  noLinkOrHoverOnTitle?: boolean;
 }) => {
   const classes = useStyles(styles);
   const [limit, setLimit] = useState(initialLimit);
@@ -142,6 +146,7 @@ const WikiTagGroup = ({
           wikitag={coreTag}
           isTitleItem
           showArbitalIcon={showArbitalIcons}
+          noLinkOrHoverOnTitle={noLinkOrHoverOnTitle}
         />
       </div>
       {showLoadingSpinner && <Loading />}
