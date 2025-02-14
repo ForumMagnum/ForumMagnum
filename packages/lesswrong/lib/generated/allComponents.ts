@@ -990,7 +990,6 @@ importComponent("AddTagOrWikiPage", () => require("../../components/tagging/AddT
 importComponent("AllPostsPageTagDocDeletionItem", () => require("../../components/tagging/AllPostsPageTagDocDeletionItem.tsx"));
 importComponent("AllPostsPageTagRevisionItem", () => require("../../components/tagging/AllPostsPageTagRevisionItem.tsx"));
 importComponent("AllTagsAlphabetical", () => require("../../components/tagging/AllTagsAlphabetical.tsx"));
-importComponent("AllTagsPage", () => require("../../components/tagging/AllTagsPage.tsx"));
 importComponent("AllWikiTagsPage", () => require("../../components/tagging/AllWikiTagsPage.tsx"));
 importComponent("ArbitalExplorePage", () => require("../../components/tagging/ArbitalExplorePage.tsx"));
 importComponent(["LWTagPageRightColumn", "ArbitalLinkedPagesRightSidebar", "ArbitalRelationshipsSmallScreen", "ParentsAndChildrenSmallScreen"], () => require("../../components/tagging/ArbitalLinkedPagesRightSidebar.tsx"));
