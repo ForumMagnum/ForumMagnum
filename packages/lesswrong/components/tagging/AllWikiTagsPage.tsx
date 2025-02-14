@@ -214,25 +214,21 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   const classes = useStyles(styles);
   const { Loading } = Components
 
-  // TODO: put in database setting?
-  const documentId = "nDavoyZ2EobkpZNAs"
 
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    skip: !documentId
-  });
+  const redirectHtml = <div>
+    <h2>You have been redirected from Arbital.com</h2>
+    <p>Following the end of the <a href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</a>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
+    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <a href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</a>, <a href="#">Logarithm Guide</a>, and many <a href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</a> by Eliezer.</p>
+    <p>Arbital content is indicated with the Arbital theme color and logo.</p>
+  </div>
 
-  const { html = "" } = document?.contents || {}
+
 
   return (
     <div className={classes.arbitalRedirectNotice}>
       <ArbitalLogo className={classes.arbitalLogo} />
       <div className={classes.arbitalRedirectNoticeContent}>
-        {loading && <Loading />}
-        {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
-        {!html && !loading && <div><em>You have been redirected from Arbital.com</em></div>}
+        {redirectHtml}
       </div>
       <div className={classes.dismissButtonContainer}>
         <button className={classes.dismissButton} onClick={onDismiss}>×</button>
