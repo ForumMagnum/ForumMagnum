@@ -129,8 +129,23 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   },
 }));
 
+function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
+  const normalizedTagName = rawTagName.toLowerCase().replace(/[^\w\s]/g, '');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const boldTags = doc.querySelectorAll('b, strong');
+
+  for (const el of Array.from(boldTags)) {
+    const textContent = el.textContent?.toLowerCase().replace(/[^\w\s]/g, '');
+    if (textContent?.includes(normalizedTagName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /*
-/* If the text displayed on hover preview doesn't contain the tag name in the first 100 characters, we use this flag to display a title.
+/* If the text displayed on hover preview doesn't contain the tag name bolded, we use this flag to display a title.
 /* If summaries are present, we must check for the tag name in the first summary, otherwise we use the tag name 
 /* from the main description.
 */
@@ -139,24 +154,13 @@ const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { 
     return false;
   }
 
-  const firstSummaryText = tag.summaries?.[0]?.contents?.html
-  const highlightText = getTagDescriptionHtmlHighlight(tag);
-  const openingText: string | undefined = firstSummaryText ?? highlightText;
-
-  if (!openingText) {
+  const tooltipText = tag.summaries?.[0]?.contents?.html ?? getTagDescriptionHtmlHighlight(tag);
+  if (!tooltipText) {
     return true;
   }
 
-  if (tag.name.length > 100) {
-    return true;
-  }
-
-  // Remove non-word characters and ignore case
-  const openingTextLower = htmlToTextDefault(openingText).toLowerCase().replace(/[^\w\s]/g, '').slice(0, 100);
-  const tagNameLower = tag.name.toLowerCase().replace(/[^\w\s]/g, '');
-
-  return !openingTextLower.includes(tagNameLower);
-}
+  return !tagNameIsBoldedAnywhere(tooltipText, tag.name);
+};
 
 const TagPreview = ({
   tag,
