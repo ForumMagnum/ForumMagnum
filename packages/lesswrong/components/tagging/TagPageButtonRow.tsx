@@ -163,7 +163,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
   const canCreateLens = !editing
     && canEdit
-    && (!refetchTag || !updateSelectedLens)
+    && (!!refetchTag && !!updateSelectedLens)
     && (undeletedLensCount < 5)
     && isLWorAF;
 
