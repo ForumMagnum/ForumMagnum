@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const CONCEPT_ITEM_WIDTH = 280;
 
@@ -256,9 +257,11 @@ const ConceptItem = ({
   );
 
   return (
-    <div className={classNames(classes.root, { [classes.titleItemRoot]: isTitleItem })}>
-      {isTitleItem ? titleItem : regularItem}
-    </div>
+    <AnalyticsContext pageElementContext="conceptItem" tagId={wikitag._id}>
+      <div className={classNames(classes.root, { [classes.titleItemRoot]: isTitleItem })}>
+        {isTitleItem ? titleItem : regularItem}
+      </div>
+    </AnalyticsContext>
   );
 };
 
