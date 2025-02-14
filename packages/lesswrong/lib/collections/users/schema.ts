@@ -20,6 +20,7 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { DeferredForumSelect } from '../../forumTypeUtils';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -69,24 +70,7 @@ export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
 
 
 export const MAX_NOTIFICATION_RADIUS = 300
-export const karmaChangeNotifierDefaultSettings = {
-  // One of the string keys in karmaNotificationTimingChocies
-  updateFrequency: "daily",
 
-  // Time of day at which daily/weekly batched updates are released, a number
-  // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  // Default corresponds to 3am PST.
-  timeOfDayGMT: 11,
-
-  // A string day-of-the-week name, spelled out and capitalized like "Monday".
-  // Always in GMT, regardless of the user's timezone (timezone matters for day
-  // of the week because time zones could take it across midnight.)
-  dayOfWeekGMT: "Saturday",
-
-  // A boolean that determines whether we hide or show negative karma updates.
-  // False by default because people tend to drastically overweigh negative feedback
-  showNegativeKarma: false,
-};
 
 export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
 export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
@@ -129,6 +113,9 @@ export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequen
 
 export interface KarmaChangeSettingsType {
   updateFrequency: KarmaChangeUpdateFrequency
+  /**
+   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
+   */
   timeOfDayGMT: number
   dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   showNegativeKarma: boolean
@@ -155,6 +142,21 @@ const karmaChangeSettingsType = new SimpleSchema({
     optional: true,
   }
 })
+
+export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
+  EAForum: {
+    updateFrequency: "realtime",
+    timeOfDayGMT: 11, // 3am PST
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false, // 3am PST
+  },
+  default: {
+    updateFrequency: "daily",
+    timeOfDayGMT: 11,
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+} as const);
 
 const notificationTypeSettings = new SimpleSchema({
   channel: {
