@@ -2189,10 +2189,29 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
         `Tag "${ta.slug}" has multiple core tags assigned (${ta.coreTagNames.join(', ')}). Only one core tag is supported per tag. Skipping this tag.`
       );
     }
-    return allCoreTagsExist && hasSingleCoreTag;
+    
+    const isExcluded = ta.coreTagNames.includes("Exclude");
+    return allCoreTagsExist && hasSingleCoreTag && !isExcluded;
   });
 
   console.log(`Found ${filteredTagAssignments.length} valid tag assignments with a single core tag.`);
+  
+  const excludedPages = tagAssignments.filter(ta => ta.coreTagNames.includes('Exclude'));
+  console.log(`Found ${excludedPages.length} tags marked as excluded from import`);
+
+  await executePromiseQueue(excludedPages.map(ta => async () => {
+    const tag = await Tags.findOne({ $or: [{ slug: ta.slug }, { oldSlugs: ta.slug }], deleted: false });
+    if (!tag) {
+      console.warn(`Excluded tag with slug "${ta.slug}" not found. Skipping.`);
+      return;
+    }
+    await Tags.rawUpdateOne(
+      { _id: tag._id },
+      { $set: {
+        deleted: true
+      }}
+    );
+  }));
 
   // Update each tag's coreTagId field
   await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
