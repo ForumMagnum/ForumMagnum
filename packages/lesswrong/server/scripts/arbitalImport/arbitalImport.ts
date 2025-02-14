@@ -2211,7 +2211,7 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
         deleted: true
       }}
     );
-  }));
+  }), 10);
 
   // Update each tag's coreTagId field
   await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
