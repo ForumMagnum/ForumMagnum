@@ -680,6 +680,26 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
   
 }
 
+function getImportedRecordMaps(conversionContext: ArbitalConversionContext): ImportedRecordMaps {
+  const pagesById = groupBy(conversionContext.database.pages, p=>p.pageId);
+  const lensesByPageId = mapValues(groupBy(conversionContext.database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
+  const {
+    domainsByPageId,
+    summariesByPageId,
+    slugsByPageId,
+    titlesByPageId,
+  } = conversionContext;
+  const importedRecordMaps: ImportedRecordMaps = {
+    pageInfosById: conversionContext.pageInfosByPageId,
+    pagesById,
+    lensesByPageId,
+    domainsByPageId,
+    summariesByPageId,
+    slugsByPageId,
+    titlesByPageId,
+  };
+  return importedRecordMaps
+}
 async function importWikiPages(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
@@ -693,15 +713,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
   } = conversionContext;
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
-  const importedRecordMaps: ImportedRecordMaps = {
-    pageInfosById,
-    pagesById,
-    lensesByPageId,
-    domainsByPageId,
-    summariesByPageId,
-    slugsByPageId,
-    titlesByPageId,
-  };
+  const importedRecordMaps: ImportedRecordMaps = getImportedRecordMaps(conversionContext);
   
   const pageIdsToImport = options.pages
     ? options.pages.map(p => {
@@ -854,114 +866,10 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         console.log(`Importing ${lenses.length} lenses (${lenses.map(l => l.lensName).join(", ")})`);
       }
       for (const lens of lenses) {
-        const lensPageInfo = pageInfosById[lens.lensId];
-        if (!lensPageInfo || lensPageInfo.isDeleted) {
-          continue;
-        }
-
-        const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
-        const lensSlug = slugsByPageId[lens.lensId];
-        const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
-        const lensFirstRevision = lensRevisions[0];
-        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
-        const oldLensSlugs = [lensPageInfo.alias, ...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
-        const lensTitle = lensLiveRevision.title;
-        const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
-          markdown: lensFirstRevision.text,
-          pageId: lens.lensId,
-          conversionContext,
-          convertedPage: lensFirstRevision,
-        });
-
-        // Create the lens, with the oldest revision
-        let lensObj: DbMultiDocument|null;
-        if (!options.skipImportingPages) {
-          lensObj = (await createMutator({
-            collection: MultiDocuments,
-            document: {
-              parentDocumentId: wiki._id,
-              collectionName: "Tags",
-              fieldName: "description",
-              title: lensTitle,
-              slug: lensSlug,
-              oldSlugs: oldLensSlugs,
-              //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
-              preview: lensLiveRevision.clickbait,
-              tabTitle: lens.lensName,
-              tabSubtitle: lens.lensSubtitle,
-              userId: pageCreator?._id,
-              index: lens.lensIndex,
-              contents: {
-                originalContents: {
-                  type: "ckEditorMarkup",
-                  data: lensFirstRevisionCkEditorMarkup,
-                }
-              },
-              legacyData: {
-                arbitalPageId: lens.pageId,
-                arbitalLensId: lens.lensId,
-              },
-            } as Partial<DbMultiDocument>,
-            context: resolverContext,
-            currentUser: pageCreator,
-            validate: false,
-          })).data;
-          await Promise.all([
-            backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
-            backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {
-              arbitalPageId: lens.lensId,
-              arbitalEditNumber: lensFirstRevision.edit,
-              arbitalMarkdown: lensFirstRevision.text,
-            }),
-          ]);
-          
-          await importRevisions({
-            collection: MultiDocuments,
-            fieldName: "contents",
-            documentId: lensObj._id,
-            pageId: lens.lensId,
-            revisions: lensRevisions.slice(1),
-            oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
-            conversionContext: conversionContext,
-            resolverContext,
-          });
-          
-          await convertLikesToVotes(conversionContext, pageInfosById[lens.lensId].likeableId, "MultiDocuments", lensObj._id);
-
-        } else {
-          lensObj = await MultiDocuments.findOne({ slug: lensSlug });
-          if (!lensObj) {
-            console.log(`Lens not found: ${lensSlug}`);
-            continue;
-          }
-        }
-
-        /*const lensAlternatives = alternativesByPageId[lens.lensId];
-        if (lensAlternatives && Object.values(lensAlternatives).some(alternatives => alternatives.length > 0)) {
-          await updateMutator({
-            collection: MultiDocuments,
-            documentId: lensObj._id,
-            set: {
-              legacyData: {
-                ...lensObj.legacyData,
-                arbitalPageId: lens.lensId,
-                arbitalFasterAlternatives: lensAlternatives.faster ?? [],
-                arbitalSlowerAlternatives: lensAlternatives.slower ?? [],
-                arbitalMoreTechnicalAlternatives: lensAlternatives.more_technical ?? [],
-                arbitalLessTechnicalAlternatives: lensAlternatives.less_technical ?? [],
-              },
-            },
-          });
-        }*/
-
-        await createSummariesForPage({
-          pageId: lens.lensId,
-          importedRecordMaps,
-          conversionContext,
-          pageCreator,
-          liveRevision: lensLiveRevision,
-          resolverContext,
-          lensMultiDocumentId: lensObj._id,
+        const lensCreator = matchedUsers[lens.createdBy] ?? defaultUser;
+        await importSingleLens({
+          conversionContext, lens, parentTagId: wiki._id, resolverContext,
+          lensCreator,
         });
       }
       
@@ -2247,3 +2155,153 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
 }
 
 Globals.importCoreTagAssignments = importCoreTagAssignments;
+
+
+async function importSingleLens({conversionContext, lens, parentTagId, resolverContext, lensCreator}: {
+  conversionContext: ArbitalConversionContext,
+  lens: LensesRow,
+  parentTagId: string
+  resolverContext: ResolverContext,
+  lensCreator: DbUser,
+}) {
+  const lensId = lens.lensId;
+  const {
+    database, options,
+    pageInfosByPageId: pageInfosById, slugsByPageId, summariesByPageId, titlesByPageId,
+    pageIdsByTitle, domainsByPageId, matchedUsers, defaultUser, liveRevisionsByPageId,
+    pagesToConvertToLenses,
+  } = conversionContext;
+
+  const lensPageInfo = pageInfosById[lens.lensId];
+  if (!lensPageInfo || lensPageInfo.isDeleted) {
+    return;
+  }
+
+  const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
+  const lensSlug = slugsByPageId[lens.lensId];
+  const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
+  const lensFirstRevision = lensRevisions[0];
+  const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
+  const oldLensSlugs = [lensPageInfo.alias, ...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
+  const lensTitle = lensLiveRevision.title;
+  const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
+    markdown: lensFirstRevision.text,
+    pageId: lens.lensId,
+    conversionContext,
+    convertedPage: lensFirstRevision,
+  });
+
+  // Create the lens, with the oldest revision
+  let lensObj: DbMultiDocument|null;
+  if (!options.skipImportingPages) {
+    lensObj = (await createMutator({
+      collection: MultiDocuments,
+      document: {
+        parentDocumentId: parentTagId,
+        collectionName: "Tags",
+        fieldName: "description",
+        title: lensTitle,
+        slug: lensSlug,
+        oldSlugs: oldLensSlugs,
+        //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
+        preview: lensLiveRevision.clickbait,
+        tabTitle: lens.lensName,
+        tabSubtitle: lens.lensSubtitle,
+        userId: lensCreator?._id,
+        index: lens.lensIndex,
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: lensFirstRevisionCkEditorMarkup,
+          }
+        },
+        legacyData: {
+          arbitalPageId: lens.pageId,
+          arbitalLensId: lens.lensId,
+        },
+      } as Partial<DbMultiDocument>,
+      context: resolverContext,
+      currentUser: lensCreator,
+      validate: false,
+    })).data;
+    await Promise.all([
+      backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
+      backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {
+        arbitalPageId: lens.lensId,
+        arbitalEditNumber: lensFirstRevision.edit,
+        arbitalMarkdown: lensFirstRevision.text,
+      }),
+    ]);
+    
+    await importRevisions({
+      collection: MultiDocuments,
+      fieldName: "contents",
+      documentId: lensObj._id,
+      pageId: lens.lensId,
+      revisions: lensRevisions.slice(1),
+      oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
+      conversionContext: conversionContext,
+      resolverContext,
+    });
+    
+    await convertLikesToVotes(conversionContext, pageInfosById[lens.lensId].likeableId, "MultiDocuments", lensObj._id);
+
+  } else {
+    lensObj = await MultiDocuments.findOne({ slug: lensSlug });
+    if (!lensObj) {
+      console.log(`Lens not found: ${lensSlug}`);
+      return
+    }
+  }
+
+  /*const lensAlternatives = alternativesByPageId[lens.lensId];
+  if (lensAlternatives && Object.values(lensAlternatives).some(alternatives => alternatives.length > 0)) {
+    await updateMutator({
+      collection: MultiDocuments,
+      documentId: lensObj._id,
+      set: {
+        legacyData: {
+          ...lensObj.legacyData,
+          arbitalPageId: lens.lensId,
+          arbitalFasterAlternatives: lensAlternatives.faster ?? [],
+          arbitalSlowerAlternatives: lensAlternatives.slower ?? [],
+          arbitalMoreTechnicalAlternatives: lensAlternatives.more_technical ?? [],
+          arbitalLessTechnicalAlternatives: lensAlternatives.less_technical ?? [],
+        },
+      },
+    });
+  }*/
+
+  await createSummariesForPage({
+    pageId: lens.lensId,
+    importedRecordMaps: getImportedRecordMaps(conversionContext),
+    conversionContext,
+    pageCreator: lensCreator,
+    liveRevision: lensLiveRevision,
+    resolverContext,
+    lensMultiDocumentId: lensObj._id,
+  });
+}
+
+Globals.importSingleLens = async (mysqlConnectionString: string, options: ArbitalImportOptions, lensId: string) => {
+  const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
+  const resolverContext = createAdminContext();
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const conversionContext = await buildConversionContext(arbitalDb, [], optionsWithDefaults);
+  
+  const lens = arbitalDb.lenses.find(l => l.lensId === lensId);
+  if (!lens) throw new Error(`Could not find lens: ${lensId}`);
+  const parentTag = await Tags.findOne({"legacyData.arbitalPageId": lens.pageId});
+  if (!parentTag) throw new Error(`Could not find tag for arbital page ${lens.pageId}`);
+  const parentTagId = parentTag._id;
+  const lensCreator = conversionContext.matchedUsers[lens.createdBy] ?? conversionContext.defaultUser;
+  
+  console.log(`Will add lens ${lens.id} (${lens.lensName}) to wiki page ${parentTag.name}, created by ${lensCreator.displayName}`);
+  /*await importSingleLens({
+    conversionContext,
+    lens,
+    parentTagId,
+    resolverContext,
+    lensCreator,
+  });*/
+}
