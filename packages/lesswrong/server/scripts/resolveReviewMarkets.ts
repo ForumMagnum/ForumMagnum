@@ -2,6 +2,7 @@ import { Posts } from "@/lib/collections/posts";
 import { manifoldAPIKeySetting } from "@/lib/instanceSettings";
 import { postGetMarketInfoFromManifold, LiteMarket } from "@/lib/collections/posts/annualReviewMarkets";
 import { Globals } from "@/lib/vulcan-lib";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const manifoldAPIKey = manifoldAPIKeySetting.get()
 
@@ -29,11 +30,11 @@ const resolvePosts = async (year: number, limit?: number) => {
 
   const postsToResolve = await Posts.find({
     manifoldReviewMarketId: {$exists: true},
-    createdAt: {$gte: new Date(`${year}-01-01`), $lte: new Date(`${year}-12-31`)}
+    createdAt: {$gte: new Date(`${year}-01-01`), $lt: new Date(`${year+1}-01-01`)}
   }, resolutionLimitOptions).fetch()
 
   const postsResolvingYes = await Posts.find({
-    createdAt: {$gte: new Date(`${year}-01-01`), $lte: new Date(`${year}-12-31`)},
+    createdAt: {$gte: new Date(`${year}-01-01`), $lt: new Date(`${year+1}-01-01`)},
   }, {
     limit: 50,
     sort: {
@@ -83,7 +84,7 @@ const resolvePosts = async (year: number, limit?: number) => {
 
   for (const post of postsToResolve) {
     await resolveReviewMarket(post)
-    await new Promise(resolve => setTimeout(resolve, 200))
+    await sleep(200)
   }
 }
 
