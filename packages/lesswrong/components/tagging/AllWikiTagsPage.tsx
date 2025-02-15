@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useLocation } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
@@ -200,6 +200,7 @@ const uncategorizedRootTag = {
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,
+  wikiOnly: true,
 };
 
 // TODO: we really need to figure out a better way to handle this than slugs, especially with the merged rationality page
@@ -239,6 +240,7 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
 
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
 
   const { WikiTagGroup, Loading, NewWikiTagButton } = Components;
 
@@ -274,6 +276,7 @@ const AllWikiTagsPage = () => {
   // Function to handle search state changes
   const handleSearchStateChange = (searchState: any) => {
     setCurrentQuery(searchState.query || '');
+    captureEvent('searchQueryUpdated', { query: searchState.query });
   };
 
   const CustomStateResults = connectStateResults(({ searchResults, isSearchStalled }) => {
@@ -287,6 +290,7 @@ const AllWikiTagsPage = () => {
     }
 
     return (
+      <AnalyticsContext searchQuery={currentQuery}>
       <div className={classes.mainContent}>
         {priorityTags.map((tag: ConceptItemFragment) => (
           tag && <WikiTagGroup
@@ -300,9 +304,10 @@ const AllWikiTagsPage = () => {
           coreTag={uncategorizedRootTag}
           searchTagIds={currentQuery ? tagIds : null}
           showArbitalIcons={isArbitalRedirect}
-          noLinkOrHoverOnTitle
-        />
-      </div>
+            noLinkOrHoverOnTitle
+          />
+        </div>
+      </AnalyticsContext>
     );
   });
 
