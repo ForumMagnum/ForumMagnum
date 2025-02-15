@@ -172,7 +172,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
     && (undeletedLensCount < 5)
     && isLWorAF;
 
-  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
+  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || (numFlags && !isLWorAF) || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
     {noEditNotAuthor && <>
       <div>
@@ -186,7 +186,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
     </div>
     <br />
     </>}
-    {!!numFlags && <>
+    {!!numFlags && isLWorAF && <>
       <div>
         This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
         {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i + 1) < tag.tagFlags?.length && ", "}</span>)}
