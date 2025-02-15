@@ -171,7 +171,7 @@ const ConceptItem = ({
           : <TagsTooltip
               tagSlug={wikitag.slug}
               noPrefetch
-              previewPostCount={0}
+              previewPostCount={3}
               placement='right-start'
           >
             <Link to={tagGetUrl({ slug: wikitag.slug })}>
@@ -236,7 +236,7 @@ const ConceptItem = ({
             <ArbitalLogo className={classes.arbitalIcon} strokeWidth={0.7} />
           </LWTooltip>
         )}
-        {wikitag.postCount > 0 && (
+        {(wikitag.postCount > 0 && !wikitag.wikiOnly) && (
           <span className={classes.postCount}>
             <TagsTooltip
               tagSlug={wikitag.slug}
