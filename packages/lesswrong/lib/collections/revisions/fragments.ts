@@ -74,9 +74,31 @@ registerFragment(`
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
+    collectionName
     changeMetrics
+    legacyData
+    skipAttributions
     user {
       ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment RevisionHistorySummaryEdit on Revision {
+    ...RevisionHistoryEntry
+    summary {
+      ...MultiDocumentMinimumInfo
+      parentTag {
+        _id
+        name
+      }
+      parentLens {
+        _id
+        title
+        tabTitle
+        tabSubtitle
+      }
     }
   }
 `);
@@ -85,7 +107,10 @@ registerFragment(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
-      ...TagBasicInfo
+      ...TagHistoryFragment
+    }
+    lens {
+      ...MultiDocumentParentDocument
     }
   }
 `);

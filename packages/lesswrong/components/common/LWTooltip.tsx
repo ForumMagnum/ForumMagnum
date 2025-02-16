@@ -28,6 +28,7 @@ export type LWTooltipProps = {
   inlineBlock?: boolean,
   As?: keyof JSX.IntrinsicElements,
   disabled?: boolean,
+  disabledOnMobile?: boolean,
   hideOnTouchScreens?: boolean,
   className?: string,
   analyticsProps?: AnalyticsProps,
@@ -37,8 +38,8 @@ export type LWTooltipProps = {
   onShow?: () => void,
   onHide?: () => void,
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
   forceOpen?: boolean,
+  classes: ClassesType<typeof styles>,
 }
 
 const LWTooltip = ({
@@ -50,6 +51,7 @@ const LWTooltip = ({
   inlineBlock=true,
   As="span",
   disabled=false,
+  disabledOnMobile=false,
   hideOnTouchScreens=false,
   analyticsProps,
   otherEventProps,
@@ -59,8 +61,8 @@ const LWTooltip = ({
   onHide,
   children,
   className,
-  classes,
   forceOpen,
+  classes,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);
@@ -81,6 +83,7 @@ const LWTooltip = ({
       ...analyticsProps,
       ...otherEventProps,
     },
+    disabledOnMobile,
     onEnter: onShow,
     onLeave: () => {
       onHide?.();

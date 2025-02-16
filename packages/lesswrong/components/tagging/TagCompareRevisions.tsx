@@ -2,23 +2,54 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
-import { styles } from './TagPage';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import { useMulti } from '@/lib/crud/withMulti';
 
-const TagCompareRevisions = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const styles = defineStyles('TagCompareRevisions', (theme) => ({
+  title: {
+    ...theme.typography[isFriendlyUI ? "display2" : "display3"],
+    ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
+    marginTop: 0,
+    fontWeight: isFriendlyUI ? 700 : 600,
+    ...theme.typography.smallCaps,
+  },
+  description: {},
+}));
+
+const TagCompareRevisions = () => {
+  const classes = useStyles(styles);
   const { params, query } = useLocation();
   const { slug } = params;
   const versionBefore = query.before;
   const versionAfter = query.after;
   
-  const { SingleColumnSection, CompareRevisions, RevisionComparisonNotice, Loading } = Components;
+  const { SingleColumnSection, CompareRevisions, RevisionComparisonNotice, LoadingOrErrorPage } = Components;
   
-  const { tag, loading } = useTagBySlug(slug, "TagFragment");
+  const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");
   
-  if (loading || !tag) return <Loading/>
+  // Load the after- revision
+  const { results: revisionResults, loading: loadingRevision, error: revisionError } = useMulti({
+    collectionName: "Revisions",
+    fragmentName: "RevisionHistoryEntry",
+    terms: {
+      view: "revisionByVersionNumber",
+      documentId: tag?._id,
+      version: versionAfter,
+    },
+    skip: !tag || !versionAfter,
+  });
+  
+  if (!tag) {
+    return <LoadingOrErrorPage loading={loadingTag} error={tagError} />
+  }
+  if (!revisionResults) {
+    return <LoadingOrErrorPage loading={loadingRevision} error={revisionError} />
+  }
+
+  const revision = revisionResults[0];
   
   return <SingleColumnSection>
     <Link to={tagGetUrl(tag)}>
@@ -34,12 +65,13 @@ const TagCompareRevisions = ({classes}: {
         documentId={tag._id}
         versionBefore={versionBefore}
         versionAfter={versionAfter}
+        revisionAfter={revision}
       />
     </div>
   </SingleColumnSection>
 }
 
-const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions, {styles});
+const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions);
 
 
 declare global {

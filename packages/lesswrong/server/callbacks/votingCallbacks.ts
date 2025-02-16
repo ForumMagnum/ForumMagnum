@@ -22,6 +22,7 @@ import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '.
 import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
 import { increaseMaxBaseScore } from './postCallbacks';
 import { captureException } from '@sentry/core';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
@@ -32,8 +33,8 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
   
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision);
     }
   }
 }
@@ -47,8 +48,8 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   const { vote, newDocument } = voteDocTuple;
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision);
     }
   }
 
@@ -232,7 +233,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
 
-  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
   const postLink = postGetPageUrl(post, true)
 
   const year = post.postedAt.getFullYear()

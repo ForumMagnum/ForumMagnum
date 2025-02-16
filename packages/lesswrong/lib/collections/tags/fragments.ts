@@ -19,6 +19,17 @@ registerFragment(`
     deleted
     isSubforum
     noindex
+    isArbitalImport
+    isPlaceholderPage
+
+    baseScore
+    extendedScore
+    score
+    afBaseScore
+    afExtendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -64,6 +75,7 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
       version
+      editedAt
     }
     canVoteOnRels
   }
@@ -71,9 +83,13 @@ registerFragment(`
 
 registerFragment(`
   fragment TagHistoryFragment on Tag {
-    ...TagBasicInfo
+    ...TagFragment
+    tableOfContents
     user {
       ...UsersMinimumInfo
+    }
+    lensesIncludingDeleted {
+      ...MultiDocumentContentDisplay
     }
   }
 `);
@@ -106,6 +122,7 @@ registerFragment(`
       html
       htmlHighlight
       plaintextDescription
+      editedAt
       
       user {
         ...UsersMinimumInfo
@@ -129,6 +146,7 @@ registerFragment(`
       htmlHighlight
     }
     canVoteOnRels
+    isArbitalImport
   }
 `);
 
@@ -209,6 +227,63 @@ registerFragment(`
   }
 `);
 
+// This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
+registerFragment(`
+  fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+    faster {
+      _id
+      name
+      slug
+    }
+    slower {
+      _id
+      name
+      slug
+    }
+    moreTechnical {
+      _id
+      name
+      slug
+    }
+    lessTechnical {
+      _id
+      name
+      slug
+    }
+    requirements {
+      _id
+      name
+      slug
+    }
+    teaches {
+      _id
+      name
+      slug
+    }
+    parents {
+      _id
+      name
+      slug
+    }
+    children {
+      _id
+      name
+      slug
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageArbitalContentFragment on Tag {
+    lenses {
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+  }
+`);
+
 registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
@@ -228,12 +303,20 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        currentAttributionCharCount
         numCommits
         voteCount
       }
     }
     canVoteOnRels
   }
+`);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentFragment on Tag {
+    ...TagPageFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`
@@ -262,12 +345,20 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        currentAttributionCharCount
         numCommits
         voteCount
       }
     }
     canVoteOnRels
   }
+`);
+
+registerFragment(`
+  fragment TagPageRevisionWithArbitalContentFragment on Tag {
+    ...TagPageWithRevisionFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`
@@ -279,6 +370,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -348,5 +440,65 @@ registerFragment(`
     _id
     name
     slug
+  }
+`);
+
+registerFragment(`
+  fragment ExplorePageTagFragment on Tag {
+    ...TagFragment
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        currentAttributionCharCount
+        numCommits
+        voteCount
+      }
+    }
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment ConceptItemFragment on Tag {
+    _id
+    core
+    name
+    slug
+    oldSlugs
+    postCount
+    baseScore
+    description {
+      _id
+      wordCount
+    }
+    isArbitalImport
+    coreTagId
+    maxScore
+    usersWhoLiked {
+      _id
+      displayName
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
+    ...TagPageFragment
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+    lenses(lensSlug: $lensSlug, version: $version) {
+      ...MultiDocumentWithContributorsRevision
+    }
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteTag on Tag {
+    ...TagBasicInfo
   }
 `);

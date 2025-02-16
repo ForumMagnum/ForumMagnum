@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation, useNavigate } from '../../lib/routeUtil';

@@ -17,9 +17,9 @@ export async function mongoFindOne<N extends CollectionNameString>(collectionNam
   return await collection.findOne(selector, options, projection) as ObjectsByCollectionName[N]|null;
 }
 
-export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<Array<ObjectsByCollectionName[N]>>
+export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>)
 {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<N> = getCollection(collectionName);
   return await collection.find(selector, options, projection).fetch();
 }
 

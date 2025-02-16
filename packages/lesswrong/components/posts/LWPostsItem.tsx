@@ -593,7 +593,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 <BookmarkButton post={post}/>
               </div>}
               <div className={classes.mobileDismissButton}>
-                <DismissButton {...{showDismissButton, onDismiss}} />
+                {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
               </div>
 
               {resumeReading &&

@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { slugify, getNestedProperty, addGraphQLSchema } from '../../vulcan-lib';
+import { getNestedProperty, addGraphQLSchema } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
@@ -20,7 +20,6 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -38,7 +37,7 @@ import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = (user: DbInsertion<DbUser>): string => {
+export const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
@@ -339,7 +338,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['admins'],
     canCreate: ['members'],
     hidden: true,
-    onInsert: user => {
+    onCreate: ({document: user}) => {
       if (!user.username && user.services?.twitter?.screenName) {
         return user.services.twitter.screenName;
       }
@@ -489,39 +488,6 @@ const schema: SchemaType<"Users"> = {
       disabled: ({document}: AnyBecauseTodo) => isEAForum && !document.hasAuth0Id,
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
-  },
-  // The user's profile URL slug // TODO: change this when displayName changes
-  // Unique user slug for URLs, copied over from Vulcan-Accounts
-  slug: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    order: 40,
-    group: formGroups.adminOptions,
-    
-    onCreate: async ({ document: user }) => {
-      // create a basic slug from display name and then modify it if this slugs already exists;
-      const displayName = createDisplayName(user);
-      const basicSlug = slugify(displayName);
-      return await getUnusedSlugByCollectionName('Users', basicSlug);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const slugLower = data.slug.toLowerCase();
-        const isUsed = !oldDocument.oldSlugs?.includes(slugLower) && await slugIsUsed("Users", slugLower)
-        if (isUsed) {
-          throw Error(`Specified slug is already used: ${slugLower}`)
-        }
-        return slugLower;
-      }
-      if (data.displayName && data.displayName !== oldDocument.displayName) {
-        const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
-          return slugForNewName;
-        }
-      }
-    }
   },
   
   noindex: {
@@ -1775,8 +1741,7 @@ const schema: SchemaType<"Users"> = {
     type: Number,
     denormalized: true,
     optional: true,
-    onInsert: (document, currentUser) => 0,
-
+    onCreate: () => 0,
 
     ...denormalizedCountOfReferences({
       fieldName: "frontpagePostCount",
@@ -2382,30 +2347,6 @@ const schema: SchemaType<"Users"> = {
     tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
     group: formGroups.adminOptions,
   },
-  oldSlugs: {
-    type: Array,
-    optional: true,
-    canRead: ['guests'],
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug)  {
-        // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
-        return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== data.slug) || []), oldDocument.slug])]
-      }
-      // The next three lines are copy-pasted from slug.onUpdate
-      if (data.displayName && data.displayName !== oldDocument.displayName) {
-        const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
-          // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
-          return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
-        }
-      }
-    }
-  },
-  'oldSlugs.$': {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-  },
   noExpandUnreadCommentsReview: {
     type: Boolean,
     optional: true,
@@ -2589,7 +2530,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ["guests"],
     canUpdate: [userOwns, "admins"],
     hidden: true,
-    onInsert: (user) => user.createdAt,
+    onCreate: ({document: user}) => user.createdAt,
     ...schemaDefaultValue(new Date(0)),
   },
 

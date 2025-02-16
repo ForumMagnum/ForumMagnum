@@ -1,6 +1,8 @@
 /** PropTypes for documentation purpose (not tested yet) */
 import { WatchQueryFetchPolicy } from '@apollo/client';
 import PropTypes from 'prop-types';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { History } from 'history'
 
 export const fieldProps = {
   //
@@ -122,6 +124,8 @@ export interface SmartFormProps<T extends CollectionNameString> extends WrappedS
   updateMutation?: any
   removeMutation?: any
   currentUser: UsersCurrent|null
+  location?: RouterLocation
+  history?: History
 }
 
 declare global {

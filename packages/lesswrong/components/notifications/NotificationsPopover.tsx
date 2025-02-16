@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   karmaSubsectionTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 600,
     color: theme.palette.grey[600],
     marginBottom: 6,
@@ -163,8 +163,8 @@ const NotificationsPopover = ({
       cachedKarmaChanges.tagRevisions?.length
     ), [cachedKarmaChanges]
   )
-  // For realtime karma notifications, show a section under the new karma notifications
-  // called "Today", which includes all karma notifications from the past 24 hours
+  // Show a section under the new karma notifications called "Today",
+  // which includes all karma notifications from the past 24 hours
   const todaysKarmaChanges = cachedKarmaChanges?.todaysKarmaChanges
   const hasKarmaChangesToday = useMemo(() => todaysKarmaChanges &&
     (
@@ -172,6 +172,16 @@ const NotificationsPopover = ({
       todaysKarmaChanges.comments?.length ||
       todaysKarmaChanges.tagRevisions?.length
     ), [todaysKarmaChanges]
+  )
+  // Show a section under the new karma notifications called "This week",
+  // which includes all karma notifications from the past week
+  const thisWeeksKarmaChanges = cachedKarmaChanges?.thisWeeksKarmaChanges
+  const hasKarmaChangesThisWeek = useMemo(() => thisWeeksKarmaChanges &&
+    (
+      thisWeeksKarmaChanges.posts?.length ||
+      thisWeeksKarmaChanges.comments?.length ||
+      thisWeeksKarmaChanges.tagRevisions?.length
+    ), [thisWeeksKarmaChanges]
   )
 
   if (!currentUser) {
@@ -183,7 +193,7 @@ const NotificationsPopover = ({
     subscribedToDigest,
   } = currentUser;
 
-  const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday);
+  const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday || hasKarmaChangesThisWeek);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
@@ -234,7 +244,7 @@ const NotificationsPopover = ({
                     karmaChanges={cachedKarmaChanges}
                   />
                 }
-                {!hasNewKarmaChanges && !hasKarmaChangesToday &&
+                {!hasNewKarmaChanges && !hasKarmaChangesToday && !hasKarmaChangesThisWeek &&
                   <div className={classes.noKarma}>
                     No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
                     <NotifPopoverLink
@@ -251,6 +261,15 @@ const NotificationsPopover = ({
                     <NotificationsPageKarmaChangeList
                       karmaChanges={todaysKarmaChanges}
                       truncateAt={3}
+                    />
+                  </div>
+                }
+                {!!hasKarmaChangesThisWeek &&
+                  <div>
+                    <div className={classes.karmaSubsectionTitle}>This week</div>
+                    <NotificationsPageKarmaChangeList
+                      karmaChanges={thisWeeksKarmaChanges}
+                      truncateAt={2}
                     />
                   </div>
                 }

@@ -26,10 +26,11 @@ import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/edit
 // callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
+  skipDenormalizedAttributions?: boolean
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
-export function getInitialVersion(document: DbPost|DbObject) {
+export function getInitialVersion(document: DbInsertion<DbPost|DbObject>) {
   if ((document as DbPost).draft) {
     return '0.1.0'
   } else {
@@ -49,7 +50,7 @@ ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
-  dataWithDiscardedSuggestions?: string
+  dataWithDiscardedSuggestions?: string,
 }) {
 
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
@@ -108,7 +109,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc: DbType, {currentUser, context}) {
+    async function editorSerializationBeforeCreate (doc: DbInsertion<DbType>, {currentUser, context}) {
     const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
     if (editableField?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -154,6 +155,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         updateType: 'initial',
         commitMessage,
         googleDocMetadata,
+        skipAttributions: false,
         changeMetrics,
         createdAt: editedAt,
       };
@@ -198,7 +200,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const oldRevision = oldRevisionId
         ? await fetchFragmentSingle({
           collectionName: "Revisions",
-          fragmentName: "RevisionEdit",
+          fragmentName: "RevisionMetadata",
           selector: {_id: oldRevisionId},
           currentUser: null,
           skipFiltering: true,
@@ -236,6 +238,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         commitMessage,
         changeMetrics,
         createdAt: editedAt,
+        skipAttributions: false,
       };
       
       const newRevisionDoc = await createMutator({

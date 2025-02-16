@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, MouseEvent, PropsWithChildren } from "react";
+import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -66,7 +66,7 @@ export type DropdownItemAction = {
 }
 
 export type DropdownItemProps = DropdownItemAction & {
-  title: string,
+  title: ReactNode,
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,

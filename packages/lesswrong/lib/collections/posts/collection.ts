@@ -8,6 +8,7 @@ import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { hasAuthorModeration } from '../../betas';
+import { addSlugFields } from '@/lib/utils/schemaUtils';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -62,6 +63,15 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 addUniversalFields({
   collection: Posts,
   createdAtOptions: {canRead: ['admins']},
+});
+addSlugFields({
+  collection: Posts,
+  getTitle: (post) => post.title,
+  includesOldSlugs: false,
+  slugOptions: {
+  },
+  oldSlugsOptions: {
+  },
 });
 
 makeEditable({

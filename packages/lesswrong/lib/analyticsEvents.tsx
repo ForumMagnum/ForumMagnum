@@ -133,6 +133,7 @@ export type AnalyticsProps = {
   tagId?: string,
   tagName?: string,
   tagSlug?: string,
+  tagGroupName?: string,
   userIdDisplayed?: string,
   hoverPreviewType?: string,
   sortedBy?: string,

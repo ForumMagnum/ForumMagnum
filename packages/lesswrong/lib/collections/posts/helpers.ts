@@ -328,9 +328,9 @@ export const isNotHostedHere = (post: PostsPage|DbPost) => {
 }
 
 const mostRelevantTag = (
-  tags: TagPreviewFragment[],
+  tags: TagBasicInfo[],
   tagRelevance: Record<string, number>,
-): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+): TagBasicInfo | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
 
 export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
   const {tags, tagRelevance} = post;

@@ -10,7 +10,7 @@ const EARecentDiscussionTagRevision = ({
   documentId,
 }: {
   tag: TagRecentDiscussion,
-  revision: RevisionMetadataWithChangeMetrics,
+  revision: RevisionHistoryEntry,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
   documentId: string,

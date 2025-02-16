@@ -103,7 +103,7 @@ async function enforcePostRateLimit (user: DbUser) {
 
 async function enforceCommentRateLimit({user, comment, context}: {
   user: DbUser,
-  comment: DbComment,
+  comment: DbInsertion<DbComment>,
   context: ResolverContext,
 }) {
   const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId, context);

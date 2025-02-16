@@ -16,6 +16,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';
+import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {
@@ -252,7 +253,7 @@ const TagSubforumPage2 = ({classes}: {
     <div className={classNames(classes.header, classes.centralColumn)}>
       {query.flagId && (
         <span>
-          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+          <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
             <TagFlagItem
               itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
               documentId={query.flagId}

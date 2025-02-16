@@ -60,7 +60,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 
   let newDocument = {
     ...document,
-    ...(await recalculateDocumentScores(document, context)),
+    ...(await recalculateDocumentScores(document, collection.collectionName, context)),
   }
   
   // update document score & set item as active
@@ -190,7 +190,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 
     await onVoteCancel(newDocument, vote, collection, user);
   }
-  const newScores = await recalculateDocumentScores(document, context);
+  const newScores = await recalculateDocumentScores(document, collection.collectionName, context);
   await collection.rawUpdateOne(
     {_id: document._id},
     {
@@ -222,7 +222,18 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   context?: ResolverContext,
   selfVote?: boolean,
 }): Promise<{
+  /** The document with baseScore, extendedScore, etc updated */
   modifiedDocument: DbVoteableType,
+  /**
+   * The created uncancelled vote. Note that this may be null, if the vote being
+   * cast matches the user's existing vote.
+   *
+   * This also may be only one of two vote objects created in the votes
+   * collection, since if this replaces an earlier different vote, an "unvote"
+   * will be created (which is not returned).
+   */
+  vote: DbVote|null,
+  /** Whether to show the user a warning about voting too fast/etc. */
   showVotingPatternWarning: boolean,
 }> => {
   if (!context)
@@ -256,8 +267,10 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     }
   }
 
-  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
-    throw new Error("Revisions are only voteable if they're revisions of tags");
+  if (collectionName==="Revisions") {
+    if ((document as DbRevision).collectionName!=='Tags' && (document as DbRevision).collectionName!=='MultiDocuments')
+      throw new Error("Revisions are only voteable if they're revisions of wiki pages, tags, lenses, or summaries");
+  }
   
   const existingVote = await getExistingVote({document, user});
   let showVotingPatternWarning = false;
@@ -266,6 +279,14 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     if (toggleIfAlreadyVoted) {
       document = await clearVotesServer({document, user, collection, context})
     }
+    return {
+      vote: null,
+      modifiedDocument: {
+        __typename: collection.options.typeName,
+        ...document,
+      } as any,
+      showVotingPatternWarning,
+    };
   } else {
     if (!skipRateLimits) {
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user });
@@ -284,10 +305,10 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       }
     }
     
-    const votingSystem = await getVotingSystemForDocument(document, context);
+    const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
     if (extendedVote && votingSystem.isAllowedExtendedVote) {
       const oldExtendedScore = document.extendedScore;
-      const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote(user, document, oldExtendedScore, extendedVote)
+      const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote({user, document, oldExtendedScore, extendedVote, skipRateLimits})
       if (!extendedVoteCheckResult.allowed) {
         throw new Error(extendedVoteCheckResult.reason);
       }
@@ -305,13 +326,20 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     voteDocTuple.newDocument = document
     
     void onCastVoteAsync(voteDocTuple, collection, user, context);
-  }
 
-  (document as any).__typename = collection.options.typeName;
-  return {
-    modifiedDocument: document,
-    showVotingPatternWarning,
-  };
+    return {
+      vote: voteDocTuple.vote,
+      modifiedDocument: {
+        // JB: Add __typename to the returned document. Not sure why this is
+        // necessary, but I believe it's something to do with graphql union types.
+        // This has been here (in some form) since long before we
+        // typescript-ified.
+        __typename: collection.options.typeName,
+        ...document,
+      } as any,
+      showVotingPatternWarning,
+    };
+  }
 }
 
 async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorActionType: DbModeratorAction["type"]): Promise<boolean> {
@@ -565,7 +593,7 @@ function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean)
   }
 }
 
-export const recalculateDocumentScores = async (document: VoteableType, context: ResolverContext) => {
+export const recalculateDocumentScores = async (document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext) => {
   const votes = await Votes.find(
     {
       documentId: document._id,
@@ -586,7 +614,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 
-  const votingSystem = await getVotingSystemForDocument(document, context);
+  const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
