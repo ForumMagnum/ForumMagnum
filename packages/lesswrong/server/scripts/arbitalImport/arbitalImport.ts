@@ -85,7 +85,7 @@ const excludedArbitalPageIds = [
   '9l',
 ];
 
-async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
+export async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
   let connection: mysql.Connection | null = null;
 
   try {
@@ -1142,6 +1142,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
     await Comments.rawUpdateOne({_id: lwComment._id}, {
       $set: {
         createdAt: comment.createdAt,
+        lastEditedAt: livePublicRev.createdAt,
         postedAt: comment.createdAt,
       }
     });
@@ -1350,6 +1351,7 @@ async function convertLikesToVotes(conversionContext: ArbitalConversionContext, 
       await Votes.rawUpdateOne(
         { _id: vote._id },
         {$set:{
+          votedAt: like.updatedAt,
           createdAt: like.updatedAt,
           legacyData: {
             arbitalUpdatedAt: like.updatedAt,

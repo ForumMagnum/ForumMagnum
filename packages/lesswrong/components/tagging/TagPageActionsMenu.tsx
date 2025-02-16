@@ -66,7 +66,7 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
   tagOrLens: TagLens
   createLens: (() => void)|null,
 }) => {
-  const { DropdownMenu, MenuItem, ForumIcon, LWTooltip } = Components;
+  const { DropdownMenu, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const apolloClient = useApolloClient();
@@ -93,10 +93,11 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
     }
   }
 
-  return <DropdownMenu>
-    {!!createLens && <MenuItem onClick={createLens}>
-      New Lens
-    </MenuItem>}
+  return <AnalyticsTracker eventType="tagPageTripleDotClicked" captureOnClick>
+    <DropdownMenu>
+      {!!createLens && <MenuItem onClick={createLens}>
+        New Lens
+      </MenuItem>}
     {userIsAdminOrMod(currentUser) && isLensPage && <MenuItem onClick={promoteLens}>
       Make {tagOrLens.tabTitle ?? "This Lens"} Main
       {" "}
@@ -106,9 +107,10 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
         <p>You must be a moderator or admin to do this.</p>
       </>}>
         <ForumIcon className={classes.infoCircle} icon="InfoCircle"/>
-      </LWTooltip>
-    </MenuItem>}
-  </DropdownMenu>
+        </LWTooltip>
+      </MenuItem>}
+    </DropdownMenu>
+  </AnalyticsTracker>
 }
 
 const TagPageActionsMenuButtonComponent = registerComponent('TagPageActionsMenuButton', TagPageActionsMenuButton);

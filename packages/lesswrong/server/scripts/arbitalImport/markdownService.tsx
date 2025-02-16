@@ -216,7 +216,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const url = `/w/${linkSlug}`;
         const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
-          slug: slugify(linkText),
+          slug: linkSlug,
           title: convertedTitle,
           referencedFromPage: pageId,
         });

@@ -14,6 +14,7 @@ import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
@@ -124,9 +125,12 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton, TagPageActionsMenuButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
+  const { captureEvent } = useTracking();
+
   const numFlags = tag.tagFlagsIds?.length
 
   function handleNewLensClick() {
+    captureEvent('tagPageButtonRowNewLensClick');
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -147,6 +151,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   }
 
   function handleEditClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    captureEvent('tagPageButtonRowEditClick');
     if (currentUser) {
       setEditing(true)
     } else {
@@ -163,7 +168,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
   const canCreateLens = !editing
     && canEdit
-    && (!refetchTag || !updateSelectedLens)
+    && (!!refetchTag && !!updateSelectedLens)
     && (undeletedLensCount < 5)
     && isLWorAF;
 
@@ -194,60 +199,62 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
     />
   </>;
 
-  return <div className={classNames(classes.buttonsRow, className)}>
-    {!editing && <LWTooltip
-      className={classes.buttonTooltip}
-      title={editTooltip}
-    >
-      {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
-        <EditOutlinedIcon />
-        <span className={classes.buttonLabel}>
-          {!hideLabels && "Edit"}
+  return <AnalyticsContext pageSectionContext="tagPageButtonRow">
+    <div className={classNames(classes.buttonsRow, className)}>
+      {!editing && <LWTooltip
+        className={classes.buttonTooltip}
+        title={editTooltip}
+      >
+        {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
+          <EditOutlinedIcon />
+          <span className={classes.buttonLabel}>
+            {!hideLabels && "Edit"}
+          </span>
+        </a>) : (<a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/>
+          <span className={classes.buttonLabel}>
+            {!hideLabels && "Edit"}
+          </span>
+        </a>)}
+      </LWTooltip>}
+      {<Link
+        className={classes.button}
+        to={tagGetHistoryUrl(tag)}
+      >
+        <HistoryIcon /><span className={classes.buttonLabel}>
+          {!hideLabels && "History"}
         </span>
-      </a>) : (<a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/>
-        <span className={classes.buttonLabel}>
-          {!hideLabels && "Edit"}
-        </span>
-      </a>)}
-    </LWTooltip>}
-    {<Link
-      className={classes.button}
-      to={tagGetHistoryUrl(tag)}
-    >
-      <HistoryIcon /><span className={classes.buttonLabel}>
-        {!hideLabels && "History"}
-      </span>
-    </Link>}
-    {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-      <NotifyMeButton
-        document={tag}
-        className={classes.subscribeTo}
-        showIcon
-        hideLabel={hideLabels}
-        hideLabelOnMobile
-        subscribeMessage="Subscribe"
-        unsubscribeMessage="Unsubscribe"
-        subscriptionType={subscriptionTypes.newTagPosts}
-      />
-    </LWTooltip>}
-    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile /></div>}
-    {selectedLens && <div className={classes.likeButtonWrapper}>
-      <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
-    </div>}
-    {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
-      className={classes.helpImprove}
-      title={editTooltip}
-    >
-      <a onClick={handleEditClick}>
-        Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
-      </a>
-    </LWTooltip>}
-    
-    {isLWorAF && <Components.TagPageActionsMenuButton
-      tagOrLens={selectedLens}
-      createLens={canCreateLens ? handleNewLensClick : null}
-    />}
-  </div>
+      </Link>}
+      {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+        <NotifyMeButton
+          document={tag}
+          className={classes.subscribeTo}
+          showIcon
+          hideLabel={hideLabels}
+          hideLabelOnMobile
+          subscribeMessage="Subscribe"
+          unsubscribeMessage="Unsubscribe"
+          subscriptionType={subscriptionTypes.newTagPosts}
+        />
+      </LWTooltip>}
+      {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile /></div>}
+      {selectedLens && <div className={classes.likeButtonWrapper}>
+        <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
+      </div>}
+      {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
+        className={classes.helpImprove}
+        title={editTooltip}
+      >
+        <a onClick={handleEditClick}>
+          Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
+        </a>
+      </LWTooltip>}
+      
+      {isLWorAF && <TagPageActionsMenuButton
+        tagOrLens={selectedLens}
+        createLens={canCreateLens ? handleNewLensClick : null}
+      />}
+    </div>
+  </AnalyticsContext>
 }
 
 const TagPageButtonRowComponent = registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
