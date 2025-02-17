@@ -39,6 +39,7 @@ import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import { namedPromiseAll } from '@/lib/utils/asyncUtils';
+import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -839,7 +840,17 @@ defineMutation({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
-      })
+      }),
+      updateDenormalizedContributorsList({
+        document: tag,
+        collectionName: "Tags",
+        fieldName: "description",
+      }),
+      updateDenormalizedContributorsList({
+        document: lensMultiDocument,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      }),
     ]);
     
     // eslint-disable-next-line no-console
