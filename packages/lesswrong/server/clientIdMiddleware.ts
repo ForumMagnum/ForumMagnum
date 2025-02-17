@@ -19,8 +19,9 @@ const setHasSeen = ({ clientId, userId }: { clientId: string; userId?: string })
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
 
-// Chrome now has a max expiration time of 400 days for cookies.
-const CLIENT_ID_COOKIE_EXPIRATION_SECONDS = 365 * 24 * 60 * 60;
+// Set a 10-year expiry. Chrome won't respect this (it has a max of 400 days
+// for cookies) so this is equivalent to asking for the max allowable.
+const CLIENT_ID_COOKIE_EXPIRATION_SECONDS = 10 * 365 * 24 * 60 * 60;
 
 /**
  * - Assign a client id if there isn't one currently assigned
