@@ -4,10 +4,10 @@ import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/sche
 import Users from "@/lib/collections/users/collection";
 
 /**
- * For A/B testing: When running locally this will be set to a control group of 50
+ * For A/B testing: When running locally this will be set to a control group of ~40
  * moderately active users.
  *
- * TODO generate list
+ * See here for the list used: https://docs.google.com/spreadsheets/d/1UoObC8RIAraffj_tyIC9FKVSQqh3hXeA4YtO0UBvOJM/edit?gid=0#gid=0
  */
 const USERS_MANUALLY_EXCLUDED: string[] = [];
 
