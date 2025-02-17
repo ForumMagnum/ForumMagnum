@@ -7,7 +7,6 @@ import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { DeferredForumSelect } from '../forumTypeUtils';
 import { addSlugCallbacks, getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
 import { slugify } from './slugify';
 
@@ -414,20 +413,14 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 }
 export function schemaDefaultValue<N extends CollectionNameString>(
   defaultValue: any,
+  initTiming: "build-time" | "deferred" = "build-time"
 ): Partial<CollectionFieldSpecification<N>> {
-  const isForumSpecific = defaultValue instanceof DeferredForumSelect;
-
   // Used for both onCreate and onUpdate
   const fillIfMissing = ({ newDocument, fieldName }: {
     newDocument: ObjectsByCollectionName[N];
     fieldName: string;
-  }) => {
-    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
-      return isForumSpecific ? defaultValue.get() : defaultValue;
-    } else {
-      return undefined;
-    }
-  };
+  }) => newDocument[fieldName as keyof ObjectsByCollectionName[N]] ?? defaultValue;
+
   const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
     oldDocument: ObjectsByCollectionName[N];
     document: ObjectsByCollectionName[N];
@@ -442,7 +435,7 @@ export function schemaDefaultValue<N extends CollectionNameString>(
   };
 
   return {
-    defaultValue: isForumSpecific ? defaultValue.getDefault() : defaultValue,
+    defaultValue: initTiming === "build-time" ? defaultValue : undefined,
     onCreate: fillIfMissing,
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,
