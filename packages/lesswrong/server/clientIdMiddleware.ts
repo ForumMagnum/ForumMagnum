@@ -19,13 +19,17 @@ const setHasSeen = ({ clientId, userId }: { clientId: string; userId?: string })
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
 
+// Set a 10-year expiry. Chrome won't respect this (it has a max of 400 days
+// for cookies) so this is equivalent to asking for the max allowable.
+const CLIENT_ID_COOKIE_EXPIRATION_SECONDS = 10 * 365 * 24 * 60 * 60;
+
 /**
  * - Assign a client id if there isn't one currently assigned
  * - Ensure the client id is stored in our DB (it may have been generated externally)
  * - Ensure the clientId and userId are associated
  */
 export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
-  addMiddleware(function addClientId(req: express.Request, res: express.Response, next: express.NextFunction) {
+  addMiddleware(async function addClientId(req: express.Request, res: express.Response, next: express.NextFunction) {
 
     const existingClientId = getCookieFromReq(req, "clientId")
     const referrer = req.headers?.["referer"] ?? null;
@@ -41,22 +45,58 @@ export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
         req, res,
         cookieName: "clientId",
         cookieValue: newClientId,
-        maxAge: 315360000
+        maxAge: CLIENT_ID_COOKIE_EXPIRATION_SECONDS
       });
     }
 
     // 2. If there is a client id, ensure (asynchronously) that it is stored in the DB
     const clientId = existingClientId ?? newClientId;
     const userId = getUserFromReq(req)?._id;
-    if (clientId && isApplicableUrl(req.url) && !isNotRandomId(clientId) && !hasSeen({clientId, userId})) {
+    if (clientId && isApplicableUrl(req.url) && !isNotRandomId(clientId) && !hasSeen({ clientId, userId })) {
       try {
-        void clientIdsRepo.ensureClientId({
-          clientId,
-          userId,
-          referrer,
-          landingPage: url,
+        // This is a wrapped promise because we don't want to hold up the rest of the request with the round trip
+        // However, if we get a request with a clientId that we've invalidated (i.e. because we had an oopsie and wrote too many userIds to it),
+        // we want to return a new clientId to the requester.
+        // We do this in a blocking way when the request is for /analyticsEvent, since clients don't care about response times on that route.
+        const ensureClientIdPromise = (async () => {
+          const { invalidated } = await clientIdsRepo.ensureClientId({
+            clientId,
+            userId,
+            referrer,
+            landingPage: url,
+          });
+
+          if (invalidated) {
+            const refreshedClientId = randomId();
+
+            await clientIdsRepo.ensureClientId({
+              clientId: refreshedClientId,
+              userId,
+              referrer,
+              landingPage: url,
+            });
+
+            // Cookies are returned with the headers
+            if (!res.headersSent) {
+              setCookieOnResponse({
+                req, res,
+                cookieName: "clientId",
+                cookieValue: refreshedClientId,
+                maxAge: CLIENT_ID_COOKIE_EXPIRATION_SECONDS
+              });
+            }
+
+            setHasSeen({ clientId: refreshedClientId, userId });
+          } else {
+            setHasSeen({ clientId, userId });
+          }
         });
-        setHasSeen({clientId, userId})
+
+        if (url === '/analyticsEvent') {
+          await ensureClientIdPromise();
+        } else {
+          void ensureClientIdPromise();
+        }
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(e);
