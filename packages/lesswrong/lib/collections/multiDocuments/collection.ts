@@ -72,7 +72,7 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
     return true;
   }
 
-  const rootDocumentInfo = await getRootDocument(multiDocument);
+  const rootDocumentInfo = await getRootDocument(multiDocument, context);
   if (!rootDocumentInfo) {
     return false;
   }
