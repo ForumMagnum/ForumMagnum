@@ -155,8 +155,7 @@ export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: Vote
   void updatePostDenormalizedTags(postId);
 }
 
-export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
-  if (vote.collectionName !== "Revisions") return;
+export async function recomputeContributorScoresFor(votedRevision: DbRevision) {
   if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
 
   if (votedRevision.collectionName === "Tags") {

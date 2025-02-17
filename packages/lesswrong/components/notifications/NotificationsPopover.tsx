@@ -11,6 +11,7 @@ import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema"
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
+import classNames from "classnames";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -55,10 +56,15 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 12,
   },
-  noKarma: {
+  karmaNotificationMessage: {
     fontSize: 13,
     fontWeight: 500,
     color: theme.palette.grey[600],
+  },
+  noKarma: {
+    marginTop: 3,
+    marginBottom: 12,
+    fontStyle: "italic"
   },
   karmaSubsectionTitle: {
     fontSize: 13,
@@ -88,6 +94,15 @@ const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
     case "daily":  return " since yesterday";
     case "weekly": return " since last week";
     default:       return "";
+  }
+}
+
+const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
+  switch (batchingFrequency) {
+    case "realtime":  return "appear in real time";
+    case "daily":  return "are batched daily";
+    case "weekly": return "are batched weekly";
+    case "disabled": return "are disabled";
   }
 }
 
@@ -245,14 +260,8 @@ const NotificationsPopover = ({
                   />
                 }
                 {!hasNewKarmaChanges && !hasKarmaChangesToday && !hasKarmaChangesThisWeek &&
-                  <div className={classes.noKarma}>
-                    No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-                    <NotifPopoverLink
-                      to={karmaSettingsLink}
-                      className={classes.link}
-                    >
-                      Change settings
-                    </NotifPopoverLink>
+                  <div className={classNames(classes.karmaNotificationMessage, classes.noKarma)}>
+                    <em>No new karma or reacts</em>
                   </div>
                 }
                 {!!hasKarmaChangesToday &&
@@ -273,6 +282,15 @@ const NotificationsPopover = ({
                     />
                   </div>
                 }
+                <div className={classes.karmaNotificationMessage}>
+                  Notifications {getSettingsNudge(updateFrequency)}.{" "}
+                  <NotifPopoverLink
+                    to={karmaSettingsLink}
+                    className={classes.link}
+                  >
+                    Change settings
+                  </NotifPopoverLink>
+                </div>
                 <SectionTitle
                   title="Posts & comments"
                   titleClassName={classes.sectionTitle}

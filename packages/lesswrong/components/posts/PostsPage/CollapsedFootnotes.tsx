@@ -12,6 +12,8 @@ export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
 export const locationHashIsFootnote = (hash: string) =>
   hash.startsWith("#fn") && !hash.startsWith("#fnref");
+export const locationHashIsFootnoteBackreference = (hash: string) =>
+  hash.startsWith("#fnref");
 
 const styles = (theme: ThemeType) => ({
   collapse: {

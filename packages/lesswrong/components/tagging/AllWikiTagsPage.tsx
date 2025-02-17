@@ -1,12 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import { useDialog } from '../common/withDialog';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
@@ -145,8 +140,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     borderRadius: 12,
     backgroundColor: theme.palette.arbital.arbitalGreen,
     marginBottom: 24,
-    // fontFamily: theme.palette.fonts.sansSerifStack,
-    // make <a> children have the following styles
     ...theme.typography.commentStyle,
     color: theme.palette.text.alwaysWhite,
     "& a": {
@@ -163,7 +156,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
   arbitalLogo: {
     width: 100,
-    // don't hide overflow
     overflow: 'visible',
     padding: 8
   },
@@ -222,25 +214,21 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   const classes = useStyles(styles);
   const { Loading } = Components
 
-  // TODO: put in database setting?
-  const documentId = "nDavoyZ2EobkpZNAs"
 
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    skip: !documentId
-  });
+  const redirectHtml = <div>
+    <h2>You have been redirected from Arbital.com</h2>
+    <p>Following the end of the <a href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</a>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
+    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <a href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</a>, <a href="#">Logarithm Guide</a>, and many <a href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</a> by Eliezer.</p>
+    <p>Arbital content is indicated with the Arbital theme color and logo.</p>
+  </div>
 
-  const { html = "" } = document?.contents || {}
+
 
   return (
     <div className={classes.arbitalRedirectNotice}>
       <ArbitalLogo className={classes.arbitalLogo} />
       <div className={classes.arbitalRedirectNoticeContent}>
-        {loading && <Loading />}
-        {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
-        {!html && !loading && <div><em>You have been redirected from Arbital.com</em></div>}
+        {redirectHtml}
       </div>
       <div className={classes.dismissButtonContainer}>
         <button className={classes.dismissButton} onClick={onDismiss}>×</button>
@@ -252,13 +240,10 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
 
-  const { WikiTagGroup, Loading, SectionButton, LWTooltip } = Components;
+  const { WikiTagGroup, Loading, NewWikiTagButton } = Components;
 
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
-
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
 
   const { results: priorityTagsRaw } = useMulti({
     collectionName: "Tags",
@@ -315,6 +300,7 @@ const AllWikiTagsPage = () => {
           coreTag={uncategorizedRootTag}
           searchTagIds={currentQuery ? tagIds : null}
           showArbitalIcons={isArbitalRedirect}
+          noLinkOrHoverOnTitle
         />
       </div>
     );
@@ -324,30 +310,7 @@ const AllWikiTagsPage = () => {
     <AnalyticsContext pageContext="allWikiTagsPage">
       <div>
         <div className={classes.addTagSection}>
-          <SectionButton>
-            {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <LWTooltip title="A WikiTag is a combination of a wiki page and a tag. It has either a wiki entry, a list of posts with that tag, or both!">
-              <Link
-                to={tagCreateUrl}
-                className={classes.addTagButton}
-              >
-                <AddBoxIcon/>
-                <span>New WikiTag</span>
-              </Link>
-            </LWTooltip>}
-            {!currentUser && <a 
-              onClick={(ev) => {
-                openDialog({
-                  componentName: "LoginPopup",
-                  componentProps: {}
-                });
-                ev.preventDefault();
-              }}
-              className={classes.addTagButton}
-            >
-              <AddBoxIcon/>
-              <span>New Wiki Page</span>
-            </a>}
-          </SectionButton>
+          <NewWikiTagButton />
         </div>
         <div className={classes.root}>
           <div className={classes.topSection}>

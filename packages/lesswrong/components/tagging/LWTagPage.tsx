@@ -484,12 +484,11 @@ function getTagQueryOptions(
 
 const LWTagPage = () => {
   const {
-    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    PathInfo, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
+    PostsList2, Loading, AddPostsToTag, Typography, ContentStyles,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, CommentsListCondensed,
+    TagPageButtonRow, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    MultiToCLayout, TableOfContents, FormatDate, LWTagPageRightColumn,
+    ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
   } = Components;
   const classes = useStyles(styles);
 
@@ -575,7 +574,8 @@ const LWTagPage = () => {
     // because we already do it inside of Form.tsx because of the route change
     setEditing(false, false);
     updateSelectedLens(lensId);
-  }, [setEditing, updateSelectedLens]);
+    captureEvent('tagPageLensSwitched', { lensId });
+  }, [setEditing, updateSelectedLens, captureEvent]);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -621,12 +621,11 @@ const LWTagPage = () => {
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 
-  if (loadingTag && !tag)
+  if (loadingTag && !tag) {
     return <Loading/>
-  if (tagError) {
-    return <Loading/> //TODO
-  }
-  if (!tag) {
+  } else if (tagError) {
+    return <Components.ErrorPage error={tagError}/>
+  } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
     }
@@ -765,10 +764,11 @@ const LWTagPage = () => {
 
   const tagPostsAndCommentsSection = (
     <div className={classes.centralColumn}>
-      {editing && <TagDiscussionSection
+      {/* disabling this for now as it clutters the page and isn't getting much use, but leaving here for future consideration of somehow restoring it */}
+      {/* {editing && <TagDiscussionSection
         key={tag._id}
         tag={tag}
-      />}
+      />} */}
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
@@ -844,7 +844,6 @@ const LWTagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {selectedLens?.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        {/* intentionally don't pass in refetchTag or updateSelectedLens here to avoid showing newLens button mobile for clutter reasons */}
         <TagPageButtonRow
           tag={tag}
           selectedLens={selectedLens}
@@ -852,6 +851,8 @@ const LWTagPage = () => {
           setEditing={setEditing}
           hideLabels={true}
           className={classNames(classes.editMenu, classes.mobileButtonRow)}
+          refetchTag={refetchTag}
+          updateSelectedLens={updateSelectedLens}
         />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
@@ -870,7 +871,7 @@ const LWTagPage = () => {
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
         </div>}
       </div>}
-      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tag={tag} selectedLens={selectedLens} />
     </div>
   );
 

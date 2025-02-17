@@ -4,7 +4,7 @@ import React from 'react'
 import {createRoot} from 'react-dom/client'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
-import {taggingNamePluralSetting} from '@/lib/instanceSettings'
+import {tagUrlBaseSetting} from '@/lib/instanceSettings'
 import { filterNonnull } from '../utils/typeGuardUtils'
 
 const MARKER = "@";
@@ -36,7 +36,7 @@ const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
       return {
         type: "Tags",
         id: MARKER + hit.name,
-        link: `${linkPrefix}${taggingNamePluralSetting.get()}/${hit.slug}`,
+        link: `${linkPrefix}${tagUrlBaseSetting.get()}/${hit.slug}`,
         text: hit.name,
         hit,
       };
