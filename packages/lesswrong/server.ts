@@ -86,6 +86,7 @@ import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
 import "./server/scripts/convertTagsToCkEditor";
 import "./server/scripts/arbitalImport/arbitalImport";
+import "./server/scripts/arbitalImport/postImportFixups";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 

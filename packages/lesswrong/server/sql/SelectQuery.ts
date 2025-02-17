@@ -1,6 +1,6 @@
 import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
-import { IdType, UnknownType } from "./Type";
+import { DefaultValueType, IdType, NotNullType, Type, UnknownType } from "./Type";
 import { getCollectionByTableName } from "@/lib/vulcan-lib/getCollection";
 import { inspect } from "util";
 import { getCollationType } from "./collation";
@@ -343,9 +343,14 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("ORDER BY");
       const sorts: string[] = [];
       for (const field in sort) {
-        const pgSorting = sort[field] === 1
-            ? "ASC NULLS FIRST"
-            : "DESC NULLS LAST"
+        const fieldType = this.table.getField(field)
+        const fieldIsNonnull =
+          (fieldType instanceof NotNullType)
+          || (fieldType instanceof DefaultValueType && fieldType.isNotNull());
+        const pgSorting =
+          (sort[field] === 1 ? "ASC" : "DESC")
+          + (fieldIsNonnull
+              ? "" : (sort[field] === 1 ? " NULLS FIRST" : " NULLS LAST"))
         sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));
