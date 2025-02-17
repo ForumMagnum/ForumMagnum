@@ -148,7 +148,7 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
     updateFrequency: "realtime",
     timeOfDayGMT: 11, // 3am PST
     dayOfWeekGMT: "Saturday",
-    showNegativeKarma: false, // 3am PST
+    showNegativeKarma: false,
   },
   default: {
     updateFrequency: "daily",
