@@ -166,6 +166,9 @@ CREATE TABLE "ClientIds" (
   "firstSeenReferrer" TEXT,
   "firstSeenLandingPage" TEXT,
   "userIds" TEXT[] DEFAULT '{}'::TEXT[],
+  "invalidated" BOOL NOT NULL DEFAULT FALSE,
+  "lastSeenAt" TIMESTAMPTZ,
+  "timesSeen" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
