@@ -1180,8 +1180,22 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
   const redLinksBySlug = groupBy(redLinks, redLink=>redLink.slug);
   await executePromiseQueue(Object.keys(redLinksBySlug).map((slug) => async () => {
     // Check whether a redlink placeholder page already exists for this slug
-    const existingPlaceholderPage = await Tags.findOne({slug, deleted: false});
+    const existingPlaceholderPage = await Tags.findOne({
+      $or: [{ slug }, { oldSlugs: slug }],
+      deleted: false
+    });
     if (existingPlaceholderPage) {
+      return;
+    }
+    
+    const excludedImport = await Tags.findOne({
+      $or: [
+        {slug},
+        {oldSlugs: `deleted-import-${slug}`},
+      ],
+      deleted: true,
+    });
+    if (excludedImport) {
       return;
     }
 
@@ -2247,3 +2261,12 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
 }
 
 Globals.importCoreTagAssignments = importCoreTagAssignments;
+
+Globals.createRedlinkPlaceholdersFromCache = async (redLinksCacheFile: string, mysqlConnectionString: string, options: ArbitalImportOptions) => {
+  const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const conversionContext = await buildConversionContext(arbitalDb, [], optionsWithDefaults);
+  
+  const redLinks = JSON.parse(fs.readFileSync(redLinksCacheFile, 'utf-8'));
+  await createRedLinkPlaceholders(redLinks, conversionContext);
+}
