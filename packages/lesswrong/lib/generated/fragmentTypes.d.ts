@@ -415,6 +415,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly fmCrosspostUserId: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
+  readonly blueskyProfileURL: string,
   readonly twitterProfileURL: string,
   readonly twitterProfileURLAdmin: string | null,
   readonly githubProfileURL: string,
@@ -3197,6 +3198,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
+  readonly blueskyProfileURL: string,
   readonly twitterProfileURL: string,
   readonly githubProfileURL: string,
   readonly frontpagePostCount: number,
@@ -3736,6 +3738,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
+  readonly blueskyProfileURL: string,
   readonly twitterProfileURL: string,
   readonly githubProfileURL: string,
 }
