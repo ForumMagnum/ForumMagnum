@@ -41,6 +41,7 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     paddingBottom: 2,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
+    marginLeft: 1,
   },
   likeCountButtonRow: {
     ...theme.typography.commentStyle,
@@ -127,7 +128,7 @@ const ReactionsAndLikesVote  = ({
   </div>
   
   const likeCountElement = stylingVariant === "buttonRow"
-    ? <span className={classes.likeCountButtonRow}>{`(${likeCount})`}</span>
+    ? <span className={classes.likeCountButtonRow}>{`${likeCount}`}</span>
     : <span className={classes.likeCount}>{likeCount}</span>;
   
 

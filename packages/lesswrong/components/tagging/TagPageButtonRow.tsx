@@ -236,7 +236,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
           subscriptionType={subscriptionTypes.newTagPosts}
         />
       </LWTooltip>}
-      {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile /></div>}
+      {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile hideParens /></div>}
       {selectedLens && <div className={classes.likeButtonWrapper}>
         <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
       </div>}
