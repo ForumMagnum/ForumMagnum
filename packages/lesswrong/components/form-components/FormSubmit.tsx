@@ -51,10 +51,10 @@ const FormSubmit = ({
   cancelCallback,
   document,
   collectionName,
+  updateCurrentValues,
   classes,
 }: FormButtonProps & {classes: ClassesType<typeof styles>},
 {
-  updateCurrentValues,
   addToDeletedValues
 }: FormComponentContext<any>) => {
   const currentUser = useCurrentUser();
@@ -138,10 +138,7 @@ const FormSubmit = ({
 };
 
 (FormSubmit as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
   addToDeletedValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
 }
 
 

@@ -312,11 +312,6 @@ const ImageUpload = ({
   );
 };
 
-(ImageUpload as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-};
-
 const ImageUploadComponent = registerComponent("ImageUpload", ImageUpload, {styles});
 
 declare global {

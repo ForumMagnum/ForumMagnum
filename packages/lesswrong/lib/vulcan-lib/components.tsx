@@ -318,32 +318,3 @@ export const instantiateComponent = (component: any, props: any) => {
     return component;
   }
 };
-
-/**
- * Given an optional set of override-components, return a Components object
- * which wraps the main Components table, preserving Components'
- * proxy/deferred-execution tricks.
- */
-export const mergeWithComponents = (myComponents: Partial<ComponentTypes>|null|undefined): ComponentTypes => {
-  if (!myComponents) return Components;
-  
-  if ((myComponents as any).__isProxy)
-    return (myComponents as any);
-  
-  const mergedComponentsProxyHandler = {
-    get: function(obj: any, prop: string) {
-      if (prop === "__isProxy") {
-        return true;
-      } else if (prop in myComponents) {
-        return (myComponents as any)[prop];
-      } else if (prop in PreparedComponents) {
-        return PreparedComponents[prop];
-      } else {
-        return prepareComponent(prop);
-      }
-    }
-  }
-  
-  
-  return new Proxy({}, mergedComponentsProxyHandler );
-}

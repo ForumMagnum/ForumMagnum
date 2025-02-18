@@ -315,12 +315,11 @@ type FormComponentDateTimeProps = FormComponentProps<string|Date> & {
  * TODO: This may not work right in nested contexts.
  */
 const FormComponentDateTime = (
-  {path, value, name, label, below}: FormComponentDateTimeProps,
-  context: FormComponentContext<string|Date>,
+  {path, value, name, label, below, updateCurrentValues}: FormComponentDateTimeProps,
 ) => {
   const updateDate = (date: Date | undefined) => {
     if (date) {
-      void context.updateCurrentValues({[path]: date})
+      void updateCurrentValues({[path]: date})
     }
   }
 
@@ -334,10 +333,6 @@ const FormComponentDateTime = (
     below={below}
   />
 }
-
-(FormComponentDateTime as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});
 const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime);

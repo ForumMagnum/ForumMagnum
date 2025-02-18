@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 
@@ -20,15 +19,15 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: FormComponentProps<boolean> & {
+const FormComponentCheckbox = ({ classes, label, disabled=false, path, updateCurrentValues, value }: FormComponentProps<boolean> & {
   classes: ClassesType<typeof styles>;
-}, context: FormComponentContext<boolean>) => {
+}) => {
   return <div className={classes.root}>
     <Checkbox
       className={classes.size}
       checked={value}
       onChange={(event, checked) => {
-        void context.updateCurrentValues({
+        void updateCurrentValues({
           [path]: checked
         })
       }}
@@ -38,10 +37,6 @@ const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: 
     <Components.Typography className={classes.inline} variant="body2" component="label">{label}</Components.Typography>
   </div>
 }
-
-(FormComponentCheckbox as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 // Replaces FormComponentCheckbox from vulcan-ui-bootstrap
 const FormComponentCheckboxComponent = registerComponent("FormComponentCheckbox", FormComponentCheckbox, {styles});

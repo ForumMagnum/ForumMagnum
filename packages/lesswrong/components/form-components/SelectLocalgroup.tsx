@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
 
 type SelectLocalgroupProps = {
   useDocumentAsUser?: boolean,
@@ -17,17 +18,18 @@ type SelectLocalgroupProps = {
  * or all groups if the user is an admin.
  */
 const SelectLocalgroup = (props: SelectLocalgroupProps) => {
+  const currentUser = useCurrentUser();
   const { MenuItem } = Components;
 
   // Default to currentUser, but use props.document if necessary
   // (ex. you want to be able to select groups for another user).
-  const user = props.useDocumentAsUser ? props.document : props.currentUser
+  const user = props.useDocumentAsUser ? props.document : currentUser
 
   const { results: groups } = useMulti({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsBase',
     terms: {
-      view: props.currentUser?.isAdmin ? 'all' : 'userActiveGroups',
+      view: currentUser?.isAdmin ? 'all' : 'userActiveGroups',
       userId: user._id,
       limit: 500
     },
