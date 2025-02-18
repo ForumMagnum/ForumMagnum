@@ -25,6 +25,7 @@ import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSe
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import Card from '@material-ui/core/Card';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -266,31 +267,29 @@ const UsersMenu = ({classes}: {
     : ["newShortform", "newPost", "newWikitag", "newEvent"];
 
   const writeNewNode = isFriendlyUI ? (
-    <LWTooltip
-      title={
-        <div className={classes.writeNewTooltip}>
-          <Card>
-            <DropdownMenu>
-              {order.map((itemName, i) => {
-                const Component = items[itemName];
-                return <Component key={i} />
-              })}
-            </DropdownMenu>
-          </Card>
-        </div>
-      }
-      clickable
-      tooltip={false}
-      inlineBlock={false}
-      placement="left-start"
-      forceOpen
-    >
-      <DropdownItem
-        title="Write new"
-        icon="PencilSquare"
-        afterIcon="ThickChevronRight"
-      />
-    </LWTooltip>
+    <InteractionWrapper>
+      <LWTooltip
+        title={
+          <div className={classes.writeNewTooltip}>
+            <Card>
+              <DropdownMenu>
+                {order.map((itemName, i) => {
+                  const Component = items[itemName];
+                  return <Component key={i} />;
+                })}
+              </DropdownMenu>
+            </Card>
+          </div>
+        }
+        clickable
+        tooltip={false}
+        inlineBlock={false}
+        placement="left-start"
+        forceOpen
+      >
+        <DropdownItem title="Write new" icon="PencilSquare" afterIcon="ThickChevronRight" />
+      </LWTooltip>
+    </InteractionWrapper>
   ) : (
     <div onClick={(ev) => {
       if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
