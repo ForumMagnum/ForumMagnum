@@ -1,8 +1,9 @@
-import type { DocumentNode } from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode, FieldNode, GraphQLScalarType } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
 // This has a stub for the client bundle
 import SqlFragment from '@/server/sql/SqlFragment';
+import { getCollectionByTypeName } from './getCollection';
 
 interface FragmentDefinition {
   fragmentText: string
@@ -51,6 +52,10 @@ export const registerFragment = (fragmentTextSource: string): void => {
   if(subFragments && subFragments.length) {
     Fragments[fragmentName].subFragments = subFragments as Array<FragmentName>;
   }
+
+  // Validate that the fragment isn't missing any _id fields nested in collection-type fields
+  const fragmentDef = parseGraphQLFragment(fragmentText);
+  validateFragmentSelections(fragmentDef, fragmentDef.typeCondition.name.value);
 };
 
 // Create gql fragment object from text and subfragments
@@ -124,6 +129,7 @@ export const getFragment = (fragmentName: FragmentName): DocumentNode => {
     // return fragment object created by gql
     return initializeFragment(fragmentName);
   }
+
   return fragmentObject;
 };
 
@@ -150,6 +156,169 @@ const getFragmentText = (fragmentName: FragmentName): string => {
   // return fragment object created by gql
   return Fragments[fragmentName].fragmentText;  
 };
+
+const parseGraphQLFragment = (fragmentText: string) => {
+  const parsed = gql`${fragmentText}`;
+  if (!parsed.definitions[0] || parsed.definitions[0].kind !== 'FragmentDefinition') {
+    throw new Error("Invalid fragment definition");
+  }
+  return parsed.definitions[0];
+}
+
+// get GraphQL type for a given schema and field name
+export const getGraphQLType = <N extends CollectionNameString>(
+  schema: SchemaType<N>,
+  fieldName: string,
+  isInput = false,
+): string|null => {
+  const field = schema[fieldName];
+  const type = field.type.singleType;
+  const typeName =
+    typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
+
+  // LESSWRONG: Add optional property to override default input type generation
+  if (isInput && field.inputType) {
+    return field.inputType
+  }
+
+  switch (typeName) {
+    case 'String':
+      return 'String';
+
+    case 'Boolean':
+      return 'Boolean';
+
+    case 'Number':
+      return 'Float';
+
+    case 'SimpleSchema.Integer':
+      return 'Int';
+
+    // for arrays, look for type of associated schema field or default to [String]
+    case 'Array':
+      const arrayItemFieldName = `${fieldName}.$`;
+      // note: make sure field has an associated array
+      if (schema[arrayItemFieldName]) {
+        // try to get array type from associated array
+        const arrayItemType = getGraphQLType(schema, arrayItemFieldName);
+        return arrayItemType ? `[${arrayItemType}]` : null;
+      }
+      return null;
+
+    case 'Object':
+      return 'JSON';
+
+    case 'Date':
+      return 'Date';
+
+    default:
+      return null;
+  }
+};
+
+interface SelectionFieldInfo {
+  fieldName: string;
+  fieldType: string | GraphQLScalarType | null;
+  selection: FieldNode;
+}
+
+interface MaybeCollectionFieldInfo extends SelectionFieldInfo {
+  fieldType: string;
+}
+
+const isMaybeCollectionFieldInfo = (fieldInfo: SelectionFieldInfo): fieldInfo is MaybeCollectionFieldInfo => {
+  return typeof fieldInfo.fieldType === 'string';
+};
+
+const resolveFragmentFieldNode = (fragmentDef: FragmentDefinitionNode | FieldNode, resolveSchemaFieldMap: Record<string, string>, schema: SchemaType<CollectionNameString>) => {
+  const fieldName = resolveSchemaFieldMap[fragmentDef.name.value] ?? fragmentDef.name.value;
+  const field = schema[fieldName];
+  return { fieldName, field };
+};
+
+const isValidCollectionName = (fieldType: string) => {
+  // Array and/or non-nullable collection types still need to be checked, so strip out the brackets and exclamation marks
+  const maybeCollectionName = fieldType.replace(/[![\]]+/g, "");
+  try {
+    getCollectionByTypeName(maybeCollectionName);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * We need to validate that the fragment isn't missing any _id fields nested in collection-type fields
+ * If that happens, it can cause weird client-side bugs where the apollo cache doesn't know how to resolve stuff
+ * Sometimes stuff blows up, sometimes weirder and more annoying things happen.
+ * Anyways, there's not really a reason to want to omit the field.
+ * 
+ * This isn't perfect because it doesn't check non-collection-based fragments, since we don't have
+ * a good way of checking the "intended" type of any given field inside one of those fragments.
+ */
+const validateFragmentSelections = (fragmentDef: FragmentDefinitionNode | FieldNode, typeName: string) => {
+  const selectionSet = fragmentDef.selectionSet;
+  
+  // Get the collection for this type if it exists
+  let collection: CollectionBase<CollectionNameString>|null = null;
+  try {
+    collection = getCollectionByTypeName(typeName.replace(/[![\]]+/g, ""));
+  } catch (e) {
+    // Not a collection type, skip validation
+    return;
+  }
+
+  if (!selectionSet) return;
+
+  const schema = collection._schemaFields;
+
+  // For fragments on collections, we only need to check fields that have a resolver
+  // Other fields won't have _id fields nested in them (with the exception of normalized editable fields, which get treated as resolver fields anyways)
+  const resolverFields = Object.keys(schema).filter(fieldName => schema[fieldName].resolveAs);
+
+  // However, since we'll be mapping over the selection set, which will contain field names that don't actually exist in the schema,
+  // we need to map the "resolver field" names referenced in the fragment to the actual schema field names that generated them
+  const resolverFieldToOriginalFieldMap = Object.fromEntries(
+    resolverFields.map(fieldName => [schema[fieldName].resolveAs?.fieldName ?? fieldName, fieldName])
+  );
+
+  const selectionResolverFieldMetadata = selectionSet.selections
+    .filter((selection): selection is FieldNode => selection.kind === 'Field')
+    .map(selection => {
+      const { field, fieldName } = resolveFragmentFieldNode(selection, resolverFieldToOriginalFieldMap, schema);
+      return { field, fieldName, selection };
+    })
+    // Filter out fields that don't have a resolver
+    .filter(({ field }) => !!field?.resolveAs)
+    .map(({ fieldName, field, selection }) => {
+      const fieldType = field.resolveAs?.type ?? getGraphQLType(schema, fieldName);
+      return { fieldName, fieldType, selection };
+    })
+    // Filter out fields that aren't even possibly collection types
+    .filter(isMaybeCollectionFieldInfo);
+
+  for (const { selection, fieldName, fieldType } of selectionResolverFieldMetadata) {
+    const validCollectionName = isValidCollectionName(fieldType);
+    
+    if (validCollectionName && selection.selectionSet) {
+      const { selections } = selection.selectionSet;
+
+      // Check if there's a fragment spread - if so, we don't need to check for _id
+      // since we'll check the nested fragment at some point, and if that doesn't have _id,
+      // we'll fail validation anyway.
+      const hasSpread = selections.some(s => s.kind === 'FragmentSpread');
+      const hasId = selections.some(s => s.kind === 'Field' && s.name.value === '_id');
+
+      // If there's no fragment spread and no _id field on a field that's resolved to a collection type, throw an error
+      if (!hasSpread && !hasId) {
+        throw new Error(`Fragment "${fragmentDef.name.value}" is missing _id field for collection type "${fieldType}" in field "${fieldName}"`);
+      }
+      
+      // Recursively validate nested selections
+      validateFragmentSelections(selection, fieldType);
+    }
+  }
+}
 
 export const initializeFragment = (fragmentName: FragmentName): DocumentNode => {
   const fragment = Fragments[fragmentName];

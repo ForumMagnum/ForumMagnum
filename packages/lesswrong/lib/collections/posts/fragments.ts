@@ -843,6 +843,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     contents {
+      _id
       markdown
     }
   }

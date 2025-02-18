@@ -29,6 +29,7 @@ registerFragment(`
   fragment SpotlightReviewWinner on Spotlight {
     ...SpotlightMinimumInfo
     description {
+      _id
       html
     }
     sequenceChapters {
@@ -92,6 +93,7 @@ registerFragment(`
       ...ChaptersFragment
     }
     description {
+      _id
       html
     }
   }

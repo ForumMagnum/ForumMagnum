@@ -1775,6 +1775,7 @@ interface PostsForAutocomplete { // fragment on Posts
 }
 
 interface PostsForAutocomplete_contents { // fragment on Revisions
+  readonly _id: string,
   readonly markdown: string|null,
 }
 
@@ -1950,6 +1951,7 @@ interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment 
 }
 
 interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
+  readonly _id: string,
   readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
 }
 
@@ -1970,6 +1972,7 @@ interface CommentsForAutocomplete { // fragment on Comments
 }
 
 interface CommentsForAutocomplete_contents { // fragment on Revisions
+  readonly _id: string,
   readonly markdown: string|null,
 }
 
@@ -2149,6 +2152,7 @@ interface messageListFragment_user extends UsersMinimumInfo { // fragment on Use
 }
 
 interface messageListFragment_contents { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
 }
@@ -2737,6 +2741,7 @@ interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
 }
 
 interface TagCreationHistoryFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -3479,6 +3484,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
+  readonly _id: string,
   readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
@@ -3892,6 +3898,7 @@ interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Sp
 }
 
 interface SpotlightReviewWinner_description { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -3963,6 +3970,7 @@ interface SpotlightDisplay_tag_user { // fragment on Users
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -4350,6 +4358,7 @@ interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
 }
 
 interface ReviewWinnerTopPostsPage_reviewWinnerArt { // fragment on ReviewWinnerArts
+  readonly _id: string,
   readonly splashArtImageUrl: string,
   readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
 }

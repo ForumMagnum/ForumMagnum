@@ -27,7 +27,7 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName } from '../../../lib/vulcan-lib';
+import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName, getGraphQLType } from '../../../lib/vulcan-lib';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -102,57 +102,6 @@ const getTypeDefs = () => {
     addedResolvers: allResolvers,
   };
 }
-
-// get GraphQL type for a given schema and field name
-const getGraphQLType = <N extends CollectionNameString>(
-  schema: SchemaType<N>,
-  fieldName: string,
-  isInput = false,
-): string|null => {
-  const field = schema[fieldName];
-  const type = field.type.singleType;
-  const typeName =
-    typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
-
-  // LESSWRONG: Add optional property to override default input type generation
-  if (isInput && field.inputType) {
-    return field.inputType
-  }
-
-  switch (typeName) {
-    case 'String':
-      return 'String';
-
-    case 'Boolean':
-      return 'Boolean';
-
-    case 'Number':
-      return 'Float';
-
-    case 'SimpleSchema.Integer':
-      return 'Int';
-
-    // for arrays, look for type of associated schema field or default to [String]
-    case 'Array':
-      const arrayItemFieldName = `${fieldName}.$`;
-      // note: make sure field has an associated array
-      if (schema[arrayItemFieldName]) {
-        // try to get array type from associated array
-        const arrayItemType = getGraphQLType(schema, arrayItemFieldName);
-        return arrayItemType ? `[${arrayItemType}]` : null;
-      }
-      return null;
-
-    case 'Object':
-      return 'JSON';
-
-    case 'Date':
-      return 'Date';
-
-    default:
-      return null;
-  }
-};
 
 /**
  * Get the data needed to apply an access filter based on a graphql resolver

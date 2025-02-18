@@ -101,6 +101,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     description {
+      _id
       html
     }
   }

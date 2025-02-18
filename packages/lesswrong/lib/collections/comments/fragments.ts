@@ -197,6 +197,7 @@ registerFragment(`
   fragment CommentsListWithModerationMetadata on Comment {
     ...CommentWithRepliesFragment
     allVotes {
+      _id
       voteType
     }
   }
@@ -223,6 +224,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     contents {
+      _id
       markdown
     }
     post {
