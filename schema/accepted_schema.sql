@@ -3393,6 +3393,7 @@ CREATE TABLE "Users" (
   "fmCrosspostUserId" TEXT,
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
+  "blueskyProfileURL" TEXT,
   "twitterProfileURL" TEXT,
   "twitterProfileURLAdmin" TEXT,
   "githubProfileURL" TEXT,
@@ -3982,7 +3983,7 @@ REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPT
               FROM "LWEvents"
               WHERE "documentId" = userid AND "name" = 'fieldChanges'
             ) q
-            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
+            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
             ORDER BY "createdAt" DESC
             LIMIT 1),
             (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),

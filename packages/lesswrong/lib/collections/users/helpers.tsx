@@ -600,6 +600,7 @@ export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): 
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
+  blueskyProfileURL: 'bsky.app/profile/',
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }
