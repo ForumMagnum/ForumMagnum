@@ -8,7 +8,7 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, getCollection, updateMutator } from '@/server/vulcan-lib';
+import { createAdminContext, createMutator, getCollection, getSiteUrl, Route, RouterLocation, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
 import { randomId } from '@/lib/random';
@@ -36,6 +36,10 @@ import { slugify } from '@/lib/utils/slugify';
 import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { cheerioParse } from '@/server/utils/htmlUtil';
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import { parsePath, parseRoute } from '@/lib/vulcan-core/appContext';
+import { classifyHost } from '@/lib/routeUtil';
 
 type ArbitalImportOptions = {
   /**
@@ -2247,3 +2251,160 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
 }
 
 Globals.importCoreTagAssignments = importCoreTagAssignments;
+
+const extractLinks = (html: string): Array<string> => {
+  const $ = cheerioParse(html);
+  let targets: Array<string> = [];
+  $('a').each((i, anchorTag) => {
+    const href = $(anchorTag)?.attr('href')
+    if (href)
+      targets.push(href);
+  });
+  return targets;
+}
+
+function getParsedUrls(links: string[]) {
+  const URLClass = getUrlClass();
+
+  const parsedLinks: Array<{ link: string, parsedUrl: RouterLocation }> = [];
+
+  for (let link of links) {
+    try {
+      // HACK: Parse URLs as though relative to example.com because they have to
+      // be the builtin URL parser needs them to be relative to something with a
+      // domain, and the domain doesn't matter at all except in whether or not
+      // it's in the domain whitelist (which it will only be if it's overridden
+      // by an absolute link).
+      const linkTargetAbsolute = new URLClass(link, getSiteUrl());
+      
+      const hostType = classifyHost(linkTargetAbsolute.host)
+      if (hostType==="onsite" || hostType==="mirrorOfUs") {
+        const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+        const parsedUrl = parseRoute({
+          location: parsePath(onsiteUrl),
+          onError: (pathname) => {} // Ignore malformed links
+        });
+        parsedLinks.push({ link, parsedUrl });
+      }
+    
+    } catch (e) {
+      console.error(`Error parsing URL ${link}: ${e}`);
+    }
+  }
+
+  return parsedLinks;
+}
+
+async function findBrokenRedlinks() {
+  const URLClass = getUrlClass();
+
+  const importedTags = await Tags.find({ 'legacyData.arbitalPageId': { $exists: true }, deleted: false }).fetch();
+  const importedLenses = await MultiDocuments.find({ 'legacyData.arbitalLensId': { $exists: true }, deleted: false, fieldName: 'description' }).fetch();
+  const importedLensRevisions = await Revisions.find({ documentId: { $in: importedLenses.map(l => l._id) }, fieldName: 'contents' }).fetch();
+
+  // const slugs = [...importedTags.map(t => t.slug), ...importedLenses.map(l => l.slug)];
+  // const oldSlugs = [...importedTags.flatMap(t => t.oldSlugs), ...importedLenses.flatMap(l => l.oldSlugs)];
+
+  const linksInTags = importedTags.map(t => [t._id, extractLinks(t.description?.html ?? '')] as const);
+  const linksInLensRevisions = importedLensRevisions.map(lr => [lr.documentId!, extractLinks(lr?.html ?? '')] as const);
+
+  const linkToTagsMap = linksInTags.reduce((acc, [tagId, links]) => {
+    for (const link of links) {
+      acc[link] = [...(acc[link] ?? []), tagId];
+    }
+    return acc;
+  }, {} as Record<string, string[]>);
+
+  const linkToLensRevisionsMap = linksInLensRevisions.reduce((acc, [lensId, links]) => {
+    for (const link of links) {
+      acc[link] = [...(acc[link] ?? []), lensId];
+    }
+    return acc;
+  }, {} as Record<string, string[]>);
+
+  const uniqueLinks = [...new Set([...Object.keys(linkToTagsMap), ...Object.keys(linkToLensRevisionsMap)])];
+
+  const parsedLinks = Object.fromEntries(getParsedUrls(uniqueLinks).map(l => [l.link, l.parsedUrl]));
+
+  const tagOrLensLinks = Object.fromEntries(Object.entries(parsedLinks).filter(([_, route]) => route.currentRoute?.name === 'tagsSingle'));
+
+  const lensRefs: { ref: string, link: string }[] = [];
+  const unknownSlugs: { slug: string, link: string }[] = [];
+  for (const [link, route] of Object.entries(tagOrLensLinks)) {
+    const { query: { lens, l }, params: { slug } } = route;
+    const lensRef = lens ?? l;
+
+    // Find the tag or lens that this link is pointing to
+    if (lensRef) {
+      lensRefs.push({ ref: lensRef, link });
+    } else {
+      unknownSlugs.push({ slug, link });
+    }
+  }
+
+  const lensesByLensRef = await MultiDocuments.find({ $or: [{ slug: { $in: lensRefs.map(l => l.ref) } }, { oldSlugs: { $in: lensRefs.map(l => l.ref) } }] }).fetch();
+  const lensesByUnknownSlug = await MultiDocuments.find({ $or: [{ slug: { $in: unknownSlugs.map(l => l.slug) } }, { oldSlugs: { $in: unknownSlugs.map(l => l.slug) } }] }).fetch();
+  const tagsByUnknownSlug = await Tags.find({ $or: [{ slug: { $in: unknownSlugs.map(l => l.slug) } }, { oldSlugs: { $in: unknownSlugs.map(l => l.slug) } }] }).fetch();
+
+  for (const { ref, link } of lensRefs) {
+    const lens = lensesByLensRef.find(l => l.slug === ref || l.oldSlugs?.includes(ref));
+    const tagPagesWithLink = linkToTagsMap[link];
+    const lensPagesWithLink = linkToLensRevisionsMap[link];
+    if (!lens) {
+      console.log(`Found broken (missing) lens by ref redlink: ${ref}, with implied slug ${ref}.  Present in tags with ids ${tagPagesWithLink?.join(', ')} and lenses with ids ${lensPagesWithLink?.join(', ')}`);
+    } else if (lens.deleted) {
+      console.log(`Found broken (deleted) lens by ref redlink: ${ref}, with implied slug ${ref}.  Present in tags with ids ${tagPagesWithLink?.join(', ')} and lenses with ids ${lensPagesWithLink?.join(', ')}`);
+    }
+  }
+
+  for (const { slug, link } of unknownSlugs) {
+    const tag = tagsByUnknownSlug.find(t => t.slug === slug || t.oldSlugs?.includes(slug));
+    const lens = lensesByUnknownSlug.find(l => l.slug === slug || l.oldSlugs?.includes(slug));
+    const document = tag ?? lens;
+    const documentType = tag ? 'tag' : 'lens';
+    const tagPagesWithLink = linkToTagsMap[link];
+    const lensPagesWithLink = linkToLensRevisionsMap[link];
+    if (!document) {
+      console.log(`Found broken (missing) ${documentType} redlink: ${link}, with implied slug ${slug}.  Present in tags with ids ${tagPagesWithLink?.join(', ')} and lenses with ids ${lensPagesWithLink?.join(', ')}`);
+    } else if (document.deleted) {
+      console.log(`Found broken (deleted) ${documentType} redlink: ${link}, with implied slug ${slug}.  Present in tags with ids ${tagPagesWithLink?.join(', ')} and lenses with ids ${lensPagesWithLink?.join(', ')}`);
+    }
+  }
+}
+
+Globals.findBrokenRedlinks = findBrokenRedlinks;
+
+async function removeDuplicateSlugFromOldSlugs() {
+  const tags: DbTag[] = await runSqlQuery(`SELECT * FROM "Tags" WHERE slug = ANY("oldSlugs")`);
+  console.log(`Found ${tags.length} tags with duplicate slugs in oldSlugs, names: ${tags.map(t => t.name).join(', ')}`);
+  for (const tag of tags) {
+    const oldSlugs = tag.oldSlugs.filter(slug => slug !== tag.slug);
+    await Tags.rawUpdateOne({ _id: tag._id }, { $set: { oldSlugs } });
+    console.log(`Updated ${tag.name} (${tag.slug}) to have oldSlugs ${oldSlugs.join(', ')}`);
+  }
+}
+
+Globals.removeDuplicateSlugFromOldSlugs = removeDuplicateSlugFromOldSlugs;
+
+async function findMissingArbitalPages(mysqlConnectionString: string) {
+  const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const pagesById = groupBy(database.pages, p=>p.pageId);
+  const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
+
+  const pageIds = Object.keys(pagesById);
+  const lensIds = Object.keys(lensesByPageId);
+
+  const pageIdSet = new Set(pageIds);
+  const lensIdSet = new Set(lensIds);
+
+  const tags = await runSqlQuery(`SELECT * FROM "Tags" WHERE ("legacyData" ->> 'arbitalPageId') = ANY(${pageIds.map(id => `'${id}'`).join(',')})`);
+  const lenses = await runSqlQuery(`SELECT * FROM "MultiDocuments" WHERE ("legacyData" ->> 'arbitalLensId') = ANY(${lensIds.map(id => `'${id}'`).join(',')})`);
+
+  const missingTags = tags.filter(t => !pageIdSet.has(t.legacyData?.arbitalPageId));
+  const missingLenses = lenses.filter(l => !lensIdSet.has(l.legacyData?.arbitalLensId));
+
+  console.log(`Found ${missingTags.length} missing tags: ${missingTags.map(t => t.name).join(', ')}`);
+  console.log(`Found ${missingLenses.length} missing lenses: ${missingLenses.map(l => l.title).join(', ')}`);
+}
+
+Globals.findMissingArbitalPages = findMissingArbitalPages;
