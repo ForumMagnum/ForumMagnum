@@ -10,7 +10,7 @@ import { withTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
+import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
@@ -46,28 +46,36 @@ type KarmaNotificationTimingStrings = {
   emptyText: string
 };
 
-export const karmaNotificationTimingChoices: Record<string,KarmaNotificationTimingStrings> = {
-  disabled: {
-    label: "Disabled",
-    infoText: "Karma and react notifications are disabled",
-    emptyText: "Karma and react notifications are disabled"
-  },
-  daily: {
-    label: "Batched daily (default)",
-    infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
-    emptyText: "No karma changes or reacts yesterday"
-  },
-  weekly: {
-    label: "Batched weekly",
-    infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
-    emptyText: "No karma changes or reacts last week"
-  },
-  realtime: {
-    label: "Realtime",
-    infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
-    emptyText: "No karma changes or reacts since you last checked"
-  },
-};
+
+export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotificationTimingStrings> {
+  const choices = {
+    disabled: {
+      label: "Disabled",
+      infoText: "Karma and react notifications are disabled",
+      emptyText: "Karma and react notifications are disabled"
+    },
+    daily: {
+      label: "Batched daily",
+      infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
+      emptyText: "No karma changes or reacts yesterday"
+    },
+    weekly: {
+      label: "Batched weekly",
+      infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
+      emptyText: "No karma changes or reacts last week"
+    },
+    realtime: {
+      label: "Realtime",
+      infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
+      emptyText: "No karma changes or reacts since you last checked"
+    },
+  };
+
+  const defaultValue = (karmaChangeNotifierDefaultSettings.get()).updateFrequency;
+  choices[defaultValue].label += " (default)"
+
+  return choices;
+}
 
 interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
   path: any,
@@ -180,7 +188,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         value={settings.updateFrequency}
         onChange={(event, newValue) => this.modifyValue({updateFrequency: newValue as any})}
       >
-        {_.map(karmaNotificationTimingChoices, (timingChoice, key) =>
+        {_.map(getKarmaNotificationTimingChoices(), (timingChoice, key) =>
           <FormControlLabel
             key={key}
             value={key}

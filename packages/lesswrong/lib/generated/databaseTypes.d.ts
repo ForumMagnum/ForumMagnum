@@ -115,6 +115,9 @@ interface DbClientId extends DbObject {
   firstSeenReferrer: string | null
   firstSeenLandingPage: string | null
   userIds: Array<string> | null
+  invalidated: boolean
+  lastSeenAt: Date | null
+  timesSeen: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
