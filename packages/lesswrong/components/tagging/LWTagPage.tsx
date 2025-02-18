@@ -99,7 +99,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
     marginTop: 0,
     fontWeight: isFriendlyUI ? 700 : 600,
-    ...theme.typography.smallCaps,
+    lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
       fontSize: '27px',
     },
