@@ -255,7 +255,7 @@ export function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', perfMetricMiddleware, clientIdMiddleware);
+  app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
