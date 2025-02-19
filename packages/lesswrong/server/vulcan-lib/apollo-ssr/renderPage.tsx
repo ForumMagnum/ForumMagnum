@@ -145,7 +145,7 @@ function openRenderRequestPerfMetric(renderParams: AttemptCachedRenderParams | A
   setAsyncStoreValue('requestPerfMetric', perfMetric);
 }
 
-function closeRenderRequstPerfMetric(rendered: RenderResult & { cached?: boolean }) {
+function closeRenderRequestPerfMetric(rendered: RenderResult & { cached?: boolean }) {
   if (!performanceMetricLoggingEnabled.get()) return;
 
   setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
@@ -288,7 +288,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     rendered = await queueRenderRequest({ req, res, userAgent, startTime, user, cacheAttempt, maybePrefetchResources });
   }
 
-  closeRenderRequstPerfMetric(rendered);
+  closeRenderRequestPerfMetric(rendered);
 
   if (rendered.aborted) {
     return rendered;
