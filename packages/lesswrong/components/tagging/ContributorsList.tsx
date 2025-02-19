@@ -6,7 +6,6 @@ import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/ar
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
-    flex: 1,
     [theme.breakpoints.down('sm')]: {
       fontSize: '15px',
     },
@@ -16,14 +15,15 @@ const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   },
   tocContributors: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     gap: '4px',
-    marginBottom: 12
+    marginBottom: 12,
+    marginLeft: 16,
   },
   tocContributor: {
-    marginLeft: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.greyAlpha(0.5),
+    fontWeight: 550,
   },
 }))
 
@@ -65,20 +65,43 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   </span>))}</>;
 }
 
-const ToCContributorsList = ({topContributors, onHoverContributor}: {
-  topContributors: NonnullDocumentContributorWithStats[]
-  onHoverContributor: (userId: string|null) => void
-}) => {
-  const { UsersNameDisplay } = Components;
+function ToCContributorsList({
+  contributors,
+  onHoverContributor,
+}: {
+  contributors: NonnullDocumentContributorWithStats[]
+  onHoverContributor: (userId: string | null) => void
+}) {
+  const { LWTooltip, UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
-  return <div className={classes.tocContributors}>
-    {topContributors.map(({ user }: { user: UsersMinimumInfo }, idx: number) => (
-      <span className={classes.tocContributor} key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-        <UsersNameDisplay key={user._id} user={user} className={classes.contributorName} />
-      </span>
-    ))}
-  </div>;
+  const displayedContributors = contributors.slice(0, 2);
+  const hiddenContributors = contributors.slice(2);
+
+  return (
+    <div className={classes.tocContributors}>
+      {displayedContributors.map(({ user }, idx) => (
+        <span key={user._id} className={classes.tocContributor} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
+          <UsersNameDisplay user={user} className={classes.contributorName} />
+          {(idx < displayedContributors.length - 1) || (idx === displayedContributors.length - 1 && hiddenContributors.length > 0) ? ', ' : ''}
+        </span>
+      ))}
+      {hiddenContributors.length > 0 && (
+        <LWTooltip
+          title={hiddenContributors.map((c, i) => (
+            <span key={c.user._id}>
+              <UsersNameDisplay user={c.user} className={classes.contributorName} />
+              {i < hiddenContributors.length - 1 ? ', ' : ''}
+            </span>
+          ))}
+          clickable
+          placement="top"
+        >
+          <span className={classes.tocContributor}>et al.</span>
+        </LWTooltip>
+      )}
+    </div>
+  );
 }
 
 const HeadingContributorsList = ({topContributors, smallContributors, onHoverContributor}: {
