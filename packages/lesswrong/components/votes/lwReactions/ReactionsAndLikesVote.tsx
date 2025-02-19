@@ -13,14 +13,12 @@ import { isMobile } from '@/lib/utils/isMobile';
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
     cursor: "pointer",
-    marginRight: 4,
     display: "flex",
     alignItems: "center",
     color: theme.palette.grey[800],
   },
   selectedLikeButton: {
     cursor: "pointer",
-    marginRight: 4,
     display: "flex",
     alignItems: "center",
     color: theme.palette.grey[600],

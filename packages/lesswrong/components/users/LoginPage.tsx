@@ -2,8 +2,19 @@ import React, { useEffect } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+
+const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
+  root: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    height: "100vh",
+  },
+}));
 
 const LoginPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
 
@@ -20,7 +31,9 @@ const LoginPage = () => {
     // `componentWillMount`.
     return <div />;
   } else {
-    return <Components.LoginForm />;
+    return <div className={classes.root}>
+      <Components.LoginForm />
+    </div>;
   }
 }
 

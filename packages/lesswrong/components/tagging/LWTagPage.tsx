@@ -7,7 +7,7 @@ import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, Redirect } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
@@ -97,7 +97,8 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   title: {
     ...theme.typography[isFriendlyUI ? "display2" : "display3"],
     ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
-    marginTop: 0,
+    marginTop: 4,
+    marginBottom: 12,
     fontWeight: isFriendlyUI ? 700 : 600,
     lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
@@ -208,15 +209,13 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     ...theme.typography.body1,
     color: theme.palette.grey[600],
     display: 'flex',
-    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    // flexDirection: 'column',
     fontSize: '17px',
     lineHeight: 'inherit',
     marginBottom: 8,
   },
   lastUpdated: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[600],
-    fontWeight: 550,
   },
   alternativeArrowIcon: {
     width: 16,
@@ -649,6 +648,9 @@ const LWTagPage = () => {
     const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
+  if (editing && !currentUser) {
+    return <Redirect to={`/login?redirect=${window.location.href}`} />
+  }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
     throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
   }
@@ -807,7 +809,7 @@ const LWTagPage = () => {
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={<Components.ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
+      heading={<Components.ToCContributorsList contributors={topContributors.concat(smallContributors)} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover

@@ -24,13 +24,14 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
+    columnGap: 16,
     [theme.breakpoints.down('xs')]: {
       marginTop: isFriendlyUI ? 8 : undefined,
     },
     '& svg': {
       height: 20,
       width: 20,
-      marginRight: 4,
+      // marginRight: 4,
       marginBottom: 1, // JP it's fine, stop adjusting single pixels
       cursor: "pointer",
       color: theme.palette.grey[700]
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   likeButtonWrapper: {
-    marginRight: 20,
+    // marginRight: 16,
     fontSize: 12,
   },
   buttonTooltip: {
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   button: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
+    // marginRight: 16,
   },
   buttonLabel: {
     [theme.breakpoints.down('sm')]: {
@@ -68,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   lockIcon: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
+    // marginRight: 16,
     '&:hover': {
       opacity: 1
     },
@@ -80,7 +81,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex !important",
   },
   subscribeTo: {
-    marginRight: 16
+    // marginRight: 16
   },
   helpImprove: {
     [theme.breakpoints.down('sm')]: {
@@ -108,22 +109,39 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
-
-const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, classes }: {
-  tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment,
-  selectedLens?: TagLens
-  editing: boolean,
-  setEditing: (editing: boolean) => void,
-  hideLabels?: boolean,
-  className?: string,
-  refetchTag?: () => Promise<void>,
-  updateSelectedLens?: (lensId: string) => void,
-  classes: ClassesType<typeof styles>
+const TagPageButtonRow = ({
+  tag,
+  selectedLens,
+  editing,
+  setEditing,
+  hideLabels = false,
+  className,
+  refetchTag,
+  updateSelectedLens,
+  classes
+}: {
+  tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment;
+  selectedLens?: TagLens;
+  editing: boolean;
+  setEditing: (editing: boolean) => void;
+  hideLabels?: boolean;
+  className?: string;
+  refetchTag?: () => Promise<void>;
+  updateSelectedLens?: (lensId: string) => void;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton, TagPageActionsMenuButton } = Components;
-  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
+  const {
+    LWTooltip,
+    NotifyMeButton,
+    TagDiscussionButton,
+    ContentItemBody,
+    ForumIcon,
+    TagOrLensLikeButton,
+    TagPageActionsMenuButton
+  } = Components;
+  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment");
 
   const { captureEvent } = useTracking();
 
@@ -199,6 +217,8 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
     />
   </>;
 
+  console.log("canEdit", {canEdit, editing, setEditing})
+
   return <AnalyticsContext pageSectionContext="tagPageButtonRow">
     <div className={classNames(classes.buttonsRow, className)}>
       {!editing && <LWTooltip
@@ -252,6 +272,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
       {isLWorAF && <TagPageActionsMenuButton
         tagOrLens={selectedLens}
         createLens={canCreateLens ? handleNewLensClick : null}
+        setEditing={!editing && canEdit ? setEditing : null}
       />}
     </div>
   </AnalyticsContext>

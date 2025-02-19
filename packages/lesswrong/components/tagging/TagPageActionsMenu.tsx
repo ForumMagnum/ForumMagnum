@@ -9,10 +9,28 @@ import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users';
 import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
+import { tagGetHistoryUrl, tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
+import HistoryIcon from '@material-ui/icons/History';
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
-  tagPageTripleDotMenu: {},
-  icon: {},
+  tagPageTripleDotMenu: {
+    marginLeft: -4,
+    alignItems: "end",
+    fontSize: "30px",
+  },
+  tripleDotIcon: {
+    marginTop: 1,
+  },
+  menuIcon: {
+    color: theme.palette.grey[600],
+    marginRight: 12,
+    "--icon-size": "16px",
+  },
+  historyIcon: {
+    color: theme.palette.grey[600],
+    // marginRight: 12,
+    "--icon-size": "16px",
+  },
   menu: {},
   infoCircle: {
     color: theme.palette.greyAlpha(0.5),
@@ -21,16 +39,17 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
 }))
 
-const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
+const TagPageActionsMenuButton = ({tagOrLens, createLens, setEditing}: {
   tagOrLens: TagLens|undefined
   createLens: (() => void)|null,
+  setEditing: ((editing: boolean) => void)|null,
 }) => {
   const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const [everOpened, setEverOpened] = useState(false);
   const { captureEvent } = useTracking({eventType: "tagPageMenuClicked", eventProps: {tagOrLensId: tagOrLens?._id, itemType: "tag"}});
   const { ForumIcon } = Components;
-  
+
   if (!tagOrLens) {
     return null;
   }
@@ -43,7 +62,7 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
         setEverOpened(true);
       }}
     >
-      <ForumIcon icon="EllipsisVertical" className={classes.icon}/>
+      <ForumIcon icon="EllipsisVertical" className={classes.tripleDotIcon}/>
     </span>
     <Menu
       onClick={() => {
@@ -57,16 +76,18 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
       {everOpened && <TagPageActionsMenu
         tagOrLens={tagOrLens}
         createLens={createLens}
+        setEditing={setEditing}
       />}
     </Menu>
   </>
 }
 
-const TagPageActionsMenu = ({tagOrLens, createLens}: {
+const TagPageActionsMenu = ({tagOrLens, createLens, setEditing}: {
   tagOrLens: TagLens
   createLens: (() => void)|null,
+  setEditing: ((editing: boolean) => void)|null,
 }) => {
-  const { DropdownMenu, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
+  const { DropdownMenu, DropdownItem, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const apolloClient = useApolloClient();
@@ -93,9 +114,21 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
     }
   }
 
+  //check if any of the buttons will render, else don't show the menu
+  const willRender = !!setEditing || !!createLens || (userIsAdminOrMod(currentUser) && isLensPage);
+
+  if (!willRender) {
+    return null;
+  }
+
   return <AnalyticsTracker eventType="tagPageTripleDotClicked" captureOnClick>
     <DropdownMenu>
+      {!!setEditing && <MenuItem onClick={() => setEditing(true)}>
+        <ForumIcon icon="Edit" className={classes.menuIcon}/>
+        Edit
+      </MenuItem>}
       {!!createLens && <MenuItem onClick={createLens}>
+        <ForumIcon icon="Plus" className={classes.menuIcon}/>
         New Lens
       </MenuItem>}
     {userIsAdminOrMod(currentUser) && isLensPage && <MenuItem onClick={promoteLens}>
@@ -109,6 +142,11 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
         <ForumIcon className={classes.infoCircle} icon="InfoCircle"/>
         </LWTooltip>
       </MenuItem>}
+      {/* <DropdownItem
+        to={tagGetHistoryUrl(tagOrLens)}
+        icon={() => <HistoryIcon fontSize="inherit"/>}
+        title="History"
+      /> */}
     </DropdownMenu>
   </AnalyticsTracker>
 }
