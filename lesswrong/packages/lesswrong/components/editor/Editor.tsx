@@ -717,7 +717,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
     return <div>
       { this.renderPlaceholder(showPlaceholder, false) }
-      {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
+      {/* {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
         editorState={draftJSValue}
         onChange={(value: string) => this.setContents("draftJS", value)}
         commentEditor={commentEditor||false}
@@ -726,7 +726,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           this.getHeightClass(),
           {[classes.questionWidth]: questionStyles}
         )}
-      /></Components.ContentStyles>}
+      /></Components.ContentStyles>} */}
     </div>
   }
 

@@ -12,14 +12,42 @@ declare global {
   let enableVite: boolean;
 }
 
-export const isClient = !bundleIsServer
-export const isServer = bundleIsServer
-export const isDevelopment = !bundleIsProduction
-export const isProduction = bundleIsProduction
-export const isMigrations = bundleIsMigrations
-export const isAnyTest = bundleIsTest
-export const isE2E = bundleIsE2E
-export const isPackageTest = bundleIsTest
+export const isClient = typeof window !== 'undefined';
+export const isServer = !isClient;
+
+
+export const isProduction = process.env.NODE_ENV === 'production';
+export const isDevelopment = !isProduction;
+
+
+export const isMigrations = process.env.NODE_ENV === 'migrations';
+export const isAnyTest = process.env.NODE_ENV === 'test';
+
+
+export const isE2E = process.env.NODE_ENV === 'e2e';
+export const isPackageTest = process.env.NODE_ENV === 'test';
+
+
+// ts-ignore next-line
+global.bundleIsServer = isServer;
+// ts-ignore next-line
+global.bundleIsTest = isAnyTest;
+// ts-ignore next-line
+global.bundleIsE2E = isE2E;
+// ts-ignore next-line
+global.bundleIsProduction = isProduction;
+// ts-ignore next-line
+global.bundleIsMigrations = isMigrations;
+
+
+// ts-ignore next-line
+global.defaultSiteAbsoluteUrl = 'https://localhost:3000';
+// ts-ignore next-line
+global.buildProcessPid = 0;
+// ts-ignore next-line
+global.ddEnv = 'local';
+// ts-ignore next-line
+global.enableVite = true;
 
 export const addGlobalForShell = (name: string, value: any) => {
   // TODO

@@ -489,6 +489,25 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
   };
 };
 
+export const getGraphQLSchema = () => {
+  const { schemaText, addedResolvers } = getTypeDefs();
+  
+  let allResolvers = deepmerge(
+    getResolvers(),
+    {
+      JSON: GraphQLJSON,
+      Date: GraphQLDate,
+    }
+  );
+  for (let addedResolverGroup of addedResolvers) {
+    allResolvers = deepmerge(allResolvers, addedResolverGroup);
+  }
+
+  return {
+    typeDefs: schemaText,
+    resolvers: allResolvers,
+  }
+}
 
 
 export const initGraphQL = () => {

@@ -69,20 +69,20 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
   }
 }
 
-const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
+export const initDatabases = ({postgresUrl, postgresReadUrl}: {postgresUrl: string, postgresReadUrl: string}) =>
   Promise.all([
     connectToPostgres(postgresUrl),
     connectToPostgres(postgresReadUrl, "read"),
   ]);
 
-const initSettings = () => {
+export const initSettings = () => {
   if (!isAnyTest) {
     setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
   }
   return refreshSettingsCaches();
 }
 
-const initPostgres = async () => {
+export const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection)) {
     for (const collection of Collections) {
       if (collection instanceof PgCollection) {

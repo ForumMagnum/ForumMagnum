@@ -108,7 +108,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   isSSR: boolean
 }): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
-  const clientId = req ? getCookieFromReq(req, "clientId") : null;
+  const clientId = null;
   if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
     visitorActivity = user ?
       await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
