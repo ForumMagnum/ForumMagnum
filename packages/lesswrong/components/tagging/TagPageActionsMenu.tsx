@@ -142,11 +142,6 @@ const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
         <ForumIcon className={classes.infoCircle} icon="InfoCircle"/>
         </LWTooltip>
       </MenuItem>}
-      {/* <DropdownItem
-        to={tagGetHistoryUrl(tagOrLens)}
-        icon={() => <HistoryIcon fontSize="inherit"/>}
-        title="History"
-      /> */}
     </DropdownMenu>
   </AnalyticsTracker>
 }
