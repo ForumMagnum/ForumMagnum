@@ -304,9 +304,9 @@ const AllWikiTagsPage = () => {
           coreTag={uncategorizedRootTag}
           searchTagIds={currentQuery ? tagIds : null}
           showArbitalIcons={isArbitalRedirect}
-            noLinkOrHoverOnTitle
-          />
-        </div>
+          noLinkOrHoverOnTitle
+        />
+      </div>
       </AnalyticsContext>
     );
   });
