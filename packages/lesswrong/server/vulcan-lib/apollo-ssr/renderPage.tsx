@@ -211,6 +211,7 @@ function getRequestMetadata(req: Request) {
 
   return { ip, userAgent, url };
 }
+
 function shouldSkipCache(req: Request, user: DbUser|null) {
   const { userAgent, url } = getRequestMetadata(req);
 
