@@ -31,7 +31,6 @@ const styles = (theme: ThemeType) => ({
     '& svg': {
       height: 20,
       width: 20,
-      // marginRight: 4,
       marginBottom: 1, // JP it's fine, stop adjusting single pixels
       cursor: "pointer",
       color: theme.palette.grey[700]
@@ -49,7 +48,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
   likeButtonWrapper: {
-    // marginRight: 16,
     fontSize: 12,
   },
   buttonTooltip: {
@@ -59,7 +57,6 @@ const styles = (theme: ThemeType) => ({
   button: {
     display: "flex",
     alignItems: "center",
-    // marginRight: 16,
   },
   buttonLabel: {
     [theme.breakpoints.down('sm')]: {
@@ -69,7 +66,6 @@ const styles = (theme: ThemeType) => ({
   lockIcon: {
     display: "flex",
     alignItems: "center",
-    // marginRight: 16,
     '&:hover': {
       opacity: 1
     },
@@ -81,7 +77,6 @@ const styles = (theme: ThemeType) => ({
     display: "flex !important",
   },
   subscribeTo: {
-    // marginRight: 16
   },
   helpImprove: {
     [theme.breakpoints.down('sm')]: {
