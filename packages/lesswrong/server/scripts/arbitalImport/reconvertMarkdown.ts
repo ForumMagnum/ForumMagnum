@@ -15,6 +15,8 @@ import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
 import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
+import { buildRevision } from "@/server/editor/make_editable_callbacks";
+import { Users } from "@/lib/collections/users/collection";
 
 Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
@@ -49,8 +51,9 @@ Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, option
   
     for (const rev of arbitalRevisionsByDocumentId[documentId]) {
       const markdown = rev.legacyData.arbitalMarkdown;
-      if (!markdown) {
+      if (!markdown && markdown !== "") {
         console.error(`Revision ${rev._id} of Arbital page ${rev.legacyData.arbitalPageId} is missing arbitalMarkdown`);
+        continue
       }
       
       const newHtml = await arbitalMarkdownToCkEditorMarkup({
@@ -63,6 +66,26 @@ Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, option
 
       if (oldHtml !== newHtml) {
         console.log(`Document ${documentId} changed in rev ${rev._id}`);
+        
+        const user = await Users.findOne({_id: rev.userId});
+        if (!user) throw new Error(`Could not find user for rev ${rev._id}`);
+        const modifiedRevision = await buildRevision({
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: newHtml,
+          },
+          currentUser: user,
+        });
+        await Revisions.rawUpdateOne(
+          {_id: rev._id},
+          {$set: {
+            html: modifiedRevision.html,
+            originalContents: {
+              type: "ckEditorMarkup",
+              data: newHtml,
+            },
+          }},
+        );
         
         switch (collectionName) {
           case "Tags":
@@ -79,6 +102,13 @@ Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, option
     }
   }
   
+  console.log("Changed comments:");
+  console.log(commentIdsChanged.values());
+  console.log("Changed tags:");
+  console.log(tagIdsChanged.values());
+  console.log("Changed multidocuments:");
+  console.log(multiDocumentIdsChanged.values());
+
   for (const commentId of commentIdsChanged.values()) {
     await updateDenormalizedEditable(commentId, "Comments", "contents");
   }
@@ -87,7 +117,7 @@ Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, option
     await recomputeContributorAnnotations(tagId, "Tags", "description");
   }
   for (const multiDocumentId of multiDocumentIdsChanged.values()) {
-    await updateDenormalizedEditable(multiDocumentId, "MultiDocuments", "description");
+    await updateDenormalizedEditable(multiDocumentId, "MultiDocuments", "contents");
     await recomputeContributorAnnotations(multiDocumentId, "MultiDocuments", "contents");
   }
 }
@@ -120,10 +150,10 @@ async function recomputeContributorAnnotations(documentId: string, collectionNam
     document: document,
     collectionName,
     fieldName,
-  });
+  } as any);
   await updateDenormalizedContributorsList({
     document: document,
     collectionName,
     fieldName,
-  });
+  } as any);
 }
