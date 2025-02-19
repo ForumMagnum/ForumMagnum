@@ -2934,6 +2934,7 @@ interface ConceptItemFragment { // fragment on Tags
   readonly postCount: number,
   readonly baseScore: number,
   readonly description: ConceptItemFragment_description|null,
+  readonly wikiOnly: boolean,
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string | null,
   readonly maxScore: number|null,

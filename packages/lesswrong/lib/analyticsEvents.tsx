@@ -147,6 +147,7 @@ export type AnalyticsProps = {
   onsite?: boolean,
   terms?: PostsViewTerms,
   viewType?: string,
+  searchQuery?: string,
   componentName?: string,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
