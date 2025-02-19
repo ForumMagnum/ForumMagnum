@@ -7,7 +7,7 @@ import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
-import { Link, Redirect } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
@@ -211,7 +211,6 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     columnGap: 4,
-    // flexDirection: 'column',
     fontSize: '17px',
     lineHeight: 'inherit',
     marginBottom: 8,
@@ -648,9 +647,6 @@ const LWTagPage = () => {
     const baseTagUrl = tagGetUrl(tag);
     const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
-  }
-  if (editing && !currentUser) {
-    return <Redirect to={`/login?redirect=${window.location.href}`} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
     throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)

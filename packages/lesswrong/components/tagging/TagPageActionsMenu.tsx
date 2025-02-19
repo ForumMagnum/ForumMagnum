@@ -14,12 +14,13 @@ import HistoryIcon from '@material-ui/icons/History';
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {
-    marginLeft: -4,
+    marginLeft: -8,
     alignItems: "end",
     fontSize: "30px",
   },
   tripleDotIcon: {
     marginTop: 1,
+    rotate: "90deg",
   },
   menuIcon: {
     color: theme.palette.grey[600],
@@ -28,7 +29,6 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
   historyIcon: {
     color: theme.palette.grey[600],
-    // marginRight: 12,
     "--icon-size": "16px",
   },
   menu: {},
@@ -39,10 +39,10 @@ const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   },
 }))
 
-const TagPageActionsMenuButton = ({tagOrLens, createLens, setEditing}: {
+const TagPageActionsMenuButton = ({tagOrLens, createLens, handleEditClick}: {
   tagOrLens: TagLens|undefined
   createLens: (() => void)|null,
-  setEditing: ((editing: boolean) => void)|null,
+  handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
 }) => {
   const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -76,16 +76,16 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens, setEditing}: {
       {everOpened && <TagPageActionsMenu
         tagOrLens={tagOrLens}
         createLens={createLens}
-        setEditing={setEditing}
+        handleEditClick={handleEditClick}
       />}
     </Menu>
   </>
 }
 
-const TagPageActionsMenu = ({tagOrLens, createLens, setEditing}: {
+const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
   tagOrLens: TagLens
+  handleEditClick: ((reactEvent: React.MouseEvent<HTMLSpanElement>) => void)|null,
   createLens: (() => void)|null,
-  setEditing: ((editing: boolean) => void)|null,
 }) => {
   const { DropdownMenu, DropdownItem, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
   const currentUser = useCurrentUser();
@@ -115,7 +115,7 @@ const TagPageActionsMenu = ({tagOrLens, createLens, setEditing}: {
   }
 
   //check if any of the buttons will render, else don't show the menu
-  const willRender = !!setEditing || !!createLens || (userIsAdminOrMod(currentUser) && isLensPage);
+  const willRender = !!handleEditClick || !!createLens || (userIsAdminOrMod(currentUser) && isLensPage);
 
   if (!willRender) {
     return null;
@@ -123,7 +123,7 @@ const TagPageActionsMenu = ({tagOrLens, createLens, setEditing}: {
 
   return <AnalyticsTracker eventType="tagPageTripleDotClicked" captureOnClick>
     <DropdownMenu>
-      {!!setEditing && <MenuItem onClick={() => setEditing(true)}>
+      {!!handleEditClick && <MenuItem onClick={handleEditClick}>
         <ForumIcon icon="Edit" className={classes.menuIcon}/>
         Edit
       </MenuItem>}

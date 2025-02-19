@@ -217,8 +217,6 @@ const TagPageButtonRow = ({
     />
   </>;
 
-  console.log("canEdit", {canEdit, editing, setEditing})
-
   return <AnalyticsContext pageSectionContext="tagPageButtonRow">
     <div className={classNames(classes.buttonsRow, className)}>
       {!editing && <LWTooltip
@@ -272,7 +270,7 @@ const TagPageButtonRow = ({
       {isLWorAF && <TagPageActionsMenuButton
         tagOrLens={selectedLens}
         createLens={canCreateLens ? handleNewLensClick : null}
-        setEditing={!editing && canEdit ? setEditing : null}
+        handleEditClick={!editing && canEdit ? handleEditClick : null}
       />}
     </div>
   </AnalyticsContext>
