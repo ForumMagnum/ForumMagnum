@@ -210,6 +210,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: 'flex',
     justifyContent: 'flex-start',
+    columnGap: 4,
     // flexDirection: 'column',
     fontSize: '17px',
     lineHeight: 'inherit',

@@ -124,7 +124,7 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
       clickable
       placement="top"
     >
-      et al.&nbsp;
+      et al.
     </LWTooltip>}
   </div>
 }
