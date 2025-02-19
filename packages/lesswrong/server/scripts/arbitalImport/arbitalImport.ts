@@ -37,7 +37,7 @@ import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 
-type ArbitalImportOptions = {
+export type ArbitalImportOptions = {
   /**
    * A list of pages to import. If not provided, does a full import (all pages).
    * This exists for testing iteration, since importing all pages is much slower
@@ -76,7 +76,7 @@ type ArbitalImportOptions = {
    */
   parallelism?: number,
 }
-const defaultArbitalImportOptions: ArbitalImportOptions = {};
+export const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
 const excludedArbitalPageIds = [
   // Rationality
@@ -575,7 +575,7 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   `);
 }
 
-async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
+export async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
