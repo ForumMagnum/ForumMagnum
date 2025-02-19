@@ -1,108 +1,41 @@
-.eslintcache
-npm-debug.log
-*.scssc
-.sass-cache/*
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-*-ck.js
-providers_secret.js
-*.sublime-project
+*.pem
 
-unit-coverage
-integration-coverage
-combined-coverage
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-*.sublime-workspace
-codekit-config.json
+# env files (can opt-in for committing if needed)
+.env*
 
-config.rb
+# vercel
+.vercel
 
-.demeteorized
-
-dump/
-dump/*
-
-settings*.json
-*conn.txt
-*settings.js
-!settings-test-crosspost.json
-!settings-test.json
-
-.idea
-.tern-project
-
-scratch
-tmp
-.vscode/*
-.deploy
-.deploy/*
-### Meteor template
-.meteor/local
-.meteor/meteorite
-mup*
-!mup*.enc
-
-packages_update.py
-
-versions
-
-get_file_list.sh
-packages_update.py
-publish_packages.sh
-
-node_modules
-node_modules.meteor
-
-bundle.tar.gz
-
-jsdoc-conf.json
-jsdoc.json
-packages/nova-router/.npm
-npm-debug.log
-
-typings
-*.swp
-*.un~
-
-*.swp
-*.un~
-
-*.swp
-*.un~
-.vscode/launch.json
-
-*.secret
-
-build*
-!build.ts
-!buildUtil.js
-yarn-error.log
-public/lesswrong-editor/obj
-ckEditor/obj
-
-# Created by @shelf/jest-mongodb
-globalConfig.json
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-
-cypress/screenshots/*
-cypress/videos/*
-!cypress/screenshots/.keep
-!cypress/videos/.keep
-.cypress
-
-myLocalDatabase
-myLocalDatabase/*
-
-schema/schema_to_accept.sql
-
-.branchdbcache
-
-ml
-
-client_meta.json
-client_stats.html
-
-playwright-report
-test-results
+# typescript
+*.tsbuildinfo
+next-env.d.ts

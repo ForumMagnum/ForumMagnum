@@ -1,0 +1,15 @@
+--ignore-dir=.git
+--ignore-dir=build
+--ignore-dir=obj
+--ignore-dir=.circleci
+--ignore-dir=.github
+--ignore-dir=.meteor
+--ignore-dir=node_modules
+--ignore-dir=node_modules.meteor
+--ignore-dir=.vscode
+--ignore-dir=.vulcan
+--ignore-file=is:.eslintcache
+--ignore-dir=webpack/src
+--ignore-dir=express/src
+--ignore-file=is:client_stats.html
+--ignore-file=is:client_meta.json

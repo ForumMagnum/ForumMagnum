@@ -1,0 +1,33 @@
+{
+  "__schema": {
+    "types": [
+      {
+        "kind": "UNION",
+        "name": "Voteable",
+        "possibleTypes": [
+          {
+            "name": "Tag"
+          },
+          {
+            "name": "ElectionCandidate"
+          },
+          {
+            "name": "TagRel"
+          },
+          {
+            "name": "Revision"
+          },
+          {
+            "name": "MultiDocument"
+          },
+          {
+            "name": "Comment"
+          },
+          {
+            "name": "Post"
+          }
+        ]
+      }
+    ]
+  }
+}

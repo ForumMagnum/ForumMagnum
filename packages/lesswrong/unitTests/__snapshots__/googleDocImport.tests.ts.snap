@@ -1,6 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`convertImportedGoogleDoc Regression: Handle nested bullets with different list ids 1`] = `
-"<p><span>Paragraph</span></p><ul><li><span>Bullet 1</span></li><li><span>Bullet 2</span></li></ul><h2 data-internal-id=\\"Header\\"><span>Header</span></h2><ul><li><span>Start of a second list</span></li></ul><ul><li><span>Bullet copy-pasted from the first list</span><ul><li><span>Sub-bullet 1</span></li><li><span>Sub-bullet 2</span></li></ul></li></ul>
-    "
-`;

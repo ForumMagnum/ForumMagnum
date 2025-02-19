@@ -1,0 +1,5 @@
+settings-dev.json filter=crypt diff=crypt merge=crypt
+settings-staging.json filter=crypt diff=crypt merge=crypt
+settings-prod.json filter=crypt diff=crypt merge=crypt
+config-staging.secret filter=crypt diff=crypt merge=crypt
+config-prod.secret filter=crypt diff=crypt merge=crypt

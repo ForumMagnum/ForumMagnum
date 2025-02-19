@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019", "ES2020.String", "DOM", "DOM.Iterable"],
+    "outDir": "obj",
+
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": false,
+    "strictBindCallApply": true,
+
+    "esModuleInterop": true,
+    "target": "es2019",
+    "allowJs": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true
+  },
+  "include": ["./**/*.ts"],
+  "exclude": [
+    "build",
+    "obj",
+    "node_modules/**/*",
+    "tests"
+  ]
+}

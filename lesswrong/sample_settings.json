@@ -1,0 +1,21 @@
+{
+  "public": {
+    "forumType": "LessWrong",
+    "title": "ForumMagnum",
+    "tagline": "A community blog devoted to whatever you want",
+    "logoUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_png/LessWrong_Logo_skglnw.svg",
+    "siteNameWithArticle": "ForumMagnum",
+    "siteUrl": "http://localhost:3000",
+    "aboutPostId": "dummyId",
+    "faviconUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
+    "forumSettings": {
+      "headerTitle": "ForumMagnum",
+      "shortForumTitle": "FM",
+      "tabTitle": "ForumMagnum"
+    },
+    "analytics": {
+      "environment": "localhost"
+    },
+    "testServer": true
+  }
+}

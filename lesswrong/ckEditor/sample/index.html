@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor 5 – balloon block editor build – development sample</title>
+	<style>
+		body {
+			max-width: 800px;
+			margin: 20px auto;
+		}
+	</style>
+</head>
+<body>
+
+<h1>CKEditor 5 – balloon block editor build – development sample</h1>
+
+<div id="editor">
+	<h2>Sample Post Editor</h2>
+	<p>This is an instance of the <a
+			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#balloon-editor">balloon block
+			editor build</a>.</p>
+	<figure class="image"><img src="../tests/manual/sample.jpg" alt="Autumn fields"></figure>
+	<p>ab</p>
+	<p><span class="math-tex">\(\frac{31}{312}\)</span></p>
+	<script type="math/tex"> ws_* </script>
+	<p>You can use this sample to validate whether your <a
+			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a>
+		works fine.</p>
+</div>
+<a onClick="console.log(window.CKEditor.getData())"> Log Contents </a>
+<h1>CKEditor 5 – balloon block editor build – development sample (Comment Editor)</h1>
+
+<div id="comment-editor">
+	<h2>Sample Comment Editor</h2>
+	<p>This is an instance of the <a
+			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#balloon-editor">balloon block
+			editor build</a>.</p>
+	<figure class="image"><img src="../tests/manual/sample.jpg" alt="Autumn fields"></figure>
+	<p>ab</p>
+	<p><span class="math-tex">\(\frac{31}{312}\)</span></p>
+	<script type="math/tex"> ws_* </script>
+	<p>You can use this sample to validate whether your <a
+			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a>
+		works fine.</p>
+</div>
+<a onClick="console.log(window.CKEditorComment.getData())"> Log Contents </a>
+<script src="../build/ckeditor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
+<script>
+	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
+		.then( editor => {
+			CKEditorInspector.attach(editor);
+			window.CKEditor = editor
+			return editor 
+		})
+		.catch( err => {
+			console.error( err.stack );
+		} );
+	CKEditor.CommentEditor.create( document.querySelector( '#comment-editor' ) )
+		.then( editor => {
+			CKEditorInspector.attach(editor);
+			window.CKEditorComment = editor
+			return editor 
+		})
+		.catch( err => {
+			console.error( err.stack );
+		} );
+</script>
+
+</body>
+</html>

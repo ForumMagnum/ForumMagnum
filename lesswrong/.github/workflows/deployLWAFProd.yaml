@@ -1,0 +1,50 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Deploy LW / AF Prod
+concurrency: deploy-lw-prod
+on:
+  push:
+    branches: [ lw-deploy ]
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Migrations
+      if: github.ref == 'refs/heads/lw-deploy'
+      uses: ./.github/actions/runLWMigrations
+      with:
+        mode: prod
+        credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
+  upload-ckeditor-bundle:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Upload ckEditor bundle
+      if: github.ref == 'refs/heads/lw-deploy'
+      uses: ./.github/actions/uploadLWCkEditorBundle
+      with:
+        mode: prod
+        credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
+  deploy: 
+    runs-on: ubuntu-latest
+    needs: [migrate, upload-ckeditor-bundle]
+    strategy:
+      matrix: 
+        node-version: [22.12]
+        environment: [Lesswrongexpress-env, AlignmentForumProd]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '>=3.5 <3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip awsebcli # pip3 install "pyyaml<5.4" is a temporary workaround for this bug: https://github.com/aws/aws-elastic-beanstalk-cli/issues/441
+    - name: Run Deploy
+      run: scripts/deploy.sh LessWrongExpress ${{ matrix.environment }}
+      env: 
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: "us-east-1"

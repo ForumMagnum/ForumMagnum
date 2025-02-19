@@ -1,0 +1,17 @@
+name: EA Daily Dev Replica
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '16 7 * * 1-5'
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Replicate Script
+      env:
+        PG_URL: ${{ secrets.EA_DEV_REPLICA_PG_URL }}
+      run: yarn ea-replicate-dev-db

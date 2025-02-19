@@ -1,0 +1,87 @@
+
+splat.svg: https://openclipart.org/detail/211412/splat
+key.svg: https://openclipart.org/download/191744/Key-yellow.svg
+pillar.svg: https://openclipart.org/download/29053/mandooza-capitello.svg
+target.svg: https://openclipart.org/download/3255/urwald-Zielscheibe-target-aim.svg
+gem.svg: https://openclipart.org/download/179430/diamondbleu.svg
+binoculars.svg: https://openclipart.org/download/170639/binoculars.svg
+swords.svg: https://openclipart.org/download/211404/swords.svg
+check.svg: https://openclipart.org/download/253846/1467299975.svg
+x.svg: https://openclipart.org/download/196797/mono-checkmark.svg
+partypopper.svg: https://openmoji.org/data/color/svg/1F389.svg
+skeptical.svg: https://openmoji.org/data/color/svg/1F389.svg
+heart.svg: https://openmoji.org/data/color/svg/2764.svg
+surprise.svg: https://openmoji.org/library/emoji-1F62E/
+eyes.svg: https://openmoji.org/data/color/svg/1F440.svg
+
+Noun Project
+
+binoculars.svg: https://thenounproject.com/icon/camping-3341154/
+bullseye.svg: https://thenounproject.com/icon/target-1644977/
+bricks.svg: https://thenounproject.com/icon/bricks-1205737/
+cactus.svg: https://thenounproject.com/icon/cactus-2190621/
+check.svg: https://thenounproject.com/icon/check-2410845/
+clarity.svg: https://thenounproject.com/icon/diamond-4299025/
+complex.svg: https://thenounproject.com/icon/complex-249373/
+eyes.svg: https://thenounproject.com/icon/eyes-363349/
+handshake.svg: https://thenounproject.com/icon/greetings-5575331/
+inaccurate.svg: https://thenounproject.com/icon/miss-76657/
+key.svg: https://thenounproject.com/icon/key-5683852/
+pillar.svg: https://thenounproject.com/icon/pillar-1759107/
+scholarship.svg: https://thenounproject.com/icon/scholarship-4146333/
+swords.svg: https://thenounproject.com/icon/swords-1464313/
+x.svg: https://thenounproject.com/icon/x-3584118/
+splat.svg: https://thenounproject.com/icon/splash-1476283/
+partpopper.svg: https://thenounproject.com/icon/party-popper-4483429/
+skeptical.svg: https://thenounproject.com/icon/raised-eyebrow-4210612/
+heart.svg: https://thenounproject.com/icon/heart-5714493/
+elephant.svg: https://thenounproject.com/icon/elephant-body-1591846/
+surprise.svg: https://thenounproject.com/icon/surprise-1341826/
+scarecrow.svg: https://thenounproject.com/icon/scarecrow-4651621/
+thankyou.svg: https://thenounproject.com/icon/thank-you-4065766/
+exclamation.svg: https://thenounproject.com/icon/exclamation-2686892/
+lightbulb.svg: https://thenounproject.com/icon/lightbulb-589680/
+shrug.svg: https://thenounproject.com/icon/shrug-3460554/
+laugh.svg: https://thenounproject.com/icon/laugh-1471852/
+laugh2.svg: https://thenounproject.com/icon/laugh-1497740/
+scales.svg: https://thenounproject.com/icon/scales-2099026/
+thinking.svg: https://thenounproject.com/icon/thinking-4306084/
+thinking2.svg: https://thenounproject.com/icon/thinking-2274236
+delta.svg: https://thenounproject.com/icon/delta-4334125/
+delta2.svg: https://thenounproject.com/icon/delta-43529/
+obtuse.svg: https://thenounproject.com/icon/obtuse-angle-649781/
+clock.svg: https://thenounproject.com/icon/clock-5741010/
+door.svg: https://thenounproject.com/icon/door-126847/
+confused.svg: https://thenounproject.com/icon/confuse-3235267/
+nonsequitur.svg: https://thenounproject.com/icon/jump-517054/
+shakypremise.svg: https://thenounproject.com/icon/balance-4449859/
+houseofcards.svg: https://thenounproject.com/icon/house-of-cards-3819714/
+play.svg: https://thenounproject.com/icon/play-5374116/
+concrete.svg: https://thenounproject.com/icon/concrete-3091292/
+timequestion.svg: https://thenounproject.com/icon/time-1286992/
+verified.svg: https://thenounproject.com/icon/check-3648234/
+error.svg: https://thenounproject.com/icon/x-2222130/
+shush.svg: https://thenounproject.com/icon/5700716/
+shapes.svg: https://thenounproject.com/icon/393038/
+crux.svg: https://thenounproject.com/icon/108621/
+clickingpointinghand.svg: https://thenounproject.com/icon/4577330/
+doubleturnstile.svg: https://thenounproject.com/icon/double-turnstile-711177/
+negateddoubleturnstile.svg: https://thenounproject.com/icon/negative-entail-711180/
+telescope.svg: https://thenounproject.com/icon/telescope-4525671/
+history.svg: https://thenounproject.com/icon/history-1551542/
+history2.svg: https://thenounproject.com/icon/history-5502400/
+questionmark.svg: https://thenounproject.com/icon/question-mark-796566/
+mapandpin.svg: https://thenounproject.com/icon/map-pin-400157/
+checkedbox.svg: https://thenounproject.com/icon/check-2742243/
+ellipses.svg: https://thenounproject.com/icon/more-82401/
+paperclip.svg: https://thenounproject.com/icon/paperclip-1223412/
+branchingpath.svg: https://thenounproject.com/icon/branching-1849037/
+//Modified
+nonbranchingpath.svg: https://thenounproject.com/icon/branching-1849037/
+microscope.svg: https://thenounproject.com/icon/microscope-5772896/
+microscope2.svg: https://thenounproject.com/icon/microscope-1021907/
+type-text.svg: https://thenounproject.com/icon/type-text-5709740/ 
+
+
+
+misrepresentation.png: By LW user simon (https://www.lesswrong.com/posts/SzdevMqBusoqbvWgt/open-thread-with-experimental-feature-reactions?commentId=XKRHE6pJYGgpbdQgp)

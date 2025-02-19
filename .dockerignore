@@ -1,8 +1,0 @@
-**/node_modules
-npm-debug.log
-yarn-debug.log
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-.git
-.gitignore
-.meteor

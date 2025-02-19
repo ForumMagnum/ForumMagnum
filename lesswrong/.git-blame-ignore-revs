@@ -1,0 +1,16 @@
+# Ignorelist for revisions that change whitespace or make other changes that you
+# want "git blame" to skip. This works automatically on GitHub. To use this
+# locally, add these lines to .git/config:
+#     ```
+#     [blame]
+#         ignoreRevsFile = .git-blame-ignore-revs
+#     ```
+
+# reformated some gql queries to stop them breaking syntax highlighting
+acf755ffe14fc57cc9f6c05ef0f04414de085dd7
+
+# commits that cause reindentation (and nothing else)
+23e23f5634392005aec26367427921e9a445e235
+
+# An auto-fix for a new typing syntax lint
+e16f106d75190914183a0e812cdff284f8064371
