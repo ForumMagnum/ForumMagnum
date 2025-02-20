@@ -1,10 +1,11 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const schema: SchemaType<"TagFlags"> = {
   name: {

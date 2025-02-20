@@ -1,5 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import { getNestedProperty, addGraphQLSchema } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
@@ -21,6 +20,8 @@ import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
+import { getNestedProperty } from "../../vulcan-lib/utils";
+import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:

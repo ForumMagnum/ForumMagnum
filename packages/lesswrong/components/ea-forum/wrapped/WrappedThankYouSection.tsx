@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useForumWrappedContext } from "./hooks";
 import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
 

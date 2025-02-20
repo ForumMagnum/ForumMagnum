@@ -1,5 +1,5 @@
 import { convertDocumentIdToIdInSelector, Utils } from '../vulcan-lib/utils';
-import { collectionNameToGraphQLType } from '../vulcan-lib';
+import { collectionNameToGraphQLType } from '../vulcan-lib/collections';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '../utils/logging';

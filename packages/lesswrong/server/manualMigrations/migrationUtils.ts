@@ -1,5 +1,5 @@
 import Migrations from '../../lib/collections/migrations/collection';
-import { Vulcan } from '../../lib/vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep, timedFunc } from '../../lib/helpers';

@@ -1,7 +1,6 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, updateMutator } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail, userCanEditUser, userGetDisplayName} from "../../lib/collections/users/helpers";
@@ -16,6 +15,8 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
+import { updateMutator } from "../vulcan-lib/mutators";
 
 addGraphQLSchema(`
   type CommentCountTag {

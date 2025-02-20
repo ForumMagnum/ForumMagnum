@@ -1,8 +1,9 @@
 import Users from "@/lib/vulcan-users";
 import { performVoteServer } from "../voteServer"
-import { createMutator, Globals } from "../vulcan-lib"
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import { karmaRewarderId100, karmaRewarderId1000 } from "@/lib/voting/vote";
+import { createMutator } from "../vulcan-lib/mutators";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, reason: string) => {
   // eslint-disable-next-line no-console

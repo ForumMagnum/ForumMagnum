@@ -1,7 +1,8 @@
-import { Comments } from "@/lib/collections/comments";
+import { Comments } from "@/lib/collections/comments/collection.ts";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils";
+import { createAdminContext } from "../vulcan-lib/query";
+import { updateMutator } from "../vulcan-lib/mutators";
 
 registerMigration({
   name: "rewriteOldReviewBotComments",

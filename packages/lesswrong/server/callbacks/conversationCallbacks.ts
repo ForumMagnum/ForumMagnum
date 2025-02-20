@@ -1,10 +1,10 @@
 import Messages from '../../lib/collections/messages/collection';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
+import { ModeratorActions } from '../../lib/collections/moderatorActions/collection';
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/schema';
 import { loggerConstructor } from '../../lib/utils/logging';
 import Users from '../../lib/vulcan-users';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { createMutator, updateMutator } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getAdminTeamAccount } from './commentCallbacks';
 
 /**

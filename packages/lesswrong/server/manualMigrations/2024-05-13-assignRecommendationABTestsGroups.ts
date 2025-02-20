@@ -1,6 +1,6 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
-
+import { createAdminContext } from "../vulcan-lib/query";
+import { updateMutator } from "../vulcan-lib/mutators";
 
 const testGroupIds = [
   '22EP7kj9ea5vtQzX6',

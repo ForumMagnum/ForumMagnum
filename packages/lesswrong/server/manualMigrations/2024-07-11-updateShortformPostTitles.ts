@@ -2,7 +2,7 @@ import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "../repos/helpers";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 
 registerMigration({
   name: "updateShortformPostTitles",

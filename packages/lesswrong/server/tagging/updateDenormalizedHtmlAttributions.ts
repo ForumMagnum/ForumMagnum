@@ -1,5 +1,5 @@
 import { annotateAuthors } from '../attributeEdits';
-import { getCollection } from '../vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 
 export type UpdateDenormalizedHtmlAttributionsOptions = {
   document: DbTag;

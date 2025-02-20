@@ -1,7 +1,6 @@
 import Users from "@/lib/collections/users/collection";
 import { addCronJob } from "../cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
-import { Globals, createAdminContext, deleteMutator, updateMutator } from "../vulcan-lib";
 import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { mailchimpAPIKeySetting } from "../serverSettings";
@@ -11,6 +10,9 @@ import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
+import { Globals } from "../../lib/vulcan-lib/config";
+import { createAdminContext } from "../vulcan-lib/query";
+import { deleteMutator, updateMutator } from "../vulcan-lib/mutators";
 
 type DeleteOptions = { includingNonForumData: boolean };
 const defaultDeleteOptions = { includingNonForumData: false };

@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";

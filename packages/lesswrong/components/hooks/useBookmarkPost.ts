@@ -4,7 +4,7 @@ import { useCurrentUser } from "../common/withUser";
 import { pluck } from "underscore";
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useMutation } from "@apollo/client";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import type { ForumIconName } from "../common/ForumIcon";
 import { isFriendlyUI } from "../../themes/forumTheme";
 

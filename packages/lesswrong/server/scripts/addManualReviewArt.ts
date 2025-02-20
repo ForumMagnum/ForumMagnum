@@ -1,7 +1,8 @@
-import { Globals, createMutator } from "../vulcan-lib";
 import { createAdminContext } from "../vulcan-lib/query";
 import ReviewWinnerArts from "../../lib/collections/reviewWinnerArts/collection";
 import { moveImageToCloudinary } from "./convertImagesToCloudinary";
+import { Globals } from "../../lib/vulcan-lib/config";
+import { createMutator } from "../vulcan-lib/mutators";
 
 const reviewWinnerArtManualAdditions: ({id: string, prompt: string, url: string})[] = [{
   id: 'vLRxmYCKpmZAAJ3KC',

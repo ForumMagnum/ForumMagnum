@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { Components, mergeWithComponents, registerComponent } from '../../lib/vulcan-lib/components';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';

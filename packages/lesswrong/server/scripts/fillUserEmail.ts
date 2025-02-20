@@ -1,5 +1,5 @@
 import { wrapVulcanAsyncScript } from "./utils";
-import { Vulcan } from '../vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import Users from "../../lib/vulcan-users";
 
 /**

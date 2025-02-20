@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';

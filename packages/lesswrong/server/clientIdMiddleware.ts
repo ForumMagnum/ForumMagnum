@@ -4,7 +4,7 @@ import express from 'express';
 import { responseIsCacheable } from './cacheControlMiddleware';
 import { ClientIdsRepo } from './repos';
 import LRU from 'lru-cache';
-import { getUserFromReq } from './vulcan-lib';
+import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 
 // Cache of seen (clientId, userId) pairs
 const seenClientIds = new LRU<string, boolean>({ max: 10_000, maxAge: 1000 * 60 * 60 });

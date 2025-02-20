@@ -8,7 +8,7 @@ import PodcastEpisodes from "../../lib/collections/podcastEpisodes/collection";
 import DebouncerEvents from "../../lib/collections/debouncerEvents/collection";
 import Migrations from "../../lib/collections/migrations/collection";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
-import {Votes} from "../../lib/collections/votes";
+import { Votes } from "../../lib/collections/votes/collection";
 import Revisions from "../../lib/collections/revisions/collection";
 
 const initCreatedAt = <N extends CollectionNameString>(

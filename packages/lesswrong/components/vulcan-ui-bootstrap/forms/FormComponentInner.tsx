@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, instantiateComponent } from '../../../lib/vulcan-lib';
+import { instantiateComponent, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { HIGHLIGHT_DURATION } from '../../comments/CommentFrame';
 import { withLocation } from '../../../lib/routeUtil';

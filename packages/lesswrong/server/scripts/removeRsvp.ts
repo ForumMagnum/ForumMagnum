@@ -1,5 +1,5 @@
-import { Posts } from "../../lib/collections/posts";
-import { Globals } from "../vulcan-lib";
+import { Posts } from "../../lib/collections/posts/collection";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 const removeRsvp = async (eventId: string, userNameOrId: string) => {
   const event = await Posts.findOne({_id: eventId});

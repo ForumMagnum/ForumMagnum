@@ -1,6 +1,6 @@
 import { addCronJob } from '../cronUtil';
 import Users from "../../lib/collections/users/collection";
-import { ModeratorActions } from "../../lib/collections/moderatorActions";
+import { ModeratorActions } from "../../lib/collections/moderatorActions/collection";
 import { allRateLimits } from "../../lib/collections/moderatorActions/schema";
 import { appendToSunshineNotes } from "../../lib/collections/users/helpers";
 import { triggerReview } from "../callbacks/sunshineCallbackUtils";

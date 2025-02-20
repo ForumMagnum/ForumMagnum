@@ -1,4 +1,4 @@
-import { Vulcan } from '../../lib/vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';

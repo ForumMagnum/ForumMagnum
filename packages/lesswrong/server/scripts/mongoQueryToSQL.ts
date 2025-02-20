@@ -3,7 +3,8 @@ import InsertQuery from "@/server/sql/InsertQuery";
 import SelectQuery from "@/server/sql/SelectQuery";
 import Table from "@/server/sql/Table";
 import UpdateQuery from "@/server/sql/UpdateQuery";
-import { getCollection, Globals } from "../vulcan-lib";
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 /**
  * Translates a mongo find query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.

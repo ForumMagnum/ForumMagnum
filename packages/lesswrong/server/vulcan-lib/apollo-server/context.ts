@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { getCollectionsByName } from '../../../lib/vulcan-lib/collections';
+import { getCollectionsByName } from '../../../lib/vulcan-lib/getCollection';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import * as _ from 'underscore';

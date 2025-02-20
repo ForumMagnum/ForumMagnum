@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
 import InputLabel from '@material-ui/core/InputLabel';

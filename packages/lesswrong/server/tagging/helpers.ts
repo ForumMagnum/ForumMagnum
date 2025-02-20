@@ -1,7 +1,7 @@
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
-import { isElasticEnabled } from '../search/elastic/elasticSettings';
+import { isElasticEnabled } from '../../lib/instanceSettings';
 
 export async function updatePostDenormalizedTags(postId: string) {
   if (!postId) {

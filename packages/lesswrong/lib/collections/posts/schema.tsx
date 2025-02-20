@@ -25,10 +25,8 @@ import {
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
-import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
 import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
@@ -43,6 +41,7 @@ import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
+import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;

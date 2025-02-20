@@ -1,11 +1,13 @@
 import { emailBodyStyles } from "@/themes/stylePiping";
-import { createAdminContext, createMutator, Globals, runQuery } from "../vulcan-lib";
 import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
 import Users from "@/lib/vulcan-users";
 import Conversations from "@/lib/collections/conversations/collection";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import { filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { create } from "underscore";
+import { createAdminContext, runQuery } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 const context = createAdminContext()
 

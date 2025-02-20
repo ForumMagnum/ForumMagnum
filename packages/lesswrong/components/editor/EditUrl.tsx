@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib';
+import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';

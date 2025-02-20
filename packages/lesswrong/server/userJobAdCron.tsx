@@ -7,10 +7,10 @@ import { Users } from '../lib/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailJobAdReminder';
-import { Components, Globals } from './vulcan-lib';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
-
+import { Components } from "../lib/vulcan-lib/components";
+import { Globals } from "../lib/vulcan-lib/config";
 
 const sendJobAdReminderEmails = async () => {
   if (!isEAForum) return

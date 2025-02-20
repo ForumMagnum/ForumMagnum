@@ -1,10 +1,10 @@
 import ReadStatuses from "../../lib/collections/readStatus/collection";
-import { Votes } from "../../lib/collections/votes";
+import { Votes } from "../../lib/collections/votes/collection";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import Users from "../../lib/vulcan-users";
 import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/client";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import chunk from "lodash/chunk";
 
 function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[]) {

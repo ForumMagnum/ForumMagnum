@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 import { mergeSingleUser, DuplicateUser, MergeAction } from '../scripts/fixDuplicateEmail'
-import { Vulcan } from '../../lib/vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import '../scripts/mergeAccounts';
 
 type MongoDuplicateUser = {

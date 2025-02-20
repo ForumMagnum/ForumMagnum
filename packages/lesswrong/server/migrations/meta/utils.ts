@@ -22,13 +22,14 @@ import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
-import { createMutator, getCollection } from "@/server/vulcan-lib";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
 import { Globals } from '@/lib/vulcan-lib/config';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
+import { createMutator } from "@/server/vulcan-lib/mutators.ts";
+import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 

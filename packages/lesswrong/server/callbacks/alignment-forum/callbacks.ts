@@ -1,6 +1,6 @@
 import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { Votes } from '../../../lib/collections/votes';
+import { Votes } from '../../../lib/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
