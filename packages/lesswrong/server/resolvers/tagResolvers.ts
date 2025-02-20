@@ -900,6 +900,7 @@ Globals.recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: str
     parentDocumentId: tag._id,
     fieldName: "description",
   }).fetch();
+  // eslint-disable-next-line no-console
   console.log(`Found ${lenses.length} lenses`);
 
   await updateDenormalizedHtmlAttributions({

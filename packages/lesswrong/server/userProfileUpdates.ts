@@ -16,6 +16,7 @@ export const simpleUserProfileFields: (keyof DbUser)[] = [
   "website",
   "linkedinProfileURL",
   "facebookProfileURL",
+  "blueskyProfileURL",
   "twitterProfileURL",
   "githubProfileURL",
   "profileTagIds",

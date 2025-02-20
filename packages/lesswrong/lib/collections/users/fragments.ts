@@ -57,6 +57,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
     frontpagePostCount
@@ -658,6 +659,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
   }

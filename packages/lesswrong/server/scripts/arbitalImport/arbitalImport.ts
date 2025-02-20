@@ -21,7 +21,7 @@ import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
-import { runSqlQuery } from '@/server/sql/sqlClient';
+import { getSqlClientOrThrow, runSqlQuery } from '@/server/sql/sqlClient';
 import { Comments } from '@/lib/collections/comments';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
@@ -37,7 +37,7 @@ import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 
-type ArbitalImportOptions = {
+export type ArbitalImportOptions = {
   /**
    * A list of pages to import. If not provided, does a full import (all pages).
    * This exists for testing iteration, since importing all pages is much slower
@@ -76,7 +76,7 @@ type ArbitalImportOptions = {
    */
   parallelism?: number,
 }
-const defaultArbitalImportOptions: ArbitalImportOptions = {};
+export const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
 const excludedArbitalPageIds = [
   // Rationality
@@ -575,7 +575,7 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   `);
 }
 
-async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
+export async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
@@ -2305,3 +2305,72 @@ Globals.importSingleLens = async (mysqlConnectionString: string, options: Arbita
     lensCreator,
   });*/
 }
+
+async function updateDenormalizedTagDescriptions() {
+  const tags = await Tags.find({ 'legacyData.arbitalPageId': { $exists: true } }).fetch();
+  await executePromiseQueue(tags.map(tag => async () => {
+    const denormalizedRevision = await Revisions.findOne({ _id: tag.description_latest });
+    if (!denormalizedRevision) {
+      console.warn(`Could not find denormalized revision for tag ${tag.name} (${tag.slug})`);
+    }
+    const latestRevision = await Revisions.findOne({ documentId: tag._id, collectionName: 'Tags', fieldName: 'description' }, { sort: { editedAt: -1 } });
+    if (!latestRevision) {
+      console.warn(`Could not find latest revision for tag ${tag.name} (${tag.slug})`);
+    }
+
+    const useRevision = denormalizedRevision ?? latestRevision;
+    if (!useRevision) {
+      console.warn(`No revisions found for tag ${tag.name} (${tag.slug})`);
+      return;
+    }
+
+    if (useRevision.html !== tag.description?.html) {
+      console.log(`Html mismatch for tag ${tag.name} (${tag.slug}, id ${tag._id}) and revision ${useRevision._id} (${denormalizedRevision ? 'denormalized' : 'latest'})`);
+    }
+
+    if (useRevision.originalContents?.data !== tag.description?.originalContents?.data) {
+      console.log(`Original contents data mismatch for tag ${tag.name} (${tag.slug}, id ${tag._id}) and revision ${useRevision._id} (${denormalizedRevision ? 'denormalized' : 'latest'})`);
+    }
+  }), 5);
+}
+
+Globals.updateDenormalizedTagDescriptions = updateDenormalizedTagDescriptions;
+
+
+interface CorrectedLens {
+  tag_id: string;
+  tag_name: string;
+  tag_slug: string;
+  tag_old_slugs: string[];
+  lens_id: string;
+  lens_slug: string;
+  lens_old_slugs: string[];
+  lens_contents_latest: string;
+  revision_collection_name: string;
+  latest_lens_revision_id: string;
+}
+
+Globals.reassignContentsLatestToMultiDocuments = async () => {
+  const db = getSqlClientOrThrow();
+  const rows = await db.any<CorrectedLens>(`
+    SELECT
+      t._id AS tag_id, t.name AS tag_name, t.slug AS tag_slug, t."oldSlugs" AS tag_old_slugs,
+      md._id AS lens_id, md.slug AS lens_slug, md."oldSlugs" AS lens_old_slugs, md.contents_latest AS lens_contents_latest,
+      r."collectionName" AS revision_collection_name,
+      (SELECT _id FROM "Revisions" r2 WHERE r2."documentId" = md._id ORDER BY r2."editedAt" DESC LIMIT 1) AS latest_lens_revision_id
+    FROM "MultiDocuments" md
+    JOIN "Revisions" r
+    ON md.contents_latest = r._id
+    JOIN "Tags" t
+    ON md."parentDocumentId" = t._id
+    WHERE r."documentId" <> md._id;  
+  `);
+
+  console.log(`Found ${rows.length} rows`);
+  for (const row of rows) {
+    await MultiDocuments.rawUpdateOne(
+      {_id: row.lens_id},
+      {$set: {contents_latest: row.latest_lens_revision_id}}
+    );
+  }
+};

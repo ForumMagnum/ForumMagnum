@@ -97,9 +97,10 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   title: {
     ...theme.typography[isFriendlyUI ? "display2" : "display3"],
     ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
-    marginTop: 0,
+    marginTop: 4,
+    marginBottom: 12,
     fontWeight: isFriendlyUI ? 700 : 600,
-    ...theme.typography.smallCaps,
+    lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
       fontSize: '27px',
     },
@@ -208,15 +209,13 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     ...theme.typography.body1,
     color: theme.palette.grey[600],
     display: 'flex',
-    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    columnGap: 4,
     fontSize: '17px',
     lineHeight: 'inherit',
     marginBottom: 8,
   },
   lastUpdated: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[600],
-    fontWeight: 550,
   },
   alternativeArrowIcon: {
     width: 16,
@@ -807,7 +806,7 @@ const LWTagPage = () => {
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={<Components.ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
+      heading={<Components.ToCContributorsList contributors={topContributors.concat(smallContributors)} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover
