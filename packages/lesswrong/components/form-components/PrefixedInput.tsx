@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     fill: theme.palette.grey[1000],
-    marginRight: 6
+    marginRight: 8
   },
   inputAdornment: {
     marginRight: 0,
@@ -24,6 +24,7 @@ const styles = (theme: ThemeType) => ({
 export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", SocialMediaSiteName> = {
   "linkedinProfileURL": "linkedin",
   "facebookProfileURL": "facebook",
+  "blueskyProfileURL": "bluesky",
   "twitterProfileURL": "twitter",
   "githubProfileURL": "github",
   "website": "website",

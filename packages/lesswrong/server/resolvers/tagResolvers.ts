@@ -30,7 +30,7 @@ import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { updateMutator } from '../vulcan-lib';
+import { Globals, updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
@@ -39,6 +39,9 @@ import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import { namedPromiseAll } from '@/lib/utils/asyncUtils';
+import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { getLatestRev } from '../editor/utils';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -789,6 +792,8 @@ defineMutation({
     });
     const latestTagRevisionId = tag.description_latest;
     const latestLensRevisionId = lensMultiDocument.contents_latest;
+    const latestLensRevision = lensRevisions.find(l => l._id===latestLensRevisionId);
+    if (!latestLensRevision) throw new Error("Couldn't find latest lens revision");
     console.log(`Moving ${tagRevisions.length} revisions from tag to lens`); //eslint-disable-line no-console
     console.log(`Moving ${lensRevisions.length} revisions from lens to tag`); //eslint-disable-line no-console
     await Promise.all([
@@ -812,6 +817,18 @@ defineMutation({
       )
     ]);
     
+    await Tags.rawUpdateOne(
+      {_id: tag._id},
+      {$set: {
+        description: {
+          ...pick(latestLensRevision, [
+            "html", "version", "userId", "editedAt", "wordCount",
+            "originalContents", "commitMessage", "googleDocMetadata", "updateType"
+          ])
+        }
+      }},
+    );
+    
     // Swap the description_latest field
     await Promise.all([
       Tags.rawUpdateOne(
@@ -821,7 +838,7 @@ defineMutation({
         }}
       ),
       context.MultiDocuments.rawUpdateOne(
-        {_id: latestLensRevisionId},
+        {_id: lensMultiDocument._id},
         {$set: {
           contents_latest: latestTagRevisionId
         }}
@@ -839,7 +856,17 @@ defineMutation({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
-      })
+      }),
+      updateDenormalizedContributorsList({
+        document: tag,
+        collectionName: "Tags",
+        fieldName: "description",
+      }),
+      updateDenormalizedContributorsList({
+        document: lensMultiDocument,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      }),
     ]);
     
     // eslint-disable-next-line no-console
@@ -847,3 +874,55 @@ defineMutation({
     return true;
   }
 });
+
+Globals.recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+  const tag = await Tags.findOne({slug: tagSlug});
+  if (!tag) throw new Error(`No such tag: ${tagSlug}`);
+  const latestRev = await getLatestRev(tag._id, "description");
+  if (!latestRev) throw new Error("Could not get latest rev");
+  await Tags.rawUpdateOne(
+    {_id: tag._id},
+    {$set: {
+      description: {
+        ...pick(latestRev, [
+          "html", "version", "userId", "editedAt", "wordCount",
+          "originalContents", "commitMessage", "googleDocMetadata", "updateType"
+        ])
+      }
+    }},
+  );
+}
+
+Globals.recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+  const tag = await Tags.findOne({slug: tagSlug});
+  if (!tag) throw new Error(`No such tag: ${tagSlug}`);
+  const lenses = await MultiDocuments.find({
+    parentDocumentId: tag._id,
+    fieldName: "description",
+  }).fetch();
+  // eslint-disable-next-line no-console
+  console.log(`Found ${lenses.length} lenses`);
+
+  await updateDenormalizedHtmlAttributions({
+    document: tag,
+    collectionName: "Tags",
+    fieldName: "description",
+  });
+  await updateDenormalizedContributorsList({
+    document: tag,
+    collectionName: "Tags",
+    fieldName: "description",
+  });
+  for (const lensMultiDocument of lenses) {
+    await updateDenormalizedHtmlAttributions({
+      document: lensMultiDocument,
+      collectionName: "MultiDocuments",
+      fieldName: "contents",
+    });
+    await updateDenormalizedContributorsList({
+      document: lensMultiDocument,
+      collectionName: "MultiDocuments",
+      fieldName: "contents",
+    });
+  }
+}

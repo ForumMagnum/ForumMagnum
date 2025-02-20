@@ -101,8 +101,6 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny,
       wikiOnly: viewFieldAllowAny,
-      // TODO: remove this after cleaning up db from Arbital imports leaving many deleted tags with the same slug
-      deleted: false,
     },
   };
 });

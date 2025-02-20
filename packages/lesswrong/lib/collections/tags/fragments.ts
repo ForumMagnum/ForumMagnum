@@ -475,6 +475,7 @@ registerFragment(`
       _id
       wordCount
     }
+    wikiOnly
     isArbitalImport
     coreTagId
     maxScore

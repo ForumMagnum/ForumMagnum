@@ -1972,6 +1972,7 @@ interface DbUser extends DbObject {
   fmCrosspostUserId: string | null
   linkedinProfileURL: string | null
   facebookProfileURL: string | null
+  blueskyProfileURL: string | null
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
   githubProfileURL: string | null

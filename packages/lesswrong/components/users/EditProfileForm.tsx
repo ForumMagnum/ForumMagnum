@@ -169,6 +169,7 @@ const EditProfileForm = ({classes}: {
           'howICanHelpOthers',
           'linkedinProfileURL',
           'facebookProfileURL',
+          'blueskyProfileURL',
           'twitterProfileURL',
           'githubProfileURL',
           'profileTagIds',

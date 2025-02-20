@@ -2669,6 +2669,21 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.socialMedia,
     order: 2,
   },
+  blueskyProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
+      smallBottomMargin: true,
+    },
+    group: formGroups.socialMedia,
+    order: 3,
+  },
   /**
    * Twitter profile URL that the user can set in their public profile. "URL" is a bit of a misnomer here,
    * if entered correctly this will be *just* the handle (e.g. "eaforumposts" for the account at https://twitter.com/eaforumposts)
@@ -2686,7 +2701,7 @@ const schema: SchemaType<"Users"> = {
       smallBottomMargin: true,
     },
     group: formGroups.socialMedia,
-    order: 3,
+    order: 4,
   },
   /**
    * Twitter profile URL that can only be set by mods/admins. for when a more reliable reference is needed than
