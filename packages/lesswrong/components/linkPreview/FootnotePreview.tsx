@@ -13,6 +13,7 @@ import { useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
+import type { ContentStyleType } from '../common/ContentStyles';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -128,11 +129,12 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   },
 })
 
-const FootnotePreview = ({classes, href, id, rel, children}: {
+const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
   classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
   rel?: string,
+  contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
   const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
@@ -195,7 +197,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         allowOverflow
       >
         <Card>
-          <ContentStyles contentType="postHighlight" className={classes.hovercard}>
+          <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
             <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
           </ContentStyles>
         </Card>
@@ -213,6 +215,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
             <SidenoteDisplay
               footnoteHref={href}
               footnoteHTML={footnoteHTML}
+              contentStyleType={contentStyleType}
               classes={classes}
             />
           </div>
@@ -277,16 +280,17 @@ const isFootnoteContentsNonempty = (footnoteContentsElement: Element): boolean =
       .reduce((acc, p) => acc + p.textContent, "").trim();
 }
 
-const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
+const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType, classes}: {
   footnoteHref: string,
   footnoteHTML: string,
+  contentStyleType: ContentStyleType,
   classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
-    <ContentStyles contentType="postHighlight">
+    <ContentStyles contentType={contentStyleType}>
       <span className={classes.sidenoteWithIndex}>
         {footnoteIndex !== null && <span className={classes.sidenoteIndex}>
           {footnoteIndex}{"."}
