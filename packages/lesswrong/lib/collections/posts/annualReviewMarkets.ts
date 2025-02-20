@@ -3,7 +3,7 @@ import { loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
 
 // Information about a market, but without bets or comments
-type LiteMarket = {
+export type LiteMarket = {
   // Unique identifer for this market
   id: string
 
