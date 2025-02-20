@@ -14,7 +14,7 @@ if (isDatadogEnabled) {
     service: 'forummagnum',
     blocklist: [
       // This stays open for a long time and skews the average request duration
-      '/api/notificationEvents'
+      /notificationEvents/
     ]
   })
 }
