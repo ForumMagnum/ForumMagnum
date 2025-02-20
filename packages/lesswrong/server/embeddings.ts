@@ -1,5 +1,6 @@
 import Posts from "../lib/collections/posts/collection";
-import { PostEmbeddingsRepo, PostsRepo } from "./repos";
+import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
+import PostsRepo from "./repos/PostsRepo";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";

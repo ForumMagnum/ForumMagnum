@@ -16,7 +16,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
-import Users from '../../lib/vulcan-users';
+import Users from '../../lib/collections/users/collection';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';

@@ -1,6 +1,6 @@
 import { wrapVulcanAsyncScript } from "./utils";
 import { Vulcan } from '../../lib/vulcan-lib/config';
-import Users from "../../lib/vulcan-users";
+import Users from "../../lib/collections/users/collection";
 
 /**
  * Fixes users affected by a bug on 2021-10-05 where the NewUserCompleteProfile process was setting their email to null. Fortunately their emails were spared.

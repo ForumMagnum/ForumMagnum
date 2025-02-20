@@ -2,7 +2,7 @@ import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { Votes } from "../../lib/collections/votes/collection";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import Users from "../../lib/vulcan-users";
+import Users from "../../lib/collections/users/collection";
 import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/client";
 import { Globals } from "../../lib/vulcan-lib/config";
 import chunk from "lodash/chunk";

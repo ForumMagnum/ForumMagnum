@@ -1,6 +1,6 @@
 import Users from '../../lib/collections/users/collection';
 import { nullifyVotesForUser, nullifyVotesForUserByTarget, silentlyReverseVote } from '../callbacks';
-import { VotesRepo } from '../repos';
+import VotesRepo from '../repos/VotesRepo';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Globals } from "../../lib/vulcan-lib/config";
 import { createAdminContext } from "../vulcan-lib/query";

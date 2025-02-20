@@ -1,4 +1,4 @@
-import Users from "@/lib/vulcan-users";
+import Users from "@/lib/collections/users/collection";
 import { performVoteServer } from "../voteServer"
 import { Posts } from "@/lib/collections/posts/collection.ts";
 import { karmaRewarderId100, karmaRewarderId1000 } from "@/lib/voting/vote";

@@ -24,7 +24,7 @@ import { tagGetDiscussionUrl } from '@/lib/collections/tags/helpers';
 import { randomId } from '@/lib/random';
 import isEqual from 'lodash/isEqual';
 import type { ForumEventCommentMetadata } from '@/lib/collections/forumEvents/types';
-import { ForumEventsRepo } from '../repos';
+import ForumEventsRepo from '../repos/ForumEventsRepo';
 
 
 const MINIMUM_APPROVAL_KARMA = 5

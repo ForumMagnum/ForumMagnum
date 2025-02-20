@@ -5,7 +5,7 @@ import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
 import { ensureIndex } from "../../../lib/collectionIndexUtils";
-import { UsersRepo } from "../../repos";
+import UsersRepo from "../../repos/UsersRepo";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({

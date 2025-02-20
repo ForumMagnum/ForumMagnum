@@ -1,6 +1,6 @@
 import { emailBodyStyles } from "@/themes/stylePiping";
 import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
-import Users from "@/lib/vulcan-users";
+import Users from "@/lib/collections/users/collection";
 import Conversations from "@/lib/collections/conversations/collection";
 import { Posts } from "@/lib/collections/posts/collection.ts";
 import { filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";

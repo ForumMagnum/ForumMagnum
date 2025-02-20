@@ -8,7 +8,7 @@ import last from "lodash/fp/last";
 import range from "lodash/range";
 import sumBy from "lodash/sumBy";
 import { Posts } from "@/lib/collections/posts/collection.ts";
-import Users from "@/lib/vulcan-users"
+import Users from "@/lib/collections/users/collection";
 import ReadStatuses from "@/lib/collections/readStatus/collection";
 import Tags from "@/lib/collections/tags/collection";
 import moment from "moment";

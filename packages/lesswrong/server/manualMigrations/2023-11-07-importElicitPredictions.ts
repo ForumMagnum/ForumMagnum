@@ -2,7 +2,8 @@ import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredi
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import { executePromiseQueue } from '../../lib/utils/asyncUtils';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { CommentsRepo, PostsRepo } from '../repos';
+import CommentsRepo from '../repos/CommentsRepo';
+import PostsRepo from '../repos/PostsRepo';
 import { ElicitPredictionData, getPredictionDataFromElicit, getPredictionsFromElicit } from '../resolvers/elicitPredictions';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';

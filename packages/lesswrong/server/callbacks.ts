@@ -18,7 +18,7 @@ import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
-import { UsersRepo } from './repos';
+import UsersRepo from './repos/UsersRepo';
 import { syncDocumentWithLatestRevision } from './editor/utils';
 import { getCollection } from "../lib/vulcan-lib/getCollection";
 import { createMutator, deleteMutator, updateMutator } from "./vulcan-lib/mutators";

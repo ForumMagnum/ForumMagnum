@@ -5,7 +5,7 @@ import { Posts } from "@/lib/collections/posts/collection.ts";
 import Tweets from "@/lib/collections/tweets/collection";
 import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import Users from "@/lib/vulcan-users";
+import Users from "@/lib/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { Globals } from "../lib/vulcan-lib/config";

@@ -1,5 +1,5 @@
 import { addCronJob } from "../cronUtil";
-import { PostRecommendationsRepo } from "../repos";
+import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 
 addCronJob({
   name: "clearStaleRecommendations",

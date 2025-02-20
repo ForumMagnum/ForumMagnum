@@ -4,7 +4,7 @@ import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments/collection';
-import {CommentsRepo} from "../repos";
+import CommentsRepo from '../repos/CommentsRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';

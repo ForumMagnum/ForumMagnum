@@ -10,7 +10,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { UsersRepo } from '../repos';
+import UsersRepo from '../repos/UsersRepo';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';

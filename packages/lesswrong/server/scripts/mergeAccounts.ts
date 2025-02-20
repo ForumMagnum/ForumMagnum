@@ -6,7 +6,10 @@ import { Votes } from '../../lib/collections/votes/collection';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
+import ConversationsRepo from '../repos/ConversationsRepo';
+import LocalgroupsRepo from '../repos/LocalgroupsRepo';
+import PostsRepo from '../repos/PostsRepo';
+import VotesRepo from '../repos/VotesRepo';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';

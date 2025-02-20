@@ -43,7 +43,7 @@ function generateAllComponentsVite(): string {
 function generateAllComponents(): string {
   const componentsDir = "packages/lesswrong/components";
   const header = `// Generated file - run "yarn generate" to update
-import { importComponent } from '../vulcan-lib';
+import { importComponent } from '../vulcan-lib/components';
 
 `;
 
