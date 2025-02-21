@@ -17,24 +17,24 @@ export function generateLinkSharingKey(): string {
   return randomSecret();
 }
 
-getCollectionHooks("Posts").newSync.add(function addLinkSharingKey(post: DbPost): DbPost {
-  return {
-    ...post,
-    linkSharingKey: generateLinkSharingKey()
-  };
-});
+// getCollectionHooks("Posts").newSync.add(function addLinkSharingKey(post: DbPost): DbPost {
+//   return {
+//     ...post,
+//     linkSharingKey: generateLinkSharingKey()
+//   };
+// });
 
 
-getCollectionHooks("Posts").updateBefore.add(function onEditAddLinkSharingKey(data: Partial<DbPost>, {oldDocument}): Partial<DbPost> {
-  if (!oldDocument.linkSharingKey) {
-    return {
-      ...data,
-      linkSharingKey: generateLinkSharingKey()
-    };
-  } else {
-    return data;
-  }
-});
+// getCollectionHooks("Posts").updateBefore.add(function onEditAddLinkSharingKey(data: Partial<DbPost>, {oldDocument}): Partial<DbPost> {
+//   if (!oldDocument.linkSharingKey) {
+//     return {
+//       ...data,
+//       linkSharingKey: generateLinkSharingKey()
+//     };
+//   } else {
+//     return data;
+//   }
+// });
 
 defineMutation({
   name: "unlockPost",

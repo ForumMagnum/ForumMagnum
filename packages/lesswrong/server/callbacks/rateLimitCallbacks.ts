@@ -12,20 +12,20 @@ const changesAllowedSetting = new DatabaseServerSetting<number>('displayNameRate
 const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
 
 // Post rate limiting
-getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
-  if (!post.draft && !post.isEvent) {
-    await enforcePostRateLimit(currentUser!);
-  }
-  return validationErrors;
-});
+// getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
+//   if (!post.draft && !post.isEvent) {
+//     await enforcePostRateLimit(currentUser!);
+//   }
+//   return validationErrors;
+// });
 
-getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
-  // Only undrafting is rate limited, not other edits
-  if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
-    await enforcePostRateLimit(currentUser!);
-  }
-  return validationErrors;
-});
+// getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
+//   // Only undrafting is rate limited, not other edits
+//   if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
+//     await enforcePostRateLimit(currentUser!);
+//   }
+//   return validationErrors;
+// });
 
 getCollectionHooks("Users").updateValidate.add(async function ChangeDisplayNameRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
   if (oldDocument.displayName !== newDocument.displayName) {

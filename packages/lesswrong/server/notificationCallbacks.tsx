@@ -738,10 +738,10 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
-getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAddedAsCoauthors ({ document: post }) {
-  const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
-  await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
-});
+// getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAddedAsCoauthors ({ document: post }) {
+//   const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
+//   await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
+// });
 
 getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {
   const newCoauthorIds = getConfirmedCoauthorIds(newPost);
@@ -771,7 +771,7 @@ const sendCoauthorRequestNotifications = async (post: DbPost) => {
   return post;
 }
 
-getCollectionHooks("Posts").newAfter.add(sendCoauthorRequestNotifications);
+// getCollectionHooks("Posts").newAfter.add(sendCoauthorRequestNotifications);
 getCollectionHooks("Posts").updateAfter.add(sendCoauthorRequestNotifications);
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {

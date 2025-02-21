@@ -4,7 +4,7 @@ import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { autoFrontpageModelSetting, autoFrontpagePromptSetting, autoFrontpageSetting, DatabaseServerSetting, tagBotAccountSlug, tagBotActiveTimeSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest, isE2E } from '../../lib/executionEnvironment';
@@ -108,12 +108,6 @@ import { isWeekend } from '@/lib/utils/timeUtil';
  */
 
 const bodyWordCountLimit = 1500;
-const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
-const tagBotActiveTimeSetting = new DatabaseServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
-
-const autoFrontpageSetting = new DatabaseServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
-const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
-const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
 /**
  * Preprocess HTML before converting to markdown to be then converted into a
@@ -261,7 +255,7 @@ export async function checkFrontpage(
 }
 
 
-async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
+export async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
   const accountSlug = tagBotAccountSlug.get();
   if (!accountSlug) return null;
   const account = await Users.findOne({slug: accountSlug});
@@ -403,9 +397,9 @@ getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, co
     void autoReview(newDocument, context);
   }
 })
-getCollectionHooks("Posts").createAsync.add(async ({document, context}) => {
-  if (!document.draft) {
-    // Post created (and is not a draft)
-    void autoReview(document, context);
-  }
-})
+// getCollectionHooks("Posts").createAsync.add(async ({document, context}) => {
+//   if (!document.draft) {
+//     // Post created (and is not a draft)
+//     void autoReview(document, context);
+//   }
+// })

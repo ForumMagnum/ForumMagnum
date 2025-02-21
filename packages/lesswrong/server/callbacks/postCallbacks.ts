@@ -7,7 +7,7 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
-import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
+import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
@@ -36,6 +36,11 @@ import { getLatestContentsRevision } from '../../lib/collections/revisions/helpe
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
+import { addReferrerToPost, debateMustHaveCoauthor, fixEventStartAndEndTimes, postsNewDefaultLocation, postsNewUserApprovedStatus, postsNewDefaultTypes, scheduleCoauthoredPostWithUnconfirmedCoauthors, postsNewRateLimit, checkRecentRepost, applyNewPostTags, lwPostsNewUpvoteOwnPost, sendCoauthorRequestNotifications, postsNewPostRelation, extractSocialPreviewImage, notifyUsersAddedAsPostCoauthors, triggerReviewForNewPostIfNeeded, autoReviewNewPost, postsUndraftRateLimit, onEditAddLinkSharingKey, setPostUndraftedFields, scheduleCoauthoredPostWhenUndrafted } from './postCallbackFunctions';
+import { getEditableCallbacks } from '../editor/make_editable_callbacks';
+import { formGroups } from '@/lib/collections/posts/formGroups';
+import { getSlugCallbacks } from '../utils/slugUtil';
+import { swrInvalidatePostRoute } from '../cache/swr';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -49,6 +54,130 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+}
+
+// post slug callbacks
+const { slugCreateBeforeCallbackFunction, slugUpdateBeforeCallbackFunction } = getSlugCallbacks<'Posts'>({
+  collection: Posts,
+  getTitle: (post) => post.title,
+  includesOldSlugs: false,
+  collectionsToAvoidCollisionsWith: ['Posts'],
+  onCollision: 'newDocumentGetsSuffix',
+});
+
+// post `contents` callbacks
+const { createBefore: createBeforeContents, createAfter: createAfterContents, newAsync: newAsyncContents, updateBefore: updateBeforeContents, updateAfter: updateAfterContents, editAsync: editAsyncContents } = getEditableCallbacks({
+  collection: Posts,
+  options: {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+    permissions: {
+      canRead: ['guests'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
+    },
+    hasToc: true,
+    normalized: true,
+  }
+});
+
+async function postCreateValidate(validationErrors: CallbackValidationErrors, props: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
+  debateMustHaveCoauthor(validationErrors, props);
+  await postsNewRateLimit(validationErrors, props);
+
+  return validationErrors;
+}
+
+async function postCreateBefore(doc: DbInsertion<DbPost>, props: CreateCallbackProperties<'Posts'>): Promise<DbInsertion<DbPost>> {
+  // TODO: other two post editable fields
+  const { editorSerializationBeforeCreate } = createBeforeContents;
+  
+  let mutablePost = doc;
+
+  mutablePost = await slugCreateBeforeCallbackFunction(mutablePost, props);
+  mutablePost = addReferrerToPost(mutablePost, props) ?? mutablePost;
+  mutablePost = await editorSerializationBeforeCreate(mutablePost, props);
+
+  return mutablePost;
+}
+
+async function postNewSync(post: DbPost, currentUser: DbUser | null, context: ResolverContext): Promise<DbPost> {
+  // TODO: add forum-gated EA forum callbacks
+  if (isEAForum) {
+    post = await checkTosAccepted(currentUser, post);
+    post = assertPostTitleHasNoEmojis(post);
+  }
+
+  post = await checkRecentRepost(post, currentUser, context);
+  post = await postsNewDefaultLocation(post);
+  post = await postsNewDefaultTypes(post, currentUser, context);
+  post = await postsNewUserApprovedStatus(post, currentUser, context);
+  post = await fixEventStartAndEndTimes(post);
+  post = await scheduleCoauthoredPostWithUnconfirmedCoauthors(post);
+  post = await performCrosspost(post);
+  return post;
+}
+
+async function postCreateAfter(post: DbPost, props: AfterCreateCallbackProperties<'Posts'>): Promise<DbPost> {
+  // TODO: other two post editable fields
+  const { editorSerializationAfterCreate, notifyUsersAboutPingbackMentionsInCreate, updateFirstDebateCommentPostId } = createAfterContents;
+  await swrInvalidatePostRoute(post._id) ;
+  if (!post.authorIsUnreviewed && !post.draft) {
+    void onPostPublished(post, props.context);
+  }
+  post = await applyNewPostTags(post, props);
+  post = await createNewJargonTermsCallback(post, props);
+
+  // post.contents editable callbacks
+  post = await editorSerializationAfterCreate(post);
+  post = await notifyUsersAboutPingbackMentionsInCreate(post, props);
+  post = await updateFirstDebateCommentPostId(post, props);
+
+  // TODO: addCountOfReferenceCallbacks (3 of them, for posts - 3 fields?)
+
+  // NOTE: newAfter callbacks that were moved into createAfter
+  post = await sendCoauthorRequestNotifications(post, props);
+  post = await lwPostsNewUpvoteOwnPost(post, props);
+  post = postsNewPostRelation(post, props);
+  post = await extractSocialPreviewImage(post, props);
+
+  return post;
+}
+
+async function postCreateAsync(props: AfterCreateCallbackProperties<'Posts'>) {
+  await notifyUsersAddedAsPostCoauthors(props);
+  await triggerReviewForNewPostIfNeeded(props);
+  await autoReviewNewPost(props);
+  // TODO: elastic callbacks
+}
+
+async function postUpdateValidate(validationErrors: CallbackValidationErrors, props: UpdateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
+  validationErrors = await postsUndraftRateLimit(validationErrors, props);
+  return validationErrors;
+}
+
+async function postUpdateBefore(post: Partial<DbPost>, props: UpdateCallbackProperties<'Posts'>): Promise<Partial<DbPost>> {
+  const { editorSerializationEdit } = updateBeforeContents;
+  // TODO: add forum-gated EA forum callbacks
+  if (isEAForum) {
+    post = await checkTosAccepted(props.currentUser, post);
+    post = assertPostTitleHasNoEmojis(post);
+  }
+
+  post = await slugUpdateBeforeCallbackFunction(post, props);
+  post = onEditAddLinkSharingKey(post, props);
+  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
+  await checkRecentRepost(props.newDocument, props.currentUser, props.context);
+  post = setPostUndraftedFields(post, props);
+  post = scheduleCoauthoredPostWhenUndrafted(post, props);
+  post = await handleCrosspostUpdate(post, props);
+
+  // TODO: other 2 post editable fields
+  post = await editorSerializationEdit(post, props);
+
+  return post;
 }
 
 if (isEAForum) {
@@ -105,49 +234,49 @@ if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   );
 }
 
-async function checkRecentRepost(post: DbPost): Promise<DbPost> {
-  if (!post.draft) {
-    const oneHourAgo = new Date(Date.now() - (60 * 60 * 1000));
-    const existing = await Posts.findOne({
-      _id: {$ne: post._id},
-      title: post.title,
-      userId: post.userId,
-      draft: {$ne: true},
-      deletedDraft: {$ne: true},
-      createdAt: {$gt: oneHourAgo},
-    });
-    if (existing) {
-      throw new Error(`You recently published another post titled "${post.title}"`);
-    }
-  }
-  return post;
-}
+// async function checkRecentRepost(post: DbPost): Promise<DbPost> {
+//   if (!post.draft) {
+//     const oneHourAgo = new Date(Date.now() - (60 * 60 * 1000));
+//     const existing = await Posts.findOne({
+//       _id: {$ne: post._id},
+//       title: post.title,
+//       userId: post.userId,
+//       draft: {$ne: true},
+//       deletedDraft: {$ne: true},
+//       createdAt: {$gt: oneHourAgo},
+//     });
+//     if (existing) {
+//       throw new Error(`You recently published another post titled "${post.title}"`);
+//     }
+//   }
+//   return post;
+// }
 
-getCollectionHooks("Posts").newSync.add(checkRecentRepost);
-getCollectionHooks("Posts").updateBefore.add(async (data, { newDocument }) => {
-  await checkRecentRepost(newDocument);
-  return data;
-});
+// getCollectionHooks("Posts").newSync.add(checkRecentRepost);
+// getCollectionHooks("Posts").updateBefore.add(async (data, { newDocument }) => {
+//   await checkRecentRepost(newDocument);
+//   return data;
+// });
 
-getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
-  if (document.debate && !document.coauthorStatuses?.length) {
-    throw new Error('Dialogue must have at least one co-author!');
-  }
+// getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
+//   if (document.debate && !document.coauthorStatuses?.length) {
+//     throw new Error('Dialogue must have at least one co-author!');
+//   }
 
-  return validationErrors;
-});
+//   return validationErrors;
+// });
 
-getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
-  // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
-  // If the post has previously been published then moved to drafts, and now
-  // it's being republished then we shouldn't reset the `postedAt` date.
-  const isRepublish = post.wasEverUndrafted || data.wasEverUndrafted;
-  if (data.draft === false && post.draft && !isRepublish) {
-    data.postedAt = new Date();
-    data.wasEverUndrafted = true;
-  }
-  return data;
-});
+// getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
+//   // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
+//   // If the post has previously been published then moved to drafts, and now
+//   // it's being republished then we shouldn't reset the `postedAt` date.
+//   const isRepublish = post.wasEverUndrafted || data.wasEverUndrafted;
+//   if (data.draft === false && post.draft && !isRepublish) {
+//     data.postedAt = new Date();
+//     data.wasEverUndrafted = true;
+//   }
+//   return data;
+// });
 
 export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
@@ -177,78 +306,78 @@ export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   }
 }
 
-getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
-  return {...post, ...(await getDefaultPostLocationFields(post))}
-});
+// getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
+//   return {...post, ...(await getDefaultPostLocationFields(post))}
+// });
 
-getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post: DbPost): Promise<DbPost> {
-  if (post.isEvent && post.groupId && !post.types) {
-    const localgroup = await Localgroups.findOne(post.groupId) 
-    if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
-    const { types } = localgroup
-    post = {...post, types}
-  }
-  return post
-});
+// getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post: DbPost): Promise<DbPost> {
+//   if (post.isEvent && post.groupId && !post.types) {
+//     const localgroup = await Localgroups.findOne(post.groupId) 
+//     if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
+//     const { types } = localgroup
+//     post = {...post, types}
+//   }
+//   return post
+// });
 
 // LESSWRONG – bigUpvote
-getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
- var postAuthor = await Users.findOne(post.userId);
- if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
- const { performVoteServer } = require("../voteServer");
- const {modifiedDocument: votedPost} = await performVoteServer({
-   document: post,
-   voteType: 'bigUpvote',
-   collection: Posts,
-   user: postAuthor,
-   skipRateLimits: true,
-   selfVote: true
- })
- return {...post, ...votedPost} as DbPost;
-});
+// getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
+//  var postAuthor = await Users.findOne(post.userId);
+//  if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+//  const { performVoteServer } = require("../voteServer");
+//  const {modifiedDocument: votedPost} = await performVoteServer({
+//    document: post,
+//    voteType: 'bigUpvote',
+//    collection: Posts,
+//    user: postAuthor,
+//    skipRateLimits: true,
+//    selfVote: true
+//  })
+//  return {...post, ...votedPost} as DbPost;
+// });
 
-getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
-  if (!post.authorIsUnreviewed && !post.draft) {
-    void onPostPublished(post, context);
-  }
-});
+// getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
+//   if (!post.authorIsUnreviewed && !post.draft) {
+//     void onPostPublished(post, context);
+//   }
+// });
 
-getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
-  const postAuthor = await Users.findOne(post.userId);
-  if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
-    return {...post, authorIsUnreviewed: true}
-  }
-  return post;
-});
+// getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
+//   const postAuthor = await Users.findOne(post.userId);
+//   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+//     return {...post, authorIsUnreviewed: true}
+//   }
+//   return post;
+// });
 
-getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, properties)
-{
-  if (properties && properties.context && properties.context.headers) {
-    let referrer = properties.context.headers["referer"];
-    let userAgent = properties.context.headers["user-agent"];
+// getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, properties)
+// {
+//   if (properties && properties.context && properties.context.headers) {
+//     let referrer = properties.context.headers["referer"];
+//     let userAgent = properties.context.headers["user-agent"];
     
-    return {
-      ...post,
-      referrer: referrer,
-      userAgent: userAgent,
-    };
-  }
-});
+//     return {
+//       ...post,
+//       referrer: referrer,
+//       userAgent: userAgent,
+//     };
+//   }
+// });
 
-getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
-  if (post.originalPostRelationSourceId) {
-    void createMutator({
-      collection: PostRelations,
-      document: {
-        type: "subQuestion",
-        sourcePostId: post.originalPostRelationSourceId,
-        targetPostId: post._id,
-      },
-      validate: false,
-    })
-  }
-  return post
-});
+// getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
+//   if (post.originalPostRelationSourceId) {
+//     void createMutator({
+//       collection: PostRelations,
+//       document: {
+//         type: "subQuestion",
+//         sourcePostId: post.originalPostRelationSourceId,
+//         targetPostId: post._id,
+//       },
+//       validate: false,
+//     })
+//   }
+//   return post
+// });
 
 getCollectionHooks("Posts").editAsync.add(async function UpdatePostShortform (newPost, oldPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
@@ -283,11 +412,11 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<"Posts">) => {
-  if (!document.draft) {
-    await triggerReviewIfNeeded(document.userId)
-  }
-});
+// getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<"Posts">) => {
+//   if (!document.draft) {
+//     await triggerReviewIfNeeded(document.userId)
+//   }
+// });
 
 getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
   if (document.draft || document.rejected) return
@@ -415,42 +544,42 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
 });
 
 // Use the first image in the post as the social preview image
-async function extractSocialPreviewImage (post: DbPost) {
-  // socialPreviewImageId is set manually, and will override this
-  if (post.socialPreviewImageId) return post
+// async function extractSocialPreviewImage (post: DbPost) {
+//   // socialPreviewImageId is set manually, and will override this
+//   if (post.socialPreviewImageId) return post
 
-  const contents = await getLatestContentsRevision(post);
-  if (!contents) {
-    return post;
-  }
+//   const contents = await getLatestContentsRevision(post);
+//   if (!contents) {
+//     return post;
+//   }
 
-  let socialPreviewImageAutoUrl = ''
-  if (contents?.html) {
-    const $ = cheerioParse(contents?.html)
-    const firstImg = $('img').first()
-    const firstImgSrc = firstImg?.attr('src')
-    if (firstImg && firstImgSrc) {
-      try {
-        socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
-      } catch (e) {
-        captureException(e);
-        socialPreviewImageAutoUrl = firstImgSrc
-      }
-    }
-  }
+//   let socialPreviewImageAutoUrl = ''
+//   if (contents?.html) {
+//     const $ = cheerioParse(contents?.html)
+//     const firstImg = $('img').first()
+//     const firstImgSrc = firstImg?.attr('src')
+//     if (firstImg && firstImgSrc) {
+//       try {
+//         socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
+//       } catch (e) {
+//         captureException(e);
+//         socialPreviewImageAutoUrl = firstImgSrc
+//       }
+//     }
+//   }
   
-  // Side effect is necessary, as edit.async does not run a db update with the
-  // returned value
-  // It's important to run this regardless of whether or not we found an image,
-  // as removing an image should remove the social preview for that image
-  await Posts.rawUpdateOne({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
+//   // Side effect is necessary, as edit.async does not run a db update with the
+//   // returned value
+//   // It's important to run this regardless of whether or not we found an image,
+//   // as removing an image should remove the social preview for that image
+//   await Posts.rawUpdateOne({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
   
-  return {...post, socialPreviewImageAutoUrl}
+//   return {...post, socialPreviewImageAutoUrl}
   
-}
+// }
 
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
-getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
+// getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 
 // For posts without comments, update lastCommentedAt to match postedAt
 //
@@ -466,38 +595,38 @@ async function oldPostsLastCommentedAt (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
 
-getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
-  // make sure courses/programs have no end time
-  // (we don't want them listed for the length of the course, just until the application deadline / start time)
-  if (post.eventType === 'course') {
-    return {
-      ...post,
-      endTime: null
-    }
-  }
+// getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+//   // make sure courses/programs have no end time
+//   // (we don't want them listed for the length of the course, just until the application deadline / start time)
+//   if (post.eventType === 'course') {
+//     return {
+//       ...post,
+//       endTime: null
+//     }
+//   }
 
-  // If the post has an end time but no start time, move the time given to the startTime
-  // slot, and leave the end time blank
-  if (post?.endTime && !post?.startTime) {
-    return {
-      ...post,
-      startTime: post.endTime,
-      endTime: null,
-    };
-  }
+//   // If the post has an end time but no start time, move the time given to the startTime
+//   // slot, and leave the end time blank
+//   if (post?.endTime && !post?.startTime) {
+//     return {
+//       ...post,
+//       startTime: post.endTime,
+//       endTime: null,
+//     };
+//   }
   
-  // If both start time and end time are given but they're swapped, swap them to
-  // the right order
-  if (post.startTime && post.endTime && moment(post.startTime).isAfter(post.endTime)) {
-    return {
-      ...post,
-      startTime: post.endTime,
-      endTime: post.startTime,
-    };
-  }
+//   // If both start time and end time are given but they're swapped, swap them to
+//   // the right order
+//   if (post.startTime && post.endTime && moment(post.startTime).isAfter(post.endTime)) {
+//     return {
+//       ...post,
+//       startTime: post.endTime,
+//       endTime: post.startTime,
+//     };
+//   }
   
-  return post;
-});
+//   return post;
+// });
 
 getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
   // make sure courses/programs have no end time
@@ -519,24 +648,24 @@ const scheduleCoauthoredPost = (post: DbPost): DbPost => {
   return post;
 }
 
-getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
-  if (postHasUnconfirmedCoauthors(post) && !post.draft) {
-    post = scheduleCoauthoredPost(post);
-  }
-  return post;
-});
+// getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
+//   if (postHasUnconfirmedCoauthors(post) && !post.draft) {
+//     post = scheduleCoauthoredPost(post);
+//   }
+//   return post;
+// });
 
-getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<"Posts">) => {
-  // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
-  // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
-  if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
-    post = scheduleCoauthoredPost(post);
-  }
-  return post;
-});
+// getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<"Posts">) => {
+//   // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
+//   // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
+//   if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
+//     post = scheduleCoauthoredPost(post);
+//   }
+//   return post;
+// });
 
-getCollectionHooks("Posts").newSync.add(performCrosspost);
-getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
+// getCollectionHooks("Posts").newSync.add(performCrosspost);
+// getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
 
 async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) {
   const applyOneTag = async (tagId: string) => {
@@ -574,19 +703,19 @@ async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: Db
   await Promise.all(tagRels.map(clearOneTag))
 }
 
-getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
-  const {currentUser, context} = props;
-  if (!currentUser) return post; // Shouldn't happen, but just in case
+// getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
+//   const {currentUser, context} = props;
+//   if (!currentUser) return post; // Shouldn't happen, but just in case
   
-  if (post.tagRelevance) {
-    // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
-    const tagsToApply = Object.keys(post.tagRelevance);
-    post = {...post, tagRelevance: undefined};
-    await bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
-  }
+//   if (post.tagRelevance) {
+//     // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
+//     const tagsToApply = Object.keys(post.tagRelevance);
+//     post = {...post, tagRelevance: undefined};
+//     await bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
+//   }
 
-  return post;
-});
+//   return post;
+// });
 
 getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
   const {currentUser, context} = props;
@@ -749,6 +878,6 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
   return post;
 }
 
-getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
+// getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
 
 getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);

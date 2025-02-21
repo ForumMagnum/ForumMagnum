@@ -29,6 +29,12 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   
   add = (fn: CallbackChainFn<IteratorType,ArgumentsType>) => {
     this._callbacks.push(fn);
+    if (fn.name) {
+      console.log(`${this._name} added callback ${fn.name}`);
+    } else {
+      console.log(`${this._name} added callback without name`);
+      console.log(new Error().stack?.split('\n').slice(2, 3)[0]);
+    }
     if (this._callbacks.length > 20) {
       // eslint-disable-next-line no-console
       console.log(`Warning: Excessively many callbacks (${this._callbacks.length}) on hook ${this._name}.`);
@@ -119,6 +125,12 @@ export class CallbackHook<ArgumentsType extends any[]> {
   
   add = (fn: (...args: ArgumentsType) => void|Promise<void>) => {
     this._callbacks.push(fn);
+    if (fn.name) {
+      console.log(`${this._name} added callback ${fn.name}`);
+    } else {
+      console.log(`${this._name} added callback without name`);
+      console.log(new Error().stack?.split('\n').slice(2, 3)[0]);
+    }
     if (this._callbacks.length > 20) {
       // eslint-disable-next-line no-console
       console.log(`Warning: Excessively many callbacks (${this._callbacks.length}) on hook ${this._name}.`);
