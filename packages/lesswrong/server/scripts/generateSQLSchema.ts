@@ -10,9 +10,10 @@ import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '@/server/sql/CreateExtensionQuery';
 import CreateIndexQuery from '@/server/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '@/server/sql/Type';
-import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import type { CustomPgIndex } from '../../lib/collectionIndexUtils';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '@/server/sql/TableIndex';
+import { getAllIndexes } from '../databaseIndexes/allIndexes';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -255,7 +256,8 @@ const buildSchemaSQL = () => {
     const indexes: Node[] = table.getRequestedIndexes().map((i) => new IndexNode(table, i));
     return indexes.concat(new TableNode(table));
   }));
-  graph.addNodes(expectedCustomPgIndexes.map((i) => new CustomIndexNode(i)));
+  const customPgIndexes = getAllIndexes().customPgIndexes;
+  graph.addNodes(customPgIndexes.map((i) => new CustomIndexNode(i)));
   graph.addNodes(postgresFunctions.map((f) => new FunctionNode(f)));
   graph.addNodes(getAllPostgresViews().flatMap((view) => {
     const indexQueries = view.getCreateIndexQueries();

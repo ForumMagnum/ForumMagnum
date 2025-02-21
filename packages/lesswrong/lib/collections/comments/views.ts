@@ -3,11 +3,11 @@ import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } fr
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
-import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
 export const COMMENT_SORTING_MODES = new TupleSet([ 
   "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"

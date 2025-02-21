@@ -1,7 +1,7 @@
 import { Comments } from "../../collections/comments";
 import { ensureIndex } from '../../collectionIndexUtils';
 import { augmentForDefaultView } from '../../collections/comments/views';
-import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
 
 Comments.addView("alignmentSuggestedComments", function (terms) {
   return {

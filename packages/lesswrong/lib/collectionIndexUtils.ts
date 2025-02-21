@@ -1,20 +1,22 @@
 export const expectedIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {};
 
 export function ensureIndex<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collectionOrCollectionName: CollectionBase<N>|N,
   index: any,
   options: any={},
 ): void {
-  if (!expectedIndexes[collection.collectionName]) {
-    expectedIndexes[collection.collectionName] = [];
+  const collectionName = (typeof collectionOrCollectionName === 'string')
+    ? collectionOrCollectionName : collectionOrCollectionName.collectionName;
+  if (!expectedIndexes[collectionName]) {
+    expectedIndexes[collectionName] = [];
   }
-  expectedIndexes[collection.collectionName]!.push({
+  expectedIndexes[collectionName]!.push({
     ...options,
     key: index,
   });
 }
 
-type CustomPgIndexOptions = {
+export type CustomPgIndexOptions = {
   dependencies?: SchemaDependency[],
 }
 

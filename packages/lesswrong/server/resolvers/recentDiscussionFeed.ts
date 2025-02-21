@@ -7,7 +7,7 @@ import {
 } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
-import { viewFieldAllowAny } from '../vulcan-lib';
+import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
 
 const communityFilters = {
   none: {$or: [

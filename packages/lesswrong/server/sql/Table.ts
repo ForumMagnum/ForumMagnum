@@ -1,6 +1,6 @@
 import { Type, IdType, isResolverOnly } from "./Type";
 import TableIndex from "./TableIndex";
-import { expectedIndexes } from "@/lib/collectionIndexUtils";
+import { getAllIndexes } from "../databaseIndexes/allIndexes";
 import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
 
 /**
@@ -109,7 +109,7 @@ class Table<T extends DbObject> {
       }
     }
 
-    const indexes = expectedIndexes[collection.collectionName] ?? [];
+    const indexes = getAllIndexes().mongoStyleIndexes[collection.collectionName] ?? [];
     for (const index of indexes) {
       const {key, ...options} = index;
       table.addIndex(key, options);

@@ -14,10 +14,6 @@ import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
-import {
-  expectedIndexes,
-  expectedCustomPgIndexes,
-} from "../../../lib/collectionIndexUtils";
 import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
@@ -29,6 +25,7 @@ import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
 import { Globals } from '@/lib/vulcan-lib/config';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
+import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -192,14 +189,18 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
 export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
-  for (const index of expectedIndexes[collection.collectionName] ?? []) {
+  const allIndexes = getAllIndexes();
+  const indexesOnCollection = allIndexes.mongoStyleIndexes[collection.collectionName];
+  for (const index of indexesOnCollection ?? []) {
     await collection._ensureIndex(index.key, index);
     await sleep(100);
   }
 }
 
 export const updateCustomIndexes = async (db: SqlClientOrTx) => {
-  for (const index of expectedCustomPgIndexes) {
+  const allIndexes = getAllIndexes();
+  const customPgIndexes = allIndexes.customPgIndexes;
+  for (const index of customPgIndexes) {
     await db.none(index.source);
     await sleep(100);
   }
