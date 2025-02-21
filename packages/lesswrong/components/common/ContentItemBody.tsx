@@ -9,6 +9,7 @@ import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
+import type { ContentStyleType } from './ContentStyles';
 
 interface ExternalProps {
   /**
@@ -64,6 +65,11 @@ interface ExternalProps {
    * have been applied.
    */
   onContentReady?: (content: HTMLDivElement) => void;
+
+  /**
+   * If passed, will change the content style used in HoverPreviewLink.
+   */
+  contentStyleType?: ContentStyleType;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -356,6 +362,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         id={id}
         rel={rel}
         noPrefetch={this.props.noHoverPreviewPrefetch}
+        contentStyleType={this.props.contentStyleType}
       >
         <TagLinkContents/>
       </Components.HoverPreviewLink>
