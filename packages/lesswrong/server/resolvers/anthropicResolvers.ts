@@ -16,6 +16,7 @@ import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
+import { clientIdMiddleware } from "../clientIdMiddleware";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -532,7 +533,7 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
 
 
 export function addLlmChatEndpoint(app: Express) {
-  app.use("/api/sendLlmChat", express.json());
+  app.use("/api/sendLlmChat", express.json(), clientIdMiddleware);
   app.post("/api/sendLlmChat", async (req, res) => {
     const context = await getContextFromReqAndRes({req, res, isSSR: false});
     const currentUser = context.currentUser;
