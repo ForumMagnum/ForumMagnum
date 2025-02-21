@@ -1,5 +1,5 @@
 import { registerMigration, migrateDocuments, dropUnusedField } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import * as _ from 'underscore';
 
 registerMigration({

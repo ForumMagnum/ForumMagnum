@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDialog } from '../common/withDialog';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';

@@ -1,5 +1,5 @@
 import type { FetchResult } from '@apollo/client';
-import { RouterLocation } from '../../lib/vulcan-lib';
+import { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { ReactElement } from 'react';
 import type { JssStylesCallback } from '@/lib/jssStyles';
 

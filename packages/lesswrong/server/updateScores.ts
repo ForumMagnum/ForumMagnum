@@ -1,4 +1,3 @@
-import { getCollection, Vulcan } from "./vulcan-lib";
 import {
   TIME_DECAY_FACTOR,
   getSubforumScoreBoost,
@@ -7,6 +6,8 @@ import {
 import { runSqlQuery } from "@/server/sql/sqlClient";
 import chunk from "lodash/chunk";
 import compact from "lodash/compact";
+import { getCollection } from "../lib/vulcan-lib/getCollection";
+import { Vulcan } from "../lib/vulcan-lib/config";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive

@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
 function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }: {

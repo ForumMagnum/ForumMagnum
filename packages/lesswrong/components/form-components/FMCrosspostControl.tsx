@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Components, registerComponent, combineUrls } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -13,6 +12,8 @@ import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType) => ({

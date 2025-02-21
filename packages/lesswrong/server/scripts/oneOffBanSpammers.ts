@@ -1,5 +1,5 @@
 import { wrapVulcanAsyncScript } from './utils'
-import { Vulcan } from '../vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import { userIPBanAndResetLoginTokens, userDeleteContent } from '../callbacks';
 import Users from '../../lib/collections/users/collection'
 import moment from 'moment'

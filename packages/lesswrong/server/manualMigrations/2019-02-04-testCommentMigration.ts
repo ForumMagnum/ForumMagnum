@@ -1,4 +1,4 @@
-import { Comments } from '../../lib/collections/comments'
+import { Comments } from '../../lib/collections/comments/collection'
 import { registerMigration, migrateDocuments } from './migrationUtils';
 
 

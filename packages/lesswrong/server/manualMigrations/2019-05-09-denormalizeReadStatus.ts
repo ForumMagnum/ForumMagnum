@@ -1,5 +1,5 @@
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import { LWEvents } from '../../lib/collections/lwevents'
+import { LWEvents } from '../../lib/collections/lwevents/collection'
 import { ReadStatuses } from '../../lib/collections/readStatus/collection'
 
 registerMigration({

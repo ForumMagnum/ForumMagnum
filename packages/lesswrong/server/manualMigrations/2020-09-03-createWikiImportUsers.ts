@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
-import { createMutator } from '../vulcan-lib';
-import Users from '../../lib/vulcan-users';
+import { createMutator } from '../vulcan-lib/mutators';
+import Users from '../../lib/collections/users/collection';
 
 registerMigration({
   name: "createWikiImportUsers",

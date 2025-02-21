@@ -2,7 +2,6 @@ import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { pluralize } from './pluralize';
-export * from './getCollection';
 import Collection from "@/server/sql/PgCollection"
 
 // When used in a view, set the query so that it returns rows where a field is

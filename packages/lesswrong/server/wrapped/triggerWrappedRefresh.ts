@@ -2,7 +2,7 @@
 /* eslint-disable no-useless-escape */
 import { isE2E } from "../../lib/executionEnvironment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 // Run the following SQL to check on the progress of this script:
 // SELECT

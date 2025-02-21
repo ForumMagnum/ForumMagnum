@@ -1,17 +1,22 @@
 import Users from '../../lib/collections/users/collection';
-import { Vulcan, updateMutator, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
-import { Votes } from '../../lib/collections/votes/index';
+import { Votes } from '../../lib/collections/votes/collection';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
+import ConversationsRepo from '../repos/ConversationsRepo';
+import LocalgroupsRepo from '../repos/LocalgroupsRepo';
+import PostsRepo from '../repos/PostsRepo';
+import VotesRepo from '../repos/VotesRepo';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
+import { Vulcan } from "../../lib/vulcan-lib/config";
+import { updateMutator } from "../vulcan-lib/mutators";
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string

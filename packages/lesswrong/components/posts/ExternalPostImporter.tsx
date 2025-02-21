@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { gql, useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import ReactMapGL from 'react-map-gl';
 import { mapboxAPIKeySetting } from '@/lib/publicSettings';
 import { Helmet } from '@/lib/utils/componentsWithChildren';

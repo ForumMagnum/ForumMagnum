@@ -1,5 +1,5 @@
 import React from "react";
-import { Components } from "@/lib/vulcan-lib";
+import { Components } from "@/lib/vulcan-lib/components.tsx";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {

@@ -1,12 +1,11 @@
 /* eslint-disable no-console */
 
 import Revisions from "@/lib/collections/revisions/collection";
-import { Globals, getCollection } from "@/lib/vulcan-lib";
 import groupBy from "lodash/groupBy";
 import { ArbitalImportOptions, buildConversionContext, connectAndLoadArbitalDatabase, defaultArbitalImportOptions } from "./arbitalImport";
-import { createAdminContext } from "@/server/vulcan-lib";
+import { createAdminContext } from "@/server/vulcan-lib/query.ts";
 import { arbitalMarkdownToCkEditorMarkup } from "./markdownService";
-import { Comments } from "@/lib/collections/comments";
+import { Comments } from "@/lib/collections/comments/collection.ts";
 import Tags from "@/lib/collections/tags/collection";
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
@@ -17,6 +16,8 @@ import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenor
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
 import { buildRevision } from "@/server/editor/make_editable_callbacks";
 import { Users } from "@/lib/collections/users/collection";
+import { Globals } from "@/lib/vulcan-lib/config.ts";
+import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
 
 Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};

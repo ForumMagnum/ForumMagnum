@@ -1,4 +1,4 @@
-import { Globals } from "@/lib/vulcan-lib";
+import { Globals } from "@/lib/vulcan-lib/config.ts";
 import { getWrappedUsers } from "./sendWrappedNotifications";
 import { getWrappedDataByYear } from "./wrappedDataByYear";
 import { getWrappedEngagement } from "./wrappedEngagment";

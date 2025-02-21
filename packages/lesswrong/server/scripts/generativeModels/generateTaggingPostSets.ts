@@ -11,7 +11,7 @@ import sum from 'lodash/sum';
 import keyBy from 'lodash/keyBy';
 import filter from 'lodash/filter';
 import fs from 'fs';
-import { getSiteUrl } from '../../vulcan-lib';
+import { getSiteUrl } from '../../../lib/vulcan-lib/utils';
 import { FetchedFragment, fetchFragment } from '../../fetchFragment';
 
 const postEndMarker  = "===TAGS===";

@@ -1,5 +1,5 @@
 import React, { ErrorInfo } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { configureScope, captureException }from '@sentry/core';
 import { withLocation } from '../../lib/routeUtil';
 

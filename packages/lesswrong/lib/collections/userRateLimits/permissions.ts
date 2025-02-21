@@ -1,4 +1,4 @@
-import { adminsGroup } from "../../vulcan-users";
+import { adminsGroup } from "../../vulcan-users/permissions";
 import { sunshineRegimentGroup } from "../../permissions";
 
 const actions = [

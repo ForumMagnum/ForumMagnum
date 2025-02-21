@@ -22,13 +22,14 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
-import { Components, getErrors } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
 import { isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import classNames from 'classnames';
 import { runCallbacksList } from './runCallbacksList';
+import { getErrors } from "../../lib/vulcan-lib/errors";
+import { Components } from "../../lib/vulcan-lib/components";
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>

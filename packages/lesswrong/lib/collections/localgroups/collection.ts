@@ -1,10 +1,11 @@
 import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import './permissions';
 import { makeEditable } from '../../editor/make_editable'
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbLocalgroup> = {
   newCheck: (user: DbUser|null, document: DbLocalgroup|null) => {

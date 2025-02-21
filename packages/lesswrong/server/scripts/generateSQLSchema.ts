@@ -1,5 +1,5 @@
 import { format as sqlFormatter } from 'sql-formatter';
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "@/server/sql/Table";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";

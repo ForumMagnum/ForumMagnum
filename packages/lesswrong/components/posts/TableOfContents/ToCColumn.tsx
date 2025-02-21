@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';

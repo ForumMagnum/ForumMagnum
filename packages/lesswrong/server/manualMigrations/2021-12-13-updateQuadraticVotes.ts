@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import ReviewVotes from '../../lib/collections/reviewVotes/collection';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 
 

@@ -1,7 +1,7 @@
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
-import { Globals } from "@/lib/vulcan-lib";
-import { Posts } from "@/lib/collections/posts";
+import { Globals } from "@/lib/vulcan-lib/config.ts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import { captureEvent } from "@/lib/analyticsEvents";
 
 /* Currently unused

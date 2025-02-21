@@ -1,4 +1,4 @@
-import { Vulcan } from "../vulcan-lib";
+import { Vulcan } from "../../lib/vulcan-lib/config";
 import { createTestingSqlClient, killAllConnections } from "../testingSqlClient";
 import { closeSqlClient } from "../sql/sqlClient";
 

@@ -1,10 +1,9 @@
-import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
 import type { VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
-import { PostRelations } from '../../lib/collections/postRelations/index';
+import { PostRelations } from '../../lib/collections/postRelations/collection';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
@@ -12,7 +11,7 @@ import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
 import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
@@ -36,6 +35,8 @@ import { getLatestContentsRevision } from '../../lib/collections/revisions/helpe
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 const MINIMUM_APPROVAL_KARMA = 5
 

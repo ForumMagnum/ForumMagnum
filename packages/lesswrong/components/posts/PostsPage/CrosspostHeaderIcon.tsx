@@ -1,5 +1,4 @@
 import React from "react";
-import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -8,6 +7,8 @@ import {
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { isFriendlyUI } from "../../../themes/forumTheme";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { combineUrls } from "../../../lib/vulcan-lib/utils";
 
 const styles = (theme: ThemeType) => ({
   root: {

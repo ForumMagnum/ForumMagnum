@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 export const formStyles = {
   '& .form-section-default > div': {

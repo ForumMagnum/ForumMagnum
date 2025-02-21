@@ -1,4 +1,4 @@
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import fs from 'fs'
 import { createVotingPostHtml } from "../reviewVoteUpdate";
 

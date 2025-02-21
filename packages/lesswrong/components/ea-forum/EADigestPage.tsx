@@ -1,5 +1,4 @@
 import React, { CSSProperties } from "react";
-import { Components, fragmentTextForQuery, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
@@ -10,6 +9,8 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

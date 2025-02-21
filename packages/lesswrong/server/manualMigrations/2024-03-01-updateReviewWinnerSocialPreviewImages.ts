@@ -1,5 +1,6 @@
-import { createAdminContext, updateMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils";
+import { createAdminContext } from "../vulcan-lib/query";
+import { updateMutator } from "../vulcan-lib/mutators";
 
 registerMigration({
   name: "updateReviewWinnerSocialPreviewImages",

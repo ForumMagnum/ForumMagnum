@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';

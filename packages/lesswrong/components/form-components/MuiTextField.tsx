@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import classnames from 'classnames';
 

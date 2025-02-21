@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -8,6 +7,8 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 
 export const styles = (theme: ThemeType) => ({
   formButton: {

@@ -1,9 +1,11 @@
 import { ensureIndex } from "../../collectionIndexUtils";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
-import { createCollection } from "../../vulcan-lib";
+import { createCollection } from "../../vulcan-lib/collections";
 import { isAdmin, userOwns } from "../../vulcan-users/permissions";
 import { isPastVotingDeadline, userCanVoteInDonationElection } from "./helpers";
 import schema from "./schema";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const ElectionVotes: ElectionVotesCollection = createCollection({
   collectionName: "ElectionVotes",

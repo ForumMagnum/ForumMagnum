@@ -3,8 +3,10 @@ import Posts from "../lib/collections/posts/collection";
 import Users from "../lib/collections/users/collection";
 import { getAdminTeamAccount, noDeletionPmReason } from "./callbacks/commentCallbacks";
 import { exportUserData } from "./exportUserData";
-import { createAdminContext, Globals, updateMutator } from './vulcan-lib';
 import { sleep } from "../lib/utils/asyncUtils";
+import { createAdminContext } from "./vulcan-lib/query";
+import { Globals } from "../lib/vulcan-lib/config";
+import { updateMutator } from "./vulcan-lib/mutators";
 
 /** Please ensure that we know that the user is who they say they are! */
 export const deleteUserContent = async (

@@ -1,9 +1,10 @@
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { Vulcan, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 import * as _ from 'underscore';
+import { Vulcan } from "../../lib/vulcan-lib/config";
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
 // Check that the denormalized contents field of objects with make_editable match
 // the newest revision in the revisions table. This is important because we're

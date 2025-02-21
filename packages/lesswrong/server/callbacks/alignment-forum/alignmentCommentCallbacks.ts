@@ -1,6 +1,6 @@
-import { Posts } from "../../../lib/collections/posts";
-import { Comments } from '../../../lib/collections/comments'
-import { updateMutator } from '../../vulcan-lib';
+import { Posts } from "../../../lib/collections/posts/collection";
+import { Comments } from '../../../lib/collections/comments/collection'
+import { updateMutator } from '../../vulcan-lib/mutators';
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { getCommentAncestorIds, getCommentSubtree } from '../../utils/commentTreeUtils';
 import * as _ from 'underscore';

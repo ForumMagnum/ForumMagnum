@@ -1,5 +1,5 @@
 import { sunshineRegimentGroup } from "../../permissions";
-import { adminsGroup } from "../../vulcan-users";
+import { adminsGroup } from "../../vulcan-users/permissions";
 
 const actions = [
   'moderationTemplates.edit.all',

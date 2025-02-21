@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
