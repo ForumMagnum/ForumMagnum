@@ -14,7 +14,6 @@ import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
-import { Vulcan } from "../../lib/vulcan-lib/config";
 import { updateMutator } from "../vulcan-lib/mutators";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
@@ -171,7 +170,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
+export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   sourceUserId: string, 
   targetUserId: string, 
   dryRun: boolean
@@ -470,4 +469,4 @@ async function recomputeKarma(userId: string) {
   return karma
 }
 
-Vulcan.getTotalKarmaForUser = recomputeKarma
+export const getTotalKarmaForUser = recomputeKarma

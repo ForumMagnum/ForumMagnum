@@ -1,8 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 import { mergeSingleUser, DuplicateUser, MergeAction } from '../scripts/fixDuplicateEmail'
-import { Vulcan } from '../../lib/vulcan-lib/config';
-import '../scripts/mergeAccounts';
+import { mergeAccounts } from '../scripts/mergeAccounts';
 
 type MongoDuplicateUser = {
   '_id': string,
@@ -159,6 +158,6 @@ async function runSingleMerge(merge: MergeResult) {
   for (const sourceId of action.sourceIds) {
     //eslint-disable-next-line no-console
     console.log('merging account ', sourceId, ' into ', action.destinationId, ' for email ', merge.email)
-    await Vulcan.mergeAccounts(sourceId, action.destinationId)
+    await mergeAccounts({sourceUserId: sourceId, targetUserId: action.destinationId, dryRun: false})
   }
 }
