@@ -66,8 +66,10 @@ const PostSubmit = ({
   cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
-  cancelCallback, document, collectionName, classes
-}: PostSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
+  cancelCallback, document, collectionName,
+  updateCurrentValues,
+  classes
+}: PostSubmitProps, { addToSuccessForm, submitForm }: any) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
@@ -116,7 +118,7 @@ const PostSubmit = ({
             onClick={() => {
               captureEvent("feedbackRequestButtonClicked")
               if (!!document.title) {
-                updateCurrentValues({draft: true});
+                void updateCurrentValues({draft: true});
                 addToSuccessForm((createdPost: DbPost) => {
                   // eslint-disable-next-line
                   window.Intercom(
@@ -133,7 +135,7 @@ const PostSubmit = ({
         </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => updateCurrentValues({draft: true})}
+          onClick={() => void updateCurrentValues({draft: true})}
         >
           {saveDraftLabel}
         </Button>
@@ -163,9 +165,7 @@ PostSubmit.propTypes = {
 };
 
 PostSubmit.contextTypes = {
-  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
   submitForm: PropTypes.func
 }
 

@@ -14,6 +14,7 @@ import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -130,14 +131,15 @@ const unlinkCrossposterMutation = gql`
  * and it also allows them to connect or disconnect their account on the other
  * platform.
  */
-const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentUser}: {
+const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
   updateCurrentValues: Function,
   classes: ClassesType<typeof styles>,
   value: {isCrosspost: boolean, hostedHere?: boolean, foreignPostId?: string},
   path: string,
-  currentUser: UsersCurrent,
 }) => {
+  const currentUser = useCurrentUser();
   const {isCrosspost} = value ?? {};
+  if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
   const [unlink, {loading: loadingUnlink}] = useMutation(unlinkCrossposterMutation, {errorPolicy: "all"});
   const {document, refetch, loading: loadingDocument} = useSingle({

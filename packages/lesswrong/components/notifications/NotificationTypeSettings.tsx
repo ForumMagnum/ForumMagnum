@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, NotificationChannelOption, NotificationTypeSettings } from '../../lib/collections/users/schema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -25,18 +25,16 @@ interface NotificationSettings extends PickedTime {
   batchingFrequency: string;
 }
 
-const NotificationTypeSettings = ({ path, value, label, classes }: {
+const NotificationTypeSettingsWidget = ({ path, value, label, updateCurrentValues, classes }: FormComponentProps<NotificationTypeSettings> & {
   path: keyof DbUser;
-  value: PickedTime;
-  label: string;
   classes: ClassesType<typeof styles>;
-}, context: any) => {
+}) => {
   const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };
   const notificationType = getNotificationTypeByUserSetting(path);
   
   const modifyValue = (changes: Partial<NotificationSettings>) => {
-    context.updateCurrentValues({
+    void updateCurrentValues({
       [path]: { ...currentValue, ...changes }
     });
   }
@@ -84,17 +82,13 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
 }
 
 
-NotificationTypeSettings.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
-
-const NotificationTypeSettingsComponent = registerComponent('NotificationTypeSettings', NotificationTypeSettings, {
+const NotificationTypeSettingsWidgetComponent = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    NotificationTypeSettings: typeof NotificationTypeSettingsComponent
+    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidgetComponent
   }
 }

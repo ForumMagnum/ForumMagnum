@@ -116,11 +116,6 @@ const getGraphQLType = <N extends CollectionNameString>(
   const typeName =
     typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
 
-  // LESSWRONG: Add optional property to override default input type generation
-  if (isInput && field.inputType) {
-    return field.inputType
-  }
-
   switch (typeName) {
     case 'String':
       return 'String';

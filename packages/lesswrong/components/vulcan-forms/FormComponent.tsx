@@ -1,33 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, mergeWithComponents, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
 
-interface FormComponentState {
-  charsRemaining?: number
-  charsCount?: number
-}
-
-class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>,FormComponentState> {
+class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>> {
   declare context: AnyBecauseTodo
 
   constructor(props: FormComponentWrapperProps<T>) {
     super(props);
-
     this.state = {};
   }
 
-  UNSAFE_componentWillMount() {
-    if (this.showCharsRemaining()) {
-      const value = this.getValue();
-      this.updateCharacterCount(value);
-    }
-  }
-
-  shouldComponentUpdate(nextProps: FormComponentWrapperProps<T>, nextState: FormComponentState) {
+  shouldComponentUpdate(nextProps: FormComponentWrapperProps<T>) {
     // allow custom controls to determine if they should update
     if (this.isCustomInput(this.getInputType(nextProps))) {
       return true;
@@ -46,41 +33,28 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     const deleteChanged =
       includesPathOrChildren(deletedValues) !==
       includesPathOrChildren(this.props.deletedValues);
-    const charsChanged = nextState.charsRemaining !== this.state.charsRemaining;
     const disabledChanged = nextProps.disabled !== this.props.disabled;
 
     const shouldUpdate =
       valueChanged ||
       errorChanged ||
       deleteChanged ||
-      charsChanged ||
       disabledChanged;
 
     return shouldUpdate;
   }
 
-  /*
-
-  If this is an intl input, get _intl field instead
-
-  */
+  // If this is an intl input, get _intl field instead
   getPath = (props?: FormComponentWrapperProps<T>) => {
     const p = props || this.props;
     return p.path;
   };
 
-  /*
-  
-  Returns true if the passed input type is a custom 
-  
-  */
+  // Returns true if the passed input type is a custom 
   isCustomInput = (inputType: FormInputType) => {
     const isStandardInput = [
       'nested',
       'number',
-      'url',
-      'email',
-      'textarea',
       'checkbox',
       'checkboxgroup',
       'select',
@@ -91,11 +65,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return !isStandardInput;
   };
 
-  /*
-  
-  Function passed to form controls (always controlled) to update their value
-  
-  */
+  // Function passed to form controls (always controlled) to update their value
   handleChange = (value: AnyBecauseTodo) => {
 
     // if value is an empty string, delete the field
@@ -111,31 +81,9 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
       ? { locale: this.props.locale, value }
       : value;
     void this.props.updateCurrentValues({ [this.getPath()]: updateValue });
-
-    // for text fields, update character count on change
-    if (this.showCharsRemaining()) {
-      this.updateCharacterCount(value);
-    }
   };
 
-  /*
-  
-  Updates the state of charsCount and charsRemaining as the users types
-  
-  */
-  updateCharacterCount = (value: AnyBecauseTodo) => {
-    const characterCount = value ? value.length : 0;
-    this.setState({
-      charsRemaining: (this.props.max||0) - characterCount,
-      charsCount: characterCount
-    });
-  };
-
-  /*
-
-  Get value from Form state through document and currentValues props
-
-  */
+  // Get value from Form state through document and currentValues props
   getValue = (props?: any, context?: any) => {
     const p = props || this.props;
     const c = context || this.context;
@@ -156,25 +104,9 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return value;
   };
 
-  /*
-
-  Whether to keep track of and show remaining chars
-
-  */
-  showCharsRemaining = (props?: any) => {
-    const p = props || this.props;
-    return (
-      p.max && ['url', 'email', 'textarea', 'text'].includes(this.getInputType(p))
-    );
-  };
-
-  /*
-
-  Get errors from Form state through context
-
-  Note: we use `includes` to get all errors from nested components, which have longer paths
-
-  */
+  // Get errors from Form state through context
+  //
+  // Note: we use `includes` to get all errors from nested components, which have longer paths
   getErrors = (errors?: any) => {
     errors = errors || this.props.errors;
     const fieldErrors = errors.filter(
@@ -183,30 +115,19 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return fieldErrors;
   };
 
-  /*
-
-  Get form input type, either based on input props, or by guessing based on form field type
-
-  */
-  getInputType = (props?: any) => {
+  // Get form input type, either based on input props, or by guessing based on form field type
+  getInputType = (props?: any): FormInputType => {
     const p = props || this.props;
+    if (p.input) return p.input;
+
     const fieldType = this.getFieldType();
-    const autoType =
-      fieldType === Number
-        ? 'number'
-        : fieldType === Boolean
-          ? 'checkbox'
-          : fieldType === Date
-            ? 'date'
-            : 'text';
-    return p.input || autoType;
+    if (fieldType === Number) return "number";
+    else if (fieldType === Boolean) return "checkbox";
+    else if (fieldType === Date) return 'date';
+    else return 'text';
   };
 
-  /*
-  
-  Function passed to form controls to clear their contents (set their value to null)
-  
-  */
+  // Function passed to form controls to clear their contents (set their value to null)
   clearField = (event: AnyBecauseTodo) => {
     if (event) {
       event.preventDefault();
@@ -216,19 +137,11 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     // @ts-ignore (anything can get passed in to props via the "form" schema value)
     const newVal = (this.props.input === 'SelectLocalgroup' && this.props.multiselect) ? [] : null;
     void this.props.updateCurrentValues({ [this.props.path]: newVal });
-    if (this.showCharsRemaining()) {
-      this.updateCharacterCount(null);
-    }
   };
 
-  /*
-  
-  Function passed to FormComponentInner to help with rendering the component
-  
-  */
+  // Function passed to FormComponentInner to help with rendering the component
   getFormInput = () => {
     const inputType = this.getInputType();
-    const FormComponents = mergeWithComponents(this.props.formComponents);
 
     // if input is a React component, use it
     if (typeof this.props.input === 'function') {
@@ -239,57 +152,44 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
 
       switch (inputType) {
         case 'text':
-          return FormComponents.FormComponentDefault;
+          return Components.FormComponentDefault;
 
         case 'number':
-          return FormComponents.FormComponentNumber;
-
-        case 'url':
-          return FormComponents.FormComponentUrl;
-
-        case 'email':
-          return FormComponents.FormComponentEmail;
-
-        case 'textarea':
-          return FormComponents.FormComponentTextarea;
+          return Components.FormComponentNumber;
 
         case 'checkbox':
-          return FormComponents.FormComponentCheckbox;
+          return Components.FormComponentCheckbox;
 
         case 'checkboxgroup':
-          return FormComponents.FormComponentCheckboxGroup;
+          return Components.FormComponentCheckboxGroup;
 
         case 'radiogroup':
-          return FormComponents.FormComponentRadioGroup
+          return Components.FormComponentRadioGroup
 
         case 'select':
-          return FormComponents.FormComponentSelect;
+          return Components.FormComponentSelect;
 
         case 'datetime':
-          return FormComponents.FormComponentDateTime;
+          return Components.FormComponentDateTime;
 
         case 'date':
-          return FormComponents.FormComponentDate;
+          return Components.FormComponentDate;
 
         default:
-          if (this.props.input && (FormComponents as AnyBecauseTodo)[this.props.input]) {
-            return (FormComponents as AnyBecauseTodo)[this.props.input];
+          if (this.props.input && (Components as AnyBecauseTodo)[this.props.input]) {
+            return (Components as AnyBecauseTodo)[this.props.input];
           } else if (this.isArrayField()) {
             return Components.FormNestedArray;
           } else if (this.isObjectField()) {
-            return FormComponents.FormNestedObject;
+            return Components.FormNestedObject;
           } else {
-            return FormComponents.FormComponentDefault;
+            return Components.FormComponentDefault;
           }
       }
     }
   };
 
-  /*
-
-  Get field field value type
-
-  */
+  // Get field field value type
   getFieldType = () => {
     return this.props.datatype[0].type;
   };
@@ -300,43 +200,34 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     return this.getFieldType() instanceof SimpleSchema;
   };
   render() {
-    const FormComponents = mergeWithComponents(this.props.formComponents);
-
     if (!this.props.input && this.props.nestedInput) {
       if (this.isArrayField()) {
         return (
-          <FormComponents.FormNestedArray
+          <Components.FormNestedArray
             {...this.props}
-            formComponents={FormComponents}
             errors={this.getErrors()}
             value={this.getValue()}
           />
         );
       } else if (this.isObjectField()) {
         return (
-          <FormComponents.FormNestedObject
+          <Components.FormNestedObject
             {...this.props}
-            formComponents={FormComponents}
             errors={this.getErrors()}
-            value={this.getValue()}
           />
         );
       }
     }
 
     const formComponent = (
-      <FormComponents.FormComponentInner
+      <Components.FormComponentInner
         {...this.props}
-        {...this.state}
-        inputType={this.getInputType()}
         value={this.getValue()}
         errors={this.getErrors()}
         document={this.context.getDocument()}
-        showCharsRemaining={!!this.showCharsRemaining()}
         onChange={this.handleChange}
         clearField={this.clearField}
         formInput={this.getFormInput()}
-        formComponents={FormComponents}
       />
     );
 
