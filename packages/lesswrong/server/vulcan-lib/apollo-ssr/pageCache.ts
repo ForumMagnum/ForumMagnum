@@ -1,8 +1,8 @@
 import LRU from 'lru-cache';
-import type { RenderResult } from './renderPage';
-import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata } from '../../../lib/abTestImpl';
+import type { RenderResult, RenderSuccessResult } from './renderPage';
+import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
@@ -12,6 +12,7 @@ import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import { isDatadogEnabled } from '../../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
+import { ensureClientId } from '@/server/clientIdMiddleware';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -30,7 +31,9 @@ const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCach
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 
-const pageCache = new LRU<string,RenderResult>({
+type CachedRenderResult = Omit<RenderSuccessResult, "prefetchedResources">;
+
+const pageCache = new LRU<string,CachedRenderResult>({
   max: maxPageCacheSizeBytes,
   length: (page,key) => JSON.stringify(page).length + JSON.stringify(key).length,
   maxAge: maxCacheAgeMs,
@@ -98,7 +101,19 @@ function filterLoggedOutActiveAbTestGroups(abTestGroups: CompleteTestGroupAlloca
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req: Request) => Promise<RenderResult>) => {
+export const cachedPageRender = async (
+  req: Request,
+  res: Response,
+  userAgent: string|undefined,
+  maybePrefetchResources: () => Promise<boolean | undefined>,
+  renderFn: (req: Request, prefetchedResources: Promise<boolean | undefined>) => Promise<RenderResult>
+) => {
+  // We need to call ensureClientId before prefetching resources (because that might write to the response, and we need to set the headers before that)
+  void ensureClientId(req, res);
+  const prefetchedResources = maybePrefetchResources();
+
+  const clientId = getCookieFromReq(req, "clientId");
+  const abTestGroups = getAllUserABTestGroups({ clientId });
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
   const cacheAffectingAbTestGroups = filterLoggedOutActiveAbTestGroups(abTestGroups);
@@ -111,6 +126,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
     console.log(`Serving ${path} from cache; hit rate=${getCacheHitRate()}`);
     return {
       ...cached,
+      prefetchedResources,
       cached: true
     };
   }
@@ -135,7 +151,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   //eslint-disable-next-line no-console
   console.log(`Rendering ${path} (not in cache; hit rate=${getCacheHitRate()})`);
   
-  const renderPromise = renderFn(req);
+  const renderPromise = renderFn(req, prefetchedResources);
   
   const inProgressRender = {
     cacheKey,
@@ -154,7 +170,9 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
     if (!rendered.aborted) {
       // eslint-disable-next-line no-console
       console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
-      cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
+      // Don't cache the promise; that's the kind of thing that can cause memory leaks
+      const { prefetchedResources, ...rest } = rendered;
+      cacheStore(cacheKey, rendered.relevantAbTestGroups, rest);
     }  
   } finally {
     inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
@@ -171,7 +189,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   };
 }
 
-const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
+const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): CachedRenderResult|null|undefined => {
   if (!(cacheKey in cachedABtestsIndex)) {
     // eslint-disable-next-line no-console
     console.log(`Local cache miss for cacheKey ${cacheKey}: no cached page for any A/B test group combination`);
@@ -197,7 +215,7 @@ const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAlloc
   return null;
 }
 
-const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
+const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<CachedRenderResult|null|undefined> => {
   const cacheResult = await (new PageCacheRepo().lookupCacheEntry({path: cacheKey, completeAbTestGroups: abTestGroups}));
 
   if (!cacheResult?.renderResult) {
@@ -214,7 +232,7 @@ const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAl
   };
 }
 
-const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
+const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<CachedRenderResult|null|undefined> => {
   const localResult = cacheLookupLocal(cacheKey, abTestGroups);
   if (localResult) {
     return localResult;
@@ -236,7 +254,7 @@ const objIsSubset = <A extends Record<string, any>, B extends Record<string, any
   return true;
 }
 
-const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: CachedRenderResult): void => {
   pageCache.set(JSON.stringify({
     cacheKey: cacheKey,
     abTestGroups: abTestGroups
@@ -248,11 +266,11 @@ const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAlloca
     cachedABtestsIndex[cacheKey] = [abTestGroups];
 }
 
-const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: CachedRenderResult): void => {
   void new PageCacheRepo().upsertPageCacheEntry(cacheKey, abTestGroups, rendered);
 }
 
-const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
+const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: CachedRenderResult): void => {
   cacheStoreLocal(cacheKey, abTestGroups, rendered);
   cacheStoreDB(cacheKey, abTestGroups, rendered);
 }
