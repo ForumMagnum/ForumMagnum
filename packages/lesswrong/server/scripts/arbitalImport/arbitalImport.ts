@@ -2305,3 +2305,69 @@ Globals.importSingleLens = async (mysqlConnectionString: string, options: Arbita
     lensCreator,
   });*/
 }
+
+
+async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: string, options: ArbitalImportOptions) {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  if (!options.userMatchingFile) {
+    throw new Error("User matching file is required");
+  }
+  const matchedUsers = await loadUserMatching(options.userMatchingFile);
+
+  const lenses =  await MultiDocuments.find({
+    "legacyData.arbitalLensId": { $exists: true },
+    collectionName: "Tags",
+    fieldName: "description",
+  }).fetch();
+
+  for (const lens of lenses) {
+    // get the first revision
+    const initialRevision = await Revisions.findOne({
+      documentId: lens._id,
+      updateType: "initial",
+    });
+
+    if (!initialRevision) {
+      console.log(`No initial revision found for lens ${lens._id}`);
+      continue;
+    }
+
+    // find matching page to revision in Arbital DB
+    const arbitalFirstRevision: PagesRow|undefined = arbitalDb.pages.find(p => p.pageId === lens.legacyData.arbitalLensId && p.edit === 1);
+    if (!arbitalFirstRevision) {
+      console.log(`No matching page found for revision ${initialRevision._id} in Arbital DB`);
+      continue;
+    }
+
+    // find matching user in LessWrong DB
+    const matchedUser = matchedUsers[arbitalFirstRevision.creatorId];
+    if (!matchedUser) {
+      console.log(`No matching user found for revision ${initialRevision._id} in LessWrong DB`);
+      continue;
+    }
+
+    if (initialRevision.userId !== matchedUser._id) {
+      console.log("Correcting record for", {
+        lensTitle: lens.title,
+        lensId: lens._id,
+        revisionId: initialRevision._id,
+        revisionUserId: initialRevision.userId,
+        lensUserId: lens.userId,
+        arbitalLensId: lens.legacyData.arbitalLensId,
+        arbitalFirstRevisionUserId: arbitalFirstRevision.creatorId,
+        matchedUserId: matchedUser._id,
+      })
+    }
+
+    // // update the revision with the matched user id
+    await Revisions.rawUpdateOne({
+      _id: initialRevision._id,
+    }, {
+      $set: { userId: matchedUser._id },
+    });
+
+  }
+}
+
+Globals.fixArbitalLensFirstRevisionUserId = fixArbitalLensFirstRevisionUserId;
+
