@@ -6,7 +6,7 @@ type MaybePromise<T> = T|Promise<T>
 
 type CallbackChainFn<IteratorType,ArgumentsType extends any[]> = (doc: IteratorType, ...args: ArgumentsType) => (MaybePromise<IteratorType> | undefined | void)
 
-const LOG_ADDED_CALLBACK_HOOK_NAME = 'posts.update.after';
+const LOG_ADDED_CALLBACK_HOOK_NAME = 'posts.new.async';
 
 /**
  * A set of callbacks which run in a chain, each modifying a value and passing

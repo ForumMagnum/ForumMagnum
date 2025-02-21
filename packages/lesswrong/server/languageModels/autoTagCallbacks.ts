@@ -305,98 +305,98 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
   }).fetch();
 }
 
-async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {
-  const api = await getOpenAI();
-  if (!api) {
-    if (!isAnyTest && !isE2E) {
-      //eslint-disable-next-line no-console
-      console.log("Skipping autotagging (API not configured)");
-    }
-    return;
-  }
-  const tagBot = await getTagBotAccount(context);
-  const tagBotActiveTime = tagBotActiveTimeSetting.get();
+// async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {
+//   const api = await getOpenAI();
+//   if (!api) {
+//     if (!isAnyTest && !isE2E) {
+//       //eslint-disable-next-line no-console
+//       console.log("Skipping autotagging (API not configured)");
+//     }
+//     return;
+//   }
+//   const tagBot = await getTagBotAccount(context);
+//   const tagBotActiveTime = tagBotActiveTimeSetting.get();
 
-  if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
-    //eslint-disable-next-line no-console
-    console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
-    return;
-  }
+//   if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
+//     //eslint-disable-next-line no-console
+//     console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
+//     return;
+//   }
   
-  const tags = await getAutoAppliedTags();
-  const postHTML = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsHTML",
-    selector: {_id: post._id},
-    currentUser: context.currentUser,
-    context,
-    skipFiltering: true,
-  });
-  if (!postHTML) {
-    return;
-  }
-  const tagsApplied = await checkTags(postHTML, tags, api);
+//   const tags = await getAutoAppliedTags();
+//   const postHTML = await fetchFragmentSingle({
+//     collectionName: "Posts",
+//     fragmentName: "PostsHTML",
+//     selector: {_id: post._id},
+//     currentUser: context.currentUser,
+//     context,
+//     skipFiltering: true,
+//   });
+//   if (!postHTML) {
+//     return;
+//   }
+//   const tagsApplied = await checkTags(postHTML, tags, api);
   
-  //eslint-disable-next-line no-console
-  console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
+//   //eslint-disable-next-line no-console
+//   console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
   
-  for (let tag of tags) {
-    if (tagsApplied[tag.slug]) {
-      await addOrUpvoteTag({
-        tagId: tag._id,
-        postId: post._id,
-        currentUser: tagBot,
-        context,
-      });
-    }
-  }
+//   for (let tag of tags) {
+//     if (tagsApplied[tag.slug]) {
+//       await addOrUpvoteTag({
+//         tagId: tag._id,
+//         postId: post._id,
+//         currentUser: tagBot,
+//         context,
+//       });
+//     }
+//   }
 
-  const autoFrontpageEnabled = autoFrontpageSetting.get()
-  if (!autoFrontpageEnabled) {
-    return;
-  }
+//   const autoFrontpageEnabled = autoFrontpageSetting.get()
+//   if (!autoFrontpageEnabled) {
+//     return;
+//   }
 
-  const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
-  const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
-    post.isEvent,
-    post.submitToFrontpage,
-    post.draft,
-  )
-  if (requireFrontpageReview !== defaultFrontpageHide) {
-    // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
-    // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
-    return
-  }
+//   const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
+//   const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
+//     post.isEvent,
+//     post.submitToFrontpage,
+//     post.draft,
+//   )
+//   if (requireFrontpageReview !== defaultFrontpageHide) {
+//     // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
+//     // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
+//     return
+//   }
 
-  const autoFrontpageReview = await checkFrontpage(postHTML, api);
+//   const autoFrontpageReview = await checkFrontpage(postHTML, api);
 
-  // eslint-disable-next-line no-console
-  console.log(
-    `Frontpage auto-review result for ${post.title} (${post._id}): ${
-      autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
-    }`
-  );
+//   // eslint-disable-next-line no-console
+//   console.log(
+//     `Frontpage auto-review result for ${post.title} (${post._id}): ${
+//       autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
+//     }`
+//   );
 
-  if (autoFrontpageReview) {
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      data: {
-        frontpageDate: defaultFrontpageHide ? new Date() : null,
-        autoFrontpage: defaultFrontpageHide ? "show" : "hide"
-      },
-      currentUser: context.currentUser,
-      context,
-    });
-  }
-}
+//   if (autoFrontpageReview) {
+//     await updateMutator({
+//       collection: Posts,
+//       documentId: post._id,
+//       data: {
+//         frontpageDate: defaultFrontpageHide ? new Date() : null,
+//         autoFrontpage: defaultFrontpageHide ? "show" : "hide"
+//       },
+//       currentUser: context.currentUser,
+//       context,
+//     });
+//   }
+// }
 
-getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
-  if (oldDocument.draft && !newDocument.draft) {
-    // Post was undrafted
-    void autoReview(newDocument, context);
-  }
-})
+// getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
+//   if (oldDocument.draft && !newDocument.draft) {
+//     // Post was undrafted
+//     void autoReview(newDocument, context);
+//   }
+// })
 // getCollectionHooks("Posts").createAsync.add(async ({document, context}) => {
 //   if (!document.draft) {
 //     // Post created (and is not a draft)

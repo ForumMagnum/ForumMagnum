@@ -7,14 +7,14 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
-import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
+import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, DeleteCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
@@ -31,30 +31,19 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
-import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
-import { addReferrerToPost, debateMustHaveCoauthor, fixEventStartAndEndTimes, postsNewDefaultLocation, postsNewUserApprovedStatus, postsNewDefaultTypes, scheduleCoauthoredPostWithUnconfirmedCoauthors, postsNewRateLimit, checkRecentRepost, applyNewPostTags, lwPostsNewUpvoteOwnPost, sendCoauthorRequestNotifications, postsNewPostRelation, extractSocialPreviewImage, notifyUsersAddedAsPostCoauthors, triggerReviewForNewPostIfNeeded, autoReviewNewPost, postsUndraftRateLimit, onEditAddLinkSharingKey, setPostUndraftedFields, scheduleCoauthoredPostWhenUndrafted, clearCourseEndTime, clearCourseEndTime, removeFrontpageDate, resetPostApprovedDate } from './postCallbackFunctions';
+import { addReferrerToPost, debateMustHaveCoauthor, fixEventStartAndEndTimes, postsNewDefaultLocation, postsNewUserApprovedStatus, postsNewDefaultTypes, scheduleCoauthoredPostWithUnconfirmedCoauthors, postsNewRateLimit, checkRecentRepost, applyNewPostTags, lwPostsNewUpvoteOwnPost, sendCoauthorRequestNotifications, postsNewPostRelation, extractSocialPreviewImage, notifyUsersAddedAsPostCoauthors, triggerReviewForNewPostIfNeeded, autoReviewNewPost, postsUndraftRateLimit, onEditAddLinkSharingKey, setPostUndraftedFields, scheduleCoauthoredPostWhenUndrafted, clearCourseEndTime, removeFrontpageDate, resetPostApprovedDate, syncTagRelevance, resetDialogueMatches, eventUpdatedNotifications, notifyUsersAddedAsCoauthors, autoReviewUndraftedPost, updatedPostMaybeTriggerReview, sendRejectionPM, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, updateRecombeePost, createNewJargonTermsCallback, onPostPublished, sendPostApprovalNotifications, sendNewPublishedDialogueMessageNotifications, removeRedraftNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendPostSharedWithUserNotifications, sendAlignmentSubmissionApprovalNotifications, updatePostShortform, updateCommentHideKarma, oldPostsLastCommentedAt, checkTosAccepted, assertPostTitleHasNoEmojis, updatePostEmbeddingsOnChange, sendUsersSharedOnPostNotifications } from './postCallbackFunctions';
 import { getEditableCallbacks } from '../editor/make_editable_callbacks';
 import { formGroups } from '@/lib/collections/posts/formGroups';
 import { getSlugCallbacks } from '../utils/slugUtil';
 import { swrInvalidatePostRoute } from '../cache/swr';
+import { moveToAFUpdatesUserAFKarma } from './alignment-forum/callbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-// Callback for a post being published. This is distinct from being created in
-// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
-// moderator approval because they're a user's first post (but does fire when
-// they're approved).
-export async function onPostPublished(post: DbPost, context: ResolverContext) {
-  updateRecombeeWithPublishedPost(post, context);
-  await postsNewNotifications(post);
-  const { updateScoreOnPostPublish } = require("./votingCallbacks");
-  await updateScoreOnPostPublish(post, context);
-  await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-}
 
 // post slug callbacks
 const { slugCreateBeforeCallbackFunction, slugUpdateBeforeCallbackFunction } = getSlugCallbacks<'Posts'>({
@@ -103,11 +92,13 @@ async function postCreateBefore(doc: DbInsertion<DbPost>, props: CreateCallbackP
   return mutablePost;
 }
 
+// TODO: figure out where updatePostEmbeddingsOnCreate should go
 async function postNewSync(post: DbPost, currentUser: DbUser | null, context: ResolverContext): Promise<DbPost> {
   // TODO: add forum-gated EA forum callbacks
   if (isEAForum) {
-    post = await checkTosAccepted(currentUser, post);
-    post = assertPostTitleHasNoEmojis(post);
+    // TODO: were the errors thrown by these previously being swallowed?
+    post = checkTosAccepted(currentUser, post);
+    assertPostTitleHasNoEmojis(post);
   }
 
   post = await checkRecentRepost(post, currentUser, context);
@@ -147,10 +138,22 @@ async function postCreateAfter(post: DbPost, props: AfterCreateCallbackPropertie
 }
 
 async function postCreateAsync(props: AfterCreateCallbackProperties<'Posts'>) {
+  const { reuploadImagesInNew, rehostPostMetaImagesInNew } = newAsyncContents;
+
   await notifyUsersAddedAsPostCoauthors(props);
   await triggerReviewForNewPostIfNeeded(props);
   await autoReviewNewPost(props);
   // TODO: elastic callbacks
+
+  // NOTE: newAsync callbacks that were moved into createAsync
+  await sendUsersSharedOnPostNotifications(props);
+  if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
+    await updatePostEmbeddingsOnChange(props.document, undefined);
+  }
+
+  // TODO: editable callbacks for other 2 fields
+  await reuploadImagesInNew(props.document);
+  await rehostPostMetaImagesInNew(props.document);
 }
 
 async function postUpdateValidate(validationErrors: CallbackValidationErrors, props: UpdateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
@@ -160,10 +163,11 @@ async function postUpdateValidate(validationErrors: CallbackValidationErrors, pr
 
 async function postUpdateBefore(post: Partial<DbPost>, props: UpdateCallbackProperties<'Posts'>): Promise<Partial<DbPost>> {
   const { editorSerializationEdit } = updateBeforeContents;
+
   // TODO: add forum-gated EA forum callbacks
   if (isEAForum) {
-    post = await checkTosAccepted(props.currentUser, post);
-    post = assertPostTitleHasNoEmojis(post);
+    post = checkTosAccepted(props.currentUser, post);
+    assertPostTitleHasNoEmojis(post);
   }
 
   post = await slugUpdateBeforeCallbackFunction(post, props);
@@ -187,28 +191,87 @@ async function postEditSync(modifier: MongoModifier<DbPost>, post: DbPost): Prom
   return modifier;
 }
 
-if (isEAForum) {
-  const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
-    if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
-      throw new Error(TOS_NOT_ACCEPTED_ERROR);
-    }
-    return post;
-  }
-  getCollectionHooks("Posts").newSync.add(
-    (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
-  );
-  getCollectionHooks("Posts").updateBefore.add(
-    (post, {currentUser}) => checkTosAccepted(currentUser, post),
-  );
+async function postUpdateAfter(post: DbPost, props: UpdateCallbackProperties<'Posts'>): Promise<DbPost> {
+  const { notifyUsersAboutPingbackMentionsInUpdate } = updateAfterContents;
 
-  const assertPostTitleHasNoEmojis = (post: DbPost) => {
-    if (/\p{Extended_Pictographic}/u.test(post.title)) {
-      throw new Error("Post titles cannot contain emojis");
-    }
-  }
-  getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
-  getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
+  await swrInvalidatePostRoute(post._id);
+  post = await sendCoauthorRequestNotifications(post, props);
+  post = await syncTagRelevance(post, props);
+  post = await resetDialogueMatches(post, props);
+  post = await createNewJargonTermsCallback(post, props);
+  
+  // TODO: other 2 post editable fields
+  post = await notifyUsersAboutPingbackMentionsInUpdate(post, props);
+
+  // TODO: addCountOfReferenceCallbacks (4 of them, for posts - 4 fields?)
+  return post;
 }
+
+async function postUpdateAsync(props: UpdateCallbackProperties<'Posts'>) {
+  const { reuploadImagesInEdit } = editAsyncContents;
+  await eventUpdatedNotifications(props);
+  await notifyUsersAddedAsCoauthors(props);
+  await autoReviewUndraftedPost(props);
+  await updatedPostMaybeTriggerReview(props);
+  await sendRejectionPM(props);
+  await updateUserNotesOnPostDraft(props);
+  await updateUserNotesOnPostRejection(props);
+  await updateRecombeePost(props);
+
+  // NOTE: editAsync callbacks that were moved into updateAsync
+  // Switched to using newDocument instead of document - sanity check that nothing horrible happens as a result
+  await moveToAFUpdatesUserAFKarma(props.newDocument, props.oldDocument);
+  sendPostApprovalNotifications(props.newDocument, props.oldDocument);
+  await sendNewPublishedDialogueMessageNotifications(props.newDocument, props.oldDocument);
+  await removeRedraftNotifications(props.newDocument, props.oldDocument, props.context);
+
+  if (isEAForum) {
+    await sendEAFCuratedAuthorsNotification(props.newDocument, props.oldDocument, props.context);
+  }
+
+  if (isLWorAF) {
+    await sendLWAFPostCurationEmails(props.newDocument, props.oldDocument);
+  }
+
+  await sendPostSharedWithUserNotifications(props.newDocument, props.oldDocument);
+  await sendAlignmentSubmissionApprovalNotifications(props.newDocument, props.oldDocument);
+  await updatePostShortform(props.newDocument, props.oldDocument, props.context);
+  await updateCommentHideKarma(props.newDocument, props.oldDocument, props.context);
+  await extractSocialPreviewImage(props.newDocument, props);
+  await oldPostsLastCommentedAt(props.newDocument, props.context);
+
+  // TODO: editable callbacks for other 2 fields
+  await reuploadImagesInEdit(props.newDocument, props.oldDocument);
+
+  // TODO: elastic callbacks
+}
+
+async function postDeleteAsync(props: DeleteCallbackProperties<'Posts'>) {
+  // TODO: addCountOfReferenceCallbacks (4 of them, for posts - 4 fields?)
+}
+
+// if (isEAForum) {
+//   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
+//     if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
+//       throw new Error(TOS_NOT_ACCEPTED_ERROR);
+//     }
+//     return post;
+//   }
+//   getCollectionHooks("Posts").newSync.add(
+//     (post: DbPost, currentUser) => checkTosAccepted(currentUser, post),
+//   );
+//   getCollectionHooks("Posts").updateBefore.add(
+//     (post, {currentUser}) => checkTosAccepted(currentUser, post),
+//   );
+
+//   const assertPostTitleHasNoEmojis = (post: DbPost) => {
+//     if (/\p{Extended_Pictographic}/u.test(post.title)) {
+//       throw new Error("Post titles cannot contain emojis");
+//     }
+//   }
+//   getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
+//   getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
+// }
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
@@ -230,15 +293,15 @@ if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
       }
     }
   }
-  getCollectionHooks("Posts").newAsync.add(
-    async (post: DbPost) => await updateEmbeddings(post),
-  );
-  getCollectionHooks("Posts").updateAsync.add(
-    async ({document, oldDocument}) => await updateEmbeddings(
-      document,
-      oldDocument,
-    ),
-  );
+  // getCollectionHooks("Posts").newAsync.add(
+  //   async (post: DbPost) => await updateEmbeddings(post),
+  // );
+  // getCollectionHooks("Posts").updateAsync.add(
+  //   async ({document, oldDocument}) => await updateEmbeddings(
+  //     document,
+  //     oldDocument,
+  //   ),
+  // );
 }
 
 // async function checkRecentRepost(post: DbPost): Promise<DbPost> {
@@ -386,38 +449,38 @@ export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
 //   return post
 // });
 
-getCollectionHooks("Posts").editAsync.add(async function UpdatePostShortform (newPost, oldPost) {
-  if (!!newPost.shortform !== !!oldPost.shortform) {
-    const shortform = !!newPost.shortform;
-    await Comments.rawUpdateMany(
-      { postId: newPost._id },
-      { $set: {
-        shortform: shortform
-      } },
-      { multi: true }
-    );
-  }
-});
+// getCollectionHooks("Posts").editAsync.add(async function UpdatePostShortform (newPost, oldPost) {
+//   if (!!newPost.shortform !== !!oldPost.shortform) {
+//     const shortform = !!newPost.shortform;
+//     await Comments.rawUpdateMany(
+//       { postId: newPost._id },
+//       { $set: {
+//         shortform: shortform
+//       } },
+//       { multi: true }
+//     );
+//   }
+// });
 
 // If an admin changes the "hideCommentKarma" setting of a post after it
 // already has comments, update those comments' hideKarma field to have the new
 // setting. This should almost never be used, as we really don't want to
 // surprise users by revealing their supposedly hidden karma.
-getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma (newPost, oldPost) {
-  if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
+// getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma (newPost, oldPost) {
+//   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
-  const comments = Comments.find({postId: newPost._id})
-  if (!(await comments.count())) return
-  const updates = (await comments.fetch()).map(comment => ({
-    updateOne: {
-      filter: {
-        _id: comment._id,
-      },
-      update: {$set: {hideKarma: newPost.hideCommentKarma}}
-    }
-  }))
-  await Comments.rawCollection().bulkWrite(updates)
-});
+//   const comments = Comments.find({postId: newPost._id})
+//   if (!(await comments.count())) return
+//   const updates = (await comments.fetch()).map(comment => ({
+//     updateOne: {
+//       filter: {
+//         _id: comment._id,
+//       },
+//       update: {$set: {hideKarma: newPost.hideCommentKarma}}
+//     }
+//   }))
+//   await Comments.rawCollection().bulkWrite(updates)
+// });
 
 // getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<"Posts">) => {
 //   if (!document.draft) {
@@ -425,130 +488,130 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
 //   }
 // });
 
-getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
-  if (document.draft || document.rejected) return
+// getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
+//   if (document.draft || document.rejected) return
 
-  await triggerReviewIfNeeded(oldDocument.userId)
+//   await triggerReviewIfNeeded(oldDocument.userId)
   
-  // if the post author is already approved and the post is getting undrafted,
-  // or the post author is getting approved,
-  // then we consider this "publishing" the post
-  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await onPostPublished(document, context);
-  }
-});
+//   // if the post author is already approved and the post is getting undrafted,
+//   // or the post author is getting approved,
+//   // then we consider this "publishing" the post
+//   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
+//     await onPostPublished(document, context);
+//   }
+// });
 
-async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
-  // When a post is published, ensure that the version number of its contents
-  // revision does not have `draft` set or an 0.x version number (which would
-  // affect permissions).
-  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
-}
+// async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+//   // When a post is published, ensure that the version number of its contents
+//   // revision does not have `draft` set or an 0.x version number (which would
+//   // affect permissions).
+//   await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+// }
 
-interface SendPostRejectionPMParams {
-  messageContents: string,
-  lwAccount: DbUser,
-  post: DbPost,
-  noEmail: boolean,
-}
+// interface SendPostRejectionPMParams {
+//   messageContents: string,
+//   lwAccount: DbUser,
+//   post: DbPost,
+//   noEmail: boolean,
+// }
 
-async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail }: SendPostRejectionPMParams) {
-  const conversationData: CreateMutatorParams<"Conversations">['document'] = {
-    participantIds: [post.userId, lwAccount._id],
-    title: `Your post ${post.title} was rejected`,
-    moderator: true
-  };
+// async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail }: SendPostRejectionPMParams) {
+//   const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+//     participantIds: [post.userId, lwAccount._id],
+//     title: `Your post ${post.title} was rejected`,
+//     moderator: true
+//   };
 
-  const conversation = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: lwAccount,
-    validate: false
-  });
+//   const conversation = await createMutator({
+//     collection: Conversations,
+//     document: conversationData,
+//     currentUser: lwAccount,
+//     validate: false
+//   });
 
-  const messageData = {
-    userId: lwAccount._id,
-    contents: {
-      originalContents: {
-        type: "html",
-        data: messageContents
-      }
-    },
-    conversationId: conversation.data._id,
-    noEmail: noEmail
-  };
+//   const messageData = {
+//     userId: lwAccount._id,
+//     contents: {
+//       originalContents: {
+//         type: "html",
+//         data: messageContents
+//       }
+//     },
+//     conversationId: conversation.data._id,
+//     noEmail: noEmail
+//   };
 
-  await createMutator({
-    collection: Messages,
-    document: messageData,
-    currentUser: lwAccount,
-    validate: false
-  });
+//   await createMutator({
+//     collection: Messages,
+//     document: messageData,
+//     currentUser: lwAccount,
+//     validate: false
+//   });
 
-  if (!isAnyTest) {
-    // eslint-disable-next-line no-console
-    console.log("Sent moderation message for post", post._id);
-  }
-}
+//   if (!isAnyTest) {
+//     // eslint-disable-next-line no-console
+//     console.log("Sent moderation message for post", post._id);
+//   }
+// }
 
-getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser }) {
-  const postRejected = post.rejected && !oldPost.rejected;
-  if (postRejected) {
-    const postUser = await Users.findOne({_id: post.userId});
+// getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser }) {
+//   const postRejected = post.rejected && !oldPost.rejected;
+//   if (postRejected) {
+//     const postUser = await Users.findOne({_id: post.userId});
 
-    const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
-    let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
+//     const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+//     let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
   
-    // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-    const noEmail = isEAForum
-    ? false 
-    : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+//     // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
+//     const noEmail = isEAForum
+//     ? false 
+//     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
     
-    const adminAccount = currentUser ?? await getAdminTeamAccount();
-    if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
+//     const adminAccount = currentUser ?? await getAdminTeamAccount();
+//     if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   
-    await sendPostRejectionPM({
-      post,
-      messageContents: messageContents,
-      lwAccount: adminAccount,
-      noEmail,
-    });  
-  }
-});
+//     await sendPostRejectionPM({
+//       post,
+//       messageContents: messageContents,
+//       lwAccount: adminAccount,
+//       noEmail,
+//     });  
+//   }
+// });
 
 /**
  * Creates a moderator action when an admin sets one of the user's posts back to draft
  * This also adds a note to a user's sunshineNotes
  */
-getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
-  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
-        userId: document.userId,
-        type: MOVED_POST_TO_DRAFT,
-        endedAt: new Date()
-      }
-    });
-  }
-});
+// getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
+//   if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+//     void createMutator({
+//       collection: context.ModeratorActions,
+//       context,
+//       currentUser,
+//       document: {
+//         userId: document.userId,
+//         type: MOVED_POST_TO_DRAFT,
+//         endedAt: new Date()
+//       }
+//     });
+//   }
+// });
 
-getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
-  if (!oldDocument.rejected && document.rejected) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
-        userId: document.userId,
-        type: REJECTED_POST,
-        endedAt: new Date()
-      }
-    });
-  }
-});
+// getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
+//   if (!oldDocument.rejected && document.rejected) {
+//     void createMutator({
+//       collection: context.ModeratorActions,
+//       context,
+//       currentUser,
+//       document: {
+//         userId: document.userId,
+//         type: REJECTED_POST,
+//         endedAt: new Date()
+//       }
+//     });
+//   }
+// });
 
 // Use the first image in the post as the social preview image
 // async function extractSocialPreviewImage (post: DbPost) {
@@ -585,7 +648,7 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
   
 // }
 
-getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
+// getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 // getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 
 // For posts without comments, update lastCommentedAt to match postedAt
@@ -593,14 +656,14 @@ getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPre
 // When the post is created, lastCommentedAt was set to the current date. If an
 // admin or site feature updates postedAt that should change the "newness" of
 // the post unless there's been active comments.
-async function oldPostsLastCommentedAt (post: DbPost) {
-  // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
-  if (post.commentCount) return
+// async function oldPostsLastCommentedAt (post: DbPost) {
+//   // TODO maybe update this to properly handle AF comments. (I'm guessing it currently doesn't)
+//   if (post.commentCount) return
 
-  await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
-}
+//   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+// }
 
-getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
+// getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
 
 // getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
 //   // make sure courses/programs have no end time
@@ -724,118 +787,118 @@ async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: Db
 //   return post;
 // });
 
-getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
-  const {currentUser, context} = props;
-  if (!currentUser) return post; // Shouldn't happen, but just in case
+// getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
+//   const {currentUser, context} = props;
+//   if (!currentUser) return post; // Shouldn't happen, but just in case
 
-  if (post.tagRelevance) {
-    const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0}, deleted: false }).fetch()
-    const existingTagIds = existingTagRels.map(tr => tr.tagId);
+//   if (post.tagRelevance) {
+//     const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0}, deleted: false }).fetch()
+//     const existingTagIds = existingTagRels.map(tr => tr.tagId);
 
-    const formTagIds = Object.keys(post.tagRelevance);
-    const tagsToApply = formTagIds.filter(tagId => !existingTagIds.includes(tagId));
-    const tagsToRemove = existingTagIds.filter(tagId => !formTagIds.includes(tagId));
+//     const formTagIds = Object.keys(post.tagRelevance);
+//     const tagsToApply = formTagIds.filter(tagId => !existingTagIds.includes(tagId));
+//     const tagsToRemove = existingTagIds.filter(tagId => !formTagIds.includes(tagId));
 
-    const applyPromise = bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
-    const removePromise = bulkRemovePostTags({tagRels: existingTagRels.filter(tagRel => tagsToRemove.includes(tagRel.tagId)), currentUser, context})
+//     const applyPromise = bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
+//     const removePromise = bulkRemovePostTags({tagRels: existingTagRels.filter(tagRel => tagsToRemove.includes(tagRel.tagId)), currentUser, context})
 
-    await Promise.all([applyPromise, removePromise])
-    if (tagsToApply.length || tagsToRemove.length) {
-      // Rebuild the tagRelevance field on the post. It's unfortunate that we have to do this extra (slow) step, but
-      // it's necessary because tagRelevance can depend on votes from other people so it's not that straightforward to
-      // work out the final state from the data we have here.
-      // This isn't necessary in the create case because we know there will be no existing tagRels when a post is created
-      await updatePostDenormalizedTags(post._id);
-    }
-  }
+//     await Promise.all([applyPromise, removePromise])
+//     if (tagsToApply.length || tagsToRemove.length) {
+//       // Rebuild the tagRelevance field on the post. It's unfortunate that we have to do this extra (slow) step, but
+//       // it's necessary because tagRelevance can depend on votes from other people so it's not that straightforward to
+//       // work out the final state from the data we have here.
+//       // This isn't necessary in the create case because we know there will be no existing tagRels when a post is created
+//       await updatePostDenormalizedTags(post._id);
+//     }
+//   }
 
-  return post;
-});
+//   return post;
+// });
 
-getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCallbackProperties<"Posts">) => {
-  const { oldDocument: oldPost } = props;
-  const adminContext = createAdminContext();
+// getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCallbackProperties<"Posts">) => {
+//   const { oldDocument: oldPost } = props;
+//   const adminContext = createAdminContext();
 
-  async function resetDialogueMatch(matchForm: DbDialogueMatchPreference) {
-    const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
-    if (dialogueCheck) {
-      await Promise.all([
-        updateMutator({ // reset check
-          collection: DialogueChecks,
-          documentId: dialogueCheck._id,
-          set: { checked: false, hideInRecommendations: false },
-          currentUser: adminContext.currentUser,
-          context: adminContext,
-          validate: false
-        }),
-        updateMutator({ // soft delete topic form
-          collection: DialogueMatchPreferences,
-          documentId: matchForm._id,
-          set: { deleted: true },
-          currentUser: adminContext.currentUser,
-          context: adminContext,
-          validate: false
-        })
-      ]);
-    }
-  }
+//   async function resetDialogueMatch(matchForm: DbDialogueMatchPreference) {
+//     const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
+//     if (dialogueCheck) {
+//       await Promise.all([
+//         updateMutator({ // reset check
+//           collection: DialogueChecks,
+//           documentId: dialogueCheck._id,
+//           set: { checked: false, hideInRecommendations: false },
+//           currentUser: adminContext.currentUser,
+//           context: adminContext,
+//           validate: false
+//         }),
+//         updateMutator({ // soft delete topic form
+//           collection: DialogueMatchPreferences,
+//           documentId: matchForm._id,
+//           set: { deleted: true },
+//           currentUser: adminContext.currentUser,
+//           context: adminContext,
+//           validate: false
+//         })
+//       ]);
+//     }
+//   }
 
-  if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
-    const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id, deleted: {$ne: true}}).fetch()
-      await Promise.all(matchForms.map(resetDialogueMatch))
-  }
-  return post;
-});
+//   if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
+//     const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id, deleted: {$ne: true}}).fetch()
+//       await Promise.all(matchForms.map(resetDialogueMatch))
+//   }
+//   return post;
+// });
 
 /* Recombee callbacks */
 
-function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
-  if (!isRecombeeRecommendablePost(post)) return;
+// function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
+//   if (!isRecombeeRecommendablePost(post)) return;
 
-  if (recombeeEnabledSetting.get()) {
-    void recombeeApi.upsertPost(post, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending published post to recombee', { e }));
-  }
+//   if (recombeeEnabledSetting.get()) {
+//     void recombeeApi.upsertPost(post, context)
+//       // eslint-disable-next-line no-console
+//       .catch(e => console.log('Error when sending published post to recombee', { e }));
+//   }
 
-  if (vertexEnabledSetting.get()) {
-    void googleVertexApi.upsertPost({ post }, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending published post to google vertex', { e }));
-  }
-}
+//   if (vertexEnabledSetting.get()) {
+//     void googleVertexApi.upsertPost({ post }, context)
+//       // eslint-disable-next-line no-console
+//       .catch(e => console.log('Error when sending published post to google vertex', { e }));
+//   }
+// }
 
-getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
-  // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
-  // This does seem likely to be a bug in a the mutator logic
-  const post = await context.loaders.Posts.load(newDocument._id);
-  const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
+// getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
+//   // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
+//   // This does seem likely to be a bug in a the mutator logic
+//   const post = await context.loaders.Posts.load(newDocument._id);
+//   const redrafted = post.draft && !oldDocument.draft
+//   if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
-  if (recombeeEnabledSetting.get()) {
-    void recombeeApi.upsertPost(post, context)
-    // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending updated post to recombee', { e }));
-  }
+//   if (recombeeEnabledSetting.get()) {
+//     void recombeeApi.upsertPost(post, context)
+//     // eslint-disable-next-line no-console
+//     .catch(e => console.log('Error when sending updated post to recombee', { e }));
+//   }
 
-  if (vertexEnabledSetting.get()) {
-    void googleVertexApi.upsertPost({ post }, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending updated post to google vertex', { e }));
-  }
-});
+//   if (vertexEnabledSetting.get()) {
+//     void googleVertexApi.upsertPost({ post }, context)
+//       // eslint-disable-next-line no-console
+//       .catch(e => console.log('Error when sending updated post to google vertex', { e }));
+//   }
+// });
 
-export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
+// export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
+//   if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
-  if (recombeeEnabledSetting.get()) {
-    void recombeeApi.upsertPost(newDocument as DbPost, context)
-    // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));
-  }
+//   if (recombeeEnabledSetting.get()) {
+//     void recombeeApi.upsertPost(newDocument as DbPost, context)
+//     // eslint-disable-next-line no-console
+//     .catch(e => console.log('Error when sending voted-on post to recombee', { e }));
+//   }
   
-  // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
-}
+//   // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
+// }
 
 // getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 //   modifier: MongoModifier<DbPost>,
@@ -852,39 +915,39 @@ export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collecti
 //   return modifier;
 // });
 
-async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
-  const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
-  const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
+// async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
+//   const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
+//   const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
 
-  if (!currentUser) return post;
-  if (currentUser._id !== post.userId) return post;
-  if (!post.contents_latest) return post;
-  if (post.draft && !post.generateDraftJargon) return post;
-  if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
-  if (oldPost?.contents_latest === post.contents_latest) return post;
+//   if (!currentUser) return post;
+//   if (currentUser._id !== post.userId) return post;
+//   if (!post.contents_latest) return post;
+//   if (post.draft && !post.generateDraftJargon) return post;
+//   if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
+//   if (oldPost?.contents_latest === post.contents_latest) return post;
 
-  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
-  // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
-  const [existingJargon, newContents] = await Promise.all([
-    JargonTerms.find({postId: post._id}).fetch(),
-    loaders.Revisions.load(post.contents_latest)
-  ]);
+//   if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
+//   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
+//   const [existingJargon, newContents] = await Promise.all([
+//     JargonTerms.find({postId: post._id}).fetch(),
+//     loaders.Revisions.load(post.contents_latest)
+//   ]);
 
-  if (!newContents?.html) {
-    return post;
-  }
+//   if (!newContents?.html) {
+//     return post;
+//   }
   
-  const { changeMetrics } = newContents;
+//   const { changeMetrics } = newContents;
 
-  // TODO: do we want different behavior for new vs updated posts?
-  if (changeMetrics.added > 1000 || !existingJargon.length) {
-    // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
-    void createNewJargonTerms({ postId: post._id, currentUser });
-  }
+//   // TODO: do we want different behavior for new vs updated posts?
+//   if (changeMetrics.added > 1000 || !existingJargon.length) {
+//     // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
+//     void createNewJargonTerms({ postId: post._id, currentUser });
+//   }
 
-  return post;
-}
+//   return post;
+// }
 
 // getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
 
-getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);
+// getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);
