@@ -1265,9 +1265,11 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
-      draft: viewFieldAllowAny,
       rejected: null,
-      wasEverUndrafted: true,
+      $or: [
+        { wasEverUndrafted: true },
+        { draft: false }
+      ]
     },
     options: {
       sort: {
