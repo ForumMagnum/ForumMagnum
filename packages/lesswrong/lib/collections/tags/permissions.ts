@@ -1,4 +1,4 @@
-import { membersGroup } from "@/lib/vulcan-users";
+import { membersGroup } from "@/lib/vulcan-users/permissions.ts";
 import { canVoteOnTag } from "../../voting/tagRelVoteRules";
 import { CoauthoredPost } from "../posts/helpers";
 

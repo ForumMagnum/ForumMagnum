@@ -1,13 +1,13 @@
 import React from "react";
 import { useCurationEmailsCron } from "../../lib/betas";
 import CurationEmails from "../../lib/collections/curationEmails/collection";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
 import { Components } from "../../lib/vulcan-lib/components";
 import { addCronJob } from "../cronUtil";
-import { wrapAndSendEmail } from "../emails";
+import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";
 import UsersRepo from "../repos/UsersRepo";
 

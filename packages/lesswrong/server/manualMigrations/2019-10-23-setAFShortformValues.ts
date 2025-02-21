@@ -1,5 +1,5 @@
 import { registerMigration } from './migrationUtils';
-import { updateMutator } from '../vulcan-lib';
+import { updateMutator } from '../vulcan-lib/mutators';
 
 
 import { Posts } from '../../lib/collections/posts/collection';

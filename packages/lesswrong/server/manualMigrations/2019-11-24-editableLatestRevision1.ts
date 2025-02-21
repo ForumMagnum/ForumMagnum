@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { getCollection } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { Revisions } from '../../lib/collections/revisions/collection';
 

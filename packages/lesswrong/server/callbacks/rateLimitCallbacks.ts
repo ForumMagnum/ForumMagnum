@@ -3,7 +3,7 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
-import { userIsAdminOrMod, userOwns } from '@/lib/vulcan-users';
+import { userIsAdminOrMod, userOwns } from '@/lib/vulcan-users/permissions.ts';
 import LWEventsRepo from '../repos/LWEventsRepo';
 import { isEAForum } from '@/lib/instanceSettings';
 import { DatabaseServerSetting } from '../databaseSettings';

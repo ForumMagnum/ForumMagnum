@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import moment from "moment";
 import { addCronJob } from "../cronUtil";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
 import IncrementalViewRepo from "../repos/IncrementalViewRepo";

@@ -1,7 +1,7 @@
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { cheerioParse, tokenizeHtml } from '../utils/htmlUtil';
 import { sanitize } from '../../lib/vulcan-lib/utils';
-import { Globals } from '../vulcan-lib';
+import { Globals } from '../../lib/vulcan-lib/config';
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {
   // Normalize unicode and &entities; so that smart quotes changing form won't

@@ -1,8 +1,7 @@
 import { useQuery, gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
-import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
-import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { apolloSSRFlag } from '../../lib/helpers';
+import { defaultAlgorithmSettings, RecommendationsAlgorithm } from "../../lib/collections/users/recommendationSettings";
 
 export const useRecommendations = ({
   algorithm,

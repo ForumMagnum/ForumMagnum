@@ -1,5 +1,4 @@
-import { ABTest, useABTest, useABTestProperties } from './abTestImpl';
-export { useABTest, useABTestProperties };
+import { ABTest } from './abTestImpl';
 
 /*
  * A/B tests, both active and finished. If an A/B test is active--that is,

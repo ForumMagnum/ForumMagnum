@@ -22,13 +22,14 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
-import { getErrors, mergeWithComponents } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
 import { isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import classNames from 'classnames';
 import { runCallbacksList } from './runCallbacksList';
+import { getErrors } from "../../lib/vulcan-lib/errors";
+import { Components } from "../../lib/vulcan-lib/components";
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
@@ -236,7 +237,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   /**
    * Get all field groups
    */
-  getFieldGroups = () => {
+  getFieldGroups = (): FormGroupType<N>[] => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
     let fields = this.getFieldNames(this.props).map((fieldName: string) => {
@@ -344,7 +345,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       name: fieldName,
       datatype: fieldSchema.type,
       layout: this.props.layout || "horizontal",
-      input: fieldSchema.input || fieldSchema.control
+      input: fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
 
@@ -1017,8 +1018,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   // --------------------------------------------------------------------- //
 
   render() {
-    const FormComponents = mergeWithComponents(this.props.formComponents);
-
+    const FormSubmit = this.props.formComponents?.FormSubmit ?? Components.FormSubmit;
     return (
       <form
         className={classNames(
@@ -1030,13 +1030,13 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
         onSubmit={this.submitForm}
         ref={this.formRef}
       >
-        <FormComponents.FormErrors
+        <Components.FormErrors
           errors={this.state.errors}
         />
 
         {this.getFieldGroups().map((group, i) => (
-          <FormComponents.FormGroup
-            {...group}
+          <Components.FormGroup
+            group={group}
             fields={group.fields as FormField<any>[]}
             errors={this.state.errors}
             throwError={this.throwError}
@@ -1046,19 +1046,18 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
             addToDeletedValues={this.addToDeletedValues}
             clearFieldErrors={this.clearFieldErrors}
             formType={this.getFormType()}
-            currentUser={this.props.currentUser}
             disabled={this.state.disabled}
-            formComponents={mergeWithComponents(this.props.formComponents)}
+            formComponents={this.props.formComponents}
             formProps={this.props.formProps}
             key={`${i}-${group.name}`}
           />
         ))}
 
-        {this.props.repeatErrors && <FormComponents.FormErrors
+        {this.props.repeatErrors && <Components.FormErrors
           errors={this.state.errors}
         />}
 
-        {!this.props.autoSubmit && <FormComponents.FormSubmit
+        {!this.props.autoSubmit && <FormSubmit
           submitLabel={this.props.submitLabel}
           cancelLabel={this.props.cancelLabel}
           revertLabel={this.props.revertLabel}

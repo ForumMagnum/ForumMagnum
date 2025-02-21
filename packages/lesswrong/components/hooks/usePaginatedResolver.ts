@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
 import isEqual from "lodash/isEqual"

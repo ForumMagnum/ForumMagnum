@@ -3,9 +3,10 @@ import { isEAForum } from "@/lib/instanceSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import UsersRepo from "../repos/UsersRepo";
 import { wrapAndSendEmail } from "../emails/renderEmail";
-import { Components, Globals } from "@/lib/vulcan-lib";
 import './../emailComponents/EmailAnnualForumUserSurvey';
 import Users from '@/lib/collections/users/collection';
+import { Components } from "@/lib/vulcan-lib/components.tsx";
+import { Globals } from "@/lib/vulcan-lib/config.ts";
 
 /**
  * Used by the EA Forum to send an email to a subset of users

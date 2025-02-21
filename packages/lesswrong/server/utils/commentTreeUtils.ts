@@ -1,6 +1,6 @@
 import { Comments } from '../../lib/collections/comments/collection';
 import * as _ from 'underscore';
-import { Globals } from '../vulcan-lib';
+import { Globals } from '../../lib/vulcan-lib/config';
 
 // Return the IDs of all ancestors of the given comment (not including the provided
 // comment itself).

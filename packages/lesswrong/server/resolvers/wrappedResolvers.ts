@@ -1,4 +1,4 @@
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
 import { getWrappedDataByYear } from '../wrapped/wrappedDataByYear';
 

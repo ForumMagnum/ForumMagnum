@@ -1,8 +1,9 @@
 import Users from '../../lib/collections/users/collection';
-import { Globals, createAdminContext } from '../vulcan-lib';
 import { nullifyVotesForUser, nullifyVotesForUserByTarget, silentlyReverseVote } from '../callbacks';
-import { VotesRepo } from '../repos';
-import { Votes } from '../../lib/collections/votes';
+import VotesRepo from '../repos/VotesRepo';
+import { Votes } from '../../lib/collections/votes/collection';
+import { Globals } from "../../lib/vulcan-lib/config";
+import { createAdminContext } from "../vulcan-lib/query";
 
 Globals.nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();

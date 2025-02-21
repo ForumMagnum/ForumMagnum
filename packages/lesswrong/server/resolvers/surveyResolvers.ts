@@ -1,10 +1,5 @@
-import {
-  addGraphQLQuery,
-  addGraphQLMutation,
-  addGraphQLResolvers,
-  addGraphQLSchema,
-} from "@/lib/vulcan-lib";
-import { createMutator, updateMutator } from "../vulcan-lib";
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "@/lib/vulcan-lib/graphql.ts";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { hasSurveys } from "@/lib/betas";
 import Surveys from "@/lib/collections/surveys/collection";

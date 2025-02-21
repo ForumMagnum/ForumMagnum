@@ -9,13 +9,11 @@ import {
   SearchIndexedCollection,
   searchIndexedCollectionNames,
 } from "../../../lib/search/searchUtil";
-import {
-  CommentsRepo,
-  PostsRepo,
-  SequencesRepo,
-  TagsRepo,
-  UsersRepo,
-} from "../../repos";
+import CommentsRepo from "../../repos/CommentsRepo";
+import PostsRepo from "../../repos/PostsRepo";
+import SequencesRepo from "../../repos/SequencesRepo";
+import TagsRepo from "../../repos/TagsRepo";
+import UsersRepo from "../../repos/UsersRepo";
 import { getCollection } from "../../../lib/vulcan-lib/getCollection";
 import Globals from "../../../lib/vulcan-lib/config";
 

@@ -27,7 +27,6 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName } from '../../../lib/vulcan-lib';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -35,6 +34,9 @@ import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
+import { pluralize } from "../../../lib/vulcan-lib/pluralize";
+import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
+import { getCollectionByTypeName } from "../../../lib/vulcan-lib/getCollection";
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
@@ -113,11 +115,6 @@ const getGraphQLType = <N extends CollectionNameString>(
   const type = field.type.singleType;
   const typeName =
     typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
-
-  // LESSWRONG: Add optional property to override default input type generation
-  if (isInput && field.inputType) {
-    return field.inputType
-  }
 
   switch (typeName) {
     case 'String':

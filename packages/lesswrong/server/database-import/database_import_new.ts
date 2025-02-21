@@ -1,8 +1,7 @@
 import Users from '../../lib/collections/users/collection';
-import { Comments } from '../../lib/collections/comments'
-import { Posts } from '../../lib/collections/posts'
+import { Comments } from '../../lib/collections/comments/collection'
+import { Posts } from '../../lib/collections/posts/collection'
 import { postStatuses } from '../../lib/collections/posts/constants'
-import { Vulcan, createMutator } from '../vulcan-lib';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/conversionUtils';
@@ -14,6 +13,8 @@ import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { slugify } from '@/lib/utils/slugify';
+import { Vulcan } from "../../lib/vulcan-lib/config";
+import { createMutator } from "../vulcan-lib/mutators";
 
 const postgresImportDetails = {
   host: 'localhost',

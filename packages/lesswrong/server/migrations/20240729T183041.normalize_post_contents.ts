@@ -1,4 +1,4 @@
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import { denormalizeEditableField, normalizeEditableField } from "./meta/utils";
 
 export const acceptsSchemaHash = "d2ff8b556fc6f740b2bb57ddf5347f64";

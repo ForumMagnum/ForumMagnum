@@ -2,8 +2,9 @@ import fs from 'mz/fs';
 import Papa from 'papaparse';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
-import { createMutator, updateMutator, Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { Vulcan } from "../../lib/vulcan-lib/config";
 
 /**
  * Import data for localgroups

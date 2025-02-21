@@ -1,11 +1,14 @@
 import schema from './schema';
-import { createCollection, getCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils'
 import { userCanDo, membersGroup, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
 import { postCheckAccess } from '../posts/checkAccess';
+import { createCollection } from "../../vulcan-lib/collections";
+import { getCollection } from "../../vulcan-lib/getCollection";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 export const PLAINTEXT_DESCRIPTION_LENGTH = 2000

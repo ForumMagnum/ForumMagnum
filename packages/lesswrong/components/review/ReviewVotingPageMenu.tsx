@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
@@ -9,11 +8,13 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@material-ui/core/Select';
 import qs from 'qs';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isLW, isLWorAF } from '@/lib/instanceSettings';
-import { useLocation } from '@/lib/routeUtil';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {

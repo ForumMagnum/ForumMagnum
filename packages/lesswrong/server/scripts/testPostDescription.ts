@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import Revisions from "../../lib/collections/revisions/collection";
-import { Vulcan } from "../vulcan-lib";
+import { Vulcan } from "../../lib/vulcan-lib/config";
 
 
 /** For visually inspecting that our descriptions match the post content well */

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 

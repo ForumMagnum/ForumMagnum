@@ -1,9 +1,10 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils';
+import { createCollection } from '../../vulcan-lib/collections';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { schema } from './schema';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const splashArtCoordinatesMutationOptions: MutationOptions<DbSplashArtCoordinate> = {
   newCheck: (user: DbUser|null) => {
