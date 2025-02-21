@@ -3130,7 +3130,12 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      const reviews = await getWithCustomLoader(
+        context,
+        'postReviews',
+        post._id,
+        (postIds: string[]) => context.repos.comments.getPostReviews(postIds, 2, 10),
+      );
       return await accessFilterMultiple(currentUser, Comments, reviews, context);
     }
   }),

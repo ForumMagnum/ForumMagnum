@@ -115,6 +115,9 @@ interface DbClientId extends DbObject {
   firstSeenReferrer: string | null
   firstSeenLandingPage: string | null
   userIds: Array<string> | null
+  invalidated: boolean
+  lastSeenAt: Date | null
+  timesSeen: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1226,6 +1229,7 @@ interface DbRevision extends DbObject {
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
+  skipAttributions: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
@@ -1968,6 +1972,7 @@ interface DbUser extends DbObject {
   fmCrosspostUserId: string | null
   linkedinProfileURL: string | null
   facebookProfileURL: string | null
+  blueskyProfileURL: string | null
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
   githubProfileURL: string | null

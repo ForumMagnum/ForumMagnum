@@ -22,6 +22,9 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string> | null,
+  readonly invalidated: boolean,
+  readonly lastSeenAt: Date | null,
+  readonly timesSeen: number,
 }
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
@@ -412,6 +415,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly fmCrosspostUserId: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
+  readonly blueskyProfileURL: string,
   readonly twitterProfileURL: string,
   readonly twitterProfileURLAdmin: string | null,
   readonly githubProfileURL: string,
@@ -736,6 +740,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly hasFootnotes: boolean|null,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly skipAttributions: boolean,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
@@ -1098,6 +1103,15 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly userId: string,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface FieldChangeFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly createdAt: any,
+  readonly userId: any,
+  readonly documentId: any,
+  readonly before: any,
+  readonly after: any,
 }
 
 interface JargonTermsDefaultFragment { // fragment on JargonTerms
@@ -1849,6 +1863,7 @@ interface CommentsList { // fragment on Comments
 }
 
 interface CommentsList_tag { // fragment on Tags
+  readonly _id: string,
   readonly slug: string,
 }
 
@@ -2057,7 +2072,29 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
   readonly collectionName: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly skipAttributions: boolean,
   readonly user: UsersMinimumInfo|null,
+}
+
+interface RevisionHistorySummaryEdit extends RevisionHistoryEntry { // fragment on Revisions
+  readonly summary: RevisionHistorySummaryEdit_summary|null,
+}
+
+interface RevisionHistorySummaryEdit_summary extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
+  readonly parentTag: RevisionHistorySummaryEdit_summary_parentTag|null,
+  readonly parentLens: RevisionHistorySummaryEdit_summary_parentLens|null,
+}
+
+interface RevisionHistorySummaryEdit_summary_parentTag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+}
+
+interface RevisionHistorySummaryEdit_summary_parentLens { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
@@ -2692,7 +2729,7 @@ interface TagFragment_description { // fragment on Revisions
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
-  readonly lenses: Array<MultiDocumentContentDisplay>,
+  readonly lensesIncludingDeleted: Array<MultiDocumentContentDisplay>,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
@@ -2897,6 +2934,7 @@ interface ConceptItemFragment { // fragment on Tags
   readonly postCount: number,
   readonly baseScore: number,
   readonly description: ConceptItemFragment_description|null,
+  readonly wikiOnly: boolean,
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string | null,
   readonly maxScore: number|null,
@@ -3161,6 +3199,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
+  readonly blueskyProfileURL: string,
   readonly twitterProfileURL: string,
   readonly githubProfileURL: string,
   readonly frontpagePostCount: number,
@@ -3700,6 +3739,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
+  readonly blueskyProfileURL: string,
   readonly twitterProfileURL: string,
   readonly githubProfileURL: string,
 }
@@ -3807,7 +3847,7 @@ interface UserVotesWithDocument extends UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post",
+  readonly documentType: "Sequence" | "Post" | "Tag",
   readonly position: number,
   readonly duration: number,
   readonly customTitle: string | null,
@@ -3830,7 +3870,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post",
+  readonly documentType: "Sequence" | "Post" | "Tag",
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
   readonly spotlightSplashImageUrl: string | null,
@@ -3860,29 +3900,67 @@ interface SpotlightReviewWinner_description { // fragment on Revisions
 }
 
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
-  readonly document: SpotlightHeaderEventSubtitle_document,
+  readonly post: SpotlightHeaderEventSubtitle_post|null,
+  readonly sequence: SpotlightHeaderEventSubtitle_sequence|null,
+  readonly tag: SpotlightHeaderEventSubtitle_tag|null,
 }
 
-interface SpotlightHeaderEventSubtitle_document { // fragment on Posts
+interface SpotlightHeaderEventSubtitle_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+}
+
+interface SpotlightHeaderEventSubtitle_sequence { // fragment on Sequences
+  readonly _id: string,
+}
+
+interface SpotlightHeaderEventSubtitle_tag { // fragment on Tags
   readonly _id: string,
   readonly slug: string,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
-  readonly document: SpotlightDisplay_document,
+  readonly post: SpotlightDisplay_post|null,
+  readonly sequence: SpotlightDisplay_sequence|null,
+  readonly tag: SpotlightDisplay_tag|null,
   readonly sequenceChapters: Array<ChaptersFragment>,
   readonly description: SpotlightDisplay_description|null,
 }
 
-interface SpotlightDisplay_document { // fragment on Posts
+interface SpotlightDisplay_post { // fragment on Posts
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
-  readonly user: SpotlightDisplay_document_user|null,
+  readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
 
-interface SpotlightDisplay_document_user { // fragment on Users
+interface SpotlightDisplay_post_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly slug: string,
+}
+
+interface SpotlightDisplay_sequence { // fragment on Sequences
+  readonly _id: string,
+  readonly title: string,
+  readonly user: SpotlightDisplay_sequence_user|null,
+}
+
+interface SpotlightDisplay_sequence_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly slug: string,
+}
+
+interface SpotlightDisplay_tag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
+  readonly user: SpotlightDisplay_tag_user|null,
+}
+
+interface SpotlightDisplay_tag_user { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
   readonly slug: string,
@@ -4492,6 +4570,7 @@ interface FragmentTypes {
   lastEventFragment: lastEventFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  FieldChangeFragment: FieldChangeFragment
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
@@ -4558,6 +4637,7 @@ interface FragmentTypes {
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
+  RevisionHistorySummaryEdit: RevisionHistorySummaryEdit
   RevisionTagFragment: RevisionTagFragment
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
@@ -4784,7 +4864,7 @@ interface FragmentTypesByCollection {
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
-  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"SunshineCurationPostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"PostForReviewWinnerItem"|"PostsTwitterAdmin"|"SuggestAlignmentPost"
@@ -4799,6 +4879,7 @@ interface FragmentTypesByCollection {
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
+  FieldChanges: "FieldChangeFragment"
   JargonTerms: "JargonTermsDefaultFragment"|"JargonTerms"|"JargonTermsPost"|"JargonTermsWithPostInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
@@ -4882,6 +4963,7 @@ interface CollectionNamesByFragmentName {
   lastEventFragment: "LWEvents"
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
+  FieldChangeFragment: never
   JargonTermsDefaultFragment: "JargonTerms"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
@@ -4948,6 +5030,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadata: "Revisions"
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
+  RevisionHistorySummaryEdit: "Revisions"
   RevisionTagFragment: "Revisions"
   RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"

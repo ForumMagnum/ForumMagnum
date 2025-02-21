@@ -8,18 +8,17 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
     cursor: "pointer",
-    marginRight: 4,
     display: "flex",
     alignItems: "center",
     color: theme.palette.grey[800],
   },
   selectedLikeButton: {
     cursor: "pointer",
-    marginRight: 4,
     display: "flex",
     alignItems: "center",
     color: theme.palette.grey[600],
@@ -40,6 +39,7 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     paddingBottom: 2,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
+    marginLeft: 1,
   },
   likeCountButtonRow: {
     ...theme.typography.commentStyle,
@@ -115,19 +115,23 @@ const ReactionsAndLikesVote  = ({
     }
   }
 
+  const maxUsersToShow = 10;
+
   const voteScoreTooltip = <div>
     {<div><strong>Click to {currentUserLikesIt ? "unlike" : "like"}</strong></div>}
-    {usersWhoLiked.length > 0 && <div>Liked by: {usersWhoLiked.map(u => u.displayName).join(", ")}</div>}
+    {usersWhoLiked.length > 0 && <div>Liked by: {usersWhoLiked.slice(0, maxUsersToShow).map(u => u.displayName).join(", ")}
+      {usersWhoLiked.length > maxUsersToShow && <span> +{usersWhoLiked.length - maxUsersToShow} others</span>}
+    </div>}
     {userIsAdmin(currentUser) && <div>(admin visible only) baseScore: {baseScore}</div>}
   </div>
   
   const likeCountElement = stylingVariant === "buttonRow"
-    ? <span className={classes.likeCountButtonRow}>{`(${likeCount})`}</span>
+    ? <span className={classes.likeCountButtonRow}>{`${likeCount}`}</span>
     : <span className={classes.likeCount}>{likeCount}</span>;
   
 
   return <div className={className}>
-    <LWTooltip title={voteScoreTooltip}>
+    <LWTooltip title={voteScoreTooltip} disabledOnMobile={true}>
       <div
         className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})}
         onClick={toggleLike}

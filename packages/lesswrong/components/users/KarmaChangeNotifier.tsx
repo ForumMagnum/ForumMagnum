@@ -14,7 +14,7 @@ import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
+import { getKarmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
@@ -127,6 +127,8 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
     || (comments && (comments.length > 0))
     || (tagRevisions && (tagRevisions.length > 0))
   )
+
+  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices();
   
   return (
     <Typography variant="body2">

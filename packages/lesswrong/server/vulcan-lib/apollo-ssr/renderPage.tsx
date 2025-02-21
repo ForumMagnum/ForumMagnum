@@ -26,7 +26,7 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
+import { addStartRenderTimeToPerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting, commentPermalinkStyleSetting } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
@@ -37,6 +37,7 @@ import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
 import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
+import { ensureClientId } from '@/server/clientIdMiddleware';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -46,7 +47,7 @@ type RenderTimings = {
   renderTime: number
 }
 
-export type RenderResult = {
+export interface RenderSuccessResult {
   ssrBody: string
   headers: Array<string>
   serializedApolloState: string
@@ -62,164 +63,244 @@ export type RenderResult = {
   timezone: string,
   timings: RenderTimings,
   aborted: false,
-} | {
-  aborted: true
+  prefetchedResources: Promise<boolean | undefined>,
 }
 
-interface RenderRequestParams {
+interface RenderAbortResult {
+  aborted: true;
+}
+
+export type RenderResult = RenderSuccessResult | RenderAbortResult;
+
+interface CacheMissParams {
+  cacheAttempt: true;
+  prefetchedResources: Promise<boolean | undefined>;
+}
+
+interface CacheSkipParams {
+  cacheAttempt: false;
+  maybePrefetchResources: () => Promise<boolean | undefined>;
+}
+
+interface BaseRenderRequestParams {
   req: Request,
   user: DbUser|null,
   startTime: Date,
   res: Response,
-  clientId?: string,
   userAgent?: string,
 }
+
+type RenderRequestParams = BaseRenderRequestParams & (CacheMissParams | CacheSkipParams);
 
 interface RenderPriorityQueueSlot extends RequestData {
   callback: () => Promise<void>;
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
-  const startTime = new Date();
+interface AttemptCachedRenderParams {
+  req: Request;
+  res: Response;
+  startTime: Date;
+  userAgent?: string;
+  url: string;
+  tabId: string|null;
+  ip: string;
+  cacheAttempt: true;
+}
+
+interface AttemptNonCachedRenderParams {
+  req: Request;
+  res: Response;
+  startTime: Date;
+  userAgent?: string;
+  url: string;
+  tabId: string|null;
+  ip: string;
+  cacheAttempt: false;
+  user: DbUser|null;
+}
+
+function openRenderRequestPerfMetric(renderParams: AttemptCachedRenderParams | AttemptNonCachedRenderParams) {
+  if (!performanceMetricLoggingEnabled.get()) return;
+
+  const { req, startTime, userAgent } = renderParams;
   
+  const userIdField = !renderParams.cacheAttempt
+    ? { user_id: renderParams.user?._id }
+    : {};
+
+  const opName = renderParams.cacheAttempt
+    ? "unknown"
+    : "skipCache";
+
+  const perfMetric = openPerfMetric({
+    op_type: "ssr",
+    op_name: opName,
+    client_path: req.originalUrl,
+    ip: getClientIP(req),
+    user_agent: userAgent,
+    ...userIdField,
+  }, startTime);
+
+  setAsyncStoreValue('requestPerfMetric', perfMetric);
+}
+
+function closeRenderRequestPerfMetric(rendered: RenderResult & { cached?: boolean }) {
+  if (!performanceMetricLoggingEnabled.get()) return;
+
+  setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+    if (!incompletePerfMetric) return;
+
+    if (incompletePerfMetric.op_name !== "unknown") {
+      return incompletePerfMetric;
+    }
+
+    // If we're closing a request that was eligible for caching, we would have initially set the op_name to "unknown"
+    // We need to set the op_name to "cacheHit" or "cacheMiss" here, after we've determined which it was
+    const opName = rendered.cached ? "cacheHit" : "cacheMiss";
+    return {
+      ...incompletePerfMetric,
+      op_name: opName
+    }
+  });
+
+  closeRequestPerfMetric();
+}
+
+function recordSsrAnalytics(
+  params: AttemptCachedRenderParams | AttemptNonCachedRenderParams,
+  rendered: Exclude<RenderResult, { aborted: true }> & { cached?: boolean }
+) {
+  const { req, startTime, userAgent, url, tabId, ip } = params;
+
+  if (!shouldRecordSsrAnalytics(userAgent)) return;
+
+  const clientId = getCookieFromReq(req, "clientId");
+
+  const userId = params.cacheAttempt
+    ? null
+    : params.user?._id;
+
+  const timings = params.cacheAttempt
+    ? { totalTime: new Date().valueOf() - startTime.valueOf() }
+    : rendered.timings;
+
+  const cached = params.cacheAttempt
+    ? rendered.cached
+    : false;
+
+  const abTestGroups = rendered.allAbTestGroups;
+
+  Vulcan.captureEvent("ssr", {
+    url,
+    tabId,
+    clientId,
+    ip,
+    userAgent,
+    userId,
+    timings,
+    abTestGroups,
+    cached,
+  });
+}
+
+function getRequestMetadata(req: Request) {
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
-  
   const url = getPathFromReq(req);
-  
-  const clientId = getCookieFromReq(req, "clientId");
-  
-  const ssrEventParams = {
-    url: url,
-    clientId, tabId,
-    userAgent: userAgent,
-  };
+
+  return { ip, userAgent, url };
+}
+
+function shouldSkipCache(req: Request, user: DbUser|null) {
+  const { userAgent, url } = getRequestMetadata(req);
 
   const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
-  const abTestGroups = getAllUserABTestGroups(user ? {user} : {clientId});
-  
+
   // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
   // because we need to render that page with a different value for the
   // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
   const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
-  
-  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
-  
+
   const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
   // For LW, skip the cache on users who have visited the frontpage before, including logged out. 
   // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
   const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
-  
-  if ((!isHealthCheck && (user || isExcludedFromPageCache(url))) || isSlackBot || showDynamicFrontpage) {
-    // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
-    recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
-    
-    if (performanceMetricLoggingEnabled.get()) {
-      const perfMetric = openPerfMetric({
-        op_type: "ssr",
-        op_name: "skipCache",
-        client_path: req.originalUrl,
-        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getClientIP(req),
-        user_agent: userAgent,
-        user_id: user?._id
-      }, startTime);
 
-      setAsyncStoreValue('requestPerfMetric', perfMetric);
-    }
+  return (
+    (!isHealthCheck && (user || isExcludedFromPageCache(url))) ||
+    isSlackBot ||
+    showDynamicFrontpage
+  );
+}
 
-    const rendered = await queueRenderRequest({
-      req, user, startTime, res, clientId, userAgent,
-    });
+function logRequestToConsole(
+  req: Request,
+  user: DbUser | null,
+  tabId: string | null,
+  rendered: Exclude<RenderResult, { aborted: true }> & { cached?: boolean }
+) {
+  const { ip, userAgent, url } = getRequestMetadata(req);
 
-    if (performanceMetricLoggingEnabled.get()) {
-      closeRequestPerfMetric();
-    }
-    
-    if (rendered.aborted) {
-      return rendered;
-    }
+  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
 
-    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
-      // Capture an analytics event at the conclusion of the render
-      Vulcan.captureEvent("ssr", {
-        ...ssrEventParams,
-        userId: user?._id,
-        timings: rendered.timings,
-        cached: false,
-        abTestGroups: rendered.allAbTestGroups,
-        ip
-      });
-    }
-
+  if (rendered.cached) {
     // eslint-disable-next-line no-console
-    console.log(`Finished SSR of ${url} for ${userDescription} (${formatTimings(rendered.timings)}, tab ${tabId})`);
-    
-    return {
-      ...rendered,
-      headers: [...rendered.headers],
-    };
+    console.log(`Served ${url} from cache for ${userDescription}`);
   } else {
-    if (performanceMetricLoggingEnabled.get()) {
-      const perfMetric = openPerfMetric({
-        op_type: "ssr",
-        op_name: "unknown",
-        client_path: req.originalUrl,
-        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getClientIP(req),
-        user_agent: userAgent
-      }, startTime);
-
-      setAsyncStoreValue('requestPerfMetric', perfMetric);
-    }
-
-    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
-      req, user: null, startTime, res, clientId, userAgent
-    }));
-    
-    if (rendered.aborted) {
-      return rendered;
-    }
-
-    if (rendered.cached) {
-      // eslint-disable-next-line no-console
-      console.log(`Served ${url} from cache for ${userDescription}`);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
-    }
-
-    if (performanceMetricLoggingEnabled.get()) {
-      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
-        if (!incompletePerfMetric) return;
-        return {
-          ...incompletePerfMetric,
-          op_name: rendered.cached ? "cacheHit" : "cacheMiss"
-        }
-      });
-
-      closeRequestPerfMetric();
-    }
-
-    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
-      Vulcan.captureEvent("ssr", {
-        ...ssrEventParams,
-        userId: null,
-        timings: {
-          totalTime: new Date().valueOf()-startTime.valueOf(),
-        },
-        abTestGroups: rendered.allAbTestGroups,
-        cached: rendered.cached,
-        ip
-      });
-    }
-    
-    return {
-      ...rendered,
-      headers: [...rendered.headers],
-    };
+    // eslint-disable-next-line no-console
+    console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
   }
+}
+
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null, maybePrefetchResources: () => Promise<boolean | undefined>) => {
+  const startTime = new Date();
+  
+  const { ip, userAgent, url } = getRequestMetadata(req);
+
+  const cacheAttempt = !shouldSkipCache(req, user);
+
+  const baseRenderParams = { req, res, startTime, userAgent, url, tabId, ip };
+  const cacheSensitiveParams = cacheAttempt
+    ? { cacheAttempt }
+    : { cacheAttempt: false, user } as const;
+
+  const renderParams: AttemptCachedRenderParams | AttemptNonCachedRenderParams = { ...baseRenderParams, ...cacheSensitiveParams };
+
+  // If the request isn't eligible to hit the page cache, we record a cache bypass
+  if (!cacheAttempt) {
+    recordCacheBypass({ path: getPathFromReq(req), userAgent: userAgent ?? '' });
+  }
+
+  openRenderRequestPerfMetric(renderParams);
+
+  let rendered: RenderResult & { cached?: boolean };
+  if (cacheAttempt) {
+    rendered = await cachedPageRender(
+      req, res, userAgent, maybePrefetchResources,
+      // We need the result of `maybePrefetchResources` in both `cachedPageRender` and `queueRenderRequest`
+      // In the case where the page is cached, we need to return the result of the promise from `cachedPageRender`
+      // In the case where the page is not cached, we need to return the result of the promise from `queueRenderRequest`
+      // But we don't want to call `maybePrefetchResources` twice, so we pipe through the promise we get from calling `maybePrefetchResources` in `cachedPageRender`
+      (req, prefetchedResources) => queueRenderRequest({ req, res, userAgent, startTime, user: null, cacheAttempt, prefetchedResources })
+    );
+  } else {
+    rendered = await queueRenderRequest({ req, res, userAgent, startTime, user, cacheAttempt, maybePrefetchResources });
+  }
+
+  closeRenderRequestPerfMetric(rendered);
+
+  if (rendered.aborted) {
+    return rendered;
+  }
+
+  logRequestToConsole(req, user, tabId, rendered);
+  recordSsrAnalytics(renderParams, rendered);
+
+  return {
+    ...rendered,
+    headers: [...rendered.headers],
+  };
 };
 
 let inFlightRenderCount = 0;
@@ -351,7 +432,23 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
 
-const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
+const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
+  let prefetchedResources: Promise<boolean | undefined>;
+  if (!cacheAttemptParams.cacheAttempt) {
+    // If this is rendering a request for a page that is not cache-eligible,
+    // we would not yet have called either ensureClientId or maybePrefetchResources
+    // We need to call ensureClientId before:
+    // 1. prefetching resources (because that might write to the response, and we need to set the headers before that)
+    // 2. computing context (to ensure the clientId is set on the request)
+    void ensureClientId(req, res);
+    prefetchedResources = cacheAttemptParams.maybePrefetchResources();
+  } else {
+    // If this is rendering a request for a cache-eligible page that was a cache miss,
+    // we would have called ensureClientId and maybePrefetchResources already in `cachedPageRender`
+    // We can just use the prefetchedResources that were passed in from `cachedPageRender`, and don't need to call ensureClientId again
+    prefetchedResources = cacheAttemptParams.prefetchedResources;
+  }
+
   const cacheFriendly = responseIsCacheable(res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
@@ -455,6 +552,8 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     }
   }
 
+  const clientId = getCookieFromReq(req, "clientId");
+
   return {
     ssrBody,
     headers: [head],
@@ -470,6 +569,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     cacheFriendly,
     timezone,
     timings,
+    prefetchedResources,
     aborted: false,
   };
 }

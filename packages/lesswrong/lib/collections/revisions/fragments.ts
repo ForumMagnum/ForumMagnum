@@ -77,8 +77,28 @@ registerFragment(`
     collectionName
     changeMetrics
     legacyData
+    skipAttributions
     user {
       ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment RevisionHistorySummaryEdit on Revision {
+    ...RevisionHistoryEntry
+    summary {
+      ...MultiDocumentMinimumInfo
+      parentTag {
+        _id
+        name
+      }
+      parentLens {
+        _id
+        title
+        tabTitle
+        tabSubtitle
+      }
     }
   }
 `);

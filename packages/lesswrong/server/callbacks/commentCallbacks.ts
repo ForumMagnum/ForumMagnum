@@ -47,6 +47,18 @@ export const getAdminTeamAccount = async () => {
   return account;
 }
 
+export const getAdminTeamAccountId = (() => {
+  let teamAccountId: string|null = null;
+  return async () => {
+    if (!teamAccountId) {
+      const teamAccount = await getAdminTeamAccount()
+      if (!teamAccount) return null;
+      teamAccountId = teamAccount._id;
+    }
+    return teamAccountId;
+  };
+})();
+
 /**
  * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
  */

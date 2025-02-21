@@ -185,7 +185,7 @@
     "crypto-js": "^4.2.0",
     "csso": "^5.0.5",
     "dataloader": "^2.2.2",
-    "dd-trace": "^5.30.0",
+    "dd-trace": "^5.36.0",
     "deepmerge": "^1.2.0",
     "diff-match-patch": "^1.0.5",
     "draft-convert": "^2.1.2",

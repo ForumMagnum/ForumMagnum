@@ -22,8 +22,9 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum } from '../../lib/instanceSettings';
+import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
+import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,7 +101,8 @@ const UsersMenu = ({classes}: {
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
   const {
-    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon
+    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon,
+    NewWikiTagMenu
   } = Components
   
   // By default, we show the user's display name as the menu button.
@@ -191,6 +193,13 @@ const UsersMenu = ({classes}: {
           />
         )
       : null,
+    newWikitag: () => tagUserHasSufficientKarma(currentUser, "new") ? (
+      <NewWikiTagMenu>
+        <DropdownItem
+          title={preferredHeadingCase(`New ${taggingNameCapitalSetting.get()}`)}
+        />
+      </NewWikiTagMenu>
+    ) : null,
     newEvent: () => userCanPost(currentUser)
       ? (
         <DropdownItem
@@ -214,7 +223,7 @@ const UsersMenu = ({classes}: {
 
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "newQuestion", "newDialogue", "divider", "newEvent", "newSequence"]
-    : ["newShortform", "newPost", "newEvent"];
+    : ["newShortform", "newPost", "newWikitag", "newEvent"];
 
   return (
     <div className={classes.root} {...eventHandlers}>

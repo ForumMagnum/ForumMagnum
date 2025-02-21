@@ -88,7 +88,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    lenses {
+    lensesIncludingDeleted {
       ...MultiDocumentContentDisplay
     }
   }
@@ -475,6 +475,7 @@ registerFragment(`
       _id
       wordCount
     }
+    wikiOnly
     isArbitalImport
     coreTagId
     maxScore

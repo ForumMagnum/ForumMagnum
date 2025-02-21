@@ -133,6 +133,7 @@ export type AnalyticsProps = {
   tagId?: string,
   tagName?: string,
   tagSlug?: string,
+  tagGroupName?: string,
   userIdDisplayed?: string,
   hoverPreviewType?: string,
   sortedBy?: string,
@@ -146,6 +147,7 @@ export type AnalyticsProps = {
   onsite?: boolean,
   terms?: PostsViewTerms,
   viewType?: string,
+  searchQuery?: string,
   componentName?: string,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
