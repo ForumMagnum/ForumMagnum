@@ -117,7 +117,7 @@ export function generateTypes(repoRoot?: string) {
 
 // After running this you still need to run:
 //   yarn graphql-codegen --config codegen.yml
-const generateTypesAndSQLSchema = (rootDir?: string) => {
+export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
 }

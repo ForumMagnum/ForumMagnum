@@ -9,22 +9,22 @@ import type { ITask } from "pg-promise";
 
 // @ts-ignore This is a javascript file without a .d.ts
 import { startSshTunnel } from "./scripts/startup/buildUtil";
-import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, normalizeModeAlias } from "./scripts/scriptUtil";
+import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, normalizeEnvironmentType } from "./scripts/scriptUtil";
 
 
 (async () => {
   const command = process.argv[2];
-  if (["dev", "local", "development", "staging", "production", "prod"].includes(command)) {
+  if (isEnvironmentType(normalizeEnvironmentType(command))) {
     console.error("Please specify the command before the mode");
     process.exit(1);
   }
   const isRunCommand = ["up", "down"].includes(command);
-  let mode = normalizeModeAlias(process.argv[3]);
+  let mode = normalizeEnvironmentType(process.argv[3]);
   if (!["up", "down", "pending", "executed"].includes(command)) {
     mode = "dev";
   }
 
-  const forumType = await detectForumType();
+  const forumType = detectForumType();
   const forumTypeIsSpecified = forumType !== "none";
   console.log(`Running with forum type "${forumType}"`);
 

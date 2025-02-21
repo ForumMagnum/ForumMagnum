@@ -1,21 +1,76 @@
-import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, normalizeModeAlias } from "./scriptUtil";
+import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, isForumType, normalizeEnvironmentType } from "./scriptUtil";
 import { startSshTunnel } from "./startup/buildUtil";
 import * as tsNode from 'ts-node';
 
-export async function initRepl() {
-  let mode = normalizeModeAlias(process.argv[2]);
-  if (mode === "development") {
-    mode = "dev";
-  } else if (mode === "production") {
-    mode = "prod";
-  } else {
-    mode = "dev";
+interface CommandLineOptions {
+  environment: EnvironmentType|null
+  forumType: ForumType|null
+
+  file: string|null
+  command: string|null
+}
+
+function parseCommandLine(): CommandLineOptions {
+  const argv = process.argv;
+  let result: CommandLineOptions = {
+    environment: null,
+    forumType: null,
+    file: null,
+    command: null,
   }
 
-  const forumType = await detectForumType();
-  const forumTypeIsSpecified = forumType !== "none";
-  console.log(`Running with forum type "${forumType}"`);
+  for (let i=2; i<argv.length; i++) {
+    const arg = argv[i];
+    switch(arg) {
+      case "-h": case "-help": case "--help": case "/?":
+        printHelpText();
+        process.exit(0);
+      default:
+        if (isForumType(arg)) {
+          result.forumType = arg;
+        } else if (isEnvironmentType(arg)) {
+          result.environment = arg;
+        } else {
+          if (!result.file) {
+            result.file = arg;
+          } else if (!result.command) {
+            result.command = arg;
+          } else {
+            console.error("Too many positional arguments");
+            process.exit(1);
+          }
+        }
+        break;
+    }
+  }
+  
+  if (result.file && !result.command) {
+    console.error("Wrong number of arguments. If you specify a filename, you must also specify a command.");
+  }
+  if (!result.environment) {
+    console.error("Please specify an environment (dev, prod, local, etc)");
+    process.exit(1);
+  }
+  if (!result.forumType) {
+    result.forumType = detectForumType();
+  }
+  return result;
+}
 
+function printHelpText() {
+  console.log(`Usage: yarn repl [mode] [forum-type]`);
+  console.log(`Or: yarn repl [mode] [forum-type] [filename] [js]`);
+  console.log()
+  console.log(`Examples:`);
+  console.log(`  To make a REPL connecting to the LW dev DB:`);
+  console.log(`    yarn repl dev lw`);
+  console.log(`  To run exampleFunction from packages/lesswrong/server/scripts/example.ts:`);
+  console.log(`    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'imp.exampleFunction()'`);
+}
+
+export async function initRepl(commandLineOptions: CommandLineOptions) {
+  const mode = commandLineOptions.environment!;
+  const forumType = commandLineOptions.forumType!;
   const dbConf = getDatabaseConfigFromModeAndForumType(mode, forumType);
   if (dbConf.postgresUrl) {
     process.env.PG_URL = dbConf.postgresUrl;
@@ -31,7 +86,6 @@ export async function initRepl() {
   if (["dev", "local", "staging", "prod", "xpost"].includes(mode)) {
     console.log('Running REPL in mode', mode);
     args.settingsFileName = getSettingsFilePath(getSettingsFileName(mode, forumType), forumType);
-    process.argv = process.argv.slice(0, 3).concat(process.argv.slice(forumTypeIsSpecified ? 5 : 4));
   } else if (args.postgresUrl && args.settingsFileName) {
     console.log('Using PG_URL and SETTINGS_FILE from environment');
   } else {
@@ -44,13 +98,23 @@ export async function initRepl() {
   await initServer(args);
 }
 
-function main() {
-  initRepl().then(() => {
+function replMain() {
+  const commandLineOptions = parseCommandLine();
+
+  initRepl(commandLineOptions).then(() => {
     const repl = tsNode.createRepl();
     const service = tsNode.create({...repl.evalAwarePartialHost});
     repl.setService(service);
     repl.start();
+    (async () => {
+      if (commandLineOptions.command) {
+        repl.evalCode(`import * as imp from ${JSON.stringify(commandLineOptions.file)};`);
+        const result = await repl.evalCode(commandLineOptions.command);
+        console.log(result);
+        process.exit(0);
+      }
+    })();
   });
 }
 
-main();
+replMain();

@@ -27,7 +27,9 @@ export const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
 }
 
 const forumTypes = ["lw", "ea", "none"] as const;
-type ForumType = typeof forumTypes[number];
+export type ForumType = typeof forumTypes[number];
+const environmentTypes = ["dev", "local", "staging", "prod", "xpost"] as const;
+export type EnvironmentType = typeof environmentTypes[number];
 
 const getCredentialsBase = (forumType: ForumType): string => {
   const memorizedBases: Record<ForumType, string> = {
@@ -49,7 +51,7 @@ const credentialsPath = (forumType: ForumType) => {
   return `${base}${repoName}`;
 }
 
-export const detectForumType = async (): Promise<ForumType> => {
+export const detectForumType = (): ForumType => {
   const siteForumTypes = forumTypes.filter((forumType) => forumType !== "none");
   for (const forumType of siteForumTypes) {
     if (existsSync(credentialsPath(forumType))) {
@@ -105,12 +107,19 @@ export const getSettingsFileName = (mode: string, forumType: ForumType) => {
   return `settings-${mode}.json`;
 };
 
-export const normalizeModeAlias = (mode: string): string => {
-  if (mode === "development") {
+
+
+export const normalizeEnvironmentType = (t: string): string => {
+  if (t === "development") {
     return "dev";
-  } else if (mode === "production") {
+  } else if (t === "production") {
     return "prod";
   } else {
-    return mode;
+    return t;
   }
 }
+
+export const isForumType = (t: string): t is ForumType =>
+  forumTypes.includes(t as ForumType)
+export const isEnvironmentType = (t: string): t is EnvironmentType =>
+  environmentTypes.includes(t as EnvironmentType);
