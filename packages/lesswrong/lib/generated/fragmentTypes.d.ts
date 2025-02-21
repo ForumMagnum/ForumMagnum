@@ -2770,6 +2770,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 interface TagPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
+  readonly wordCount: number,
 }
 
 interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
@@ -2783,6 +2784,7 @@ interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
 interface TagSectionPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlightStartingAtHash: string,
+  readonly wordCount: number,
 }
 
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
@@ -2812,6 +2814,7 @@ interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on
 interface TagDetailedPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
+  readonly wordCount: number,
 }
 
 interface TagWithFlagsFragment extends TagFragment { // fragment on Tags

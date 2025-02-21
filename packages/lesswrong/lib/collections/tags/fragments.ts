@@ -144,6 +144,7 @@ registerFragment(`
     description {
       _id
       htmlHighlight
+      wordCount
     }
     canVoteOnRels
     isArbitalImport
@@ -163,6 +164,7 @@ registerFragment(`
     description {
       _id
       htmlHighlightStartingAtHash(hash: $hash)
+      wordCount
     }
     canVoteOnRels
   }
@@ -203,6 +205,7 @@ registerFragment(`
     description {
       _id
       htmlHighlight
+      wordCount
     }
   }
 `);
