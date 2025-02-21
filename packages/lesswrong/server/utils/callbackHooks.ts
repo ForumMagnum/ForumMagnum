@@ -1,5 +1,6 @@
 import { loggerConstructor } from '@/lib/utils/logging'
 import { sleep } from '@/lib/utils/asyncUtils';
+import { captureException } from '@sentry/core';
 
 type MaybePromise<T> = T|Promise<T>
 
@@ -69,6 +70,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
         console.log(`\x1b[31m// error at callback [${callback.name}] in hook [${hook}]\x1b[0m`); //]]
         // eslint-disable-next-line no-console
         console.log(error);
+        captureException(error);
         if (error.break || (error.data && error.data.break) || !ignoreExceptions) {
           throw error;
         }
@@ -143,6 +145,7 @@ export class CallbackHook<ArgumentsType extends any[]> {
           console.log(`Error running async callback [${callback.name}] on hook [${this._name}]`);
           // eslint-disable-next-line no-console
           console.log(e);
+          captureException(e);
           throw e;
         } finally {
           markCallbackFinished(pendingAsyncCallback, this._name);
