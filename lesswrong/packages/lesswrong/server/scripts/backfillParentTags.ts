@@ -1,6 +1,6 @@
 import TagRels from "../../lib/collections/tagRels/collection";
 import Tags from "../../lib/collections/tags/collection";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { randomId } from "../../lib/random";
 

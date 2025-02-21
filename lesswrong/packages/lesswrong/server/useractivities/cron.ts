@@ -6,7 +6,7 @@ import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
-import { Vulcan } from '../vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';
 import { isAnyTest } from '../../lib/executionEnvironment';
 

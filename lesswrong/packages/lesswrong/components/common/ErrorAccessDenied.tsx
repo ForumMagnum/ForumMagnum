@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isFriendlyUI } from '../../themes/forumTheme';

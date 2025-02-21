@@ -2,13 +2,15 @@ import ReviewVotes from "../lib/collections/reviewVotes/collection"
 import Users from "../lib/collections/users/collection"
 import { getCostData, REVIEW_YEAR, ReviewWinnerCategory } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
-import { createAdminContext, createMutator, Globals } from "./vulcan-lib";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
 import ReviewWinners from "@/lib/collections/reviewWinners/collection";
 import { Tags } from "@/lib/collections/tags/collection";
+import { createAdminContext } from "./vulcan-lib/query";
+import { createMutator } from "./vulcan-lib/mutators";
+import { Globals } from "../lib/vulcan-lib/config";
 
 export interface Dictionary<T> {
   [index: string]: T;

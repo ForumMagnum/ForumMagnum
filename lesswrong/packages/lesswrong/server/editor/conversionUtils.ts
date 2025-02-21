@@ -18,7 +18,7 @@ import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/vulcan-users';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { parseDocumentFromString } from '../../lib/domParser';

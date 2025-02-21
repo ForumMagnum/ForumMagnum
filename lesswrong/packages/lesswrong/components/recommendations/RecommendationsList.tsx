@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';

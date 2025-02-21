@@ -2,7 +2,7 @@ import React from "react";
 import { forumTitleSetting } from "@/lib/instanceSettings";
 import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUtils";
 import { useCurrentUser } from "@/components/common/withUser";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({

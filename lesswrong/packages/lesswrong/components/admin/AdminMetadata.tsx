@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({

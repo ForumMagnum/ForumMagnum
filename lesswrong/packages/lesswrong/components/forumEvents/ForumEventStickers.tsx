@@ -3,7 +3,7 @@ import { gql, useMutation } from "@apollo/client";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";

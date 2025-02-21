@@ -1,6 +1,6 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
 const EmailComponent = ({ refFunction, inputProperties, itemProperties }: AnyBecauseTodo) => (
   <Components.FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>

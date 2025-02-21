@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';

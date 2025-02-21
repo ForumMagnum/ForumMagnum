@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -31,6 +30,9 @@ import '@/lib/collections/splashArtCoordinates/fragments'
 import '@/lib/collections/chapters/fragments'
 import '@/lib/collections/revisions/fragments'
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
 

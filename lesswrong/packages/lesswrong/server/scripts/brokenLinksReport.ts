@@ -1,4 +1,4 @@
-import { Vulcan } from '../../lib/vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import Users from '../../lib/collections/users/collection';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';

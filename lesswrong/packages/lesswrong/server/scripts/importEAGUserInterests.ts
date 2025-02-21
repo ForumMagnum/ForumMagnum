@@ -2,7 +2,7 @@ import fs from 'mz/fs';
 import { z } from "zod";
 import Papa from 'papaparse';
 import Users from '../../lib/collections/users/collection';
-import { Vulcan } from '../vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import { wrapVulcanAsyncScript } from './utils';
 import UserEAGDetails from '../../lib/collections/userEAGDetails/collection';
 import moment from 'moment';

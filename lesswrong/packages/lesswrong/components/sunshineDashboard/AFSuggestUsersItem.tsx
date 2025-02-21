@@ -1,4 +1,4 @@
-import { Components as C, registerComponent } from '../../lib/vulcan-lib';
+import { Components as C, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'

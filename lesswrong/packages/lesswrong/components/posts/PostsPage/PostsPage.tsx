@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -26,7 +25,6 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
@@ -44,6 +42,7 @@ import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
+import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720

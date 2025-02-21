@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { InteractionWrapper, useClickableCell } from "@/components/common/useClickableCell";
 import { Link } from "@/lib/reactRouterWrapper";

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';

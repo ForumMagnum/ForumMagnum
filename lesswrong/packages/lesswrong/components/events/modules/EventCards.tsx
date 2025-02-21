@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import * as _ from 'underscore';

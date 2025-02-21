@@ -6,7 +6,7 @@ import { getCollectionHooks } from "../../mutationCallbacks";
 import { UsersRepo } from "../../repos";
 import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
-import { isElasticEnabled } from "./elasticSettings";
+import { isElasticEnabled } from "../../../lib/instanceSettings";
 
 export const elasticSyncDocument = async (
   collectionName: SearchIndexCollectionName,

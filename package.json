@@ -249,6 +249,8 @@
     "sql-formatter": "^15.3.1",
     "stripe": "^17.4.0",
     "tlds": "^1.203.1",
+    "ts-morph": "^25.0.1",
+    "ts-node": "^10.9.2",
     "turndown": "^4.0.2",
     "turndown-plugin-gfm": "^1.0.2",
     "twitter-api-v2": "^1.17.1",

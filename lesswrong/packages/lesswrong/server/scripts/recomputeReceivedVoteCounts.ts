@@ -1,8 +1,8 @@
 import { migrateDocuments } from "../manualMigrations/migrationUtils";
 import { Users } from '../../lib/collections/users/collection';
-import { Votes } from "../../lib/collections/votes";
+import { Votes } from "../../lib/collections/votes/collection";
 import { collectionsThatAffectKarma } from "../callbacks/votingCallbacks";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 
 type UserVoteFields = {

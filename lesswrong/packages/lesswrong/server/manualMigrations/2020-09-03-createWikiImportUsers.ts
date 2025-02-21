@@ -1,5 +1,5 @@
 import { registerMigration } from './migrationUtils';
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 import Users from '../../lib/vulcan-users';
 
 registerMigration({

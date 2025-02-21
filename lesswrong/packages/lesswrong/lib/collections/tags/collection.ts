@@ -1,5 +1,4 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
@@ -8,6 +7,9 @@ import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
 import { makeVoteable } from '@/lib/make_voteable';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';

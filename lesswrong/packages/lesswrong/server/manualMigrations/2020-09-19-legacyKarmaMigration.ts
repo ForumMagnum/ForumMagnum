@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // Given all the console logs, this seemed more elegant than commenting on every one
 import { registerMigration } from './migrationUtils';
-import { Votes } from '../../lib/collections/votes';
+import { Votes } from '../../lib/collections/votes/collection';
 import Users from '../../lib/vulcan-users';
 import { calculateVotePower } from '../../lib/voting/voteTypes';
 

@@ -9,13 +9,15 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
   LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType, PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
-import { createMutator, getContextFromReqAndRes, runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
+import { createMutator } from "../vulcan-lib/mutators";
+import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
+import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;

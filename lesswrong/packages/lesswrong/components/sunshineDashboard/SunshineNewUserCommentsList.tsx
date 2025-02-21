@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import _filter from 'lodash/filter';
 import { isLWorAF } from '../../lib/instanceSettings';

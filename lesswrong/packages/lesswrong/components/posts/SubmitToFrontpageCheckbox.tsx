@@ -2,7 +2,7 @@ import React, { Component, FC } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@material-ui/core/InputLabel';
 

@@ -7,6 +7,7 @@ import { ApolloServer } from '@apollo/server';
 import { getContextFromReqAndRes } from '@/server/vulcan-lib/apollo-server/context';
 import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
 import { createVoteableUnionType } from '@/server/votingGraphQL';
+import '@/lib/collections/posts/voting';
 
 
 createVoteableUnionType();

@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useLocation } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -11,6 +10,8 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { useMulti } from '@/lib/crud/withMulti';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {

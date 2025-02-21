@@ -5,8 +5,9 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { CommentsRepo, PostsRepo } from '../repos';
 import { ElicitPredictionData, getPredictionDataFromElicit, getPredictionsFromElicit } from '../resolvers/elicitPredictions';
 import { cheerioParse } from '../utils/htmlUtil';
-import { createAdminContext, createMutator } from '../vulcan-lib';
 import { registerMigration } from './migrationUtils';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
 
 const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuestion, 'schemaVersion'|'legacyData'> => ({
   _id: id,

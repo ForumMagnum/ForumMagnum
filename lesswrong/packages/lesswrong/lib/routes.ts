@@ -12,7 +12,7 @@ import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
-import { pluralize } from './vulcan-lib';
+import { pluralize } from './vulcan-lib/pluralize';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations, hasSurveys } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'

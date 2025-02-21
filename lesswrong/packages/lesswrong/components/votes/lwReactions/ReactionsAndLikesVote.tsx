@@ -5,7 +5,7 @@ import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { useCurrentUser } from '@/components/common/withUser';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
 import { isMobile } from '@/lib/utils/isMobile';

@@ -1,7 +1,7 @@
 import { randomId } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
-import { Votes } from '../../lib/collections/votes';
-import { Vulcan } from '../vulcan-lib';
+import { Votes } from '../../lib/collections/votes/collection';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 
 async function runVoteMigration(collectionName: CollectionNameString) {
   try {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 
 const styles = (_theme: ThemeType) => ({
   content: {

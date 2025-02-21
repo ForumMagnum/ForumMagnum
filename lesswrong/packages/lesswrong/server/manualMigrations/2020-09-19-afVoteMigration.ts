@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 // Given all the console logs, this seemed more elegant than commenting on every one
 import { fillDefaultValues, forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import { Votes } from '../../lib/collections/votes';
-import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments';
+import { Votes } from '../../lib/collections/votes/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Comments } from '../../lib/collections/comments/collection';
 
 registerMigration({
   name: "afVoteMigration",

@@ -6,7 +6,7 @@ import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { userCanDo, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { createMutator, deleteMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';

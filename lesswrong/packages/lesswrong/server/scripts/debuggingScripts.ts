@@ -1,5 +1,5 @@
-import { Vulcan } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { Vulcan } from '../../lib/vulcan-lib/config';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import {
   createDummyMessage,

@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../../lib/collections/users/helpers';
@@ -7,7 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users'
+import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';

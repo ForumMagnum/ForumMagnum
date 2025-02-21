@@ -7,13 +7,13 @@ import sortBy from "lodash/sortBy";
 import last from "lodash/fp/last";
 import range from "lodash/range";
 import sumBy from "lodash/sumBy";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import Users from "@/lib/vulcan-users"
 import ReadStatuses from "@/lib/collections/readStatus/collection";
 import Tags from "@/lib/collections/tags/collection";
 import moment from "moment";
 import { postStatuses } from "@/lib/collections/posts/constants";
-import { Comments } from "@/lib/collections/comments";
+import { Comments } from "@/lib/collections/comments/collection.ts";
 import { WrappedPersonality } from "./WrappedPersonality";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { getWrappedEngagement } from "./wrappedEngagment";

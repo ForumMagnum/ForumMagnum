@@ -1,8 +1,10 @@
 import schema from './schema';
 import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { sunshineRegimentGroup } from '../../permissions';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 
 const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',

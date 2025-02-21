@@ -1,7 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
 import { isAnyTest } from '../../../lib/executionEnvironment';
-import { CronHistories } from '../../../lib/collections/cronHistories';
+import { CronHistories } from '../../../lib/collections/cronHistories/collection';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {

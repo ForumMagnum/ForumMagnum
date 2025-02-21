@@ -1,6 +1,6 @@
 import { Subscriptions } from './collection';
 import { subscriptionTypes } from './schema'
-import { Utils } from '../../vulcan-lib';
+import { Utils } from '../../vulcan-lib/utils';
 import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {

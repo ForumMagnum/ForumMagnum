@@ -31,7 +31,6 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
@@ -41,12 +40,11 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
-import { Sessions } from '../lib/collections/sessions';
+import { Sessions } from '../lib/collections/sessions/collection';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
-import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
@@ -64,6 +62,7 @@ import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
 import { makeAbsolute } from '@/lib/vulcan-lib/utils';
+import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for

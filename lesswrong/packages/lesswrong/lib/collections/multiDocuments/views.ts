@@ -1,8 +1,8 @@
 import { ensureCustomPgIndex, ensureIndex } from "@/lib/collectionIndexUtils";
 import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
 import { MultiDocuments } from "./collection";
-import { userIsAdminOrMod } from '@/lib/vulcan-users';
-import { viewFieldAllowAny } from "@/lib/vulcan-lib";
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
+import { viewFieldAllowAny } from "@/lib/vulcan-lib/collections.ts";
 
 declare global {
   interface MultiDocumentsViewTerms extends ViewTermsBase {

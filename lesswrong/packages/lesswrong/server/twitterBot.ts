@@ -1,14 +1,15 @@
 import { addCronJob } from "./cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import Tweets from "@/lib/collections/tweets/collection";
-import { Globals, createMutator } from "./vulcan-lib";
 import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
+import { Globals } from "../lib/vulcan-lib/config";
+import { createMutator } from "./vulcan-lib/mutators";
 
 const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
 const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");

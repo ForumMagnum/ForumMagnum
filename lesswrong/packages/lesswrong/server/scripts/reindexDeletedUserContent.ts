@@ -1,4 +1,4 @@
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient"
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";

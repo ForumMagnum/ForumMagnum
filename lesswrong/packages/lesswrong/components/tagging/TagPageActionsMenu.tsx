@@ -6,7 +6,7 @@ import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMutation, gql, useApolloClient } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
-import { userIsAdminOrMod } from '@/lib/vulcan-users';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
 

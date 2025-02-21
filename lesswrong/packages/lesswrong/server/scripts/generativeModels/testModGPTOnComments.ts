@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import sanitizeHtml from 'sanitize-html';
-import { Comments } from '../../../lib/collections/comments';
+import { Comments } from '../../../lib/collections/comments/collection';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
-import { Vulcan } from '../../vulcan-lib';
+import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { wrapVulcanAsyncScript } from '../utils';
 import * as _ from 'underscore';
 import { modGPTPrompt, sanitizeHtmlOptions } from '../../languageModels/modGPT';
