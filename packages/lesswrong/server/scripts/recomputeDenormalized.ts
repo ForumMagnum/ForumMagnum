@@ -4,27 +4,24 @@ import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { Vulcan } from "../../lib/vulcan-lib/config";
 import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
 
 export const recomputeAllDenormalizedValues = async () => {
   for(let collection of Collections) {
-    await Vulcan.recomputeDenormalizedValues({
+    await recomputeDenormalizedValues({
       collectionName: collection.options.collectionName
     })
   }
 }
-Vulcan.recomputeAllDenormalizedValues = recomputeAllDenormalizedValues;
 
 export const validateAllDenormalizedValues = async () => {
   for(let collection of Collections) {
-    await Vulcan.recomputeDenormalizedValues({
+    await recomputeDenormalizedValues({
       collectionName: collection.options.collectionName,
       validateOnly: true
     })
   }
 }
-Vulcan.validateAllDenormalizedValues = validateAllDenormalizedValues;
 
 // Recompute the value of denormalized fields (that are tagged with canAutoDenormalize).
 // If validateOnly is true, compare them with the existing values in the database and
@@ -86,7 +83,6 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
   // eslint-disable-next-line no-console
   console.log(`Finished recomputing denormalized values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 }
-Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
 async function runDenormalizedFieldMigration<N extends CollectionNameString>({
   collection,

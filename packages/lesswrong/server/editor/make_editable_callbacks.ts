@@ -12,7 +12,6 @@ import {getCollection} from '../../lib/vulcan-lib/getCollection'
 import { CallbackHook } from '../utils/callbackHooks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
-import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments/collection'
@@ -20,6 +19,7 @@ import isEqual from 'lodash/isEqual'
 import { fetchFragmentSingle } from '../fetchFragment'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers'
 import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions'
+import { convertImagesInObject, rehostPostMetaImages } from '../scripts/convertImagesToCloudinary'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -347,14 +347,14 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
     if (!hasChanged) return;
 
-    await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
+    await convertImagesInObject(collectionName, doc._id, fieldName);
   })
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
-    await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
+    await convertImagesInObject(collectionName, doc._id, fieldName)
   })
   if (collectionName === 'Posts') {
     getCollectionHooks("Posts").newAsync.add(async (doc: DbPost) => {
-      await Globals.rehostPostMetaImages(doc);
+      await rehostPostMetaImages(doc);
     })
   }
 }
