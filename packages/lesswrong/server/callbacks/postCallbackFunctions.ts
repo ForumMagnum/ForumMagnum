@@ -12,7 +12,7 @@ import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
 import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 import { cheerioParse } from "../utils/htmlUtil";
-import { getConfirmedCoauthorIds } from "@/lib/collections/posts/helpers";
+import { getConfirmedCoauthorIds, postIsApproved } from "@/lib/collections/posts/helpers";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { Posts } from "@/lib/collections/posts";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
@@ -491,4 +491,34 @@ export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbPost>, {oldD
     post = scheduleCoauthoredPost(post);
   }
   return post;
+}
+
+/* EDIT SYNC */
+export function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): MongoModifier<DbPost> {
+  // make sure courses/programs have no end time
+  // (we don't want them listed for the length of the course, just until the application deadline / start time)
+  if (post.eventType === 'course') {
+    modifier.$set.endTime = null;
+  }
+  
+  return modifier
+}
+
+export function removeFrontpageDate(modifier: MongoModifier<DbPost>, _post: DbPost): MongoModifier<DbPost> {
+  if (
+    modifier.$set?.submitToFrontpage === false ||
+    modifier.$set?.submitToFrontpage === null ||
+    modifier.$unset?.submitToFrontpage
+  ) {
+    modifier.$unset ??= {};
+    modifier.$unset.frontpageDate = 1;
+  }
+  return modifier;
+}
+
+export function resetPostApprovedDate(modifier: MongoModifier<DbPost>, post: DbPost): MongoModifier<DbPost> {
+  if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
+    modifier.$set.postedAt = new Date();
+  }
+  return modifier;
 }

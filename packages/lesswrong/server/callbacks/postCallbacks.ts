@@ -36,7 +36,7 @@ import { getLatestContentsRevision } from '../../lib/collections/revisions/helpe
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
-import { addReferrerToPost, debateMustHaveCoauthor, fixEventStartAndEndTimes, postsNewDefaultLocation, postsNewUserApprovedStatus, postsNewDefaultTypes, scheduleCoauthoredPostWithUnconfirmedCoauthors, postsNewRateLimit, checkRecentRepost, applyNewPostTags, lwPostsNewUpvoteOwnPost, sendCoauthorRequestNotifications, postsNewPostRelation, extractSocialPreviewImage, notifyUsersAddedAsPostCoauthors, triggerReviewForNewPostIfNeeded, autoReviewNewPost, postsUndraftRateLimit, onEditAddLinkSharingKey, setPostUndraftedFields, scheduleCoauthoredPostWhenUndrafted } from './postCallbackFunctions';
+import { addReferrerToPost, debateMustHaveCoauthor, fixEventStartAndEndTimes, postsNewDefaultLocation, postsNewUserApprovedStatus, postsNewDefaultTypes, scheduleCoauthoredPostWithUnconfirmedCoauthors, postsNewRateLimit, checkRecentRepost, applyNewPostTags, lwPostsNewUpvoteOwnPost, sendCoauthorRequestNotifications, postsNewPostRelation, extractSocialPreviewImage, notifyUsersAddedAsPostCoauthors, triggerReviewForNewPostIfNeeded, autoReviewNewPost, postsUndraftRateLimit, onEditAddLinkSharingKey, setPostUndraftedFields, scheduleCoauthoredPostWhenUndrafted, clearCourseEndTime, clearCourseEndTime, removeFrontpageDate, resetPostApprovedDate } from './postCallbackFunctions';
 import { getEditableCallbacks } from '../editor/make_editable_callbacks';
 import { formGroups } from '@/lib/collections/posts/formGroups';
 import { getSlugCallbacks } from '../utils/slugUtil';
@@ -178,6 +178,13 @@ async function postUpdateBefore(post: Partial<DbPost>, props: UpdateCallbackProp
   post = await editorSerializationEdit(post, props);
 
   return post;
+}
+
+async function postEditSync(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
+  modifier = clearCourseEndTime(modifier, post);
+  modifier = removeFrontpageDate(modifier, post);
+  modifier = resetPostApprovedDate(modifier, post);
+  return modifier;
 }
 
 if (isEAForum) {
@@ -628,15 +635,15 @@ getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
 //   return post;
 // });
 
-getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
-  // make sure courses/programs have no end time
-  // (we don't want them listed for the length of the course, just until the application deadline / start time)
-  if (post.eventType === 'course') {
-    modifier.$set.endTime = null;
-  }
+// getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
+//   // make sure courses/programs have no end time
+//   // (we don't want them listed for the length of the course, just until the application deadline / start time)
+//   if (post.eventType === 'course') {
+//     modifier.$set.endTime = null;
+//   }
   
-  return modifier
-})
+//   return modifier
+// })
 
 const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
   !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
@@ -830,20 +837,20 @@ export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collecti
   // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
 }
 
-getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
-  modifier: MongoModifier<DbPost>,
-  _post: DbPost,
-): Promise<MongoModifier<DbPost>> {
-  if (
-    modifier.$set?.submitToFrontpage === false ||
-    modifier.$set?.submitToFrontpage === null ||
-    modifier.$unset?.submitToFrontpage
-  ) {
-    modifier.$unset ??= {};
-    modifier.$unset.frontpageDate = 1;
-  }
-  return modifier;
-});
+// getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
+//   modifier: MongoModifier<DbPost>,
+//   _post: DbPost,
+// ): Promise<MongoModifier<DbPost>> {
+//   if (
+//     modifier.$set?.submitToFrontpage === false ||
+//     modifier.$set?.submitToFrontpage === null ||
+//     modifier.$unset?.submitToFrontpage
+//   ) {
+//     modifier.$unset ??= {};
+//     modifier.$unset.frontpageDate = 1;
+//   }
+//   return modifier;
+// });
 
 async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
   const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
