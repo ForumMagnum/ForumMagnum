@@ -45,9 +45,10 @@ function parseCommandLine(): CommandLineOptions {
     }
   }
   
-  if (result.file && !result.command) {
+  /*if (result.file && !result.command) {
     console.error("Wrong number of arguments. If you specify a filename, you must also specify a command.");
-  }
+    process.exit(1);
+  }*/
   if (!result.environment) {
     console.error("Please specify an environment (dev, prod, local, etc)");
     process.exit(1);
@@ -66,7 +67,7 @@ function printHelpText() {
   console.log(`  To make a REPL connecting to the LW dev DB:`);
   console.log(`    yarn repl dev lw`);
   console.log(`  To run exampleFunction from packages/lesswrong/server/scripts/example.ts:`);
-  console.log(`    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'imp.exampleFunction()'`);
+  console.log(`    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'`);
 }
 
 export async function initRepl(commandLineOptions: CommandLineOptions) {
@@ -109,8 +110,12 @@ async function replMain() {
   repl.setService(service);
   repl.start();
   (async () => {
+    if (commandLineOptions.file) {
+      repl.evalCode(`import * as __repl_import from ${JSON.stringify(commandLineOptions.file)};`);
+      const __repl_import = repl.evalCode("__repl_import");
+      repl.evalCode(`const {${Object.keys(__repl_import).join(", ")}} = __repl_import`);
+    }
     if (commandLineOptions.command) {
-      repl.evalCode(`import * as imp from ${JSON.stringify(commandLineOptions.file)};`);
       const result = await repl.evalCode(commandLineOptions.command);
       console.log(result);
       process.exit(0);
