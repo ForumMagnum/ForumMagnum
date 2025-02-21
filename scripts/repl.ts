@@ -1,7 +1,6 @@
-import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, isForumType, normalizeEnvironmentType } from "./scriptUtil";
-import { startSshTunnel } from "./startup/buildUtil";
+import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, isForumType } from "./scriptUtil";
 import * as tsNode from 'ts-node';
-import { sleep } from '../packages/lesswrong/lib/utils/asyncUtils';
+import omit from "lodash/omit";
 
 interface CommandLineOptions {
   environment: EnvironmentType|null
@@ -110,13 +109,24 @@ async function replMain() {
   repl.setService(service);
   repl.start();
   (async () => {
+    let defaultExport: (()=>any)|undefined = undefined;
+
     if (commandLineOptions.file) {
-      repl.evalCode(`import * as __repl_import from ${JSON.stringify(commandLineOptions.file)};`);
-      const __repl_import = repl.evalCode("__repl_import");
-      repl.evalCode(`const {${Object.keys(__repl_import).join(", ")}} = __repl_import`);
+      // Import the specified file
+      repl.evalCode(`import * as __repl_import from ${JSON.stringify(commandLineOptions.file)};\n`);
+      // Get a list of its exports
+      const __repl_import = repl.evalCode("__repl_import\n");
+      defaultExport = __repl_import["default"];
+      // Copy them into the global namespace
+      const importsExceptDefault = omit(__repl_import, "default");
+      repl.evalCode(`const {${Object.keys(importsExceptDefault).join(", ")}} = __repl_import;\n`);
     }
     if (commandLineOptions.command) {
       const result = await repl.evalCode(commandLineOptions.command);
+      console.log(result);
+      process.exit(0);
+    } else if (defaultExport && typeof defaultExport==='function') {
+      const result = await defaultExport();
       console.log(result);
       process.exit(0);
     }
