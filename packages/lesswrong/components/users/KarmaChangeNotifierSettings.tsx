@@ -10,7 +10,7 @@ import { withTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/schema';
+import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettings } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
@@ -79,14 +79,14 @@ export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotific
 
 interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
   path: any,
-  value: KarmaChangeSettingsType,
+  value: KarmaChangeSettings,
   timezone?: any,
 }
 
 class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSettingsProps,{}> {
   declare context: AnyBecauseTodo
 
-  modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
+  modifyValue = (changes: Partial<KarmaChangeSettings>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
     this.context.updateCurrentValues({

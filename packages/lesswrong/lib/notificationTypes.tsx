@@ -20,7 +20,6 @@ import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import DoneIcon from '@material-ui/icons/Done';
-import { NotificationChannelOption } from './collections/users/schema';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
@@ -32,6 +31,7 @@ import Sequences from './collections/sequences/collection';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
+import { NotificationChannel } from './collections/users/schema';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -117,7 +117,7 @@ interface GetDialogueMessageProps {
 export interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
-  allowedChannels?: NotificationChannelOption[],
+  allowedChannels?: NotificationChannel[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>}) => Promise<string>
   getIcon: () => ReactNode,
   Display?: FC<{
@@ -155,7 +155,8 @@ export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): Not
   return result;
 }
 
-const registerNotificationType = ({allowedChannels = ["none", "onsite", "email", "both"], ...otherArgs}: NotificationType) => {
+// TODO understand this function
+const registerNotificationType = ({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType) => {
   const notificationTypeClass = {allowedChannels, ...otherArgs};
 
   const name = notificationTypeClass.name;
@@ -402,7 +403,6 @@ export const NewCommentNotification = registerNotificationType({
 export const NewSubforumCommentNotification = registerNotificationType({
   name: "newSubforumComment",
   userSettingField: "notificationSubforumUnread",
-  allowedChannels: ["none", "onsite", "email", "both"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId) as DbComment;
@@ -497,7 +497,7 @@ export const NewDialogueMatchNotification = registerNotificationType({
 export const NewDialogueCheckNotification = registerNotificationType({
   name: "newDialogueChecks",
   userSettingField: "notificationNewDialogueChecks",
-  allowedChannels: ["onsite", "none"],
+  allowedChannels: ["onsite"],
   async getMessage(props: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
@@ -509,7 +509,7 @@ export const NewDialogueCheckNotification = registerNotificationType({
 export const YourTurnMatchFormNotification = registerNotificationType({
   name: "yourTurnMatchForm",
   userSettingField: "notificationYourTurnMatchForm",
-  allowedChannels: ["onsite", "none"],
+  allowedChannels: ["onsite"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
@@ -658,7 +658,10 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  allowedChannels: ["onsite", "email", "both"],
+  // TODO previous behaviour was to not allow turning off these notifications, see if:
+  // - We still want that
+  // - It can be implemented neatly in the new system
+  allowedChannels: ["onsite", "email"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
@@ -730,7 +733,10 @@ export const PostSharedWithUserNotification = registerNotificationType({
 export const PostAddedAsCoauthorNotification = registerNotificationType({
   name: "addedAsCoauthor",
   userSettingField: "notificationAddedAsCoauthor",
-  allowedChannels: ["onsite", "email", "both"],
+  // TODO previous behaviour was to not allow turning off these notifications, see if:
+  // - We still want that
+  // - It can be implemented neatly in the new system
+  allowedChannels: ["onsite", "email"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbPost;
     const name = await postGetAuthorName(document);

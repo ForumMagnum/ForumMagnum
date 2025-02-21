@@ -72,78 +72,96 @@ export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
 export const MAX_NOTIFICATION_RADIUS = 300
 
 
-export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
-export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+export type NotificationChannel = "onsite" | "email";
 
-export type NotificationTypeSettings = {
-  channel: NotificationChannelOption,
-  batchingFrequency: NotificationBatchingOption,
-  timeOfDayGMT: number,
-  dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
-};
-
-export const defaultNotificationTypeSettings: NotificationTypeSettings = {
-  channel: "onsite",
-  batchingFrequency: "realtime",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-};
-
-const rateLimitInfoSchema = new SimpleSchema({
-  nextEligible: {
-    type: Date
-  },
-  rateLimitType: {
-    type: String,
-    allowedValues: ["moderator", "lowKarma", "universal", "downvoteRatio"]
-  },
-  rateLimitMessage: {
-    type: String
-  },
-})
-
-const karmaChangeUpdateFrequencies = new TupleSet([
-  "disabled",
+const NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
+  "realtime",
   "daily",
   "weekly",
-  "realtime",
+  "disabled",
 ] as const);
+export type NotificationBatchingFrequency = UnionOf<typeof NOTIFICATION_BATCHING_FREQUENCIES>;
 
-export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
+const DAYS_OF_WEEK = new TupleSet(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const);
+export type DayOfWeek = UnionOf<typeof DAYS_OF_WEEK>;
 
-export interface KarmaChangeSettingsType {
-  updateFrequency: KarmaChangeUpdateFrequency
-  /**
-   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
-   */
-  timeOfDayGMT: number
-  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
-  showNegativeKarma: boolean
+export type NotificationChannelSettings = {
+  batchingFrequency: NotificationBatchingFrequency,
+  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
+  timeOfDayGMT: number,
+  /** Day of week at which weekly updates are released, always in GMT */
+  dayOfWeekGMT: DayOfWeek
 }
-const karmaChangeSettingsType = new SimpleSchema({
-  updateFrequency: {
+const notificationChannelSettingsSchema = new SimpleSchema({
+  batchingFrequency: {
     type: String,
-    optional: true,
-    allowedValues: Array.from(karmaChangeUpdateFrequencies),
+    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
   },
   timeOfDayGMT: {
     type: SimpleSchema.Integer,
-    optional: true,
     min: 0,
     max: 23
   },
   dayOfWeekGMT: {
     type: String,
-    optional: true,
-    allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    allowedValues: Array.from(DAYS_OF_WEEK)
   },
+})
+
+export type NotificationTypeSettings = Record<NotificationChannel, NotificationChannelSettings>
+const notificationTypeSettingsSchema = new SimpleSchema({
+  onsite: {
+    type: notificationChannelSettingsSchema,
+  },
+  email: {
+    type: notificationChannelSettingsSchema,
+  },
+});
+export const defaultNotificationTypeSettings: NotificationTypeSettings = {
+  onsite: {
+    batchingFrequency: "realtime",
+    timeOfDayGMT: 12,
+    dayOfWeekGMT: "Monday",
+  },
+  email: {
+    batchingFrequency: "disabled",
+    timeOfDayGMT: 12,
+    dayOfWeekGMT: "Monday",
+  }
+};
+
+
+// TODO handle rename from updateFrequency to batchingFrequecy
+export type KarmaChangeSettings = {
+  updateFrequency: NotificationBatchingFrequency,
+  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
+  timeOfDayGMT: number,
+  /** Day of week at which weekly updates are released, always in GMT */
+  dayOfWeekGMT: DayOfWeek
+  showNegativeKarma: boolean
+}
+const karmaChangeSettingsSchema = new SimpleSchema({
   showNegativeKarma: {
     type: Boolean,
     optional: true,
-  }
+  },
+  updateFrequency: {
+    type: String,
+    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
+  },
+  timeOfDayGMT: {
+    type: SimpleSchema.Integer,
+    min: 0,
+    max: 23
+  },
+  dayOfWeekGMT: {
+    type: String,
+    allowedValues: Array.from(DAYS_OF_WEEK)
+  },
 })
-
-export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
+// TODO share schema with regular notifications
+// karmaChangeSettingsSchema.extend(notificationChannelSettingsSchema)
+export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettings>({
   EAForum: {
     updateFrequency: "realtime",
     timeOfDayGMT: 11, // 3am PST
@@ -158,24 +176,6 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
   },
 } as const);
 
-const notificationTypeSettings = new SimpleSchema({
-  channel: {
-    type: String,
-    allowedValues: ["none", "onsite", "email", "both"],
-  },
-  batchingFrequency: {
-    type: String,
-    allowedValues: ['realtime', 'daily', 'weekly'],
-  },
-  timeOfDayGMT: {
-    type: Number,
-    optional: true,
-  },
-  dayOfWeekGMT: {
-    type: String,
-    optional: true,
-  },
-})
 
 const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
@@ -185,16 +185,28 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
-const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
-  type: notificationTypeSettings,
-  optional: true,
-  group: formGroups.notifications,
-  control: "NotificationTypeSettings" as const,
-  canRead: [userOwns, 'admins'] as FieldPermissions,
-  canUpdate: [userOwns, 'admins'] as FieldPermissions,
-  canCreate: ['members', 'admins'] as FieldCreatePermissions,
-  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
-});
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+const notificationTypeSettingsField = (overrideSettings?: DeepPartial<NotificationTypeSettings>) => {
+  const defaultValue = {
+    onsite: { ...defaultNotificationTypeSettings.onsite, ...overrideSettings?.onsite },
+    email: { ...defaultNotificationTypeSettings.email, ...overrideSettings?.email }
+  }
+
+  return {
+    type: notificationTypeSettingsSchema,
+    optional: true,
+    blackbox: true,
+    group: formGroups.notifications,
+    control: "NotificationTypeSettings" as const,
+    canRead: [userOwns, 'admins'] as FieldPermissions,
+    canUpdate: [userOwns, 'admins'] as FieldPermissions,
+    canCreate: ['members', 'admins'] as FieldCreatePermissions,
+    ...schemaDefaultValue(defaultValue)
+  };
+};
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -1438,7 +1450,7 @@ const schema: SchemaType<"Users"> = {
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
@@ -1446,55 +1458,55 @@ const schema: SchemaType<"Users"> = {
   },
   notificationSubscribedSequencePost: {
     label: "Posts added to sequences I'm subscribed to",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
     hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
     hidden: !isLWorAF,
-    ...notificationTypeSettingsField({ channel: "both"})
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} })
   },
   notificationEventInRadius: {
     label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationKarmaPowersGained: {
     label: "Karma powers gained",
     hidden: true,
-    ...notificationTypeSettingsField({ channel: "onsite" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationGroupAdministration: {
     label: "Group administration notifications",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationCommentsOnDraft: {
     label: "Comments on unpublished draft posts I've shared",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationPostsNominatedReview: {
     label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
     // Hide this while review is inactive
     hidden: true,
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   notificationSubforumUnread: {
     label: `New discussions in topics I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField({ onsite: { batchingFrequency: "daily" } }),
   },
   notificationNewMention: {
     label: "Someone has mentioned me in a post or a comment",
@@ -1502,7 +1514,7 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ channel: "both"}),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
     hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
@@ -1512,12 +1524,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    ...notificationTypeSettingsField({ onsite: { batchingFrequency: 'daily' } }),
     hidden: !isLW,
   },
   notificationDebateReplies: {
@@ -1527,12 +1539,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
     hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ channel: "none" }),
+    ...notificationTypeSettingsField({ onsite: { batchingFrequency: "disabled" } }),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {
@@ -1641,7 +1653,7 @@ const schema: SchemaType<"Users"> = {
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
-    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.tsx
+    type: karmaChangeSettingsSchema, // See KarmaChangeNotifierSettings.tsx
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],

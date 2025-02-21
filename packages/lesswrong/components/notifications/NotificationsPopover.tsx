@@ -7,7 +7,7 @@ import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisp
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
-import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
+import type { NotificationBatchingFrequency } from "@/lib/collections/users/schema";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
@@ -89,15 +89,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
-  switch (batchingFrequency) {
-    case "daily":  return " since yesterday";
-    case "weekly": return " since last week";
-    default:       return "";
-  }
-}
-
-const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
+const getSettingsNudge = (batchingFrequency: NotificationBatchingFrequency) => {
   switch (batchingFrequency) {
     case "realtime":  return "appear in real time";
     case "daily":  return "are batched daily";

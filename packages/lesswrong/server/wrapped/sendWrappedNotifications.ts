@@ -46,10 +46,16 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     documentType: null,
     extraData: {year},
     fallbackNotificationTypeSettings: {
-      channel: "onsite",
-      batchingFrequency: "realtime",
-      timeOfDayGMT: 12,
-      dayOfWeekGMT: "Monday",
+      onsite: {
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      },
+      email: {
+        batchingFrequency: "disabled",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      }
     },
   });
 
@@ -62,10 +68,16 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     documentType: null,
     extraData: {year},
     fallbackNotificationTypeSettings: {
-      channel: "email",
-      batchingFrequency: "realtime",
-      timeOfDayGMT: 12,
-      dayOfWeekGMT: "Monday",
+      onsite: {
+        batchingFrequency: "disabled",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      },
+      email: {
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      }
     },
   });
 }
