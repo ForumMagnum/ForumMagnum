@@ -4,7 +4,6 @@
     "target": "esnext"
   },
   "ts-node": {
-    "files": true,
     "transpileOnly": true
   }
 }

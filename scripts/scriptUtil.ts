@@ -77,6 +77,7 @@ export const getDatabaseConfigFromModeAndForumType = (mode: string, forumType: F
   const memorizedConfigPaths: Record<ForumType, Partial<CommandLineOptions>> = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
+      noSshTunnel: true, //workaround for a timing issue
     },
     ea: {
       postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,

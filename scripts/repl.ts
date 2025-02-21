@@ -1,6 +1,7 @@
 import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, isForumType, normalizeEnvironmentType } from "./scriptUtil";
 import { startSshTunnel } from "./startup/buildUtil";
 import * as tsNode from 'ts-node';
+import { sleep } from '../packages/lesswrong/lib/utils/asyncUtils';
 
 interface CommandLineOptions {
   environment: EnvironmentType|null
@@ -81,7 +82,7 @@ export async function initRepl(commandLineOptions: CommandLineOptions) {
     shellMode: false,
   };
 
-  await startSshTunnel(getDatabaseConfigFromModeAndForumType(mode, forumType).sshTunnelCommand);
+  //await startSshTunnel(getDatabaseConfigFromModeAndForumType(mode, forumType).sshTunnelCommand);
 
   if (["dev", "local", "staging", "prod", "xpost"].includes(mode)) {
     console.log('Running REPL in mode', mode);
@@ -98,23 +99,23 @@ export async function initRepl(commandLineOptions: CommandLineOptions) {
   await initServer(args);
 }
 
-function replMain() {
+async function replMain() {
   const commandLineOptions = parseCommandLine();
 
-  initRepl(commandLineOptions).then(() => {
-    const repl = tsNode.createRepl();
-    const service = tsNode.create({...repl.evalAwarePartialHost});
-    repl.setService(service);
-    repl.start();
-    (async () => {
-      if (commandLineOptions.command) {
-        repl.evalCode(`import * as imp from ${JSON.stringify(commandLineOptions.file)};`);
-        const result = await repl.evalCode(commandLineOptions.command);
-        console.log(result);
-        process.exit(0);
-      }
-    })();
-  });
+  await initRepl(commandLineOptions);
+  
+  const repl = tsNode.createRepl();
+  const service = tsNode.create({...repl.evalAwarePartialHost});
+  repl.setService(service);
+  repl.start();
+  (async () => {
+    if (commandLineOptions.command) {
+      repl.evalCode(`import * as imp from ${JSON.stringify(commandLineOptions.file)};`);
+      const result = await repl.evalCode(commandLineOptions.command);
+      console.log(result);
+      process.exit(0);
+    }
+  })();
 }
 
 replMain();
