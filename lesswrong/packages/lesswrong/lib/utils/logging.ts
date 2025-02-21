@@ -31,9 +31,10 @@ const manuallyEnabledDebuggers: string[] = []
 const scopeIsActive = (scope: string): boolean => {
   // We only need to re-check the cache for database settings. Changing instance
   // settings requires a rebuild
-  if (databaseDebuggersSetting.get().includes(scope) || instanceDebuggers.includes(scope) || manuallyEnabledDebuggers.includes(scope)) {
+  if (databaseDebuggersSetting.get() || instanceDebuggers.includes(scope) || manuallyEnabledDebuggers.includes(scope)) {
     return true
   }
+  console.log({databaseDebuggersSetting: databaseDebuggersSetting.get(), instanceDebuggers, manuallyEnabledDebuggers})
   return false
 }
 

@@ -1,3 +1,5 @@
+"use client"
+
 import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'

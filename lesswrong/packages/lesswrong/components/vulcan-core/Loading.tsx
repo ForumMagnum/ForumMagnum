@@ -72,4 +72,4 @@ declare global {
   }
 }
 
-export default Loading;
+export default LoadingComponent;

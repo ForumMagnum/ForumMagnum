@@ -75,3 +75,5 @@ declare global {
     Typography: typeof TypographyComponent
   }
 }
+
+export default TypographyComponent;

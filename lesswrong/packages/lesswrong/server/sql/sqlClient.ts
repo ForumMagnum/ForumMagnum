@@ -25,6 +25,7 @@ export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write") => {
 }
 
 export const getSqlClient = (target: DbTarget = "write") => {
+  // console.log("getSqlClient", target, sql, sqlRead);
   return target === "write" || !sqlRead ? sql : sqlRead;
 }
 

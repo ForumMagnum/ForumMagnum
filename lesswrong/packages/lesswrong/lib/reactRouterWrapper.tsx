@@ -9,6 +9,8 @@ import { classifyHost } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { default as NextLink } from 'next/link';
+import { propTypes } from 'react-copy-to-clipboard';
 
 export type LinkProps = {
   to?: HashLinkProps['to']|null
@@ -32,7 +34,7 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
-export const Link = ({eventProps, ...props}: LinkProps) => {
+export const Link = ({eventProps, children, ...props}: LinkProps) => {
   const { captureEvent } = useTracking({
     eventType: "linkClicked",
     eventProps: {
@@ -55,7 +57,9 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
-    return <HashLink {...props} onMouseDown={handleClick}/>
+    return <NextLink href={props.to} {...(otherProps as any)} onMouseDown={handleClick}>
+      {children}
+    </NextLink>
   }
 }
 

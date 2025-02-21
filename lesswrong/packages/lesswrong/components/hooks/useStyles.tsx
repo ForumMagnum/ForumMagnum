@@ -1,3 +1,5 @@
+"use client"
+
 import React, { createContext, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
@@ -12,6 +14,7 @@ export type StylesContextType = {
     styleDefinition: StyleDefinition<any>
     styleNode: HTMLStyleElement
   }>
+  addStyle: (style: StyleDefinition) => void
 }
 
 export const StylesContext = createContext<StylesContextType|null>(null);
@@ -44,6 +47,7 @@ export const defineStyles = <T extends string>(
     nameProxy: null,
   };
   topLevelStyleDefinitions[name] = definition;
+  console.log("definition", definition)
   
   if (isClient && _clientMountedStyles) {
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
@@ -97,10 +101,10 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
 export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
 
+  console.log({stylesContext, bundleIsServer})
+
   if (bundleIsServer) {
-    // If we're rendering server-side, we just return a classes object and
-    // don't need to mount any style nodes/etc, because the SSR will use the
-    // static stylesheet.
+    stylesContext?.addStyle(styles);
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
@@ -128,6 +132,7 @@ export const withAddClasses = (
     return function AddClassesHoc(props: AnyBecauseHard) {
       const {children, ...otherProps} = props;
       const classes = useStyles(styleDefinition);
+      console.log("classes", classes)
       return <Component {...otherProps} classes={classes}>
         {children}
       </Component>
@@ -160,7 +165,7 @@ function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefini
   return styleNode;
 }
 
-function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
+export function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
   const sheets = new SheetsRegistry()
   
   const jss = jssCreate({

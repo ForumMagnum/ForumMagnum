@@ -4,7 +4,7 @@ import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
-import { getCommandLineArguments } from '@/server/commandLine';
+// import { getCommandLineArguments } from '@/server/commandLine';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -178,7 +178,8 @@ const getDefaultAbsoluteUrl = (): string => {
   if (defaultSiteAbsoluteUrl?.length>0) {
     return defaultSiteAbsoluteUrl;
   } else {
-    return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
+    return ''
+    // return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
   }
 }
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")

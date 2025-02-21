@@ -19,3 +19,19 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+html {
+  --ck-z-panel: 10000000002!important;
+  --ck-z-modal: 10000000002!important;
+  color: #000;
+  font-size: 13px;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale
+}
+
+@property --top-posts-page-scrim-opacity {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 36%;
+}

@@ -25,6 +25,7 @@ export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
  * instead use `requireCssVar`.
  */
 export const useTheme = (): ThemeType => {
+  console.log("useTheme")
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useTheme() used without the context available";
   return themeContext.theme;
@@ -141,8 +142,6 @@ export const ThemeContextProvider = ({options, children}: {
   );
   
   return <ThemeContext.Provider value={themeContext}>
-    <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
-      {children}
-    </MuiThemeProvider>
+    {children}
   </ThemeContext.Provider>
 }

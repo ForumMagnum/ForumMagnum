@@ -127,3 +127,5 @@ declare global {
     ContentStyles: typeof ContentStylesComponent
   }
 }
+
+export default ContentStylesComponent;

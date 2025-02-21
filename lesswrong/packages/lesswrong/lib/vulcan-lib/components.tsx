@@ -1,3 +1,5 @@
+"use client"
+
 import compose from 'lodash/flowRight';
 import React, { forwardRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
@@ -105,11 +107,11 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window?.missingMainStylesheet || enableVite)) {
+    // if (isClient && (window?.missingMainStylesheet || enableVite)) {
       hocs.push(withAddClasses(styles, name, options));
-    } else {
-      hocs.push(addClassnames(name, styles));
-    }
+    // } else {
+      // hocs.push(addClassnames(name, styles));
+    // }
   }
   
   rawComponent.displayName = name;
@@ -177,7 +179,7 @@ export function prepareComponent(componentName: string): any
     return prepareComponent(componentName);
   } else {
     // eslint-disable-next-line no-console
-    console.error(`Missing component: ${componentName}`);
+    console.log(`Missing component: ${componentName}`);
     return null;
   }
 }

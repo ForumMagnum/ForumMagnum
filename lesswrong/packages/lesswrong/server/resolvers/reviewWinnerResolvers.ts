@@ -29,7 +29,9 @@ defineQuery({
   name: 'GetAllReviewWinners',
   resultType: '[Post!]!',
   fn: async (root, args, context) => {
+    console.log("GetAllReviewWinners")
     const cacheStale = moment(REVIEW_WINNER_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'));
+    console.log("cacheStale", cacheStale, REVIEW_WINNER_CACHE.lastUpdatedAt)
     if (cacheStale) {
       await updateReviewWinnerCache(context);
     }

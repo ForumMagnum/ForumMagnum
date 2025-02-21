@@ -7,8 +7,8 @@ import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
-import { getUrlClass } from '@/server/utils/getUrlClass';
-import { getCommandLineArguments } from '@/server/commandLine';
+// import { getUrlClass } from '@/server/utils/getUrlClass';
+// import { getCommandLineArguments } from '@/server/commandLine';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -60,23 +60,23 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  * Use of this hook will never trigger rerenders.
  */
 export const useNavigate = () => {
-  const { history } = useContext(NavigationContext)!;
+  // const { history } = useContext(NavigationContext)!;
   return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
-    if (locationDescriptor === -1) {
-      history.goBack();
-    } else if (locationDescriptor === 1) {
-      history.goForward();
-    } else if (options?.openInNewTab) {
-      const href = typeof locationDescriptor === 'string' ?
-        locationDescriptor :
-        history.createHref(locationDescriptor);
-      window.open(href, '_blank')?.focus();
-    } else if (options?.replace) {
-      history.replace(locationDescriptor);
-    } else {
-      history.push(locationDescriptor);
-    }
-  }, [history]);
+    // if (locationDescriptor === -1) {
+    //   history.goBack();
+    // } else if (locationDescriptor === 1) {
+    //   history.goForward();
+    // } else if (options?.openInNewTab) {
+    //   const href = typeof locationDescriptor === 'string' ?
+    //     locationDescriptor :
+    //     history.createHref(locationDescriptor);
+    //   window.open(href, '_blank')?.focus();
+    // } else if (options?.replace) {
+    //   history.replace(locationDescriptor);
+    // } else {
+    //   history.push(locationDescriptor);
+    // }
+  }, []);
 }
 
 // HoC which adds a `location` property to an object, which contains the page
@@ -125,14 +125,14 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getCommandLineArguments().localhostUrlPort}`,
+    // `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
   ],
 }
 
-const URLClass = getUrlClass()
+// const URLClass = getUrlClass()
 const forumDomainWhitelist: ForumOptions<DomainList> = {
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
@@ -140,14 +140,14 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getCommandLineArguments().localhostUrlPort}`,
+      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
-      new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getCommandLineArguments().localhostUrlPort}`,
+      // new URLClass(siteUrlSetting.get()).host,
+      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }

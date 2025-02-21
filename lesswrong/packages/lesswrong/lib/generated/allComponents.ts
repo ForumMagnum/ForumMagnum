@@ -1,3 +1,4 @@
+"use client"
 // Generated file - run "yarn generate" to update
 import { importComponent } from '../vulcan-lib';
 

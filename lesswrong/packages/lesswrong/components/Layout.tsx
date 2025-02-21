@@ -35,6 +35,7 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { usePathname } from 'next/navigation';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -237,8 +238,8 @@ const Layout = ({currentUser, children, classes}: {
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
-  const theme = useTheme();
-  const {currentRoute, pathname} = useLocation();
+  // const theme = useTheme();
+  const pathname = usePathname();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const {headerVisible, headerAtTop} = useHeaderVisible();
 
@@ -247,22 +248,22 @@ const Layout = ({currentUser, children, classes}: {
   const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
   // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  // const {mutate: updateUser} = useUpdate({
+  //   collectionName: "Users",
+  //   fragmentName: 'UsersCurrent',
+  // });
   
-  const toggleStandaloneNavigation = useCallback(() => {
-    if (currentUser) {
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          hideNavigationSidebar: !hideNavigationSidebar
-        }
-      })
-    }
-    setHideNavigationSidebar(!hideNavigationSidebar);
-  }, [updateUser, currentUser, hideNavigationSidebar]);
+  // const toggleStandaloneNavigation = useCallback(() => {
+  //   if (currentUser) {
+  //     void updateUser({
+  //       selector: {_id: currentUser._id},
+  //       data: {
+  //         hideNavigationSidebar: !hideNavigationSidebar
+  //       }
+  //     })
+  //   }
+  //   setHideNavigationSidebar(!hideNavigationSidebar);
+  // }, [updateUser, currentUser, hideNavigationSidebar]);
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -274,7 +275,7 @@ const Layout = ({currentUser, children, classes}: {
   // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = currentRoute?.background === "white";
+  const useWhiteBackground = true;
 
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
@@ -347,11 +348,11 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
-      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
-      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
-      unspacedGridLayout: !!currentRoute?.unspacedGrid,
+      standaloneNavigation: true,
+      renderSunshineSidebar: false,
+      renderLanguageModelChatLauncher: false,
+      shouldUseGridLayout: false,
+      unspacedGridLayout: false,
     }
 
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
@@ -361,11 +362,12 @@ const Layout = ({currentUser, children, classes}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
+    // const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
-    const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
+    // const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
+    const friendlyHomeLayout = false;
 
-    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    // const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
     
     return (
       <AnalyticsContext path={pathname}>
@@ -382,18 +384,18 @@ const Layout = ({currentUser, children, classes}: {
       <CurrentForumEventProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+          // {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
-              <Helmet>
+              {/* <Helmet>
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
                   )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-              </Helmet>
+              </Helmet> */}
 
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
@@ -408,14 +410,14 @@ const Layout = ({currentUser, children, classes}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!currentRoute?.standalone && <Header
+              {/* {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={!!currentRoute?.staticHeader}
                 backgroundColor={headerBackgroundColor}
-              />}
+              />} */}
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
@@ -423,14 +425,14 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
+                // [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
+                // [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
-                    eaHomeLayout={friendlyHomeLayout}
+                    eaHomeLayout={false}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}
@@ -439,17 +441,17 @@ const Layout = ({currentUser, children, classes}: {
                       <NavigationStandalone
                         sidebarHidden={hideNavigationSidebar}
                         unspacedGridLayout={unspacedGridLayout}
-                        noTopMargin={friendlyHomeLayout}
+                        noTopMargin={false}
                       />
                     </DeferRender>
                   </StickyWrapper>
                 }
-                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
+                {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
-                  [classes.mainNoFooter]: currentRoute?.noFooter,
-                  [classes.mainFullscreen]: currentRoute?.fullscreen,
+                  // [classes.mainNoFooter]: currentRoute?.noFooter,
+                  // [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
                   <ErrorBoundary>
@@ -457,15 +459,15 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {children}
-                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    {/* {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>} */}
                   </ErrorBoundary>
-                  {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
+                  {/* {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />} */}
                 </div>
                 {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
-                    eaHomeLayout={friendlyHomeLayout}
+                    eaHomeLayout={false}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}
@@ -521,6 +523,8 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});
+
+export default LayoutComponent;
 
 declare global {
   interface ComponentTypes {

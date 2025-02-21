@@ -1,3 +1,5 @@
+"use client"
+
 import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'

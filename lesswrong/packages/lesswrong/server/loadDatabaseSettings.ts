@@ -1,7 +1,7 @@
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
-import { DatabaseMetadataRepo } from "./repos";
+import DatabaseMetadataRepo from "./repos/DatabaseMetadataRepo";
 import { getSqlClient } from './sql/sqlClient';
-import { isAnyTest } from '../lib/executionEnvironment';
+// import { isAnyTest } from '../lib/executionEnvironment';
 
 let databaseIdPreloaded = false;
 let preloadedDatabaseId: string|null = null;
@@ -19,10 +19,10 @@ type DatabaseSettings = {
 }
 
 const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
-  if (!isAnyTest) {
-    // eslint-disable-next-line no-console
-    console.log("Loading settings from Postgres...");
-  }
+  // if (!isAnyTest) {
+  //   // eslint-disable-next-line no-console
+  //   console.log("Loading settings from Postgres...");
+  // }
 
   const repo = new DatabaseMetadataRepo();
 
@@ -36,14 +36,14 @@ const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
     repo.getDatabaseId(),
   ]);
   
-  if (!isAnyTest && (!serverSettingsObject || !publicSettingsObject)) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to load database settings from Postgres");
-    // eslint-disable-next-line no-console
-    if (!serverSettingsObject) console.error("No serverSettingsObject");
-    // eslint-disable-next-line no-console
-    if (!publicSettingsObject) console.error("No publicSettingsObject");
-  }
+  // if (!isAnyTest && (!serverSettingsObject || !publicSettingsObject)) {
+  //   // eslint-disable-next-line no-console
+  //   console.error("Failed to load database settings from Postgres");
+  //   // eslint-disable-next-line no-console
+  //   if (!serverSettingsObject) console.error("No serverSettingsObject");
+  //   // eslint-disable-next-line no-console
+  //   if (!publicSettingsObject) console.error("No publicSettingsObject");
+  // }
 
   return {
     serverSettingsObject,
@@ -52,7 +52,7 @@ const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
   };
 }
 
-const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
+export const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
   if (getSqlClient()) {
     try {
       // This needs to be awaited for it to be caught by the try/catch block

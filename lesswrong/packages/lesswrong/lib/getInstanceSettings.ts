@@ -1,11 +1,11 @@
 // Will be null instead of a function (from the stubs directory) if not on the server
-import { CommandLineArguments, loadInstanceSettings } from "@/server/commandLine";
+// import { CommandLineArguments, loadInstanceSettings } from "@/server/commandLine";
 
 let instanceSettings: any = null;
-export const getInstanceSettings = (args?: CommandLineArguments): any => {
+export const getInstanceSettings = (args?: any): any => {
   if (!instanceSettings) {
     if (bundleIsServer) {
-      instanceSettings = loadInstanceSettings(args);
+      instanceSettings = {}
     } else {
       instanceSettings = {
         public: window.publicInstanceSettings,

@@ -17,6 +17,20 @@ import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/publicSettings';
 import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
 
+import ContentStyles from '@/components/common/ContentStyles';
+import Loading from '@/components/vulcan-core/Loading';
+import SectionTitle from '@/components/common/SectionTitle';
+
+import '@/lib/collections/users/fragments'
+import '@/lib/collections/posts/fragments'
+import '@/lib/collections/comments/fragments'
+import '@/lib/collections/tags/fragments'
+import '@/lib/collections/spotlights/fragments'
+import '@/lib/collections/reviewWinners/fragments'
+import '@/lib/collections/splashArtCoordinates/fragments'
+import '@/lib/collections/chapters/fragments'
+import '@/lib/collections/revisions/fragments'
+import { usePathname, useSearchParams } from 'next/navigation';
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
 
@@ -438,13 +452,6 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   expandIcon: {},
-  '@global': {
-    '@property --top-posts-page-scrim-opacity': {
-      syntax: '"<percentage>"',
-      inherits: false,
-      initialValue: '36%',
-    }
-  },
   postsByYearSectionCentered: {
     marginTop: 60,
     display: 'flex',
@@ -641,11 +648,6 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 }
 
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SectionTitle, HeadTags, ContentStyles, Loading } = Components;
-
-  const location = useLocation();
-  const { query } = location;
-
   const screenWidth = useWindowWidth(2000);
   /** 
    * The number of grids we'll show horizontally before wrapping over to the next "row" of grids on the screen.
@@ -695,12 +697,13 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
 
+  console.log({data, loading})
+
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
-      key: id,
       id,
       posts,
       classes,
@@ -715,7 +718,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       hiddenState: getHiddenState(id, fullyOpenGridIds),
       expandedNotYetMoved
     };
-    return <PostsImageGrid {...props} />;
+    return <PostsImageGrid {...props} key={id} />;
   }
 
   const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
@@ -740,7 +743,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   return (
     <>
-      <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
+      {/* <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} /> */}
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>
@@ -756,11 +759,11 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             {sectionGrid}
           </div>
           {loading && <Loading/>}
-          <TopSpotlightsSection classes={classes} 
+          {/* <TopSpotlightsSection classes={classes} 
             yearGroupsInfo={yearGroupsInfo} 
             sectionsInfo={sectionsInfo} 
             reviewWinnersWithPosts={reviewWinnersWithPosts} 
-          />
+          /> */}
         </div>
       </AnalyticsContext>
     </>
@@ -1166,7 +1169,8 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
 
   const [hover, setHover] = useState(false)
-  const { location } = useLocation();
+  const pathName = usePathname();
+  const searchParams = useSearchParams();
   const imgRef = useRef<HTMLImageElement>(null);
 
   const handleMouseOver = () => {
@@ -1175,7 +1179,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
   const handleMouseLeave = () => setHover(false);
 
-  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (location.pathname + location.search)  : postGetPageUrl(post)}>
+  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (pathName + searchParams.toString())  : postGetPageUrl(post)}>
     <div className={classNames(classes.imageGridPostBody, {[classes.imageGridPostUnread]: currentUser && !post.isRead, [classes.imageGridPostRead]: currentUser && post.isRead})} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={authorClassName}>
         {post?.user?.displayName}
@@ -1215,3 +1219,5 @@ declare global {
     TopPostsPage: typeof TopPostsPageComponent
   }
 }
+
+export default TopPostsPageComponent;

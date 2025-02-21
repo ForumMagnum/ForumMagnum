@@ -14,7 +14,7 @@ interface ReviewWinnerCache {
 export const REVIEW_WINNER_CACHE: ReviewWinnerCache = {
   reviewWinners: [],
   reviewWinnersByPostId: {},
-  lastUpdatedAt: new Date()
+  lastUpdatedAt: new Date('1970-01-01')
 };
 
 export async function updateReviewWinnerCache(context: ResolverContext) {

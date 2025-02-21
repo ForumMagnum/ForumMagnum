@@ -1,7 +1,7 @@
 import React from 'react'
 import { createMutator } from "../mutators";
 import passport from 'passport'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
