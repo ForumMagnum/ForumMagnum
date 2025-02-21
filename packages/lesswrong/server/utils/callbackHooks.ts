@@ -6,6 +6,8 @@ type MaybePromise<T> = T|Promise<T>
 
 type CallbackChainFn<IteratorType,ArgumentsType extends any[]> = (doc: IteratorType, ...args: ArgumentsType) => (MaybePromise<IteratorType> | undefined | void)
 
+const LOG_ADDED_CALLBACK_HOOK_NAME = 'posts.update.after';
+
 /**
  * A set of callbacks which run in a chain, each modifying a value and passing
  * it to the next. Each callback in the chain receives a current-version of the
@@ -29,11 +31,13 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   
   add = (fn: CallbackChainFn<IteratorType,ArgumentsType>) => {
     this._callbacks.push(fn);
-    if (fn.name) {
-      console.log(`${this._name} added callback ${fn.name}`);
-    } else {
-      console.log(`${this._name} added callback without name`);
-      console.log(new Error().stack?.split('\n').slice(2, 3)[0]);
+    if (this._name === LOG_ADDED_CALLBACK_HOOK_NAME) {
+      if (fn.name) {
+        console.log(`${this._name} added callback ${fn.name}`);
+      } else {
+        console.log(`${this._name} added callback without name`);
+        console.log(new Error().stack?.split('\n').slice(2, 3)[0]);
+      }
     }
     if (this._callbacks.length > 20) {
       // eslint-disable-next-line no-console
@@ -125,11 +129,13 @@ export class CallbackHook<ArgumentsType extends any[]> {
   
   add = (fn: (...args: ArgumentsType) => void|Promise<void>) => {
     this._callbacks.push(fn);
-    if (fn.name) {
-      console.log(`${this._name} added callback ${fn.name}`);
-    } else {
-      console.log(`${this._name} added callback without name`);
-      console.log(new Error().stack?.split('\n').slice(2, 3)[0]);
+    if (this._name === LOG_ADDED_CALLBACK_HOOK_NAME) {
+      if (fn.name) {
+        console.log(`${this._name} added callback ${fn.name}`);
+      } else {
+        console.log(`${this._name} added callback without name`);
+        console.log(new Error().stack?.split('\n').slice(2, 3)[0]);
+      }
     }
     if (this._callbacks.length > 20) {
       // eslint-disable-next-line no-console
