@@ -202,7 +202,17 @@ export async function pruneOldPerfMetrics() {
   }
 }
 
-function serverWriteEvent({type, timestamp, props}: AnyBecauseTodo) {
+/**
+ * Write a (single) event to the analytics database. Server-side only; if
+ * called from the client goes to a stub which throws an exception. If no
+ * analytics database is configured, does nothing.
+ */
+export function serverWriteEvent(event: AnyBecauseTodo) {
+  const { type, timestamp, props } = event;
+  if (pendingEvents) {
+    pendingEvents.push(event);
+    return;
+  }
   void writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
@@ -212,12 +222,16 @@ function serverWriteEvent({type, timestamp, props}: AnyBecauseTodo) {
   }]);
 }
 
+// Analytics events that were recorded during startup before we were ready
+// to write them to the analytics DB.
+let pendingEvents: any[]|null = [];
+
 export function startAnalyticsWriter() {
-  AnalyticsUtil.serverWriteEvent = serverWriteEvent;
-  
-  const deferredEvents = AnalyticsUtil.serverPendingEvents;
-  AnalyticsUtil.serverPendingEvents = [];
-  for (let event of deferredEvents) {
-    serverWriteEvent(event);
+  const deferredEvents = pendingEvents;
+  pendingEvents = null;
+  if (deferredEvents) {
+    for (let event of deferredEvents) {
+      serverWriteEvent(event);
+    }
   }
 }

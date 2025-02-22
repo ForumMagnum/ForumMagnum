@@ -10,6 +10,7 @@ import { throttle } from 'underscore';
 import moment from 'moment';
 import { Globals } from './vulcan-lib/config';
 import isEqual from 'lodash/isEqual';
+import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -22,28 +23,10 @@ addGraphQLSchema(`
   }
 `);
 
-// AnalyticsUtil: An object/namespace full of functions which need to bypass
-// the normal import system, because they are client- or server-specific but
-// are used by code which isn't.
-export const AnalyticsUtil: any = {
-  // clientWriteEvents: Send a graphQL mutation from the client to the server
-  // with an array of events. Available only on the client and when the react
-  // tree is mounted, null otherwise; filled in by Components.AnalyticsClient.
-  clientWriteEvents: null,
-
-  // clientContextVars: A dictionary of variables that will be added to every
-  // analytics event sent from the client. Client-side only.
-  clientContextVars: {},
-
-  // serverWriteEvent: Write a (single) event to the analytics database. Server-
-  // side only, filled in in analyticsWriter.js; null on the client. If no
-  // analytics database is configured, does nothing.
-  serverWriteEvent: null,
-  
-  // serverPendingEvents: Analytics events that were recorded during startup
-  // before we were ready to write them to the analytics DB.
-  serverPendingEvents: [],
-};
+// clientContextVars: A dictionary of variables that will be added to every
+// analytics event sent from the client. Client-side only, filled in side-
+// effectfully from inside a React useEffect in AnalyticsClient.tsx.
+export const clientContextVars: any = {};
 
 function getShowAnalyticsDebug() {
   if (isAnyTest)
@@ -77,25 +60,14 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
       if (!suppressConsoleLog && getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
-      if (AnalyticsUtil.serverWriteEvent) {
-        AnalyticsUtil.serverWriteEvent(event);
-      } else {
-        AnalyticsUtil.serverPendingEvents.push(event);
-        if (AnalyticsUtil.serverPendingEvents.length > 1000) {
-          // This is only supposed to be a temporary thing during startup until a
-          // postgres connection is established, so report an error if there's a
-          // ton of stuff in this array
-          // eslint-disable-next-line no-console
-          console.log(`Possible memory leak: AnalyticsUtil.serverPendingEvents.length=${AnalyticsUtil.serverPendingEvents.length}`);
-        }
-      }
+      serverWriteEvent(event);
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {
         type: eventType,
         timestamp: new Date(),
         props: {
-          ...AnalyticsUtil.clientContextVars,
+          ...clientContextVars,
           ...eventProps,
         },
       };
@@ -440,21 +412,21 @@ Globals.captureEvent = captureEvent;
 let pendingAnalyticsEvents: Array<any> = [];
 
 export function flushClientEvents() {
-  if (!AnalyticsUtil.clientWriteEvents)
-    return;
+  if (!isClient)
+    throw new Error("This function can only be run on the client");
   if (!pendingAnalyticsEvents.length)
     return;
 
   const eventsToWrite = pendingAnalyticsEvents;
   pendingAnalyticsEvents = [];
-  AnalyticsUtil.clientWriteEvents(eventsToWrite.map(event => ({
+  clientWriteEvents(eventsToWrite.map(event => ({
     ...event,
     props: {
       // clientContextVars will almost always be present already, in
       // which case adding them here will do nothing. This is to cover
       // the edge case of events that fire before clientContextVars
       // is initialized (e.g. "pageLoadFinished")
-      ...(isClient ? AnalyticsUtil.clientContextVars : null),
+      ...(isClient ? clientContextVars : null),
       ...event.props
     }
   })));
@@ -462,6 +434,8 @@ export function flushClientEvents() {
 
 let lastFlushedAt: Date|null = null;
 function throttledFlushClientEvents() {
+  if (!isClient)
+    throw new Error("This function can only be run on the client");
   const flushInterval: number = flushIntervalSetting.get();
   const now = new Date();
   if(!lastFlushedAt || now.getTime()-lastFlushedAt.getTime() > flushInterval) {
@@ -469,3 +443,22 @@ function throttledFlushClientEvents() {
     flushClientEvents();
   }
 }
+
+// Send a request from the client to the server with an array of events.
+// Available only on the client and when the react tree is mounted.
+//
+// We do this with a direct POST request rather than going through graphql
+// because this type of request is voluminous enough and different enough
+// from other requests that we want its error handling to be different, and
+// potentially want it to be a special case at the load balancer.
+const clientWriteEvents = async (events: AnyBecauseTodo[]) => {
+  await fetch("/analyticsEvent", {
+    method: "POST",
+    body: JSON.stringify({
+      events, now: new Date(),
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
