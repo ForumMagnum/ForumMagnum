@@ -87,6 +87,7 @@ export function getDbIndexesOnUsers() {
 
   indexSet.addIndex("Users", { afKarma:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", { afSubmittedApplication:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
+  indexSet.addIndex("Users", {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
   return indexSet;
 }

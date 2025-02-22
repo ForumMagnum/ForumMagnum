@@ -4,7 +4,6 @@ import { Votes } from '../../../lib/collections/votes';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
-import { ensureIndex } from "../../../lib/collectionIndexUtils";
 import { UsersRepo } from "../../repos";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
@@ -80,6 +79,5 @@ export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, ol
     }, {multi: true})
   }
 }
-ensureIndex(Votes, {documentId:1});
 
 getCollectionHooks("Posts").editAsync.add(moveToAFUpdatesUserAFKarma);

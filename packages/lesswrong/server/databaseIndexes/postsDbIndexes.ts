@@ -270,5 +270,9 @@ export function getDbIndexesOnPosts() {
   // Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
   indexSet.addIndex("Posts", { userId: 1, postedAt: 1 }, { concurrently: true });
 
+  indexSet.addIndex("Posts", {url:1, postedAt:-1});
+  indexSet.addIndex("Posts", {"fmCrosspost.foreignPostId":1, postedAt:-1});
+  indexSet.addIndex("Posts", {defaultRecommendation: 1})
+
   return indexSet;
 }

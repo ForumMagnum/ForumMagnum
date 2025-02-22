@@ -7,7 +7,6 @@ import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
-import { ensureIndex } from '../lib/collectionIndexUtils';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
@@ -82,7 +81,6 @@ import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
   return new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location);
 }
-ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
 const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {

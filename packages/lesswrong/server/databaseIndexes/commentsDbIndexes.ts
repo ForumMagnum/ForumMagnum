@@ -124,5 +124,7 @@ export function getDbIndexesOnComments() {
     }
   );
 
+  indexSet.addIndex("Comments", { userId: 1, createdAt: 1 });
+
   return indexSet;
 }

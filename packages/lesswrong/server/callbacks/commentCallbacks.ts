@@ -11,7 +11,6 @@ import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import { isEAForum } from '../../lib/instanceSettings';
-import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
@@ -202,9 +201,6 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
     };
   }
 });
-
-// TODO: move this to views?
-ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////
 // LessWrong callbacks                              //
