@@ -106,6 +106,13 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
+interface CountOfReferenceOptions {
+  foreignCollectionName: CollectionNameString
+  foreignFieldName: string
+  filterFn?: (obj: AnyBecauseHard) => boolean
+  resyncElastic: boolean
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -209,12 +216,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   }) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 
-  countOfReferences?: {
-    foreignCollectionName: CollectionNameString
-    foreignFieldName: string
-    filterFn?: (obj: AnyBecauseHard) => boolean
-    resyncElastic: boolean
-  }
+  countOfReferences?: CountOfReferenceOptions
 }
 
 /** Field specification for a Form field, created from the collection schema */

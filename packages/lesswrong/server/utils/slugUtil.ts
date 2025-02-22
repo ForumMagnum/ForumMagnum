@@ -101,6 +101,14 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
   return false;
 }
 
+// interface SlugCallbackOptions<N extends CollectionNameWithSlug> {
+//   collection: CollectionBase<N>
+//   collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
+//   getTitle: (obj: ObjectsByCollectionName[N]|DbInsertion<ObjectsByCollectionName[N]>) => string,
+//   onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
+//   includesOldSlugs: boolean
+// }
+
 export function getSlugCallbacks<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs}: {
   collection: CollectionBase<N>
   collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],

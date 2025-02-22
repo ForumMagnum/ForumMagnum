@@ -41,6 +41,7 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
 
 const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
@@ -234,6 +235,16 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [afterCreateProperties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+
+  // Many collections won't have any, but we don't want to accidentally forget
+  // to run this for collections that do.  So we run it inside of `createMutator`.
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    callbackStage: 'createAfter',
+    newDocument: document,
+    afterCreateProperties
+  });
+
   logger('newAfter')
   // OpenCRUD backwards compatibility
   document = await hooks.newAfter.runCallbacks({
@@ -457,6 +468,13 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     properties: [properties],
   });
 
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    callbackStage: 'updateAfter',
+    newDocument: document,
+    updateAfterProperties: properties,
+  });
+
   /*
 
   Async
@@ -584,6 +602,12 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   */
   await hooks.deleteAsync.runCallbacksAsync([properties]);
+
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    callbackStage: 'deleteAsync',
+    deleteAsyncProperties: properties,
+  });
 
   return { data: document };
 };

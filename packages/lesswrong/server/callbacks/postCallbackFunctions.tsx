@@ -1,153 +1,415 @@
 import React from "react";
-import { Components } from '@/lib/vulcan-lib/components';
-import moment from "moment";
-import { rateLimitDateWhenUserNextAbleToPost } from "../rateLimitUtils";
-import type { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
-import { getDefaultPostLocationFields, getDialogueResponseIds } from "../posts/utils";
-import { generateLinkSharingKey } from "../ckEditor/ckEditorCallbacks";
-import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
-import { captureException } from "@sentry/core";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
-import { createNewJargonTerms } from "../resolvers/jargonResolvers/jargonTermMutations";
-import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotificationRadius } from "../notificationCallbacksHelpers";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
-import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
-import { cheerioParse } from "../utils/htmlUtil";
-import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved } from "@/lib/collections/posts/helpers";
-import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { Posts } from "@/lib/collections/posts";
-import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { requireReviewToFrontpagePostsSetting, eaFrontpageDateDefault, isEAForum } from "@/lib/instanceSettings";
-import { isWeekend } from "@/lib/utils/timeUtil";
-import { fetchFragmentSingle } from "../fetchFragment";
-import { getAutoAppliedTags, checkTags, checkFrontpage, getTagBotAccount } from "../languageModels/autoTagCallbacks";
-import { getOpenAI } from "../languageModels/languageModelIntegration";
-import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
-import { updatePostDenormalizedTags } from "../tagging/helpers";
-import { createAdminContext, createAnonymousContext } from "../vulcan-lib/query";
-import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
-import { wrapAndSendEmail } from "../emails/renderEmail";
-import _ from "underscore";
-import { postStatuses } from "@/lib/collections/posts/constants";
-import { updatePostEmbeddings } from "../embeddings";
-import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
-import { recombeeApi } from "../recombee/client";
-import { googleVertexApi } from "../google-vertex/client";
-import { getAdminTeamAccount, getRejectionMessage } from "./commentCallbacks";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/schema";
+import { Posts } from "@/lib/collections/posts";
+import { postStatuses } from "@/lib/collections/posts/constants";
+import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved } from "@/lib/collections/posts/helpers";
+import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
+import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
+import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
+import { isWeekend } from "@/lib/utils/timeUtil";
+import { Components } from '@/lib/vulcan-lib/components';
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { generateLinkSharingKey } from "../ckEditor/ckEditorCallbacks";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
+import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
+import { wrapAndSendEmail } from "../emails/renderEmail";
+import { updatePostEmbeddings } from "../embeddings";
+import { fetchFragmentSingle } from "../fetchFragment";
 import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/resolvers";
+import { googleVertexApi } from "../google-vertex/client";
+import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
+import { getOpenAI } from "../languageModels/languageModelIntegration";
+import type { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
+import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
+import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotificationRadius } from "../notificationCallbacksHelpers";
+import { getDefaultPostLocationFields, getDialogueResponseIds } from "../posts/utils";
+import { rateLimitDateWhenUserNextAbleToPost } from "../rateLimitUtils";
+import { recombeeApi } from "../recombee/client";
+import { createNewJargonTerms } from "../resolvers/jargonResolvers/jargonTermMutations";
+import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
+import { updatePostDenormalizedTags } from "../tagging/helpers";
+import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
+import { cheerioParse } from "../utils/htmlUtil";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext, createAnonymousContext } from "../vulcan-lib/query";
+import { getAdminTeamAccount, getRejectionMessage } from "./commentCallbacks";
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { captureException } from "@sentry/core";
+import moment from "moment";
+import _ from "underscore";
 
+const onPublishUtils = {
+  updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
+    if (!isRecombeeRecommendablePost(post)) return;
+  
+    if (recombeeEnabledSetting.get()) {
+      void recombeeApi.upsertPost(post, context)
+        // eslint-disable-next-line no-console
+        .catch(e => console.log('Error when sending published post to recombee', { e }));
+    }
+  
+    if (vertexEnabledSetting.get()) {
+      void googleVertexApi.upsertPost({ post }, context)
+        // eslint-disable-next-line no-console
+        .catch(e => console.log('Error when sending published post to google vertex', { e }));
+    }
+  },
 
-function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
-  if (!isRecombeeRecommendablePost(post)) return;
+  /** Create notifications for a new post being published */
+  sendNewPostNotifications: async (post: DbPost) => {
+    const context = createAnonymousContext();
+    const { Localgroups } = context;
 
-  if (recombeeEnabledSetting.get()) {
-    void recombeeApi.upsertPost(post, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending published post to recombee', { e }));
-  }
-
-  if (vertexEnabledSetting.get()) {
-    void googleVertexApi.upsertPost({ post }, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending published post to google vertex', { e }));
-  }
-}
-
-/** Create notifications for a new post being published */
-export async function postsNewNotifications(post: DbPost) {
-  const context = createAnonymousContext();
-  const { Localgroups } = context;
-
-  if (postIsPublic(post)) {
-    // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
-    // start by excluding the post author
-    let userIdsNotified: string[] = [post.userId];
-    
-    // first, if the post is in a group, notify all users who are subscribed to the group
-    if (post.groupId) {
-      // Load the group, so we know who the organizers are
-      const group = await Localgroups.findOne(post.groupId);
-      if (group) {
-        const organizerIds = group.organizerIds;
-        const groupSubscribedUsers = await getSubscribedUsers({
-          documentId: post.groupId,
-          collectionName: "Localgroups",
-          type: subscriptionTypes.newEvents,
-          potentiallyDefaultSubscribedUserIds: organizerIds,
-          userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
-        });
-        
-        const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
-        if (post.isEvent) {
-          await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
-        } else {
-          await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
+    if (utils.postIsPublic(post)) {
+      // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
+      // start by excluding the post author
+      let userIdsNotified: string[] = [post.userId];
+      
+      // first, if the post is in a group, notify all users who are subscribed to the group
+      if (post.groupId) {
+        // Load the group, so we know who the organizers are
+        const group = await Localgroups.findOne(post.groupId);
+        if (group) {
+          const organizerIds = group.organizerIds;
+          const groupSubscribedUsers = await getSubscribedUsers({
+            documentId: post.groupId,
+            collectionName: "Localgroups",
+            type: subscriptionTypes.newEvents,
+            potentiallyDefaultSubscribedUserIds: organizerIds,
+            userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
+          });
+          
+          const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
+          if (post.isEvent) {
+            await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
+          } else {
+            await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
+          }
+          // don't notify these users again
+          userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
         }
+      }
+      
+      // then notify all users who want to be notified of events in a radius
+      if (post.isEvent && post.mongoLocation) {
+        const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
+        const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+        await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
         // don't notify these users again
         userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
       }
+      
+      // finally notify all users who are subscribed to the post's author
+      let authorSubscribedUsers = await getSubscribedUsers({
+        documentId: post.userId,
+        collectionName: "Users",
+        type: subscriptionTypes.newPosts
+      })
+      const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
+      await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
     }
-    
-    // then notify all users who want to be notified of events in a radius
-    if (post.isEvent && post.mongoLocation) {
-      const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
-      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
-      await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
-      // don't notify these users again
-      userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
-    }
-    
-    // finally notify all users who are subscribed to the post's author
-    let authorSubscribedUsers = await getSubscribedUsers({
-      documentId: post.userId,
-      collectionName: "Users",
-      type: subscriptionTypes.newPosts
-    })
-    const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
-    await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
-  }
-}
+  },
 
-async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
-  // When a post is published, ensure that the version number of its contents
-  // revision does not have `draft` set or an 0.x version number (which would
-  // affect permissions).
-  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
-}
+  ensureNonzeroRevisionVersionsAfterUndraft: async (post: DbPost, context: ResolverContext) => {
+    // When a post is published, ensure that the version number of its contents
+    // revision does not have `draft` set or an 0.x version number (which would
+    // affect permissions).
+    await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+  },
+};
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
 export async function onPostPublished(post: DbPost, context: ResolverContext) {
-  updateRecombeeWithPublishedPost(post, context);
-  await postsNewNotifications(post);
+  onPublishUtils.updateRecombeeWithPublishedPost(post, context);
+  await onPublishUtils.sendNewPostNotifications(post);
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
-  await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+  await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
 }
 
-// Check whether the given user can post a post right now. If they can, does
-// nothing; if they would exceed a rate limit, throws an exception.
-async function enforcePostRateLimit (user: DbUser) {
-  const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
-  if (rateLimit) {
-    const {nextEligible} = rateLimit;
-    if (nextEligible > new Date()) {
-      // "fromNow" makes for a more human readable "how long till I can comment/post?".
-      // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
-      moment.relativeTimeThreshold('ss', 0);
-      throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
+const utils = {
+  postIsPublic: (post: DbPost) => {
+    return !post.draft && post.status === postStatuses.STATUS_APPROVED
+  },
+
+  /**
+   * Check whether the given user can post a post right now. If they can, does
+   * nothing; if they would exceed a rate limit, throws an exception.
+   */
+  enforcePostRateLimit: async (user: DbUser) => {
+    const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+    if (rateLimit) {
+      const {nextEligible} = rateLimit;
+      if (nextEligible > new Date()) {
+        // "fromNow" makes for a more human readable "how long till I can comment/post?".
+        // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
+        moment.relativeTimeThreshold('ss', 0);
+        throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
+      }
     }
-  }
-}
+  },
+
+  postHasUnconfirmedCoauthors: (post: DbPost) => {
+    return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
+  },
+
+  scheduleCoauthoredPost: <T extends Partial<DbPost>>(post: T): T => {
+    const now = new Date();
+    post.postedAt = new Date(now.setDate(now.getDate() + 1));
+    post.isFuture = true;
+    return post;
+  },
+
+  bulkApplyPostTags: async ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) => {
+    const applyOneTag = async (tagId: string) => {
+      try {
+        await addOrUpvoteTag({
+          tagId, postId,
+          currentUser: currentUser!,
+          ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
+          context
+        });
+      } catch(e) {
+        // This can throw if there's a tag applied which doesn't exist, which
+        // can happen if there are issues with the search index.
+        //
+        // If we fail to add a tag, capture the exception in Sentry but don't
+        // throw from the form-submission callback. From the user perspective
+        // letting this exception esscape would make posting appear to fail (but
+        // actually the post is created, minus some of its callbacks having
+        // completed).
+        captureException(e)
+      }
+    }
+    await Promise.all(tagsToApply.map(applyOneTag))
+  },
+
+  bulkRemovePostTags: async ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) => {
+    const { TagRels } = context;
+    const clearOneTag = async (tagRel: DbTagRel) => {
+      try {
+        const { clearVotesServer } = require("../voteServer");
+        await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
+      } catch(e) {
+        captureException(e)
+      }
+    }
+    await Promise.all(tagRels.map(clearOneTag))
+  },
+
+  applyAutoTags: async (post: DbPost, context: ResolverContext) => {
+    const api = await getOpenAI();
+    if (!api) {
+      if (!isAnyTest && !isE2E) {
+        //eslint-disable-next-line no-console
+        console.log("Skipping autotagging (API not configured)");
+      }
+      return;
+    }
+    const tagBot = await getTagBotAccount(context);
+    const tagBotActiveTime = tagBotActiveTimeSetting.get();
+  
+    if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
+      //eslint-disable-next-line no-console
+      console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
+      return;
+    }
+    
+    const tags = await getAutoAppliedTags();
+    const postHTML = await fetchFragmentSingle({
+      collectionName: "Posts",
+      fragmentName: "PostsHTML",
+      selector: {_id: post._id},
+      currentUser: context.currentUser,
+      context,
+      skipFiltering: true,
+    });
+    if (!postHTML) {
+      return;
+    }
+    const tagsApplied = await checkTags(postHTML, tags, api);
+    
+    //eslint-disable-next-line no-console
+    console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
+    
+    for (let tag of tags) {
+      if (tagsApplied[tag.slug]) {
+        await addOrUpvoteTag({
+          tagId: tag._id,
+          postId: post._id,
+          currentUser: tagBot,
+          context,
+        });
+      }
+    }
+  
+    const autoFrontpageEnabled = autoFrontpageSetting.get()
+    if (!autoFrontpageEnabled) {
+      return;
+    }
+  
+    const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
+    const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
+      post.isEvent,
+      post.submitToFrontpage,
+      post.draft,
+    )
+    if (requireFrontpageReview !== defaultFrontpageHide) {
+      // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
+      // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
+      return
+    }
+  
+    const autoFrontpageReview = await checkFrontpage(postHTML, api);
+  
+    // eslint-disable-next-line no-console
+    console.log(
+      `Frontpage auto-review result for ${post.title} (${post._id}): ${
+        autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
+      }`
+    );
+  
+    if (autoFrontpageReview) {
+      await updateMutator({
+        collection: Posts,
+        documentId: post._id,
+        data: {
+          frontpageDate: defaultFrontpageHide ? new Date() : null,
+          autoFrontpage: defaultFrontpageHide ? "show" : "hide"
+        },
+        currentUser: context.currentUser,
+        context,
+      });
+    }
+  },
+
+  resetDialogueMatch: async (matchForm: DbDialogueMatchPreference, adminContext: ResolverContext) => {
+    const { DialogueChecks, DialogueMatchPreferences } = adminContext;
+  
+    const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
+    if (dialogueCheck) {
+      await Promise.all([
+        updateMutator({ // reset check
+          collection: DialogueChecks,
+          documentId: dialogueCheck._id,
+          set: { checked: false, hideInRecommendations: false },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        }),
+        updateMutator({ // soft delete topic form
+          collection: DialogueMatchPreferences,
+          documentId: matchForm._id,
+          set: { deleted: true },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        })
+      ]);
+    }
+  },
+
+  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbPost) => {
+    const oldLocation = oldPost.googleLocation?.geometry?.location;
+    const newLocation = newPost.googleLocation?.geometry?.location;
+    if (!!oldLocation !== !!newLocation) {
+      //Location added or removed
+      return true;
+    }
+    if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
+      // Location changed
+      // NOTE: We treat the added/removed and changed cases separately because a
+      // dumb thing inside the mutation callback handlers mixes up null vs
+      // undefined, causing callbacks to get a spurious change from null to
+      // undefined which should not trigger a notification.
+      return true;
+    }
+  
+    /* 
+     * moment(null) is not the same as moment(undefined), which started happening after the postgres migration of posts for events that didn't have endTimes.
+     * We can't check moment(null).isSame(moment(null)), since that always returns false.
+     * moment(undefined).isSame(moment(undefined)) often returns true but that's actually not guaranteed, so it's not safe to rely on.
+     * We shouldn't send a notification in those cases, obviously.
+     */
+    const { startTime: oldStartTime, endTime: oldEndTime } = oldPost;
+    const { startTime: newStartTime, endTime: newEndTime } = newPost;
+  
+    const startTimeAddedOrRemoved = !!oldStartTime !== !!newStartTime;
+    const endTimeAddedOrRemoved = !!oldEndTime !== !!newEndTime;
+  
+    const startTimeChanged = oldStartTime && newStartTime && !moment(newStartTime).isSame(moment(oldStartTime));
+    const endTimeChanged = oldEndTime && newEndTime && !moment(newEndTime).isSame(moment(oldEndTime));
+  
+    if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
+      || startTimeAddedOrRemoved
+      || startTimeChanged
+      || endTimeAddedOrRemoved
+      || endTimeChanged
+    ) {
+      // Link, start time, or end time changed
+      return true;
+    }
+    
+    return false;
+  },
+
+  sendPostRejectionPM: async ({ messageContents, lwAccount, post, noEmail, context }: {
+    messageContents: string,
+    lwAccount: DbUser,
+    post: DbPost,
+    noEmail: boolean,
+    context: ResolverContext,
+  }) => {
+    const { Conversations, Messages } = context;
+  
+    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+      participantIds: [post.userId, lwAccount._id],
+      title: `Your post ${post.title} was rejected`,
+      moderator: true
+    };
+  
+    const conversation = await createMutator({
+      collection: Conversations,
+      document: conversationData,
+      currentUser: lwAccount,
+      validate: false
+    });
+  
+    const messageData = {
+      userId: lwAccount._id,
+      contents: {
+        originalContents: {
+          type: "html",
+          data: messageContents
+        }
+      },
+      conversationId: conversation.data._id,
+      noEmail: noEmail
+    };
+  
+    await createMutator({
+      collection: Messages,
+      document: messageData,
+      currentUser: lwAccount,
+      validate: false
+    });
+  
+    if (!isAnyTest) {
+      // eslint-disable-next-line no-console
+      console.log("Sent moderation message for post", post._id);
+    }
+  },
+};
+
+
 
 /* CREATE VALIDATE */
 export function debateMustHaveCoauthor(validationErrors: CallbackValidationErrors, { document }: CreateCallbackProperties<'Posts'>): CallbackValidationErrors {
@@ -158,9 +420,9 @@ export function debateMustHaveCoauthor(validationErrors: CallbackValidationError
   return validationErrors;
 }
 
-export async function postsNewRateLimit (validationErrors: CallbackValidationErrors, { newDocument: post, currentUser }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
+export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
   if (!post.draft && !post.isEvent) {
-    await enforcePostRateLimit(currentUser!);
+    await utils.enforcePostRateLimit(currentUser!);
   }
   return validationErrors;
 }
@@ -236,7 +498,7 @@ export async function postsNewDefaultTypes(post: DbPost, user: DbUser | null, co
 
 const MINIMUM_APPROVAL_KARMA = 5;
 
-export async function postsNewUserApprovedStatus (post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewUserApprovedStatus(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
   const { Users } = context;
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
@@ -278,21 +540,9 @@ export async function fixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
   return post;
 }
 
-
-function postHasUnconfirmedCoauthors(post: DbPost): boolean {
-  return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
-}
-
-function scheduleCoauthoredPost<T extends Partial<DbPost>>(post: T): T {
-  const now = new Date();
-  post.postedAt = new Date(now.setDate(now.getDate() + 1));
-  post.isFuture = true;
-  return post;
-}
-
 export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: DbPost): Promise<DbPost> {
-  if (postHasUnconfirmedCoauthors(post) && !post.draft) {
-    post = scheduleCoauthoredPost(post);
+  if (utils.postHasUnconfirmedCoauthors(post) && !post.draft) {
+    post = utils.scheduleCoauthoredPost(post);
   }
   return post;
 }
@@ -305,30 +555,6 @@ export function addLinkSharingKey(post: DbPost): DbPost {
 }
 
 /* CREATE AFTER */
-async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) {
-  const applyOneTag = async (tagId: string) => {
-    try {
-      await addOrUpvoteTag({
-        tagId, postId,
-        currentUser: currentUser!,
-        ignoreParent: true,  // Parent tags are already applied by the post submission form, so if the parent tag isn't present the user must have manually removed it
-        context
-      });
-    } catch(e) {
-      // This can throw if there's a tag applied which doesn't exist, which
-      // can happen if there are issues with the search index.
-      //
-      // If we fail to add a tag, capture the exception in Sentry but don't
-      // throw from the form-submission callback. From the user perspective
-      // letting this exception esscape would make posting appear to fail (but
-      // actually the post is created, minus some of its callbacks having
-      // completed).
-      captureException(e)
-    }
-  }
-  await Promise.all(tagsToApply.map(applyOneTag))
-}
-
 export async function applyNewPostTags(post: DbPost, props: CreateCallbackProperties<'Posts'>) {
   const {currentUser, context} = props;
   if (!currentUser) return post; // Shouldn't happen, but just in case
@@ -337,7 +563,7 @@ export async function applyNewPostTags(post: DbPost, props: CreateCallbackProper
     // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
     const tagsToApply = Object.keys(post.tagRelevance);
     post = {...post, tagRelevance: undefined};
-    await bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
+    await utils.bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
   }
 
   return post;
@@ -478,96 +704,10 @@ export async function triggerReviewForNewPostIfNeeded({ document }: AfterCreateC
   }
 }
 
-async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {
-  const api = await getOpenAI();
-  if (!api) {
-    if (!isAnyTest && !isE2E) {
-      //eslint-disable-next-line no-console
-      console.log("Skipping autotagging (API not configured)");
-    }
-    return;
-  }
-  const tagBot = await getTagBotAccount(context);
-  const tagBotActiveTime = tagBotActiveTimeSetting.get();
-
-  if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
-    //eslint-disable-next-line no-console
-    console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
-    return;
-  }
-  
-  const tags = await getAutoAppliedTags();
-  const postHTML = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsHTML",
-    selector: {_id: post._id},
-    currentUser: context.currentUser,
-    context,
-    skipFiltering: true,
-  });
-  if (!postHTML) {
-    return;
-  }
-  const tagsApplied = await checkTags(postHTML, tags, api);
-  
-  //eslint-disable-next-line no-console
-  console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
-  
-  for (let tag of tags) {
-    if (tagsApplied[tag.slug]) {
-      await addOrUpvoteTag({
-        tagId: tag._id,
-        postId: post._id,
-        currentUser: tagBot,
-        context,
-      });
-    }
-  }
-
-  const autoFrontpageEnabled = autoFrontpageSetting.get()
-  if (!autoFrontpageEnabled) {
-    return;
-  }
-
-  const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
-  const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
-    post.isEvent,
-    post.submitToFrontpage,
-    post.draft,
-  )
-  if (requireFrontpageReview !== defaultFrontpageHide) {
-    // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
-    // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
-    return
-  }
-
-  const autoFrontpageReview = await checkFrontpage(postHTML, api);
-
-  // eslint-disable-next-line no-console
-  console.log(
-    `Frontpage auto-review result for ${post.title} (${post._id}): ${
-      autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
-    }`
-  );
-
-  if (autoFrontpageReview) {
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      data: {
-        frontpageDate: defaultFrontpageHide ? new Date() : null,
-        autoFrontpage: defaultFrontpageHide ? "show" : "hide"
-      },
-      currentUser: context.currentUser,
-      context,
-    });
-  }
-}
-
-export async function autoReviewNewPost({ document, context }: AfterCreateCallbackProperties<"Posts">) {
+export async function autoTagNewPost({ document, context }: AfterCreateCallbackProperties<"Posts">) {
   if (!document.draft) {
     // Post created (and is not a draft)
-    void autoReview(document, context);
+    void utils.applyAutoTags(document, context);
   }
 }
 
@@ -583,7 +723,7 @@ export async function sendUsersSharedOnPostNotifications({ document: post }: Aft
 export async function postsUndraftRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser }: UpdateCallbackProperties<'Posts'>) {
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
-    await enforcePostRateLimit(currentUser!);
+    await utils.enforcePostRateLimit(currentUser!);
   }
   return validationErrors;
 }
@@ -619,8 +759,8 @@ export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbPost>, {oldD
   // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
   // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
   // NOTE: EA FORUM: this used to use `post` rather than `newPost`, but `post` is merely the diff, which isn't what you want to pass into those
-  if (postHasUnconfirmedCoauthors(newPost) && post.draft === false && oldPost.draft) {
-    post = scheduleCoauthoredPost(post);
+  if (utils.postHasUnconfirmedCoauthors(newPost) && post.draft === false && oldPost.draft) {
+    post = utils.scheduleCoauthoredPost(post);
   }
   return post;
 }
@@ -656,19 +796,6 @@ export function resetPostApprovedDate(modifier: MongoModifier<DbPost>, post: DbP
 }
 
 /* UPDATE AFTER */
-async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) {
-  const { TagRels } = context;
-  const clearOneTag = async (tagRel: DbTagRel) => {
-    try {
-      const { clearVotesServer } = require("../voteServer");
-      await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
-    } catch(e) {
-      captureException(e)
-    }
-  }
-  await Promise.all(tagRels.map(clearOneTag))
-}
-
 export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProperties<'Posts'>) {
   const { currentUser, context } = props;
   const { TagRels } = context;
@@ -682,8 +809,8 @@ export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProper
     const tagsToApply = formTagIds.filter(tagId => !existingTagIds.includes(tagId));
     const tagsToRemove = existingTagIds.filter(tagId => !formTagIds.includes(tagId));
 
-    const applyPromise = bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
-    const removePromise = bulkRemovePostTags({tagRels: existingTagRels.filter(tagRel => tagsToRemove.includes(tagRel.tagId)), currentUser, context})
+    const applyPromise = utils.bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
+    const removePromise = utils.bulkRemovePostTags({tagRels: existingTagRels.filter(tagRel => tagsToRemove.includes(tagRel.tagId)), currentUser, context})
 
     await Promise.all([applyPromise, removePromise])
     if (tagsToApply.length || tagsToRemove.length) {
@@ -698,32 +825,6 @@ export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProper
   return post;
 }
 
-async function resetDialogueMatch(matchForm: DbDialogueMatchPreference, adminContext: ResolverContext) {
-  const { DialogueChecks, DialogueMatchPreferences } = adminContext;
-
-  const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
-  if (dialogueCheck) {
-    await Promise.all([
-      updateMutator({ // reset check
-        collection: DialogueChecks,
-        documentId: dialogueCheck._id,
-        set: { checked: false, hideInRecommendations: false },
-        currentUser: adminContext.currentUser,
-        context: adminContext,
-        validate: false
-      }),
-      updateMutator({ // soft delete topic form
-        collection: DialogueMatchPreferences,
-        documentId: matchForm._id,
-        set: { deleted: true },
-        currentUser: adminContext.currentUser,
-        context: adminContext,
-        validate: false
-      })
-    ]);
-  }
-}
-
 export async function resetDialogueMatches(post: DbPost, props: UpdateCallbackProperties<'Posts'>) {
   const { oldDocument: oldPost } = props;
 
@@ -732,63 +833,19 @@ export async function resetDialogueMatches(post: DbPost, props: UpdateCallbackPr
 
   if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
     const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id, deleted: {$ne: true}}).fetch();
-    await Promise.all(matchForms.map(matchForm => resetDialogueMatch(matchForm, adminContext)));
+    await Promise.all(matchForms.map(matchForm => utils.resetDialogueMatch(matchForm, adminContext)));
   }
   return post;
 }
 
 /* UPDATE ASYNC */
-function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
-  const oldLocation = oldPost.googleLocation?.geometry?.location;
-  const newLocation = newPost.googleLocation?.geometry?.location;
-  if (!!oldLocation !== !!newLocation) {
-    //Location added or removed
-    return true;
-  }
-  if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
-    // Location changed
-    // NOTE: We treat the added/removed and changed cases separately because a
-    // dumb thing inside the mutation callback handlers mixes up null vs
-    // undefined, causing callbacks to get a spurious change from null to
-    // undefined which should not trigger a notification.
-    return true;
-  }
-
-  /* 
-   * moment(null) is not the same as moment(undefined), which started happening after the postgres migration of posts for events that didn't have endTimes.
-   * We can't check moment(null).isSame(moment(null)), since that always returns false.
-   * moment(undefined).isSame(moment(undefined)) often returns true but that's actually not guaranteed, so it's not safe to rely on.
-   * We shouldn't send a notification in those cases, obviously.
-   */
-  const { startTime: oldStartTime, endTime: oldEndTime } = oldPost;
-  const { startTime: newStartTime, endTime: newEndTime } = newPost;
-
-  const startTimeAddedOrRemoved = !!oldStartTime !== !!newStartTime;
-  const endTimeAddedOrRemoved = !!oldEndTime !== !!newEndTime;
-
-  const startTimeChanged = oldStartTime && newStartTime && !moment(newStartTime).isSame(moment(oldStartTime));
-  const endTimeChanged = oldEndTime && newEndTime && !moment(newEndTime).isSame(moment(oldEndTime));
-
-  if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
-    || startTimeAddedOrRemoved
-    || startTimeChanged
-    || endTimeAddedOrRemoved
-    || endTimeChanged
-  ) {
-    // Link, start time, or end time changed
-    return true;
-  }
-  
-  return false;
-}
-
 export async function eventUpdatedNotifications({document: newPost, oldDocument: oldPost, context}: UpdateCallbackProperties<'Posts'>) {
   const { Users } = context;
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
   // only send notifications if the event was already published *before* being edited
   const alreadyPublished = !oldPost.draft && !newPost.draft && !oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed
-  if (eventHasRelevantChangeForNotification(oldPost, newPost)
+  if (utils.eventHasRelevantChangeForNotification(oldPost, newPost)
     && newPost.isEvent && isUpcomingEvent && alreadyPublished
   ) {
     // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification
@@ -831,10 +888,10 @@ export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDoc
 }
 
 // TODO: maybe combine with autoReviewNewPost and put it into the onPostPublished function
-export async function autoReviewUndraftedPost({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
+export async function autoTagUndraftedPost({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
   if (oldDocument.draft && !newDocument.draft) {
     // Post was undrafted
-    void autoReview(newDocument, context);
+    void utils.applyAutoTags(newDocument, context);
   }
 }
 
@@ -875,55 +932,6 @@ export async function updatedPostMaybeTriggerReview({document, oldDocument, cont
   }
 }
 
-interface SendPostRejectionPMParams {
-  messageContents: string,
-  lwAccount: DbUser,
-  post: DbPost,
-  noEmail: boolean,
-  context: ResolverContext,
-}
-
-async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail, context }: SendPostRejectionPMParams) {
-  const { Conversations, Messages } = context;
-
-  const conversationData: CreateMutatorParams<"Conversations">['document'] = {
-    participantIds: [post.userId, lwAccount._id],
-    title: `Your post ${post.title} was rejected`,
-    moderator: true
-  };
-
-  const conversation = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: lwAccount,
-    validate: false
-  });
-
-  const messageData = {
-    userId: lwAccount._id,
-    contents: {
-      originalContents: {
-        type: "html",
-        data: messageContents
-      }
-    },
-    conversationId: conversation.data._id,
-    noEmail: noEmail
-  };
-
-  await createMutator({
-    collection: Messages,
-    document: messageData,
-    currentUser: lwAccount,
-    validate: false
-  });
-
-  if (!isAnyTest) {
-    // eslint-disable-next-line no-console
-    console.log("Sent moderation message for post", post._id);
-  }
-}
-
 export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
   const { Users } = context;
   const postRejected = post.rejected && !oldPost.rejected;
@@ -941,7 +949,7 @@ export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost,
     const adminAccount = currentUser ?? await getAdminTeamAccount();
     if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   
-    await sendPostRejectionPM({
+    await utils.sendPostRejectionPM({
       post,
       messageContents: messageContents,
       lwAccount: adminAccount,
@@ -1040,37 +1048,33 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
   }
 }
 
-function postIsPublic(post: DbPost) {
-  return !post.draft && post.status === postStatuses.STATUS_APPROVED
-}
-
-async function removeNotification(notificationId: string, context: ResolverContext) {
-  const { Notifications } = context;
-
-  await updateMutator({
-    collection: Notifications,
-    documentId: notificationId,
-    data: { deleted: true },
-    validate: false
-  });
-}
-
 export async function removeRedraftNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
-  if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
+  if (!utils.postIsPublic(newPost) && utils.postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
     console.info("Post redrafted, removing notifications");
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
-    postNotifications.forEach(notification => removeNotification(notification._id, context))
+    postNotifications.forEach(notification => void updateMutator({
+      collection: Notifications,
+      documentId: notification._id,
+      data: { deleted: true },
+      validate: false
+    }));
+
     // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
-      tagRelNotifications.forEach(notification => removeNotification(notification._id, context))
-    })
+      tagRelNotifications.forEach(notification => void updateMutator({
+        collection: Notifications,
+        documentId: notification._id,
+        data: { deleted: true },
+        validate: false
+      }));
+    });
   }
 }
 
