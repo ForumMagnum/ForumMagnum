@@ -13,7 +13,7 @@ type MergeResult = {
   action: MergeAction
 }
 
-registerMigration({
+export default registerMigration({
   name: "fixDuplicateEmails",
   dateWritten: "2021-07-22",
   idempotent: true,

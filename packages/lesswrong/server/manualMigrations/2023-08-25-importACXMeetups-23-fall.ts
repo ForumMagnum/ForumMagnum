@@ -20,7 +20,7 @@ async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: str
   return responseData.results[0]
 }
 
-registerMigration({
+export default registerMigration({
   name: "importACXMeetupsFall23",
   dateWritten: "2023-08-25",
   idempotent: true,

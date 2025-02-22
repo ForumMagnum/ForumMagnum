@@ -4,7 +4,7 @@ import { registerMigration, migrateDocuments } from './migrationUtils';
 import mapValues from 'lodash/mapValues';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "denormalizeVoteCount",
   dateWritten: "2019-01-21",
   idempotent: true,

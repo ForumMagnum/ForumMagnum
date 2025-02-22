@@ -42,7 +42,9 @@ export function registerMigration({ name, dateWritten, idempotent, action }: Reg
   }
   
   availableMigrations[name] = { name, dateWritten, idempotent, action };
-  migrationRunners[name] = async () => await runMigration(name);
+  const runner = async () => await runMigration(name);
+  migrationRunners[name] = runner;
+  return runner;
 }
 
 export async function runMigration(name: string)

@@ -250,7 +250,7 @@ export const findReviewWinners = async function (year: number) {
 }
 
 
-registerMigration({
+export default registerMigration({
   name: "backfillReviewWinners",
   dateWritten: "2024-01-22",
   idempotent: true,

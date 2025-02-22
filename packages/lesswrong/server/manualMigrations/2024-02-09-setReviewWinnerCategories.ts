@@ -1465,7 +1465,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
   }
 ]
 
-registerMigration({
+export default registerMigration({
   name: "setReviewWinnerCategories",
   dateWritten: "2024-02-09",
   idempotent: true,

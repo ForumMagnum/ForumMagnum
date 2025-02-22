@@ -4,7 +4,7 @@ import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/query";
 import { updateMutator } from "../vulcan-lib/mutators";
 
-registerMigration({
+export default registerMigration({
   name: "rewriteOldReviewBotComments",
   dateWritten: "2024-06-05",
   idempotent: true,

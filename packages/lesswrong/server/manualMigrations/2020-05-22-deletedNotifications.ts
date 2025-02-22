@@ -1,9 +1,7 @@
-
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-
 import { Notifications } from '../../lib/collections/notifications/collection';
 
-registerMigration({
+export default registerMigration({
   name: "deletedNotifications",
   dateWritten: "2020-05-22",
   idempotent: true,

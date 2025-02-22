@@ -9,7 +9,7 @@ import { Revisions } from "../../lib/collections/revisions/collection";
  * fields using dataToWordCount. It's based on 2019-02-14-computeWordCounts
  * which only creates word counts for documents where the field is undefined.
  */
-registerMigration({
+export default registerMigration({
   name: "recomputeWordCounts",
   dateWritten: "2022-08-31",
   idempotent: true,

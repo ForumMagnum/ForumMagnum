@@ -3,7 +3,7 @@ import { editableCollections } from '../../lib/editor/make_editable'
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "replaceObjectIdsInEditableFieldsAndVotes",
   dateWritten: "2019-02-04",
   idempotent: true,

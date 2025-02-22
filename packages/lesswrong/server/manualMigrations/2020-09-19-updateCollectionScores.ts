@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 
 
-registerMigration({
+export default registerMigration({
   name: "updateCollectionScores",
   dateWritten: "2020-09-19",
   idempotent: true,

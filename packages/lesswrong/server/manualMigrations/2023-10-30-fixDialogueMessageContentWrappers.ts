@@ -110,7 +110,7 @@ export const migrateDialogueAgain = async (postId: string) => {
   if (dialogue) await migrateDialogue(dialogue);
 }
 
-registerMigration({
+export default registerMigration({
   name: "fixDialogueMessageContentWrappers",
   dateWritten: "2023-10-30",
   idempotent: true,

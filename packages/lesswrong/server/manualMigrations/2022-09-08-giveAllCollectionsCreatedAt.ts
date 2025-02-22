@@ -56,7 +56,7 @@ const initCreatedAt = <N extends CollectionNameString>(
  *  - Revisions (editedAt)
  *  - Votes (votedAt)
  */
-registerMigration({
+export default registerMigration({
   name: "giveAllCollectionsCreatedAt",
   dateWritten: "2022-09-08",
   idempotent: true,
