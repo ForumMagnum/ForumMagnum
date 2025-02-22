@@ -50,7 +50,7 @@ export function startSyncedCron() {
   }
 }
 
-async function clearOldCronHistories() {
+export async function clearOldCronHistories() {
   const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
   await CronHistories.rawRemove({
     startedAt: {

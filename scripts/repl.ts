@@ -59,14 +59,21 @@ function parseCommandLine(): CommandLineOptions {
 }
 
 function printHelpText() {
-  console.log(`Usage: yarn repl [mode] [forum-type]`);
-  console.log(`Or: yarn repl [mode] [forum-type] [filename] [js]`);
-  console.log()
-  console.log(`Examples:`);
-  console.log(`  To make a REPL connecting to the LW dev DB:`);
-  console.log(`    yarn repl dev lw`);
-  console.log(`  To run exampleFunction from packages/lesswrong/server/scripts/example.ts:`);
-  console.log(`    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'`);
+  console.log(
+`Usage: yarn repl [mode] [forum-type]
+Or: yarn repl [mode] [forum-type] [filename] [js]
+
+[mode] is "dev", "prod", "local", etc.
+[forum-type] is "lw", "ea", or "af" (optional).
+
+Examples:
+  To make a REPL connecting to the LW dev DB:
+    yarn repl dev lw
+  To run exampleFunction from packages/lesswrong/server/scripts/example.ts:
+    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
+  To run a function which is the default export from packages/lesswrong/server/scripts/example.ts:
+    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
+`);
 }
 
 export async function initRepl(commandLineOptions: CommandLineOptions) {

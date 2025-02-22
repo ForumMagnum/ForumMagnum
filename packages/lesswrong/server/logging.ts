@@ -163,7 +163,7 @@ function printInFlightGraphqlQueries() {
   }
 }
 
-function logInFlightStuff() {
+export function logInFlightStuff() {
   printInFlightRequests();
   printInFlightGraphqlQueries();
   printInProgressCallbacks();

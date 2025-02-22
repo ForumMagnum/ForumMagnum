@@ -105,7 +105,7 @@ async function updatePostViewTimes({earliestStartDate, latestEndDate, force, dry
  *
  * Exported to allow running from "yarn repl".
  */
-async function updateAnalyticsCollections(props: {startDate?: string, endDate?: string, force?: boolean, dryRun?: boolean}) {
+export async function updateAnalyticsCollections(props: {startDate?: string, endDate?: string, force?: boolean, dryRun?: boolean}) {
   const { startDate, endDate, force, dryRun } = props ?? {}
 
   // If no explicit start date is given, only go back 1 week to avoid this being slow
