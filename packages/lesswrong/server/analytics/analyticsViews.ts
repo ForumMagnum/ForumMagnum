@@ -1,6 +1,6 @@
-import { forumSelect } from "../lib/forumTypeUtils";
-import { getAnalyticsConnection } from "./analytics/postgresConnection";
-import { addCronJob } from "./cronUtil";
+import { forumSelect } from "@/lib/forumTypeUtils";
+import { getAnalyticsConnection } from "./postgresConnection";
+import { addCronJob } from "@/server/cronUtil";
 
 const maintenanceQueries = forumSelect({
   EAForum: [

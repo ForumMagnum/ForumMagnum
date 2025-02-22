@@ -1,12 +1,12 @@
-import { isDevelopment } from '../lib/executionEnvironment';
-import { randomId } from '../lib/random';
-import { AnalyticsUtil } from '../lib/analyticsEvents';
-import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '../lib/instanceSettings';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import { pgPromiseLib, getAnalyticsConnection, AnalyticsConnectionPool } from './analytics/postgresConnection'
+import { isDevelopment } from '@/lib/executionEnvironment';
+import { randomId } from '@/lib/random';
+import { AnalyticsUtil } from '@/lib/analyticsEvents';
+import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
+import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
+import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib/graphql';
+import { pgPromiseLib, getAnalyticsConnection, AnalyticsConnectionPool } from './postgresConnection'
 import chunk from 'lodash/chunk';
-import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from './perfMetricsWriter/perfMetricsWriter';
+import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from '@/server/perfMetricsWriter/perfMetricsWriter';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")

@@ -1,3 +1,4 @@
+import reduce from 'lodash/reduce';
 
 export type ABTestGroup = {
   description: string,
@@ -20,7 +21,7 @@ export class ABTest<T extends string = string> {
     description: string,
     groups: Record<T, ABTestGroup>
   }) {
-    const totalWeight = _.reduce(
+    const totalWeight = reduce(
       Object.keys(groups),
       (sum: number, key: T) => sum+groups[key].weight,
       0

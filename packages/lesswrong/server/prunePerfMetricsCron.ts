@@ -1,5 +1,5 @@
 import { addCronJob } from "./cronUtil";
-import { pruneOldPerfMetrics } from "./analyticsWriter";
+import { pruneOldPerfMetrics } from "./analytics/serverAnalyticsWriter";
 import { Globals } from "../lib/vulcan-lib/config";
 import { performanceMetricLoggingEnabled } from "../lib/instanceSettings";
 

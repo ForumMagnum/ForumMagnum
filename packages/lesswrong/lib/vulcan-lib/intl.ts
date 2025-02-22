@@ -3,7 +3,7 @@ import { loggerConstructor } from '../utils/logging';
 
 const logger = loggerConstructor('intl')
 
-export const Strings: Record<string,Record<string,string>> = {};
+const Strings: Record<string,Record<string,string>> = {};
 
 export const addStrings = (language: string, strings: Record<string,string>) => {
   if (typeof Strings[language] === 'undefined') {
