@@ -1,4 +1,30 @@
-import { createGroup } from './vulcan-users/permissions';
+import keyBy from 'lodash/keyBy';
+import difference from 'lodash/difference';
+
+class UserGroup {
+  name: string
+  actions: Array<string>
+
+  constructor(name: string) {
+    this.name = name;
+    this.actions = [];
+  }
+
+  can(actions: string|string[]) {
+    actions = Array.isArray(actions) ? actions : [actions];
+    this.actions = this.actions.concat(actions);
+  }
+
+  cannot(actions: string|string[]) {
+    actions = Array.isArray(actions) ? actions : [actions];
+    this.actions = difference(this.actions, actions);
+  }
+}
+
+// Create a new group
+export const createGroup = (groupName: string): UserGroup => {
+  return new UserGroup(groupName);
+};
 
 // initialize the 3 out-of-the-box groups
 export const guestsGroup = createGroup('guests'); // non-logged-in users
@@ -443,3 +469,24 @@ sunshineRegimentGroup.can([
   'users.edit.all',
   'users.view.deleted'
 ]);
+
+export const allUserGroups = [
+  guestsGroup,
+  membersGroup,
+  adminsGroup,
+  sunshineRegimentGroup,
+  podcasters,
+  trustLevel1Group,
+  canBypassPostRateLimitGroup,
+  canModeratePersonalGroup,
+  canCommentLockGroup,
+  tagManagerGroup,
+  canSuggestCurationGroup,
+  debaterGroup,
+  realAdminsGroup,
+  alignmentVotersGroup,
+  alignmentForumGroup,
+  alignmentForumAdminsGroup,
+];
+
+export const allUserGroupsByName = keyBy(allUserGroups, g=>g.name);

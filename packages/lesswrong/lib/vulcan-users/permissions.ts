@@ -4,36 +4,10 @@ import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
 import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
-
-class Group {
-  actions: Array<string>
-
-  constructor() {
-    this.actions = [];
-  }
-
-  can(actions: string|string[]) {
-    actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = this.actions.concat(actions);
-  }
-
-  _cannot(actions: string|string[]) {
-    actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = _.difference(this.actions, actions);
-  }
-}
-
-const userGroups: Record<string,Group> = {};
-
-
-// Create a new group
-export const createGroup = (groupName: string): Group => {
-  userGroups[groupName] = new Group();
-  return userGroups[groupName];
-};
+import { allUserGroupsByName } from '../permissions';
 
 export function getAllUserGroups() {
-  return userGroups;
+  return allUserGroupsByName;
 }
 
 export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
@@ -74,7 +48,7 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
   }
   let groupActions = groups.map(groupName => {
     // note: make sure groupName corresponds to an actual group
-    const group = userGroups[groupName];
+    const group = allUserGroupsByName[groupName];
     return group && group.actions;
   });
   return _.unique(_.flatten(groupActions));
