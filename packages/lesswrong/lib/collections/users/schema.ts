@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
@@ -519,7 +519,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       options: function() {
         const groups = _.without(
-          _.keys(userGroups),
+          _.keys(getAllUserGroups),
           'guests',
           'members',
           'admins'

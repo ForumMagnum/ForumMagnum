@@ -3,7 +3,7 @@ import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
+import { userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
@@ -36,13 +36,6 @@ const schema: SchemaType<"TagFlags"> = {
   },
 };
 
-
-const adminActions = [
-  'tagFlags.new',
-  'tagFlags.edit.all',
-];
-
-adminsGroup.can(adminActions);
 
 const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {

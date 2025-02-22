@@ -62,4 +62,10 @@ addUniversalFields({
   createdAtOptions: {canRead: ['members']},
 });
 
+Messages.checkAccess = async (user: DbUser|null, document: DbMessage, context: ResolverContext|null): Promise<boolean> => {
+  if (!user || !document) return false;
+  return (await Conversations.findOne({_id: document.conversationId}))?.participantIds?.includes(user._id) ?
+    userCanDo(user, 'messages.view.own') : userCanDo(user, `messages.view.all`)
+};
+
 export default Messages;
