@@ -16,10 +16,9 @@ import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenor
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
 import { buildRevision } from "@/server/editor/make_editable_callbacks";
 import { Users } from "@/lib/collections/users/collection";
-import { Globals } from "@/lib/vulcan-lib/config.ts";
 import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
 
-Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
+export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
   const resolverContext = createAdminContext();
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);

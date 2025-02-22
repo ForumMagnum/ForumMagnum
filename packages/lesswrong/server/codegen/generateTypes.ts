@@ -1,4 +1,3 @@
-import { Vulcan } from '../../lib/vulcan-lib/config';
 import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
@@ -121,6 +120,3 @@ export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
 }
-
-Vulcan.generateTypes = generateTypes;
-Vulcan.generateTypesAndSQLSchema = generateTypesAndSQLSchema;

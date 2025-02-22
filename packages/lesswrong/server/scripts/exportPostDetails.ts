@@ -30,7 +30,6 @@ import { postStatuses } from '../../lib/collections/posts/constants';
 import Users from '../../lib/collections/users/collection';
 import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
-import { Vulcan } from '../../lib/vulcan-lib/config';
 import { wrapVulcanAsyncScript } from './utils';
 import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
@@ -115,22 +114,22 @@ export const exportPostDetails = wrapVulcanAsyncScript(
   }
 )
 
-export const exportLowKarma = (
+export const exportLowKarma = async (
   {outputFilepath, karma = LOW_KARMA_THRESHOLD}: {outputFilepath: string, karma?: number}
 ) => {
-  exportPostDetails({
+  await exportPostDetails({
     selector: makeLowKarmaSelector(karma),
     outputFile: path.basename(outputFilepath),
     outputDir: path.dirname(outputFilepath)
   })
 }
 
-export const exportPostDetailsByMonth = ({month, outputDir, outputFile}: AnyBecauseTodo) => {
+export const exportPostDetailsByMonth = async ({month, outputDir, outputFile}: AnyBecauseTodo) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console
   console.log(`Exporting all posts from ${lastMonth.format('MMM YYYY')}`)
-  return exportPostDetails({
+  return await exportPostDetails({
     selector: {
       createdAt: {
         $gte: lastMonth.toDate(), // first of prev month

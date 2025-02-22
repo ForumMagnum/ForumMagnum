@@ -4,7 +4,6 @@ import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'
-import { Globals } from "../../lib/vulcan-lib/config";
 import { createAdminContext } from "../vulcan-lib/query";
 import { createMutator } from "../vulcan-lib/mutators";
 
@@ -230,7 +229,7 @@ const reviewWinners2022 = [
   "SA9hDewwsYgnuscae"
 ]
 
-Globals.findReviewWinners = async function (year: number) {
+export const findReviewWinners = async function (year: number) {
   const posts = await Posts.find({
     postedAt: {
       $gte: moment(`${year}-01-01`).toDate(),

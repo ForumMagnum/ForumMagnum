@@ -50,7 +50,6 @@ import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fillUserEmail';
 import './server/scripts/deletePgIndexes';
-import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/generateSQLSchema';
 import './server/scripts/reviewGetResultsPost';

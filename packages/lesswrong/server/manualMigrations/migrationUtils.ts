@@ -1,5 +1,4 @@
 import Migrations from '../../lib/collections/migrations/collection';
-import { Vulcan } from '../../lib/vulcan-lib/config';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep, timedFunc } from '../../lib/helpers';
@@ -13,11 +12,6 @@ const DEFAULT_LOAD_FACTOR = 0.5;
 
 export const availableMigrations: Record<string,any> = {};
 export const migrationRunners: Record<string,any> = {};
-
-// Put migration functions in a dictionary Vulcan.migrations to make it
-// accessible in meteor shell, working around awkward inability to import
-// things non-relatively there.
-Vulcan.migrations = migrationRunners;
 
 interface RegisterMigrationProps {
   name: string;
@@ -564,8 +558,6 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
     ...filter
   });
 }
-
-Vulcan.dropUnusedField = dropUnusedField
 
   // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
   // This wraapper runs the function and ignores if it's not defined yet

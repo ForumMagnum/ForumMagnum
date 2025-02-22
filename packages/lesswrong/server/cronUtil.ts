@@ -2,7 +2,6 @@ import { isAnyTest, isDevelopment } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { getCommandLineArguments } from './commandLine';
 import { CronHistories } from '../lib/collections/cronHistories/collection';
-import { Globals } from '@/lib/vulcan-lib/config';
 
 SyncedCron.options = {
   log: !isDevelopment,
@@ -59,7 +58,6 @@ async function clearOldCronHistories() {
     },
   });
 }
-Globals.clearOldCronHistories = clearOldCronHistories
 
 addCronJob({
   name: "clearOldCronHistories",

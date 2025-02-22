@@ -1,4 +1,3 @@
-import { Globals } from "../../lib/vulcan-lib/config";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient"
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
@@ -9,7 +8,7 @@ type DeletedUserDocument = {
   documentId: string,
 }
 
-const reindexDeletedUserContent = async () => {
+export const reindexDeletedUserContent = async () => {
   const db = getSqlClientOrThrow();
   const docs = await db.any<DeletedUserDocument>(`
     SELECT 'Posts' "collectionName", p."_id" "documentId"
@@ -43,4 +42,3 @@ const reindexDeletedUserContent = async () => {
   }
 }
 
-Globals.reindexDeletedUserContent = reindexDeletedUserContent;

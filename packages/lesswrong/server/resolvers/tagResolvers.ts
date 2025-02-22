@@ -41,7 +41,6 @@ import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
-import { Globals } from "../../lib/vulcan-lib/config";
 import { updateMutator } from "../vulcan-lib/mutators";
 
 type SubforumFeedSort = {
@@ -876,7 +875,8 @@ defineMutation({
   }
 });
 
-Globals.recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+// Exported to allow running from "yarn repl"
+export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description");
@@ -894,7 +894,8 @@ Globals.recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   );
 }
 
-Globals.recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+// Exported to allow running from "yarn repl"
+export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const lenses = await MultiDocuments.find({

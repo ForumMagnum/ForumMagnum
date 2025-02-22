@@ -7,7 +7,6 @@ import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ck
 import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
-import { Globals } from '../../lib/vulcan-lib/config';
 import { registerMigration } from './migrationUtils';
 
 function wrapMessageContents(html: string) {
@@ -106,7 +105,7 @@ async function migrateDialogue(dialogue: DbPost) {
   }
 }
 
-Globals.migrateDialogueAgain = async (postId: string) => {
+export const migrateDialogueAgain = async (postId: string) => {
   const dialogue = await Posts.findOne(postId);
   if (dialogue) await migrateDialogue(dialogue);
 }

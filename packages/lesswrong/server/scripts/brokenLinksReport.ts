@@ -1,4 +1,3 @@
-import { Vulcan } from '../../lib/vulcan-lib/config';
 import Users from '../../lib/collections/users/collection';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
@@ -117,7 +116,8 @@ const checkPost = async (post: PostsPage) => {
   }
 };
 
-Vulcan.findBrokenLinks = async (
+// Exported to allow running manually with "yarn repl"
+export const findBrokenLinks = async (
   startDate: Date, endDate: Date,
   output: string|((message: string) => void)
 ) => {

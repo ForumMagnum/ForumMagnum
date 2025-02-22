@@ -7,7 +7,6 @@ import { runSqlQuery } from "@/server/sql/sqlClient";
 import chunk from "lodash/chunk";
 import compact from "lodash/compact";
 import { getCollection } from "../lib/vulcan-lib/getCollection";
-import { Vulcan } from "../lib/vulcan-lib/config";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
@@ -122,9 +121,8 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   return updatedDocumentsCounter;
 }
 
+// Exported to allow running manually with "yarn repl"
 export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}: BatchUpdateParams & { collectionName: VoteableCollectionName }) => {
   const collection = getCollection(collectionName);
   return batchUpdateScore({collection, inactive, forceUpdate});
 }
-
-Vulcan.batchUpdateScoreByName = batchUpdateScoreByName;
