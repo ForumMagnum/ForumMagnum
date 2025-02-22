@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { ensureIndex } from './collectionIndexUtils';
 import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
@@ -59,7 +58,6 @@ export function addUniversalFields<N extends CollectionNameString>({
       ...legacyDataOptions,
     },
   })
-  ensureIndex(collection, {schemaVersion: 1});
 }
 
 export function isUniversalField(fieldName: string): boolean {

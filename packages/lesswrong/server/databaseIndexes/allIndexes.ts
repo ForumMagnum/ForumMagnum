@@ -1,10 +1,18 @@
 import { expectedCustomPgIndexes, expectedIndexes } from "@/lib/collectionIndexUtils";
 import { DatabaseIndexSet } from "./databaseIndexSet";
 import { getDbIndexesOnPosts } from "./postsDbIndexes";
+import { getMiscDbIndexes } from "./miscDbIndexes";
+import { getDbIndexesOnUsers } from "./usersDbIndexes";
+import { getDbIndexesOnTags } from "./tagsDbIndexes";
+import { getDbIndexesOnComments } from "./commentsDbIndexes";
 
 export function getAllIndexes(): DatabaseIndexSet {
   const indexSets: DatabaseIndexSet[] = [
+    getDbIndexesOnComments(),
     getDbIndexesOnPosts(),
+    getDbIndexesOnTags(),
+    getDbIndexesOnUsers(),
+    getMiscDbIndexes(),
     getScatteredIndexes(),
   ];
   return mergeDatabaseIndexSets(indexSets);

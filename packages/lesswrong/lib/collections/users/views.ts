@@ -1,11 +1,9 @@
 import Users from "../users/collection";
-import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
-import { isEAForum } from "../../instanceSettings";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -28,33 +26,6 @@ declare global {
     hasBio?: boolean
   }
 }
-
-// Auto-generated indexes from production
-ensureIndex(Users, {username:1}, {unique:true,sparse:1});
-ensureIndex(Users, {email:1}, {sparse:1});
-ensureIndex(Users, {"emails.address":1}, {unique:true,sparse:1}); //TODO: deprecate emails field – do not build upon
-ensureIndex(Users, {"services.resume.loginTokens.hashedToken":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.resume.loginTokens.token":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.resume.haveLoginTokensToDelete":1}, {sparse:1});
-ensureIndex(Users, {"services.resume.loginTokens.when":1}, {sparse:1});
-ensureIndex(Users, {"services.email.verificationTokens.token":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.password.reset.token":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.password.reset.when":1}, {sparse:1});
-ensureIndex(Users, {"services.twitter.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.facebook.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.google.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {karma:-1,_id:-1});
-ensureIndex(Users, {slug:1});
-ensureIndex(Users, {isAdmin:1});
-ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {createdAt:-1,_id:-1});
-
-// Used by UsersRepo.getUserByLoginToken
-ensureIndex(Users, {"services.resume.loginTokens": 1});
-
-// Case-insensitive email index
-ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
-ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email
 
 const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
@@ -86,8 +57,6 @@ Users.addView('usersProfile', function(terms: UsersViewTerms) {
     selector: {$or: [{slug: terms.slug}, {oldSlugs: terms.slug}]},
   }
 });
-
-ensureIndex(Users, {oldSlugs:1});
 
 Users.addView('LWSunshinesList', function(terms: UsersViewTerms) {
   return {
@@ -121,9 +90,6 @@ Users.addView("usersWithBannedUsers", function () {
   }
 })
 
-ensureIndex(Users, {bannedPersonalUserIds:1, createdAt:1});
-ensureIndex(Users, {bannedUserIds:1, createdAt:1});
-
 Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
@@ -144,8 +110,6 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
     }
   }
 })
-ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
-
 Users.addView("recentlyActive", function (terms: UsersViewTerms) {
   return {
     selector: {
@@ -161,8 +125,6 @@ Users.addView("recentlyActive", function (terms: UsersViewTerms) {
     }
   }  
 })
-ensureIndex(Users, {banned: 1, postCount: 1, commentCount: -1, lastNotificationsCheck: -1})
-
 Users.addView("allUsers", function (terms: UsersViewTerms) {
   return {
     options: {
@@ -174,7 +136,6 @@ Users.addView("allUsers", function (terms: UsersViewTerms) {
     }
   }
 })
-ensureIndex(Users, {reviewedAt: -1, createdAt: -1})
 
 Users.addView("usersMapLocations", function () {
   return {
@@ -183,7 +144,6 @@ Users.addView("usersMapLocations", function () {
     },
   }
 })
-ensureIndex(Users, {mapLocationSet: 1})
 
 Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
   const bioSelector = terms.hasBio ? {
@@ -207,7 +167,6 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
     }
   }
 })
-ensureIndex(Users, {profileTagIds: 1, deleted: 1, deleteContent: 1, karma: 1})
 
 Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   return {
@@ -267,7 +226,6 @@ Users.addView("walledGardenInvitees", function () {
     }
   }
 })
-ensureIndex(Users, {walledGardenInvite: 1})
 
 Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersViewTerms) {
   return {
@@ -281,44 +239,3 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
     }
   }
 })
-
-ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
-
-// These partial indexes are set up to allow for a very efficient index-only scan when deciding which userIds need to be emailed for post curation.
-// Used by `CurationEmailsRepo.getUserIdsToEmail`.
-// The EA Forum version of the index is missing the fm_has_verified_email conditional to match the behavior of `reasonUserCantReceiveEmails`.
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated_verified"
-  ON "Users" USING btree (
-    "emailSubscribedToCurated",
-    "unsubscribeFromAll",
-    "deleted",
-    "email",
-    fm_has_verified_email(emails),
-    "_id"
-  )
-  WHERE "emailSubscribedToCurated" IS TRUE
-    AND "unsubscribeFromAll" IS NOT TRUE
-    AND "deleted" IS NOT TRUE
-    AND "email" IS NOT NULL
-    AND fm_has_verified_email(emails);
-`, {
-  dependencies: [
-    {type: "function", name: "fm_has_verified_email"}
-  ],
-});
-
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated"
-  ON "Users" USING btree (
-    "emailSubscribedToCurated",
-    "unsubscribeFromAll",
-    "deleted",
-    "email",
-    "_id"
-  )
-  WHERE "emailSubscribedToCurated" IS TRUE
-    AND "unsubscribeFromAll" IS NOT TRUE
-    AND "deleted" IS NOT TRUE
-    AND "email" IS NOT NULL;
-`);
