@@ -7,8 +7,6 @@ import './server/vulcan-lib/apollo-server/authentication';
 import './server/apolloServer';
 import './lib/index';
 
-import './server/cronUtil';
-
 import './server/startupSanityChecks';
 
 import './server/postgresView';
@@ -64,8 +62,6 @@ import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';
 import './server/prunePerfMetricsCron';
-
-import './server/gatherTownCron';
 
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';

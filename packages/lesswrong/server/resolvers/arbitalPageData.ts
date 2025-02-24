@@ -4,7 +4,7 @@ import markdownItMathjax from '../editor/markdown-mathjax'
 import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/utils';
 import { ArbitalCaches } from '../../lib/collections/arbitalCache/collection';
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;
 
@@ -131,7 +131,7 @@ function isValidArbitalPageAlias(pageAlias: string) {
   return !!pageAlias && pageAlias.length>0;
 }
 
-addCronJob({
+export const clearArbitalCacheCron = addCronJob({
   name: "clearArbitalCache",
   interval: "every 1 hour",
   job: async () => {

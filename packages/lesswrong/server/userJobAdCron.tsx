@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import { JOB_AD_DATA } from '../components/ea-forum/TargetedJobAd';
-import { addCronJob } from './cronUtil';
+import { addCronJob } from './cron/cronUtil';
 import UserJobAds from '../lib/collections/userJobAds/collection';
 import { Users } from '../lib/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
@@ -65,13 +65,12 @@ export const sendJobAdReminderEmails = async () => {
   logger(`Sent email reminders for ${jobNames.join(', ')} to ${users.length} users`)
 }
 
-if (isEAForum) {
-  addCronJob({
-    name: 'sendJobAdReminderEmails',
-    interval: `every 1 day`,
-    job() {
-      void sendJobAdReminderEmails();
-    }
-  });
-}
+export const sendJobAdReminderEmailsCron = addCronJob({
+  name: 'sendJobAdReminderEmails',
+  interval: `every 1 day`,
+  disabled: !isEAForum,
+  job() {
+    void sendJobAdReminderEmails();
+  }
+});
 

@@ -1,4 +1,4 @@
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 import Users from "../../lib/collections/users/collection";
 import { ModeratorActions } from "../../lib/collections/moderatorActions/collection";
 import { allRateLimits } from "../../lib/collections/moderatorActions/schema";
@@ -9,7 +9,7 @@ import * as _ from 'underscore';
 import moment from 'moment';
 
 
-addCronJob({
+export const expiredRateLimitsReturnToReviewQueueCron = addCronJob({
   name: 'expiredRateLimitsReturnToReviewQueue',
   interval: 'every 24 hours',
   async job() {

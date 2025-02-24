@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import moment from "moment";
-import { addCronJob } from "../cronUtil";
+import { addCronJob } from "../cron/cronUtil";
 import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
 import IncrementalViewRepo from "../repos/IncrementalViewRepo";
@@ -132,10 +132,12 @@ export async function updateAnalyticsCollections(props: {startDate?: string, end
   logger("Finished updateAnalyticsCollections")
 }
 
-if (isEAForum) {
-  addCronJob({
-    name: "updateAnalyticsCollections",
-    interval: "every 20 minutes",
-    job: async () => updateAnalyticsCollections({}),
-  });
-}
+export const cronUpdateAnalyticsCollections = addCronJob({
+  name: "updateAnalyticsCollections",
+  interval: "every 20 minutes",
+  disabled: !isEAForum,
+  job: async () => {
+    await updateAnalyticsCollections({});
+  }
+});
+
