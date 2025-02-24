@@ -200,7 +200,7 @@ export function legacyToNewNotificationTypeSettings(legacyFormat: LegacyNotifica
   };
 };
 
-export function newToLegacyNotificationTypeSettings(newFormat: NotificationTypeSettings | null): LegacyNotificationTypeSettings {
+export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): LegacyNotificationTypeSettings {
   if (!newFormat) return legacyDefaultNotificationTypeSettings;
   if (isLegacyNotificationTypeSettings(newFormat)) return newFormat;
 
