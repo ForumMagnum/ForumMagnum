@@ -1,9 +1,9 @@
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 import { Posts } from '../../lib/collections/posts/collection';
 import * as _ from 'underscore';
 
 
-addCronJob({
+export const checkScheduledPostsCron = addCronJob({
   name: 'checkScheduledPosts',
   interval: 'every 10 minutes',
   async job() {

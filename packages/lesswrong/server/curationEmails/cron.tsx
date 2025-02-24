@@ -6,7 +6,7 @@ import Users from "../../lib/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
 import { Components } from "../../lib/vulcan-lib/components";
-import { addCronJob } from "../cronUtil";
+import { addCronJob } from "../cron/cronUtil";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";
 import UsersRepo from "../repos/UsersRepo";
@@ -118,12 +118,11 @@ async function sendCurationEmails() {
   }
 }
 
-if (!testServerSetting.get() && useCurationEmailsCron) {
-  addCronJob({
-    name: 'sendCurationEmailsCron',
-    interval: 'every 1 minute',
-    async job() {
-      await sendCurationEmails();
-    }
-  });
-}
+export const sendCurationEmailsCron = addCronJob({
+  name: 'sendCurationEmailsCron',
+  interval: 'every 1 minute',
+  disabled: testServerSetting.get() || !useCurationEmailsCron,
+  async job() {
+    await sendCurationEmails();
+  }
+});

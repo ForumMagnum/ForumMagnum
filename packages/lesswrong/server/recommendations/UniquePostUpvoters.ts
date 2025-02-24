@@ -36,7 +36,7 @@ const refreshUniquePostUpvotersQuery = `
   REFRESH MATERIALIZED VIEW "UniquePostUpvoters"
 `;
 
-createPostgresView(
+export const uniquePostUpvotersView = createPostgresView(
   "UniquePostUpvoters",
   createUniquePostUpvotersQuery,
   [createUniquePostUpvotersIndexQuery],

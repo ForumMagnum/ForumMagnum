@@ -2,7 +2,7 @@ import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
-import { addCronJob } from './cronUtil';
+import { addCronJob } from './cron/cronUtil';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
@@ -308,16 +308,15 @@ export const forcePendingEvents = async (
   console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
 
-if (!testServerSetting.get()) {
-  addCronJob({
-    name: "Debounced event handler",
-    // Once per minute, on the minute
-    cronStyleSchedule: '* * * * *',
-    job() {
-      void dispatchPendingEvents();
-    }
-  });
-}
+export const cronDebouncedEventHandler = addCronJob({
+  name: "Debounced event handler",
+  // Once per minute, on the minute
+  cronStyleSchedule: '* * * * *',
+  disabled: testServerSetting.get(),
+  job() {
+    void dispatchPendingEvents();
+  }
+});
 
 function sleepWithVariance(ms: number)
 {

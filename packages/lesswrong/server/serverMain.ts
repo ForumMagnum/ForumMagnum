@@ -4,7 +4,6 @@ import { createVoteableUnionType } from './votingGraphQL';
 import { scheduleQueueProcessing } from './cache/swr';
 import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
-import { initSyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { addAllEditableCallbacks } from './editor/make_editable_callbacks';
@@ -14,13 +13,11 @@ import { addElicitResolvers } from './resolvers/elicitPredictions';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
-import { startSyncedCron } from './cronUtil';
+import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { initGatherTownCron } from './gatherTownCron';
-import { registerViewCronJobs } from './postgresView';
 import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 import type { CommandLineArguments } from './commandLine';
@@ -48,13 +45,11 @@ export const serverMain = async ({shellMode, command}: CommandLineArguments) => 
 }
 
 export async function runServerOnStartupFunctions() {
-  registerViewCronJobs();
   startAnalyticsWriter();
   scheduleQueueProcessing();
   initRenderQueueLogging();
   serverInitSentry();
   startMemoryUsageMonitor();
-  initSyncedCron();
   initLegacyRoutes();
   await startupSanityChecks();
   addAllEditableCallbacks();
@@ -63,7 +58,6 @@ export async function runServerOnStartupFunctions() {
   addElicitResolvers();
   addLegacyRssRoutes();
   await initReviewWinnerCache();
-  initGatherTownCron();
   addCountOfReferenceCallbacks();
 
   // define executableSchema

@@ -1,6 +1,6 @@
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '../../lib/collections/posts/karmaInflation';
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 import PostsRepo from '../repos/PostsRepo';
 import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
 
@@ -61,7 +61,7 @@ export async function refreshKarmaInflationCache() {
   setKarmaInflationSeries(karmaInflationSeries?.value || nullKarmaInflationSeries);
 }
 
-addCronJob({
+export const refreshKarmaInflationCron = addCronJob({
   name: 'refreshKarmaInflationCron',
   interval: 'every 24 hours',
   job() {

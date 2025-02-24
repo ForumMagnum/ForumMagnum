@@ -1,5 +1,5 @@
 import Users from "@/lib/collections/users/collection";
-import { addCronJob } from "../cronUtil";
+import { addCronJob } from "../cron/cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
 import { loggerConstructor } from "@/lib/utils/logging";
@@ -152,7 +152,7 @@ export async function permanentlyDeleteUserById(userId: string, options?: Delete
 
 const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
 
-addCronJob({
+export const permanentlyDeleteUsersCron = addCronJob({
   name: "permanentlyDeleteUsers",
   interval: "every 1 hour",
   job: async () => {
