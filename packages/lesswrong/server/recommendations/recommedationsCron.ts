@@ -1,7 +1,7 @@
-import { addCronJob } from "../cronUtil";
+import { addCronJob } from "../cron/cronUtil";
 import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 
-addCronJob({
+export const clearStaleRecommendationsCron = addCronJob({
   name: "clearStaleRecommendations",
   interval: "every 24 hours",
   job: async () => {

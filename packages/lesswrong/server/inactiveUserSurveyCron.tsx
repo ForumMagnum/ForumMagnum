@@ -1,5 +1,5 @@
 import React from 'react';
-import { addCronJob } from './cronUtil';
+import { addCronJob } from './cron/cronUtil';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailInactiveUserSurvey';
 import { loggerConstructor } from '../lib/utils/logging';
@@ -45,14 +45,13 @@ const sendInactiveUserSurveyEmails = async () => {
   logger(`Sent inactive user survey emails to ${users.length} users`)
 }
 
-if (isEAForum) {
-  addCronJob({
-    name: 'sendInactiveUserSurveyEmails',
-    interval: `every 1 day`,
-    job() {
-      void sendInactiveUserSurveyEmails();
-    }
-  });
-}
+export const sendInactiveUserSurveyEmailsCron = addCronJob({
+  name: 'sendInactiveUserSurveyEmails',
+  interval: `every 1 day`,
+  disabled: !isEAForum,
+  job() {
+    void sendInactiveUserSurveyEmails();
+  }
+});
 
 Globals.sendInactiveUserSurveyEmails = sendInactiveUserSurveyEmails;

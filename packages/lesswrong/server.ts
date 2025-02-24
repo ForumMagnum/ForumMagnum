@@ -7,8 +7,6 @@ import './server/vulcan-lib/apollo-server/authentication';
 import './server/apolloServer';
 import './lib/index';
 
-import './server/cronUtil';
-
 import './server/startupSanityChecks';
 
 import './server/postgresView';

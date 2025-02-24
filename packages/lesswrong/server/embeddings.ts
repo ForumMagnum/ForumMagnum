@@ -9,7 +9,7 @@ import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
-import { addCronJob } from "./cronUtil";
+import { addCronJob } from "./cron/cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
@@ -288,10 +288,9 @@ Globals.updatePostEmbeddings = updatePostEmbeddings;
 Globals.updateAllPostEmbeddings = updateAllPostEmbeddings;
 Globals.updateMissingPostEmbeddings = updateMissingPostEmbeddings;
 
-if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
-  addCronJob({
-    name: "updateMissingEmbeddings",
-    interval: "every 24 hours",
-    job: updateMissingPostEmbeddings,
-  });
-}
+export const cronUpdateMissingEmbeddings = addCronJob({
+  name: "updateMissingEmbeddings",
+  interval: "every 24 hours",
+  disabled: !HAS_EMBEDDINGS_FOR_RECOMMENDATIONS,
+  job: updateMissingPostEmbeddings,
+});

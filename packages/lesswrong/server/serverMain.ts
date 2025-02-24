@@ -13,13 +13,12 @@ import { addElicitResolvers } from './resolvers/elicitPredictions';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter } from './analyticsWriter';
-import { startSyncedCron } from './cronUtil';
+import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import { Globals, Vulcan } from '@/lib/vulcan-lib/config';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { registerViewCronJobs } from './postgresView';
 import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 import type { CommandLineArguments } from './commandLine';
@@ -47,7 +46,6 @@ export const serverMain = async ({shellMode, command}: CommandLineArguments) => 
 }
 
 export async function runServerOnStartupFunctions() {
-  registerViewCronJobs();
   startAnalyticsWriter();
   scheduleQueueProcessing();
   initRenderQueueLogging();

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import moment from "moment";
-import { addCronJob } from "../cronUtil";
+import { addCronJob } from "../cron/cronUtil";
 import { Globals } from "../../lib/vulcan-lib/config";
 import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
@@ -131,12 +131,13 @@ async function updateAnalyticsCollections(props: {startDate?: string, endDate?: 
   logger("Finished updateAnalyticsCollections")
 }
 
-if (isEAForum) {
-  addCronJob({
-    name: "updateAnalyticsCollections",
-    interval: "every 20 minutes",
-    job: async () => updateAnalyticsCollections({}),
-  });
-}
+export const cronUpdateAnalyticsCollections = addCronJob({
+  name: "updateAnalyticsCollections",
+  interval: "every 20 minutes",
+  disabled: !isEAForum,
+  job: async () => {
+    await updateAnalyticsCollections({});
+  }
+});
 
 Globals.updateAnalyticsCollections = updateAnalyticsCollections

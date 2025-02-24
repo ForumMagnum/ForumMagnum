@@ -1,4 +1,4 @@
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { Globals } from '../../lib/vulcan-lib/config';
@@ -191,7 +191,7 @@ defineQuery({
   },
 });
 
-addCronJob({
+export const addNewRSSPostsCron = addCronJob({
   name: 'addNewRSSPosts',
   interval: 'every 10 minutes',
   job: runRSSImport
