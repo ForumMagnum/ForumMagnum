@@ -11,7 +11,7 @@ import Users from "@/lib/collections/users/collection";
  */
 const USERS_MANUALLY_EXCLUDED: string[] = [];
 
-registerMigration({
+export default registerMigration({
   name: "updateKarmaNotifDefault",
   dateWritten: "2025-02-14",
   idempotent: true,

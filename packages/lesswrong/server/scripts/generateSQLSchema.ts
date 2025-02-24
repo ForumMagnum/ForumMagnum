@@ -1,5 +1,4 @@
 import { format as sqlFormatter } from 'sql-formatter';
-import { Globals } from "../../lib/vulcan-lib/config";
 import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "@/server/sql/Table";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
@@ -14,7 +13,6 @@ import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionInde
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '@/server/sql/TableIndex';
 
-const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
 
 const schemaFileHeaderTemplate = `-- GENERATED FILE
@@ -285,9 +283,8 @@ const buildSchemaSQL = () => {
   return schemaFileHeaderTemplate + schemaFileContents + "\n";
 }
 
-export const generateSQLSchema = (rootPath = ROOT_PATH) => {
+export const generateSQLSchema = (rootPath: string|null = null) => {
   const sqlSchema = buildSchemaSQL();
-  writeFileSync(acceptedSchemePath(rootPath), sqlSchema);
+  writeFileSync(acceptedSchemePath(rootPath ?? process.cwd()), sqlSchema);
 }
 
-Globals.generateSQLSchema = generateSQLSchema;

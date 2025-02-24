@@ -52,12 +52,12 @@ import { FetchedFragment } from '../fetchFragment';
  *    and consider whether you want to customize the date range, minimum karma,
  *    and other filters. Then make sure you have a locally running server connected
  *    to a database with suitable training data, and run the script with
- *        scripts/serverShellCommand.sh 'Globals.generateCandidateSetsForTagClassification()'
+ *        yarn repl prod packages/lesswrong/server/scripts/generativeModels/generateTaggingPostSets.ts "generateCandidateSetsForTagClassification()"
  *    This will generate two files, ml/tagClassificationPostIds.{train,test}.json
  *    each of which is a list of post IDs.
  *
  * 6. Prepare data for the training and test sets. Run
- *        scripts/serverShellCommand.sh 'Globals.generateTagClassifierData()'
+ *        yarn repl prod packages/lesswrong/server/scripts/generativeModels/generateTaggingPostSets.ts "generateTagClassifierData()"
  *    This step is memory-intensive (currently it just loads the whole data set
  *    into memory at once). If it runs out of memory, you may need to configure
  *    node to have a heap-size limit larger than the default of 4GB. To do this,
@@ -94,7 +94,7 @@ import { FetchedFragment } from '../fetchFragment';
  *
  * 10. Generate a comparison list between human-applied and auto-applied tags for
  *     the test set.
- *        scripts/serverShellCommand.sh 'Globals.evaluateTagModels("ml/tagClassificationPostIds.test.json", "ml/tagClassificationTestSetResults.txt")'
+ *        yarn repl prod packages/lesswrong/server/scripts/generativeModels/generateTaggingPostSets.ts 'evaluateTagModels("ml/tagClassificationPostIds.test.json", "ml/tagClassificationTestSetResults.txt")'
  *     This produces a text file ml/tagClassificationTestSetResults.txt with a
  *     list of post titles/links, how humans tagged them, and how the trained
  *     models tagged them. Make sure this looks reasonable.

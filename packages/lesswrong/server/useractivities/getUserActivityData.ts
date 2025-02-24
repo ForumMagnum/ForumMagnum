@@ -1,7 +1,7 @@
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { environmentDescriptionSetting } from "../analyticsWriter";
+import { environmentDescriptionSetting } from "../analytics/serverAnalyticsWriter";
 
 export interface ActivityWindowData {
   userOrClientId: string;

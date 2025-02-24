@@ -4,12 +4,12 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { wrapVulcanAsyncScript } from './utils';
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
-import { Vulcan } from "../../lib/vulcan-lib/config";
 
 /**
  * Import data for localgroups
+ * Exported to allow running manually with "yarn repl"
  */
-Vulcan.importLocalgroups = wrapVulcanAsyncScript(
+export const importLocalgroups = wrapVulcanAsyncScript(
   'importLocalgroups',
   async (fileName='localgroups.csv') => {
     fs.createReadStream(fileName)

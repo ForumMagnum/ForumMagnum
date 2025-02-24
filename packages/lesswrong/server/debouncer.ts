@@ -3,7 +3,6 @@ import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
-import { Vulcan } from '../lib/vulcan-lib/config';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
@@ -259,6 +258,7 @@ export const dispatchPendingEvents = async () => {
  * before then. If no date is given, dispatch any pending events, regardless of
  * their timer. You would do this interactively if you're testing and don't
  * want to wait.
+ * Exported to allow running manually with "yarn repl"
  */
 export const forcePendingEvents = async (
   {upToDate, delay}:
@@ -307,8 +307,6 @@ export const forcePendingEvents = async (
   // eslint-disable-next-line no-console
   console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
-
-Vulcan.forcePendingEvents = forcePendingEvents;
 
 if (!testServerSetting.get()) {
   addCronJob({

@@ -9,7 +9,6 @@ import * as _ from 'underscore';
 import { isLW } from '../lib/instanceSettings';
 import type { OpenEvent } from 'ws';
 import { createMutator } from "./vulcan-lib/mutators";
-import { Globals } from "../lib/vulcan-lib/config";
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
@@ -64,7 +63,6 @@ const pollGatherTownUsers = async () => {
     validate: false,
   })
 }
-Globals.pollGatherTownUsers = pollGatherTownUsers;
 
 type GatherTownPlayerInfo = any;
 interface GatherTownCheckResult {

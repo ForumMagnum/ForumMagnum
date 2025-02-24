@@ -1,4 +1,3 @@
-import { Globals } from "@/lib/vulcan-lib/config.ts";
 import { getWrappedUsers } from "./sendWrappedNotifications";
 import { getWrappedDataByYear } from "./wrappedDataByYear";
 import { getWrappedEngagement } from "./wrappedEngagment";
@@ -15,7 +14,8 @@ const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   return totalUsers ? sampleSize(totalUsers, users) : users;
 }
 
-const sampleWrappedPersonalities = async (
+// Exported to allow running from "yarn repl"
+export const sampleWrappedPersonalities = async (
   year: WrappedYear,
   totalUsers?: number,
 ) => {
@@ -57,9 +57,8 @@ const sampleWrappedPersonalities = async (
   console.log(csv);
 }
 
-Globals.sampleWrappedPersonalities = sampleWrappedPersonalities;
-
-const sampleWrappedEngagement = async (
+// Exported to allow running from "yarn repl"
+export const sampleWrappedEngagement = async (
   year: WrappedYear,
   totalUsers?: number,
 ) => {
@@ -70,5 +69,3 @@ const sampleWrappedEngagement = async (
     console.log("Percentile", user._id, engagement.engagementPercentile);
   }
 }
-
-Globals.sampleWrappedEngagement = sampleWrappedEngagement;

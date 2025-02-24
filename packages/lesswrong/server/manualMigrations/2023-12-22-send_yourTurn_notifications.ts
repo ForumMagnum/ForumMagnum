@@ -31,7 +31,7 @@ const getMatchFormYourTurn = async (): Promise<DialogueCheckWithExtraData[]> => 
   return result
 }
 
-registerMigration({
+export default registerMigration({
   name: "sendYourTurnNotifications",
   dateWritten: "2023-12-22",
   idempotent: true,

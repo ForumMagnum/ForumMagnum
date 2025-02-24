@@ -2,7 +2,7 @@ import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/query";
 import { updateMutator } from "../vulcan-lib/mutators";
 
-registerMigration({
+export default registerMigration({
   name: "updateReviewWinnerSocialPreviewImages",
   dateWritten: "2024-03-01",
   idempotent: true,

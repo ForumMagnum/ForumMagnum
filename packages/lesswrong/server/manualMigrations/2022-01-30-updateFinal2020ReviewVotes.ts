@@ -12,7 +12,7 @@ import fs from 'fs';
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value
 
-registerMigration({
+export default registerMigration({
   name: "updateFinal2020ReviewVotes",
   dateWritten: "2022-01-30",
   idempotent: true,

@@ -1,7 +1,6 @@
-import { Vulcan } from '../../lib/vulcan-lib/config';
 import Users from '../../lib/collections/users/collection';
 
-Vulcan.fixLegacyKarma = async () => {
+export const fixLegacyKarma = async () => {
   const response = await Users.aggregate(
     [
         {

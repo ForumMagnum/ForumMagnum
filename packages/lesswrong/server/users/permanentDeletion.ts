@@ -10,7 +10,6 @@ import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
-import { Globals } from "../../lib/vulcan-lib/config";
 import { createAdminContext } from "../vulcan-lib/query";
 import { deleteMutator, updateMutator } from "../vulcan-lib/mutators";
 
@@ -137,8 +136,9 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
 /**
  * Permanently delete a user from the forum, this is sufficient to comply with GDPR deletion
  * requests if their forum account and associated services is the only data we have for them
+ * Exported to allow running with "yarn repl"
  */
-async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions) {
+export async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions) {
   const user = await Users.findOne({_id: userId})
 
   if (!user) {
@@ -177,5 +177,3 @@ addCronJob({
     }
   },
 });
-
-Globals.permanentlyDeleteUserById = permanentlyDeleteUserById

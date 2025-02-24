@@ -4,7 +4,7 @@ import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { dataToWordCount } from '../editor/conversionUtils';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
-registerMigration({
+export default registerMigration({
   name: "computeWordCounts",
   dateWritten: "2019-02-14",
   idempotent: true,
