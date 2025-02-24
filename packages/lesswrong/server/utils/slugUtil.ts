@@ -140,7 +140,7 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
     }
   };
 
-  slugCreateBeforeCallbackFunction.name = `slugCreateBeforeCallbackFunction-${collectionName}`;
+  Object.defineProperty(slugCreateBeforeCallbackFunction, 'name', { value: `slugCreateBeforeCallbackFunction-${collectionName}`, writable: false });
 
   getCollectionHooks(collectionName).createBefore.add(slugCreateBeforeCallbackFunction);
 
@@ -206,7 +206,7 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
     }
   }
 
-  slugUpdateBeforeCallbackFunction.name = `slugUpdateBeforeCallbackFunction-${collectionName}`;
+  Object.defineProperty(slugUpdateBeforeCallbackFunction, 'name', { value: `slugUpdateBeforeCallbackFunction-${collectionName}`, writable: false });
 
   getCollectionHooks(collectionName).updateBefore.add(slugUpdateBeforeCallbackFunction);
 }
