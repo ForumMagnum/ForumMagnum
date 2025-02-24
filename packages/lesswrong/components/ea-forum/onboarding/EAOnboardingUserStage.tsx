@@ -50,37 +50,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const newUserCompleteProfileMutation = gql`
-  mutation NewUserCompleteProfile(
-    $username: String!,
-    $subscribeToDigest: Boolean!,
-    $email: String,
-    $acceptedTos: Boolean
-  ) {
-    NewUserCompleteProfile(
-      username: $username,
-      subscribeToDigest: $subscribeToDigest,
-      email: $email,
-      acceptedTos: $acceptedTos
-    ) {
-      username
-      slug
-      displayName
-    }
-  }
-`;
-
 const links = {
   username: "https://jimpix.co.uk/words/random-username-generator.asp",
   termsOfUse: "/termsOfUse",
   license: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
-
-const displayNameTakenQuery = gql`
-  query isDisplayNameTaken($displayName: String!) {
-    IsDisplayNameTaken(displayName: $displayName)
-  }
-`;
 
 export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   icon?: ReactNode,
@@ -90,7 +64,25 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   const [name, setName] = useState("");
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
-  const [updateUser] = useMutation(newUserCompleteProfileMutation);
+  const [updateUser] = useMutation(gql`
+    mutation NewUserCompleteProfile(
+      $username: String!,
+      $subscribeToDigest: Boolean!,
+      $email: String,
+      $acceptedTos: Boolean
+    ) {
+      NewUserCompleteProfile(
+        username: $username,
+        subscribeToDigest: $subscribeToDigest,
+        email: $email,
+        acceptedTos: $acceptedTos
+      ) {
+        username
+        slug
+        displayName
+      }
+    }
+  `);
   const inputRef = useRef<HTMLInputElement>(null);
   const currentUser = useCurrentUser()
 
@@ -126,7 +118,11 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
     await onContinue();
   }, [onContinue]);
 
-  const {data, loading} = useQuery(displayNameTakenQuery, {
+  const {data, loading} = useQuery(gql`
+    query isDisplayNameTaken($displayName: String!) {
+      IsDisplayNameTaken(displayName: $displayName)
+    }
+  `, {
     ssr: false,
     skip: !name,
     pollInterval: 0,

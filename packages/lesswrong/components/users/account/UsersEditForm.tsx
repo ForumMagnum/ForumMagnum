@@ -29,12 +29,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const passwordResetMutation = gql`
-  mutation resetPassword($email: String) {
-    resetPassword(email: $email)
-  }
-`
-
 const UsersEditForm = ({terms, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
@@ -44,7 +38,11 @@ const UsersEditForm = ({terms, classes}: {
   const navigate = useNavigate();
   const client = useApolloClient();
   const { ErrorAccessDenied } = Components;
-  const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
+  const [ mutate, loading ] = useMutation(gql`
+    mutation resetPassword($email: String) {
+      resetPassword(email: $email)
+    }
+  `, { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 

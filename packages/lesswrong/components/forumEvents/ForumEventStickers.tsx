@@ -54,12 +54,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const removeForumEventStickerQuery = gql`
-  mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
-    RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
-  }
-`;
-
 const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
@@ -138,7 +132,11 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [removeSticker] = useMutation(removeForumEventStickerQuery);
+  const [removeSticker] = useMutation(gql`
+    mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
+      RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
+    }
+  `);
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length

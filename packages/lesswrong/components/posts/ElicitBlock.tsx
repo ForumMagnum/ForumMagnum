@@ -40,15 +40,6 @@ const elicitDataFragment = `
   }
 `
 
-const elicitQuery = gql`
-  query ElicitBlockData($questionId: String) {
-    ElicitBlockData(questionId: $questionId) {
-     ${elicitDataFragment}
-    }
-  }
-  ${getFragment("UsersMinimumInfo")}
-`;
-
 const rootHeight = 50
 const rootPaddingTop = 12
 
@@ -192,7 +183,14 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
   const { UsersName, ContentStyles } = Components;
-  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
+  const { data, loading } = useQuery(gql`
+    query ElicitBlockData($questionId: String) {
+      ElicitBlockData(questionId: $questionId) {
+       ${elicitDataFragment}
+      }
+    }
+    ${getFragment("UsersMinimumInfo")}
+  `, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {

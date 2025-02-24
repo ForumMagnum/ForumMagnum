@@ -5,18 +5,6 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
 
-const searchSynonymsQuery = gql`
-  query SearchSynonyms {
-    SearchSynonyms
-  }
-`;
-
-const searchSynonymsMutation = gql`
-  mutation UpdateSearchSynonyms($synonyms: [String!]!) {
-    UpdateSearchSynonyms(synonyms: $synonyms)
-  }
-`;
-
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -35,9 +23,15 @@ const styles = (theme: ThemeType) => ({
 
 const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes}) => {
   const [synonyms, setSynonyms] = useState<string[]>([]);
-  const {data, loading, error} = useQuery(searchSynonymsQuery);
+  const {data, loading, error} = useQuery(gql`
+    query SearchSynonyms {
+      SearchSynonyms
+    }
+  `);
   const [updateSearchSynonyms, updateLoading] = useMutation(
-    searchSynonymsMutation,
+    gql`mutation UpdateSearchSynonyms($synonyms: [String!]!) {
+      UpdateSearchSynonyms(synonyms: $synonyms)
+    }`,
     {errorPolicy: "all"},
   );
 

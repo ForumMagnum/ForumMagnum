@@ -16,25 +16,23 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const migrationsQuery = gql`
-  query MigrationsDashboardQuery {
-    MigrationsDashboard {
-      migrations {
-        name
-        dateWritten
-        runs { name started finished succeeded }
-        lastRun
-      }
-    }
-  }
-`;
-
 const MigrationsDashboard = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { SingleColumnSection, Loading, SectionTitle } = Components;
-  const { data, loading } = useQuery(migrationsQuery, { ssr: true });
+  const { data, loading } = useQuery(gql`
+    query MigrationsDashboardQuery {
+      MigrationsDashboard {
+        migrations {
+          name
+          dateWritten
+          runs { name started finished succeeded }
+          lastRun
+        }
+      }
+    }
+  `, { ssr: true });
   
   if (!userIsAdmin(currentUser)) {
     return <SingleColumnSection>Sorry, you need to be logged in as an admin to use this page.</SingleColumnSection>;
