@@ -4,7 +4,6 @@ import { createVoteableUnionType } from './votingGraphQL';
 import { scheduleQueueProcessing } from './cache/swr';
 import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
-import { initSyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { addAllEditableCallbacks } from './editor/make_editable_callbacks';
@@ -55,7 +54,6 @@ export async function runServerOnStartupFunctions() {
   initRenderQueueLogging();
   serverInitSentry();
   startMemoryUsageMonitor();
-  initSyncedCron();
   initLegacyRoutes();
   await startupSanityChecks();
   addAllEditableCallbacks();

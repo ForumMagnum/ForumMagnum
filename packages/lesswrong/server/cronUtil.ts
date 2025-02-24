@@ -1,15 +1,8 @@
-import { isAnyTest, isDevelopment } from '../lib/executionEnvironment';
+import { isAnyTest } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { getCommandLineArguments } from './commandLine';
 import { CronHistories } from '../lib/collections/cronHistories/collection';
 import { Globals } from '@/lib/vulcan-lib/config';
-
-SyncedCron.options = {
-  log: !isDevelopment,
-  collectionName: 'cronHistory',
-  utc: false,
-  collectionTTL: 172800
-};
 
 export type CronJobSpec = {
   name: string,
@@ -46,9 +39,7 @@ export function removeCronJob(name: string) {
 }
 
 export function startSyncedCron() {
-  if (typeof SyncedCron !== 'undefined') {
-    SyncedCron.start();
-  }
+  SyncedCron.start();
 }
 
 async function clearOldCronHistories() {
