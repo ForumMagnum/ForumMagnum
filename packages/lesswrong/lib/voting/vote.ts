@@ -2,7 +2,7 @@ import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
-import { collectionNameToTypeName } from '../vulcan-lib';
+import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { DatabasePublicSetting } from '../publicSettings';
 
 export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)

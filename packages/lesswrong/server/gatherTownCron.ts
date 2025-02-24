@@ -1,5 +1,4 @@
 import { addCronJob, removeCronJob } from './cronUtil';
-import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
@@ -9,6 +8,8 @@ import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { isLW } from '../lib/instanceSettings';
 import type { OpenEvent } from 'ws';
+import { createMutator } from "./vulcan-lib/mutators";
+import { Globals } from "../lib/vulcan-lib/config";
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 

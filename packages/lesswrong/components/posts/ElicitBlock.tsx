@@ -1,4 +1,3 @@
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
@@ -12,6 +11,8 @@ import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const elicitDataFragment = `
   _id

@@ -3,7 +3,7 @@ import Conversations from '../lib/collections/conversations/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
 import { getConfirmedCoauthorIds, postGetPageUrl, postIsPublic } from '../lib/collections/posts/helpers';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';

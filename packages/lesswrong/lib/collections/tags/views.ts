@@ -1,7 +1,7 @@
 import { Tags } from './collection';
 import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
-import { viewFieldAllowAny } from '../../vulcan-lib';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { viewFieldAllowAny } from '../../vulcan-lib/collections';
+import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { jsonArrayContainsSelector } from '@/lib/utils/viewUtils';
 import { hasWikiLenses } from '@/lib/betas';
 

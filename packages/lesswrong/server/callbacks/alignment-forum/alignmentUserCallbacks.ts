@@ -1,4 +1,4 @@
-import { createMutator, updateMutator } from '../../vulcan-lib';
+import { createMutator, updateMutator } from '../../vulcan-lib/mutators';
 import Users from "../../../lib/collections/users/collection";
 import Messages from '../../../lib/collections/messages/collection';
 import Conversations from '../../../lib/collections/conversations/collection';

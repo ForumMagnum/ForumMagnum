@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import withErrorBoundary from './withErrorBoundary';

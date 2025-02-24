@@ -1,6 +1,6 @@
 import { ensureIndex } from '../../collectionIndexUtils';
 import { isAF } from '../../instanceSettings';
-import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import Conversations from "./collection";
 
 declare global {

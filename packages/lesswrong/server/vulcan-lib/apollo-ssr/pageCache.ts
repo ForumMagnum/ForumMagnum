@@ -1,7 +1,7 @@
 import LRU from 'lru-cache';
 import type { RenderResult, RenderSuccessResult } from './renderPage';
 import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '../../../lib/abTestImpl';
-import { Globals } from '../../../lib/vulcan-lib';
+import { Globals } from '../../../lib/vulcan-lib/config';
 import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';

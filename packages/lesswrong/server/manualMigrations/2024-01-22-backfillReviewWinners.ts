@@ -1,10 +1,12 @@
 import moment from "moment";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
-import { Globals, createAdminContext, createMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'
+import { Globals } from "../../lib/vulcan-lib/config";
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
 
 const AI_TAG_ID = 'sYm3HiWcfZvrGu3ui';
 

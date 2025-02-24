@@ -1,5 +1,5 @@
 import { foreignKeyField } from "@/lib/utils/schemaUtils";
-import { userOwns } from "@/lib/vulcan-users";
+import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 
 const userEditableField = ({nullable = false}: {
   nullable?: boolean,

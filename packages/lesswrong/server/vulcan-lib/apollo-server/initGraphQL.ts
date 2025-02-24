@@ -2,7 +2,7 @@
 // addGraphQLResolvers &c.
 
 import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getResolvers, getCollections, QueryAndDescription, MutationAndDescription } from '../../../lib/vulcan-lib/graphql';
+import { getAdditionalSchemas, queries, mutations, getResolvers, QueryAndDescription, MutationAndDescription } from '../../../lib/vulcan-lib/graphql';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -27,7 +27,6 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName } from '../../../lib/vulcan-lib';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -35,6 +34,9 @@ import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
+import { pluralize } from "../../../lib/vulcan-lib/pluralize";
+import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
+import { getAllCollections, getCollectionByTypeName } from "../../../lib/vulcan-lib/getCollection";
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
@@ -84,7 +86,7 @@ const getTypeDefs = () => {
   const allMutations = [...mutations];
   const allResolvers: Array<any> = [];
   
-  for (let collection of getCollections()) {
+  for (let collection of getAllCollections()) {
     const { schema, addedQueries, addedResolvers, addedMutations } = generateSchema(collection);
 
     for (let query of addedQueries) allQueries.push(query);
@@ -113,11 +115,6 @@ const getGraphQLType = <N extends CollectionNameString>(
   const type = field.type.singleType;
   const typeName =
     typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
-
-  // LESSWRONG: Add optional property to override default input type generation
-  if (isInput && field.inputType) {
-    return field.inputType
-  }
 
   switch (typeName) {
     case 'String':
@@ -347,7 +344,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
 
   const schemaFragments: Array<string> = [];
 
-  const collectionName = collection.options.collectionName;
+  const collectionName = collection.collectionName;
 
   const typeName = collection.typeName
     ? collection.typeName
@@ -477,7 +474,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
   } else {
     // eslint-disable-next-line no-console
     console.log(
-      `// Warning: collection ${collectionName} doesn't have any GraphQL-enabled fields, so no corresponding type can be generated. Pass generateGraphQLSchema = false to createCollection() to disable this warning`
+      `Warning: collection ${collectionName} doesn't have any GraphQL-enabled fields, so no corresponding type can be generated.`
     );
   }
 

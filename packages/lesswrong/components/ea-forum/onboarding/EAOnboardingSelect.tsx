@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { styles as inputStyles } from "./EAOnboardingInput";
 
 const styles = (theme: ThemeType) => ({

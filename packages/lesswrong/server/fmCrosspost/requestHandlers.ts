@@ -2,7 +2,7 @@ import type { Request } from "express";
 import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
-import { Utils } from "../../lib/vulcan-lib";
+import { Utils } from "../../lib/vulcan-lib/utils";
 import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
 import { createAnonymousContext } from "../vulcan-lib/query";
 import { extractDenormalizedData } from "./denormalizedFields";

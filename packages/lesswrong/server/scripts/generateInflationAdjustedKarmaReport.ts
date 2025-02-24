@@ -1,5 +1,5 @@
-import { Globals } from "../vulcan-lib";
-import { Posts } from "../../lib/collections/posts";
+import { Globals } from "../../lib/vulcan-lib/config";
+import { Posts } from "../../lib/collections/posts/collection";
 import { getKarmaInflationSeries } from "../../lib/collections/posts/karmaInflation";
 import { buildInflationAdjustedField } from "../../lib/collections/posts/views";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";

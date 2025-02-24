@@ -16,7 +16,7 @@ import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 import { isNonEmpty } from "fp-ts/Array"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
 import { getDownvoteRatio } from "../components/sunshineDashboard/UsersReviewInfoCard"
-import { ModeratorActions } from "../lib/collections/moderatorActions"
+import { ModeratorActions } from "../lib/collections/moderatorActions/collection"
 
 async function getModRateLimitHours(userId: string): Promise<number> {
   const moderatorRateLimit = await getModeratorRateLimit(userId)

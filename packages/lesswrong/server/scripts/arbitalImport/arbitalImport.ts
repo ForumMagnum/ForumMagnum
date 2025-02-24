@@ -8,7 +8,6 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, getCollection, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
 import { randomId } from '@/lib/random';
@@ -22,12 +21,12 @@ import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { getSqlClientOrThrow, runSqlQuery } from '@/server/sql/sqlClient';
-import { Comments } from '@/lib/collections/comments';
+import { Comments } from '@/lib/collections/comments/collection.ts';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
 import { performVoteServer } from '@/server/voteServer';
-import { Votes } from '@/lib/collections/votes';
+import { Votes } from '@/lib/collections/votes/collection.ts';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
 import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
@@ -36,6 +35,9 @@ import { slugify } from '@/lib/utils/slugify';
 import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { createAdminContext } from "@/server/vulcan-lib/query.ts";
+import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
+import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
 
 export type ArbitalImportOptions = {
   /**

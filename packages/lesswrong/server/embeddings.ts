@@ -1,9 +1,10 @@
 import Posts from "../lib/collections/posts/collection";
-import { PostEmbeddingsRepo, PostsRepo } from "./repos";
+import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
+import PostsRepo from "./repos/PostsRepo";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
-import { Globals } from "./vulcan-lib";
+import { Globals } from "../lib/vulcan-lib/config";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";

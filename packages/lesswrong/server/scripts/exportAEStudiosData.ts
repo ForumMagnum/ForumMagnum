@@ -1,10 +1,11 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { fetchFragment } from "../fetchFragment";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { createAnonymousContext, Globals } from "../vulcan-lib";
 import { writeFile } from "fs/promises";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { htmlToTextDefault } from "@/lib/htmlToText";
+import { createAnonymousContext } from "../vulcan-lib/query";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 type DateFieldOf<T> = {
   [k in keyof T & string]: IfAny<T[k], never, T[k] extends Date | null ? k : never>;

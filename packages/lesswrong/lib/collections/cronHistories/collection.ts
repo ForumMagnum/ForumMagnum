@@ -1,5 +1,5 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import { ensureIndex } from '../../collectionIndexUtils';
 
 export const CronHistories: CronHistoriesCollection = createCollection({

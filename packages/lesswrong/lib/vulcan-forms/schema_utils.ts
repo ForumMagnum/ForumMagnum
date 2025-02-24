@@ -177,7 +177,6 @@ export const schemaProperties = [
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder
   'control', // SmartForm control (String or React component)
-  'input', // SmartForm control (String or React component)
   'autoform', // legacy form placeholder; backward compatibility (not used anymore)
   'order', // position in the form
   'group', // form fieldset group
@@ -210,7 +209,6 @@ export const formProperties = [
   'defaultValue',
   'form', // form placeholder
   'control', // SmartForm control (String or React component)
-  'input', // SmartForm control (String or React component)
   'order', // position in the form
   'group', // form fieldset group
   'description',

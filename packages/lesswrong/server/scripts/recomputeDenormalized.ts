@@ -1,16 +1,16 @@
-import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../manualMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-
+import { Vulcan } from "../../lib/vulcan-lib/config";
+import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
 
 export const recomputeAllDenormalizedValues = async () => {
   for(let collection of Collections) {
     await Vulcan.recomputeDenormalizedValues({
-      collectionName: collection.options.collectionName
+      collectionName: collection.collectionName
     })
   }
 }
@@ -19,7 +19,7 @@ Vulcan.recomputeAllDenormalizedValues = recomputeAllDenormalizedValues;
 export const validateAllDenormalizedValues = async () => {
   for(let collection of Collections) {
     await Vulcan.recomputeDenormalizedValues({
-      collectionName: collection.options.collectionName,
+      collectionName: collection.collectionName,
       validateOnly: true
     })
   }

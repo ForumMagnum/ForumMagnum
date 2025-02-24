@@ -1,7 +1,7 @@
-import { Vulcan } from '../../lib/vulcan-lib';
+import { Vulcan } from '../../lib/vulcan-lib/config';
 import Users from '../../lib/collections/users/collection'
-import { Posts } from '../../lib/collections/posts'
-import { Comments } from '../../lib/collections/comments'
+import { Posts } from '../../lib/collections/posts/collection'
+import { Comments } from '../../lib/collections/comments/collection'
 import { bulkUpdateWithJS, wrapVulcanAsyncScript } from '../scripts/utils'
 import { recalculateDocumentScores } from '../voteServer';
 import { createAdminContext } from '../vulcan-lib/query';

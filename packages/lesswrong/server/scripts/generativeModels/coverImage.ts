@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
 import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
@@ -9,6 +8,9 @@ import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
+import { Globals } from "../../../lib/vulcan-lib/config";
+import { createAdminContext } from "../../vulcan-lib/query";
+import { createMutator } from "../../vulcan-lib/mutators";
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 

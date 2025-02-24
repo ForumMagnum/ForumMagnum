@@ -1,6 +1,6 @@
-import { Vulcan } from '../../lib/vulcan-lib';
-import { Comments } from '../../lib/collections/comments'
-import { Posts } from '../../lib/collections/posts'
+import { Vulcan } from '../../lib/vulcan-lib/config';
+import { Comments } from '../../lib/collections/comments/collection'
+import { Posts } from '../../lib/collections/posts/collection'
 import { wrapVulcanAsyncScript } from '../scripts/utils'
 import { batchUpdateScore } from '../updateScores';
 

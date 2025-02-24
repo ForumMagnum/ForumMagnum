@@ -1,5 +1,4 @@
 import React from 'react';
-import {Components, getRouteMatchingPathname, userCanAccessRoute} from '../vulcan-lib'
 // eslint-disable-next-line no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
@@ -7,6 +6,8 @@ import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
 import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
 import type { History } from 'history'
+import { Components } from "../vulcan-lib/components";
+import { getRouteMatchingPathname, userCanAccessRoute } from "../vulcan-lib/routes";
 
 export interface ServerRequestStatusContextType {
   status?: number

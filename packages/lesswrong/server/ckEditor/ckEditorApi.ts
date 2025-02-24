@@ -10,12 +10,14 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { buildRevision } from '../editor/make_editable_callbacks';
-import { createAdminContext, createMutator, Globals, updateMutator } from '../vulcan-lib';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
