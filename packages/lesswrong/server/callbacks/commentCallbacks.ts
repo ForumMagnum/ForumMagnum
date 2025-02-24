@@ -6,7 +6,7 @@ import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { userCanDo, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { createMutator, deleteMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
@@ -20,10 +20,11 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
 import { userShortformPostTitle } from '@/lib/collections/users/helpers';
+import { tagGetDiscussionUrl } from '@/lib/collections/tags/helpers';
 import { randomId } from '@/lib/random';
 import isEqual from 'lodash/isEqual';
 import type { ForumEventCommentMetadata } from '@/lib/collections/forumEvents/types';
-import { ForumEventsRepo } from '../repos';
+import ForumEventsRepo from '../repos/ForumEventsRepo';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -46,12 +47,27 @@ export const getAdminTeamAccount = async () => {
   return account;
 }
 
+export const getAdminTeamAccountId = (() => {
+  let teamAccountId: string|null = null;
+  return async () => {
+    if (!teamAccountId) {
+      const teamAccount = await getAdminTeamAccount()
+      if (!teamAccount) return null;
+      teamAccountId = teamAccount._id;
+    }
+    return teamAccountId;
+  };
+})();
+
 /**
  * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
  */
 export const noDeletionPmReason = 'Requested account deletion';
 
-getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").createBefore.add(async function createShortformPost (comment, {currentUser}) {
+  if (!currentUser) {
+    throw new Error("Must be logged in");
+  }
   if (comment.shortform && !comment.postId) {
     if (currentUser.shortformFeedId) {
       return ({
@@ -86,7 +102,8 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
       postId: post.data._id
     })
   }
-  return comment
+  
+  return comment;
 });
 
 getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment, _, context: ResolverContext) {
@@ -140,7 +157,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
 // comments.remove.async                            //
 //////////////////////////////////////////////////////
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePostCommenters (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemovePostCommenters ({document: comment}) {
   const { postId } = comment;
 
   if (postId) {
@@ -154,7 +171,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
   }
 });
 
-getCollectionHooks("Comments").removeAsync.add(async function CommentsRemoveChildrenComments (comment: DbComment, currentUser: DbUser) {
+getCollectionHooks("Comments").deleteAsync.add(async function CommentsRemoveChildrenComments ({document: comment, currentUser}) {
 
   const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch();
 
@@ -230,12 +247,11 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   }
 }
 
-getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (comment: DbComment) {
+getCollectionHooks("Comments").createValidate.add(function NewCommentsEmptyCheck (validationErrors, {document: comment}) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
-  return comment;
 });
 
 interface SendModerationPMParams {
@@ -306,7 +322,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
     const tag = await Tags.findOne(comment.tagId)
     if (tag) {
       contentTitle = tag.name
-      rejectedContentLink = `<a href="https://lesswrong.com/tag/${tag.slug}/discussion?commentId=${comment._id}">comment on ${tag.name}</a>`
+      rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug}, true)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
     }
   } else if (comment.postId) {
     const post = await Posts.findOne(comment.postId)

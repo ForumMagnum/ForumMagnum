@@ -1,6 +1,6 @@
-import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterSingle, schemaDefaultValue } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
-import { addGraphQLSchema } from '../../vulcan-lib';
+import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
 
@@ -18,8 +18,6 @@ export const ContentType = new SimpleSchema({
     }
   )
 })
-
-SimpleSchema.extendOptions([ 'inputType' ]);
 
 // Graphql doesn't allow union types that include scalars, which is necessary
 // to accurately represent the data field the ContentType simple schema.
@@ -98,7 +96,7 @@ const schema: SchemaType<"Revisions"> = {
   
   updateType: {
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canCreate: ['members'],
     type: String,
     allowedValues: ['initial', 'patch', 'minor', 'major'],
     optional: true
@@ -113,7 +111,7 @@ const schema: SchemaType<"Revisions"> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['members']
+    canCreate: ['members'],
   },
   userId: {
     ...foreignKeyField({
@@ -237,6 +235,21 @@ const schema: SchemaType<"Revisions"> = {
     canRead: ['guests']
   },
   
+  
+  /**
+   * If set, this revision will be skipped over when attributing text to
+   * contributors on wiki pages. Useful when reverting - if a bad edit and a
+   * reversion are marked with this flag, then attributions will be as-if the
+   * reverted edited never happened.
+   */
+  skipAttributions: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
+  
   tag: resolverOnlyField({
     type: "Tag",
     graphQLtype: "Tag",
@@ -264,6 +277,54 @@ const schema: SchemaType<"Revisions"> = {
       const post = await context.loaders.Posts.load(revision.documentId);
       return await accessFilterSingle(currentUser, Posts, post, context);
     }
+  }),
+  lens: resolverOnlyField({
+    type: "MultiDocument",
+    graphQLtype: "MultiDocument",
+    canRead: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const { currentUser, MultiDocuments } = context;
+      if (revision.collectionName !== "MultiDocuments") {
+        return null;
+      }
+      if (!revision.documentId) {
+        return null;
+      }
+      const lens = await context.loaders.MultiDocuments.load(revision.documentId);
+      if (lens.fieldName !== "description" || lens.collectionName !== "Tags") {
+        return null;
+      }
+      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+    },
+    sqlResolver: ({ field, join }) => join({
+      table: 'MultiDocuments',
+      on: {
+        _id: field('documentId'),
+        collectionName: "'Tags'",
+        fieldName: "'description'"
+      },
+      type: 'left',
+      resolver: (multiDocumentField) => multiDocumentField('*'),
+    })
+  }),
+  summary: resolverOnlyField({
+    type: "MultiDocument",
+    graphQLtype: "MultiDocument",
+    canRead: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const { currentUser, MultiDocuments } = context;
+      if (revision.collectionName !== "MultiDocuments") {
+        return null;
+      }
+      if (!revision.documentId) {
+        return null;
+      }
+      const lens = await context.loaders.MultiDocuments.load(revision.documentId);
+      if (lens.fieldName !== "summary") {
+        return null;
+      }
+      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+    },
   }),
 };
 

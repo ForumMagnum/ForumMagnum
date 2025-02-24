@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<"ClientIds"> = {
   clientId: {
@@ -28,6 +28,24 @@ const schema: SchemaType<"ClientIds"> = {
   'userIds.$': {
     type: String,
     optional: true,
+  },
+  invalidated: {
+    type: Boolean,
+    optional: true,
+    canRead: ['sunshineRegiment','admins'],
+    ...schemaDefaultValue(false),
+  },
+  lastSeenAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: ['sunshineRegiment','admins'],
+  },
+  timesSeen: {
+    type: Number,
+    optional: true,
+    canRead: ['sunshineRegiment','admins'],
+    ...schemaDefaultValue(1),
   },
 }
 

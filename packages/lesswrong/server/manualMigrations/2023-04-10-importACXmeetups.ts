@@ -1,12 +1,12 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
-import { createMutator } from '../vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { createMutator } from '../vulcan-lib/mutators';
+import { Posts } from '../../lib/collections/posts/collection';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
 import { writeFile } from 'fs/promises';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
   const requestOptions: any = {
@@ -20,7 +20,7 @@ async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: str
   return responseData.results[0]
 }
 
-registerMigration({
+export default registerMigration({
   name: "importACXMeetupsSpring23",
   dateWritten: "2023-04-10",
   idempotent: true,

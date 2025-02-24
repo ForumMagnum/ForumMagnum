@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -41,7 +41,7 @@ export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof 
 
   return <SingleColumnSection>
     <div className={classes.yearLinks}>
-      {reviewYears.map(year => <Link className={classNames(classes.yearLink, {[classes.selected]: year === reviewYear})} to={`/reviews/${year}`} key={year}>
+      {[...reviewYears].map(year => <Link className={classNames(classes.yearLink, {[classes.selected]: year === reviewYear})} to={`/reviews/${year}`} key={year}>
         {year}
       </Link>)}
     </div>

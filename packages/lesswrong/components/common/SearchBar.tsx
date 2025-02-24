@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
@@ -13,7 +13,7 @@ import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const VirtualMenu = connectMenu(() => null);
@@ -178,7 +178,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     <div className={classes.rootChild}>
       <InstantSearch
         indexName={getSearchIndexName("Posts")}
-        searchClient={getSearchClient()}
+        searchClient={getSearchClient({emptyStringSearchResults: "empty"})}
         onSearchStateChange={queryStateControl}
       >
         <div className={classNames(

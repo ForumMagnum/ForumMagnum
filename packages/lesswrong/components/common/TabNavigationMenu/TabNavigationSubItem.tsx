@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';

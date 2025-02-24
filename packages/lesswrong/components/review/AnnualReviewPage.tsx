@@ -1,6 +1,5 @@
-// TODO: Import component in components.ts
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { getReviewPhase, getReviewYearFromString } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';

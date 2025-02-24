@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
@@ -113,8 +113,8 @@ const PostAuthorCard = ({author, currentUser, classes}: {
           />}
         </div>
       </div>
-      {author.biography?.html && <ContentStyles contentType="comment" className={classes.bio}>
-        <div dangerouslySetInnerHTML={{__html: truncate(author.biography.html, 100, 'words')}} />
+      {author.htmlBio && <ContentStyles contentType="comment" className={classes.bio}>
+        <div dangerouslySetInnerHTML={{__html: truncate(author.htmlBio, 100, 'words')}} />
       </ContentStyles>}
     </div>
   </AnalyticsContext>

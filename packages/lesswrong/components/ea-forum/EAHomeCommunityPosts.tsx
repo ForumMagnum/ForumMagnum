@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
@@ -27,7 +27,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",
     onCollapseEvent: "communityPostsSectionCollapsed",
-    defaultExpanded: "loggedIn",
+    defaultExpanded: "all",
     cookieName: SHOW_COMMUNITY_POSTS_SECTION_COOKIE,
   });
   const now = useCurrentTime();

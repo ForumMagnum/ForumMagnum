@@ -1,4 +1,4 @@
-import { slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
@@ -25,10 +25,8 @@ import {
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
-import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
 import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
@@ -41,9 +39,9 @@ import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
+import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -178,13 +176,13 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['admins'],
     control: 'datetime',
     group: formGroups.adminOptions,
-    onInsert: (post, currentUser) => {
+    onCreate: ({document: post, currentUser}) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && postGetDefaultStatus(currentUser!) === postStatuses.STATUS_APPROVED) {
         return new Date();
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier, newDocument: post}) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && modifier.$set.status === postStatuses.STATUS_APPROVED) {
         return new Date();
@@ -250,21 +248,6 @@ const schema: SchemaType<"Posts"> = {
     control: 'EditTitle',
     group: formGroups.title,
   },
-  // Slug
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    onInsert: async (post) => {
-      return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
-    },
-    onEdit: async (modifier, post) => {
-      if (modifier.$set.title) {
-        return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
-      }
-    }
-  },
   // Count of how many times the post's page was viewed
   viewCount: {
     type: Number,
@@ -280,7 +263,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (post: DbPost) => post.postedAt || new Date(),
+    onCreate: ({document: post}) => post.postedAt || new Date(),
   },
   // Count of how many times the post's link was clicked
   clickCount: {
@@ -315,12 +298,12 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['admins'],
     canUpdate: ['admins', 'sunshineRegiment'],
     control: 'select',
-    onInsert: (document, currentUser) => {
+    onCreate: ({document, currentUser}) => {
       if (!document.status) {
         return postGetDefaultStatus(currentUser!);
       }
     },
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
         return postGetDefaultStatus(currentUser!);
@@ -335,7 +318,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: false,
     canRead: ['guests'],
-    onInsert: (post) => {
+    onCreate: ({document: post}) => {
       // Set the post's isFuture to true if necessary
       if (post.postedAt) {
         const postTime = new Date(post.postedAt).getTime();
@@ -345,7 +328,7 @@ const schema: SchemaType<"Posts"> = {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier, newDocument: post}) => {
       // Set the post's isFuture to true if necessary
       if (modifier.$set.postedAt) {
         const postTime = new Date(modifier.$set.postedAt).getTime();
@@ -371,12 +354,12 @@ const schema: SchemaType<"Posts"> = {
     control: 'checkbox',
     order: 10,
     group: formGroups.adminOptions,
-    onInsert: (post) => {
+    onCreate: ({document: post}) => {
       if(!post.sticky) {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier}) => {
       if (!modifier.$set.sticky) {
         return false;
       }
@@ -421,7 +404,7 @@ const schema: SchemaType<"Posts"> = {
     denormalized: true,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onEdit: async (modifier, document, currentUser) => {
+    onUpdate: async ({modifier, document, currentUser}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
         return await userGetDisplayNameById(modifier.$set.userId)
@@ -896,6 +879,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
   // Results (sum) of the quadratic votes when filtering only for users with >1000 karma
+  // NOTE: as of the 2023 Review (in 2025), this is now used to store the voting power including
+  // karma weighting (from the Strong Vote multiplier)
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
@@ -903,6 +888,8 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for users with >1000 karma
+  // NOTE: as of the 2023 Review (in 2025), this is now used to store the voting power including
+  // karma weighting (from the Strong Vote multiplier)
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
@@ -914,6 +901,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
   // Results (sum) of the quadratic votes for all users
+  // uses the raw voting power, without karma multiplier
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
@@ -967,6 +955,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
 
+  // DEPRECATED. Af Users didn't really vote in interesting enough ways to justify the UI complexity
+  // of displaying these.
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
@@ -1239,14 +1229,6 @@ const schema: SchemaType<"Posts"> = {
       const winner = await getPostReviewWinnerInfo(post._id, context);
       return accessFilterSingle(currentUser, ReviewWinners, winner, context);
     },
-    sqlResolver: ({field, join}) => join({
-      table: "ReviewWinners",
-      type: "left",
-      on: {
-        postId: field("_id"),
-      },
-      resolver: (reviewWinnersField) => reviewWinnersField("*"),
-    })
   }),
 
   spotlight: resolverOnlyField({
@@ -1533,7 +1515,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     ...(!requireReviewToFrontpagePostsSetting.get() && {
-      onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
+      onCreate: ({document: {isEvent, submitToFrontpage, draft}}) => eaFrontpageDateDefault(
         isEvent,
         submitToFrontpage,
         draft,
@@ -2066,7 +2048,7 @@ const schema: SchemaType<"Posts"> = {
     nullable: false,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (document) => document.baseScore ?? 0,
+    onCreate: ({document}) => document.baseScore ?? 0,
   },
   // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
@@ -2074,7 +2056,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 2 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 2 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 30
   scoreExceeded30Date: {
@@ -2082,7 +2064,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 30 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 30 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 45
   scoreExceeded45Date: {
@@ -2090,7 +2072,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 45 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 45 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 75
   scoreExceeded75Date: {
@@ -2098,7 +2080,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 75 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 75 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 125
   scoreExceeded125Date: {
@@ -2106,7 +2088,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 125 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 125 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 200
   scoreExceeded200Date: {
@@ -2114,7 +2096,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 200 ? new Date() : null
+    onCreate: ({document}) => document.baseScore >= 200 ? new Date() : null
   },
   bannedUserIds: {
     type: Array,
@@ -2489,12 +2471,12 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     control: 'checkbox',
-    onInsert: (post) => {
+    onCreate: ({document: post}) => {
       if(!post.metaSticky) {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onUpdate: ({modifier}) => {
       if (!modifier.$set.metaSticky) {
         return false;
       }
@@ -2923,7 +2905,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onEdit: (modifier, document, currentUser) => {
+    onUpdate: ({modifier, document, currentUser}) => {
       if (modifier.$set?.rejected && currentUser) {
         return modifier.$set.rejectedByUserId || currentUser._id
       }
@@ -3032,7 +3014,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    onInsert: () => new Date(),
+    onCreate: () => new Date(),
   },
 
   afSticky: {
@@ -3047,12 +3029,12 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForumAdmins', 'admins'],
     control: 'checkbox',
-    onInsert: (post: DbPost) => {
+    onCreate: ({document: post}) => {
       if(!post.afSticky) {
         return false;
       }
     },
-    onEdit: (modifier: MongoModifier<DbPost>, post: DbPost) => {
+    onUpdate: ({modifier}) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }
@@ -3147,7 +3129,12 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      const reviews = await getWithCustomLoader(
+        context,
+        'postReviews',
+        post._id,
+        (postIds: string[]) => context.repos.comments.getPostReviews(postIds, 2, 10),
+      );
       return await accessFilterMultiple(currentUser, Comments, reviews, context);
     }
   }),

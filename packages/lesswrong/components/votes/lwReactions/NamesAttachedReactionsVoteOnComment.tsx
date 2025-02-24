@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
-import { Components, registerComponent, slugify } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
@@ -24,6 +24,7 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
+import { slugify } from '@/lib/utils/slugify';
 
 const styles = (theme: ThemeType) => ({
   root: {

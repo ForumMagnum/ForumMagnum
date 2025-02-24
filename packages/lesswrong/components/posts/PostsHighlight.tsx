@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -34,17 +34,18 @@ const styles = (theme: ThemeType) => ({
 const TruncatedSuffix: FC<{
   post: PostsList,
   forceSeeMore?: boolean,
-  wordsLeft: number,
+  wordsLeft: number|null,
   clickExpand: (ev: MouseEvent) => void,
 }> = ({post, forceSeeMore, wordsLeft, clickExpand}) => {
-  if (forceSeeMore || wordsLeft < 1000) {
+  if (forceSeeMore || (wordsLeft && wordsLeft < 1000)) {
     return (
       <Link
         to={postGetPageUrl(post)}
         onClick={clickExpand}
         eventProps={{intent: 'expandPost'}}
       >
-        ({preferredHeadingCase("See More")} – {wordsLeft} more words)
+        {"("}{preferredHeadingCase("See More")}
+        {wordsLeft && <>{" – "}{wordsLeft} more words</>}{")"}
       </Link>
     );
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
@@ -67,7 +67,7 @@ const TagVoteActivityRow = ({vote, classes}: {
       <td><UsersName documentId={vote.userId}/></td>
       <td className={classes.postCell}> <TagSmallPostLink hideMeta post={vote.tagRel?.post}/> </td>
       <td className={classes.tagCell}>
-        <FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore smallText/>
+        <FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore smallText hoverable={true} />
       </td>
       <td className={classes.smallCell}>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
       <td className={classes.smallCell}><FormatDate date={vote.votedAt}/></td>

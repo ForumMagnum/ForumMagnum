@@ -1,6 +1,6 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { Components, registerComponent } from "../../lib/vulcan-lib"
+import { Components, registerComponent } from "../../lib/vulcan-lib/components"
 
 // Pablo, Leo, Lizka
 const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM', 'SuPnfB9qqKWsucNzm']
@@ -20,7 +20,7 @@ function RecentDiscussionTagRevisionItem({
   tag: TagBasicInfo,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
-  revision: RevisionMetadataWithChangeMetrics,
+  revision: RevisionHistoryEntry,
   documentId: string,
 }) {
   const { TagRevisionItem } = Components

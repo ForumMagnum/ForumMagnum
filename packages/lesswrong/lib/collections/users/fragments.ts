@@ -57,6 +57,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
     frontpagePostCount
@@ -306,6 +307,49 @@ registerFragment(`
         eaAddedReacts
       }
       todaysKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+      }
+      thisWeeksKarmaChanges {
         posts {
           _id
           scoreChange
@@ -615,6 +659,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
   }

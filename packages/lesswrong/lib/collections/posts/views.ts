@@ -5,7 +5,7 @@ import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings
 import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
-import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
@@ -67,7 +67,6 @@ declare global {
     notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
-    excludeContents?: boolean,
     includeArchived?: boolean,
     includeDraftEvents?: boolean,
     includeShared?: boolean,
@@ -1266,8 +1265,11 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
-      draft: viewFieldAllowAny,
-      rejected: null
+      rejected: null,
+      $or: [
+        { wasEverUndrafted: true },
+        { draft: false }
+      ]
     },
     options: {
       sort: {
@@ -1496,9 +1498,6 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       sort: {
         lastCommentedAt: -1
       },
-      ...(terms.excludeContents ?
-        {projection: {contents: 0}} :
-        {})
     }
   }
 })
@@ -1506,6 +1505,35 @@ ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, tagRelevance: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
+
+Posts.addView("frontpageReviewWidget", (terms: PostsViewTerms) => {
+  if (!terms.reviewYear) {
+    throw new Error("reviewYear is required for reviewVoting view");
+  }
+  return {
+    selector: {
+      $or: [
+        {[`tagRelevance.${longformReviewTagId}`]: {$gte: 1}},
+        {
+          $and: [
+            {postedAt: {$gte: moment.utc(`${terms.reviewYear}-01-01`).toDate()}},
+            {postedAt: {$lt: moment.utc(`${terms.reviewYear+1}-01-01`).toDate()}},
+            {positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) }}
+          ]
+        }
+      ],
+      _id: { $nin: reviewExcludedPostIds }
+    },
+    options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        lastCommentedAt: -1
+      },
+    }
+  }
+})
+
 
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
@@ -1537,9 +1565,6 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
       sort: {
         lastCommentedAt: -1
       },
-      ...(terms.excludeContents ?
-        {projection: {contents: 0}} :
-        {})
     }
   }
 })

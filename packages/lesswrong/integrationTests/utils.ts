@@ -1,8 +1,7 @@
-import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
 import Users from '../lib/collections/users/collection';
-import { Posts } from '../lib/collections/posts'
-import { Comments } from '../lib/collections/comments'
-import { Votes } from '../lib/collections/votes'
+import { Posts } from '../lib/collections/posts/collection'
+import { Comments } from '../lib/collections/comments/collection'
+import { Votes } from '../lib/collections/votes/collection'
 import Tags from '../lib/collections/tags/collection'
 import Revisions from '../lib/collections/revisions/collection'
 import Conversations from '../lib/collections/conversations/collection';
@@ -12,9 +11,11 @@ import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
-import { UserRateLimits } from '../lib/collections/userRateLimits';
+import { UserRateLimits } from '../lib/collections/userRateLimits/collection';
 import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
+import { createMutator } from "../server/vulcan-lib/mutators";
+import { runQuery, setOnGraphQLError } from "../server/vulcan-lib/query";
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -237,7 +238,7 @@ export const createDummyComment = async (user: any, data?: any) => {
     },
   }
   if (!data.postId) {
-    const randomPost = await Posts.findOne()
+    const randomPost = await Posts.findOneArbitrary()
     if (!randomPost) throw Error("Can't find any post to generate random comment for")
     defaultData.postId = randomPost._id; // By default, just grab ID from a random post
   }

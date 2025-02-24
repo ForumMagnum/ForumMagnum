@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment reviewVoteFragment on ReviewVote {
@@ -29,3 +29,18 @@ registerFragment(`
     }
   }
 `)
+
+registerFragment(`
+  fragment reviewAdminDashboard on ReviewVote {
+    _id
+    createdAt
+    userId
+    user {
+      _id
+      displayName
+      karma
+    }
+  }
+`)
+
+

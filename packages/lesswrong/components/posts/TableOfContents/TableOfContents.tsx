@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
 import type { ToCDisplayOptions } from './TableOfContentsList';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
 });
@@ -35,24 +36,28 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
 
   if (fixedPositionToc) {
     return (
-      <Components.FixedPositionToC
-        tocSections={displayToc.sectionData.sections}
-        title={title}
-        heading={heading}
-        onClickSection={onClickSection}
-        displayOptions={displayOptions}
-        hover={hover}
-      />
+      <AnalyticsContext pageSectionContext="tableOfContents" componentName="FixedPositionToC">
+        <Components.FixedPositionToC
+          tocSections={displayToc.sectionData.sections}
+          title={title}
+          heading={heading}
+          onClickSection={onClickSection}
+          displayOptions={displayOptions}
+          hover={hover}
+        />
+      </AnalyticsContext>
     );
   }
 
   return (
-    <Components.TableOfContentsList
-      tocSections={sectionData.sections}
-      title={title}
-      onClickSection={onClickSection}
-      displayOptions={displayOptions}
-    />
+    <AnalyticsContext pageSectionContext="tableOfContents" componentName="TableOfContentsList">
+      <Components.TableOfContentsList
+        tocSections={sectionData.sections}
+        title={title}
+        onClickSection={onClickSection}
+        displayOptions={displayOptions}
+      />
+    </AnalyticsContext>
   );
 }
 

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
+import { useDialog } from '../common/withDialog';
+import { ArbitalLogo } from '../icons/ArbitalLogo';
 
 const styles = (theme: ThemeType) => ({
   username: {
@@ -10,23 +11,49 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.16rem",
     color: theme.palette.text.normal,
     marginRight: 12
-  }
+  },
+  arbitalLogo: {
+    fill: theme.palette.grey[600],
+    cursor: "pointer",
+    width: 12,
+    height: 12,
+    marginRight: 16,
+    verticalAlign: "baseline",
+  },
+  skippedIcon: {
+    cursor: "pointer",
+    "--icon-size": "20px",
+    verticalAlign: "middle",
+    marginRight: 16,
+  },
 });
 
-const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
+const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
   tag: TagBasicInfo,
-  revision: RevisionMetadataWithChangeMetrics,
+  url: string,
+  itemDescription?: React.ReactNode,
+  revision: RevisionHistoryEntry,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
-  const revUrl = tagGetRevisionLink(tag, revision.version);
+  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote, ForumIcon } = Components
+  const { openDialog } = useDialog();
+  
+  function showArbitalImportDetails() {
+    openDialog({
+      componentName: "ArbitalImportRevisionDetails",
+      componentProps: {
+        revision,
+      },
+    });
+  }
   
   return <>
+    {itemDescription}
     <span className={classes.username}>
-      <UsersName documentId={revision.userId}/>
+      <UsersNameDisplay user={revision.user}/>
     </span>
     {" "}
-    <Link to={revUrl}>
+    <Link to={url}>
       <LWTooltip title="View Selected Revision"><>
         <MetaInfo>
           v{revision.version}
@@ -37,8 +64,22 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
       </></LWTooltip>
     </Link>
     {" "}
+    {revision.skipAttributions && <>
+      <LWTooltip title="Excluded from author-attribution.">
+        <span className={classes.skippedIcon}>
+          <ForumIcon icon="Clear"/>
+        </span>
+      </LWTooltip>
+    </>}
+    {revision.legacyData?.arbitalPageId && <>
+      <LWTooltip title="Imported from Arbital. Click to view original Markdown.">
+        <span onClick={showArbitalImportDetails}>
+          <ArbitalLogo className={classes.arbitalLogo} strokeWidth={0.7}/>
+        </span>
+      </LWTooltip>
+    </>}
     <MetaInfo>
-      <Link to={revUrl}>
+      <Link to={url}>
         <ChangeMetricsDisplay changeMetrics={revision.changeMetrics}/>
         {" "}
         {revision.commitMessage}

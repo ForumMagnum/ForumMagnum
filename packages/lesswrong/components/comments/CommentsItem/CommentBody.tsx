@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -98,8 +98,8 @@ const CommentBody = ({
     />
   </ContentStyles>
 
-  if (votingSystem.name === "namesAttachedReactions" && voteProps) {
-    return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
+  if (votingSystem.hasInlineReacts && voteProps) {
+    return <InlineReactSelectionWrapper contentRef={commentBodyRef} voteProps={voteProps} styling="comment" >
       {contentBody}
     </InlineReactSelectionWrapper>
   } else {

@@ -1,14 +1,14 @@
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
 import { isLWorAF } from '../../lib/instanceSettings';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { InboxComponentProps } from './InboxWrapper';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({

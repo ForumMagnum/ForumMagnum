@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-type TagWithCount = TagPreviewFragment & {count: number}
+type TagWithCount = TagBasicInfo & {count: number}
 
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 

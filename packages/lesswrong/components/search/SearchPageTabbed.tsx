@@ -1,10 +1,9 @@
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { useLocation } from '../../lib/routeUtil';
 import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -25,9 +24,10 @@ import {
 } from '../../lib/search/searchUtil';
 import Modal from '@material-ui/core/Modal';
 import classNames from 'classnames';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const hitsPerPage = 10
 
@@ -355,7 +355,7 @@ const SearchPageTabbed = ({classes}: {
   return <div className={classes.root}>
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
-      searchClient={getSearchClient()}
+      searchClient={getSearchClient({emptyStringSearchResults: "default"})}
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
     >

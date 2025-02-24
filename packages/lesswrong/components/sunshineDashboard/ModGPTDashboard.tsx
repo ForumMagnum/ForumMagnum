@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components, registerComponent, sanitizeAllowedTags } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
@@ -7,6 +6,8 @@ import type { Column } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
 
 const styles = (theme: ThemeType) => ({
   root: {

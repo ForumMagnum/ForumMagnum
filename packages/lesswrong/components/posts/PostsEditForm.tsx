@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { useLocation } from '../../lib/routeUtil'
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
@@ -15,11 +13,13 @@ import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -152,7 +152,11 @@ const PostsEditForm = ({ documentId, version, classes }: {
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
-        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+        {rateLimitNextAbleToPost && <RateLimitWarning
+          contentType="post"
+          lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
+          rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}
+        />}
         <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm

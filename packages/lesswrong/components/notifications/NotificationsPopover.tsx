@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
@@ -11,6 +11,7 @@ import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema"
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
+import classNames from "classnames";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -55,13 +56,18 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 12,
   },
-  noKarma: {
+  karmaNotificationMessage: {
     fontSize: 13,
     fontWeight: 500,
     color: theme.palette.grey[600],
   },
+  noKarma: {
+    marginTop: 3,
+    marginBottom: 12,
+    fontStyle: "italic"
+  },
   karmaSubsectionTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 600,
     color: theme.palette.grey[600],
     marginBottom: 6,
@@ -88,6 +94,15 @@ const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
     case "daily":  return " since yesterday";
     case "weekly": return " since last week";
     default:       return "";
+  }
+}
+
+const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
+  switch (batchingFrequency) {
+    case "realtime":  return "appear in real time";
+    case "daily":  return "are batched daily";
+    case "weekly": return "are batched weekly";
+    case "disabled": return "are disabled";
   }
 }
 
@@ -163,8 +178,8 @@ const NotificationsPopover = ({
       cachedKarmaChanges.tagRevisions?.length
     ), [cachedKarmaChanges]
   )
-  // For realtime karma notifications, show a section under the new karma notifications
-  // called "Today", which includes all karma notifications from the past 24 hours
+  // Show a section under the new karma notifications called "Today",
+  // which includes all karma notifications from the past 24 hours
   const todaysKarmaChanges = cachedKarmaChanges?.todaysKarmaChanges
   const hasKarmaChangesToday = useMemo(() => todaysKarmaChanges &&
     (
@@ -172,6 +187,16 @@ const NotificationsPopover = ({
       todaysKarmaChanges.comments?.length ||
       todaysKarmaChanges.tagRevisions?.length
     ), [todaysKarmaChanges]
+  )
+  // Show a section under the new karma notifications called "This week",
+  // which includes all karma notifications from the past week
+  const thisWeeksKarmaChanges = cachedKarmaChanges?.thisWeeksKarmaChanges
+  const hasKarmaChangesThisWeek = useMemo(() => thisWeeksKarmaChanges &&
+    (
+      thisWeeksKarmaChanges.posts?.length ||
+      thisWeeksKarmaChanges.comments?.length ||
+      thisWeeksKarmaChanges.tagRevisions?.length
+    ), [thisWeeksKarmaChanges]
   )
 
   if (!currentUser) {
@@ -183,7 +208,7 @@ const NotificationsPopover = ({
     subscribedToDigest,
   } = currentUser;
 
-  const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday);
+  const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday || hasKarmaChangesThisWeek);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
@@ -234,15 +259,9 @@ const NotificationsPopover = ({
                     karmaChanges={cachedKarmaChanges}
                   />
                 }
-                {!hasNewKarmaChanges && !hasKarmaChangesToday &&
-                  <div className={classes.noKarma}>
-                    No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-                    <NotifPopoverLink
-                      to={karmaSettingsLink}
-                      className={classes.link}
-                    >
-                      Change settings
-                    </NotifPopoverLink>
+                {!hasNewKarmaChanges && !hasKarmaChangesToday && !hasKarmaChangesThisWeek &&
+                  <div className={classNames(classes.karmaNotificationMessage, classes.noKarma)}>
+                    <em>No new karma or reacts</em>
                   </div>
                 }
                 {!!hasKarmaChangesToday &&
@@ -254,6 +273,24 @@ const NotificationsPopover = ({
                     />
                   </div>
                 }
+                {!!hasKarmaChangesThisWeek &&
+                  <div>
+                    <div className={classes.karmaSubsectionTitle}>This week</div>
+                    <NotificationsPageKarmaChangeList
+                      karmaChanges={thisWeeksKarmaChanges}
+                      truncateAt={2}
+                    />
+                  </div>
+                }
+                <div className={classes.karmaNotificationMessage}>
+                  Notifications {getSettingsNudge(updateFrequency)}.{" "}
+                  <NotifPopoverLink
+                    to={karmaSettingsLink}
+                    className={classes.link}
+                  >
+                    Change settings
+                  </NotifPopoverLink>
+                </div>
                 <SectionTitle
                   title="Posts & comments"
                   titleClassName={classes.sectionTitle}

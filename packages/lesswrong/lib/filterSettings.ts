@@ -40,7 +40,7 @@ export const getDefaultFilterSettings = (): FilterSettings => {
   }
 }
 
-const addSuggestedTagsToSettings = (existingFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
+const addSuggestedTagsToSettings = (existingFilterSettings: FilterSettings, suggestedTags: Array<TagBasicInfo>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};
   for (let tag of existingFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
@@ -90,7 +90,7 @@ export const useFilterSettings = () => {
       view: "suggestedFilterTags",
     },
     collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
+    fragmentName: "TagBasicInfo",
     limit: 100,
   })
   

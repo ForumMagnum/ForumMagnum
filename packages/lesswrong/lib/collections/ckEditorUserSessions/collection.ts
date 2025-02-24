@@ -1,7 +1,8 @@
 import { ensureIndex } from "../../collectionIndexUtils";
-import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils";
-import { createCollection } from "../../vulcan-lib";
+import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const CkEditorUserSessions = createCollection({
   collectionName: 'CkEditorUserSessions',

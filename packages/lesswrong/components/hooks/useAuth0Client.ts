@@ -1,5 +1,5 @@
 import { auth0ClientSettings } from "../../lib/publicSettings";
-import { combineUrls } from "../../lib/vulcan-lib";
+import { combineUrls } from "../../lib/vulcan-lib/utils";
 
 class Auth0ClientError extends Error {
   constructor(message?: string | null, public policy?: string | null) {

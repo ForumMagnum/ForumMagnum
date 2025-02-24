@@ -72,9 +72,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("WHERE");
 
       if (limit) {
+        const projection = {_id: 1} as MongoProjection<T>;
         this.atoms = this.atoms.concat([
           "_id IN",
-          new SelectQuery(table, selector, {limit, projection: {_id: 1}}, {forUpdate: true}),
+          new SelectQuery(table, selector, {limit, projection}, {forUpdate: true}),
         ]);
       } else {
         this.appendSelector(selector);

@@ -2,7 +2,7 @@ import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
 import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
-import { updateMutator } from './vulcan-lib';
+import { updateMutator } from './vulcan-lib/mutators';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
@@ -93,6 +93,11 @@ async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
 
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
+    
+    // Don't spam-check imported comments
+    if (comment.legacyData?.arbitalPageId) {
+      return comment;
+    }
 
     const unreviewedUser = !currentUser.reviewedByUserId;
     

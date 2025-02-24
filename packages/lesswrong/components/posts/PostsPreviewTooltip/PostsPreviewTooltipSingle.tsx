@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { Components } from '../../../lib/vulcan-lib';
+import { Components } from '../../../lib/vulcan-lib/components';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
 
 export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {

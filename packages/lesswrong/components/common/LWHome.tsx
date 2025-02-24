@@ -1,4 +1,3 @@
-import { combineUrls, Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
@@ -9,6 +8,8 @@ import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
+import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -52,14 +53,11 @@ const LWHome = () => {
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
-            {getReviewPhase() === "RESULTS" && <SingleColumnSection>
-              <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
-            </SingleColumnSection>}
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
               <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
             </SingleColumnSection>}
           </>}
-          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}

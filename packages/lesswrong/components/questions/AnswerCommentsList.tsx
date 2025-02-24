@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';

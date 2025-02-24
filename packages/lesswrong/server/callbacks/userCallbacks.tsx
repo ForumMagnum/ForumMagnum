@@ -3,8 +3,8 @@ import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
-import { Posts } from '../../lib/collections/posts'
-import { Comments } from '../../lib/collections/comments'
+import { Posts } from '../../lib/collections/posts/collection'
+import { Comments } from '../../lib/collections/comments/collection'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
@@ -141,6 +141,12 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
 });
 
 getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
+  // Skip email confirmation if no email address is attached to the account.
+  // An email address is required when signing up normally, but might not exist
+  // for users created by data import, eg importing Arbital
+  if (!user.email)
+    return;
+
   await sendVerificationEmailConditional(user);
 });
 
@@ -354,13 +360,13 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
 const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
-  // Delay is by default 60 minutes between when you create an account, and
+  // Delay is by default 5 minutes between when you create an account, and
   // when we send the welcome email. The theory is that users creating new
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
   // LW wants people to see site intro before posting
-  defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 60},
+  defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
     void sendWelcomeMessageTo(userId);
@@ -474,6 +480,10 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
 
 getCollectionHooks("Users").createAsync.add(({ document }) => {
   if (!recombeeEnabledSetting.get()) return;
+
+  // Skip users without email addresses because that means they're imported
+  if (!document.email)
+    return;
 
   void recombeeApi.createUser(document)
     // eslint-disable-next-line no-console

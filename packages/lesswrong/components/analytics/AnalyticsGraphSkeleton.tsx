@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import {
   GRAPH_HEIGHT,
   GRAPH_LEFT_MARGIN,

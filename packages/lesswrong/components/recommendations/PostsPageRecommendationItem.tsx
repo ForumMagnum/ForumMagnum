@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";

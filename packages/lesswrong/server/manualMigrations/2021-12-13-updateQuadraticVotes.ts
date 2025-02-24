@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import ReviewVotes from '../../lib/collections/reviewVotes/collection';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 
 
@@ -41,7 +41,7 @@ const getCost = (vote: AnyBecauseObsolete) => voteMap[vote.qualitativeScore].cos
 const getValue = (vote: AnyBecauseObsolete) => voteMap[vote.qualitativeScore].value
 
 // TODO: Write a better version of this migration which properly normalizes vote strength
-registerMigration({
+export default registerMigration({
   name: "updateQuadraticVotes",
   dateWritten: "2021-12-02",
   idempotent: true,

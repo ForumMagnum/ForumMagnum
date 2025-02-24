@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
@@ -161,7 +161,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
         </div>
       }
       <div className={classes.tag}>
-        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText />}
+        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText hoverable={true} />}
       </div>
       <div className={classes.preview}>
         {comment.contents?.plaintextMainText}

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
@@ -168,7 +168,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         {quickTake.relevantTags.length > 0 &&
           <InteractionWrapper className={classes.relevantTags}>
             {quickTake.relevantTags.map((tag) =>
-              <FooterTag key={tag._id} tag={tag} smallText />
+              <FooterTag key={tag._id} tag={tag} smallText hoverable={true} />
             )}
           </InteractionWrapper>
         }

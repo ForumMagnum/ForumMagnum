@@ -5,13 +5,13 @@ import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
 import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
 import { Users } from '../lib/collections/users/collection'
-import { Posts } from '../lib/collections/posts'
-import { Comments } from '../lib/collections/comments'
+import { Posts } from '../lib/collections/posts/collection'
+import { Comments } from '../lib/collections/comments/collection'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { slugify } from '../lib/vulcan-lib/utils';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
+import { slugify } from "@/lib/utils/slugify";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {

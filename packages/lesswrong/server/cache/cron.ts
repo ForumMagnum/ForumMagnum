@@ -1,7 +1,7 @@
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 import PageCacheRepo from '../repos/PageCacheRepo';
 
-addCronJob({
+export const cronClearExpiredPageCacheEntries = addCronJob({
   name: 'clearExpiredPageCacheEntries',
   interval: 'every 5 minutes',
   async job() {

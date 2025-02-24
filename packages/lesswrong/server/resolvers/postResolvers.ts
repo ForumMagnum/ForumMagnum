@@ -11,7 +11,6 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
@@ -35,6 +34,8 @@ import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../l
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
+import { createMutator } from "../vulcan-lib/mutators";
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the

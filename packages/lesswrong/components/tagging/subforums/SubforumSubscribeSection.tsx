@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
@@ -7,6 +6,8 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
 const styles = (_theme: ThemeType) => ({
   root: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -27,7 +27,7 @@ import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
-import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -503,7 +503,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
             <div className={classes.interests}>
               <div>Interests:</div>
               {user.profileTags.map((tag) =>
-                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon />
+                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon hoverable={true} />
               )}
             </div>
           }
