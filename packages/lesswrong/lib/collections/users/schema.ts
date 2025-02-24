@@ -247,7 +247,6 @@ export function newToLegacyNotificationTypeSettings(newFormat: NotificationTypeS
 ///////////////////////////////////////////////
 
 
-// TODO share schema with regular notifications
 export type KarmaChangeSettings = {
   updateFrequency: NotificationBatchingFrequency,
   /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */

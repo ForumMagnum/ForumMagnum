@@ -155,7 +155,6 @@ export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): Not
   return result;
 }
 
-// TODO understand this function
 const registerNotificationType = ({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType) => {
   const notificationTypeClass = {allowedChannels, ...otherArgs};
 
@@ -658,9 +657,6 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  // TODO previous behaviour was to not allow turning off these notifications, see if:
-  // - We still want that
-  // - It can be implemented neatly in the new system
   allowedChannels: ["onsite", "email"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbMessage;
@@ -733,9 +729,6 @@ export const PostSharedWithUserNotification = registerNotificationType({
 export const PostAddedAsCoauthorNotification = registerNotificationType({
   name: "addedAsCoauthor",
   userSettingField: "notificationAddedAsCoauthor",
-  // TODO previous behaviour was to not allow turning off these notifications, see if:
-  // - We still want that
-  // - It can be implemented neatly in the new system
   allowedChannels: ["onsite", "email"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbPost;
