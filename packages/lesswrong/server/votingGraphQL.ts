@@ -68,7 +68,7 @@ function addVoteMutations(collection: CollectionBase<VoteableCollectionName>) {
   //     updatedDocument: Post
   //     votingPatternsWarning: Bool!
   //   }
-  const typeName = collection.options.typeName;
+  const typeName = collection.typeName;
   const backCompatMutationName = `setVote${typeName}`;
   const mutationName = `performVote${typeName}`;
   

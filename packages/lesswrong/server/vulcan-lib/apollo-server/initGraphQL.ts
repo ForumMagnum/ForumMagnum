@@ -344,7 +344,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
 
   const schemaFragments: Array<string> = [];
 
-  const collectionName = collection.options.collectionName;
+  const collectionName = collection.collectionName;
 
   const typeName = collection.typeName
     ? collection.typeName

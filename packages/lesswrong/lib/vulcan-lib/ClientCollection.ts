@@ -13,9 +13,14 @@ class ClientCollection<
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
+
+    this._schemaFields = options.schema;
+    this._simpleSchema = null;
   }
 
   isConnected() {

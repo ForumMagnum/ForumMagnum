@@ -56,9 +56,20 @@ class PgCollection<
   private table: Table<ObjectsByCollectionName[N]>;
   private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
+
+    // Schema fields, passed as the schema option to createCollection or added
+    // later with addFieldsDict. Do not access directly; use getSchema.
+    this._schemaFields = options.schema;
+    // Schema fields, but converted into the format used by the simple-schema
+    // library. This is a cache of the conversion; when _schemaFields changes it
+    // should be invalidated by setting it to null. Do not access directly; use
+    // getSimpleSchema.
+    this._simpleSchema = null;
   }
 
   isConnected() {
