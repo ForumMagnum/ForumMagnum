@@ -131,7 +131,123 @@ export const defaultNotificationTypeSettings: NotificationTypeSettings = {
 };
 
 
-// TODO handle rename from updateFrequency to batchingFrequecy
+///////////////////////////////////////////////
+// Migration of NotificationTypeSettings     //
+//                                           //
+// This section is here to support migrating //
+// NotificationTypeSettings to a new format, //
+// and will be deleted shortly               //
+///////////////////////////////////////////////
+
+export type LegacyNotificationTypeSettings = {
+  channel: "none" | "onsite" | "email" | "both";
+  batchingFrequency: "realtime" | "daily" | "weekly";
+  timeOfDayGMT: number;
+  dayOfWeekGMT: DayOfWeek;
+};
+
+
+export const legacyDefaultNotificationTypeSettings: LegacyNotificationTypeSettings = {
+  channel: "onsite",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
+
+export function isLegacyNotificationTypeSettings(value: AnyBecauseIsInput): value is LegacyNotificationTypeSettings {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'channel' in value &&
+    'batchingFrequency' in value &&
+    'timeOfDayGMT' in value &&
+    'dayOfWeekGMT' in value
+  );
+}
+
+export function isNewNotificationTypeSettings(value: AnyBecauseIsInput): value is NotificationTypeSettings {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'onsite' in value &&
+    'email' in value &&
+    typeof value.onsite === 'object' &&
+    typeof value.email === 'object' &&
+    'batchingFrequency' in value.onsite &&
+    'timeOfDayGMT' in value.onsite &&
+    'dayOfWeekGMT' in value.onsite
+  );
+}
+
+export function legacyToNewNotificationTypeSettings(legacyFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
+  if (!legacyFormat) return defaultNotificationTypeSettings;
+  if (isNewNotificationTypeSettings(legacyFormat)) return legacyFormat
+
+  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = legacyFormat;
+
+  return {
+    onsite: {
+      batchingFrequency: (channel === "both" || channel === "onsite") ? batchingFrequency : "disabled",
+      timeOfDayGMT,
+      dayOfWeekGMT,
+    },
+    email: {
+      batchingFrequency: (channel === "both" || channel === "email") ? batchingFrequency : "disabled",
+      timeOfDayGMT,
+      dayOfWeekGMT,
+    },
+  };
+};
+
+export function newToLegacyNotificationTypeSettings(newFormat: NotificationTypeSettings | null): LegacyNotificationTypeSettings {
+  if (!newFormat) return legacyDefaultNotificationTypeSettings;
+  if (isLegacyNotificationTypeSettings(newFormat)) return newFormat;
+
+  const { onsite, email } = newFormat;
+
+  let channel: "none" | "onsite" | "email" | "both" = "none";
+  if (onsite.batchingFrequency !== "disabled" && email.batchingFrequency !== "disabled") {
+    channel = "both";
+  } else if (onsite.batchingFrequency !== "disabled") {
+    channel = "onsite";
+  } else if (email.batchingFrequency !== "disabled") {
+    channel = "email";
+  }
+
+  // Not a one-to-one mapping here because the old format doesn't support different settings for each channel
+  // when both are enabled. If this is the case, choose the faster frequency for both
+  let batchingFrequency: "realtime" | "daily" | "weekly" = "realtime";
+  if (channel === "both") {
+    const frequencies = [onsite.batchingFrequency, email.batchingFrequency];
+    if (frequencies.includes("realtime")) {
+      batchingFrequency = "realtime";
+    } else if (frequencies.includes("daily")) {
+      batchingFrequency = "daily";
+    } else {
+      batchingFrequency = "weekly";
+    }
+  } else if (channel === "onsite" && onsite.batchingFrequency !== "disabled") {
+    batchingFrequency = onsite.batchingFrequency;
+  } else if (channel === "email" && email.batchingFrequency !== "disabled") {
+    batchingFrequency = email.batchingFrequency;
+  }
+
+  // Use onsite settings as the default for time and day, assuming they are the same for both
+  return {
+    channel,
+    batchingFrequency,
+    timeOfDayGMT: onsite.timeOfDayGMT,
+    dayOfWeekGMT: onsite.dayOfWeekGMT,
+  };
+}
+
+///////////////////////////////////////////////
+// End migration of NotificationTypeSettings //
+///////////////////////////////////////////////
+
+
+// TODO share schema with regular notifications
 export type KarmaChangeSettings = {
   updateFrequency: NotificationBatchingFrequency,
   /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
@@ -159,8 +275,7 @@ const karmaChangeSettingsSchema = new SimpleSchema({
     allowedValues: Array.from(DAYS_OF_WEEK)
   },
 })
-// TODO share schema with regular notifications
-// karmaChangeSettingsSchema.extend(notificationChannelSettingsSchema)
+
 export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettings>({
   EAForum: {
     updateFrequency: "realtime",
@@ -195,16 +310,21 @@ const notificationTypeSettingsField = (overrideSettings?: DeepPartial<Notificati
     email: { ...defaultNotificationTypeSettings.email, ...overrideSettings?.email }
   }
 
+  // TODO remove once migration is complete
+  const migrationFields = {
+    blackbox: true
+  }
+
   return {
     type: notificationTypeSettingsSchema,
     optional: true,
-    blackbox: true,
     group: formGroups.notifications,
     control: "NotificationTypeSettings" as const,
     canRead: [userOwns, 'admins'] as FieldPermissions,
     canUpdate: [userOwns, 'admins'] as FieldPermissions,
     canCreate: ['members', 'admins'] as FieldCreatePermissions,
-    ...schemaDefaultValue(defaultValue)
+    ...schemaDefaultValue(defaultValue),
+    ...migrationFields
   };
 };
 

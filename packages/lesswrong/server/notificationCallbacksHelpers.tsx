@@ -10,7 +10,7 @@ import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionIndexUtils';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/query';
@@ -189,7 +189,7 @@ export const createNotification = async ({
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField])
-    ? user[userSettingField] as NotificationTypeSettings
+    ? legacyToNewNotificationTypeSettings(user[userSettingField])
     : fallbackNotificationTypeSettings;
 
   let notificationData = {
@@ -203,7 +203,6 @@ export const createNotification = async ({
   }
 
   const { onsite, email } = notificationTypeSettings;
-  // TODO rewrite in a way that avoids duplication
   if (onsite.batchingFrequency !== "disabled") {
     const createdNotification = await createMutator({
       collection: Notifications,

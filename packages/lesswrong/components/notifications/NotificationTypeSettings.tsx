@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {
   DayOfWeek,
-  defaultNotificationTypeSettings,
+  isLegacyNotificationTypeSettings,
+  LegacyNotificationTypeSettings,
+  legacyToNewNotificationTypeSettings,
   NotificationBatchingFrequency,
   NotificationChannel,
   NotificationChannelSettings,
@@ -26,33 +28,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-type OldNotificationType = {
-  channel: "none" | "onsite" | "email" | "both",
-  batchingFrequency: "realtime" | "daily" | "weekly",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-}
-
-// TODO styling
-const convertFormat = (oldFormat: OldNotificationType | null): NotificationTypeSettings => {
-  if (!oldFormat) return defaultNotificationTypeSettings;
-
-  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = oldFormat;
-
-  return {
-    onsite: {
-      batchingFrequency: (channel === "both" || channel === "onsite") ? batchingFrequency : "disabled",
-      timeOfDayGMT,
-      dayOfWeekGMT,
-    },
-    email: {
-      batchingFrequency: (channel === "both" || channel === "email") ? batchingFrequency : "disabled",
-      timeOfDayGMT,
-      dayOfWeekGMT,
-    },
-  };
-};
-
 function NotificationTypeSettings({
   path,
   value,
@@ -61,17 +36,17 @@ function NotificationTypeSettings({
   classes
 }: {
   path: keyof DbUser;
-  value: NotificationTypeSettings;
+  value: NotificationTypeSettings | LegacyNotificationTypeSettings;
   updateCurrentValues: Function,
   label: string;
   classes: ClassesType<typeof styles>;
-}, context: any) {
+}) {
   const { BatchTimePicker, Typography, MenuItem } = Components;
   const notificationType = getNotificationTypeByUserSetting(path);
 
-  if ((value as unknown as OldNotificationType)?.dayOfWeekGMT || !value) {
-    value = convertFormat(value as unknown as OldNotificationType)
-    updateCurrentValues({ [path]: value });
+  const cleanValue = legacyToNewNotificationTypeSettings(value);
+  if (isLegacyNotificationTypeSettings(value) || !value) {
+    updateCurrentValues({ [path]: cleanValue });
   }
 
   /*
@@ -79,13 +54,13 @@ function NotificationTypeSettings({
    * channel: The notification channel (e.g. "onsite" or "email")
    * changes: The partial updated fields for that channel (batchingFrequency, dayOfWeekGMT, etc.)
    */
-  const modifyChannelValue = (channel: NotificationChannel, changes: Partial<NotificationChannelSettings>) => {
+  const modifyChannelValue = useCallback((channel: NotificationChannel, changes: Partial<NotificationChannelSettings>) => {
     const newSettings = {
       ...value,
-      [channel]: { ...value[channel], ...changes }
+      [channel]: { ...cleanValue[channel], ...changes }
     };
     updateCurrentValues({ [path]: newSettings });
-  };
+  }, [value, cleanValue, updateCurrentValues, path]);
 
   return (
     <div className={classes.root}>
@@ -93,7 +68,7 @@ function NotificationTypeSettings({
       {/* Display each channel in its own section */}
       {notificationType.allowedChannels?.map((channel: NotificationChannel) => {
         // Fall back if the channel config isn't present in value yet
-        const channelSettings = value[channel] || {
+        const channelSettings = cleanValue[channel] || {
           batchingFrequency: 'disabled',
           timeOfDayGMT: 0,
           dayOfWeekGMT: 'Monday' // or whichever default you prefer
