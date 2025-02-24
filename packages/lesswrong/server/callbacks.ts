@@ -9,7 +9,7 @@ import { clearVotesServer } from './voteServer';
 import { Posts } from '../lib/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Comments } from '../lib/collections/comments/collection'
-import { VoteableCollections } from '../lib/make_voteable';
+import { getVoteableCollections } from '../lib/make_voteable';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
@@ -90,7 +90,7 @@ export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext
 }
 
 export const nullifyVotesForUser = async (user: DbUser) => {
-  for (let collection of VoteableCollections) {
+  for (let collection of getVoteableCollections()) {
     await nullifyVotesForUserAndCollection(user, collection);
   }
 }
@@ -101,7 +101,7 @@ interface DateRange {
 }
 
 export const nullifyVotesForUserByTarget = async (user: DbUser, targetUserId: string, dateRange: DateRange) => {
-  for (let collection of VoteableCollections) {
+  for (let collection of getVoteableCollections()) {
     await nullifyVotesForUserAndCollectionByTarget(user, collection, targetUserId, dateRange);
   }
 }

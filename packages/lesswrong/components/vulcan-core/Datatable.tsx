@@ -42,7 +42,7 @@ export const Datatable = <
     limit,
     enableTotal: true,
   });
-  return <DatatableLayout collectionName={collection.options.collectionName}>
+  return <DatatableLayout collectionName={collection.collectionName}>
     <DatatableContents
       columns={columns}
       collection={collection}

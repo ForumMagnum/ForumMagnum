@@ -5,7 +5,6 @@ import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
-import { makeVoteable } from '@/lib/make_voteable';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
@@ -47,6 +46,9 @@ export const Tags = createCollection({
     },
   }),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
+  },
 });
 
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
@@ -126,9 +128,5 @@ makeEditable({
     },
   }
 })
-
-makeVoteable(Tags, {
-  timeDecayScoresCronjob: false,
-});
 
 export default Tags;
