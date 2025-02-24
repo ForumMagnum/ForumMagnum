@@ -6,6 +6,8 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
+export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
+
 const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
@@ -43,5 +45,28 @@ makeEditable({
   }
 })
 addUniversalFields({collection: Sequences})
+
+Sequences.checkAccess = async (user, document) => {
+  if (!document || document.isDeleted) {
+    return false;
+  }
+  
+  // If it isn't a draft, it's public
+  if (!document.draft) {
+    return true;
+  }
+  
+  if (!user) {
+    return false;
+  }
+  
+  if (userOwns(user, document)) {
+    return true;
+  } else if (userCanDo(user, `sequences.view.all`)) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 export default Sequences;
