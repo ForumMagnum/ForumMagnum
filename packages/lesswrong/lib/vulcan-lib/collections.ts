@@ -1,6 +1,5 @@
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
-import { addGraphQLCollection } from './graphql';
 import { pluralize } from './pluralize';
 import Collection from "@/server/sql/PgCollection"
 
@@ -24,13 +23,7 @@ export const collectionNameToGraphQLType = (collectionName: CollectionNameString
 export const createCollection = <N extends CollectionNameString>(
   options: CollectionOptions<N>,
 ): CollectionsByName[N] => {
-  // initialize new collection
   const collection: CollectionBase<N> = new Collection(options);
-
-  if (options.generateGraphQLSchema) {
-    // add collection to list of dynamically generated GraphQL schemas
-    addGraphQLCollection(collection);
-  }
 
   const defaultFragment = getDefaultFragmentText(collection, options.schema);
   if (defaultFragment) registerFragment(defaultFragment);

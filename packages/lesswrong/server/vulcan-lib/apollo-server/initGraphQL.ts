@@ -2,7 +2,7 @@
 // addGraphQLResolvers &c.
 
 import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getResolvers, getCollections, QueryAndDescription, MutationAndDescription } from '../../../lib/vulcan-lib/graphql';
+import { getAdditionalSchemas, queries, mutations, getResolvers, QueryAndDescription, MutationAndDescription } from '../../../lib/vulcan-lib/graphql';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -36,7 +36,7 @@ import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
-import { getCollectionByTypeName } from "../../../lib/vulcan-lib/getCollection";
+import { getAllCollections, getCollectionByTypeName } from "../../../lib/vulcan-lib/getCollection";
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
@@ -86,7 +86,7 @@ const getTypeDefs = () => {
   const allMutations = [...mutations];
   const allResolvers: Array<any> = [];
   
-  for (let collection of getCollections()) {
+  for (let collection of getAllCollections()) {
     const { schema, addedQueries, addedResolvers, addedMutations } = generateSchema(collection);
 
     for (let query of addedQueries) allQueries.push(query);
@@ -474,7 +474,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
   } else {
     // eslint-disable-next-line no-console
     console.log(
-      `// Warning: collection ${collectionName} doesn't have any GraphQL-enabled fields, so no corresponding type can be generated. Pass generateGraphQLSchema = false to createCollection() to disable this warning`
+      `Warning: collection ${collectionName} doesn't have any GraphQL-enabled fields, so no corresponding type can be generated.`
     );
   }
 

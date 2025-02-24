@@ -123,7 +123,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   collectionName: N,
   dbCollectionName?: string,
   schema: SchemaType<N>,
-  generateGraphQLSchema?: boolean,
   collection?: any,
   resolvers?: any,
   mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
