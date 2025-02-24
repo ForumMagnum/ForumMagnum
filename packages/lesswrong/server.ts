@@ -130,8 +130,6 @@ import './server/partiallyReadSequences';
 import './server/eventReminders';
 import './server/prunePerfMetricsCron';
 
-import './server/gatherTownCron';
-
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 import './server/callbacks/multiDocumentCallbacks';

@@ -19,7 +19,6 @@ import { Globals, Vulcan } from '@/lib/vulcan-lib/config';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { initGatherTownCron } from './gatherTownCron';
 import { registerViewCronJobs } from './postgresView';
 import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
@@ -62,7 +61,6 @@ export async function runServerOnStartupFunctions() {
   addElicitResolvers();
   addLegacyRssRoutes();
   await initReviewWinnerCache();
-  initGatherTownCron();
   addCountOfReferenceCallbacks();
 
   // define executableSchema
