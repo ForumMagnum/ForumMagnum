@@ -1,7 +1,7 @@
 import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
-import { membersGroup, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
@@ -92,10 +92,3 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
 
   return true;
 };
-
-membersGroup.can([
-  'multidocuments.smallDownvote',
-  'multidocuments.bigDownvote',
-  'multidocuments.smallUpvote',
-  'multidocuments.bigUpvote',
-]);

@@ -10,6 +10,7 @@ import { hasAuthorModeration } from '../../betas';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { postCheckAccess } from './checkAccess';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -127,6 +128,8 @@ makeEditable({
     },
   }
 })
+
+Posts.checkAccess = postCheckAccess;
 
 
 export default Posts;

@@ -1,5 +1,5 @@
 import schema from './schema';
-import { userCanDo, membersGroup, userIsAdminOrMod } from '../../vulcan-users/permissions';
+import { userCanDo, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
 import { postCheckAccess } from '../posts/checkAccess';
@@ -128,12 +128,5 @@ export interface ChangeMetrics {
   added: number
   removed: number
 }
-
-membersGroup.can([
-  'revisions.smallDownvote',
-  'revisions.bigDownvote',
-  'revisions.smallUpvote',
-  'revisions.bigUpvote',
-]);
 
 export default Revisions;

@@ -1,4 +1,3 @@
-
 // vulcan:users
 import './vulcan-users/index';
 
@@ -27,7 +26,6 @@ import './collections/clientIds/collection';
 // Notifications
 import './collections/notifications/collection';
 import './collections/notifications/views';
-import './collections/notifications/permissions';
 import './collections/notifications/fragments';
 
 // Images
@@ -36,21 +34,18 @@ import './collections/images/collection';
 // Inbox
 import './collections/messages/collection'
 import './collections/messages/views';
-import './collections/messages/permissions';
 import './collections/messages/helpers';
 import './collections/messages/fragments';
 
 import './collections/conversations/collection'
 import './collections/conversations/views';
 import './collections/conversations/helpers';
-import './collections/conversations/permissions';
 import './collections/conversations/fragments';
 
 // RSSFeeds
 import './collections/rssfeeds/collection'
 import './collections/rssfeeds/views'
 import './collections/rssfeeds/fragments'
-import './collections/rssfeeds/permissions'
 
 // Reports
 import './collections/reports/collection'
@@ -61,7 +56,6 @@ import './collections/reports/fragments'
 import './collections/lwevents/collection';
 import './collections/lwevents/fragments';
 import './collections/lwevents/views';
-import './collections/lwevents/permissions';
 
 // TagFlags
 import './collections/tagFlags/collection';
@@ -87,7 +81,6 @@ import './collections/readStatus/collection';
 import './collections/bans/collection';
 import './collections/bans/fragments';
 import './collections/bans/views';
-import './collections/bans/permissions';
 
 // Chapters
 import './collections/sequences/collection';
@@ -95,7 +88,6 @@ import './collections/sequences/views';
 import './collections/sequences/helpers';
 
 import './collections/chapters/collection';
-import './collections/chapters/permissions';
 
 import './collections/books/collection';
 import './collections/collections/collection';
@@ -110,7 +102,6 @@ import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';
-import './collections/localgroups/permissions';
 import './collections/localgroups/fragments';
 
 import './collections/chapters/fragments';
@@ -125,7 +116,6 @@ import './alignment-forum/users/fragments';
 
 import './collections/tagRels/collection';
 import './collections/tagRels/views';
-import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/userTagRels/collection';
@@ -143,28 +133,20 @@ import './collections/tweets/collection'
 
 import './collections/chapters/views';
 
-import './collections/sequences/permissions';
-import './collections/collections/permissions';
-import './collections/books/permissions';
-
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
-import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
 import './collections/userJobAds/collection';
 import './collections/userJobAds/fragments';
-import './collections/userJobAds/permissions';
 import './collections/userJobAds/views';
 
 import './collections/userEAGDetails/collection';
 import './collections/userEAGDetails/fragments';
-import './collections/userEAGDetails/permissions';
 import './collections/userEAGDetails/views';
 
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
-import './collections/userMostValuablePosts/permissions';
 import './collections/userMostValuablePosts/views';
 
 import './collections/useractivities/collection';
@@ -191,7 +173,6 @@ import './collections/forumEvents/views';
 import './collections/subscriptions/collection';
 import './collections/subscriptions/fragments';
 import './collections/subscriptions/views';
-import './collections/subscriptions/permissions';
 
 // Podcasts
 import './collections/podcasts/collection';
@@ -204,7 +185,6 @@ import './collections/podcastEpisodes/views';
 // Posts
 import './collections/posts/schema';
 import './collections/posts/views';
-import './collections/posts/permissions';
 import './collections/posts/helpers';
 
 // PostViews
@@ -218,7 +198,6 @@ import './collections/revisions/collection'
 import './collections/revisions/views'
 //
 // Users
-import './collections/users/permissions';
 import './collections/users/helpers';
 import './collections/users/schema';
 import './collections/users/recommendationSettings';
@@ -229,7 +208,6 @@ import './collections/users/fragments';
 // Comments
 import './collections/comments/collection';
 import './collections/comments/views';
-import './collections/comments/permissions';
 import './collections/comments/voting';
 
 import './collections/petrovDayLaunchs/collection';
@@ -251,7 +229,6 @@ import './collections/votes/views';
 // Spotlights
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';
-import './collections/spotlights/permissions';
 import './collections/spotlights/views';
 
 // Moderator actions
@@ -268,7 +245,6 @@ import './collections/commentModeratorActions/views';
 import './collections/moderationTemplates/collection';
 import './collections/moderationTemplates/fragments';
 import './collections/moderationTemplates/views';
-import './collections/moderationTemplates/permissions';
 
 // CurationNotices
 import './collections/curationNotices/collection';
@@ -279,7 +255,6 @@ import './collections/curationNotices/views';
 import './collections/userRateLimits/collection';
 import './collections/userRateLimits/fragments';
 import './collections/userRateLimits/views';
-import './collections/userRateLimits/permissions';
 
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
@@ -397,7 +372,6 @@ import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
 
 // Alignment Forum
-import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
 import './alignment-forum/posts/views';
 
