@@ -4,7 +4,6 @@ import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/
 import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { Posts } from "@/lib/collections/posts/collection.ts";
-import { Globals } from "../../../lib/vulcan-lib/config";
 import { createAdminContext } from "../../vulcan-lib/query";
 import { createMutator, updateMutator } from "../../vulcan-lib/mutators";
 
@@ -120,7 +119,8 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
   }]
 }
 
-async function createSpotlights() {
+// Exported to allow running manually with "yarn repl"
+export async function createSpotlights() {
   // eslint-disable-next-line no-console
   console.log("Creating spotlights for review winners");
 
@@ -173,6 +173,7 @@ async function createSpotlights() {
 }
 
 
+// Exported to allow running manually with "yarn repl"
 const updateOldSpotlightsWithSubtitle = async () => {
   const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
   const postIds = reviewWinners.map(winner => winner._id);
@@ -186,7 +187,8 @@ const updateOldSpotlightsWithSubtitle = async () => {
 
 // This updates the spotlights so that subtitleUrl leads to the best of LW page for that year and category
 // and changes the corresponding Post customHighlight to the spotlight description
-const updateSpotlightUrlsAndPostCustomHighlights = async () => {
+// Exported to allow running manually with "yarn repl"
+export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
   const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
   const postIds = reviewWinners.map(winner => winner._id);
 
@@ -224,7 +226,3 @@ const updateSpotlightUrlsAndPostCustomHighlights = async () => {
     })
   }
 }
-
-Globals.updateSpotlightUrlsAndPostCustomHighlights = updateSpotlightUrlsAndPostCustomHighlights;
-Globals.createSpotlights = createSpotlights;
-Globals.updateOldSpotlightsWithSubtitle = updateOldSpotlightsWithSubtitle;

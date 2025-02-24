@@ -10,9 +10,9 @@ import './emailComponents/EmailJobAdReminder';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
 import { Components } from "../lib/vulcan-lib/components";
-import { Globals } from "../lib/vulcan-lib/config";
 
-const sendJobAdReminderEmails = async () => {
+// Exported to allow running with "yarn repl"
+export const sendJobAdReminderEmails = async () => {
   if (!isEAForum) return
 
   const logger = loggerConstructor(`cron-sendJobAdReminderEmails`)
@@ -74,4 +74,3 @@ export const sendJobAdReminderEmailsCron = addCronJob({
   }
 });
 
-Globals.sendJobAdReminderEmails = sendJobAdReminderEmails;

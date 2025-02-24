@@ -3,7 +3,7 @@ import { editableCollections, editableCollectionsFields } from '../../lib/editor
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import Revisions from '../../lib/collections/revisions/collection'
 
-registerMigration({
+export default registerMigration({
   name: "fillMissingRevisionFieldNamesOnSingleEditableCollections",
   dateWritten: "2020-01-02",
   idempotent: true,

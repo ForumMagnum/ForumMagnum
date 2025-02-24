@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
 
-registerMigration({
+export default registerMigration({
   name: "addSchemaVersionEverywhere",
   dateWritten: "2019-02-04",
   idempotent: true,

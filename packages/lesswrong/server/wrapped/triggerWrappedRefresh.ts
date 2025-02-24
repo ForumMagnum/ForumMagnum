@@ -2,7 +2,6 @@
 /* eslint-disable no-useless-escape */
 import { isE2E } from "../../lib/executionEnvironment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
-import { Globals } from "../../lib/vulcan-lib/config";
 
 // Run the following SQL to check on the progress of this script:
 // SELECT
@@ -57,7 +56,8 @@ GROUP BY
   by_date.view_date;
 `;
 
-const triggerWrappedRefresh = async (recreateViews = false) => {
+// Exported to allow running with "yarn repl"
+export const triggerWrappedRefresh = async (recreateViews = false) => {
   // Analytics DB is not available in e2e tests
   if (isE2E) {
     return [];
@@ -84,5 +84,3 @@ const triggerWrappedRefresh = async (recreateViews = false) => {
     await analyticsDb.none(`CREATE MATERIALIZED VIEW ${USER_ENGAGEMENT_VIEW_NAME} AS ${USER_ENGAGEMENT_VIEWDEF};`);
   }
 }
-
-Globals.triggerWrappedRefresh = triggerWrappedRefresh;

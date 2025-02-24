@@ -7,12 +7,12 @@ import UsersRepo from './repos/UsersRepo';
 import Users from '@/lib/collections/users/collection';
 import { isEAForum } from '../lib/instanceSettings';
 import { Components } from "../lib/vulcan-lib/components";
-import { Globals } from "../lib/vulcan-lib/config";
 
 /**
  * Sends emails to inactive users with a link to a feedback survey
+ * Exported to allow running with "yarn repl".
  */
-const sendInactiveUserSurveyEmails = async () => {
+export const sendInactiveUserSurveyEmails = async () => {
   if (!isEAForum) return
   
   const logger = loggerConstructor(`cron-sendInactiveUserSurveyEmails`)
@@ -54,4 +54,3 @@ export const sendInactiveUserSurveyEmailsCron = addCronJob({
   }
 });
 
-Globals.sendInactiveUserSurveyEmails = sendInactiveUserSurveyEmails;

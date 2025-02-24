@@ -5,7 +5,6 @@ import { writeFile } from "fs/promises";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { createAnonymousContext } from "../vulcan-lib/query";
-import { Globals } from "../../lib/vulcan-lib/config";
 
 type DateFieldOf<T> = {
   [k in keyof T & string]: IfAny<T[k], never, T[k] extends Date | null ? k : never>;
@@ -140,7 +139,8 @@ function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRe
   };
 }
 
-async function exportAECommentRecords(offsetDate?: Date) {
+// Exported to allow running manually with "yarn repl"
+export async function exportAECommentRecords(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
   const context = createAnonymousContext();
 
@@ -192,7 +192,8 @@ async function exportAECommentRecords(offsetDate?: Date) {
   }
 }
 
-async function exportAEPostRecords(offsetDate?: Date) {
+// Exported to allow running manually with "yarn repl"
+export async function exportAEPostRecords(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
 
   if (!offsetDate) {
@@ -233,6 +234,3 @@ async function exportAEPostRecords(offsetDate?: Date) {
     console.log(`Error when exporting AE Studio post records.  Last offset date: ${offsetDate.toISOString()}`, { err });
   }
 }
-
-Globals.exportAEComments = exportAECommentRecords;
-Globals.exportAEPosts = exportAEPostRecords;

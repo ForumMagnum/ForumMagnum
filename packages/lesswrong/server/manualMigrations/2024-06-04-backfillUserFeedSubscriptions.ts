@@ -39,7 +39,7 @@ function chunkWithoutSplitting<T>(dict: Record<string, T[]>, limit: number): T[]
 
 
 
-registerMigration({
+export default registerMigration({
   name: "backfillUserFeedSubscriptions",
   dateWritten: "2024-06-04",
   idempotent: true,

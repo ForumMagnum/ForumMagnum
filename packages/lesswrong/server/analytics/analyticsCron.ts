@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import moment from "moment";
 import { addCronJob } from "../cron/cronUtil";
-import { Globals } from "../../lib/vulcan-lib/config";
 import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
 import IncrementalViewRepo from "../repos/IncrementalViewRepo";
@@ -103,8 +102,10 @@ async function updatePostViewTimes({earliestStartDate, latestEndDate, force, dry
  *   endDate: A string representing the end date for the update (inclusive)
  *   force: Whether to force the full recalculation of data even if it already exists
  *   dryRun: Whether to simulate the update without writing anything
+ *
+ * Exported to allow running from "yarn repl".
  */
-async function updateAnalyticsCollections(props: {startDate?: string, endDate?: string, force?: boolean, dryRun?: boolean}) {
+export async function updateAnalyticsCollections(props: {startDate?: string, endDate?: string, force?: boolean, dryRun?: boolean}) {
   const { startDate, endDate, force, dryRun } = props ?? {}
 
   // If no explicit start date is given, only go back 1 week to avoid this being slow
@@ -140,4 +141,3 @@ export const cronUpdateAnalyticsCollections = addCronJob({
   }
 });
 
-Globals.updateAnalyticsCollections = updateAnalyticsCollections

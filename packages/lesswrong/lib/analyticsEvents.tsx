@@ -8,7 +8,6 @@ import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
-import { Globals } from './vulcan-lib/config';
 import isEqual from 'lodash/isEqual';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
@@ -434,8 +433,6 @@ function serverConsoleLogAnalyticsEvent(event: any) {
     '[[time of day]]': moment().format('HH:mm:ss.SSS')
   });
 }
-
-Globals.captureEvent = captureEvent;
 
 let pendingAnalyticsEvents: Array<any> = [];
 

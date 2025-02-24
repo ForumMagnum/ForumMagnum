@@ -8,7 +8,6 @@ import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts
 import Users from "@/lib/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
-import { Globals } from "../lib/vulcan-lib/config";
 import { createMutator } from "./vulcan-lib/mutators";
 
 const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
@@ -84,7 +83,7 @@ async function postTweet(content: string) {
   }
 }
 
-async function runTwitterBot() {
+export async function runTwitterBot() {
   if (!twitterBotEnabledSetting.get()) return;
 
   const repo = new TweetsRepo();
@@ -135,4 +134,3 @@ export const runTwitterBotCron = addCronJob({
   },
 });
 
-Globals.runTwitterBot = runTwitterBot;

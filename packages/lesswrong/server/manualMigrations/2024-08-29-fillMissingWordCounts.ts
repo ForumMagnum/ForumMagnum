@@ -2,7 +2,7 @@ import { forEachDocumentBatchInCollection, registerMigration } from "./migration
 import { dataToWordCount } from "@/server/editor/conversionUtils";
 import Revisions from "@/lib/collections/revisions/collection";
 
-registerMigration({
+export default registerMigration({
   name: "fillMissingWordCounts",
   dateWritten: "2024-08-29",
   idempotent: true,

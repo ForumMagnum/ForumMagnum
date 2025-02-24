@@ -1,4 +1,3 @@
-import { Globals } from "../lib/vulcan-lib/config";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 export const simpleUserProfileFields: (keyof DbUser)[] = [
@@ -33,7 +32,8 @@ export const allUserProfileFields = [
   ...editableUserProfileFields,
 ];
 
-const backfillUserProfileUpdatedAt = async () => {
+// Exported to allow running with "yarn repl"
+export const backfillUserProfileUpdatedAt = async () => {
   const db = getSqlClientOrThrow();
 
   // We need to do this in batches as it's blocking and very slow.
@@ -59,5 +59,3 @@ const backfillUserProfileUpdatedAt = async () => {
     }
   }
 }
-
-Globals.backfillUserProfileUpdatedAt = backfillUserProfileUpdatedAt;

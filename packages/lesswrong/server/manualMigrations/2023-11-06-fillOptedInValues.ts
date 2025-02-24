@@ -33,7 +33,7 @@ const targetUserIds = [
   "ZzC2bFGnA5hiGPPCf"
 ]
 
-registerMigration({
+export default registerMigration({
   name: "fillOptInValues",
   dateWritten: "2023-11-06",
   idempotent: true,

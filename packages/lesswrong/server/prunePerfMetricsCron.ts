@@ -1,6 +1,5 @@
 import { addCronJob } from "./cron/cronUtil";
 import { pruneOldPerfMetrics } from "./analyticsWriter";
-import { Globals } from "../lib/vulcan-lib/config";
 import { performanceMetricLoggingEnabled } from "../lib/instanceSettings";
 
 export const prunePerfMetricsCron = addCronJob({
@@ -12,5 +11,3 @@ export const prunePerfMetricsCron = addCronJob({
     }
   },
 });
-
-Globals.prunePerfMetrics = async () => await pruneOldPerfMetrics();

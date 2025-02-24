@@ -17,7 +17,6 @@ import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/col
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 import { createAdminContext } from "../vulcan-lib/query";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
-import { Globals } from "../../lib/vulcan-lib/config";
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -522,31 +521,12 @@ const ckEditorApiHelpers = {
   }
 };
 
-Globals.cke = {
+// Exported to allow running manually with "yarn repl"
+export const cke = {
   ...ckEditorApi,
   ...ckEditorApiHelpers,
-  ...documentHelpers
+  ...documentHelpers,
 };
 
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this is only useful for GET calls, since ckEditor doesn't often return anything for POST/DELETE/etc operations.
-// This isn't guaranteed to produce sane results in every single case, but seems fine for the things I've tested.
-Globals.cke.log = Object.fromEntries(
-  Object.entries(Globals.cke).map(([key, val]) => {
-    if (typeof val !== 'function') {
-      return [key, val];
-    }
-
-    // Bind the original function to Globals.cke to preserve 'this'
-    const withLoggedOutput = async function (...args: any[]) {
-      const result = await val.apply(Globals.cke, args);
-      // eslint-disable-next-line no-console
-      console.log({ result });
-      return result;
-    };
-
-    return [key, withLoggedOutput];
-  })
-);
 
 export { ckEditorApi, ckEditorApiHelpers, documentHelpers };
