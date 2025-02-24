@@ -119,12 +119,6 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
     );
 }
 
-const unlinkCrossposterMutation = gql`
-  mutation unlinkCrossposter {
-    unlinkCrossposter
-  }
-`;
-
 /**
  * FMCrosspostControl is the main form component for setting up crossposts
  * It allows the user to choose whether or not to make this post a crosspost,
@@ -141,7 +135,11 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
   const {isCrosspost} = value ?? {};
   if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
-  const [unlink, {loading: loadingUnlink}] = useMutation(unlinkCrossposterMutation, {errorPolicy: "all"});
+  const [unlink, {loading: loadingUnlink}] = useMutation(gql`
+    mutation unlinkCrossposter {
+      unlinkCrossposter
+    }
+  `, {errorPolicy: "all"});
   const {document, refetch, loading: loadingDocument} = useSingle({
     documentId: currentUser._id,
     collectionName: "Users",

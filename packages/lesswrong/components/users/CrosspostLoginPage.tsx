@@ -33,16 +33,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const connectCrossposterMutation = gql`
-  mutation connectCrossposter($token: String) {
-    connectCrossposter(token: $token)
-  }
-`;
-
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+  const [connectCrossposter, loading] = useMutation(gql`
+    mutation connectCrossposter($token: String) {
+      connectCrossposter(token: $token)
+    }
+  `, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const {query: {token}} = useLocation();
