@@ -81,5 +81,3 @@ export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, ol
   }
 }
 ensureIndex(Votes, {documentId:1});
-
-getCollectionHooks("Posts").editAsync.add(moveToAFUpdatesUserAFKarma);

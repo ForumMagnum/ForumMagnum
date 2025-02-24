@@ -1,18 +1,11 @@
-import { LanguageModelTemplate, getOpenAI, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { LanguageModelTemplate, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
-import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { autoFrontpageModelSetting, autoFrontpagePromptSetting, tagBotAccountSlug } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest, isE2E } from '../../lib/executionEnvironment';
-import { eaFrontpageDateDefault, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
-import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
-import { updateMutator } from '../vulcan-lib/mutators';
-import { Posts } from '@/lib/collections/posts/collection.ts';
-import { isWeekend } from '@/lib/utils/timeUtil';
+import { FetchedFragment } from '../fetchFragment';
 
 /**
  * To set up automatic tagging:
@@ -108,12 +101,6 @@ import { isWeekend } from '@/lib/utils/timeUtil';
  */
 
 const bodyWordCountLimit = 1500;
-const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
-const tagBotActiveTimeSetting = new DatabaseServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
-
-const autoFrontpageSetting = new DatabaseServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
-const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
-const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
 /**
  * Preprocess HTML before converting to markdown to be then converted into a
@@ -261,7 +248,7 @@ export async function checkFrontpage(
 }
 
 
-async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
+export async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
   const accountSlug = tagBotAccountSlug.get();
   if (!accountSlug) return null;
   const account = await Users.findOne({slug: accountSlug});
@@ -310,102 +297,3 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
     deleted: false,
   }).fetch();
 }
-
-async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {
-  const api = await getOpenAI();
-  if (!api) {
-    if (!isAnyTest && !isE2E) {
-      //eslint-disable-next-line no-console
-      console.log("Skipping autotagging (API not configured)");
-    }
-    return;
-  }
-  const tagBot = await getTagBotAccount(context);
-  const tagBotActiveTime = tagBotActiveTimeSetting.get();
-
-  if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
-    //eslint-disable-next-line no-console
-    console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
-    return;
-  }
-  
-  const tags = await getAutoAppliedTags();
-  const postHTML = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsHTML",
-    selector: {_id: post._id},
-    currentUser: context.currentUser,
-    context,
-    skipFiltering: true,
-  });
-  if (!postHTML) {
-    return;
-  }
-  const tagsApplied = await checkTags(postHTML, tags, api);
-  
-  //eslint-disable-next-line no-console
-  console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
-  
-  for (let tag of tags) {
-    if (tagsApplied[tag.slug]) {
-      await addOrUpvoteTag({
-        tagId: tag._id,
-        postId: post._id,
-        currentUser: tagBot,
-        context,
-      });
-    }
-  }
-
-  const autoFrontpageEnabled = autoFrontpageSetting.get()
-  if (!autoFrontpageEnabled) {
-    return;
-  }
-
-  const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
-  const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
-    post.isEvent,
-    post.submitToFrontpage,
-    post.draft,
-  )
-  if (requireFrontpageReview !== defaultFrontpageHide) {
-    // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
-    // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
-    return
-  }
-
-  const autoFrontpageReview = await checkFrontpage(postHTML, api);
-
-  // eslint-disable-next-line no-console
-  console.log(
-    `Frontpage auto-review result for ${post.title} (${post._id}): ${
-      autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
-    }`
-  );
-
-  if (autoFrontpageReview) {
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      data: {
-        frontpageDate: defaultFrontpageHide ? new Date() : null,
-        autoFrontpage: defaultFrontpageHide ? "show" : "hide"
-      },
-      currentUser: context.currentUser,
-      context,
-    });
-  }
-}
-
-getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
-  if (oldDocument.draft && !newDocument.draft) {
-    // Post was undrafted
-    void autoReview(newDocument, context);
-  }
-})
-getCollectionHooks("Posts").createAsync.add(async ({document, context}) => {
-  if (!document.draft) {
-    // Post created (and is not a draft)
-    void autoReview(document, context);
-  }
-})

@@ -4,7 +4,7 @@ import { captureException } from '@sentry/core';
 
 type MaybePromise<T> = T|Promise<T>
 
-type CallbackChainFn<IteratorType,ArgumentsType extends any[]> = (doc: IteratorType, ...args: ArgumentsType) => (MaybePromise<IteratorType> | undefined | void)
+export type CallbackChainFn<IteratorType, ArgumentsType extends any[]> = (doc: IteratorType, ...args: ArgumentsType) => (MaybePromise<IteratorType> | undefined | void)
 
 /**
  * A set of callbacks which run in a chain, each modifying a value and passing
@@ -101,7 +101,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   };
 }
 
-type CallbackHookFn<ArgumentsType extends any[]> = (...args: ArgumentsType) => void|Promise<void>
+export type CallbackHookFn<ArgumentsType extends any[]> = (...args: ArgumentsType) => void|Promise<void>
 
 /**
  * A set of callbacks, which are run independently/concurrently and which
