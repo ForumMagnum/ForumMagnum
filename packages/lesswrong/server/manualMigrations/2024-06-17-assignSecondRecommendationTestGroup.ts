@@ -868,7 +868,7 @@ const testGroupIds = [
   'ZZjFdHpS9mPCTkzZJ'
 ];
 
-registerMigration({
+export default registerMigration({
   name: "assignSecondRecommendationTestGroup",
   dateWritten: "2024-06-17",
   idempotent: true,

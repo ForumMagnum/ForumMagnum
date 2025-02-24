@@ -923,7 +923,7 @@ const testGroupIds = [
   'zzmRCKbe2LweEttS9'
 ]
 
-registerMigration({
+export default registerMigration({
   name: "assignRecommendationABTestsGroups",
   dateWritten: "2024-05-13",
   idempotent: true,

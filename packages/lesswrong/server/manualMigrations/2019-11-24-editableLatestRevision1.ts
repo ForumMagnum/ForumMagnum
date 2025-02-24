@@ -15,7 +15,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 //  4. Run editableDropDenormalizedField to drop the now-unused denormalized
 //     content fields, for smaller tables and faster database operations.
 
-registerMigration({
+export default registerMigration({
   name: "editableAddLatestRevisionField",
   dateWritten: "2019-11-24",
   idempotent: true,

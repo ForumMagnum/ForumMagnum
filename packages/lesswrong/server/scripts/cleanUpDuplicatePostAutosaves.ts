@@ -4,11 +4,10 @@ import Conversations from "../../lib/collections/conversations/collection";
 import groupBy from "lodash/groupBy";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import Messages from "../../lib/collections/messages/collection";
-import { Globals } from "../../lib/vulcan-lib/config";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
-Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
+export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
   const db = getSqlClientOrThrow();
   const adminUser = await Users.findOne(adminUserId);
   if (!adminUser?.isAdmin) {

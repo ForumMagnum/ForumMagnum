@@ -1,4 +1,3 @@
-import { Vulcan } from "../../lib/vulcan-lib/config";
 import { createSqlConnection } from "../sqlConnection";
 
 /**
@@ -6,6 +5,8 @@ import { createSqlConnection } from "../sqlConnection";
  * restart. No effort is made to do this in a way that is compatible with keeping
  * the server running well - you almost certainly don't want to run this in prod, but
  * it's useful for debugging.
+ *
+ * Exported to allow running manually with "yarn repl"
  */
 export const deletePgIndexes = async () => {
   const sql = await createSqlConnection();
@@ -30,5 +31,3 @@ export const deletePgIndexes = async () => {
     }
   }
 }
-
-Vulcan.deletePgIndexes = deletePgIndexes;

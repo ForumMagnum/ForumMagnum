@@ -1,4 +1,3 @@
-import { Vulcan } from '../../lib/vulcan-lib/config';
 import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
@@ -117,10 +116,7 @@ export function generateTypes(repoRoot?: string) {
 
 // After running this you still need to run:
 //   yarn graphql-codegen --config codegen.yml
-const generateTypesAndSQLSchema = (rootDir?: string) => {
+export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
 }
-
-Vulcan.generateTypes = generateTypes;
-Vulcan.generateTypesAndSQLSchema = generateTypesAndSQLSchema;

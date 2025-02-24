@@ -4,7 +4,7 @@ import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 import { Posts } from "@/lib/collections/posts/collection.ts";
 
-registerMigration({
+export default registerMigration({
   name: "updateShortformPostTitles",
   dateWritten: "2024-07-11",
   idempotent: true,

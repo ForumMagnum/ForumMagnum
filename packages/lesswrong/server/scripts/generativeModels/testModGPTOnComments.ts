@@ -2,7 +2,6 @@
 import sanitizeHtml from 'sanitize-html';
 import { Comments } from '../../../lib/collections/comments/collection';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
-import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { wrapVulcanAsyncScript } from '../utils';
 import * as _ from 'underscore';
 import { modGPTPrompt, sanitizeHtmlOptions } from '../../languageModels/modGPT';
@@ -11,8 +10,9 @@ import { fetchFragmentSingle } from '../../fetchFragment';
 
 /**
  * This was written for the EA Forum to test out having GPT-4o help moderate comments.
+ * Exported to allow running manually with "yarn repl"
  */
-Vulcan.testModGPT = wrapVulcanAsyncScript(
+export const testModGPT = wrapVulcanAsyncScript(
   'testModGPT',
   async () => {
     const api = await getOpenAI()

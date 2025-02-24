@@ -37,7 +37,7 @@ function determineSemVer({draft}: {draft: boolean}) {
 
 const TARGET_SCHEMA_VERSION = 2
 
-registerMigration({
+export default registerMigration({
   name: "migrateEditableFields",
   dateWritten: "2019-01-30",
   idempotent: true,

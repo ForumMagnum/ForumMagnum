@@ -23,7 +23,6 @@ import UserTagRels from "../lib/collections/userTagRels/collection";
 import { Votes } from "../lib/collections/votes/collection";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { writeFile } from "fs/promises";
-import { Globals } from "../lib/vulcan-lib/config";
 import CkEditorUserSessions from "@/lib/collections/ckEditorUserSessions/collection";
 import CurationEmails from "@/lib/collections/curationEmails/collection";
 import DialogueChecks from "@/lib/collections/dialogueChecks/collection";
@@ -45,7 +44,10 @@ type Entry<N extends CollectionNameString> = [
   {fetch: () => Promise<ObjectsByCollectionName[N][]>},
 ];
 
-/** Please ensure that we know that the user is who they say they are! */
+/**
+ * Please ensure that we know that the user is who they say they are!
+ * Exported to allow running with "yarn repl".
+ */
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
   outfile?: string,
@@ -123,4 +125,3 @@ export const exportUserData = async (
   return result;
 }
 
-Globals.exportUserData = exportUserData;

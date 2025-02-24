@@ -3,7 +3,7 @@ import { registerMigration, migrateDocuments, fillDefaultValues } from './migrat
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "migrateVotes",
   dateWritten: "2019-01-04",
   idempotent: true,
