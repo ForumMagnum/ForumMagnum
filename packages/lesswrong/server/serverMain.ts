@@ -13,7 +13,7 @@ import { initGoogleVertex } from './google-vertex/client';
 import { addElicitResolvers } from './resolvers/elicitPredictions';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
-import { startAnalyticsWriter } from './analyticsWriter';
+import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cronUtil';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';

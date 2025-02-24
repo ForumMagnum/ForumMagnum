@@ -1,5 +1,5 @@
 import { addCronJob } from "./cronUtil";
-import { pruneOldPerfMetrics } from "./analyticsWriter";
+import { pruneOldPerfMetrics } from "./analytics/serverAnalyticsWriter";
 import { performanceMetricLoggingEnabled } from "../lib/instanceSettings";
 
 addCronJob({

@@ -12,7 +12,7 @@ import './server/cronUtil';
 import './server/startupSanityChecks';
 
 import './server/postgresView';
-import './server/analyticsViews';
+import './server/analytics/analyticsViews';
 
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
@@ -37,7 +37,7 @@ import './server/mapsUtils';
 import './server/emails/index';
 import './server/posts/index';
 
-import './server/analyticsWriter';
+import './server/analytics/serverAnalyticsWriter';
 import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
