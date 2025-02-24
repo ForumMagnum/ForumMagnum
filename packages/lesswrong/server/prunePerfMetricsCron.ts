@@ -1,5 +1,5 @@
 import { addCronJob } from "./cron/cronUtil";
-import { pruneOldPerfMetrics } from "./analyticsWriter";
+import { pruneOldPerfMetrics } from "./analytics/serverAnalyticsWriter";
 import { performanceMetricLoggingEnabled } from "../lib/instanceSettings";
 
 export const prunePerfMetricsCron = addCronJob({

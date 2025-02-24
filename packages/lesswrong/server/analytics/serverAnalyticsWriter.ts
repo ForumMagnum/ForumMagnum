@@ -1,12 +1,11 @@
-import { isDevelopment } from '../lib/executionEnvironment';
-import { randomId } from '../lib/random';
-import { AnalyticsUtil } from '../lib/analyticsEvents';
-import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '../lib/instanceSettings';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import { pgPromiseLib, getAnalyticsConnection, AnalyticsConnectionPool } from './analytics/postgresConnection'
+import { isDevelopment } from '@/lib/executionEnvironment';
+import { randomId } from '@/lib/random';
+import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
+import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
+import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib/graphql';
+import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
-import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from './perfMetricsWriter/perfMetricsWriter';
+import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from '@/server/perfMetricsWriter/perfMetricsWriter';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -202,7 +201,17 @@ export async function pruneOldPerfMetrics() {
   }
 }
 
-function serverWriteEvent({type, timestamp, props}: AnyBecauseTodo) {
+/**
+ * Write a (single) event to the analytics database. Server-side only; if
+ * called from the client goes to a stub which throws an exception. If no
+ * analytics database is configured, does nothing.
+ */
+export function serverWriteEvent(event: AnyBecauseTodo) {
+  const { type, timestamp, props } = event;
+  if (pendingEvents) {
+    pendingEvents.push(event);
+    return;
+  }
   void writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
@@ -212,12 +221,16 @@ function serverWriteEvent({type, timestamp, props}: AnyBecauseTodo) {
   }]);
 }
 
+// Analytics events that were recorded during startup before we were ready
+// to write them to the analytics DB.
+let pendingEvents: any[]|null = [];
+
 export function startAnalyticsWriter() {
-  AnalyticsUtil.serverWriteEvent = serverWriteEvent;
-  
-  const deferredEvents = AnalyticsUtil.serverPendingEvents;
-  AnalyticsUtil.serverPendingEvents = [];
-  for (let event of deferredEvents) {
-    serverWriteEvent(event);
+  const deferredEvents = pendingEvents;
+  pendingEvents = null;
+  if (deferredEvents) {
+    for (let event of deferredEvents) {
+      serverWriteEvent(event);
+    }
   }
 }
