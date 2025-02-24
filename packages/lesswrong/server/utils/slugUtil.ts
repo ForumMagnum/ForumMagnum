@@ -101,15 +101,7 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
   return false;
 }
 
-// interface SlugCallbackOptions<N extends CollectionNameWithSlug> {
-//   collection: CollectionBase<N>
-//   collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
-//   getTitle: (obj: ObjectsByCollectionName[N]|DbInsertion<ObjectsByCollectionName[N]>) => string,
-//   onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
-//   includesOldSlugs: boolean
-// }
-
-export function getSlugCallbacks<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs}: {
+export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs}: {
   collection: CollectionBase<N>
   collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
   getTitle: (obj: ObjectsByCollectionName[N]|DbInsertion<ObjectsByCollectionName[N]>) => string,
@@ -149,6 +141,8 @@ export function getSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
   };
 
   slugCreateBeforeCallbackFunction.name = `slugCreateBeforeCallbackFunction-${collectionName}`;
+
+  getCollectionHooks(collectionName).createBefore.add(slugCreateBeforeCallbackFunction);
 
   const slugUpdateBeforeCallbackFunction = async function (doc: Partial<ObjectsByCollectionName[N]>, updateProps: UpdateCallbackProperties<N>) {
     const {oldDocument, newDocument, data} = updateProps;
@@ -214,111 +208,5 @@ export function getSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
 
   slugUpdateBeforeCallbackFunction.name = `slugUpdateBeforeCallbackFunction-${collectionName}`;
 
-  return { slugCreateBeforeCallbackFunction, slugUpdateBeforeCallbackFunction };
-}
-
-export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs}: {
-  collection: CollectionBase<N>
-  collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
-  getTitle: (obj: ObjectsByCollectionName[N]|DbInsertion<ObjectsByCollectionName[N]>) => string,
-  onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
-  includesOldSlugs: boolean
-}) {
-  const collectionName = collection.collectionName;
-
-  const slugCreateBeforeCallbackFunction = async function (doc: DbInsertion<ObjectsByCollectionName[N]>, createProps: CreateCallbackProperties<N>) {
-    const {newDocument} = createProps;
-    const title = getTitle(newDocument);
-    const titleSlug = doc.slug ?? slugify(title);
-    const deconflictedTitleSlug = await getUnusedSlug({
-      collectionsToCheck: collectionsToAvoidCollisionsWith,
-      slug: titleSlug,
-      useOldSlugs: includesOldSlugs,
-    });
-
-    if (deconflictedTitleSlug !== titleSlug) {
-      switch (onCollision) {
-        case "rejectIfExplicit":
-        case "newDocumentGetsSuffix":
-          return {
-            ...doc,
-            slug: deconflictedTitleSlug,
-          };
-        case "rejectNewDocument":
-          throw new Error(`Slug ${titleSlug} is already taken`);
-      }
-    } else {
-      // TODO If slug is in another document's oldSlugs, remove it from there
-      return {
-        ...doc,
-        slug: titleSlug,
-      };
-    }
-  };
-
-  slugCreateBeforeCallbackFunction.name = `slugCreateBeforeCallbackFunction-${collectionName}`;
-
-  getCollectionHooks(collectionName).createBefore.add(slugCreateBeforeCallbackFunction);
-
-  getCollectionHooks(collectionName).updateBefore.add(async (doc, updateProps) => {
-    const {oldDocument, newDocument, data} = updateProps;
-    const oldTitle = getTitle(oldDocument);
-    const newTitle = getTitle(newDocument);
-    let changedSlug: string|null = null;
-    let changeWasExplicit = false;
-    
-    if (data.slug && data.slug !== oldDocument.slug) {
-      changedSlug = data.slug;
-      changeWasExplicit = true;
-    } else if (newTitle && newTitle !== oldTitle && oldDocument.slug === slugify(oldTitle)) {
-      changedSlug = slugify(newTitle);
-    }
-
-    if (!changedSlug) {
-      return doc;
-    }
-
-    const deconflictedSlug = await getUnusedSlug({
-      collectionsToCheck: collectionsToAvoidCollisionsWith,
-      slug: changedSlug,
-      useOldSlugs: includesOldSlugs,
-      documentId: newDocument._id
-    });
-    if (deconflictedSlug === changedSlug) {
-      return {
-        ...newDocument,
-        slug: deconflictedSlug,
-        ...(includesOldSlugs && {
-          oldSlugs: [
-            // The type signature above didn't capture the fact that
-            // includesOldSlugs implies that the document has an oldSlugs field, so
-            // @ts-ignore
-            ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
-            oldDocument.slug
-          ],
-        })
-      };
-    }
-    switch (onCollision) {
-      case "rejectIfExplicit":
-        if (changeWasExplicit) {
-          throw new Error(`Slug ${changedSlug} is already taken`);
-        }
-        // FALLTHROUGH
-      case "newDocumentGetsSuffix":
-        return {
-          ...newDocument,
-          slug: deconflictedSlug,
-          ...(includesOldSlugs && {
-            oldSlugs: [
-              //@ts-ignore
-              ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
-              oldDocument.slug
-            ],
-          }),
-        };
-      case "rejectNewDocument":
-        throw new Error(`Slug ${changedSlug} is already taken`);
-    }
-  });
+  getCollectionHooks(collectionName).updateBefore.add(slugUpdateBeforeCallbackFunction);
 }

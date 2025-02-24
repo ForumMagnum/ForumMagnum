@@ -24,6 +24,7 @@ import { initGatherTownCron } from './gatherTownCron';
 import { registerViewCronJobs } from './postgresView';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 import type { CommandLineArguments } from './commandLine';
+import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -64,6 +65,7 @@ export async function runServerOnStartupFunctions() {
   addLegacyRssRoutes();
   await initReviewWinnerCache();
   initGatherTownCron();
+  addCountOfReferenceCallbacks();
 
   // define executableSchema
   createVoteableUnionType();

@@ -3,7 +3,7 @@ import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/li
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/schema";
 import { Posts } from "@/lib/collections/posts";
 import { postStatuses } from "@/lib/collections/posts/constants";
-import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved } from "@/lib/collections/posts/helpers";
+import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
@@ -43,6 +43,61 @@ import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
 
+/** Create notifications for a new post being published */
+export async function sendNewPostNotifications(post: DbPost) {
+  const context = createAnonymousContext();
+  const { Localgroups } = context;
+
+  if (postIsPublic(post)) {
+    // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
+    // start by excluding the post author
+    let userIdsNotified: string[] = [post.userId];
+    
+    // first, if the post is in a group, notify all users who are subscribed to the group
+    if (post.groupId) {
+      // Load the group, so we know who the organizers are
+      const group = await Localgroups.findOne(post.groupId);
+      if (group) {
+        const organizerIds = group.organizerIds;
+        const groupSubscribedUsers = await getSubscribedUsers({
+          documentId: post.groupId,
+          collectionName: "Localgroups",
+          type: subscriptionTypes.newEvents,
+          potentiallyDefaultSubscribedUserIds: organizerIds,
+          userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
+        });
+        
+        const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
+        if (post.isEvent) {
+          await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
+        } else {
+          await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
+        }
+        // don't notify these users again
+        userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
+      }
+    }
+    
+    // then notify all users who want to be notified of events in a radius
+    if (post.isEvent && post.mongoLocation) {
+      const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
+      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
+      // don't notify these users again
+      userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
+    }
+    
+    // finally notify all users who are subscribed to the post's author
+    let authorSubscribedUsers = await getSubscribedUsers({
+      documentId: post.userId,
+      collectionName: "Users",
+      type: subscriptionTypes.newPosts
+    })
+    const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
+    await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
+  }
+}
+
 const onPublishUtils = {
   updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
     if (!isRecombeeRecommendablePost(post)) return;
@@ -60,61 +115,6 @@ const onPublishUtils = {
     }
   },
 
-  /** Create notifications for a new post being published */
-  sendNewPostNotifications: async (post: DbPost) => {
-    const context = createAnonymousContext();
-    const { Localgroups } = context;
-
-    if (utils.postIsPublic(post)) {
-      // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
-      // start by excluding the post author
-      let userIdsNotified: string[] = [post.userId];
-      
-      // first, if the post is in a group, notify all users who are subscribed to the group
-      if (post.groupId) {
-        // Load the group, so we know who the organizers are
-        const group = await Localgroups.findOne(post.groupId);
-        if (group) {
-          const organizerIds = group.organizerIds;
-          const groupSubscribedUsers = await getSubscribedUsers({
-            documentId: post.groupId,
-            collectionName: "Localgroups",
-            type: subscriptionTypes.newEvents,
-            potentiallyDefaultSubscribedUserIds: organizerIds,
-            userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
-          });
-          
-          const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
-          if (post.isEvent) {
-            await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
-          } else {
-            await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
-          }
-          // don't notify these users again
-          userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
-        }
-      }
-      
-      // then notify all users who want to be notified of events in a radius
-      if (post.isEvent && post.mongoLocation) {
-        const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
-        const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
-        await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
-        // don't notify these users again
-        userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
-      }
-      
-      // finally notify all users who are subscribed to the post's author
-      let authorSubscribedUsers = await getSubscribedUsers({
-        documentId: post.userId,
-        collectionName: "Users",
-        type: subscriptionTypes.newPosts
-      })
-      const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
-    }
-  },
-
   ensureNonzeroRevisionVersionsAfterUndraft: async (post: DbPost, context: ResolverContext) => {
     // When a post is published, ensure that the version number of its contents
     // revision does not have `draft` set or an 0.x version number (which would
@@ -129,17 +129,13 @@ const onPublishUtils = {
 // they're approved).
 export async function onPostPublished(post: DbPost, context: ResolverContext) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
-  await onPublishUtils.sendNewPostNotifications(post);
+  await sendNewPostNotifications(post);
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
 }
 
 const utils = {
-  postIsPublic: (post: DbPost) => {
-    return !post.draft && post.status === postStatuses.STATUS_APPROVED
-  },
-
   /**
    * Check whether the given user can post a post right now. If they can, does
    * nothing; if they would exceed a rate limit, throws an exception.
@@ -712,7 +708,7 @@ export async function autoTagNewPost({ document, context }: AfterCreateCallbackP
 }
 
 /* NEW ASYNC */
-export async function sendUsersSharedOnPostNotifications({ document: post }: AfterCreateCallbackProperties<'Posts'>) {
+export async function sendUsersSharedOnPostNotifications(post: DbPost) {
   const { _id, shareWithUsers = [], coauthorStatuses } = post;
   const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
   const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
@@ -1051,7 +1047,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
 export async function removeRedraftNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
-  if (!utils.postIsPublic(newPost) && utils.postIsPublic(oldPost)) {
+  if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
     console.info("Post redrafted, removing notifications");
 
