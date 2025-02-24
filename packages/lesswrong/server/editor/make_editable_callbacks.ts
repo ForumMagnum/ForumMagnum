@@ -377,18 +377,18 @@ export async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, opti
 
   if (!hasChanged) return;
 
-  await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
+  await convertImagesInObject(collectionName, doc._id, fieldName);
 }
 
 // newAsync
 export async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackProperties<CollectionNameString>) {
   const { fieldName = "contents", collectionName } = options;
 
-  await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
+  await convertImagesInObject(collectionName, doc._id, fieldName)
 }
 
 export async function rehostPostMetaImagesInNew(doc: DbPost) {
-  await Globals.rehostPostMetaImages(doc);
+  await rehostPostMetaImages(doc);
 }
 
 
