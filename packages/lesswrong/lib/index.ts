@@ -133,8 +133,6 @@ import './collections/tweets/collection'
 
 import './collections/chapters/views';
 
-import './collections/sequences/permissions';
-
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/views';
@@ -201,7 +199,6 @@ import './collections/revisions/collection'
 import './collections/revisions/views'
 //
 // Users
-import './collections/users/permissions';
 import './collections/users/helpers';
 import './collections/users/schema';
 import './collections/users/recommendationSettings';
