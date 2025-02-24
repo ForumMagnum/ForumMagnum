@@ -226,11 +226,6 @@ interface DbComment extends DbObject {
   moveToAlignmentUserId: string | null
   agentFoundationsId: string | null
   originalDialogueId: string | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents | null
-  contents_latest: string | null
-  pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -239,6 +234,11 @@ interface DbComment extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
 }
 
 type ConversationsCollection = CollectionBase<"Conversations">;
@@ -395,8 +395,6 @@ interface DbElectionCandidate extends DbObject {
   isElectionFundraiser: boolean
   amountRaised: number | null
   targetAmount: number | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -405,6 +403,8 @@ interface DbElectionCandidate extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type ElectionVotesCollection = CollectionBase<"ElectionVotes">;
@@ -732,12 +732,6 @@ interface DbMultiDocument extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   htmlWithContributorAnnotations: string | null
   deleted: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
-  oldSlugs: Array<string>
-  contents_latest: string | null
-  pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -746,6 +740,12 @@ interface DbMultiDocument extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
+  contents_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
 }
 
 type NotificationsCollection = CollectionBase<"Notifications">;
@@ -1086,14 +1086,6 @@ interface DbPost extends DbObject {
   agentFoundationsId: string | null
   swrCachingEnabled: boolean
   generateDraftJargon: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
-  contents_latest: string | null
-  pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines_latest: string | null
-  customHighlight: EditableFieldContents | null
-  customHighlight_latest: string | null
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -1102,6 +1094,14 @@ interface DbPost extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  contents_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
+  moderationGuidelines_latest: string | null
+  customHighlight: EditableFieldContents | null
+  customHighlight_latest: string | null
 }
 
 type RSSFeedsCollection = CollectionBase<"RSSFeeds">;
@@ -1230,8 +1230,6 @@ interface DbRevision extends DbObject {
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   skipAttributions: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -1240,6 +1238,8 @@ interface DbRevision extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type SequencesCollection = CollectionBase<"Sequences">;
@@ -1430,8 +1430,6 @@ interface DbTagRel extends DbObject {
   deleted: boolean
   userId: string | null
   backfilled: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -1440,6 +1438,8 @@ interface DbTagRel extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type TagsCollection = CollectionBase<"Tags">;
@@ -1488,6 +1488,14 @@ interface DbTag extends DbObject {
   noindex: boolean
   isPlaceholderPage: boolean
   coreTagId: string | null
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   slug: string
@@ -1499,14 +1507,6 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string | null
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
-  afBaseScore: number | null
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  afVoteCount: number | null
 }
 
 type TweetsCollection = CollectionBase<"Tweets">;
