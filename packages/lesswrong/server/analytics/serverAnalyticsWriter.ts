@@ -1,10 +1,9 @@
 import { isDevelopment } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
-import { AnalyticsUtil } from '@/lib/analyticsEvents';
 import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib/graphql';
-import { pgPromiseLib, getAnalyticsConnection, AnalyticsConnectionPool } from './postgresConnection'
+import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
 import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from '@/server/perfMetricsWriter/perfMetricsWriter';
 

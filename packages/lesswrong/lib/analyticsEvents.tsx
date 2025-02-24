@@ -9,7 +9,6 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { Globals } from './vulcan-lib/config';
-import isEqual from 'lodash/isEqual';
 import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
@@ -419,7 +418,7 @@ export function flushClientEvents() {
 
   const eventsToWrite = pendingAnalyticsEvents;
   pendingAnalyticsEvents = [];
-  clientWriteEvents(eventsToWrite.map(event => ({
+  void clientWriteEvents(eventsToWrite.map(event => ({
     ...event,
     props: {
       // clientContextVars will almost always be present already, in
