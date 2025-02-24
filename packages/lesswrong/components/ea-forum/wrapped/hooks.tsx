@@ -209,7 +209,7 @@ type WrappedSection = {
   predicate?: (data: WrappedDataByYear, currentUser: UsersCurrent) => boolean,
 };
 
-const allSections: WrappedSection[] = [
+const getAllSections = (): WrappedSection[] => ([
   {component: Components.WrappedWelcomeSection},
   {
     component: Components.WrappedTimeSpentSection,
@@ -275,7 +275,7 @@ const allSections: WrappedSection[] = [
   {component: Components.WrappedRecommendationsSection},
   {component: Components.WrappedMostValuablePostsSection},
   {component: Components.WrappedThankYouSection},
-];
+]);
 
 type ForumWrappedContext = {
   year: WrappedYear,
@@ -326,7 +326,7 @@ export const ForumWrappedProvider = ({
 }) => {
   const [currentSection, setCurrentSection] = useState(0);
 
-  const sections = allSections.filter((section) => {
+  const sections = getAllSections().filter((section) => {
     return section.predicate ? section.predicate(data, currentUser) : true;
   });
 
