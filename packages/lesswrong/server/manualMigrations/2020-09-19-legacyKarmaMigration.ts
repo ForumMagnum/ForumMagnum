@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection';
 import { calculateVotePower } from '../../lib/voting/voteTypes';
 
 
-registerMigration({
+export default registerMigration({
   name: "legacyKarmaMigration",
   dateWritten: "2020-09-19",
   idempotent: true,

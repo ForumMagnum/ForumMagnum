@@ -4,7 +4,6 @@ import PostsRepo from "./repos/PostsRepo";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
-import { Globals } from "../lib/vulcan-lib/config";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
@@ -218,6 +217,7 @@ const getEmbeddingsForPosts = async (
   return embeddingsWithHashes;
 }
 
+// Exported to allow running manually with yarn repl
 export const updatePostEmbeddings = async (postId: string) => {
   const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
@@ -238,7 +238,8 @@ const batchUpdatePostEmbeddings = async (postIds: string[]) => {
   await Promise.all(updates);
 }
 
-const updateAllPostEmbeddings = async () => {
+// Exported to allow running manually with yarn repl
+export const updateAllPostEmbeddings = async () => {
   await forEachDocumentBatchInCollection({
     collection: Posts,
     batchSize: 100,
@@ -259,6 +260,7 @@ const updateAllPostEmbeddings = async () => {
   });
 }
 
+// Exported to allow running manually with yarn repl
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
 
@@ -283,10 +285,6 @@ export const updateMissingPostEmbeddings = async () => {
     }
   }
 }
-
-Globals.updatePostEmbeddings = updatePostEmbeddings;
-Globals.updateAllPostEmbeddings = updateAllPostEmbeddings;
-Globals.updateMissingPostEmbeddings = updateMissingPostEmbeddings;
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   addCronJob({

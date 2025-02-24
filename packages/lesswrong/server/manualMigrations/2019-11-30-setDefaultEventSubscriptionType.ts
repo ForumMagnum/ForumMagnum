@@ -3,7 +3,7 @@ import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 import Users from '../../lib/collections/users/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "setDefaultEventSubscriptionType",
   dateWritten: "2019-11-30",
   idempotent: true,

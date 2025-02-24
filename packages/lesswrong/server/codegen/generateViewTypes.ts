@@ -1,4 +1,5 @@
 import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
+import orderBy from 'lodash/orderBy';
 
 // NOT AN ESCAPING FUNCTION FOR UNTRUSTED INPUT
 function wrapWithQuotes(s: string): string {
@@ -13,7 +14,7 @@ export function generateViewTypes(): string {
   for (let collection of collections) {
     const collectionName = collection.collectionName;
     const views = collection.views;
-    const viewNames = Object.keys(views);
+    const viewNames = orderBy(Object.keys(views), v=>v);
     
     /*sb.push(`interface ${collectionName}View extends ViewBase {\n`);
     sb.push(`  view: ${collectionName}ViewName\n`);

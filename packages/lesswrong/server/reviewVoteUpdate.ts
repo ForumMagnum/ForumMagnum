@@ -10,7 +10,6 @@ import ReviewWinners from "@/lib/collections/reviewWinners/collection";
 import { Tags } from "@/lib/collections/tags/collection";
 import { createAdminContext } from "./vulcan-lib/query";
 import { createMutator } from "./vulcan-lib/mutators";
-import { Globals } from "../lib/vulcan-lib/config";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -103,6 +102,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   console.log("finished updating review vote toals")
 } 
 
+// Exported to allow running manually with "yarn repl"
 export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
 
@@ -129,7 +129,6 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   }
 }
 
-Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `
@@ -367,7 +366,8 @@ const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWin
 
 // This is for manually checking what the default assignments for post categories are, 
 // to sanity check that they make sense before running the final "createReviewWinners" script
-const checkReviewWinners = async () => {
+// Exported to allow running manually with "yarn repl"
+export const checkReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
 
@@ -378,7 +378,8 @@ const checkReviewWinners = async () => {
   })
 }
 
-const createReviewWinners = async () => {
+// Exported to allow running manually with "yarn repl"
+export const createReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
   const adminContext = createAdminContext();
@@ -389,6 +390,3 @@ const createReviewWinners = async () => {
   }))
 
 }
-
-Globals.createReviewWinners = createReviewWinners
-Globals.checkReviewWinners = checkReviewWinners

@@ -289,12 +289,6 @@ CREATE TABLE "Comments" (
   "moveToAlignmentUserId" VARCHAR(27),
   "agentFoundationsId" TEXT,
   "originalDialogueId" VARCHAR(27),
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -302,7 +296,13 @@ CREATE TABLE "Comments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
 );
 
 -- Index "idx_Comments_schemaVersion"
@@ -806,9 +806,6 @@ CREATE TABLE "ElectionCandidates" (
   "isElectionFundraiser" BOOL NOT NULL DEFAULT FALSE,
   "amountRaised" DOUBLE PRECISION,
   "targetAmount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -816,7 +813,10 @@ CREATE TABLE "ElectionCandidates" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_ElectionCandidates_schemaVersion"
@@ -1289,13 +1289,6 @@ CREATE TABLE "MultiDocuments" (
   "contributionStats" JSONB,
   "htmlWithContributorAnnotations" TEXT,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -1303,7 +1296,14 @@ CREATE TABLE "MultiDocuments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -1719,6 +1719,14 @@ CREATE TABLE "Posts" (
   "agentFoundationsId" TEXT,
   "swrCachingEnabled" BOOL NOT NULL DEFAULT FALSE,
   "generateDraftJargon" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -1727,15 +1735,7 @@ CREATE TABLE "Posts" (
   "pingbacks" JSONB,
   "moderationGuidelines_latest" TEXT,
   "customHighlight" JSONB,
-  "customHighlight_latest" TEXT,
-  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "extendedScore" JSONB,
-  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
-  "afBaseScore" DOUBLE PRECISION,
-  "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "customHighlight_latest" TEXT
 );
 
 -- Index "idx_Posts_schemaVersion"
@@ -2556,9 +2556,6 @@ CREATE TABLE "Revisions" (
   "changeMetrics" JSONB NOT NULL,
   "googleDocMetadata" JSONB,
   "skipAttributions" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2566,7 +2563,10 @@ CREATE TABLE "Revisions" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_Revisions_schemaVersion"
@@ -2880,9 +2880,6 @@ CREATE TABLE "TagRels" (
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "userId" VARCHAR(27),
   "backfilled" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2890,7 +2887,10 @@ CREATE TABLE "TagRels" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_TagRels_schemaVersion"
@@ -2947,6 +2947,14 @@ CREATE TABLE "Tags" (
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
   "coreTagId" TEXT,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -2958,15 +2966,7 @@ CREATE TABLE "Tags" (
   "subforumWelcomeText" JSONB,
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
-  "moderationGuidelines_latest" TEXT,
-  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "extendedScore" JSONB,
-  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
-  "afBaseScore" DOUBLE PRECISION,
-  "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "moderationGuidelines_latest" TEXT
 );
 
 -- Index "idx_Tags_schemaVersion"

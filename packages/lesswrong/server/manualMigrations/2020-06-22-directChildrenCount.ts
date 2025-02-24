@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
 
-registerMigration({
+export default registerMigration({
   name: "setDirectChildrenCount",
   dateWritten: "2020-06-22",
   idempotent: true,

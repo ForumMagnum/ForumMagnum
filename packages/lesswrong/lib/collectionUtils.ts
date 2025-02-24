@@ -63,15 +63,3 @@ export function addUniversalFields<N extends CollectionNameString>({
 export function isUniversalField(fieldName: string): boolean {
   return fieldName==="_id" || fieldName==="schemaVersion";
 }
-
-export function isUnbackedCollection<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-): boolean {
-  const collectionName: string = collection.collectionName;
-  if (collectionName === 'Settings' || collectionName === 'Callbacks') {
-    // Vulcan collections with no backing database table
-    return true;
-  }
-  
-  return false;
-}

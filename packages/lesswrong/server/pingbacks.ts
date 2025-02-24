@@ -10,7 +10,6 @@ import { editableCollectionsFields } from '@/lib/editor/make_editable';
 import { getCollection } from '@/lib/vulcan-lib/getCollection';
 import { dataToHTML } from './editor/conversionUtils';
 import { EditorContents } from '@/components/editor/Editor';
-import { Globals } from "@/lib/vulcan-lib/config";
 import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 import { getLatestRev } from './editor/utils';
@@ -83,6 +82,7 @@ const extractLinks = (html: string): Array<string> => {
   return targets;
 }
 
+// Exported to allow running from "yarn repl"
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
@@ -113,8 +113,8 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
   });
 }
 
-Globals.recomputePingbacks = recomputePingbacks;
-Globals.showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
+// Exported to allow running from "yarn repl"
+export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
   const doc = await collection.findOne({_id});

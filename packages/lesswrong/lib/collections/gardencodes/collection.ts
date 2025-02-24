@@ -1,7 +1,6 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
-import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';

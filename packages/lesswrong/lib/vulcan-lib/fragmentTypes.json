@@ -6,16 +6,10 @@
         "name": "Voteable",
         "possibleTypes": [
           {
-            "name": "Tag"
+            "name": "Comment"
           },
           {
             "name": "ElectionCandidate"
-          },
-          {
-            "name": "TagRel"
-          },
-          {
-            "name": "Revision"
           },
           {
             "name": "MultiDocument"
@@ -24,7 +18,13 @@
             "name": "Post"
           },
           {
-            "name": "Comment"
+            "name": "Revision"
+          },
+          {
+            "name": "TagRel"
+          },
+          {
+            "name": "Tag"
           }
         ]
       }

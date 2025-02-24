@@ -5,7 +5,7 @@ import { updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "setAfShortformValues",
   dateWritten: "2019-10-23",
   idempotent: true,

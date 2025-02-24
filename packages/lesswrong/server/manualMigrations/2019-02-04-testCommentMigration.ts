@@ -2,7 +2,7 @@ import { Comments } from '../../lib/collections/comments/collection'
 import { registerMigration, migrateDocuments } from './migrationUtils';
 
 
-registerMigration({
+export default registerMigration({
   name: "testCommentMigration",
   dateWritten: "2019-02-04",
   idempotent: true,

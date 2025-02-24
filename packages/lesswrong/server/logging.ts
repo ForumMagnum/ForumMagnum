@@ -3,7 +3,6 @@ import { captureEvent } from '../lib/analyticsEvents';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { printInFlightRequests, checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
-import { Globals } from '../lib/vulcan-lib/config';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
@@ -164,9 +163,8 @@ function printInFlightGraphqlQueries() {
   }
 }
 
-function logInFlightStuff() {
+export function logInFlightStuff() {
   printInFlightRequests();
   printInFlightGraphqlQueries();
   printInProgressCallbacks();
 }
-Globals.logInFlightStuff = logInFlightStuff;

@@ -5,7 +5,7 @@ import { Votes } from '../../lib/collections/votes/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 
-registerMigration({
+export default registerMigration({
   name: "afVoteMigration",
   dateWritten: "2020-09-19",
   idempotent: true,

@@ -1,12 +1,13 @@
-import { Collections } from '../../lib/vulcan-lib/getCollection';
-import { registerMigration, migrateDocuments } from './migrationUtils';
-import { isUnbackedCollection } from '../../lib/collectionUtils';
+import { registerMigration } from './migrationUtils';
 
-registerMigration({
+export default registerMigration({
   name: "addSchemaVersionEverywhere",
   dateWritten: "2019-02-04",
   idempotent: true,
   action: async () => {
+    // A meteor-era migration that is no longer runnable
+    throw new Error("This migration requires an older version");
+    /*
     for (let collection of Collections) {
       if (isUnbackedCollection(collection))
         continue;
@@ -38,5 +39,6 @@ registerMigration({
         }
       })
     }
+    */
   },
 });

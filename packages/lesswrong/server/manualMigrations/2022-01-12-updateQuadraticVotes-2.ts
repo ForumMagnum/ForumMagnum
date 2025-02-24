@@ -41,7 +41,7 @@ const getCost = (vote: AnyBecauseObsolete) => voteMap[vote.qualitativeScore].cos
 const getValue = (vote: AnyBecauseObsolete) => voteMap[vote.qualitativeScore].value
 
 // TODO: Write a better version of this migration which properly normalizes vote strength
-registerMigration({
+export default registerMigration({
   name: "updateQuadraticVotes2",
   dateWritten: "2022-01-12",
   idempotent: true,

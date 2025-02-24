@@ -2,10 +2,10 @@ import Users from '../../lib/collections/users/collection';
 import { nullifyVotesForUser, nullifyVotesForUserByTarget, silentlyReverseVote } from '../callbacks';
 import VotesRepo from '../repos/VotesRepo';
 import { Votes } from '../../lib/collections/votes/collection';
-import { Globals } from "../../lib/vulcan-lib/config";
 import { createAdminContext } from "../vulcan-lib/query";
 
-Globals.nullifyVotesForNullifiedUsers = async () => {
+// Exported to allow running manually with "yarn repl"
+export const nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();
   users.forEach((user) => {
     void nullifyVotesForUser(user);
@@ -19,7 +19,8 @@ interface DateRangeInput {
   before?: string;
 }
 
-Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId: string, dateRange: DateRangeInput = {}) => {
+// Exported to allow running manually with "yarn repl"
+export const wrappedNullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId: string, dateRange: DateRangeInput = {}) => {
   let afterDate = undefined;
   let beforeDate = undefined;
 
@@ -41,8 +42,9 @@ Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId:
 /**
  * Nullify votes where both user1 and user2 voted on the same document, this is intended for
  * nullifying duplicate votes from someone using an alt account.
+ * Exported to allow running manually with "yarn repl"
  */
-Globals.nullifySharedVotesForUsers = async (user1Id: string, user2Id: string, dryRun = false) => {
+export const nullifySharedVotesForUsers = async (user1Id: string, user2Id: string, dryRun = false) => {
   const voteIds = await(new VotesRepo()).getSharedVoteIds({ user1Id, user2Id });
   const votes = await Votes.find({ _id: { $in: voteIds } }, { sort: { votedAt: -1 } }).fetch();
 

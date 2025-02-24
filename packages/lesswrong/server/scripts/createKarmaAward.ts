@@ -3,7 +3,6 @@ import { performVoteServer } from "../voteServer"
 import { Posts } from "@/lib/collections/posts/collection.ts";
 import { karmaRewarderId100, karmaRewarderId1000 } from "@/lib/voting/vote";
 import { createMutator } from "../vulcan-lib/mutators";
-import { Globals } from "../../lib/vulcan-lib/config";
 
 const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, reason: string) => {
   // eslint-disable-next-line no-console
@@ -41,10 +40,9 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
   void performVoteServer({documentId: post.data._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true});
 }
 
-const createKarmaAwards = async (userIds: string[], karmaAmount: 100|1000, reason: string) => {
+// Exported to allow running manually with "yarn repl"
+export const createKarmaAwards = async (userIds: string[], karmaAmount: 100|1000, reason: string) => {
   for (const userId of userIds) {
     void createKarmaAwardForUser(userId, karmaAmount, reason);
   }
 }
-
-Globals.createKarmaAwards = createKarmaAwards

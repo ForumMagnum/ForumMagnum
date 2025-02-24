@@ -16,7 +16,6 @@ import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cronUtil';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
-import { Globals, Vulcan } from '@/lib/vulcan-lib/config';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
@@ -96,8 +95,6 @@ function initShell() {
     breakEvalOnSigint: true,
     useGlobal: true,
   });
-  r.context.Globals = Globals;
-  r.context.Vulcan = Globals;
 }
 
 const compileWithGlobals = (code: string) => {
@@ -105,13 +102,12 @@ const compileWithGlobals = (code: string) => {
   //   (1) Allows us to define our own global scope
   //   (2) Doesn't upset esbuild
   const callable = (async function () {}).constructor(`with(this) { await ${code} }`);
-  const scope = {Globals, Vulcan};
   return () => {
     return callable.call(new Proxy({}, {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key as keyof Global] ?? scope[key as "Globals"|"Vulcan"];
+          return global[key as keyof Global];
         }
       }
     }));

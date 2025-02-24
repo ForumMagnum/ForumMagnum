@@ -3,7 +3,6 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 import * as _ from 'underscore';
-import { Vulcan } from "../../lib/vulcan-lib/config";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
 // Check that the denormalized contents field of objects with make_editable match
@@ -11,7 +10,7 @@ import { getCollection } from "../../lib/vulcan-lib/getCollection";
 // going to be dropping those denormalized fields, but there's a risk that for
 // some subset of content (eg particular types of important posts), they may
 // contain real unique content rather than just being denormalized copies.
-Vulcan.validateMakeEditableDenormalization = async () => {
+export const validateMakeEditableDenormalization = async () => {
   function recordError(err: string) {
     // eslint-disable-next-line no-console
     console.error("    "+err);

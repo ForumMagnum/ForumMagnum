@@ -1,11 +1,12 @@
-import { Globals } from "../../lib/vulcan-lib/config";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { calculateActivityFactor } from "../../lib/collections/useractivities/utils";
 import { activityHalfLifeSetting } from "../../lib/scoring";
 import { fs } from "mz";
 
 const defaultHalfLife = activityHalfLifeSetting.get()
-const generateUserActivityReport = async (activityHalfLifeHours: number = defaultHalfLife) => {
+
+// Exported to allow running manually with "yarn repl"
+export const generateUserActivityReport = async (activityHalfLifeHours: number = defaultHalfLife) => {
   const db = getSqlClientOrThrow()
 
   const query = `
@@ -35,5 +36,3 @@ const generateUserActivityReport = async (activityHalfLifeHours: number = defaul
   // eslint-disable-next-line no-console
   console.log(`User activity factors saved to ${csvFileName}`);
 }
-
-Globals.generateUserActivityReport = generateUserActivityReport;

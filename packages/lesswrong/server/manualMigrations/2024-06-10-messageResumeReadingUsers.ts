@@ -57,7 +57,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
 }
 
 
-registerMigration({
+export default registerMigration({
   name: "messageResumeReadingUsers",
   dateWritten: "2024-06-10",
   idempotent: true,
