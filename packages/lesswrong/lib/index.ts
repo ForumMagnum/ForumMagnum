@@ -206,7 +206,6 @@ import './collections/posts/schema';
 import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
-import './collections/posts/voting';
 
 // PostViews
 import './collections/postViews/collection';

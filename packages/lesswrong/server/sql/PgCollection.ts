@@ -10,6 +10,7 @@ import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
+import { getVoteableSchemaFields } from "@/lib/make_voteable";
 
 let executingQueries = 0;
 
@@ -51,10 +52,17 @@ class PgCollection<
   typeName: string;
   options: CollectionOptions<N>;
   _schemaFields: SchemaType<N>;
+
+  /**
+   * Schema fields, but converted into the format used by the simple-schema
+   * library. This is a cache of the conversion; when _schemaFields changes it
+   * should be invalidated by setting it to null. Do not access directly; use
+   * getSimpleSchema.
+   */
   _simpleSchema: any;
+
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private table: Table<ObjectsByCollectionName[N]>;
-  private voteable = false;
 
   constructor(options: CollectionOptions<N>) {
     this.collectionName = options.collectionName;
@@ -62,14 +70,15 @@ class PgCollection<
     this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
 
+    const votingFields: SchemaType<N> = options.voteable
+      ? getVoteableSchemaFields(options.collectionName as N&VoteableCollectionName, options.voteable) as SchemaType<N>
+      : {};
     // Schema fields, passed as the schema option to createCollection or added
     // later with addFieldsDict. Do not access directly; use getSchema.
-    this._schemaFields = options.schema;
-    // Schema fields, but converted into the format used by the simple-schema
-    // library. This is a cache of the conversion; when _schemaFields changes it
-    // should be invalidated by setting it to null. Do not access directly; use
-    // getSimpleSchema.
-    this._simpleSchema = null;
+    this._schemaFields = {
+      ...options.schema,
+      ...votingFields,
+    };
   }
 
   isConnected() {
@@ -77,11 +86,7 @@ class PgCollection<
   }
 
   isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollection<VoteableCollectionName> {
-    return this.voteable;
-  }
-
-  makeVoteable() {
-    this.voteable = true;
+    return !!this.options.voteable;
   }
 
   hasSlug(): this is PgCollection<CollectionNameWithSlug> {

@@ -48,6 +48,9 @@ export const Posts = createCollection({
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: true,
+  },
   dependencies: [
     {type: "extension", name: "btree_gin"},
     {type: "extension", name: "earthdistance"},
