@@ -158,6 +158,11 @@ makeEditable({
   }
 });
 
+Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
+  if (document && document.deleted && !userOwns(user, document)) return userCanDo(user, 'users.view.deleted')
+  return true
+};
+
 Users.postProcess = (user: DbUser): DbUser => {
   // The `node-postgres` library is smart enough to automatically convert string
   // representations of dates into Javascript Date objects when we have columns

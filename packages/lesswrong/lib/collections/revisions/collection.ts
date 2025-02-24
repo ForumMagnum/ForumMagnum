@@ -1,5 +1,5 @@
 import schema from './schema';
-import { userCanDo, membersGroup, userIsAdminOrMod } from '../../vulcan-users/permissions';
+import { userCanDo, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
@@ -130,12 +130,5 @@ export interface ChangeMetrics {
 makeVoteable(Revisions, {
   timeDecayScoresCronjob: false,
 });
-
-membersGroup.can([
-  'revisions.smallDownvote',
-  'revisions.bigDownvote',
-  'revisions.smallUpvote',
-  'revisions.bigUpvote',
-]);
 
 export default Revisions;
