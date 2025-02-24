@@ -50,7 +50,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   context: ResolverContext,
 }): Promise<VoteDocTuple> => {
   // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, extendedVote, user, voteId });
+  const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,
@@ -238,7 +238,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!context)
     context = createAnonymousContext();
 
-  const collectionName = collection.options.collectionName;
+  const collectionName = collection.collectionName;
   document = document || await collection.findOne({_id: documentId});
 
   if (!document) throw new Error("Error casting vote: Document not found.");
@@ -281,7 +281,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     return {
       vote: null,
       modifiedDocument: {
-        __typename: collection.options.typeName,
+        __typename: collection.typeName,
         ...document,
       } as any,
       showVotingPatternWarning,
@@ -333,7 +333,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
         // necessary, but I believe it's something to do with graphql union types.
         // This has been here (in some form) since long before we
         // typescript-ified.
-        __typename: collection.options.typeName,
+        __typename: collection.typeName,
         ...document,
       } as any,
       showVotingPatternWarning,

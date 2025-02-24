@@ -1,5 +1,5 @@
 import { batchUpdateScore } from './updateScores';
-import { VoteableCollections, VoteableCollectionOptions } from '../lib/make_voteable';
+import { getVoteableCollections } from '../lib/make_voteable';
 import { addCronJob } from './cron/cronUtil';
 
 // Setting voting.scoreUpdateInterval removed and replaced with a hard-coded
@@ -11,8 +11,8 @@ export const updateScoreActiveDocumentsCron = addCronJob({
   name: 'updateScoreActiveDocuments',
   interval: `every 30 seconds`,
   job() {
-    VoteableCollections.forEach(collection => {
-      const options = VoteableCollectionOptions[collection.collectionName]!;
+    getVoteableCollections().forEach(collection => {
+      const options = collection.options.voteable!;
       if (options.timeDecayScoresCronjob) {
         void batchUpdateScore({collection});
       }
@@ -23,8 +23,8 @@ export const updateScoreInactiveDocumentsCron = addCronJob({
   name: 'updateScoreInactiveDocuments',
   interval: 'every 24 hours',
   job() {
-    VoteableCollections.forEach(collection => {
-      const options = VoteableCollectionOptions[collection.collectionName]!;
+    getVoteableCollections().forEach(collection => {
+      const options = collection.options.voteable!;
       if (options.timeDecayScoresCronjob) {
         void batchUpdateScore({collection, inactive: true});
       }

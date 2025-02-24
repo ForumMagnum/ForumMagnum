@@ -9,6 +9,7 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { CollectionVoteOptions } from '../make_voteable';
 
 // These server imports are safe as they use `import type`
 // eslint-disable-next-line import/no-restricted-paths
@@ -41,14 +42,9 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   _simpleSchema: any
 
   isConnected: () => boolean
-
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
-  makeVoteable: () => void
-
   hasSlug: () => boolean
-
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
-
   getTable: () => Table<ObjectsByCollectionName[N]>;
 
   rawCollection: () => {
@@ -123,7 +119,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   collectionName: N,
   dbCollectionName?: string,
   schema: SchemaType<N>,
-  generateGraphQLSchema?: boolean,
   collection?: any,
   resolvers?: any,
   mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
@@ -132,6 +127,7 @@ type CollectionOptions<N extends CollectionNameString> = {
   logChanges?: boolean,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],
+  voteable?: CollectionVoteOptions,
 };
 
 interface FindResult<T> {

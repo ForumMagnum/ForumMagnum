@@ -1,5 +1,5 @@
 import Votes from '../../lib/collections/votes/collection';
-import { VoteableCollections } from '../../lib/make_voteable';
+import { getVoteableCollections } from '../../lib/make_voteable';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import mapValues from 'lodash/mapValues';
 import * as _ from 'underscore';
@@ -9,7 +9,7 @@ registerMigration({
   dateWritten: "2019-01-21",
   idempotent: true,
   action: async () => {
-    for (let collection of VoteableCollections)
+    for (let collection of getVoteableCollections())
     {
       await migrateDocuments({
         description: `Fill in voteCount field on ${collection.collectionName}`,

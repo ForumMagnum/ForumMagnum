@@ -1,4 +1,3 @@
-import { makeVoteable } from "../../make_voteable";
 import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
 import { addUniversalFields } from "../../collectionUtils";
@@ -12,14 +11,13 @@ const ElectionCandidates: ElectionCandidatesCollection = createCollection({
   resolvers: getDefaultResolvers("ElectionCandidates"),
   mutations: getDefaultMutations("ElectionCandidates"),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
+  },
 });
 
 addUniversalFields({
   collection: ElectionCandidates,
-});
-
-makeVoteable(ElectionCandidates, {
-  timeDecayScoresCronjob: false,
 });
 
 export default ElectionCandidates;
