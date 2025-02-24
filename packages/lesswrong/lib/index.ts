@@ -50,6 +50,7 @@ import './collections/conversations/fragments';
 import './collections/rssfeeds/collection'
 import './collections/rssfeeds/views'
 import './collections/rssfeeds/fragments'
+import './collections/rssfeeds/permissions'
 
 // Reports
 import './collections/reports/collection'
@@ -57,7 +58,10 @@ import './collections/reports/views'
 import './collections/reports/fragments'
 
 // LWEvents
-import './collections/lwevents/index';
+import './collections/lwevents/collection';
+import './collections/lwevents/fragments';
+import './collections/lwevents/views';
+import './collections/lwevents/permissions';
 
 // TagFlags
 import './collections/tagFlags/collection';
@@ -80,13 +84,19 @@ import './collections/debouncerEvents/collection';
 // ReadStatuses
 import './collections/readStatus/collection';
 // Bans
-import './collections/bans/index'
+import './collections/bans/collection';
+import './collections/bans/fragments';
+import './collections/bans/views';
+import './collections/bans/permissions';
+
 // Chapters
 import './collections/sequences/collection';
 import './collections/sequences/views';
 import './collections/sequences/helpers';
 
 import './collections/chapters/collection';
+import './collections/chapters/permissions';
+
 import './collections/books/collection';
 import './collections/collections/collection';
 
@@ -178,7 +188,10 @@ import './collections/forumEvents/fragments';
 import './collections/forumEvents/views';
 
 // Subscriptions
-import './collections/subscriptions';
+import './collections/subscriptions/collection';
+import './collections/subscriptions/fragments';
+import './collections/subscriptions/views';
+import './collections/subscriptions/permissions';
 
 // Podcasts
 import './collections/podcasts/collection';
@@ -193,6 +206,7 @@ import './collections/posts/schema';
 import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
+import './collections/posts/voting';
 
 // PostViews
 import './collections/postViews/collection';
@@ -214,9 +228,13 @@ import './collections/users/views';
 import './collections/users/fragments';
 
 // Comments
-import './collections/comments'
+import './collections/comments/collection';
+import './collections/comments/views';
+import './collections/comments/permissions';
+import './collections/comments/voting';
 
-import './collections/petrovDayLaunchs'
+import './collections/petrovDayLaunchs/collection';
+import './collections/petrovDayLaunchs/fragments';
 
 import './collections/petrovDayActions/collection'
 import './collections/petrovDayActions/fragments'
@@ -227,7 +245,9 @@ import './collections/featuredResources/views'
 import './collections/featuredResources/fragments'
 
 // Votes
-import './collections/votes';
+import './collections/votes/collection';
+import './collections/votes/fragments';
+import './collections/votes/views';
 
 // Spotlights
 import './collections/spotlights/collection';
@@ -236,19 +256,31 @@ import './collections/spotlights/permissions';
 import './collections/spotlights/views';
 
 // Moderator actions
-import './collections/moderatorActions/index';
+import './collections/moderatorActions/collection';
+import './collections/moderatorActions/fragments';
+import './collections/moderatorActions/views';
 
 // Comment moderator actions
-import './collections/commentModeratorActions/index';
+import './collections/commentModeratorActions/collection';
+import './collections/commentModeratorActions/fragments';
+import './collections/commentModeratorActions/views';
 
 // ModerationTemplates
-import './collections/moderationTemplates/index';
+import './collections/moderationTemplates/collection';
+import './collections/moderationTemplates/fragments';
+import './collections/moderationTemplates/views';
+import './collections/moderationTemplates/permissions';
 
 // CurationNotices
-import './collections/curationNotices/index';
+import './collections/curationNotices/collection';
+import './collections/curationNotices/fragments';
+import './collections/curationNotices/views';
 
 // UserRateLimits
-import './collections/userRateLimits/index';
+import './collections/userRateLimits/collection';
+import './collections/userRateLimits/fragments';
+import './collections/userRateLimits/views';
+import './collections/userRateLimits/permissions';
 
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
@@ -272,7 +304,9 @@ import './routes';
 import '@/allComponents';
 
 // PostRelation
-import './collections/postRelations';
+import './collections/postRelations/collection';
+import './collections/postRelations/fragments';
+import './collections/postRelations/views';;
 
 // PostRecommendations
 import './collections/postRecommendations/collection';
@@ -293,8 +327,8 @@ import './collections/googleServiceAccountSessions/fragments';
 import './collections/googleServiceAccountSessions/views';
 
 // Collections supporting vendored libraries
-import './collections/cronHistories';
-import './collections/sessions';
+import './collections/cronHistories/collection';
+import './collections/sessions/collection';
 
 // dialogue typing indicators
 import './collections/typingIndicators/collection';

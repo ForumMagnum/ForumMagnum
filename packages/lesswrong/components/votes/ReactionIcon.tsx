@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defaultFilter, getNamesAttachedReactionsByName} from '../../lib/voting/reactions';
 import classNames from 'classnames';
 

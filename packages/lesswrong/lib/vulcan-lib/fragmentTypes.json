@@ -21,10 +21,10 @@
             "name": "MultiDocument"
           },
           {
-            "name": "Comment"
+            "name": "Post"
           },
           {
-            "name": "Post"
+            "name": "Comment"
           }
         ]
       }

@@ -5,7 +5,7 @@ import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings
 import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
-import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';

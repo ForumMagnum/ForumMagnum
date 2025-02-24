@@ -1,7 +1,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/conversionUtils'
-import { Posts } from '../../lib/collections/posts'
-import { updateMutator } from '../vulcan-lib';
+import { Posts } from '../../lib/collections/posts/collection'
+import { updateMutator } from '../vulcan-lib/mutators';
 
 registerMigration({
   name: "fixBigPosts",

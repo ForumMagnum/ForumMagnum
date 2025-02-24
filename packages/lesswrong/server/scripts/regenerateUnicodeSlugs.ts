@@ -1,6 +1,6 @@
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { slugify } from "@/lib/utils/slugify";
 
 Globals.regenerateUnicodeSlugs = async () => {

@@ -1,6 +1,7 @@
 import type { ApolloCache } from '@apollo/client';
-import { camelCaseify, pluralize } from '../vulcan-lib';
 import * as _ from 'underscore';
+import { camelCaseify } from "../vulcan-lib/utils";
+import { pluralize } from "../vulcan-lib/pluralize";
 
 export const getMultiQueryName = (typeName: string) => `multi${typeName}Query`;
 export const getMultiResolverName = (typeName: string) => camelCaseify(pluralize(typeName));

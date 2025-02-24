@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';

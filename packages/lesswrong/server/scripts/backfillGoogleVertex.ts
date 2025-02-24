@@ -1,7 +1,7 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";

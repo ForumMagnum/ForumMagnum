@@ -1,4 +1,4 @@
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments/collection';

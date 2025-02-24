@@ -1,5 +1,5 @@
-import { PetrovDayLaunchs } from "@/lib/collections/petrovDayLaunchs";
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
+import { PetrovDayLaunchs } from "@/lib/collections/petrovDayLaunchs/collection.ts";
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { petrovDayLaunchCode } from "@/components/seasonal/PetrovDayButton";
 import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
 import { petrovBeforeTime } from "@/components/Layout";

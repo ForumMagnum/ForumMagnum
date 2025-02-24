@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -12,6 +11,8 @@ import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

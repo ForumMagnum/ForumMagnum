@@ -1,8 +1,9 @@
 import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
   if (user.deleted) return false

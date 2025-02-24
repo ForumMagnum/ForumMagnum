@@ -1,4 +1,4 @@
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import RecommendationService from "../recommendations/RecommendationService";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";

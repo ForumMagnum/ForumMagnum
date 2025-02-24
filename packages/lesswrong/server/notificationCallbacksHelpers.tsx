@@ -3,7 +3,7 @@ import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import Users from '../lib/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';

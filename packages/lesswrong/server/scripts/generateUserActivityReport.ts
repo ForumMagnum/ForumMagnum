@@ -1,4 +1,4 @@
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { calculateActivityFactor } from "../../lib/collections/useractivities/utils";
 import { activityHalfLifeSetting } from "../../lib/scoring";

@@ -1,4 +1,4 @@
-import { Collections } from '../../lib/vulcan-lib';
+import { Collections } from '../../lib/vulcan-lib/getCollection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { isUnbackedCollection } from '../../lib/collectionUtils';
 

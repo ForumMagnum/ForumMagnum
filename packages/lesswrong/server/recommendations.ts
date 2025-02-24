@@ -5,7 +5,7 @@ import { Collections } from '../lib/collections/collections/collection';
 import { ensureIndex } from '../lib/collectionIndexUtils';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../lib/vulcan-lib/graphql';
 import { WeightedList } from './weightedList';
 import {
   DefaultRecommendationsAlgorithm,

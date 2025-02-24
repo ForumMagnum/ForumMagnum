@@ -2,12 +2,12 @@ import React from 'react';
 import { addCronJob } from './cronUtil';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailInactiveUserSurvey';
-import { Components, Globals } from './vulcan-lib';
 import { loggerConstructor } from '../lib/utils/logging';
-import { UsersRepo } from './repos';
-import Users from '../lib/vulcan-users';
+import UsersRepo from './repos/UsersRepo';
+import Users from '@/lib/collections/users/collection';
 import { isEAForum } from '../lib/instanceSettings';
-
+import { Components } from "../lib/vulcan-lib/components";
+import { Globals } from "../lib/vulcan-lib/config";
 
 /**
  * Sends emails to inactive users with a link to a feedback survey

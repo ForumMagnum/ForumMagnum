@@ -1,7 +1,9 @@
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/lib/collectionUtils";
-import { createCollection } from "@/lib/vulcan-lib";
+import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import schema from "./schema";
-import { isAdmin, userOwns } from "@/lib/vulcan-users";
+import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions.ts";
+import { addUniversalFields } from "@/lib/collectionUtils";
+import { getDefaultMutations } from "@/lib/vulcan-core/default_mutations.ts";
+import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 
 const LlmConversations: LlmConversationsCollection = createCollection({
   collectionName: "LlmConversations",

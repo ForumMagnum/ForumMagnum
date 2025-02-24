@@ -4,7 +4,7 @@ import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
-import { DebouncerEventsRepo } from './repos';
+import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};

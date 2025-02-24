@@ -10,8 +10,8 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest, isE2E } from '../../lib/executionEnvironment';
 import { eaFrontpageDateDefault, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
 import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
-import { updateMutator } from '../vulcan-lib';
-import { Posts } from '@/lib/collections/posts';
+import { updateMutator } from '../vulcan-lib/mutators';
+import { Posts } from '@/lib/collections/posts/collection.ts';
 import { isWeekend } from '@/lib/utils/timeUtil';
 
 /**

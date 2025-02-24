@@ -2,7 +2,7 @@
 
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { pgPromiseLib } from "../sqlConnection";
-import { Globals } from "../vulcan-lib";
+import { Globals } from "../../lib/vulcan-lib/config";
 
 type PostVotingSystem = Pick<DbPost, "_id" | "votingSystem">;
 type VoteType = Pick<DbVote, "documentId" | "extendedVoteType">;

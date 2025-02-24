@@ -1,5 +1,5 @@
 import { fmCrosspostBaseUrlSetting } from "../../lib/instanceSettings";
-import { combineUrls } from "../../lib/vulcan-lib";
+import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { Application, Request, json } from "express";
 import {
   onCrosspostTokenRequest,

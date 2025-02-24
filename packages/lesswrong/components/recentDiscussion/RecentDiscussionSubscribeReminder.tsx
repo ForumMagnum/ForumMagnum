@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified, userHasEmailAddress} from '../../lib/collections/users/helpers';

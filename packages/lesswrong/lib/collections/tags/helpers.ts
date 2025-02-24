@@ -1,7 +1,7 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, tagUrlBaseSetting } from "../../instanceSettings";
-import { combineUrls } from "../../vulcan-lib";
+import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
