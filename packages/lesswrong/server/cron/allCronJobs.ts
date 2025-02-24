@@ -1,5 +1,5 @@
 import { cronUpdateAnalyticsCollections } from "@/server/analytics/analyticsCron";
-import { cronMaintainAnalyticsViews } from "@/server/analyticsViews";
+import { cronMaintainAnalyticsViews } from "@/server/analytics/analyticsViews";
 import { cronClearExpiredPageCacheEntries } from "@/server/cache/cron";
 import { cronClearOldCronHistories, type CronJobSpec } from "@/server/cron/cronUtil";
 import { sendCurationEmailsCron } from "@/server/curationEmails/cron";
