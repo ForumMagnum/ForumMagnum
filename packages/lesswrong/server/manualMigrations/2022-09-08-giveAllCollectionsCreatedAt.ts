@@ -17,7 +17,7 @@ const initCreatedAt = <N extends CollectionNameString>(
 ): Promise<void> =>
   migrateDocuments({
     collection,
-    description: `Filling createdAt for ${collection.options.collectionName}`,
+    description: `Filling createdAt for ${collection.collectionName}`,
     batchSize: 2000,
     unmigratedDocumentQuery: {
       createdAt: {$exists: false},

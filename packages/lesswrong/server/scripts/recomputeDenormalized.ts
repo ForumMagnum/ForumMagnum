@@ -9,7 +9,7 @@ import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
 export const recomputeAllDenormalizedValues = async () => {
   for(let collection of Collections) {
     await recomputeDenormalizedValues({
-      collectionName: collection.options.collectionName
+      collectionName: collection.collectionName
     })
   }
 }
@@ -17,7 +17,7 @@ export const recomputeAllDenormalizedValues = async () => {
 export const validateAllDenormalizedValues = async () => {
   for(let collection of Collections) {
     await recomputeDenormalizedValues({
-      collectionName: collection.options.collectionName,
+      collectionName: collection.collectionName,
       validateOnly: true
     })
   }

@@ -4,33 +4,11 @@ import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
 import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
+import { allUserGroupsByName } from '../permissions';
 
-class Group {
-  actions: Array<string>
-
-  constructor() {
-    this.actions = [];
-  }
-
-  can(actions: string|string[]) {
-    actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = this.actions.concat(actions);
-  }
-
-  cannot(actions: string|string[]) {
-    actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = _.difference(this.actions, actions);
-  }
+export function getAllUserGroups() {
+  return allUserGroupsByName;
 }
-
-export const userGroups: Record<string,Group> = {};
-
-
-// Create a new group
-export const createGroup = (groupName: string): Group => {
-  userGroups[groupName] = new Group();
-  return userGroups[groupName];
-};
 
 export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
   "groups" |
@@ -70,7 +48,7 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
   }
   let groupActions = groups.map(groupName => {
     // note: make sure groupName corresponds to an actual group
-    const group = userGroups[groupName];
+    const group = allUserGroupsByName[groupName];
     return group && group.actions;
   });
   return _.unique(_.flatten(groupActions));
@@ -362,36 +340,3 @@ export const userCanUpdateField = <N extends CollectionNameString>(
   }
   return false;
 };
-
-////////////////////
-// Initialize     //
-////////////////////
-
-// initialize the 3 out-of-the-box groups
-export const guestsGroup = createGroup('guests'); // non-logged-in users
-export const membersGroup = createGroup('members'); // regular users
-
-const membersActions = [
-  'user.create',
-  'user.update.own',
-  // OpenCRUD backwards compatibility
-  'users.new',
-  'users.edit.own',
-  'users.remove.own',
-];
-userGroups.members.can(membersActions);
-
-export const adminsGroup = createGroup('admins'); // admin users
-
-const adminActions = [
-  'user.create',
-  'user.update.all',
-  'user.delete.all',
-  'setting.update',
-  // OpenCRUD backwards compatibility
-  'users.new',
-  'users.edit.all',
-  'users.remove.all',
-  'settings.edit',
-];
-userGroups.admins.can(adminActions);

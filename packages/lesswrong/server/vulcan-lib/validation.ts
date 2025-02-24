@@ -67,8 +67,8 @@ export const validateDocument = <N extends CollectionNameString>(
           id: `errors.${error.type}`,
           path: error.name,
           properties: {
-            collectionName: collection.options.collectionName,
-            typeName: collection.options.typeName,
+            collectionName: collection.collectionName,
+            typeName: collection.typeName,
             ...error,
           },
         });
@@ -128,8 +128,8 @@ export const validateModifier = <N extends CollectionNameString>(
           id: `errors.${error.type}`,
           path: error.name,
           properties: {
-            collectionName: collection.options.collectionName,
-            typeName: collection.options.typeName,
+            collectionName: collection.collectionName,
+            typeName: collection.typeName,
             ...error,
           },
         });
