@@ -519,7 +519,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       options: function() {
         const groups = _.without(
-          _.keys(getAllUserGroups),
+          _.keys(getAllUserGroups()),
           'guests',
           'members',
           'admins'
