@@ -84,8 +84,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       },
     };
     mutations.create = createMutation;
-    // OpenCRUD backwards compatibility
-    mutations.new = createMutation;
   }
 
   if (mutationOptions.update) {
@@ -163,8 +161,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     };
 
     mutations.update = updateMutation;
-    // OpenCRUD backwards compatibility
-    mutations.edit = updateMutation;
 
   }
   if (mutationOptions.upsert) {
@@ -267,8 +263,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     };
 
     mutations.delete = deleteMutation;
-    // OpenCRUD backwards compatibility
-    mutations.remove = deleteMutation;
 
   }
 
