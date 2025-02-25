@@ -1,4 +1,3 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import { isAF, isLWorAF } from '../../instanceSettings';
 import Sequences from './collection';
 
@@ -25,10 +24,6 @@ Sequences.addDefaultView((terms: SequencesViewTerms) => {
   return params;
 })
 
-function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbSequence>): MongoIndexKeyObj<DbSequence>
-{
-  return { hidden:1, af:1, isDeleted:1, ...indexFields };
-}
 
 Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
   return {
@@ -46,7 +41,6 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
     },
   };
 });
-ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
 
 Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
   return {
@@ -84,7 +78,6 @@ Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
     },
   };
 });
-ensureIndex(Sequences, augmentForDefaultView({ userId: 1, draft: 1, hideFromAuthorPage: 1, userProfileOrder: 1 }))
 
 Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
   return {
@@ -103,7 +96,6 @@ Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
     },
   };
 });
-ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
 
 Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
   const gridImageFilter = isLWorAF ? {gridImageId: {$ne: null}} : undefined

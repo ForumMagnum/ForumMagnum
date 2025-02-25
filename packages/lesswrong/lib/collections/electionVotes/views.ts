@@ -1,4 +1,3 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import ElectionVotes from "./collection";
 
 declare global {
@@ -29,4 +28,3 @@ ElectionVotes.addView('allSubmittedVotes', (terms: ElectionVotesViewTerms) => {
   };
 });
 
-ensureIndex(ElectionVotes, {electionName: 1});

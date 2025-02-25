@@ -9,7 +9,7 @@ import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '@/server/sql/CreateExtensionQuery';
 import CreateIndexQuery from '@/server/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '@/server/sql/Type';
-import type { CustomPgIndex } from '../../lib/collectionIndexUtils';
+import type { CustomPgIndex } from '../../lib/utils/databaseIndexSet';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '@/server/sql/TableIndex';
 import { getAllIndexes } from '../databaseIndexes/allIndexes';

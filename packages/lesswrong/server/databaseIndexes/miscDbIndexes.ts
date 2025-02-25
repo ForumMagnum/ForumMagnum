@@ -1,5 +1,5 @@
 import { getAllCollections } from "@/lib/vulcan-lib/getCollection";
-import { DatabaseIndexSet } from "./databaseIndexSet";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 
 export function getMiscDbIndexes() {
   const indexSet = new DatabaseIndexSet();

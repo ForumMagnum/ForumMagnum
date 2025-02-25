@@ -1,5 +1,4 @@
 import UserMostValuablePosts from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface UserMostValuablePostsViewTerms extends ViewTermsBase {
@@ -16,7 +15,6 @@ UserMostValuablePosts.addView("currentUserMostValuablePosts", function (terms, _
     }
   };
 });
-ensureIndex(UserMostValuablePosts, { userId: 1 })
 
 UserMostValuablePosts.addView("currentUserPost", function (terms: UserMostValuablePostsViewTerms, _, context?: ResolverContext) {
   return {
@@ -26,4 +24,3 @@ UserMostValuablePosts.addView("currentUserPost", function (terms: UserMostValuab
     }
   };
 });
-ensureIndex(UserMostValuablePosts, { userId: 1, postId: 1 })

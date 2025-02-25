@@ -11,6 +11,7 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { getVoteableSchemaFields } from "@/lib/make_voteable";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 
 let executingQueries = 0;
 
@@ -97,6 +98,10 @@ class PgCollection<
     return this.table;
   }
 
+  getIndexes() {
+    return this.options.getIndexes?.() ?? new DatabaseIndexSet();
+  }
+ 
   buildPostgresTable() {
     this.table = Table.fromCollection<N>(this);
   }

@@ -1,4 +1,4 @@
-import { DatabaseIndexSet } from "./databaseIndexSet";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 
 export function getDbIndexesOnVotes() {
   const indexSet = new DatabaseIndexSet();

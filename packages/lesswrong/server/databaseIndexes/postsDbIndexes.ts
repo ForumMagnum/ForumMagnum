@@ -1,5 +1,5 @@
 import { combineIndexWithDefaultViewIndex } from "@/lib/collectionIndexUtils";
-import { DatabaseIndexSet } from "./databaseIndexSet";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import { filters, postStatuses } from "@/lib/collections/posts/constants";
 
 function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>) {

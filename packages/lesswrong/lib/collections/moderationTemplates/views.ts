@@ -1,4 +1,3 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import ModerationTemplates from './collection';
 
 declare global {
@@ -13,11 +12,9 @@ ModerationTemplates.addView('moderationTemplatesPage', function (terms: Moderati
     options: { sort: { deleted: 1, order: 1 } }
   };
 })
-ensureIndex(ModerationTemplates, { deleted: 1, order: 1 })
 
 ModerationTemplates.addView('moderationTemplatesList', function (terms) {
   return {
     selector: { deleted: false, collectionName: terms.collectionName }, options: {sort: {order: 1}}
   };
 });
-ensureIndex(ModerationTemplates, { collectionName: 1, deleted: 1, order: 1 })

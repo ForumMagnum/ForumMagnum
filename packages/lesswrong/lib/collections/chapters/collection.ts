@@ -6,6 +6,7 @@ import { makeEditable } from '../../editor/make_editable';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbChapter> = {
   newCheck: async (user: DbUser|null, document: DbChapter|null) => {
@@ -34,6 +35,11 @@ export const Chapters: ChaptersCollection = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Chapters', { sequenceId: 1, number: 1 })
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Chapters'),
   mutations: getDefaultMutations('Chapters', options),
   logChanges: true,

@@ -1,4 +1,5 @@
-import { DatabaseIndexSet } from "./databaseIndexSet";
+import { DatabaseIndexSet, mergeDatabaseIndexSets } from "../../lib/utils/databaseIndexSet";
+import { getFacetFieldIndexes } from "../search/facetFieldSearch";
 
 export function getDbIndexesOnUsers() {
   const indexSet = new DatabaseIndexSet();
@@ -89,5 +90,8 @@ export function getDbIndexesOnUsers() {
   indexSet.addIndex("Users", { afSubmittedApplication:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-  return indexSet;
+  return mergeDatabaseIndexSets([ 
+    indexSet,
+    getFacetFieldIndexes(),
+  ]);
 }

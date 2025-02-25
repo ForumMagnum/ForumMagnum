@@ -1,4 +1,3 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 import ElectionCandidates from "./collection";
 
@@ -48,5 +47,3 @@ ElectionCandidates.addDefaultView(({
     },
   };
 });
-
-ensureIndex(ElectionCandidates, {electionName: 1});

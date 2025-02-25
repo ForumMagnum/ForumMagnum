@@ -1,5 +1,5 @@
 import { combineIndexWithDefaultViewIndex } from "@/lib/collectionIndexUtils";
-import { DatabaseIndexSet } from "./databaseIndexSet";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 
 function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>) {
   return combineIndexWithDefaultViewIndex({

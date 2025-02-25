@@ -1,5 +1,4 @@
 import RSSFeeds from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface RSSFeedsViewTerms extends ViewTermsBase {
@@ -15,4 +14,3 @@ RSSFeeds.addView("usersFeed", function (terms: RSSFeedsViewTerms) {
     options: {sort: {createdAt: 1}}
   };
 });
-ensureIndex(RSSFeeds, {userId: 1, createdAt: 1});
