@@ -1,5 +1,7 @@
 import Users from "@/lib/collections/users/collection";
 import usersSchema, { LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings, NotificationTypeSettings } from "@/lib/collections/users/schema";
+import { updateDefaultValue } from "./meta/utils";
+import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 const notificationTypes = [
   "notificationCommentsOnSubscribedPost",
@@ -101,17 +103,20 @@ const migrateFormat = async ({
       { _id: 1, [fieldName]: 1 }
     ).fetch();
 
-    // TODO maybe batch these
-    for (const user of usersToUpdate) {
-      const oldValue = user[fieldName] as NotificationTypeSettings | LegacyNotificationTypeSettings;
-      const newValue = convertFormat(oldValue);
+    // On EAF there is on the order of ~100 users for the most popular settings
+    const userUpdateFuncs = usersToUpdate.map((user) => {
+      return async () => {
+        const oldValue = user[fieldName] as NotificationTypeSettings | LegacyNotificationTypeSettings;
+        const newValue = convertFormat(oldValue);
 
-      if (!dryRun) {
-        await Users.rawUpdateOne({ _id: user._id }, { $set: { [fieldName]: newValue } })
-      } else {
-        console.log("Would have run rawUpdateOne with args:", { _id: user._id }, { $set: { [fieldName]: newValue } });
+        if (!dryRun) {
+          await Users.rawUpdateOne({ _id: user._id }, { $set: { [fieldName]: newValue } })
+        } else {
+          console.log("Would have run rawUpdateOne with args:", { _id: user._id }, { $set: { [fieldName]: newValue } });
+        }
       }
-    }
+    })
+    await executePromiseQueue(userUpdateFuncs, 10);
 
     console.log(`${!dryRun ? usersToUpdate.length : 0} users migrated`);
   }
@@ -119,8 +124,19 @@ const migrateFormat = async ({
 
 export const up = async ({ db }: MigrationContext) => {
   await migrateFormat({ db, toNew: true });
+
+  // Update any defaults that have changed
+  for (const type of notificationTypes) {
+    await updateDefaultValue(db, Users, type);
+  }
 };
 
 export const down = async ({ db }: MigrationContext) => {
   await migrateFormat({ db, toNew: false });
+
+  // Update any defaults that have changed
+  // Note: You will need to revert the schema definition to have this actually update to the previous defaults
+  for (const type of notificationTypes) {
+    await updateDefaultValue(db, Users, type);
+  }
 };
