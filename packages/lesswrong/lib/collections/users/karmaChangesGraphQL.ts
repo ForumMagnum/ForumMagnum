@@ -3,7 +3,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 import type { TagCommentType } from "../../collections/comments/types";
-import type { KarmaChangeUpdateFrequency, NotificationBatchingFrequency } from "./schema";
+import type { KarmaChangeUpdateFrequency } from "./schema";
 
 // When adding fields here, you almost certainly want to update the
 // `UserKarmaChanges` fragment too
