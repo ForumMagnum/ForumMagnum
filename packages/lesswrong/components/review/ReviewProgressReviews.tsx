@@ -1,14 +1,13 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import range from 'lodash/range';
-import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -30,11 +29,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   extraIcon: {
     width: 22,
     color: theme.palette.primary.light,
+  },
+  highlightedIcon: {
+    color: theme.palette.primary.main,
   }
 });
 
 export const ReviewProgressReviews = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
   const TARGET_NUM = 3
@@ -71,7 +73,7 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
     </div>} placement="top">
     <div className={classes.root}>
       {reviewsResults.map(review => {
-        return <CheckBoxTwoToneIcon className={classNames(classes.filledIcon, {[classes.highlightedIcon]: review.baseScore >= 10})} key={review._id}/>
+        return <CheckBoxTwoToneIcon className={classes.filledIcon} key={review._id}/>
       })}
       {range(0, uncheckedBoxes).map(a => <CheckBoxOutlineBlankIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
     </div>

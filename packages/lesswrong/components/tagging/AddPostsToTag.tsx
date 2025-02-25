@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@material-ui/icons/AddBox';
@@ -15,8 +14,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     '& input': {
@@ -96,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AddPostsToTag = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagPreviewFragment
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);

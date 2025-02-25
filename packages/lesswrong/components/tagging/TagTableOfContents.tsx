@@ -1,11 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { tagUrlBaseSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
-import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
     position: "relative",
     top: 12,
@@ -30,7 +29,7 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   showContributors: boolean,
   onHoverContributor?: (contributorId: string) => void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
   
@@ -45,7 +44,7 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
         onClickSection={expandAll}
         displayOptions={displayOptions}
       />
-      <Link to="/tags/random" className={classes.randomTagLink}>
+      <Link to={`/${tagUrlBaseSetting.get()}/random`} className={classes.randomTagLink}>
         Random {taggingNameCapitalSetting.get()}
       </Link>
       {"contributors" in tag && (

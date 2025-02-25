@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CookieBanner = ({ classes }: { classes: ClassesType }) => {
+const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { openDialog } = useDialog();
   const { updateCookiePreferences } = useCookiePreferences();
   

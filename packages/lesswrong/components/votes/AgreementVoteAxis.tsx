@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   agreementSection: {
@@ -30,11 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
+const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AxisVoteButton, LWTooltip } = Components;
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
@@ -98,7 +98,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
         <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
           {hideKarma
             ? <span>{' '}</span>
-            : <span className={classes.voteScore}>
+            : <span>
                 {karma}
               </span>
           }

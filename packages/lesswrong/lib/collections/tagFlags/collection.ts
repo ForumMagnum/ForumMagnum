@@ -1,12 +1,11 @@
-import { createCollection } from '../../vulcan-lib';
-import { slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { createCollection } from '../../vulcan-lib/collections';
+import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { userCanDo } from '../../vulcan-users/permissions';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const schema: SchemaType<"TagFlags"> = {
   name: {
@@ -27,20 +26,6 @@ const schema: SchemaType<"TagFlags"> = {
     order: 2,
     ...schemaDefaultValue(false),
   },
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    onInsert: async (tagFlag) => {
-      return await getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
-    },
-    onEdit: async (modifier, tagFlag) => {
-      if (modifier.$set.name) {
-        return await getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
-      }
-    }
-  },
   order: {
     type: Number,
     optional: true,
@@ -51,13 +36,6 @@ const schema: SchemaType<"TagFlags"> = {
   },
 };
 
-
-const adminActions = [
-  'tagFlags.new',
-  'tagFlags.edit.all',
-];
-
-adminsGroup.can(adminActions);
 
 const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
@@ -87,6 +65,12 @@ export const TagFlags: TagFlagsCollection = createCollection({
 });
 
 addUniversalFields({collection: TagFlags})
+
+addSlugFields({
+  collection: TagFlags,
+  getTitle: (tf) => tf.name,
+  includesOldSlugs: false,
+});
 
 makeEditable({
   collection: TagFlags,

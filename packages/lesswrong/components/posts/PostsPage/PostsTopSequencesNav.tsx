@@ -1,13 +1,14 @@
 import React, {useCallback} from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useNavigate } from "../../../lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();

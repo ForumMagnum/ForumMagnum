@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const QuickReviewPage2022 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
@@ -139,7 +139,6 @@ export const QuickReviewPage2022 = ({classes}: {
         />
       </div>}
       {expandedPost && <ReviewVotingExpandedPost
-        showReviewButton={false}
         post={expandedPost}
         setExpandedPost={setExpandedPost}
       />}

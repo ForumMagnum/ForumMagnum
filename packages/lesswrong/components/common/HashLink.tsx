@@ -17,6 +17,8 @@ export type HashLinkProps = {
   target?: string,
   doOnDown?: boolean
   onMouseDown?: React.MouseEventHandler<HTMLAnchorElement>
+  onMouseEnter?: React.MouseEventHandler<HTMLAnchorElement>
+  onMouseLeave?: React.MouseEventHandler<HTMLAnchorElement>
   onClick?: React.MouseEventHandler<HTMLAnchorElement>
   scroll?: ScrollFunction,
   smooth?: boolean

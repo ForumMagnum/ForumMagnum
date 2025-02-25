@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import DialogContent from '@material-ui/core/DialogContent';
 import { gql, useMutation } from '@apollo/client';
 import Input from '@material-ui/core/Input';
@@ -9,7 +8,9 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { useNavigate } from '../../../lib/routeUtil';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -18,7 +19,7 @@ export const responseToText: Record<RsvpResponse,string> = {
   no: "Can't Go"
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   emailMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -32,7 +33,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [registerRSVP] = useMutation(gql`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {

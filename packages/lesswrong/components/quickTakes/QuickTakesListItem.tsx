@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
@@ -26,7 +26,7 @@ const styles = (_theme: ThemeType) => ({
 
 const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);

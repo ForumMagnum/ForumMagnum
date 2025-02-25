@@ -177,15 +177,12 @@ export const schemaProperties = [
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder
   'control', // SmartForm control (String or React component)
-  'input', // SmartForm control (String or React component)
   'autoform', // legacy form placeholder; backward compatibility (not used anymore)
   'order', // position in the form
   'group', // form fieldset group
   'onCreate', // field insert callback
   'onUpdate', // field edit callback
   'onDelete', // field remove callback
-  'onInsert', // OpenCRUD backwards compatibility
-  'onEdit', // OpenCRUD backwards compatibility
   'canRead',
   'canCreate',
   'canUpdate',
@@ -212,7 +209,6 @@ export const formProperties = [
   'defaultValue',
   'form', // form placeholder
   'control', // SmartForm control (String or React component)
-  'input', // SmartForm control (String or React component)
   'order', // position in the form
   'group', // form fieldset group
   'description',

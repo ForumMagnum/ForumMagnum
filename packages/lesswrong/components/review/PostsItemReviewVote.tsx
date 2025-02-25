@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
@@ -7,14 +7,14 @@ import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export const voteTextStyling = (theme: ThemeType): JssStyles => ({
+export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",
   width: 40,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   buttonWrapper: {
     cursor: "pointer",
     ...voteTextStyling(theme)
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType, post: PostsListBase, marginRight?: boolean}) => {
+const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
@@ -92,7 +92,17 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: Classe
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a nomination vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {(voteIndex !== 0) ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
+        {(voteIndex !== 0)
+          ? (
+            <span className={classNames(
+              classes.button,
+              [(classes as AnyBecauseTodo)[voteIndex]],
+            )}>
+              {displayVote}
+            </span>
+          )
+          : <span className={classes.voteButton}>Vote</span>
+        }
       </div>
     </LWTooltip>
 

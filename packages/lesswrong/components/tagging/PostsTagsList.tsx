@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type TagWithCount = TagPreviewFragment & {count: number}
+type TagWithCount = TagBasicInfo & {count: number}
 
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 
@@ -55,7 +55,7 @@ export const PostsTagsList = (
     defaultMax = 6,
     afterChildren,
   }: {
-    classes: ClassesType,
+    classes: ClassesType<typeof styles>,
     posts: PostsList[] | null,
     currentFilter: string | null, // the current tag being filtered on the post list
     handleFilter: (filter: string) => void, // function to update which tag is being filtered

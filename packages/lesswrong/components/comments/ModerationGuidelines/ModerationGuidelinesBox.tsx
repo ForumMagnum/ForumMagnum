@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
@@ -13,8 +13,7 @@ import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuideli
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
@@ -67,12 +66,13 @@ const truncateGuidelines = (guidelines: string) => {
 
 const getPostModerationGuidelines = (
   post: PostsModerationGuidelines,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 ) => {
   const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
+  const moderationStyleClass = (classes as AnyBecauseTodo)[moderationStyle];
 
   const { html = "" } = post.moderationGuidelines || {}
-  const userGuidelines = `${post.user ? `<p><em>${post.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
+  const userGuidelines = `${post.user ? `<p><em>${post.user.displayName + "'s commenting guidelines"}</em></p><p class="${moderationStyleClass}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
   ${html || ""}`
 
   const combinedGuidelines = `
@@ -99,7 +99,7 @@ const getSubforumModerationGuidelines = (tag: TagFragment) => {
 }
 
 const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   commentType?: "post" | "subforum",
   documentId: string,
 }) => {

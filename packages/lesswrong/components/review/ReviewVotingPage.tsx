@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
@@ -17,6 +16,12 @@ import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { Link } from '@/lib/reactRouterWrapper';
+import { sortingInfo } from './ReviewVotingPageMenu';
+import { useCommentBox } from '../hooks/useCommentBox';
+import { useDialog } from '../common/withDialog';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -62,6 +67,16 @@ const styles = (theme: ThemeType) => ({
   },
   tagListContainer: {
     padding: 16
+  },
+  votingPageHeader: {
+    paddingTop: 24,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
+    ...theme.typography.body2,
+    '& a': {
+      color: theme.palette.primary.main,
+    }
   }
 });
 
@@ -99,7 +114,8 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { query } = useLocation()
-
+  const { openCommentBox, close } = useCommentBox();
+  const { openDialog } = useDialog();
 
   let reviewPhase = getReviewPhase(reviewYear)
   if (query.phase) {
@@ -133,7 +149,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
   const [tagFilter, setTagFilter] = useState<string|null>(null)
-  const [statusFilter, setStatusFilter] = useState<string|null>('read')
+  const [statusFilter, setStatusFilter] = useState<string|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
@@ -171,7 +187,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       defaultSort = "needsPreliminaryVote";
       break;
     case 'REVIEWS':
-      defaultSort = "needsReview"
+      defaultSort = "reviewVoteScoreHighKarma"
       break;
     case 'VOTING':
       defaultSort = "needsFinalVote";
@@ -334,20 +350,21 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     reSortPosts(sortPosts, sortReversed, tagFilter)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter, statusFilter])
 
-  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
-  switch (sortPosts) {
-    case ("reviewVoteScoreHighKarma"):
-      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
-      break;
-    case ("reviewVoteScoreAF"):
-      voteTooltip = "Showing votes from Alignment Forum members"
-      break;
-  }
+  let voteTooltip = "Showing votes from all LessWrong users" as voteTooltipType
 
   const handleSetExpandedPost = (post: PostsReviewVotingList) => {
     if (expandedPost?._id === post._id) {
       setExpandedPost(null)
     } else {
+      // Close any existing comment box before opening a new one
+      close();
+      // this component requires a currentUser so we don't need to do a login check
+      openCommentBox({
+        componentName: "ReviewPostForm",
+        componentProps: {
+          post: post
+        }
+      });
       setExpandedPost(post)
     }
   }
@@ -356,6 +373,11 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div className={classes.root}>
       <div className={classes.votingPageContainer}>
+      <div className={classes.votingPageHeader}>
+        {/* <p>This page shows all posts that passed the nomination round. <br/>Use it to help prioritize your reviewing and update your votes.</p> */}
+        <p>Currently sorted by: <b>{sortingInfo[sortPosts].title}</b><em>.<br/>{sortingInfo[sortPosts].description}</em></p> 
+        <p>If this page is intimidating, just go to the <Link to={`/quickReview/${reviewYear}`}>Quick Review</Link> page.</p>
+      </div>
         <div className={classes.tagListContainer}>
           <PostsTagsList
             posts={postsResults}
@@ -374,7 +396,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         </div>
         <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
         <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
-          {postsHaveBeenSorted && sortedPosts?.map((post) => {
+          {postsHaveBeenSorted && sortedPosts?.map((post, index) => {
             const currentVote = post.currentUserReviewVote !== null ? {
               _id: post.currentUserReviewVote._id,
               postId: post._id,
@@ -386,6 +408,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
             >
               <ReviewVoteTableRow
                 post={post}
+                index={index}
                 costTotal={costTotal}
                 showKarmaVotes={showKarmaVotes}
                 dispatch={dispatchQualitativeVote}

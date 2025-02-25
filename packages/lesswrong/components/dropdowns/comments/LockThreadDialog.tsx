@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMutation, gql } from '@apollo/client';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 const LockThreadDialog = ({commentId, onClose, classes}: {
   commentId: string,
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const farFuture: Date = moment().add(1000,'years').toDate();
   const [until,setUntil] = useState<Date>(farFuture);

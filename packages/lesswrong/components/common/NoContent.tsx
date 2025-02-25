@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
     margin: theme.spacing.unit*2
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NoContent = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <Components.Typography variant='body2' className={classes.root}>
     {children}

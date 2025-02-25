@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@material-ui/core/Checkbox';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -7,7 +7,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import InputLabel from '@material-ui/core/InputLabel';
 import { forumHeaderTitleSetting } from '../common/Header';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   checkboxLabel: {
     ...theme.typography.body2,
     marginBottom: 10,
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
   onChange: (checked: boolean) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [checked, setChecked] = useState(defaultValue);
 
@@ -44,12 +44,12 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   const emailType = isLWorAF ? 
     'Curated posts' : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
 
-  return <div className={classes.root}>
+  return <div>
     <InputLabel className={classes.checkboxLabel}>
       <Checkbox
         checked={checked}
         className={classes.checkbox}
-        onChange={(ev, newChecked) => {
+        onChange={(_ev, newChecked) => {
           setChecked(newChecked)
           onChange(newChecked)
         }}

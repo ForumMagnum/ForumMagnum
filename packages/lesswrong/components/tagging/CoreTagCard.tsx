@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '../vulcan-core/App';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     // white background
@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CoreTagCard = ({tag, classes}: {
   tag: TagDetailsFragment
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CloudinaryImage2, SubscribeButton } = Components;
 

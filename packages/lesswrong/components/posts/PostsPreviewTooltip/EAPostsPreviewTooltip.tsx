@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from "./helpers";
 import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 type EAPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAPostsPreviewTooltip = ({

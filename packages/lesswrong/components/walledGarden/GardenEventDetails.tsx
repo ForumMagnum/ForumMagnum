@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useMessages } from "../common/withMessages";
 import { makeLinkAbsolute } from "./GardenCodesItem";
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 30,
     background: theme.palette.panelBackground.default,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCodeFragment, classes: ClassesType}) => {
+export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCodeFragment, classes: ClassesType<typeof styles>}) => {
   const { flash } = useMessages();
   const { ContentItemBody, LWTooltip, Typography, FormatDate } = Components
   const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`

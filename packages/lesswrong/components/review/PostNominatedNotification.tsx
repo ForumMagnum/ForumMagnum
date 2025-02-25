@@ -2,11 +2,11 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*1.5,
     width: POST_PREVIEW_WIDTH,
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostNominatedNotification = ({classes, postId}: {classes: ClassesType, postId: string}) => {
+const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
 
   const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
 

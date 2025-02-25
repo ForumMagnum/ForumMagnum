@@ -1,8 +1,7 @@
-import { collectionNameToGraphQLType, getAllCollections, getCollection, convertDocumentIdToIdInSelector } from "@/server/vulcan-lib";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { maxAllowedApiSkip } from "@/lib/instanceSettings";
-import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users";
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
@@ -11,6 +10,9 @@ import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql";
 import { captureException } from "@sentry/core";
 import isEqual from "lodash/isEqual";
+import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
+import { getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection.ts";
+import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -161,7 +163,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
       if (createIfMissing && docs.length === 0) {
-        await collection.options.mutations.create.mutation(root, {data: createIfMissing}, context)
+        await collection.options.mutations?.create?.mutation(root, {data: createIfMissing}, context)
         docs = await fetchDocs();
       }
 

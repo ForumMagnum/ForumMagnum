@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -24,7 +24,7 @@ export interface CommentWithRepliesProps {
   commentNodeProps?: Partial<CommentsNodeProps>;
   startExpanded?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }
 
 const CommentWithReplies = ({

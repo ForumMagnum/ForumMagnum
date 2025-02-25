@@ -6,7 +6,7 @@ import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
 
-const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
+const selectedTextToolbarStyles = (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
   },
@@ -155,7 +155,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
 const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
   onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof selectedTextToolbarStyles>,
 }) => {
   const { LWTooltip } = Components;
   const { captureEvent } = useTracking()

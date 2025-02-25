@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({
@@ -21,7 +21,7 @@ export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) =
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SectionFooter = ({ children, className, classes }: {
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <Components.Typography variant="body2" className={classNames(classes.root, className)}>

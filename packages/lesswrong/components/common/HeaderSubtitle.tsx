@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
@@ -16,7 +16,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const HeaderSubtitle = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { currentRoute } = useSubscribedLocation();
   if (!currentRoute) {

@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment ForumEventsMinimumInfo on ForumEvent {
@@ -8,12 +8,16 @@ registerFragment(`
     endDate
     darkColor
     lightColor
+    bannerTextColor
     contrastColor
     tagId
     postId
     bannerImageId
-    includesPoll
+    eventFormat
     customComponent
+    commentPrompt
+
+    maxStickersPerUser
   }
 `);
 

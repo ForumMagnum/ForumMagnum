@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SidebarInfo = ({children, classes, className}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <Components.Typography

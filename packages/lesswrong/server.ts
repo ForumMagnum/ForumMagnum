@@ -1,17 +1,17 @@
 import './server/databaseSettings'
 
-import './server/vulcan-lib/index';
+import './server/vulcan-lib/site';
+import './server/vulcan-lib/utils';
+import './server/vulcan-lib/apollo-server/authentication';
+
 import './server/apolloServer';
 import './lib/index';
-
-import './server/cronUtil';
 
 import './server/startupSanityChecks';
 
 import './server/postgresView';
-import './server/analyticsViews';
+import './server/analytics/analyticsViews';
 
-import './server/database-import/database_import_new';
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
 import './server/karmaInflation/cron';
@@ -20,72 +20,11 @@ import './server/cache';
 import './server/users/cron';
 import './server/users/permanentDeletion';
 import './server/curationEmails/cron';
-import './server/database-import/force_batch_update_scores';
-import './server/database-import/cleanup_scripts';
 import './server/robots';
 import './server/ckEditor/ckEditorToken';
 import './server/ckEditor/ckEditorWebhook';
 import './server/ckEditor/ckEditorCallbacks';
 
-// Scripts
-import './server/scripts/sscImport';
-import './server/scripts/hpmorImport';
-import './server/scripts/backfillParentTags';
-import './server/scripts/brokenLinksReport';
-import './server/scripts/bestOfLessWrongTagUpdate';
-import './server/scripts/convertImagesToCloudinary';
-import './server/scripts/fixKarmaField';
-import './server/scripts/fixEmailField';
-import './server/scripts/fixFrontpageCount';
-import './server/scripts/generateUserActivityReport';
-import './server/scripts/generateInflationAdjustedKarmaReport';
-import './server/scripts/voteMigration';
-import './server/scripts/slugDeduplication';
-import './server/scripts/debuggingScripts';
-import './server/scripts/createKarmaAward'
-import './server/scripts/rerunAFvotes';
-import './server/scripts/nullifyVotes';
-import './server/scripts/fillUserEmail';
-import './server/scripts/deletePgIndexes';
-import './server/scripts/dropTestingDatabases';
-import './server/scripts/dropAndSeedJestPg';
-import './server/scripts/generateSQLSchema';
-import './server/scripts/reviewGetResultsPost';
-import './server/scripts/sendAnnualForumUserSurveyEmails';
-import './server/scripts/sendWrappedNotifications';
-import './server/scripts/triggerWrappedRefresh';
-import './server/scripts/removeRsvp';
-import './server/scripts/regenerateUnicodeSlugs';
-import './server/scripts/checkPostForSockpuppetVoting';
-import './server/scripts/convertAllPostsToEAEmojis';
-import './server/scripts/reindexDeletedUserContent';
-import './server/scripts/oneOffBanSpammers'
-import './server/scripts/ensureEmailInEmails';
-import './server/scripts/exportPostDetails';
-import './server/scripts/legacyKarma_aggregate2';
-import './server/scripts/fillMissing';
-import './server/scripts/recomputeDenormalized';
-import './server/scripts/recomputeReceivedVoteCounts';
-import './server/scripts/validateDatabase';
-import './server/scripts/validateMakeEditableDenormalization';
-import './server/scripts/mergeAccounts';
-import './server/scripts/petrov2024assigning';
-import "./server/scripts/testPostDescription";
-import "./server/scripts/importEAGUserInterests";
-import "./server/scripts/importLocalgroups";
-import "./server/scripts/setUserTagFilters";
-import "./server/scripts/randomRecommendationSamples";
-import './server/scripts/cleanUpDuplicatePostAutosaves';
-import "./server/scripts/generativeModels/generateTaggingPostSets";
-import "./server/scripts/generativeModels/testModGPTOnComments";
-import "./server/scripts/generativeModels/coverImage";
-import "./server/scripts/addManualReviewArt";
-import "./server/scripts/backfillRecombee";
-import "./server/scripts/backfillGoogleVertex";
-import "./server/scripts/exportAEStudiosData";
-// doesn't pass unit tests but works fine. Leaving commented out for now
-import './server/scripts/generativeModels/autoSpotlight';
-import "./server/scripts/mongoQueryToSQL";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
@@ -96,7 +35,7 @@ import './server/mapsUtils';
 import './server/emails/index';
 import './server/posts/index';
 
-import './server/analyticsWriter';
+import './server/analytics/serverAnalyticsWriter';
 import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
@@ -124,10 +63,9 @@ import './server/partiallyReadSequences';
 import './server/eventReminders';
 import './server/prunePerfMetricsCron';
 
-import './server/gatherTownCron';
-
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
+import './server/callbacks/multiDocumentCallbacks';
 
 import './server/callbacks/commentCallbacks';
 import './server/callbacks/conversationCallbacks';
@@ -198,6 +136,7 @@ import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
 import './server/resolvers/jargonResolvers/jargonTermResolvers';
+import './server/resolvers/multiDocumentResolvers';
 import './server/resolvers/importUrlAsDraftPost';
 import './server/resolvers/lightcone2024FundraiserResolvers';
 
@@ -223,6 +162,11 @@ import './server/styleGeneration';
 
 import './server/embeddings';
 
+// EA Forum wrapped
+import './server/wrapped/sendWrappedNotifications';
+import './server/wrapped/sampleWrappedPersonalities';
+import './server/wrapped/triggerWrappedRefresh';
+
 // Elasticsearch integration
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
@@ -235,5 +179,3 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
-
-import './server/givingSeason/resolvers'

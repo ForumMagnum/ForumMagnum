@@ -1,13 +1,12 @@
 /* eslint-disable no-console */
 import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import Revisions from "../../lib/collections/revisions/collection";
-import { Vulcan } from "../vulcan-lib";
 
 
 /** For visually inspecting that our descriptions match the post content well */
-const run = async () => {
+export const testPostDescription = async () => {
   const plaintextResolver = Revisions._schemaFields.plaintextDescription.resolveAs?.resolver
   console.log("running");
   console.log('plaintextResolver', plaintextResolver);
@@ -40,4 +39,3 @@ const run = async () => {
   }
 };
 
-Vulcan.testPostDescription = run;

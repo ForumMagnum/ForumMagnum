@@ -1,5 +1,5 @@
 import React, { useContext, createContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
@@ -8,7 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   color: {
     color: theme.palette.primary.main,
   },
@@ -61,7 +61,7 @@ const UsersNameDisplay = ({
   /** An additional class to apply to the text */
   className?: string,
 
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {eventHandlers, hover} = useHover({
     eventProps: {

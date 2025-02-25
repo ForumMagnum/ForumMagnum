@@ -138,8 +138,9 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
   const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collectionName)
+  const skipQuery = skip || (!documentId && !slug);
   // TODO: Properly type this generic query
-  const { data, error, ...rest } = useQuery(query, {
+  const { data, error, loading, ...rest } = useQuery(query, {
     variables: {
       input: {
         selector: { documentId, slug },
@@ -152,7 +153,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     nextFetchPolicy,
     notifyOnNetworkStatusChange,
     ssr: apolloSSRFlag(ssr),
-    skip: skip || (!documentId && !slug),
+    skip: skipQuery,
     client: apolloClient,
   })
   if (error) {
@@ -164,5 +165,9 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   }
   const document: FragmentTypes[FragmentTypeName] | undefined = data && data[resolverName] && data[resolverName].result
   // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)
-  return { document, data, error, ...rest } as TReturn<FragmentTypeName>
+  return {
+    document, data, error,
+    loading: loading && !skipQuery,
+    ...rest
+  } as TReturn<FragmentTypeName>
 }

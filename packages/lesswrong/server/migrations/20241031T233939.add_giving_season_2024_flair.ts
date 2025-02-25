@@ -1,10 +1,11 @@
-import { addField, dropField } from "./meta/utils"
-import Users from "@/lib/vulcan-users";
+import { BoolType } from "../sql/Type";
+import { addRemovedField, dropRemovedField } from "./meta/utils"
+import Users from "@/lib/collections/users/collection";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Users, "givingSeason2024DonatedFlair");
+  await addRemovedField(db, Users, "givingSeason2024DonatedFlair", new BoolType());
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Users, "givingSeason2024DonatedFlair");
+  await dropRemovedField(db, Users, "givingSeason2024DonatedFlair");
 }

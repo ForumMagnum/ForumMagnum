@@ -1,10 +1,10 @@
 import React from 'react'
 import { useCurrentUser } from '../../common/withUser';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 });
 
@@ -12,7 +12,7 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   post: PostsList,
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const isPending = postCoauthorIsPending(post, coauthor._id);

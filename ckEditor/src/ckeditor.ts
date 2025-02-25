@@ -61,6 +61,7 @@ import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import CollapsibleSections from './collapsible-sections-plugin';
+import ConditionalVisibility from './conditional-visibility-plugin';
 import LLMAutocomplete from './llm-autocomplete';
 import RestyledCommentButton from './restyled-comment-button-plugin';
 import CTAButton from './ckeditor5-cta-button/cta-button';
@@ -75,6 +76,7 @@ import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 import {CloudinaryAdapterPlugin} from "./cloudinary"
+import ClaimsPlugin from './claims';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -133,6 +135,7 @@ const sharedPlugins = [
 	LLMAutocomplete,
 	CTAButton,
 	CollapsibleSections,
+	ClaimsPlugin,
 ];
 
 const postEditorPlugins = [
@@ -140,6 +143,7 @@ const postEditorPlugins = [
 	BlockToolbar,
 	FontFamily,
 	FontSize,
+	ConditionalVisibility,
 	// FontColor,
 	// FontBackgroundColor,
 ];
@@ -156,7 +160,6 @@ const collaborativeEditorPlugins = [
 	PresenceList,
 	DialogueCommentBox
 ];
-
 
 export function getPostEditor() {
   class PostEditor extends BalloonBlockEditorBase {}

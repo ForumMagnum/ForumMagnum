@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType, postId: string, vote: any, voteForCurrentPost: SyntheticQuadraticVote|null}) => {
+const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType<typeof styles>, postId: string, vote: any, voteForCurrentPost: SyntheticQuadraticVote|null}) => {
   const clickHandler = (type: 'buy' | 'sell') => {
     vote({
       postId,

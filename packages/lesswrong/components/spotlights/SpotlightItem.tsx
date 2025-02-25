@@ -7,16 +7,16 @@ import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { gql, useMutation } from '@apollo/client';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const TEXT_WIDTH = 350;
 
@@ -48,7 +48,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
-    overflow: "hidden", // prevent background image from overflowing if we get styling mismatches in the future, since it depends on the exact height of the review SingleLineComment
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
@@ -67,8 +66,15 @@ const styles = (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      color: theme.palette.grey[100],
-      background: theme.palette.panelBackground.default,
+      ...(isFriendlyUI ? {
+        color: theme.palette.grey[100],
+        background: theme.palette.panelBackground.default,
+      } : {
+        // This button is on top of an image that doesn't invert in dark mode, so
+        // we can't use palette-colors that invert
+        color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
+        background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
+      }),
     }
   },
   contentContainer: {
@@ -376,6 +382,25 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+export function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
+  const { customTitle, post, sequence, tag } = spotlight;
+  if (customTitle) return customTitle;
+
+  if (post) return post.title;
+  if (sequence) return sequence.title;
+  if (tag) return tag.name;
+
+  // We should never reach this
+  return "";
+}
+
+function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
+  if (spotlight.post) {
+    return spotlight.post.reviews;
+  }
+  return [];
+}
+
 export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
@@ -467,6 +492,9 @@ export const SpotlightItem = ({
 
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
+  const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
+  const spotlightReviews = getSpotlightDisplayReviews(spotlight);
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
       id={spotlight._id}
@@ -480,7 +508,7 @@ export const SpotlightItem = ({
           <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
             <div className={classes.title}>
               <Link to={url}>
-                {spotlight.customTitle ?? spotlight.document.title}
+                {getSpotlightDisplayTitle(spotlight)}
               </Link>
               <span className={classes.editDescriptionButton}>
                 {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
@@ -506,16 +534,17 @@ export const SpotlightItem = ({
                 :
                 <ContentItemBody
                   dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                  description={`${spotlight.documentType} ${spotlight.document._id}`}
+                  description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                 />
               }
             </div>}
-            {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+            {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
+              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
             </Typography>}
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
-          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlight.document?.reviews?.length ?? 0) * 30}px)`}}>
+          {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
+          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
             <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
           </div>}
           {spotlight.spotlightImageId && <CloudinaryImage2
@@ -530,7 +559,7 @@ export const SpotlightItem = ({
           />}
         </div>
         <div className={classes.reviews}>
-          {spotlight.document?.reviews?.map(review => <div key={review._id} className={classes.review}>
+          {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
             <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
           </div>)}
         </div>

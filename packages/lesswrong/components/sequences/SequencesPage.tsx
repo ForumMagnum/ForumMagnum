@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
@@ -25,7 +25,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
@@ -125,7 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SequencesPage = ({ documentId, classes }: {
   documentId: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);

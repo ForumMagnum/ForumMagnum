@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostFixedPositionToCHeading = ({post, classes}: {
   post: PostsListWithVotes
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.readTime}>{post.readTimeMinutes} min read</div>
 }

@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { userCanDo } from '../../../lib/vulcan-users';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
@@ -12,7 +12,7 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bottom: {
     paddingBottom: isFriendlyUI ? 12 : 5,
     paddingTop: isFriendlyUI ? 4 : undefined,
@@ -38,7 +38,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   replyButton: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();

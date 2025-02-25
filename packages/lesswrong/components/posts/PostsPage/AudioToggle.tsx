@@ -1,10 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import moment from 'moment';
-import { PODCAST_TOOLTIP_SEEN_COOKIE } from '@/lib/cookies/cookies';
+import React from 'react';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 
@@ -24,9 +20,6 @@ const styles = (theme: ThemeType) => ({
     padding: PODCAST_ICON_PADDING,
     transform: isFriendlyUI ? undefined : `translateY(-${PODCAST_ICON_PADDING}px)`,
   },
-  audioNewFeaturePulse: {
-    top: 9
-  },
   audioIconOn: {
     background: theme.palette.icon.dim05,
     borderRadius: theme.borderRadius.small
@@ -43,20 +36,8 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
 }) => {
-  const { LWTooltip, NewFeaturePulse, ForumIcon } = Components;
+  const { LWTooltip, ForumIcon } = Components;
 
-  const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
-
-  useEffect(() => {
-    if(!cachedTooltipSeen) {
-      setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
-        expires: moment().add(2, 'years').toDate(),
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
@@ -67,14 +48,7 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
     return null;
   }
 
-  if (cachedTooltipSeen || isLWorAF) {
-    return audioIcon
-  }
-  return (
-    <NewFeaturePulse className={classes.audioNewFeaturePulse}>
-      {audioIcon}
-    </NewFeaturePulse>
-  )
+  return audioIcon;
 }
 
 const AudioToggleComponent = registerComponent('AudioToggle', AudioToggle, {styles});

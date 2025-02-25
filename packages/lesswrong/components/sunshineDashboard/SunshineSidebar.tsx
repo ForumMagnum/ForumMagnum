@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -7,7 +7,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
+const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();

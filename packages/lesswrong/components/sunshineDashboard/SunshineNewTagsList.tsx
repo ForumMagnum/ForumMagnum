@@ -1,17 +1,17 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewTags,
   }
 })
 
-const SunshineNewTagsList = ({ classes }: {classes: ClassesType}) => {
+const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const { results, totalCount, loadMoreProps } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
     collectionName: "Tags",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
@@ -81,7 +81,7 @@ export const geoSuggestStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...geoSuggestStyles(theme),
     ...theme.typography.commentStyle

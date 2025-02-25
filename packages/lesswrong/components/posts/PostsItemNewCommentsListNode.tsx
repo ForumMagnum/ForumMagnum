@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { CommentTreeOptions } from '../comments/commentTree';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
@@ -19,7 +19,7 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   reverseOrder?: boolean
   post: PostsList,
   treeOptions: CommentTreeOptions,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, CommentsList } = Components
 

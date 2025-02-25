@@ -3,11 +3,11 @@ import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     width: "100%",
@@ -137,7 +137,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const OptIntoPetrovButton = ({classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const petrovPressedButtonDate = currentUser?.petrovPressedButtonDate
@@ -217,7 +217,7 @@ const OptIntoPetrovButton = ({classes }: {
               <div className={classes.button}>
                 {renderButtonAsPressed ? 
                   <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                    <img src={"../petrovButtonPressedDark.png"}/> 
                   </LWTooltip>
                   :
                   <LWTooltip title="Are you sure?" placement="right">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -24,7 +24,7 @@ const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-export const sharedStyles = (theme: ThemeType): JssStyles => ({
+export const sharedStyles = (theme: ThemeType) => ({
   removeButton: {
     color: theme.palette.error.main,
     marginRight: 'auto',
@@ -56,7 +56,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...sharedStyles(theme),
   distanceSection: {
     marginTop: 30,
@@ -97,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
 const EventNotificationsDialog = ({ onClose, classes }: {
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { Loading, Typography, LWDialog } = Components

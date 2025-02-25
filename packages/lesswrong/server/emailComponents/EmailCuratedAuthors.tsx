@@ -1,8 +1,8 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 15,
@@ -23,7 +23,7 @@ const EmailCuratedAuthors = ({
 }: {
   user: DbUser;
   post: DbPost;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
 
   return (

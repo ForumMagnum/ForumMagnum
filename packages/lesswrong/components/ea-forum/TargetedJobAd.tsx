@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button'
 import CloseIcon from '@material-ui/icons/Close'
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -11,7 +11,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { CareerStageValue } from '../../lib/collections/users/schema';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxHeight: 1200, // This is to make the close transition work
     background: theme.palette.grey[0],
@@ -336,7 +336,7 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
     <div className={classes.root}>
 
       <div className={classes.topRow}>
-        <div className={classNames(classes.jobRecLabel, classes.metadata)}>
+        <div className={classes.metadata}>
           Job recommendation for you
           <LWTooltip title={
             `You're seeing this recommendation because of your interest in ${adData.occupation}.`

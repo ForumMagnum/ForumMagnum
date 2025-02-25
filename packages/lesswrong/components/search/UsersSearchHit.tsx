@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@material-ui/icons/Person';
 import React from 'react';
 import type { SearchHitComponentProps } from './types';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 10,
     paddingTop: 2,

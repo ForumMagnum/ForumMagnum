@@ -1,9 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import _filter from 'lodash/filter';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: theme.spacing.unit,
     display: "flex",
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewUserCommentsList = ({comments, user, classes}: {
   comments?: Array<CommentsListWithParentMetadata>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const { CommentsNode, RejectContentButton, RejectedReasonDisplay } = Components

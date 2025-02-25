@@ -55,6 +55,24 @@ CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches" USIN
 -- Index "idx_ArbitalCaches_fetchedAt"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USING btree ("fetchedAt");
 
+-- Table "ArbitalTagContentRels"
+CREATE TABLE "ArbitalTagContentRels" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "parentDocumentId" TEXT NOT NULL,
+  "childDocumentId" TEXT NOT NULL,
+  "parentCollectionName" TEXT NOT NULL,
+  "childCollectionName" TEXT NOT NULL,
+  "type" TEXT NOT NULL,
+  "level" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "isStrong" BOOL NOT NULL DEFAULT FALSE,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);
+
+-- Index "idx_ArbitalTagContentRels_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -148,6 +166,9 @@ CREATE TABLE "ClientIds" (
   "firstSeenReferrer" TEXT,
   "firstSeenLandingPage" TEXT,
   "userIds" TEXT[] DEFAULT '{}'::TEXT[],
+  "invalidated" BOOL NOT NULL DEFAULT FALSE,
+  "lastSeenAt" TIMESTAMPTZ,
+  "timesSeen" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -208,10 +229,12 @@ CREATE TABLE "Comments" (
   "parentCommentId" VARCHAR(27),
   "topLevelCommentId" VARCHAR(27),
   "postedAt" TIMESTAMPTZ NOT NULL,
+  "lastEditedAt" TIMESTAMPTZ,
   "author" TEXT,
   "postId" VARCHAR(27),
   "tagId" VARCHAR(27),
   "forumEventId" VARCHAR(27),
+  "forumEventMetadata" JSONB,
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "subforumStickyPriority" DOUBLE PRECISION,
   "userId" VARCHAR(27) NOT NULL,
@@ -266,12 +289,6 @@ CREATE TABLE "Comments" (
   "moveToAlignmentUserId" VARCHAR(27),
   "agentFoundationsId" TEXT,
   "originalDialogueId" VARCHAR(27),
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -279,7 +296,13 @@ CREATE TABLE "Comments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
 );
 
 -- Index "idx_Comments_schemaVersion"
@@ -783,9 +806,6 @@ CREATE TABLE "ElectionCandidates" (
   "isElectionFundraiser" BOOL NOT NULL DEFAULT FALSE,
   "amountRaised" DOUBLE PRECISION,
   "targetAmount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -793,7 +813,10 @@ CREATE TABLE "ElectionCandidates" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_ElectionCandidates_schemaVersion"
@@ -830,7 +853,7 @@ CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" U
 -- Table "ElicitQuestionPredictions"
 CREATE TABLE "ElicitQuestionPredictions" (
   _id VARCHAR(27) PRIMARY KEY,
-  "prediction" DOUBLE PRECISION NOT NULL,
+  "prediction" DOUBLE PRECISION,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "notes" TEXT,
   "creator" JSONB NOT NULL,
@@ -847,9 +870,14 @@ CREATE TABLE "ElicitQuestions" (
   "title" TEXT NOT NULL,
   "notes" TEXT,
   "resolution" TEXT,
-  "resolvesBy" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+  "resolvesBy" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
+
+-- Index "idx_ElicitQuestions_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ElicitQuestions_schemaVersion" ON "ElicitQuestions" USING btree ("schemaVersion");
 
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
@@ -892,14 +920,18 @@ CREATE TABLE "ForumEvents" (
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
   "endDate" TIMESTAMPTZ NOT NULL,
-  "darkColor" TEXT NOT NULL,
-  "lightColor" TEXT NOT NULL,
+  "darkColor" TEXT NOT NULL DEFAULT '#000000',
+  "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
+  "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',
   "contrastColor" TEXT,
-  "tagId" VARCHAR(27) NOT NULL,
+  "tagId" VARCHAR(27),
   "postId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
+  "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
+  "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
+  "commentPrompt" TEXT,
   "publicData" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -924,7 +956,6 @@ CREATE TABLE "GardenCodes" (
   "code" TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
   "userId" VARCHAR(27) NOT NULL,
-  "slug" TEXT NOT NULL,
   "startTime" TIMESTAMPTZ,
   "endTime" TIMESTAMPTZ NOT NULL,
   "fbLink" TEXT,
@@ -935,6 +966,7 @@ CREATE TABLE "GardenCodes" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
   "contents" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB
@@ -1242,6 +1274,50 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_userId_createdAt" ON "Moderator
 -- Index "idx_ModeratorActions_type_createdAt_endedAt"
 CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "ModeratorActions" USING btree ("type", "createdAt", "endedAt");
 
+-- Table "MultiDocuments"
+CREATE TABLE "MultiDocuments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT,
+  "preview" TEXT,
+  "tabTitle" TEXT NOT NULL,
+  "tabSubtitle" TEXT,
+  "userId" VARCHAR(27) NOT NULL,
+  "parentDocumentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "fieldName" TEXT NOT NULL,
+  "index" DOUBLE PRECISION NOT NULL,
+  "contributionStats" JSONB,
+  "htmlWithContributorAnnotations" TEXT,
+  "deleted" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
+);
+
+-- Index "idx_MultiDocuments_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_schemaVersion" ON "MultiDocuments" USING btree ("schemaVersion");
+
+-- Index "idx_MultiDocuments_parentDocumentId_collectionName"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_parentDocumentId_collectionName" ON "MultiDocuments" USING btree ("parentDocumentId", "collectionName");
+
+-- Index "idx_MultiDocuments_slug"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING btree ("slug");
+
+-- Index "idx_MultiDocuments_oldSlugs"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
+
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1496,7 +1572,6 @@ CREATE TABLE "Posts" (
   "url" VARCHAR(500),
   "postCategory" TEXT NOT NULL DEFAULT 'post',
   "title" VARCHAR(500) NOT NULL,
-  "slug" TEXT NOT NULL,
   "viewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "lastCommentedAt" TIMESTAMPTZ,
   "clickCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -1644,14 +1719,6 @@ CREATE TABLE "Posts" (
   "agentFoundationsId" TEXT,
   "swrCachingEnabled" BOOL NOT NULL DEFAULT FALSE,
   "generateDraftJargon" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
-  "moderationGuidelines_latest" TEXT,
-  "customHighlight" JSONB,
-  "customHighlight_latest" TEXT,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -1659,7 +1726,16 @@ CREATE TABLE "Posts" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
+  "moderationGuidelines_latest" TEXT,
+  "customHighlight" JSONB,
+  "customHighlight_latest" TEXT
 );
 
 -- Index "idx_Posts_schemaVersion"
@@ -2220,6 +2296,7 @@ CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCount" ON "Posts" USING 
   "authorIsUnreviewed",
   "groupId",
   "positiveReviewVoteCount",
+  "tagRelevance",
   "createdAt",
   "_id",
   "meta",
@@ -2440,9 +2517,9 @@ CREATE TABLE "ReviewWinners" (
   "postId" VARCHAR(27) NOT NULL,
   "reviewYear" DOUBLE PRECISION NOT NULL,
   "category" TEXT NOT NULL DEFAULT 'misc',
-  "curatedOrder" DOUBLE PRECISION NOT NULL,
+  "curatedOrder" DOUBLE PRECISION,
   "reviewRanking" DOUBLE PRECISION NOT NULL,
-  "isAI" BOOL NOT NULL,
+  "isAI" BOOL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -2478,9 +2555,7 @@ CREATE TABLE "Revisions" (
   "wordCount" DOUBLE PRECISION NOT NULL,
   "changeMetrics" JSONB NOT NULL,
   "googleDocMetadata" JSONB,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
+  "skipAttributions" BOOL NOT NULL DEFAULT FALSE,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2488,7 +2563,10 @@ CREATE TABLE "Revisions" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_Revisions_schemaVersion"
@@ -2779,11 +2857,11 @@ CREATE TABLE "TagFlags" (
   _id VARCHAR(27) PRIMARY KEY,
   "name" TEXT NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "slug" TEXT NOT NULL,
   "order" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
   "contents" JSONB,
   "contents_latest" TEXT
 );
@@ -2802,9 +2880,6 @@ CREATE TABLE "TagRels" (
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "userId" VARCHAR(27),
   "backfilled" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2812,7 +2887,10 @@ CREATE TABLE "TagRels" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_TagRels_schemaVersion"
@@ -2830,8 +2908,6 @@ CREATE TABLE "Tags" (
   "name" TEXT NOT NULL,
   "shortName" TEXT,
   "subtitle" TEXT,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[],
   "core" BOOL NOT NULL DEFAULT FALSE,
   "isPostType" BOOL NOT NULL DEFAULT FALSE,
   "suggestedAsFilter" BOOL NOT NULL DEFAULT FALSE,
@@ -2869,11 +2945,24 @@ CREATE TABLE "Tags" (
   "autoTagModel" TEXT,
   "autoTagPrompt" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
+  "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
+  "coreTagId" TEXT,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "description" JSONB,
   "description_latest" TEXT,
+  "pingbacks" JSONB,
   "subforumWelcomeText" JSONB,
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
@@ -2937,6 +3026,9 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags" US
 
 -- Index "idx_Tags_name"
 CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
+
+-- Index "idx_Tags_name_legacyData__arbitalPageId"
+CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" USING gin ("name", ("legacyData" -> 'arbitalPageId'));
 
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
@@ -3115,7 +3207,6 @@ CREATE TABLE "Users" (
   "displayName" TEXT,
   "previousDisplayName" TEXT,
   "email" TEXT,
-  "slug" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "groups" TEXT[],
   "lwWikiImport" BOOL,
@@ -3277,7 +3368,6 @@ CREATE TABLE "Users" (
   "petrovLaunchCodeDate" TIMESTAMPTZ,
   "defaultToCKEditor" BOOL,
   "signUpReCaptchaRating" DOUBLE PRECISION,
-  "oldSlugs" TEXT[],
   "noExpandUnreadCommentsReview" BOOL NOT NULL DEFAULT FALSE,
   "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "maxPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -3303,6 +3393,7 @@ CREATE TABLE "Users" (
   "fmCrosspostUserId" TEXT,
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
+  "blueskyProfileURL" TEXT,
   "twitterProfileURL" TEXT,
   "twitterProfileURLAdmin" TEXT,
   "githubProfileURL" TEXT,
@@ -3329,11 +3420,11 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
-  "givingSeason2024DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
-  "givingSeason2024VotedFlair" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "moderationGuidelines" JSONB,
   "moderationGuidelines_latest" TEXT,
   "howOthersCanHelpMe" JSONB,
@@ -3603,18 +3694,15 @@ WHERE
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
 
--- CustomIndex "idx_Comments_postId_promotedAt"
-CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
+-- CustomIndex "manual_idx__LWEvents_properties_ip"
+CREATE INDEX IF NOT EXISTS "manual_idx__LWEvents_properties_ip" ON public."LWEvents" USING gin ((("properties" ->> 'ip')::TEXT))
+WITH
+  (fastupdate = TRUE)
 WHERE
-  "promotedAt" IS NOT NULL;
+  name = 'login';
 
--- CustomIndex "idx_Comments_userId_postId_postedAt"
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
-
--- CustomIndex "idx_comments_popular_comments"
-CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
-WHERE
-  ("baseScore" >= 15);
+-- CustomIndex "idx_tags_pingbacks"
+CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
@@ -3628,13 +3716,6 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueRe
 )
 WHERE
   "collabEditorDialogue" IS TRUE;
-
--- CustomIndex "manual_idx__LWEvents_properties_ip"
-CREATE INDEX IF NOT EXISTS "manual_idx__LWEvents_properties_ip" ON public."LWEvents" USING gin ((("properties" ->> 'ip')::TEXT))
-WITH
-  (fastupdate = TRUE)
-WHERE
-  name = 'login';
 
 -- Function "fm_has_verified_email"
 CREATE OR
@@ -3681,6 +3762,22 @@ WHERE
   "unsubscribeFromAll" IS NOT TRUE AND
   "deleted" IS NOT TRUE AND
   "email" IS NOT NULL;
+
+-- CustomIndex "idx_Comments_postId_promotedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
+WHERE
+  "promotedAt" IS NOT NULL;
+
+-- CustomIndex "idx_Comments_userId_postId_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
+
+-- CustomIndex "idx_comments_popular_comments"
+CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
+WHERE
+  ("baseScore" >= 15);
+
+-- CustomIndex "idx_multi_documents_pingbacks"
+CREATE INDEX IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin (pingbacks);
 
 -- Function "fm_build_nested_jsonb"
 CREATE OR
@@ -3886,7 +3983,7 @@ REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPT
               FROM "LWEvents"
               WHERE "documentId" = userid AND "name" = 'fieldChanges'
             ) q
-            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
+            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
             ORDER BY "createdAt" DESC
             LIMIT 1),
             (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),

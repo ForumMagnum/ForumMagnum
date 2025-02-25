@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import Divider from '@material-ui/core/Divider';
 
@@ -6,7 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { TabNavigationCompressedItem } = Components
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment';
-import {registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const eventRoot = (theme: ThemeType) => ({
@@ -43,7 +43,7 @@ export const eventFormat = (startTime: AnyBecauseTodo) => {
   return moment(new Date(startTime)).format("ddd h:mma, MMM D")
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...eventRoot(theme)
   },
@@ -79,7 +79,7 @@ export const getAddToCalendarLink = (gcalEvent: AnyBecauseTodo) => {
 }
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gcalEvent: any,
 }) => {
   return <div className={classes.root}>

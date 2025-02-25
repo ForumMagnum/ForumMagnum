@@ -3,7 +3,7 @@ import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "denormalizeTagRelevance",
   dateWritten: "2020-03-11",
   idempotent: true,

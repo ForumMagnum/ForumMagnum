@@ -1,8 +1,9 @@
-import { Posts } from '../lib/collections/posts';
-import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from './vulcan-lib';
+import { Posts } from '../lib/collections/posts/collection';
 import { createNotification } from './notificationCallbacksHelpers';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import sortBy from 'lodash/sortBy';
+import { addGraphQLMutation, addGraphQLResolvers } from "../lib/vulcan-lib/graphql";
+import { updateMutator } from "./vulcan-lib/mutators";
 
 const responseSortOrder = {
   yes: 1,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
 import DialogActions from '@material-ui/core/DialogActions';
@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   subtitle: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [deletedReason, setDeletedReason] = useState("");
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});

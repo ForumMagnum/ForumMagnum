@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -303,7 +303,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
   }
 }
 
-const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType, className?: string}>> = ({
+const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
   classes,
   className,
   children,
@@ -319,7 +319,7 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType, className?
     </Components.Typography>;
 
 const ContentType = ({classes, className, type, label}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   type: ContentTypeString,
   label?: string

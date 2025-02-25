@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { gatherTownURL } from "./GatherTownIframeWrapper";
 
@@ -9,7 +9,7 @@ const widgetStyling = {
 
 const gatherTownRightSideBarWidth = 300
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     marginBottom: 0,
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-export const WalledGardenPortalBar = ({iframeRef, classes}: {iframeRef: React.RefObject<HTMLIFrameElement|null>, classes: ClassesType}) => {
+export const WalledGardenPortalBar = ({iframeRef, classes}: {iframeRef: React.RefObject<HTMLIFrameElement|null>, classes: ClassesType<typeof styles>}) => {
   const { GardenCodeWidget, GardenCodesList, PomodoroWidget, Typography, ContentStyles } = Components
 
   const currentUser =  useCurrentUser()

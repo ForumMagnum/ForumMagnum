@@ -1,12 +1,12 @@
 import React from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { captureEvent } from "../../lib/analyticsEvents";
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bookAnimationContainer: {
     width: '960px',
     marginLeft: 'auto',
@@ -245,7 +245,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const HiddenQuote = ({classes}: {classes: ClassesType}) => {
+const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -259,7 +259,7 @@ const HiddenQuote = ({classes}: {classes: ClassesType}) => {
 }
 
 const Book2019Landing = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {Book2019Animation, HeadTags, LWTooltip, ContentStyles} = Components;
 
@@ -274,7 +274,7 @@ const Book2019Landing = ({classes}: {
           <HiddenQuote classes={classes} />
         </Book2019Animation>
       </div>
-      <div className={classNames(classes.textSettings, classes.wrapper)}>
+      <div className={classes.wrapper}>
         <div className={classes.title}>
           <div className={classes.bookTitle}>
             The Engines of Cognition

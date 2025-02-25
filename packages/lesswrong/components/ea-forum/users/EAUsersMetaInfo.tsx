@@ -1,11 +1,11 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import { SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "../../../lib/collections/users/helpers";
 import { communityPath } from "../../../lib/routes";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconsRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EAUsersMetaInfo = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const userKarma = user.karma;
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(

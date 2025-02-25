@@ -1,8 +1,7 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { useLocation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES } from '../../../lib/collections/users/schema';
@@ -12,12 +11,13 @@ import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',
@@ -225,7 +225,7 @@ const EAGApplicationImportFormWrapper = () => {
 
 const EAGApplicationImportForm = ({currentUser, classes}: {
   currentUser: UsersEdit,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation()

@@ -4,6 +4,7 @@ import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import type { ZIndexMap } from './zIndexes';
+import type { JssStyles } from '@/lib/jssStyles';
 import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
@@ -122,6 +123,9 @@ declare global {
     fundraisingThermometer: {
       shadow: ColorString,
     },
+    arbital: {
+      arbitalGreen: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -164,6 +168,7 @@ declare global {
       red: ColorString,
       alwaysWhite: ColorString,
       alwaysBlack: ColorString,
+      alwaysLightGrey: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
@@ -283,7 +288,6 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
-      wrappedSummary: string,
       eaButtonGreyOutline: string,
     },
     panelBackground: {
@@ -348,6 +352,7 @@ declare global {
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,
@@ -542,28 +547,29 @@ declare global {
 
     wrapped: {
       background: ColorString,
+      darkBackground: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
       black: ColorString,
-      darkGrey: ColorString,
-      grey: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
-      postScoreArrow: ColorString,
+      postScore: ColorString,
+      notification: ColorString,
+      emptyPath: ColorString,
+      metaText: ColorString,
+      personality: {
+        transparent: ColorString,
+        grey: ColorString,
+        red: ColorString,
+        blue: ColorString,
+        green: ColorString,
+      },
     },
-    givingSeason: {
-      primary: ColorString,
-      electionFundBackground: ColorString,
-      electionFundBackgroundHeavy: ColorString,
-      portalPrimary: ColorString,
-      candidateBorder: ColorString,
-      candidateBackground: ColorString,
-      candidateShadow: ColorString,
-      candidateOrder: ColorString,
-      heart: ColorString,
-      mobileBannerOverlay: ColorString
+    forumEvent: {
+      draftSticker: ColorString,
+      stickerMobileOverlay: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
 import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
@@ -8,6 +7,9 @@ import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRang
 import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
+import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { validateUrl } from "../../lib/vulcan-lib/utils";
 
 interface ExternalProps {
   /**
@@ -57,6 +59,12 @@ interface ExternalProps {
    * reactions.
    */
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
+
+  /**
+   * A callback function that is called when all of the content substitutions
+   * have been applied.
+   */
+  onContentReady?: (content: HTMLDivElement) => void;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -130,7 +138,8 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     const element = this.bodyRef.current;
     if (element) {
       this.applyLocalModificationsTo(element);
-      this.setState({updatedElements: true})
+      this.setState({updatedElements: true});
+      this.props.onContentReady?.(element);
     }
   }
 
@@ -150,6 +159,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
       this.exposeInternalIds(element);
+      this.markConditionallyVisibleBlocks(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -264,6 +274,25 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           this.addHorizontalScrollIndicators(blockAsElement);
         }
       }
+    }
+  }
+  
+  markConditionallyVisibleBlocks = (element: HTMLElement) => {
+    const conditionallyVisibleBlocks = this.getElementsByClassname(element, "conditionallyVisibleBlock");
+    for (const block of conditionallyVisibleBlocks) {
+      const visibilityOptionsStr = block.getAttribute("data-visibility");
+      if (!visibilityOptionsStr) continue;
+      let visibilityOptions: ConditionalVisibilitySettings|null = null;
+      try {
+        visibilityOptions = JSON.parse(visibilityOptionsStr)
+      } catch {
+        continue;
+      }
+
+      const BlockContents = rawExtractElementChildrenToReactComponent(block)
+      this.replaceElement(block, <Components.ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+        <BlockContents/>
+      </Components.ConditionalVisibilityBlockDisplay>);
     }
   }
   
@@ -508,7 +537,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           );
           // Do surgery on the DOM
           if (range) {
-            const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            const reduced = reduceRangeToText(range);
+            if (!reduced) continue;
+            const subRanges = splitRangeIntoReplaceableSubRanges(reduced);
             let first=true;
             for (let subRange of subRanges) {
               const reducedRange = reduceRangeToText(subRange);

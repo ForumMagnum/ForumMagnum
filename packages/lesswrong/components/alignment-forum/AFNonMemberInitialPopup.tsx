@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import Card from "@material-ui/core/Card";
 import { useTagBySlug } from '../tagging/useTag';
@@ -6,7 +6,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@material-ui/core/Button'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.afNonMemberPopup
   },
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // dialog.
 const AFNonMemberInitialPopup = ({onClose, classes}: {
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
@@ -48,9 +48,6 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
       open={open}
       onClose={handleClose}
       className={classes.dialog}
-      dialogClasses={{
-        paper: classes.paper
-      }}
     >
       <Card className={classes.popupCard}>
         <ContentStyles contentType="comment">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -16,7 +16,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     width: 14,
     marginRight: 4
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();

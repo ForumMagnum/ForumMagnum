@@ -1,7 +1,7 @@
 import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { userOwns } from '../../vulcan-users';
+import { userOwns } from '../../vulcan-users/permissions';
 
 const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
   adminOptions: {

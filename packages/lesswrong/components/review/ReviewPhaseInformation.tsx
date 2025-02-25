@@ -1,17 +1,15 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
-import { useLocation } from '@/lib/routeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 6,
     paddingBottom: 6,
-    marginBottom: 24,
     ...commentBodyStyles(theme),
     background: theme.palette.panelBackground.default,
     boxShadow: theme.palette.boxShadow.default,
@@ -36,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
 }) => {

@@ -1,10 +1,10 @@
-import { slugify } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
+import { slugify } from '@/lib/utils/slugify';
 
-registerMigration({
+export default registerMigration({
   name: "fixCapitalizedSlugs",
   dateWritten: "2019-05-14",
   idempotent: true,

@@ -1,7 +1,7 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 15,
@@ -20,7 +20,7 @@ const EmailAnnualForumUserSurvey = ({
   classes,
 }: {
   user: DbUser;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const surveyLink = 'https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=email&utm_campaign=survey_reminder'
 

@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import {petrovPostIdSetting} from "./PetrovDayButton";
@@ -7,7 +7,7 @@ import {petrovPostIdSetting} from "./PetrovDayButton";
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "fixed",
     top: 0,
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PetrovDayLossScreen = ({classes}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   return (
     <div className={classes.root}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const UsersViewABTests = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();

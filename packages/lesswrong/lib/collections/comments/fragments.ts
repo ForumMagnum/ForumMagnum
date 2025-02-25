@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment CommentsList on Comment {
@@ -6,6 +6,7 @@ registerFragment(`
     postId
     tagId
     tag {
+      _id
       slug
     }
     relevantTagIds
@@ -24,6 +25,7 @@ registerFragment(`
       wordCount
     }
     postedAt
+    lastEditedAt
     repliesBlockedUntil
     userId
     deleted

@@ -1,16 +1,14 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import Card from '@material-ui/core/Card';
 import classNames from 'classnames';
 import moment from 'moment';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { useTimezone } from '../../common/withTimezone';
 import { useEAVirtualPrograms } from '@/components/hooks/useEAVirtualPrograms';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   eventCard: {
     position: 'relative',
     width: 373,
@@ -102,12 +100,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 10,
     borderBottom: '2px solid transparent'
   },
-}))
-
+});
 
 const VirtualProgramCard = ({program, classes}: {
   program: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking();
   const now = useCurrentTime()

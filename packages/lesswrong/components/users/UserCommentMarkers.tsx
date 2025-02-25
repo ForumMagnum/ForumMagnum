@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -17,18 +17,6 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     bottom: -2,
     color: theme.palette.icon.sprout,
-    fontSize: 16,
-  },
-  donationIcon: {
-    position: "relative",
-    bottom: -1,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 16,
-  },
-  votedIcon: {
-    position: "relative",
-    bottom: -3,
-    color: theme.palette.givingSeason.primary,
     fontSize: 16,
   },
 });

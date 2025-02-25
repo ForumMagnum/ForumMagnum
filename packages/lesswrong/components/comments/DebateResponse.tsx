@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
@@ -7,7 +7,7 @@ import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/votingSystems';
 import type { ContentItemBody } from '../common/ContentItemBody';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   innerDebateComment: {
     marginTop: 6,
     padding: '8px 8px 8px 16px',
@@ -80,9 +80,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const getParticipantBorderStyle = (
   classes: ClassesType<typeof styles>,
   participantIndex: number
-) => classes[`border${participantIndex}`] ?? classes.border0;
+) => (classes as AnyBecauseTodo)[`border${participantIndex}`] ?? classes.border0;
 
-export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, responses, post}: {
+export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
   classes: ClassesType<typeof styles>,
   comment: CommentsList,
   replies: CommentsList[],
@@ -144,7 +144,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         <CommentBody comment={comment} voteProps={voteProps} commentBodyRef={commentBodyRef}/>
       </div>;
 
-    const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => setShowReplyState(!showReplyState)}>
+    const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={_e => setShowReplyState(!showReplyState)}>
       Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
     </a>;
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -14,7 +14,7 @@ const shortformDraftMessage = isFriendlyUI
 
 export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reviewInfo: {
     textAlign: "center",
     marginBottom: 32
@@ -46,21 +46,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "top",
     color: theme.palette.icon.dim2,
   },
-  reviewVoting: {
-    textAlign: "center",
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*6
-  },
-  reviewButton: {
-    border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
-    display: "inline-block",
-    borderRadius: 3
-  }
 });
 
 const forumNewUserProcessingTime = forumSelect({
@@ -73,18 +58,13 @@ const forumNewUserProcessingTime = forumSelect({
 const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
+  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
-      {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-        <div className={classes.reviewButton}>Review</div>
-      </LWTooltip>}/>
-    </div>}
+    {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <PostPageReviewButton post={post}/>}
 
     <AlignmentPendingApprovalMessage post={post} />
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { useCurrentUser } from './withUser';
 import { getUserEmail } from "../../lib/collections/users/helpers";
@@ -10,7 +10,7 @@ import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   "@global": {
     ...(theme.palette.intercom ? {
       '.intercom-launcher': {
@@ -23,9 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const IntercomWrapper = ({classes}: {
-  classes: ClassesType,
-}) => {
+const IntercomWrapper = () => {
   const currentUser = useCurrentUser();
   const { currentRoute } = useLocation();
 
@@ -42,7 +40,7 @@ const IntercomWrapper = ({classes}: {
   }
   
   if (currentUser && !currentUser.hideIntercom) {
-    return <div className={classes.intercomFrame} id="intercom-outer-frame">
+    return <div id="intercom-outer-frame">
       <Intercom
         appID={intercomAppIdSetting.get()}
         user_id={currentUser._id}
@@ -51,7 +49,7 @@ const IntercomWrapper = ({classes}: {
       />
     </div>
   } else if (!currentUser) {
-    return <div className={classes.intercomFrame} id="intercom-outer-frame">
+    return <div id="intercom-outer-frame">
       <Intercom appID={intercomAppIdSetting.get()} />
     </div>
   } else {

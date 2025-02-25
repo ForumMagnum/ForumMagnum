@@ -30,7 +30,7 @@
  */
 export const acceptsSchemaHash = "6916cc5096e4eeee5bc92639da67e9fa";
 
-import { Posts } from "@/lib/collections/posts"
+import { Posts } from "@/lib/collections/posts/collection.ts"
 import { updateIndexes } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

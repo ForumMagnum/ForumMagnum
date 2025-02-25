@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import DialogContent from '@material-ui/core/DialogContent';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   titleRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SubforumMembersDialog = ({classes, onClose, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   tag: TagSubforumFragment,
 }) => {

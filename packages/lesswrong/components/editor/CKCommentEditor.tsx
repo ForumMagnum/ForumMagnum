@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import { CkEditorPortalContext } from './CKEditorPortalProvider';
+import { useDialog } from '../common/withDialog';
+import { claimsConfig } from './claims/claimsConfig';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -33,6 +36,7 @@ const commentEditorToolbarConfig = {
     // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
     ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
     'footnote',
+    ...(isLWorAF ? ['insertClaimButton'] : []),
   ],
 };
 
@@ -58,6 +62,8 @@ const CKCommentEditor = ({
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor();
+  const portalContext = useContext(CkEditorPortalContext);
+  const { openDialog } = useDialog();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
 
@@ -85,6 +91,7 @@ const CKCommentEditor = ({
     placeholder: actualPlaceholder,
     mention: mentionPluginConfiguration,
     ...cloudinaryConfig,
+    claims: claimsConfig(portalContext, openDialog),
   };
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);

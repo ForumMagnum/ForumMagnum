@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
       display: "none"
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const FrontpageNominationPhase = ({classes, settings}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   settings: DefaultRecommendationsAlgorithm,
 }) => {
   const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink, LWTooltip } = Components

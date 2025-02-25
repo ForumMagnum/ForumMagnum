@@ -13,11 +13,11 @@ import LocalActivityIcon from '@material-ui/icons/LocalActivity';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   metadata: {
     display: 'flex',
     ...theme.typography.postStyle,
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsPageEventData = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
   const now = moment(useCurrentTime())
@@ -218,7 +218,7 @@ const PostsPageEventData = ({classes, post}: {
         </div>
         {contactInfo && <div className={classes.iconRow}>
           <div className={classes.iconWrapper}><MailIcon className={classes.icon} /></div>
-          <div className={classes.eventContact}>{contactInfo}</div>
+          <div>{contactInfo}</div>
         </div>}
         
         { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType as keyof EventTypeIcons], eventType) }

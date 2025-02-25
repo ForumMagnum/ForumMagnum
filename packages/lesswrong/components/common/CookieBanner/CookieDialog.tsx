@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -95,7 +95,7 @@ const CookieCategory = ({
   setAllowedCookies: (cookies: CookieType[]) => void;
   alwaysEnabled?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { Typography, ForumIcon, CookieTable } = Components;
   const [open, setOpen] = useState(false);
@@ -135,7 +135,7 @@ const CookieCategory = ({
       <div className={classes.category}>
         <div className={classes.categoryLabel} onClick={() => setOpen(!open)}>
           <ForumIcon icon={open ? "ThickChevronDown" : "ThickChevronRight"} />
-          <Typography variant="body2" className={classes.categoryTitle}>
+          <Typography variant="body2">
             {title}
           </Typography>
         </div>
@@ -163,7 +163,7 @@ const CookieCategory = ({
   );
 };
 
-const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType }) => {
+const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
   const { LWDialog, Typography } = Components;
 
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();

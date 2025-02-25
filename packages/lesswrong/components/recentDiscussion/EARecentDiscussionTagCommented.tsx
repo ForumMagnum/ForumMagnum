@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode, unflattenComments } from "../../lib/utils/unflatten";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
@@ -39,7 +39,7 @@ const EARecentDiscussionTagCommented = ({
   refetch?: () => void,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!comments.length) {
     return null;

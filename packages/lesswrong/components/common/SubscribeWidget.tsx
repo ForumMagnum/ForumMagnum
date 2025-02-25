@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { withTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "&:hover": {
       opacity: isFriendlyUI ? 1 : undefined,

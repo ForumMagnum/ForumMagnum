@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -11,7 +11,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 const UserPageTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params: {slug} } = useLocation();
   const { results, loading } = useMulti({

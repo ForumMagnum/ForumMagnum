@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -11,7 +11,7 @@ import * as _ from 'underscore';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   audioIcon: {
     width: 14,
     height: 14,
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {

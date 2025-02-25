@@ -6,7 +6,7 @@ import { encode } from 'querystring'
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 import { randomId } from '@/lib/random';
 
 const ElicitUserType = `type ElicitUser {
@@ -133,7 +133,7 @@ interface ElicitQuestionWithPredictions {
   title: string,
   notes: string | null,
   resolution: boolean,
-  resolvesBy: Date,
+  resolvesBy: Date|null,
   predictions: DbElicitQuestionPrediction[]
 }
 
@@ -181,6 +181,7 @@ async function getLocalElicitQuestionWithPredictions(questionId: string): Promis
     ElicitQuestionPredictions.find({
       binaryQuestionId: questionId,
       isDeleted: false,
+      prediction: {$ne: null},
     }).fetch()
   ]);
   

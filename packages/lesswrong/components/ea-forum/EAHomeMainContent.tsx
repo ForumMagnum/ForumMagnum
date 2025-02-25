@@ -1,7 +1,7 @@
 import React, {ComponentType, useState} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
-import {tagPostTerms} from '../tagging/TagPage'
+import {tagPostTerms} from '../tagging/TagPageUtils'
 import {Link} from '../../lib/reactRouterWrapper'
 import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
@@ -10,7 +10,7 @@ import { PostsListViewProvider } from '../hooks/usePostsListView'
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   spotlightMargin: {
     marginBottom: 24,
   },
@@ -56,7 +56,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  */
 const EAHomeMainContent = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   

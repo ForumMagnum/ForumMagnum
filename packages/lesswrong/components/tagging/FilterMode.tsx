@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
@@ -31,7 +31,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tag: {
     padding: 8,
     paddingLeft: 10,
@@ -149,7 +149,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onChangeMode: (mode: FilterMode) => void,
   onRemove?: () => void,
   description?: React.ReactNode
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({
@@ -229,7 +229,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   // Show a `+` in front of the custom "other" input if there's a custom additive value (rather than multiplicative)
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
 
-  return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
+  return <span {...eventHandlers} className={classes.tag}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {tag ? (
         <>
@@ -245,27 +245,27 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => setMode("Hidden")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={_ev => setMode("Hidden")}>
                 Hidden
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(reducedVal)}>
               <span
                 className={classNames(classes.filterButton, {[classes.selected]: [0.5, "Reduced"].includes(mode)})}
-                onClick={ev => setMode(reducedVal)}
+                onClick={_ev => setMode(reducedVal)}
               >
                 {reducedName}
               </span>
             </LWTooltip>
             <div className={classes.defaultLabel}>
               <LWTooltip title={filterModeToTooltip("Default")}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===0 || mode==="Default"})} onClick={ev => setMode("Default")}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===0 || mode==="Default"})} onClick={_ev => setMode("Default")}>
                   Default
                 </span>
               </LWTooltip>
             </div>
             <LWTooltip title={filterModeToTooltip(25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => setMode(25)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={_ev => setMode(25)}>
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "Promoted"}
               </span>
             </LWTooltip>
@@ -284,7 +284,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             </LWTooltip>
             <div className={classes.rightContainer}>
               {canRemove && !tag?.suggestedAsFilter &&
-                <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
+                <div className={classes.removeLabel} onClick={_ev => {if (onRemove) onRemove()}}>
                   <LWTooltip title={<div><div>This filter will no longer appear in {LATEST_POSTS_NAME}.</div><div>You can add it back later if you want</div></div>}>
                     <a>Remove</a>
                   </LWTooltip>

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles =>  ({
+const styles = (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
 })
 
 const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
   showPinnedOnProfile?: boolean,

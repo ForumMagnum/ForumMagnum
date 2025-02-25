@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { AllowHidingFrontPagePostsContext, IsRecommendationContext } from './PostActions';
@@ -7,8 +6,10 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,

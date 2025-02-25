@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
@@ -9,7 +9,7 @@ import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: 8,
@@ -47,7 +47,7 @@ const ConversationContents = ({
   conversation: ConversationsList;
   currentUser: UsersCurrent;
   scrollRef?: React.RefObject<HTMLDivElement>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
   // that increments with each message. This is a way of clearing the form, which works

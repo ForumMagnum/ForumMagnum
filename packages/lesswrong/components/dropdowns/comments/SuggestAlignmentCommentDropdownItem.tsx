@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   comment: CommentsList,
   post?: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({

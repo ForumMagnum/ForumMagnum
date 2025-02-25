@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanEditUser } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { useImageUpload } from "../../hooks/useImageUpload";
@@ -8,7 +8,7 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const SIZE = 96;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 14,
     position: "relative",
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EAUsersProfileImage = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();

@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -12,7 +12,7 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 
 const SECONDARY_SPACING = 20;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   header: {
     position: 'relative',
     display:"flex",
@@ -222,7 +222,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   hideMenu?: boolean,
   hideTags?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,

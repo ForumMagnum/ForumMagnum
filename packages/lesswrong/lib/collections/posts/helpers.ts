@@ -328,9 +328,9 @@ export const isNotHostedHere = (post: PostsPage|DbPost) => {
 }
 
 const mostRelevantTag = (
-  tags: TagPreviewFragment[],
+  tags: TagBasicInfo[],
   tagRelevance: Record<string, number>,
-): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+): TagBasicInfo | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
 
 export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
   const {tags, tagRelevance} = post;
@@ -427,4 +427,8 @@ export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean =
     || post.status !== 2
     || post._id === aboutPostIdSetting.get()
   );
+};
+
+export const postIsPublic = (post: DbPost) => {
+  return !post.draft && post.status === postStatuses.STATUS_APPROVED
 };

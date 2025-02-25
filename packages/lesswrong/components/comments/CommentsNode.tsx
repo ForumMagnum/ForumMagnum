@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
@@ -12,7 +12,7 @@ import { useCommentLinkState } from './CommentsItem/useCommentLink';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
     top:0,
@@ -75,7 +75,7 @@ export interface CommentsNodeProps {
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,

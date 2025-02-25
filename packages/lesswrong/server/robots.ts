@@ -1,4 +1,4 @@
-import { addStaticRoute } from './vulcan-lib';
+import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { DatabaseServerSetting } from './databaseSettings';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 

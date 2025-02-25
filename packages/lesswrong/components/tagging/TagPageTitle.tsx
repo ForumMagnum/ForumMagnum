@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
@@ -10,7 +10,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const TagPageTitle = ({isSubtitle, classes, siteName}: {
   isSubtitle: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   siteName: string
 }) => {
   const { params } = useLocation();

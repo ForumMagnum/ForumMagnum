@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -7,7 +7,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   frontpageSequencesGridList: {
     [legacyBreakpoints.maxSmall]: {
       marginTop: 40,
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AlignmentForumHome = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
   const currentUser = useCurrentUser();

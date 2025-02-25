@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: 8,
     paddingBottom: 8,
@@ -16,17 +16,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const UserReviewMetadata = ({classes, user}: {
   user: SunshineUsersList
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, FormatDate } = Components
   return <div className={classes.root}>
     <MetaInfo>
       {user.email}
     </MetaInfo>
-    <MetaInfo className={classes.info}>
+    <MetaInfo>
       <FormatDate date={user.createdAt}/>
     </MetaInfo>
-    <MetaInfo className={classes.info}>
+    <MetaInfo>
       { user.karma || 0 } karma
     </MetaInfo>
   </div>

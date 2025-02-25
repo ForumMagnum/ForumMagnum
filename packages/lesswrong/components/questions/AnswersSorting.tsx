@@ -1,12 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
 import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
-import { getCommentViewOptions } from '../../lib/commentViewOptions';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const sortingNames = {
   'top': isFriendlyUI ? 'Top' : 'top scoring',
@@ -16,9 +14,8 @@ const sortingNames = {
   'recentComments': preferredHeadingCase('latest reply'),
 }
 
-const AnswersSorting = ({ post, classes }: {
+const AnswersSorting = ({ post }: {
   post?: PostsList,
-  classes: ClassesType,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();

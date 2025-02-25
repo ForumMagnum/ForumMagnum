@@ -1,8 +1,7 @@
-import { registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bannerImg: {
     width: '100vw',
     height: 220,
@@ -55,10 +54,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     opacity: 0.7,
     marginTop: 10
   },
-}))
+});
 
 const CommunityBanner = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // quote is from this post, with permission from the author:
   // https://forum.effectivealtruism.org/posts/kE3FRC5gq9QxMrn3w/what-drew-me-to-ea-reflections-on-ea-as-relief-growth-and

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
 
-const styles = (theme: JssStyles) => ({
+const styles = (_theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center"
@@ -23,7 +23,7 @@ const styles = (theme: JssStyles) => ({
 
 export const SunshineUserMessages = ({classes, user, currentUser}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
   const { SunshineSendMessageWithDefaults, MessagesNewForm, UsersName, LWTooltip, MetaInfo } = Components
@@ -48,12 +48,12 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
     enableTotal: true
   });
 
-  return <div className={classes.root}>
+  return <div>
     {results?.map(conversation => <div key={conversation._id}>
       <LWTooltip title={`${conversation.messageCount} messages in this conversation`}>
         <Link to={`/inbox/${conversation._id}`}>
           <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-          <span className={classes.title}>
+          <span>
             Conversation with{" "} 
             {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
               return <MetaInfo key={`${conversation._id}${participant._id}`}>

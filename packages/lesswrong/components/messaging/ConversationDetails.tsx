@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   conversation: ConversationsList,
   hideOptions?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components

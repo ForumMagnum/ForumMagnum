@@ -84,7 +84,7 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
   };
 
   useEffect(() => {
-    const postBodyRef = document.getElementById('postBody');
+    const postBodyRef = document.getElementById('postBody') ?? document.getElementById('tagContent');
     if (disabled) return;
 
     const updateFunc = () => {

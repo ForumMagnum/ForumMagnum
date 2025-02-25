@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -30,7 +30,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 
 const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Components, getSiteUrl, registerComponent, sanitize } from "../../lib/vulcan-lib";
 import { siteImageSetting } from "../vulcan-core/App";
 import { htmlToText } from "html-to-text";
 import { truncate } from "../../lib/editor/ellipsize";
@@ -15,12 +14,13 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
-import classNames from "classnames";
 import Input from "@material-ui/core/Input";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "grid",
     gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
@@ -210,7 +210,7 @@ const SocialPreviewTextEdit = ({
 }: {
   value: string;
   updateValue: (value: string) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   // This handling here is a workaround for a bug in the Input component, you can ignore it
   // and just assume `value` is the source of truth here
@@ -254,7 +254,6 @@ const SocialPreviewUpload = ({
   value,
   document,
   updateCurrentValues,
-  clearField,
   croppingAspectRatio,
   classes,
 }: {
@@ -265,7 +264,7 @@ const SocialPreviewUpload = ({
   label: string;
   clearField: Function;
   croppingAspectRatio: number;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { ImageUpload2 } = Components;
 
@@ -311,8 +310,6 @@ const SocialPreviewUpload = ({
     [name, updateCurrentValues, value]
   );
 
-  const hasTitle = document.title && document.title.length > 0;
-
   return (
     <div className={classes.root}>
       <div className={classes.preview}>
@@ -326,7 +323,7 @@ const SocialPreviewUpload = ({
           // socialPreviewImageUrl falls back to the first image in the post on save
           placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
-        <div className={classNames(classes.title, { [classes.placeholder]: !hasTitle })}>
+        <div className={classes.title}>
           {document.title || "Title"}
         </div>
         <SocialPreviewTextEdit value={description ?? ""} updateValue={updateText} classes={classes} />

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@material-ui/core/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
 import sortBy from 'lodash/sortBy';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 0,
@@ -19,7 +19,7 @@ const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
 export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear

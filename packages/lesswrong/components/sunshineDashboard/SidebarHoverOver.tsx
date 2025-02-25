@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position:"relative",
     zIndex: theme.zIndexes.sidebarHoverOver,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   hover: boolean,
   anchorEl: HTMLElement|null,
   width?: number,

@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Card from '@material-ui/core/Card';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
@@ -12,7 +12,6 @@ import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
-import { useTheme } from '../themes/useTheme';
 import { isMobile } from '@/lib/utils/isMobile';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
@@ -52,6 +51,10 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     "& .footnote-content": {
       width: "auto !important",
       maxWidth: "100%",
+      
+      "& ul:first-child, & ol:first-child": {
+        marginTop: 0,
+      },
     },
   },
 
@@ -135,7 +138,6 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
-  const theme = useTheme();
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
@@ -247,21 +249,8 @@ function extractFootnoteHTML(href: string): string|null {
     const footnoteContentsElement = document.querySelector(href);
     const footnoteHTML = footnoteContentsElement?.innerHTML ?? null;
     
-    // Decide whether the footnote is nonempty. This is tricky because while there
-    // are consistently formatted footnotes created by our editor plugins, there
-    // are also wacky irregular footnotes present in imported HTML and similar
-    // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
-    // We can't just condition on the footnote containing non-whitespace text,
-    // because footnotes sometimes have their number and backlink in a place that
-    // would be mistaken for their body. Our current heuristic is that a footnote
-    // is nonempty if it contains at least one <p> which contains non-whitespace
-    // text, which might false-negative on rare cases like an image-only footnote
-    // but which seems to work in practice.
-    const footnoteContentsNonempty = !!footnoteContentsElement
-      && !!Array.from(footnoteContentsElement.querySelectorAll("p"))
-        .reduce((acc, p) => acc + p.textContent, "").trim();
     
-    if (footnoteContentsNonempty) {
+    if (footnoteContentsElement && isFootnoteContentsNonempty(footnoteContentsElement)) {
       return footnoteHTML;
     } else {
       return null;
@@ -272,10 +261,26 @@ function extractFootnoteHTML(href: string): string|null {
   }
 }
 
+const isFootnoteContentsNonempty = (footnoteContentsElement: Element): boolean => {
+  // Decide whether the footnote is nonempty. This is tricky because while there
+  // are consistently formatted footnotes created by our editor plugins, there
+  // are also wacky irregular footnotes present in imported HTML and similar
+  // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
+  // We can't just condition on the footnote containing non-whitespace text,
+  // because footnotes sometimes have their number and backlink in a place that
+  // would be mistaken for their body. Our current heuristic is that a footnote
+  // is nonempty if it contains at least one <p> which contains non-whitespace
+  // text, which might false-negative on rare cases like an image-only footnote
+  // but which seems to work in practice.
+  return !!footnoteContentsElement
+    && !!Array.from(footnoteContentsElement.querySelectorAll("p, li"))
+      .reduce((acc, p) => acc + p.textContent, "").trim();
+}
+
 const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   footnoteHref: string,
   footnoteHTML: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);

@@ -1,7 +1,8 @@
 import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
-import { computeContextFromUser, getCollection } from "./vulcan-lib";
+import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
+import { getCollection } from "../lib/vulcan-lib/getCollection";
 
 type FetchFragmentOptions<
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
@@ -20,7 +21,7 @@ type FetchFragmentOptions<
   /** The mongo selector for the query, or `_id` as a string. */
   selector?: string | MongoSelector<ObjectsByCollectionName[CollectionName]>,
   /** The mongo options for the query */
-  options?: MongoFindOneOptions<ObjectsByCollectionName[CollectionName]>,
+  options?: MongoFindOptions<ObjectsByCollectionName[CollectionName]>,
   /** Arguments to pass to code resolvers and SQL resolvers */
   resolverArgs?: Record<string, unknown> | null,
   /** Optional resolver context */

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { Helmet, componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';

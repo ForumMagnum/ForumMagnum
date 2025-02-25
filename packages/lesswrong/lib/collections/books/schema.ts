@@ -8,7 +8,7 @@ const schema: SchemaType<"Books"> = {
     type: Date,
     optional: true,
     canRead: ['guests'],
-    onInsert: () => new Date(),
+    onCreate: () => new Date(),
   },
 
   // Custom Properties

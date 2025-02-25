@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
 import { CausePrioIcon } from '../icons/causePrioIcon';
@@ -44,7 +44,7 @@ export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}
   default: {}
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   // prevent LotusOutlineIcon from having a fill
   noFill: {
     fill: 'none !important'
@@ -55,7 +55,7 @@ const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
   className?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const Icon = coreTagIconMap[tag.slug]
   if (!Icon) {

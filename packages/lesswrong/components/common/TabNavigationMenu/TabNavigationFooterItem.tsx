@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
@@ -9,7 +9,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const smallIconSize = 23
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type TabNavigationFooterItemProps = {
   tab: MenuTabRegular,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {

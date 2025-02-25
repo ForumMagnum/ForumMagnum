@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostsVideoCard = ({post, classes}: {
   post: PostsBestOfList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
   const {eventHandlers} = useHover({

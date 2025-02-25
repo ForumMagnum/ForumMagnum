@@ -1,7 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -13,7 +12,7 @@ export const getDefaultEventImg = (width: number, blur?: boolean) => {
   return `https://res.cloudinary.com/cea/image/upload/w_${width}${blur ? ',e_blur:500' : ''}/Banner/yeldubyolqpl3vqqy0m6.jpg`
 }
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     display: 'flex',
@@ -100,13 +99,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginBottom: 0
     }
   },
-}))
-
+});
 
 const HighlightedEventCard = ({event, loading, classes}: {
   event?: PostsList,
   loading: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone()
   const { captureEvent } = useTracking()

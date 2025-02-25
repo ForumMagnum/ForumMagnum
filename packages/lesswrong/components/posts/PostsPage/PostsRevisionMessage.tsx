@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
@@ -15,7 +15,7 @@ interface PostsRevisionMessageFragment {
 
 const PostsRevisionMessage = ({post, classes}: {
   post: PostsRevisionMessageFragment|PostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!post.contents )
     return null;

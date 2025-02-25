@@ -1,10 +1,10 @@
 import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   nominating: {
     marginTop: 8,
     fontSize: "1.2rem"
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const NominatePostDialog = ({classes, post, onClose}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsBase,
   onClose?: () => void,
 }) => {

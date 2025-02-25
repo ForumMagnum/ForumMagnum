@@ -1,5 +1,5 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,10 +18,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import {
-  GIVING_SEASON_MOBILE_WIDTH,
-  useGivingSeasonEvents,
-} from '../forumEvents/useGivingSeasonEvents';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -130,16 +126,11 @@ export const styles = (theme: ThemeType) => ({
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
-      color: theme.palette.text.alwaysWhite,
-      contrastColor: theme.palette.text.alwaysBlack,
-
-      // Custom button styles for giving season 2024
-      signupButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
-      signupButtonColor: theme.palette.text.alwaysWhite,
-      loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
-      loginButtonColor: theme.palette.text.alwaysWhite,
-      loginButtonHoverBackgroundColor: `color-mix(in oklab, ${theme.palette.givingSeason.electionFundBackground} 90%, ${theme.palette.text.alwaysWhite})`,
+      color: "var(--header-text-color)",
+      contrastColor: "var(--header-contrast-color)",
     }),
+    "--header-text-color": theme.palette.text.alwaysWhite,
+    "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -183,6 +174,10 @@ export const styles = (theme: ThemeType) => ({
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   siteLogo: {
     marginLeft:  -7,
@@ -260,46 +255,6 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
-
-  // Giving season 2024 styles
-  gsBackground: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    opacity: 0,
-    transition: "opacity 0.5s ease",
-    backgroundSize: "100% 400px",
-    backgroundRepeat: "no-repeat",
-    backgroundBlendMode: "darken",
-  },
-  gsBackgroundActive: {
-    opacity: 1,
-  },
-  gsAppBarText: {
-    ...textColorOverrideStyles({
-      theme,
-      color: theme.palette.givingSeason.primary,
-      contrastColor: theme.palette.text.alwaysWhite,
-    }),
-  },
-  gsBanner: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: "150%",
-    letterSpacing: "1.12px",
-    textAlign: "center",
-    flex: 1,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  gsRightHeaderItems: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
   lightconeFundraiserHeaderItem: {
     color: theme.palette.review.winner,
     fontFamily: theme.typography.headerStyle.fontFamily,
@@ -345,11 +300,6 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
-  const isGivingSeason =
-    currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
-    (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
-  const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
-  const isVotingPortal = currentRoute?.name === "VotingPortal";
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -431,7 +381,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <ForumIcon icon="Menu" />
+                <ForumIcon icon="Menu" className={classes.icon} />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -444,7 +394,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <TocIcon />
+                <TocIcon className={classes.icon} />
               </IconButton>
             </div>
           </>
@@ -457,7 +407,7 @@ const Header = ({
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <ForumIcon icon="Menu" />
+            <ForumIcon icon="Menu" className={classes.icon} />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -469,7 +419,9 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
+        {(isFriendlyUI && !sidebarHidden)
+          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
+          : <ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
     </React.Fragment>
   )
@@ -482,10 +434,7 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const rightHeaderItemsNode = <div className={classNames(
-    classes.rightHeaderItems,
-    isGivingSeason && classes.gsRightHeaderItems,
-  )}>
+  const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
@@ -529,32 +478,23 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home") {
-    // On EAF, forum events with polls also update the home page header background
-    if (bannerImageId && currentForumEvent?.includesPoll) {
-      const darkColor = currentForumEvent.darkColor;
-      const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-        c: "fill",
-        dpr: "auto",
-        q: "auto",
-        f: "auto",
-        g: "north",
-      })})${darkColor ? `, ${darkColor}` : ''}`;
-      headerStyle.background = background;
-    } else if (isGivingSeason) {
-      headerStyle.background = unFixed ? "transparent" : "#fff";
-    }
-  } else if (isGivingSeason) {
-    headerStyle.background = "#fff";
+  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+    // On EAF, forum events with polls or stickers also update the home page header background and text
+    const darkColor = currentForumEvent.darkColor;
+    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "north",
+    })})${darkColor ? `, ${darkColor}` : ''}`;
+    headerStyle.background = background;
+    (headerStyle as any)["--header-text-color"] = currentForumEvent.bannerTextColor ?? undefined;
+    (headerStyle as any)["--header-contrast-color"] = currentForumEvent.darkColor ?? undefined;
   }
 
-  const useGivingSeasonText = isGivingSeason && (
-    (currentRoute?.name === "home" && selectedEvent.darkText) ||
-    (currentRoute?.name === "posts.single" && !!currentEvent?.darkText)
-  );
-
-  // Make all the text and icons white when we have some sort of color in the header background
-  const useWhiteText = Object.keys(headerStyle).length > 0 && !useGivingSeasonText;
+  // Make all the text and icons the same color as the text on the current forum event banner
+  const useContrastText = Object.keys(headerStyle).length > 0;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -568,39 +508,15 @@ const Header = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop || isVotingPortal}
+          disable={stayAtTop}
         >
           <header
             className={classNames(
               classes.appBar,
-              useWhiteText && classes.appBarDarkBackground,
-              useGivingSeasonText && classes.gsAppBarText,
+              useContrastText && classes.appBarDarkBackground
             )}
             style={headerStyle}
           >
-            {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
-              <div>
-                {events.map(({name, background}) => (
-                  <div
-                    key={name}
-                    style={{backgroundImage: `url(${background})`}}
-                    className={classNames(
-                      classes.gsBackground,
-                      name === selectedEvent.name && classes.gsBackgroundActive,
-                    )}
-                  />
-                ))}
-              </div>
-            }
-            {isGivingSeason && currentEvent && currentRoute?.name === "posts.single" &&
-              <div
-                style={{backgroundImage: `url(${currentEvent.background})`}}
-                className={classNames(
-                  classes.gsBackground,
-                  classes.gsBackgroundActive,
-                )}
-              />
-            }
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
@@ -608,30 +524,21 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
-                      {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link></div>}
                     </div>
                     <HeaderSubtitle />
                   </div>
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
-                  {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItemSmall}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>$</Link></div>}
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
-              {isGivingSeason && !searchOpen &&
-                <div className={classes.gsBanner}>
-                  <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
-                    GIVING SEASON 2024
-                  </Link>
-                </div>
-              }
               {rightHeaderItemsNode}
             </Toolbar>
           </header>

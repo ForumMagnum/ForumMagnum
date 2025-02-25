@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog';
@@ -7,8 +6,10 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -36,7 +37,7 @@ const SubforumSubscribeSection = ({
   joinCallback?: () => void,
   leaveCallback?: () => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -90,10 +91,10 @@ const SubforumSubscribeSection = ({
 
   return <div className={classNames(className, classes.root)}>
     {isSubscribed ? <Button variant="outlined" color="primary" className={classes.subscribeButton} onClick={onUnsubscribe}>
-      <span className={classes.subscribeText}>Leave</span>
+      <span>Leave</span>
     </Button> : <LWTooltip title={`Join to gain comment access and see ${tag.name} Subforum content on the frontpage`}>
       <Button variant="contained" color="primary" className={classes.subscribeButton} onClick={onSubscribe}>
-        <span className={classes.subscribeText}>Join</span>
+        <span>Join</span>
       </Button>
     </LWTooltip>}
   </div>

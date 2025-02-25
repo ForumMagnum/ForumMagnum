@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
-import { Components, registerComponent, slugify } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
@@ -24,8 +24,9 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
+import { slugify } from '@/lib/utils/slugify';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -354,7 +355,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
   const { ReactionIcon, LWPopper } = Components;
@@ -435,7 +436,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
 
 const ReactionOverview = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
   const { Row, LWTooltip, ReactionIcon, ReactionDescription } = Components;
@@ -477,7 +478,7 @@ const ReactionOverview = ({voteProps, classes}: {
 const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, commentBodyRef}: {
   react: EmojiReactName,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   commentBodyRef?: React.RefObject<ContentItemBody>|null
 }) => {
   const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
@@ -509,7 +510,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
 
 export const AddReactionButton = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
@@ -561,7 +562,7 @@ export const AddReactionButton = ({voteProps, classes}: {
 
 const ReactionOverviewButton = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { LWTooltip } = Components;
 

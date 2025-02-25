@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
+const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
     resolverName: "PopularComments",

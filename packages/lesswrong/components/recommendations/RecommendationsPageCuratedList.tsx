@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   curated: {
     position: "absolute",
     right: 0,
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RecommendationsPageCuratedList = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
 

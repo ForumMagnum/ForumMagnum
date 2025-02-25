@@ -1,4 +1,4 @@
-import { getCollection } from './vulcan-lib/collections';
+import { getCollection } from './vulcan-lib/getCollection';
 
 // Simple function wrappers around mongodb operations. These are slightly silly
 // and exist primarily for the purpose of breaking import cycles; because they
@@ -17,9 +17,9 @@ export async function mongoFindOne<N extends CollectionNameString>(collectionNam
   return await collection.findOne(selector, options, projection) as ObjectsByCollectionName[N]|null;
 }
 
-export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<Array<ObjectsByCollectionName[N]>>
+export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>)
 {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<N> = getCollection(collectionName);
   return await collection.find(selector, options, projection).fetch();
 }
 

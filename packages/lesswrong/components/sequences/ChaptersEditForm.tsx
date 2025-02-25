@@ -1,12 +1,13 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useCallback, useState } from 'react';
 import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit
   },
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
 const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancelCallback}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   documentId: string,
   postIds: string[],
   successCallback: any,

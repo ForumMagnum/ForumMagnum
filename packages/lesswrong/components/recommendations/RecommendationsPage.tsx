@@ -1,11 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { isLW } from '../../lib/instanceSettings';
 
-const RecommendationsPage = ({classes}: {
-  classes: ClassesType
-}) => {
+const RecommendationsPage = () => {
   const { ConfigurableRecommendationsList, RecommendationsPageCuratedList, SpotlightHistory  } = Components;
 
   return (

@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -28,7 +28,7 @@ const RecommendationsList = ({
   ListItem?: RecommendationsListItem,
   loadingFallback?: JSX.Element,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });

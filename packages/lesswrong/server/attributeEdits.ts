@@ -11,12 +11,29 @@ import * as _ from 'underscore';
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
 
-export async function annotateAuthors(documentId: string, collectionName: string, fieldName: string, upToVersion?: string|null): Promise<string> {
+export async function annotateAuthors( documentId: string, collectionName: string, fieldName: string, upToVersion?: string | null): Promise<string> {
+  const { finalHtml, attributions } = await computeAttributions(
+    documentId,
+    collectionName,
+    fieldName,
+    upToVersion
+  );
+
+  return attributionsToSpans(finalHtml, attributions);
+}
+
+export async function computeAttributions(
+  documentId: string,
+  collectionName: string,
+  fieldName: string,
+  upToVersion?: string | null
+): Promise<{ finalHtml: string; attributions: EditAttributions }> {
   const revs = await Revisions.find({
-    documentId, collectionName, fieldName
+    documentId, collectionName, fieldName,
+    skipAttributions: false,
   }).fetch();
-  if (!revs.length) return "";
-  
+  if (!revs.length) return { finalHtml: "", attributions: [] };
+
   let filteredRevs = orderBy(revs, r=>r.editedAt);
   
   // If upToVersion is provided, ignore revs after that
@@ -58,8 +75,8 @@ export async function annotateAuthors(documentId: string, collectionName: string
     const newHtml = rev.html ?? "";
     attributions = attributeEdits(prevHtml, newHtml, rev.userId!, attributions);
   }
-  
-  return attributionsToSpans(finalRev.html!, attributions);
+
+  return { finalHtml: finalRev.html || "", attributions };
 }
 
 function annotateInsDel(root: cheerio.Root): InsDelUnc[] {
@@ -101,13 +118,30 @@ function isSpace(s: string): boolean {
   return s.trim()==="";
 }
 
+function replaceDelTag($: cheerio.Root) {
+  $('del').each((_, element) => {
+    const $del = $(element);
+    const attributes = $del.attr();
+    const content = $del.html();
+  
+    // Create a new <s> element with the same attributes and content
+    const $s = $('<s>').attr(attributes).html(content!);
+  
+    // Replace the <del> element with the new <s> element
+    $del.replaceWith($s);
+  });
+  return $;
+}
+
 export const attributeEdits = (oldHtml: string, newHtml: string, userId: string, oldAttributions: EditAttributions): EditAttributions => {
-  const parsedOldHtml = cheerioParse(oldHtml);
-  const parsedNewHtml = cheerioParse(newHtml);
+  // Parse the before/after HTML
+  const parsedOldHtml = replaceDelTag(cheerioParse(oldHtml));
+  const parsedNewHtml = replaceDelTag(cheerioParse(newHtml));
+  
   const oldText = treeToText(parsedOldHtml);
   const newText = treeToText(parsedNewHtml);
   
-  const diffHtml = diff(oldHtml, newHtml);
+  const diffHtml = diff(parsedOldHtml.html(), parsedNewHtml.html());
   const parsedDiffs = cheerioParse(diffHtml);
   // @ts-ignore
   const insDelAnnotations = annotateInsDel(parsedDiffs.root()[0]);

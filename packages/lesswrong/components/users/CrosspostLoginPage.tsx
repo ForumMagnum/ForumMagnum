@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from "../common/Header";
@@ -8,7 +8,7 @@ import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -33,16 +33,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const connectCrossposterMutation = gql`
-  mutation connectCrossposter($token: String) {
-    connectCrossposter(token: $token)
-  }
-`;
-
 const CrosspostLoginPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+  const [connectCrossposter, loading] = useMutation(gql`
+    mutation connectCrossposter($token: String) {
+      connectCrossposter(token: $token)
+    }
+  `, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const {query: {token}} = useLocation();

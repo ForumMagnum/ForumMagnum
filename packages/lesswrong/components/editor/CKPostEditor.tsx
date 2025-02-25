@@ -4,7 +4,7 @@ import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
@@ -24,11 +24,15 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
+import { CkEditorPortalContext } from './CKEditorPortalProvider';
+import { useDialog } from '../common/withDialog';
+import { claimsConfig } from './claims/claimsConfig';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sidebar: {
     position: 'absolute',
     right: -350,
@@ -334,7 +338,9 @@ const postEditorToolbarConfig = {
       'mathDisplay',
       'mediaEmbed',
       ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
+      //...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -363,7 +369,8 @@ const postEditorToolbarConfig = {
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
       ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
-      'footnote'
+      'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     shouldNotGroupWhenFull: true,
   },
@@ -403,13 +410,15 @@ const CKPostEditor = ({
   accessLevel?: CollaborativeEditingAccessLevel,
   placeholder?: string,
   document?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { openDialog } = useDialog();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
+  const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -460,6 +469,17 @@ const CKPostEditor = ({
   }
   
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+  
+  const conditionalVisibilityPluginConfiguration: ConditionalVisibilityPluginConfiguration = {
+    renderConditionalVisibilitySettingsInto: (element, initialState, setDocumentState) => {
+      if (portalContext) {
+        portalContext.createPortal(element, <Components.EditConditionalVisibility
+          initialState={initialState}
+          setDocumentState={setDocumentState}
+        />);
+      }
+    },
+  };
 
   const {results: anyDialogue} = useMulti({
     collectionName: "Posts",
@@ -542,7 +562,9 @@ const CKPostEditor = ({
     placeholder: actualPlaceholder,
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
+    conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,
+    claims: claimsConfig(portalContext, openDialog),
   };
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);

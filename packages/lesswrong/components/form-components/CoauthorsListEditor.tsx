@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@material-ui/core/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
 import InputLabel from '@material-ui/core/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
 
-const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
+const coauthorsListEditorStyles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     marginLeft: 8,
@@ -51,7 +51,7 @@ const SortableList = makeSortableListComponent({
 const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
   value: CoauthorListItem[],
   document: Partial<DbPost>,
-  classes: ClassesType,
+  classes: ClassesType<typeof coauthorsListEditorStyles>,
 }) => {
   const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;

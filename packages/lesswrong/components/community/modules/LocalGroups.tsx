@@ -1,6 +1,5 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -8,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -127,7 +126,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     padding: 20
   },
-}))
+});
 
 /**
  * Calculates the distance between the starting location and the ending location, as the crow flies
@@ -170,7 +169,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   distanceUnit: 'km'|'mi',
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
 

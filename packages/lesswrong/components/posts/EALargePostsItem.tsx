@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { siteImageSetting } from "../vulcan-core/App";
@@ -109,7 +109,7 @@ const EALargePostsItem = ({
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
 

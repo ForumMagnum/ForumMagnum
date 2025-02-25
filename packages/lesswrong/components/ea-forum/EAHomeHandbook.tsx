@@ -1,5 +1,4 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
@@ -7,13 +6,13 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 
 const bannerHeight = 250
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bannerContainer: {
     position: 'absolute',
     top: 130, // desktop header height + layout margin + negative margin
@@ -109,13 +108,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.grey.A400,
     zIndex: 1,
   },
-}))
+});
 
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
 const EAHomeHandbook = ({ classes, documentId }: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components

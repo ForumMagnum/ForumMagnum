@@ -1,6 +1,8 @@
 /** PropTypes for documentation purpose (not tested yet) */
 import { WatchQueryFetchPolicy } from '@apollo/client';
 import PropTypes from 'prop-types';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { History } from 'history'
 
 export const fieldProps = {
   //
@@ -56,6 +58,11 @@ type SmartFormCallbacks = {
   revertCallback?: any
 }
 
+export type FormComponentOverridesType = {
+  FormSubmit?: any
+  FormGroupLayout?: any
+};
+
 export interface WrappedSmartFormProps<T extends CollectionNameString> extends SmartFormCallbacks {
   collectionName: T
 
@@ -71,7 +78,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   repeatErrors?: boolean
   noSubmitOnCmdEnter?: boolean
   warnUnsavedChanges?: boolean
-  formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
+  formComponents?: FormComponentOverridesType
   
   // Wasn't in propTypes but used
   id?: string
@@ -122,6 +129,8 @@ export interface SmartFormProps<T extends CollectionNameString> extends WrappedS
   updateMutation?: any
   removeMutation?: any
   currentUser: UsersCurrent|null
+  location?: RouterLocation
+  history?: History
 }
 
 declare global {
@@ -132,7 +141,7 @@ declare global {
     name: string
     label?: string
     placeholder?: string
-    input?: FormInputType
+    input: FormInputType
     datatype: any
     path: string
     disabled?: boolean
@@ -144,9 +153,8 @@ declare global {
     errors: any[]
     addToDeletedValues: any
     clearFieldErrors: any
-    currentUser?: UsersCurrent|null
     tooltip?: string
-    formComponents: ComponentTypes
+    formComponents?: FormComponentOverridesType
     locale?: string
     max?: number
     nestedInput: any
@@ -155,9 +163,15 @@ declare global {
     setFooterContent?: any
     hideClear?: boolean
   }
-  interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
+  interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
+    beforeComponent?: any
+    afterComponent?: any
+    formInput: React.ComponentType<FormComponentProps<T>>
+    onChange: any
     value: T
+    clearField: (ev?: AnyBecauseTodo) => void
   }
+  type FormComponentProps<T> = Omit<FormComponentInnerWrapperProps<T>, "input"|"formInput">
 
   interface FormButtonProps {
     submitLabel: React.ReactNode;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
@@ -11,7 +11,7 @@ import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
     [theme.breakpoints.down('sm')]: {
       marginTop: 20
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const EAAllTagsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()

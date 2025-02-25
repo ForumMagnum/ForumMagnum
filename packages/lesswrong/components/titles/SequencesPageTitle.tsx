@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -10,7 +10,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params: {_id} } = useLocation();
   

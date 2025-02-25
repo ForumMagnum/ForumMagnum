@@ -1,10 +1,10 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI ? {...theme.typography.smallText} : {}),
     "& img": {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const EmailWrapper = ({unsubscribeAllLink, children, classes}: {
   unsubscribeAllLink: string | null,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()

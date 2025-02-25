@@ -2,7 +2,7 @@ import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 import {forumSelect} from './forumTypeUtils'
 import {isEAForum} from './instanceSettings'
-import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -116,14 +116,8 @@ export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<strin
 
 export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
 
-export const reviewWinnerSectionNameTypes = ['rationality', 'optimization', 'modeling', 'ai', 'practical', 'misc'] as const
-export const reviewWinnerSectionNamesSet = new TupleSet(reviewWinnerSectionNameTypes);
-export type ReviewWinnerSectionName = UnionOf<typeof reviewWinnerSectionNamesSet>;
-
-export const reviewWinnerYearTypes = [2018, 2019, 2020, 2021, 2022] as const
-export const reviewWinnerYearSet = new TupleSet(reviewWinnerYearTypes);
-export type ReviewWinnerYear
- = UnionOf<typeof reviewWinnerYearSet>;
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerCategory, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & { 
   leftHeightPct?: number;
@@ -144,9 +138,6 @@ export interface ReviewYearGroupInfo {
   imgUrl: string;
   coords: CoordinateInfo;
 }
-
-export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
-export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
@@ -210,6 +201,8 @@ export const lightconeFundraiserUnsyncedAmount = new DatabasePublicSetting<numbe
 export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeFundraiser.paymentLinkId', '');
 export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
 export const lightconeFundraiserThermometerGoalAmount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0);
+export const lightconeFundraiserThermometerGoal2Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000);
+export const lightconeFundraiserThermometerGoal3Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal3Amount', 3000000);
 export const lightconeFundraiserPostId = new DatabasePublicSetting<string>('lightconeFundraiser.postId', '');
 export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lightconeFundraiser.active', false);
 

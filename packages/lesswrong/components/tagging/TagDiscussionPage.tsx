@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil'
 import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagDiscussionPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation();
   const { slug } = params;

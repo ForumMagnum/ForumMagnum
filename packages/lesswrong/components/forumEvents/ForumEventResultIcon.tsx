@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userResultsImage: {
-    outline: `2px solid ${theme.palette.text.alwaysWhite}`,
+    outline: `2px solid var(--forum-event-foreground)`,
     width: "100% !important",
     height: "unset !important",
   },

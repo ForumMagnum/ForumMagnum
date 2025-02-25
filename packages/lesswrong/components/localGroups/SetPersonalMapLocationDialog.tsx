@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -8,7 +8,6 @@ import type { Suggest } from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
@@ -19,13 +18,13 @@ const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...sharedStyles(theme),
-}))
+});
 
 const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { document: currentUserWithMarkdownBio, loading } = useSingle({
@@ -81,7 +80,6 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
         </div>
         {!isEAForum && <TextField
             label={`Description (Make sure to mention whether you want to organize events)}`}
-            className={classes.modalTextField}
             value={mapText || ""}
             onChange={e => setMapText(e.target.value)}
             fullWidth

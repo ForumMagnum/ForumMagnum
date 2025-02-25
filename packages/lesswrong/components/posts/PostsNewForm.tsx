@@ -1,11 +1,9 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { useLocation } from '../../lib/routeUtil';
 import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
@@ -14,13 +12,17 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 // Also used by PostsEditForm
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   postForm: {
     maxWidth: 715,
     margin: "0 auto",
@@ -169,7 +171,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
-export const getPostEditorGuide = (classes: ClassesType) => {
+export const getPostEditorGuide = (classes: ClassesType<typeof styles>) => {
   const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (
@@ -178,7 +180,7 @@ export const getPostEditorGuide = (classes: ClassesType) => {
           <div className={classes.editorGuide}>
             <QuestionIcon className={classes.editorGuideIcon} />
             <div className={classes.editorGuideLink}>
-              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+              <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>Editor Guide / FAQ</Link>
             </div>
           </div>
         </LWTooltip>
@@ -238,7 +240,7 @@ function usePrefetchForAutosaveRedirect() {
 }
 
 const PostsNewForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
@@ -317,11 +319,11 @@ const PostsNewForm = ({classes}: {
     postCategory
   }
 
-  if (query?.subforumTagId) {
+  if (query?.subforumTagId || query?.tagId) {
     prefilledProps = {
       ...prefilledProps,
-      subforumTagId: query.subforumTagId,
-      tagRelevance: {[query.subforumTagId]: 1},
+      subforumTagId: query.subforumTagId || query.tagId,
+      tagRelevance: {[query.subforumTagId || query.tagId]: 1},
     }
   }
 
@@ -371,7 +373,11 @@ const PostsNewForm = ({classes}: {
         <RecaptchaWarning currentUser={currentUser}>
           <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+          {rateLimitNextAbleToPost && <RateLimitWarning
+            contentType="post"
+            lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
+            rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}
+          />}
           <DeferRender ssr={false}>
               <WrappedSmartForm
                 collectionName="Posts"

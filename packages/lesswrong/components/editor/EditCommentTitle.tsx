@@ -1,12 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib';
-import React, {useCallback, useState} from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import React from 'react';
 import Input from '@material-ui/core/Input';
-import PropTypes from 'prop-types'
 import classNames from 'classnames';
-import {useMessages} from "../common/withMessages";
-import { useUpdate } from '../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -25,31 +22,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const EditCommentTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
-  document: PostsBase,
-  value: any,
-  path: string,
+const EditCommentTitle = ({value, path, placeholder, updateCurrentValues, classes}: FormComponentProps<string> & {
   placeholder: string,
-  updateCurrentValues: Function,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <Input
     className={classNames(classes.root)}
     placeholder={placeholder}
     value={value}
     onChange={(event) => {
-      updateCurrentValues({
+      void updateCurrentValues({
         [path]: event.target.value
       })
     }}
     disableUnderline={true}
     multiline
   />
-};
-
-(EditCommentTitle as any).contextTypes = {
-  addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
 };
 
 export const EditCommentTitleComponent = registerComponent( "EditCommentTitle", EditCommentTitle, {styles} );

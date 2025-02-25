@@ -1,11 +1,11 @@
 import React, { FC, memo } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
 
 export type ProfileImageFallback = "initials";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderRadius: "50%",
   },
@@ -61,7 +61,7 @@ const InitialFallback: FC<{
   displayName: string,
   size: number,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = memo(({displayName, size, className, classes}) => {
   displayName ??= "";
   const initials = displayName
@@ -114,7 +114,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!user?.displayName) {
     return (

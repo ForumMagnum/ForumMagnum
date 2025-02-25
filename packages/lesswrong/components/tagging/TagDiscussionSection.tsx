@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 });
 
 const TagDiscussionSection = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagBasicInfo
 }) => {
   const {CommentsListSection } = Components;

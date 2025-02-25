@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,6 +7,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
+import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -27,7 +28,7 @@ export const secondaryInfo = (theme: ThemeType) => ({
   marginTop: 8
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...progressBarRoot(theme)
   },
@@ -74,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagProgressBar = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
@@ -116,7 +117,7 @@ const TagProgressBar = ({ classes }: {
             What's the Import?
             </Link>
           <SeparatorBullet />
-          <Link className={classes.allTagsBarColor} to="/tags/dashboard">
+          <Link className={classes.allTagsBarColor} to={`/${taggingNamePluralSetting.get()}/dashboard`}>
             Help Process Pages
           </Link>
         </PostsItem2MetaInfo>

@@ -1,10 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
     fontFamily: theme.palette.fonts.sansSerifStack,
     wordBreak: 'break-word',
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   negativeTopMargin?: boolean
 }) => {
   if (!post.url)

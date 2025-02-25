@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit,
     maxWidth: 700,
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationPreview = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
   conversationId: string,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showTitle?: boolean,
   count?: number
 }) => {

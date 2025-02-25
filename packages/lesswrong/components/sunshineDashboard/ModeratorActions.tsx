@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import AddAlarmIcon from '@material-ui/icons/AddAlarm';
@@ -21,7 +21,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -83,7 +83,7 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
 
 export const ModeratorActions = ({classes, user, currentUser, refetch, comments, posts}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void,
   comments: Array<CommentsListWithParentMetadata>|undefined,

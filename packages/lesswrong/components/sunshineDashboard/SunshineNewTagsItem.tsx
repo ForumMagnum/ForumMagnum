@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -11,7 +11,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tagInfo: {
     marginTop: 0,
     marginBottom: 0
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewTagsItem = ({tag, classes}: {
   tag: SunshineTagFragment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();

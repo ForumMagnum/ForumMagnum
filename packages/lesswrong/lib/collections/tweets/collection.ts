@@ -1,6 +1,6 @@
 import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { addUniversalFields } from "../../collectionUtils";
-import { createCollection } from "../../vulcan-lib";
+import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
 
 /**

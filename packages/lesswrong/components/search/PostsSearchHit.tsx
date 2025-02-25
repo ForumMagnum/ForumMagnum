@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
@@ -7,7 +7,7 @@ import type { Hit } from 'react-instantsearch-core';
 import DescriptionIcon from '@material-ui/icons/Description';
 import { SearchHitComponentProps } from './types';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,

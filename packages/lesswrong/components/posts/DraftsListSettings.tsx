@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
@@ -12,7 +12,7 @@ import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -61,7 +61,7 @@ const DraftsListSettings = ({
   currentIncludeArchived: boolean,
   currentIncludeShared: boolean,
   sortings?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
@@ -95,9 +95,9 @@ const DraftsListSettings = ({
             merge
             rel="nofollow"
           >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeArchived}/>
+            <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeArchived}/>
       
-            <MetaInfo className={classes.checkboxLabel}>
+            <MetaInfo>
               {preferredHeadingCase("Show Archived")}
             </MetaInfo>
           </QueryLink>
@@ -110,9 +110,9 @@ const DraftsListSettings = ({
             merge
             rel="nofollow"
           >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeShared}/>
+            <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeShared}/>
       
-            <MetaInfo className={classes.checkboxLabel}>
+            <MetaInfo>
               {preferredHeadingCase("Show Shared with You")}
             </MetaInfo>
           </QueryLink>

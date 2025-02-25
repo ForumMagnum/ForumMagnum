@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useState} from 'react';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,7 +8,7 @@ import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displa
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.intense,
     maxWidth:650 + (theme.spacing.unit*4),
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NewAnswerCommentQuestionForm = ({post, classes}: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);
@@ -114,7 +114,7 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
             }
         </div>
       </div>
-      <div className={classes.responseForm}>
+      <div>
         <CommentsNewForm
           post={post}
           type="comment"

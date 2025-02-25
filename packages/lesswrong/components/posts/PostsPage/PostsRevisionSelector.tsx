@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import HistoryIcon from '@material-ui/icons/History';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../../lib/moment-timezone';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     verticalAlign: 'text-top',
     fontSize: 'inherit',
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsRevisionSelector = ({ post, format, classes }: {
   post: PostsBase,
   format: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import Button from '@material-ui/core/Button';

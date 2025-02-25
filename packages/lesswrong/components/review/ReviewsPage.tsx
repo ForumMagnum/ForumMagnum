@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   yearLinks: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType, reviewYear?: ReviewYear}) => {
+export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
   const { SingleColumnSection, ReviewsList } = Components
 
   const { params } = useLocation()
@@ -41,8 +41,7 @@ export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType, review
 
   return <SingleColumnSection>
     <div className={classes.yearLinks}>
-      <Link className={classNames(classes.yearLink, {[classes.selected]: "all" === params.year})} to="/reviews/all">All</Link>
-      {reviewYears.map(year => <Link className={classNames(classes.yearLink, {[classes.selected]: year === reviewYear})} to={`/reviews/${year}`} key={year}>
+      {[...reviewYears].map(year => <Link className={classNames(classes.yearLink, {[classes.selected]: year === reviewYear})} to={`/reviews/${year}`} key={year}>
         {year}
       </Link>)}
     </div>

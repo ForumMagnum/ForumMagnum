@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
@@ -11,7 +11,7 @@ import { isLW } from "../../lib/instanceSettings";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   moderationGuidelines: {
     ...theme.typography.body2,
     padding: 30,
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   post: PostsMinimumInfo,
   user: UsersCurrent

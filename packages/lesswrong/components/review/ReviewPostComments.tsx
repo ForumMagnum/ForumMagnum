@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     fontSize: "1rem",
     ...theme.typography.commentStyle,
@@ -16,6 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   singleLinePlaceholder: {
     height: 30,
     width: "100%",
+    display: "flex",
     ...singleLineStyles(theme),
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title?: string,
   post: PostsList,
   singleLine?: boolean,

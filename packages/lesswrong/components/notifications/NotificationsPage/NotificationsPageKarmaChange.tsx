@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import type {
   CommentKarmaChange,
@@ -54,7 +54,7 @@ type AddedReactions = {
 }
 
 const userLink = (user: {displayName: string, slug: string}) => (
-  <NotifPopoverLink to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</NotifPopoverLink>
+  <NotifPopoverLink key={user.slug} to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</NotifPopoverLink>
 );
 
 const formatUsers = (users: {displayName: string, slug: string}[], max = 3) => {

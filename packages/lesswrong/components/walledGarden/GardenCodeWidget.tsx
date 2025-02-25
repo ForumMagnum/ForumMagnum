@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -8,6 +7,8 @@ import { useCurrentUser } from '../common/withUser';
 import moment from 'moment';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 export const gardenForm = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -20,7 +21,7 @@ export const gardenForm = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     marginTop: 8,
     marginBottom: 8,
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: string}) => {
+export const GardenCodeWidget = ({classes, type}: {classes: ClassesType<typeof styles>, type: string}) => {
 
   const { captureEvent } = useTracking()
   const currentUser =  useCurrentUser()
@@ -96,7 +97,6 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: s
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
             <TextField
-              className={classes.inviteCode}
               // label={"Your code!"}
               onClick={autoselectCode}
               onSelect={autoselectCode}

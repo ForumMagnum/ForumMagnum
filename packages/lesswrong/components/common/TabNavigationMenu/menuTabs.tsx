@@ -308,8 +308,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       selectedIconComponent: PeopleDirectorySelectedIcon,
       tooltip: 'Search and filter Forum users',
       showOnMobileStandalone: true,
-      showOnCompressed: true,
-      flag: "new",
+      showOnCompressed: true
     }, {
       id: 'takeAction',
       title: 'Take action',
@@ -371,6 +370,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'cookies',
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
+      subItem: true,
+    }, {
+      id: 'copyright',
+      title: preferredHeadingCase('Copyright'),
+      link: '/posts/KK6AE8HzPkR2KnqSg/new-forum-license-creative-commons',
       subItem: true,
     }, {
       id: 'divider2',

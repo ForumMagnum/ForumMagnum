@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';

@@ -2,7 +2,6 @@ import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
-import { createMutator, sanitize } from '../../vulcan-lib';
 import { initialGlossaryPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
@@ -18,6 +17,8 @@ import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiW
 import uniq from 'lodash/uniq';
 
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
+import { createMutator } from "../../vulcan-lib/mutators";
+import { sanitize } from "../../../lib/vulcan-lib/utils";
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;

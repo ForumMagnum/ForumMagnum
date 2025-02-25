@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,
   canEdit: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [edit,setEdit] = useState(false);
 

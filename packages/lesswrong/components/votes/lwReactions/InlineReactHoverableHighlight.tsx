@@ -87,7 +87,7 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   const shouldUnderline = isHovered || anyPositive;
 
   if (!voteProps) {
-    return null;
+    return <>{children}</>
   }
 
   return (

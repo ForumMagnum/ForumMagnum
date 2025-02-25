@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import React from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersAccount = ({ classes }: { classes: ClassesType }) => {
+const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
 

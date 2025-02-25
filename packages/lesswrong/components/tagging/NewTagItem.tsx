@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { tagPostTerms } from './TagPage';
+import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -37,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NewTagItem = ({tag, classes}: {
   tag: TagCreationHistoryFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tagUrl = tagGetUrl(tag);
   const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton, ContentStyles} = Components;
@@ -75,7 +74,6 @@ const NewTagItem = ({tag, classes}: {
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: description||""}}
           description={`tag ${tag.name}`}
-          className={classes.description}
         />
       </ContentStyles>
     </div>

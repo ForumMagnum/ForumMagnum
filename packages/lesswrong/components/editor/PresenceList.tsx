@@ -1,12 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@material-ui/icons/CloudOff";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   user: {
     ...theme.typography.body2,
     marginRight: 8,
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const connectedUsersById = keyBy(connectedUsers, u=>u._id);
   const disconnectedUserIds: string[] = alwaysShownUserIds
@@ -76,7 +76,7 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   userId: string,
   isLoggedOutUser: boolean,
   connected: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document: user, loading } = useSingle({
     collectionName: "Users",

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import {captureEvent, useTracking} from "../../lib/analyticsEvents";
@@ -7,7 +7,7 @@ import {captureEvent, useTracking} from "../../lib/analyticsEvents";
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 
   textSettings: {
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`
@@ -302,7 +302,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Hidden = ({classes}: {classes: ClassesType}) => {
+const Hidden = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -317,7 +317,7 @@ const Hidden = ({classes}: {classes: ClassesType}) => {
 
 
 const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   imageURL: string,
   coverImageUrl: string,
   spreadImageUrl: string,
@@ -357,7 +357,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
 }
 
 const Book2018Landing = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {BookAnimation, BookCheckout, HeadTags} = Components;
 

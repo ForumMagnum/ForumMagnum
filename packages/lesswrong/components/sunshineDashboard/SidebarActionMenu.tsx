@@ -1,7 +1,7 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "absolute",
     top:0,
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SidebarActionMenu = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
     {children}

@@ -1,7 +1,6 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
 import Input from '@material-ui/core/Input';
-import PropTypes from 'prop-types'
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { PostCategory } from '../../lib/collections/posts/helpers';
@@ -9,7 +8,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -39,13 +38,10 @@ const placeholders: Record<PostCategory|"event", string> = {
   "linkpost": "Linkpost title"
 }
 
-const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
+const EditTitle = ({document, value, path, updateCurrentValues, classes}: FormComponentProps<string> & {
   document: PostsBase,
-  value: any,
-  path: string,
   placeholder: string,
-  updateCurrentValues: Function,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { flash } = useMessages()
   const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title)
@@ -73,7 +69,7 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
     placeholder={displayPlaceholder}
     value={value}
     onChange={(event) => {
-      updateCurrentValues({
+      void updateCurrentValues({
         [path]: event.target.value
       })
     }}
@@ -88,11 +84,6 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
       !isE2E
     }
   />
-};
-
-(EditTitle as any).contextTypes = {
-  addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
 };
 
 export const EditTitleComponent = registerComponent( "EditTitle", EditTitle, {styles} );

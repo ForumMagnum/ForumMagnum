@@ -22,13 +22,13 @@ import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
-import { createMutator, getCollection } from "@/server/vulcan-lib";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
-import { Globals } from '@/lib/vulcan-lib/config';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
+import { createMutator } from "@/server/vulcan-lib/mutators.ts";
+import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -216,6 +216,7 @@ export const updateView = async (db: SqlClientOrTx, name: string) => {
   }
 }
 
+// Exported to allow running manually with "yarn repl"
 export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
   db?: SqlClientOrTx,
   collectionName: CollectionNameString,
@@ -367,7 +368,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   await undraftPublicPostRevisions(db);
 }
 
-
+// Exported to allow running manually with "yarn repl"
 export const denormalizeEditableField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
@@ -394,6 +395,3 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}_latest" = r."_id"
   `);
 }
-
-Globals.normalizeEditableField = normalizeEditableField
-Globals.denormalizeEditableField = denormalizeEditableField

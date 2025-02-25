@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -9,7 +9,6 @@ export type InboxComponentProps = {
   currentUser: UsersCurrent;
   title?: JSX.Element | String;
   isModInbox?: boolean;
-  classes: ClassesType;
 };
 
 const InboxWrapper = () => {

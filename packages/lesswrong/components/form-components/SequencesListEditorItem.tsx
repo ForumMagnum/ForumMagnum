@@ -1,10 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   box: {
     display: "block",
     marginLeft: 30,
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   documentId: string;
   removeItem: (itemId: string) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { document, loading } = useSingle({
     documentId,

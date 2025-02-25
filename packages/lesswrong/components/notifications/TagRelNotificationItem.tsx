@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   meta: {
     fontSize: ".9rem",
     color: theme.palette.text.dim45,
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagRelNotificationItem = ({classes, tagRelId}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
   const { Loading } = Components
@@ -29,7 +29,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   if (loading) return <Loading/>
   if (!tagRel) {return null;}
 
-  return <div className={classes.root}>
+  return <div>
     <div className={classes.meta}>New post tagged <em>{tagRel.tag?.name}</em>:</div>
     <div className={classes.title}>{tagRel.post?.title}</div>
   </div>;

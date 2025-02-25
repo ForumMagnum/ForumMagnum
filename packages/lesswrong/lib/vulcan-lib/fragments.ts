@@ -95,7 +95,7 @@ export const getDefaultFragmentText = <N extends CollectionNameString>(
 
   if (fieldNames.length) {
     const fragmentText = `
-      fragment ${collection.options.collectionName}DefaultFragment on ${collection.typeName} {
+      fragment ${collection.collectionName}DefaultFragment on ${collection.typeName} {
         ${fieldNames.map(fieldName => {
           return fieldName+'\n';
         }).join('')}
@@ -139,8 +139,11 @@ export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
   return sqlFragment;
 }
 
-// Get gql fragment text
-export const getFragmentText = (fragmentName: FragmentName): string => {
+/**
+ * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.
+ * Don't use this for anything that requires the subfragments
+ */
+const getFragmentText = (fragmentName: FragmentName): string => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }

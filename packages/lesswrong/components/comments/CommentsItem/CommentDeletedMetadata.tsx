@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     opacity: 0.5,
   },
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentDeletedMetadata = ({documentId, classes}: {
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document } = useSingle({
     documentId,

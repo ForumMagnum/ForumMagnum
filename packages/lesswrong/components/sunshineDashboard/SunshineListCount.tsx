@@ -1,7 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   overflow: {
     color: theme.palette.text.red,
   }
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineListCount = ({ count, classes }: {
   count: number|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo } = Components
   if (count && count > 10) {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const INITIAL_LIMIT = 8;
 
 const CoreTagsSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results } = useMulti({
     terms: {

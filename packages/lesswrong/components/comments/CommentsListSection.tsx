@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
@@ -13,13 +13,13 @@ import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontWeight: theme.typography.body1.fontWeight ?? 400,
     margin: "0px auto 15px auto",
@@ -39,9 +39,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginLeft: 10
   },
-  inline: {
+  commentSorting: {
     display: 'inline',
     color: theme.palette.text.secondary,
+    marginRight: 12,
   },
   clickToHighlightNewSince: {
     display: 'inline',
@@ -112,7 +113,7 @@ const CommentsListSection = ({
   newFormProps?: Partial<CommentsNewFormProps>,
   highlightDate: Date|undefined,
   setHighlightDate: (newValue: Date|undefined) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
@@ -177,7 +178,7 @@ const CommentsListSection = ({
       <Typography
         variant="body2"
         component='span'
-        className={classes.inline}
+        className={classes.commentSorting}
       >
         {commentSortNode}
       </Typography>

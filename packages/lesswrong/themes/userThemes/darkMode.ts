@@ -236,6 +236,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
+      tagLensTab: shadePalette.greyAlpha(.15),
     },
     background: {
       default: shadePalette.grey[100],
@@ -294,23 +295,13 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
-    wrapped: {
-      background: '#072C47',
-      highlightText: '#FFC443',
-      secondaryText: '#008DAC',
-      tertiaryText: "rgba(255, 255, 255, 0.50)",
-      black: '#212121',
-      darkGrey: '#424242',
-      grey: '#757575',
-      darkDot: "rgba(255, 255, 255, 0.40)",
-      panelBackground: "rgba(255, 255, 255, 0.10)",
-      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-      postScoreArrow: '#BCBCBC',
-    },
     tab: {
       inactive: {
         text: shadePalette.grey[600]
       },
+    },
+    arbital: {
+      arbitalGreen: '#02796b',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({

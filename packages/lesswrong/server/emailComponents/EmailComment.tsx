@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
@@ -12,7 +12,7 @@ import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   headingLink: {
     color: theme.palette.text.maxIntensity,
     textDecoration: "none",
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EmailCommentBatch = ({comments, classes}: {
   comments: Partial<DbComment>[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { EmailComment } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
@@ -73,7 +73,7 @@ const EmailCommentBatch = ({comments, classes}: {
 
 const EmailCommentBatchComponent = registerComponent("EmailCommentBatch", EmailCommentBatch, {styles});
 
-const HeadingLink = ({ text, href, classes }: { text: string; href: string; classes: ClassesType }) => {
+const HeadingLink = ({ text, href, classes }: { text: string; href: string; classes: ClassesType<typeof styles> }) => {
   return (
     <h1>
       <a href={href} className={classes.headingLink}>
@@ -83,7 +83,7 @@ const HeadingLink = ({ text, href, classes }: { text: string; href: string; clas
   );
 };
 
-const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: ClassesType}) => {
+const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: ClassesType<typeof styles>}) => {
   const { document: post } = useSingle({
     documentId: postId,
     collectionName: "Posts",
@@ -95,7 +95,7 @@ const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: 
   return <HeadingLink text={`New comments on ${post.title}`} href={postGetPageUrl(post, true)} classes={classes}/>
 }
 
-const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, isSubforum: boolean, classes: ClassesType}) => {
+const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, isSubforum: boolean, classes: ClassesType<typeof styles>}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
     collectionName: "Tags",
@@ -110,9 +110,8 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, 
   return <HeadingLink {...props} classes={classes}/>
 }
 
-const EmailComment = ({commentId, classes}: {
+const EmailComment = ({commentId}: {
   commentId: string,
-  classes: ClassesType,
 }) => {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
@@ -129,7 +128,7 @@ const EmailComment = ({commentId, classes}: {
   }
   
   return <div>
-    <div className={classes.comment}>
+    <div>
       <a href={commentGetPageUrl(comment, true)}>
         <EmailFormatDate date={comment.postedAt}/>
       </a>
@@ -144,7 +143,7 @@ const EmailComment = ({commentId, classes}: {
   </div>;
 }
 
-const EmailCommentComponent = registerComponent("EmailComment", EmailComment, {styles});
+const EmailCommentComponent = registerComponent("EmailComment", EmailComment);
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { gql, useApolloClient, useQuery } from '@apollo/client';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
@@ -9,7 +9,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   diffExplanation: {
     fontStyle: "italic",
     marginBottom: 24,
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
   const { DropdownItem } = Components;
@@ -69,7 +69,7 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
 const ResyncRssDialog = ({onClose, post, classes}: {
   onClose: () => void,
   post: PostsList|SunshinePostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Button, ContentStyles, ContentItemBody, LWDialog, Loading } = Components;
   const client = useApolloClient();

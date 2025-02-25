@@ -1,14 +1,15 @@
 import React, { useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { Components, makeAbsolute, registerComponent } from '@/lib/vulcan-lib';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     margin: '10px auto',
@@ -90,7 +91,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
+const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const {

@@ -1,11 +1,13 @@
 import schema from './schema';
-import { createCollection, getCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
+import { userCanDo, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
-import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
 import { postCheckAccess } from '../posts/checkAccess';
+import { createCollection } from "../../vulcan-lib/collections";
+import { getCollection } from "../../vulcan-lib/getCollection";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 export const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -15,11 +17,27 @@ export const Revisions: RevisionsCollection = createCollection({
   typeName: 'Revision',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
-  // No mutations (revisions are insert-only immutable, and are created as a
-  // byproduct of creating/editing documents in other collections).
-  // mutations: getDefaultMutations('Revisions'),
+  // This has mutators because of a few mutable metadata fields (eg
+  // skipAttributions), but most parts of revisions are create-only immutable.
+  mutations: getDefaultMutations('Revisions', {
+    create: false ,update: true, upsert: false, delete: false,
+    editCheck: (user: DbUser|null) => {
+      return userIsAdminOrMod(user);
+    }
+  }),
+  logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
+  },
 });
-addUniversalFields({collection: Revisions})
+addUniversalFields({
+  collection: Revisions,
+  legacyDataOptions: {
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+  }
+})
 
 // Note, since we want to make sure checkAccess is a performant function, we can only check the 
 // userId of the current revision for ownership. If the userId of the document the revision is on,
@@ -99,7 +117,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   }
   
   // Everyone who can see the post can get access to non-draft revisions
-  if (!document || !await collection.checkAccess(user, document, context)) {
+  if (!document || (collection.checkAccess && !(await collection.checkAccess(user, document, context)))) {
     return false;
   }
   
@@ -110,16 +128,5 @@ export interface ChangeMetrics {
   added: number
   removed: number
 }
-
-makeVoteable(Revisions, {
-  timeDecayScoresCronjob: false,
-});
-
-membersGroup.can([
-  'revisions.smallDownvote',
-  'revisions.bigDownvote',
-  'revisions.smallUpvote',
-  'revisions.bigUpvote',
-]);
 
 export default Revisions;

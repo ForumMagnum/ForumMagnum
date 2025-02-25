@@ -1,9 +1,9 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.default,
     width: '100%',
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const BannedNotice = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {SingleColumnSection, Typography } = Components;
   

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from "../../lib/vulcan-users";
+import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/schema';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   form: {
     border: theme.palette.border.commentBorder,
     padding: 12,
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 //a page for creating and viewing moderation templates
 export const ModerationTemplatesPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
   

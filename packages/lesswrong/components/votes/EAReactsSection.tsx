@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type {
   CommentVotingComponentProps,
   PostVotingComponentProps,
@@ -18,7 +18,7 @@ import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     display: "flex",
     alignItems: "center",
@@ -138,7 +138,7 @@ const getCurrentReactions = (
 const AnonymousEmojiTooltipContent: FC<{
   emojiOption: EmojiOption,
   count: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({emojiOption, count, classes}) => {
   return (
     <div>
@@ -166,7 +166,7 @@ const EmojiTooltipContent: FC<{
   emojiOption: EmojiOption,
   isSelected: boolean,
   reactors?: Record<string, string[]>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({currentUser, emojiOption, isSelected, reactors, classes}) => {
   let displayNames = reactors?.[emojiOption.name] ?? [];
   if (currentUser) {
@@ -223,7 +223,7 @@ type EAReactsSectionOptions = {
 
 const EAReactsSection: FC<{
   large?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 } & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly, classes}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();

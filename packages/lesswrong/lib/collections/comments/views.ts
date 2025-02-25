@@ -3,7 +3,7 @@ import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } fr
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
-import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import { Comments } from './collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';

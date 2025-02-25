@@ -1,17 +1,22 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
+  root: {
+    maxWidth: CENTRAL_COLUMN_WIDTH,
+    margin: "0 auto",
+  },
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
-    marginBottom: 12
+    marginBottom: 36
   },
   writeAReview: {
     paddingTop: 12,
@@ -46,17 +51,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   backIcon: {
-    marginRight: 12
+    marginLeft: 12,
+    transform: "rotate(180deg)",
+  },
+  reviewVoting: {
+    padding: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*2,
+    position: "relative",
+    right: theme.spacing.unit*4
   }
 })
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewButton=true}: {
-  classes: ClassesType, 
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
+  classes: ClassesType<typeof styles>,
   post?: PostsReviewVotingList|null,
-  showReviewButton?: boolean,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
+  const { PostPageReviewButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
   const {document: postWithContents, loading} = useSingle({
     documentId: post?._id,
@@ -69,21 +80,17 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewBut
 
   if (!newPost) return null
 
-  return <div>
+  return <div className={classes.root}>
     <div className={classes.backButton} onClick={() => setExpandedPost(null)}>
-      <KeyboardBackspaceIcon className={classes.backIcon}/> Back
+      Back <KeyboardBackspaceIcon className={classes.backIcon}/> 
     </div>
-    <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>{newPost.title}</Link>
-    {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
+    <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>
+      {newPost.title}
+    </Link>
+    {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={200} forceSeeMore />}
     {loading && <Loading/>}
-    {showReviewButton && <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
-      <div className={classes.writeAReview}>
-        <div className={classes.reviewPrompt}>Write a review for "{newPost.title}"</div>
-        <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
-      </div>
-    </div>}/>}
 
-    <div className={classes.comments}>
+    <div>
       <PingbacksList postId={newPost._id} limit={3}/>
       {(getReviewPhase() !== "VOTING") && <ReviewPostComments
         title="Review"

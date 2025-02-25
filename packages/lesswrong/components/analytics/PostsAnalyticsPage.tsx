@@ -1,10 +1,10 @@
 import React from "react";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { canUserEditPostMetadata, postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableRow from "@material-ui/core/TableRow";
@@ -28,7 +28,7 @@ function readableReadingTime (seconds?: number) {
   return secondsPart
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
@@ -89,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
+const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
 
   const {document: post, error} = useSingle({

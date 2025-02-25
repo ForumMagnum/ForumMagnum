@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
@@ -9,7 +9,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const PROFILE_IMAGE_SIZE = 20;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
@@ -67,7 +67,7 @@ const CommentUserName = ({
   className,
 }: {
   comment: CommentsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
   className?: string
 }) => {

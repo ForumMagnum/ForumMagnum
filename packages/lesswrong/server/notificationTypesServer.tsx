@@ -481,7 +481,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
 export const WrappedNotification = serverRegisterNotificationType({
   name: "wrapped",
   emailSubject: async function() {
-    return 'Your EA Forum 2023 Wrapped';
+    return 'Your 2024 EA Forum Wrapped';
   },
   emailBody: async function({ user }: {user: DbUser}) {
     return <div>
@@ -491,7 +491,7 @@ export const WrappedNotification = serverRegisterNotificationType({
       <p>
         Thanks for being part of our community this year!{' '}
         <a href={`${combineUrls(getSiteUrl(), 'wrapped')}?utm_medium=email`}>
-          Check out your EA Forum 2023 Wrapped.
+          Check out your 2024 EA Forum Wrapped.
         </a>{' '}
         🎁
       </p>
@@ -707,9 +707,12 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const firstNotification = notifications[0];
+    if (!firstNotification.documentId) {
+      throw new Error("NewCommentOnDraftNotification documentId is missing");
+    }
     const post = await Posts.findOne({_id: firstNotification.documentId});
     const postTitle = post?.title;
-    const postLink = makeAbsolute(`/editPost?postId=${firstNotification.documentId}`);
+    const postLink = postGetEditUrl(firstNotification.documentId, true, firstNotification.extraData?.linkSharingKey);
     const { EmailUsernameByID } = Components;
     
     return <div>

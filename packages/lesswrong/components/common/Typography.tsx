@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     margin: 0,
@@ -44,7 +44,7 @@ const Typography = ({children, variant, component, className, onClick, gutterBot
   className?: string,
   onClick?: any,
   gutterBottom?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   id?: string,
 }) => {
   const Component: any = component || variantToDefaultComponent[variant] || "span";

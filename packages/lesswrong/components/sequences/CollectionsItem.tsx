@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -11,7 +11,7 @@ import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     '&:hover $closeButton': {
@@ -97,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip
@@ -149,7 +149,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
 
       {showCloseIcon && <Tooltip title="Hide this for the next month">
         <Button className={classes.closeButton} onClick={hideBanner}>
-          <CloseIcon className={classes.closeIcon} />
+          <CloseIcon />
         </Button>
       </Tooltip>}
     </LinkCard>

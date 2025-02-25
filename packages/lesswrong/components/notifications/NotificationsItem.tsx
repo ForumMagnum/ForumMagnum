@@ -7,11 +7,11 @@ import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "&:hover": {
       backgroundColor: `${theme.palette.panelBackground.darken02} !important`,
@@ -69,7 +69,7 @@ const tooltipProps = {
 const TooltipWrapper: FC<{
   title: ReactNode,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({title, children, classes}) => {
   const {LWTooltip} = Components;
   return (
@@ -93,7 +93,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   notification: NotificationsList,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();

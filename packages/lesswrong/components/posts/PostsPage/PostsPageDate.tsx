@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { ExpandedDate } from '../../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   post: PostsBase,
   hasMajorRevision: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const now = moment(useCurrentTime())
   const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;

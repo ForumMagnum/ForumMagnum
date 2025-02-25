@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
@@ -13,7 +12,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   card: {
     margin: '1.5em 0 1em 1em',
     padding: '2em',
@@ -61,10 +60,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       background: theme.palette.primary.main,
     },
   }
-}));
+});
 
 const LinkButton = ({ resource, classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   resource: FeaturedResourcesFragment,
 }) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
@@ -81,7 +80,7 @@ const LinkButton = ({ resource, classes }: {
 
 const FeaturedResourceBanner = ({terms, classes}: {
   terms: FeaturedResourcesViewTerms,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_FEATURED_RESOURCE_COOKIE])
   const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)

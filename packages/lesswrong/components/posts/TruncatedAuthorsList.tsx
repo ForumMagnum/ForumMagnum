@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, RefObject } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -46,7 +46,7 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const ref = useRef<HTMLDivElement>(null);

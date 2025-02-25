@@ -1,16 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
+import { isMobile } from '@/lib/utils/isMobile';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 const SharePostSubmenu = ({post, closeMenu, classes}: {
   post: PostsListBase,
   closeMenu?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SharePostActions, DropdownItem, LWTooltip } = Components;
   const { hover, eventHandlers } = useHover();
@@ -18,7 +19,7 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
   function shareClicked() {
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (!!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare) {
       const sharingOptions = {
         title: post.title,
         text: post.title,

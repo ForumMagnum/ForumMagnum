@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { useLocation } from "../../lib/routeUtil";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
@@ -11,11 +10,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const toggleEventsOffset = "330px"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: "50px",
     display: "flex",
@@ -75,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
+const WalledGardenPortal = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody, ContentStyles } = Components
   

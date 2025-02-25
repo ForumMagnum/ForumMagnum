@@ -1,15 +1,14 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import { getDownvoteRatio } from '../UsersReviewInfoCard';
-import classNames from 'classnames';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   padding: {
     marginTop: 8,
   },
@@ -60,7 +59,7 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
 
 export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
 }) => {
   const { MetaInfo, LWTooltip } = Components
@@ -79,7 +78,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
         </MetaInfo>
       </LWTooltip>
       <LWTooltip title={recentKarmaTooltip(user)}>
-        <MetaInfo className={classNames(classes.info, {[classes.negativeRecentKarma]: user.recentKarmaInfo.last20Karma < 0, [classes.lowRecentKarma]: user.recentKarmaInfo.last20Karma < 5})}>
+        <MetaInfo className={classes.info}>
           <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20karma}
         </MetaInfo>
       </LWTooltip>

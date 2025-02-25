@@ -1,9 +1,8 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const TagActivityFeed = ({classes, pageSize = 50}: {
-  classes: ClassesType
+const TagActivityFeed = ({pageSize = 50}: {
   pageSize?: number
 }) => {
   const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;

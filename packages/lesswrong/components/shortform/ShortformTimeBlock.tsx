@@ -1,9 +1,9 @@
 import React, { FC, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   shortformGroup: {
     marginTop: isFriendlyUI ? 20 : 12,
   },
@@ -42,7 +42,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   before: string
   after: string
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {LoadMore, ContentType} = Components;
 

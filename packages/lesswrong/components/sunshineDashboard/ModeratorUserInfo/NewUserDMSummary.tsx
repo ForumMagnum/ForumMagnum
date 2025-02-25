@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import EmailIcon from '@material-ui/icons/Email';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewUserDMSummary = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
 }) => {
   const { LWTooltip } = Components;

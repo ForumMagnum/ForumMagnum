@@ -1,5 +1,5 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import { defineStyles, useStyles } from '../hooks/useStyles';

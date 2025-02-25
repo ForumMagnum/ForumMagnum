@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: -theme.spacing.unit,
     display: "flex"
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AnswerTocRow = ({classes, answer}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   answer: ToCAnswer,
 }) => {
   const { LWTooltip, FormatDate } = Components

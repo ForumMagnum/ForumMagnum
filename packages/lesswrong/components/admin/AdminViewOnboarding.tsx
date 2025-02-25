@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     fontSize: 16,
     color: theme.palette.primary.main,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * so that we don't have to keep making new users to test it.
  */
 const AdminViewOnboarding = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   

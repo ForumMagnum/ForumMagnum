@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { frontpageDaysAgoCutoffSetting } from "../../lib/scoring";
-import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useCurrentUser } from "../common/withUser";
@@ -18,8 +17,8 @@ import Select from "@material-ui/core/Select";
 import Input from "@material-ui/core/Input";
 import moment from "moment";
 import qs from "qs";
-import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,7 +76,7 @@ const featureInputToFeatures = (
 }
 
 const RecommendationsSamplePage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();

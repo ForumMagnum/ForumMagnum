@@ -1,5 +1,5 @@
 import React, { ReactNode, useRef, useState }  from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
@@ -8,7 +8,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -21,18 +21,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotingContext, classes, children}: {
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
-  tooltipPlacement?: PopperPlacementType,
+  menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  hasTooltip?: boolean,
+  classes: ClassesType<typeof styles>,
   children?: ReactNode,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTag, LWClickAwayListener, LWTooltip } = Components
+  const { LWPopper, AddTagOrWikiPage, LWClickAwayListener, LWTooltip } = Components
 
   if (!userCanUseTags(currentUser)) {
     return null;
@@ -54,14 +55,15 @@ const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotin
         <LWPopper
           open={isOpen}
           anchorEl={anchorEl.current}
-          placement={tooltipPlacement}
+          placement={menuPlacement}
           allowOverflow
         >
           <LWClickAwayListener
             onClickAway={() => setIsOpen(false)}
           >
             <Paper>
-              <AddTag
+              <AddTagOrWikiPage
+                onlyTags={true}
                 onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
                   setIsOpen(false);
                   onTagSelected({tagId, tagName});
@@ -73,7 +75,7 @@ const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotin
         </LWPopper>
     </a>
   
-  if (isBookUI) {
+  if (isBookUI && hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>

@@ -1,10 +1,6 @@
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
-import {
-  addGraphQLQuery,
-  addGraphQLResolvers,
-  addGraphQLSchema,
-  getCollectionByTypeName
-} from "../vulcan-lib";
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
+import { getCollectionByTypeName } from "../../lib/vulcan-lib/getCollection";
 
 /**
  * Checks if a graphql type passed in as a string literal is one of those that corresponds a collection's DbObject type
@@ -94,7 +90,9 @@ export const createPaginatedResolver = <
         }
         const results = await callback(context, limit, args);
         cachedAt = Date.now();
-        cached = results;
+        if (cacheMaxAgeMs) {
+          cached = results;
+        }
         const filteredResults = await accessFilterFunction?.(results as (ReturnType & DbObject)[]) ?? results;
         return {results: filteredResults as ReturnType[]};
       },

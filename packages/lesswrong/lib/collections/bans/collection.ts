@@ -1,8 +1,9 @@
 import schema from './schema';
 import { userCanDo } from '../../vulcan-users/permissions';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbBan> = {
   newCheck: (user: DbUser|null, document: DbBan|null) => {
@@ -31,5 +32,10 @@ export const Bans: BansCollection = createCollection({
 });
 
 addUniversalFields({collection: Bans})
+
+Bans.checkAccess = async (user: DbUser|null, document: DbBan, context: ResolverContext|null): Promise<boolean> => {
+  if (!user || !document) return false;
+  return userCanDo(user, 'bans.view')
+};
 
 export default Bans

@@ -1,5 +1,5 @@
 import React, { ComponentType } from "react";
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -61,7 +61,7 @@ const ExpandableSection = ({
   children,
   classes,
   ...sectionTitleProps
-}: ExpandableSectionProps & {classes: ClassesType}) => {
+}: ExpandableSectionProps & {classes: ClassesType<typeof styles>}) => {
   const {SingleColumnSection, SectionTitle, LWTooltip, ForumIcon} = Components;
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>

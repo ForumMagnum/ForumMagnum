@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   questionMark: {
     alignSelf: 'center',
     color: theme.palette.grey[600]
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EditDigestActionButtons = ({digest, classes}: {
   digest: DigestsMinimumInfo,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog()
   const isPublished = !!digest.publishedDate

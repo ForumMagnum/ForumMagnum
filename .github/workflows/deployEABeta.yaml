@@ -3,13 +3,13 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [audio-play-from-heading-fixes]
+    branches: [ea-wrapped-2024]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.12]
         environment: [EAForum-Beta]
     steps:
     - uses: actions/checkout@v3

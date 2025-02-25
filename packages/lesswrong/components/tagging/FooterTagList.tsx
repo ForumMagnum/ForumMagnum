@@ -1,5 +1,4 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
@@ -17,6 +16,8 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -34,9 +35,9 @@ const styles = (theme: ThemeType) => ({
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
-    // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
+    // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
-    maxHeight: 104,
+    maxHeight: 33,
     overflow: "hidden",
   },
   overrideMargins: {
@@ -325,9 +326,9 @@ const FooterTagList = ({
 
   const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
 
-  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
+  const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
-  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
@@ -346,6 +347,7 @@ const FooterTagList = ({
               key={tag._id}
               tagRel={tagRel}
               tag={tag}
+              hoverable="ifDescriptionPresent"
               hideScore={hideScore}
               smallText={smallText}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}

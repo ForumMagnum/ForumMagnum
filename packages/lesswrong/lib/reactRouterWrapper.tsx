@@ -13,6 +13,8 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 export type LinkProps = {
   to?: HashLinkProps['to']|null
   doOnDown?: boolean
+  onMouseEnter?: HashLinkProps['onMouseEnter']
+  onMouseLeave?: HashLinkProps['onMouseLeave']
   onMouseDown?: HashLinkProps['onMouseDown']
   onClick?: HashLinkProps['onClick']
   rel?: string
@@ -90,4 +92,3 @@ function isOffsiteLink(url: string): boolean {
 }
 
 export const Redirect = reactRouter.Redirect;
-export { useNavigate } from './routeUtil';

@@ -10,7 +10,7 @@ import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
@@ -64,6 +64,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
+
 const OverallVoteAxis = ({
   document,
   hideKarma=false,
@@ -77,7 +79,7 @@ const OverallVoteAxis = ({
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showBox?: boolean,
   verticalArrows?: boolean,
   largeArrows?: boolean,
@@ -195,7 +197,7 @@ const OverallVoteAxis = ({
           [classes.verticalArrows]: verticalArrows,
         })}>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Downvote</b><br />{karmaQuestion}<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
@@ -216,7 +218,7 @@ const OverallVoteAxis = ({
             }
           </TooltipIfEnabled>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Upvote</b><br />{karmaQuestion}<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton

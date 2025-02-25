@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { getDigestName } from '../../../lib/collections/digests/helpers';
 import moment from 'moment';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -84,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const EditDigestHeader = ({digest, classes}: {
   digest: DigestsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // clicking on the start or end date lets you edit it
   const [isEditingStartDate, setIsEditingStartDate] = useState(false);

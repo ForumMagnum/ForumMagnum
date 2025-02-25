@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const SingleLineReviewsList = () => {
   const { results } = useMulti({

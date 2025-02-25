@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { styles } from './LWPostsItem';
 
 const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
   showBottomBorder?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.row}>
     <div className={classNames(

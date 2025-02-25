@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -8,7 +8,7 @@ import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, 
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 
 // Also used in ModerationLog
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   adminHomeOrModerationLogPage: {
     fontFamily: theme.typography.fontFamily,
   
@@ -36,7 +36,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AdminHome = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {SingleColumnSection, AdminMetadata, Loading} = Components;
   const currentUser = useCurrentUser();

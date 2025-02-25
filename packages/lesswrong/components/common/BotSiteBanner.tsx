@@ -1,7 +1,7 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
     width: "100%",
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const BotSiteBanner = ({ classes }: { classes: ClassesType }) => {
+const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection } = Components;
 
   return (

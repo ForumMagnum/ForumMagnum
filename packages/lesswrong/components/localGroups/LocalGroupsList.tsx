@@ -1,18 +1,17 @@
 import React, { ReactNode } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles'
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   localGroups: {
     boxShadow: theme.palette.boxShadow.default,
   }
-}))
+});
 
 const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showNoResults?: boolean,
   heading?: string,
 }) => {

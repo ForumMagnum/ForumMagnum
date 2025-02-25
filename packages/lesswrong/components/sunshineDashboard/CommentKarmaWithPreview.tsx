@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt: Date
 }) => {

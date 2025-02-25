@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
@@ -9,7 +9,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   voteBlock: {
     width: 50,
   },
@@ -80,7 +80,7 @@ const PostsVoteDefault = ({
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
   const {OverallVoteButton, Typography} = Components;

@@ -1,13 +1,11 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
-export const SpotlightHistory = ({classes}: {
-  classes: ClassesType,
-}) => {
+export const SpotlightHistory = () => {
   const { SingleColumnSection, SectionTitle, SpotlightItem, LoadMore } = Components
 
   const currentUser = useCurrentUser()

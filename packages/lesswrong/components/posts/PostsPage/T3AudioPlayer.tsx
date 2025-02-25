@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTracking } from "../../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
 import { isEAForum } from '@/lib/instanceSettings';
 import { useExternalScript } from '@/components/hooks/useExternalScript';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: "30px"
   },
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
    custom styling on prod so this may look different locally */
 export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
   showEmbeddedPlayer: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postId: string
 }) => {
   const mouseOverDiv = useRef(false);

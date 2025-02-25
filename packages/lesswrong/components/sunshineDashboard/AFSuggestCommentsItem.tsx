@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -13,7 +13,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
   },
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AFSuggestCommentsItem = ({comment, classes}: {
   comment: SuggestAlignmentComment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({

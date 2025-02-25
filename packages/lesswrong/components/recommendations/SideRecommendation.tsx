@@ -1,5 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
 
 const SideRecommendation = ({post, classes}: {
   post: PostsListWithVotesAndSequence,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const href = postGetPageUrl(post);
   const {onClick: onClickCell} = useClickableCell({href});

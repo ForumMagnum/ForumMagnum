@@ -1,7 +1,7 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const CollectionsCardContainer = ({ classes, children }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
   return <div className={classes.root}>

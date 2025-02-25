@@ -1,19 +1,12 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import DialogContent from '@material-ui/core/DialogContent';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import classNames from 'classnames';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
-  root: {
-    display: 'flex',
-    marginTop: 20
-  },
+const styles = (theme: ThemeType) => ({
   localGroupForm: {
     "& div": {
       fontFamily: theme.typography.fontFamily,
@@ -40,62 +33,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       },
     },
   },
-  inactiveButton: {
-    '&&': {
-      color: theme.palette.error.main,
-    }
-  },
-  submit: {
-    '&&': {
-      marginLeft: 'auto'
-    }
-  },
-  formButton: {
-    paddingBottom: "2px",
-    fontSize: "16px",
-    marginLeft: "5px",
-    "&:hover": {
-      background: theme.palette.panelBackground.darken05,
-    },
-    color: theme.palette.lwTertiary.main
-  },
-}))
-
-const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({submitLabel = "Submit", classes, updateCurrentValues, document, formType}: {
-  submitLabel?: string,
-  classes: ClassesType,
-  updateCurrentValues: any,
-  document: any,
-  formType: string,
-}) => 
-{
-  return <div className={classes.root}>
-    {formType === 'edit' && <Tooltip title={document.inactive ? "Display the group on maps and lists again" : "This will hide the group from all maps and lists"}>
-      <Button
-        type="submit"
-        onClick={() => updateCurrentValues({inactive: !document.inactive})}
-        className={classNames(classes.formButton, classes.inactiveButton)}
-      >
-       {document.inactive ? "Reactivate group" : "Mark group as inactive"} 
-      </Button>
-    </Tooltip>}
-    
-    <Button
-      type="submit"
-      className={classNames(classes.formButton, classes.submit)}
-    >
-      {submitLabel}
-    </Button>
-  </div>
-})
+});
 
 const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   documentId?: string,
   isOnline?: boolean
 }) => {
-  const { WrappedSmartForm, LWDialog } = Components
+  const {WrappedSmartForm, LWDialog, GroupFormSubmit} = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
@@ -110,7 +56,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
         queryFragment={getFragment('localGroupsEdit')}
         mutationFragment={getFragment('localGroupsHomeFragment')}
         formComponents={{
-          FormSubmit: SubmitComponent
+          FormSubmit: GroupFormSubmit
         }}
         prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id], isOnline: isOnline}} // If edit form, do not prefill any data
         successCallback={(group: any) => {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     marginBottom: 24,
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NewTagsList = ({classes, showHeaders = true}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
   const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
@@ -52,7 +52,7 @@ const NewTagsList = ({classes, showHeaders = true}: {
               <UsersNameDisplay user={tag.user}/>
             </MetaInfo>
           </td>}
-          <td className={classes.tag}>
+          <td>
             <TagsListItem tag={tag}/>
           </td>
           <td>

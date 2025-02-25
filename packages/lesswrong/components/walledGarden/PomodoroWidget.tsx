@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import TimerIcon from '@material-ui/icons/Timer';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const PomodoroWidget = ({classes}: {classes: ClassesType}) => {
+export const PomodoroWidget = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { LWTooltip } = Components
 
   return <LWTooltip title="Open the Garden pomodoro timer in a separate tab">

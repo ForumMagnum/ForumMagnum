@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
@@ -15,7 +15,7 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
-export const afSubmissionHeader = (theme: ThemeType): JssStyles => ({
+export const afSubmissionHeader = (theme: ThemeType) => ({
   marginBottom: 24,
   display: "flex",
   flex: "flex-start",
@@ -23,11 +23,11 @@ export const afSubmissionHeader = (theme: ThemeType): JssStyles => ({
   justifyContent: "space-between"
 })
 
-export const afSubmissionHeaderText = (theme: ThemeType): JssStyles => ({
+export const afSubmissionHeaderText = (theme: ThemeType) => ({
   fontStyle: 'italic',
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
   },
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AFSuggestPostsItem = ({post, classes}: {
   post: SuggestAlignmentPost,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();

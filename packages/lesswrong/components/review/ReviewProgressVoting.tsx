@@ -1,12 +1,12 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@material-ui/icons/CropSquare';
 import range from 'lodash/range';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TARGET_REVIEW_VOTING_NUM = 6
 
 export const ReviewProgressVoting = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
 

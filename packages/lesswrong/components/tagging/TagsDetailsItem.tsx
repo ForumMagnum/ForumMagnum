@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -8,7 +8,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     ...theme.typography.commentStyle,
@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = false }: {
   tag: TagFragment | TagWithFlagsFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showFlags?: boolean,
   flagId?: string,
   collapse?: boolean

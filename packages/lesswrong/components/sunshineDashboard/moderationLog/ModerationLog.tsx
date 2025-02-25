@@ -1,8 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { Link } from '../../../lib/reactRouterWrapper'
-import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
 import { isMod } from '../../../lib/collections/users/helpers';
 import { forumSelect } from '../../../lib/forumTypeUtils';
@@ -15,7 +14,7 @@ const shouldShowEndUserModerationToNonMods = forumSelect({
   default: true,
 })
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   },
@@ -40,7 +39,6 @@ const styles = (theme: JssStyles) => ({
     },
   }
 })
-
 
 const DateDisplay = ({column, document}: {
   column: Column;
@@ -192,7 +190,7 @@ const usersBannedFromUsersColumns: Column[] = [
 ]
 
 const ModerationLog = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
@@ -254,7 +252,7 @@ const ModerationLog = ({classes}: {
           />
         </div>
         {shouldShowEndUserModeration && <>
-          <div className={classNames(classes.section, classes.floatLeft)}>
+          <div className={classes.section}>
             <h3 id="users-banned-from-posts">Users Banned From Posts</h3>
             <Components.Datatable
               collectionName="Posts"
@@ -264,7 +262,7 @@ const ModerationLog = ({classes}: {
               limit={10}
             />
           </div>
-          <div className={classNames(classes.section, classes.floatLeft)}>
+          <div className={classes.section}>
             <h3 id="users-banned-from-users">Users Banned From Users</h3>
             <Components.Datatable
               collectionName="Users"

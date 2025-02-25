@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -18,7 +18,7 @@ const customStyles = (theme: ThemeType) => isFriendlyUI
     color: theme.palette.text.slightlyIntense2,
   };
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   postedAt: {
     ...(isFriendlyUI && {display: "flex"}),
     '&&': {
@@ -64,9 +64,8 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   includeAgo?: boolean,
   useCuratedDate?: boolean,
   emphasizeIfNew?: boolean,
-  classes: ClassesType,
+  classes: Partial<ClassesType<typeof styles>>,
 }) => {
-
   if (noStyles) {
     classes = {
       tooltipSmallText: classes.tooltipSmallText,
@@ -116,7 +115,9 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   const isEmphasized = emphasizeIfNew && Math.abs(new Date(post.postedAt).getTime() - now.getTime()) < 48*HOUR_IN_MS
 
   const dateElement = (
-    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
+    <PostsItem2MetaInfo className={classNames(classes.postedAt, {
+      [classes.isNew ?? ""]: classes.isNew && isEmphasized,
+    })}>
       <TimeTag dateTime={dateToDisplay}>
         {timeFromNow}
         {ago}

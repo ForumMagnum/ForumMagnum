@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation, withRouter } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';

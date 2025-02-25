@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
@@ -9,7 +9,7 @@ import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
@@ -107,7 +107,7 @@ const PostsTimeBlock = ({
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   includeTags?: boolean,
 }) => {
   const [noShortform, setNoShortform] = useState(false);
@@ -196,7 +196,7 @@ const PostsTimeBlock = ({
         </Typography>
       </QueryLink>
 
-      <div className={classes.dayContent}>
+      <div>
         { noPosts && <div className={classes.noPosts}>
           No posts for {
           timeframe === 'daily'

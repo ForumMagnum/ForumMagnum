@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -12,7 +12,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
     "& .SectionTitle-title": isFriendlyUI
@@ -39,7 +39,7 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType, defaultHideSettings?: boolean}) => {
+const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();

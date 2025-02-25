@@ -1,11 +1,11 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink, useCommentLinkState } from "./useCommentLink";
-import { userIsAdmin } from "../../../lib/vulcan-users";
+import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
@@ -19,7 +19,7 @@ export const metaNoticeStyles = (theme: ThemeType) => ({
     ...theme.typography.italic,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& > div": {
       marginRight: 5,
@@ -114,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
   },
   linkIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     verticalAlign: "top",
     color: theme.palette.icon.dim,
     margin: "0 4px",
@@ -321,6 +321,7 @@ export const CommentsItemMeta = ({
         {relevantTagsTruncated.map(tag =>
           <FooterTag
             tag={tag}
+            hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
             neverCoreStyling={isBookUI}

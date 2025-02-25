@@ -1,7 +1,7 @@
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useState } from "react";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   paper: {
     overflow: "visible",
   },
@@ -33,7 +33,7 @@ const DateRangeModal = ({
   startDate: Date | null;
   endDate: Date;
   updateDisplayDates: (startDate: Date | null, endDate: Date) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { LWDialog, DatePicker, EAButton } = Components;
 

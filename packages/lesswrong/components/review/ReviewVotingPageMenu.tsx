@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
@@ -9,11 +8,13 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@material-ui/core/Select';
 import qs from 'qs';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isLW, isLWorAF } from '@/lib/instanceSettings';
-import { useLocation } from '@/lib/routeUtil';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,6 +101,53 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+export const sortingInfo: Record<string, {title: string, description: string}> = {  
+  needsPreliminaryVote: {
+    title: "Magic (Prioritize reviewed)",
+    description: "Prioritizes posts with at least one review, which you haven't yet voted on (intended to reward reviews by making reviewed posts more prominent)"
+  },
+  needsReview: {
+    title: "Magic (Needs Review)",
+    description: "Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points. (i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)"
+  },
+  reviewVoteScoreHighKarma: {
+    title: "Nomination Vote Total",
+    description: "Shows the most likely winners of the review, based on the preliminary vote. Find over/underappreciated posts to review."
+  },
+  reviewVoteScoreAF: {
+    title: "Vote Total (Alignment Forum Users)",
+    description: "See what Alignment Forum users thought were the best posts."
+  },
+  yourVote: {
+    title: "Your Review Vote",
+    description: "Sort by your review vote on the post"
+  },
+  yourKarmaVote: {
+    title: "Your Karma Vote",
+    description: "Sort by your karma vote on the post"
+  },
+  reviewCount: {
+    title: "Review Count",
+    description: "Sort by the number of reviews on the post"
+  },
+  positiveReviewVoteCount: {
+    title: "Positive Review Vote Count",
+    description: "Sort by the number of positive reviews on the post"
+  },
+  lastCommentedAt: {
+    title: "Last Commented",
+    description: "Sort by the last time the post was commented on"
+  },
+  needsFinalVote: {
+    title: "Magic (Needs Vote)",
+    description: "Sort by the number of positive reviews on the post"
+  },
+  finalReviewVoteScoreHighKarma: {
+    title: "Final Vote Total",
+    description: "Sort by the total number of votes on the post, weighted by the karma of the users who voted on it"
+  },
+}
+
 export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
   classes: ClassesType<typeof styles>,
   reviewPhase: ReviewPhase,
@@ -137,108 +185,103 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   const nominatedPostCount = reviewPhase !== "VOTING" && <LWTooltip title={<div><div>{sortedPosts?.length ?? 0} have received at least one Nomination Vote</div><div><em>Posts need at least 2 Nomination Votes to proceed to the Review Phase</em></div></div>}>{sortedPosts?.length ?? 0} Nominated</LWTooltip>
 
   return <AnalyticsContext pageElementContext='reviewVotingPageMenu'> 
-      <div className={classes.root}>
-          {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
-            <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
-            </ContentStyles>}
-          <div className={classes.menu}>
+    <div className={classes.root}>
+        {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
+          <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
+          </ContentStyles>}
+        <div className={classes.menu}>
 
-            {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}
-            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>} 
+          {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}
+          {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>} 
 
-            {sortedPosts && 
-              <div className={classes.postCount}>
-                {reviewPhase === "NOMINATIONS" && <><span className={classes.highlightedPostCount}>{nominatedPostCount}</span> ({reviewedPostCount})</>}
-                {reviewPhase !== "NOMINATIONS" && <><span className={classes.highlightedPostCount}>{reviewedPostCount}</span> ({nominatedPostCount})</>}
-              </div>
-            }
-            {(postsLoading || loading) && <Loading/>}
-
-            {eligibleToNominate(currentUser) && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
-              <LWTooltip title={costTotalTooltip}>
-                {costTotal}/500
-              </LWTooltip>
-            </div>}
-            
-            <div className={classes.sortingOptions}>
-              <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
-                <div onClick={() => { 
-                  setSortReversed(!sortReversed); 
-                }}>
-                  {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
-                    : <ArrowDownwardIcon className={classes.sortArrow}  />
-                  }
-                </div>
-              </LWTooltip>
-              <Select
-                value={sortPosts}
-                onChange={(e)=>{updatePostSort(e.target.value)}}
-                disableUnderline
-                >
-                {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
-                  <LWTooltip placement="left" title={<div>Prioritizes posts with at least one review, which you haven't yet voted on<div><em>(intended to reward reviews by making reviewed posts more prominent</em></div></div>}>
-                    <span><span className={classes.sortBy}>Sort by</span> Magic (Prioritize reviewed)</span>
-                  </LWTooltip>
-                </MenuItem>}
-                <MenuItem value={'lastCommentedAt'}>
-                  <span className={classes.sortBy}>Sort by</span> {preferredHeadingCase("Last Commented")}
-                </MenuItem>
-                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
-                  <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
-                </MenuItem>}
-                {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreAllKarma'}>
-                  <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
-                </MenuItem>}
-                {reviewPhase === "REVIEWS" && (isLWorAF) && <MenuItem value={'reviewVoteScoreAF'}>
-                  <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
-                </MenuItem>}
-                <MenuItem value={'yourVote'}>
-                  <span className={classes.sortBy}>Sort by</span> Your Review Vote
-                </MenuItem>
-                <MenuItem value={'yourKarmaVote'}>
-                  <span className={classes.sortBy}>Sort by</span> Your Karma Vote
-                </MenuItem>
-                <MenuItem value={'reviewCount'}>
-                  <span className={classes.sortBy}>Sort by</span> Review Count
-                </MenuItem>
-                {reviewPhase === "NOMINATIONS" && 
-                  <MenuItem value={'positiveReviewVoteCount'}>
-                    <LWTooltip title={<div>
-                      <div>Sort by how many positive votes the post has</div>
-                      <div><em>(Posts need at least 2 positive votes to proceed to the Review Phase</em></div>
-                    </div>}>
-                      <span className={classes.sortBy}>Sort by</span> Positive Vote Count
-                    </LWTooltip>
-                  </MenuItem>
-                }
-                {reviewPhase === "REVIEWS" && 
-                  <MenuItem value={'needsReview'}>
-                    <LWTooltip title={<div><p>Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points.</p>
-                      <p><em>(i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)</em></p>
-                    </div>}>
-                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Review)</span>
-                    </LWTooltip>
-                  </MenuItem>
-                }
-                {reviewPhase === "VOTING" && 
-                  <MenuItem value={'needsFinalVote'}>
-                    <LWTooltip title={<div>Prioritizes posts you haven't voted on yet</div>}>
-                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Vote)</span>
-                    </LWTooltip>
-                  </MenuItem>
-                }
-                {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
-                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (1000+ Karma Users)
-                </MenuItem>}
-                {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreAllKarma'}>
-                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (All Users)
-                </MenuItem>}
-                {reviewPhase === "COMPLETE" && isLW && <MenuItem value={'finalReviewVoteScoreAF'}>
-                  <span className={classes.sortBy}>Sort by</span> Final Vote Total (Alignment Forum Users)
-                </MenuItem>}
-              </Select>
+          {sortedPosts && 
+            <div className={classes.postCount}>
+              {reviewPhase === "NOMINATIONS" && <><span className={classes.highlightedPostCount}>{nominatedPostCount}</span> ({reviewedPostCount})</>}
+              {reviewPhase !== "NOMINATIONS" && <><span className={classes.highlightedPostCount}>{reviewedPostCount}</span> ({nominatedPostCount})</>}
             </div>
+          }
+          {(postsLoading || loading) && <Loading/>}
+
+          {eligibleToNominate(currentUser) && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+            <LWTooltip title={costTotalTooltip}>
+              {costTotal}/500
+            </LWTooltip>
+          </div>}
+          
+          <div className={classes.sortingOptions}>
+            <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
+              <div onClick={() => { 
+                setSortReversed(!sortReversed); 
+              }}>
+                {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
+                  : <ArrowDownwardIcon className={classes.sortArrow}  />
+                }
+              </div>
+            </LWTooltip>
+            <Select
+              value={sortPosts}
+              onChange={(e)=>{updatePostSort(e.target.value)}}
+              disableUnderline
+              >
+              {reviewPhase === "NOMINATIONS" && <MenuItem value={'needsPreliminaryVote'}>
+                <LWTooltip placement="left" title={sortingInfo['needsPreliminaryVote'].description}>
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['needsPreliminaryVote'].title}</span>
+                </LWTooltip>
+              </MenuItem>}
+              {reviewPhase === "REVIEWS" && 
+                <MenuItem value={'needsReview'}>
+                  <LWTooltip title={sortingInfo['needsReview'].description} placement="left">
+                    <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['needsReview'].title}</span>
+                  </LWTooltip>
+                </MenuItem>
+              }
+              {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
+                <LWTooltip title={sortingInfo['reviewVoteScoreHighKarma'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreHighKarma'].title}</span>
+                </LWTooltip>
+              </MenuItem>}
+              <MenuItem value={'yourVote'}>
+                <LWTooltip title={sortingInfo['yourVote'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['yourVote'].title}</span>
+                </LWTooltip>
+              </MenuItem>
+              <MenuItem value={'yourKarmaVote'}>
+                <LWTooltip title={sortingInfo['yourKarmaVote'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['yourKarmaVote'].title}</span>
+                </LWTooltip>
+              </MenuItem>
+              <MenuItem value={'reviewCount'}>
+                <LWTooltip title={sortingInfo['reviewCount'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewCount'].title}</span>
+                </LWTooltip>
+              </MenuItem>
+              {reviewPhase === "NOMINATIONS" && 
+                <MenuItem value={'positiveReviewVoteCount'}>
+                  <LWTooltip title={sortingInfo['positiveReviewVoteCount'].description} placement="left">
+                    <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['positiveReviewVoteCount'].title}</span>
+                  </LWTooltip>
+                </MenuItem>
+              }
+              <MenuItem value={'lastCommentedAt'}>
+                <LWTooltip title={sortingInfo['lastCommentedAt'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['lastCommentedAt'].title}</span>
+                </LWTooltip>
+              </MenuItem>
+              {reviewPhase === "VOTING" && 
+                <MenuItem value={'needsFinalVote'}>
+                  <LWTooltip title={sortingInfo['needsFinalVote'].description} placement="left">
+                    <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['needsFinalVote'].title}</span>
+                  </LWTooltip>
+                </MenuItem>
+              }
+              {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
+                <LWTooltip title={sortingInfo['finalReviewVoteScoreHighKarma'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['finalReviewVoteScoreHighKarma'].title}</span>
+                </LWTooltip>
+              </MenuItem>}
+            </Select>
           </div>
+        </div>
     </div>
   </AnalyticsContext>;
 }

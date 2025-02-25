@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: theme.spacing.unit*2,
     cursor:"pointer",
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title: string,
   warningHighlight?: boolean,
   onClick: () => void,

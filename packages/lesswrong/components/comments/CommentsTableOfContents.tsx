@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
-import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.dim,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
@@ -79,7 +78,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
@@ -154,7 +153,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   indentLevel: number,
   highlightedCommentId: string|null,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();

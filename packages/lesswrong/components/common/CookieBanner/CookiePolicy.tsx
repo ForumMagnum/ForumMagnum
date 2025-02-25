@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { CENTRAL_COLUMN_WIDTH } from "../../posts/PostsPage/PostsPage";
 import { useDialog } from "../withDialog";
 import { CookiesTable } from "../../../lib/cookies/utils";
@@ -66,7 +66,7 @@ const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children 
   </a>
 );
 
-const CookiePolicy = ({ classes }: { classes: ClassesType }) => {
+const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { Typography, CookieTable } = Components;
   const { openDialog } = useDialog();
 

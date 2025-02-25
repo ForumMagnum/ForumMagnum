@@ -1,6 +1,5 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { ReactNode, useRef } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, Pagination } from 'react-instantsearch-dom';
@@ -11,7 +10,7 @@ import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-in
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   filters: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -177,8 +176,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[500]
     }
   }
-}))
-
+});
 
 const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
   currentUser: UsersCurrent | null,
@@ -190,7 +188,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   },
   distanceUnit: 'km'|'mi',
   locationFilterNode: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)

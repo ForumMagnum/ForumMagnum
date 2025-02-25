@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -8,7 +8,7 @@ export const HIGHLIGHT_DURATION = 3
 
 export const CONDENSED_MARGIN_BOTTOM = 4
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -169,7 +169,7 @@ const CommentFrame = ({
   
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
@@ -203,7 +203,7 @@ const CommentFrame = ({
   </div>
 }
 
-const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string => {
+const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof styles>): string => {
   return classNames(
     (nestingLevel === 1)   && classes.commentsNodeRoot,
     (nestingLevel === 1)   && "comments-node-root" ,

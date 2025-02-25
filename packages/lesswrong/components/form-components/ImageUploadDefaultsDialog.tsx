@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   images: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   type?: 'Event' | 'Profile'
 }) => {
 

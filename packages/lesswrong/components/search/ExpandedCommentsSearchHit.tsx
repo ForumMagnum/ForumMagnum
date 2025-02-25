@@ -1,5 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -7,8 +6,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -67,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components

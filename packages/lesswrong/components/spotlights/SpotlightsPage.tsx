@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import { getSpotlightDisplayTitle } from './SpotlightItem';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   form: {
     padding: 16,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -15,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const SpotlightsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
 
@@ -68,7 +70,7 @@ export const SpotlightsPage = ({classes}: {
         level: 1
       },
       ...upcomingSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
+        title: getSpotlightDisplayTitle(spotlight),
         anchor: spotlight._id,
         level: 2
       })),
@@ -79,7 +81,7 @@ export const SpotlightsPage = ({classes}: {
           level: 1
         },
         ...draftSpotlights.map(spotlight => ({
-          title: spotlight.document.title,
+          title: getSpotlightDisplayTitle(spotlight),
           anchor: spotlight._id,
           level: 2
         }))

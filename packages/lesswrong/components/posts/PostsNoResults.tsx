@@ -1,7 +1,7 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: theme.spacing.unit,
     color: theme.palette.text.dim4,
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PostsNoResults = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) =>
   <Components.Typography variant="body2" className={classes.root}>
     No posts to display.

@@ -1,10 +1,10 @@
 import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   base: {
     ...postBodyStyles(theme)
   },
@@ -100,7 +100,7 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
   className?: string,
   style?: CSSProperties,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div style={style} className={classNames(
     className, classes.base, "content",

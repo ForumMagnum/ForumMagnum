@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
@@ -13,9 +13,8 @@ import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { timeframeLabels, timeframeSettings as defaultTimeframes } from './timeframeUtils'
-import type { TimeframeSettingType } from './timeframeUtils';
 import pick from 'lodash/pick';
+import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -98,7 +97,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
 
 const FILTERS = forumSelect(FILTERS_ALL)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -156,7 +155,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
@@ -208,9 +207,9 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
+              <Checkbox classes={{root: classes.checkbox}} checked={currentShowLowKarma} />
 
-              <MetaInfo className={classes.checkboxLabel}>
+              <MetaInfo>
                 {preferredHeadingCase("Show Low Karma")}
               </MetaInfo>
             </QueryLink>
@@ -224,9 +223,9 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
+              <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeEvents}/>
 
-              <MetaInfo className={classes.checkboxLabel}>
+              <MetaInfo>
                 {preferredHeadingCase("Show Events")}
               </MetaInfo>
             </QueryLink>
@@ -240,8 +239,8 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!currentHideCommunity}/>
-              <MetaInfo className={classes.checkboxLabel}>
+              <Checkbox classes={{root: classes.checkbox}} checked={!currentHideCommunity}/>
+              <MetaInfo>
                 Show community
               </MetaInfo>
             </QueryLink>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';
@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selectionList: {
     marginRight: theme.spacing.unit*2,
     [theme.breakpoints.down('xs')]: {
@@ -54,7 +54,7 @@ interface Props {
   title: string;
   options: Partial<Record<string, SettingsOption>>;
   currentOption: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   setSetting: (type: string, newSetting: any) => void;
   nofollow?: boolean;
 }

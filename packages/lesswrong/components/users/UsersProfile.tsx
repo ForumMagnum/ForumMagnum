@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -37,7 +37,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -121,7 +121,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
 const UsersProfileFn = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
 
