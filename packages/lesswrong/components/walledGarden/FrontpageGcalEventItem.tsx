@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getAddToCalendarLink } from './PortalBarGcalEventItem'
 
 const styles = (theme: ThemeType) => ({

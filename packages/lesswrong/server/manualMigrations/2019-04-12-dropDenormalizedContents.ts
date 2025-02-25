@@ -1,8 +1,8 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 
-registerMigration({
+export default registerMigration({
   name: "dropDenormalizedContents",
   dateWritten: "2019-04-12",
   idempotent: true,

@@ -1,7 +1,7 @@
 export const acceptsSchemaHash = "44cc1cc66be79573b597f5f1168df8ec";
 
 import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import { StringType } from "../sql/Type";
 
 import { addField, addRemovedField, createTable, dropField, dropRemovedField, dropTable } from "./meta/utils"

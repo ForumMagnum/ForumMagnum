@@ -1,4 +1,3 @@
-import { Globals } from '../../../lib/vulcan-lib/config';
 import { Posts } from '../../../lib/collections/posts/collection';
 import { Tags } from '../../../lib/collections/tags/collection';
 import { postStatuses } from '../../../lib/collections/posts/constants';
@@ -11,7 +10,7 @@ import sum from 'lodash/sum';
 import keyBy from 'lodash/keyBy';
 import filter from 'lodash/filter';
 import fs from 'fs';
-import { getSiteUrl } from '../../vulcan-lib';
+import { getSiteUrl } from '../../../lib/vulcan-lib/utils';
 import { FetchedFragment, fetchFragment } from '../../fetchFragment';
 
 const postEndMarker  = "===TAGS===";
@@ -20,8 +19,9 @@ const postEndMarker  = "===TAGS===";
  * Given a list of items and a list of weights, shuffle and partition the items
  * into disjoint sets with size proportional to weight. Used for dividing data
  * into train and test.
+ * Exported to allow running with "yarn repl"
  */
-function weightedPartition<T>(list: T[], weights: number[]): T[][]
+export function weightedPartition<T>(list: T[], weights: number[]): T[][]
 {
   const totalWeight = sum(weights);
   
@@ -47,7 +47,8 @@ function weightedPartition<T>(list: T[], weights: number[]): T[][]
   return result;
 }
 
-async function generateCandidateSetsForTagClassification(): Promise<void> {
+// Exported to allow running with "yarn repl"
+export async function generateCandidateSetsForTagClassification(): Promise<void> {
   const startDate = new Date("2022-11-01");
   const endDate = new Date("2023-11-01");
   
@@ -115,7 +116,8 @@ async function generateClassifierTuningFile({description, posts, postBodyCache, 
   fs.writeFileSync(outputFilename, result.join('\n'));
 }
 
-Globals.generateTagClassifierData = async (args: {
+// Exported to allow running with "yarn repl"
+export const generateTagClassifierData = async (args: {
   tagSlug?: string
   trainingSetFilename?: string,
   testSetFilename?: string,
@@ -185,7 +187,8 @@ Globals.generateTagClassifierData = async (args: {
   }
 }
 
-Globals.generateIsFrontpageClassifierData = async () => {
+// Exported to allow running with "yarn repl"
+export const generateIsFrontpageClassifierData = async () => {
   const trainingSetFilename = "ml/tagClassificationPostIds.train.json";
   const testSetFilename = "ml/tagClassificationPostIds.test.json";
   
@@ -227,7 +230,8 @@ Globals.generateIsFrontpageClassifierData = async () => {
   });
 }
 
-Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
+// Exported to allow running with "yarn repl"
+export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const posts = await fetchFragment({
     collectionName: "Posts",
@@ -268,7 +272,8 @@ Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilenam
   fs.writeFileSync(outputFilename, sb.join(''));
 }
 
-Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
+// Exported to allow running with "yarn repl"
+export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const template = await wikiSlugToTemplate("lm-config-autotag");
   const posts = await fetchFragment({
@@ -336,12 +341,10 @@ Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, out
 }
 
 
-async function printLanguageModelTemplate(templateName: string) {
+// Exported to allow running with "yarn repl"
+export async function printLanguageModelTemplate(templateName: string) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   //eslint-disable-next-line no-console
   console.log(JSON.stringify(template));
 }
-Globals.printLanguageModelTemplate = printLanguageModelTemplate;
 
-Globals.weightedPartition = weightedPartition;
-Globals.generateCandidateSetsForTagClassification = generateCandidateSetsForTagClassification;

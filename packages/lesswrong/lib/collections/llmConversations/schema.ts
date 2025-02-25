@@ -1,6 +1,6 @@
 import { userHasLlmChat } from "@/lib/betas";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
-import { userOwns } from "@/lib/vulcan-users";
+import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 
 const schema: SchemaType<"LlmConversations"> = {
   userId: {

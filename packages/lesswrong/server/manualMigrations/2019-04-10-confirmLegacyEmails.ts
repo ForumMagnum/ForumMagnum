@@ -2,7 +2,7 @@ import { forEachDocumentBatchInCollection, registerMigration } from './migration
 import Users from '../../lib/collections/users/collection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "confirmLegacyEmails",
   dateWritten: "2019-04-10",
   idempotent: true,

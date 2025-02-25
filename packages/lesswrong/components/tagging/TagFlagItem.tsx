@@ -1,7 +1,7 @@
 import React from "react"
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";

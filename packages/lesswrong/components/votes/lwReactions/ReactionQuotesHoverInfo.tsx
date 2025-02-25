@@ -1,6 +1,6 @@
 import React from 'react';
 import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';

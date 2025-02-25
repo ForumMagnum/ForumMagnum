@@ -9,7 +9,8 @@ import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentMultiQuery } from "./vulcan-lib/query";
-import Users from "@/lib/vulcan-users";
+import Users from "@/lib/collections/users/collection";
+import { clientIdMiddleware } from "./clientIdMiddleware";
 
 
 
@@ -262,7 +263,7 @@ ${finalSection}`.trim();
 
 
 export function addAutocompleteEndpoint(app: Express) {
-  app.use("/api/autocomplete", express.json());
+  app.use("/api/autocomplete", express.json(), clientIdMiddleware);
   app.post("/api/autocomplete", async (req, res) => {
     const context = await getContextFromReqAndRes({req, res, isSSR: false});
     const currentUser = context.currentUser

@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
 
-registerMigration({
+export default registerMigration({
   name: "fillReviewVoteCountField",
   dateWritten: "2021-11-27",
   idempotent: true,

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
 import Paper from '@material-ui/core/Paper';
 import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';

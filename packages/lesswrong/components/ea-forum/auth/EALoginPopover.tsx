@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";

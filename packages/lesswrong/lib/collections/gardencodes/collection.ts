@@ -1,11 +1,12 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
-import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 
 function generateCode(length: number) {
   let result = '';

@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery, addGraphQLMutation } from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 
 // Defines a graphql query. Use this for queries which don't fit well into the
 // CRUD framework; for queries that just retrieve and sort a subset of a

@@ -4,7 +4,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { htmlToText } from 'html-to-text';
-import { createMutator, updateMutator } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import Comments from '../../lib/collections/comments/collection';
 import Posts from '../../lib/collections/posts/collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';

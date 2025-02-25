@@ -1,7 +1,8 @@
-import { graphqlTypeToCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
+import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
+import { isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 
 export const generatedFileHeader = `//
 // GENERATED FILE

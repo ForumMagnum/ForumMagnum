@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@material-ui/core/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';

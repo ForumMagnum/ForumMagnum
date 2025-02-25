@@ -9,7 +9,7 @@ import './EmailPostDate';
 import './EmailFooterRecommendations';
 import { getNominationPhaseEnd, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import moment from 'moment';
-import { getSiteUrl } from '../vulcan-lib';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 
 
 const PostNominatedEmail = ({documentId, reason}: {

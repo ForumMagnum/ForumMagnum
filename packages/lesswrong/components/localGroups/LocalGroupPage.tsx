@@ -1,12 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';

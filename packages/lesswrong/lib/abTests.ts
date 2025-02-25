@@ -1,5 +1,4 @@
-import { ABTest, useABTest, useABTestProperties } from './abTestImpl';
-export { useABTest, useABTestProperties };
+import { ABTest } from "./abTestClass";
 
 /*
  * A/B tests, both active and finished. If an A/B test is active--that is,
@@ -29,7 +28,6 @@ export { useABTest, useABTestProperties };
  *     }
  *   });
  */
-
 
 export const welcomeBoxABTest = new ABTest({
   name: "welcomeBoxABTest",
@@ -64,3 +62,5 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest];

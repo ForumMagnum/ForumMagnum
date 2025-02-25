@@ -2,8 +2,7 @@ import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyFi
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
-import { userOwns } from "@/lib/vulcan-users/permissions";
-import { userIsAdminOrMod } from "@/lib/vulcan-users";
+import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 

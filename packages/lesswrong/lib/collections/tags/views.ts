@@ -1,7 +1,7 @@
 import { Tags } from './collection';
 import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
-import { viewFieldAllowAny } from '../../vulcan-lib';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { viewFieldAllowAny } from '../../vulcan-lib/collections';
+import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { jsonArrayContainsSelector } from '@/lib/utils/viewUtils';
 import { hasWikiLenses } from '@/lib/betas';
 
@@ -101,8 +101,6 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny,
       wikiOnly: viewFieldAllowAny,
-      // TODO: remove this after cleaning up db from Arbital imports leaving many deleted tags with the same slug
-      deleted: false,
     },
   };
 });

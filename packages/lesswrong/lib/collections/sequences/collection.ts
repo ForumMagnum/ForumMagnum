@@ -1,9 +1,10 @@
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
@@ -42,5 +43,28 @@ makeEditable({
   }
 })
 addUniversalFields({collection: Sequences})
+
+Sequences.checkAccess = async (user, document) => {
+  if (!document || document.isDeleted) {
+    return false;
+  }
+  
+  // If it isn't a draft, it's public
+  if (!document.draft) {
+    return true;
+  }
+  
+  if (!user) {
+    return false;
+  }
+  
+  if (userOwns(user, document)) {
+    return true;
+  } else if (userCanDo(user, `sequences.view.all`)) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 export default Sequences;

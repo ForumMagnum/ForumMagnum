@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { gql, useQuery } from '@apollo/client';
 import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
 import { useSingle } from '@/lib/crud/withSingle';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
   const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)

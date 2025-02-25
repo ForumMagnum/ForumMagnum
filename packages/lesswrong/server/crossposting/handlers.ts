@@ -1,6 +1,6 @@
 import { Application, Request, Response, json } from "express";
 import { ZodType, z } from "zod";
-import { Utils } from "@/lib/vulcan-lib";
+import { Utils } from "@/lib/vulcan-lib/utils.ts";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
 import {
