@@ -112,7 +112,7 @@ const notificationMessage = async (notificationType: string, documentType: Notif
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
-  let document = await getDocument(documentType, documentId);
+  let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
   if (notificationType.getLink) {

@@ -105,6 +105,7 @@ interface GetMessageProps {
   documentType: NotificationDocument | null
   documentId: string | null
   extraData?: Record<string,any>
+  context: ResolverContext
 }
 
 interface GetDialogueMessageProps {
@@ -176,8 +177,8 @@ const registerNotificationType = ({allowedChannels = ["none", "onsite", "email",
   return notificationTypeClass;
 }
 
-export const getDocument = async (documentType: NotificationDocument | null, documentId: string | null) =>
-  (await getDocumentSummary(documentType, documentId))?.document
+export const getDocument = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext) =>
+  (await getDocumentSummary(documentType, documentId, context))?.document
 
 type DocumentSummary =
   | { type: 'post'; associatedUserName: string; displayName: string; document: DbPost }
@@ -191,7 +192,7 @@ type DocumentSummary =
   | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
 
 
-export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
+export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext): Promise<DocumentSummary | null> => {
   if (!documentId) return null
 
   switch (documentType) {
@@ -201,7 +202,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         type: documentType,
         document: post,
         displayName: post.title,
-        associatedUserName: await postGetAuthorName(post),
+        associatedUserName: await postGetAuthorName(post, context),
       }
     case 'comment':
       const comment = await Comments.findOne(documentId)
@@ -209,7 +210,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         type: documentType,
         document: comment,
         displayName: await getCommentParentTitle(comment),
-        associatedUserName: await commentGetAuthorName(comment),
+        associatedUserName: await commentGetAuthorName(comment, context),
       }
     case 'user':
       const user = await Users.findOne(documentId)
@@ -279,9 +280,9 @@ const flatIconStyles = {
 export const NewPostNotification = registerNotificationType({
   name: "newPost",
   userSettingField: "notificationSubscribedUserPost",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document: DbPost = await getDocument(documentType, documentId) as DbPost;
-    return await postGetAuthorName(document) + ' has created a new post: ' + document.title;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document: DbPost = await getDocument(documentType, documentId, context) as DbPost;
+    return await postGetAuthorName(document, context) + ' has created a new post: ' + document.title;
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>
@@ -292,9 +293,9 @@ export const NewPostNotification = registerNotificationType({
 export const NewUserCommentNotification = registerNotificationType({
   name: "newUserComment",
   userSettingField: "notificationSubscribedUserComment",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document: DbComment = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new comment on the post ' + await getCommentParentTitle(document);
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document: DbComment = await getDocument(documentType, documentId, context) as DbComment;
+    return await commentGetAuthorName(document, context) + ' left a new comment on the post ' + await getCommentParentTitle(document);
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -306,8 +307,8 @@ export const NewUserCommentNotification = registerNotificationType({
 export const PostApprovedNotification = registerNotificationType({
   name: "postApproved",
   userSettingField: null, //TODO
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document: DbPost = await getDocument(documentType, documentId) as DbPost;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document: DbPost = await getDocument(documentType, documentId, context) as DbPost;
     return 'Your post "' + document.title + '" has been approved';
   },
   getIcon() {
@@ -319,8 +320,8 @@ export const PostApprovedNotification = registerNotificationType({
 export const PostNominatedNotification = registerNotificationType({
   name: "postNominated",
   userSettingField: "notificationPostsNominatedReview",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let post: DbPost = await getDocument(documentType, documentId) as DbPost;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let post: DbPost = await getDocument(documentType, documentId, context) as DbPost;
     return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
   },
   getIcon() {
@@ -331,8 +332,8 @@ export const PostNominatedNotification = registerNotificationType({
 export const NewEventNotification = registerNotificationType({
   name: "newEvent",
   userSettingField: "notificationPostsInGroups",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId);
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context);
     let group: DbLocalgroup|null = null
     if (documentType === "post") {
       const post = document as DbPost
@@ -343,7 +344,7 @@ export const NewEventNotification = registerNotificationType({
     if (group)
       return `${group.name} posted a new event`;
     else
-      return await postGetAuthorName(document as DbPost) + ' has created a new event';
+      return await postGetAuthorName(document as DbPost, context) + ' has created a new event';
   },
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
@@ -356,8 +357,8 @@ export const NewEventNotification = registerNotificationType({
 export const NewGroupPostNotification = registerNotificationType({
   name: "newGroupPost",
   userSettingField: "notificationPostsInGroups",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId);
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context);
     let group: DbLocalgroup|null = null
     if (documentType === "post") {
       const post = document as DbPost
@@ -366,9 +367,9 @@ export const NewGroupPostNotification = registerNotificationType({
       }
     }
     if (group)
-      return await postGetAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
+      return await postGetAuthorName(document as DbPost, context) + ' has created a new post in the group "' + group.name + '"';
     else
-      return await postGetAuthorName(document as DbPost) + ' has created a new post in a group';
+      return await postGetAuthorName(document as DbPost, context) + ' has created a new post in a group';
   },
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
@@ -386,9 +387,9 @@ export const NewGroupPostNotification = registerNotificationType({
 export const NewCommentNotification = registerNotificationType({
   name: "newComment",
   userSettingField: "notificationCommentsOnSubscribedPost",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new comment on "' + await getCommentParentTitle(document) + '"';
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbComment;
+    return await commentGetAuthorName(document, context) + ' left a new comment on "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -403,10 +404,10 @@ export const NewSubforumCommentNotification = registerNotificationType({
   name: "newSubforumComment",
   userSettingField: "notificationSubforumUnread",
   allowedChannels: ["none", "onsite", "email", "both"],
-  async getMessage({documentType, documentId}: GetMessageProps) {
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
-    let document = await getDocument(documentType, documentId) as DbComment;
-    return `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document)} left a new comment`;
+    let document = await getDocument(documentType, documentId, context) as DbComment;
+    return `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document, context)} left a new comment`;
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -423,11 +424,11 @@ export const NewSubforumCommentNotification = registerNotificationType({
 export const NewDialogueMessagesNotification = registerNotificationType({
   name: "newDialogueMessages",
   userSettingField: "notificationDialogueMessages",
-  async getMessage({documentType, documentId, extraData}: GetMessageProps) {
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
 
     const newMessageAuthorId = extraData?.newMessageAuthorId
-    let post = await getDocument(documentType, documentId) as DbPost;
-    let author = await getDocument("user", newMessageAuthorId) as DbUser ?? '[Missing Author Name]';
+    let post = await getDocument(documentType, documentId, context) as DbPost;
+    let author = await getDocument("user", newMessageAuthorId, context) as DbUser ?? '[Missing Author Name]';
 
     return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
   },
@@ -449,8 +450,8 @@ export const NewDialogueMessagesBatchNotification = registerNotificationType({
   name: "newDialogueBatchMessages",
   //using same setting as regular NewDialogueMessageNotification, since really the same
   userSettingField: "notificationDialogueMessages",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const post = await getDocument(documentType, documentId) as DbPost;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const post = await getDocument(documentType, documentId, context) as DbPost;
 
     return 'Multiple new messages in your dialogue "' + post.title + '"';
   },
@@ -470,8 +471,8 @@ export const NewDialogueMessagesBatchNotification = registerNotificationType({
 export const NewPublishedDialogueMessagesNotification = registerNotificationType({
   name: "newPublishedDialogueMessages",
   userSettingField: "notificationPublishedDialogueMessages",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let post = await getDocument(documentType, documentId) as DbPost;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let post = await getDocument(documentType, documentId, context) as DbPost;
     return `New content in the dialogue "${post.title}"`;
   },
   getIcon() {
@@ -525,9 +526,9 @@ export const YourTurnMatchFormNotification = registerNotificationType({
 export const NewDebateCommentNotification = registerNotificationType({
   name: "newDebateComment",
   userSettingField: "notificationDebateCommentsOnSubscribedPost",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbComment;
+    return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -541,9 +542,9 @@ export const NewDebateCommentNotification = registerNotificationType({
 export const NewDebateReplyNotification = registerNotificationType({
   name: "newDebateReply",
   userSettingField: "notificationDebateReplies",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbComment;
+    return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
@@ -554,8 +555,8 @@ export const NewDebateReplyNotification = registerNotificationType({
 export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbComment;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbComment;
     return 'New comment on "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
@@ -566,8 +567,8 @@ export const NewShortformNotification = registerNotificationType({
   </>,
 });
 
-export const taggedPostMessage = async ({documentType, documentId}: GetMessageProps) => {
-  const tagRel = await getDocument(documentType, documentId) as DbTagRel;
+export const taggedPostMessage = async ({documentType, documentId, context}: GetMessageProps) => {
+  const tagRel = await getDocument(documentType, documentId, context) as DbTagRel;
   const tag = await Tags.findOne({_id: tagRel.tagId})
   const post = await Posts.findOne({_id: tagRel.postId})
   return `New post tagged '${tag?.name}: ${post?.title}'`
@@ -576,8 +577,8 @@ export const taggedPostMessage = async ({documentType, documentId}: GetMessagePr
 export const NewTagPostsNotification = registerNotificationType({
   name: "newTagPosts",
   userSettingField: "notificationSubscribedTagPost",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    return await taggedPostMessage({documentType, documentId})
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    return await taggedPostMessage({documentType, documentId, context})
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>
@@ -588,8 +589,8 @@ export const NewTagPostsNotification = registerNotificationType({
 export const NewSequencePostsNotification = registerNotificationType({
   name: "newSequencePosts",
   userSettingField: "notificationSubscribedSequencePost",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const sequence = await getDocument(documentType, documentId) as DbSequence;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const sequence = await getDocument(documentType, documentId, context) as DbSequence;
     return `Posts added to ${sequence.title}`
   },
   getIcon() {
@@ -611,9 +612,9 @@ export async function getCommentParentTitle(comment: DbComment) {
 export const NewReplyNotification = registerNotificationType({
   name: "newReply",
   userSettingField: "notificationRepliesToSubscribedComments",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' replied to a comment on "' + await getCommentParentTitle(document) + '"';
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbComment;
+    return await commentGetAuthorName(document, context) + ' replied to a comment on "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -627,9 +628,9 @@ export const NewReplyNotification = registerNotificationType({
 export const NewReplyToYouNotification = registerNotificationType({
   name: "newReplyToYou",
   userSettingField: "notificationRepliesToMyComments",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbComment;
-    return await commentGetAuthorName(document) + ' replied to your comment on "' + await getCommentParentTitle(document) + '"';
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbComment;
+    return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -643,8 +644,8 @@ export const NewReplyToYouNotification = registerNotificationType({
 export const NewUserNotification = registerNotificationType({
   name: "newUser",
   userSettingField: null,
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbUser;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbUser;
     return document.displayName + ' just signed up!';
   },
   getIcon() {
@@ -659,8 +660,8 @@ export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
   allowedChannels: ["onsite", "email", "both"],
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbMessage;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
@@ -704,9 +705,9 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbPost;
-    const name = await postGetAuthorName(document);
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbPost;
+    const name = await postGetAuthorName(document, context);
     return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
@@ -731,9 +732,9 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
   name: "addedAsCoauthor",
   userSettingField: "notificationAddedAsCoauthor",
   allowedChannels: ["onsite", "email", "both"],
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbPost;
-    const name = await postGetAuthorName(document);
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbPost;
+    const name = await postGetAuthorName(document, context);
     const postOrDialogue = document.collabEditorDialogue ? 'dialogue' : 'post';
     return `${name} added you as a coauthor to the ${postOrDialogue} "${document.title}"`;
   },
@@ -761,12 +762,12 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
   name: "alignmentSubmissionApproved",
   userSettingField: "notificationAlignmentSubmissionApproved",
-  async getMessage({documentType, documentId}: GetMessageProps) {
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
     
     if (documentType==='comment') {
       return "Your comment has been accepted to the Alignment Forum";
     } else if (documentType==='post') {
-      let post = await getDocument(documentType, documentId) as DbPost
+      let post = await getDocument(documentType, documentId, context) as DbPost
       return `Your post has been accepted to the Alignment Forum: ${post.title}`
     } else throw new Error("documentType must be post or comment!")
   },
@@ -778,8 +779,8 @@ export const AlignmentSubmissionApprovalNotification = registerNotificationType(
 export const NewEventInNotificationRadiusNotification = registerNotificationType({
   name: "newEventInRadius",
   userSettingField: "notificationEventInRadius",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbPost
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbPost
     return `New event in your area: ${document.title}`
   },
   getIcon() {
@@ -791,8 +792,8 @@ export const NewEventInNotificationRadiusNotification = registerNotificationType
 export const EditedEventInNotificationRadiusNotification = registerNotificationType({
   name: "editedEventInRadius",
   userSettingField: "notificationEventInRadius",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    let document = await getDocument(documentType, documentId) as DbPost
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId, context) as DbPost
     return `Event in your area updated: ${document.title}`
   },
   getIcon() {
@@ -805,8 +806,8 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
 export const NewRSVPNotification = registerNotificationType({
   name: "newRSVP",
   userSettingField: "notificationRSVPs",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const document = await getDocument(documentType, documentId) as DbPost
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const document = await getDocument(documentType, documentId, context) as DbPost
     const rsvps = document.rsvps || []
     const lastRSVP = sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
     return `${lastRSVP.name} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
@@ -842,8 +843,8 @@ export const KarmaPowersGainedNotification = registerNotificationType({
 export const CancelledRSVPNotification = registerNotificationType({
   name: "cancelledRSVP",
   userSettingField: "notificationRSVPs",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const document = await getDocument(documentType, documentId) as DbPost
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const document = await getDocument(documentType, documentId, context) as DbPost
     return `Someone cancelled their RSVP to your event ${document.title}`
   },
   getIcon() {
@@ -885,8 +886,8 @@ export const NewSubforumMemberNotification = registerNotificationType({
 export const NewCommentOnDraftNotification = registerNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const post = await getDocument(documentType, documentId) as DbPost;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const post = await getDocument(documentType, documentId, context) as DbPost;
     return `New comments on your draft ${post.title}`;
   },
   
@@ -916,9 +917,9 @@ export const NewCommentOnDraftNotification = registerNotificationType({
 export const CoauthorRequestNotification = registerNotificationType({
   name: 'coauthorRequestNotification',
   userSettingField: 'notificationSharedWithMe',
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const document = await getDocument(documentType, documentId) as DbPost;
-    const name = await postGetAuthorName(document);
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const document = await getDocument(documentType, documentId, context) as DbPost;
+    const name = await postGetAuthorName(document, context);
     return `${name} requested that you co-author their post: ${document.title}`;
   },
   getIcon() {
@@ -932,8 +933,8 @@ export const CoauthorRequestNotification = registerNotificationType({
 export const CoauthorAcceptNotification = registerNotificationType({
   name: 'coauthorAcceptNotification',
   userSettingField: 'notificationSharedWithMe',
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const document = await getDocument(documentType, documentId) as DbPost;
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const document = await getDocument(documentType, documentId, context) as DbPost;
     return `Your co-author request for '${document.title}' was accepted`;
   },
   getIcon() {
@@ -945,8 +946,8 @@ export const CoauthorAcceptNotification = registerNotificationType({
 export const NewMentionNotification = registerNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const summary = await getDocumentSummary(documentType, documentId)
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId, context)
     return `${summary?.associatedUserName} mentioned you in ${summary?.displayName}`
   },
   getIcon() {

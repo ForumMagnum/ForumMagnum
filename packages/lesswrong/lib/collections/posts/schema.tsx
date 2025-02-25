@@ -404,10 +404,10 @@ const schema: SchemaType<"Posts"> = {
     denormalized: true,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onUpdate: async ({modifier, document, currentUser}) => {
+    onUpdate: async ({modifier, document, currentUser, context}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return await userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId, context)
       }
     }
   },

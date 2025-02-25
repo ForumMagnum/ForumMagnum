@@ -81,16 +81,16 @@ const schema: SchemaType<"Comments"> = {
     type: String,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onCreate: async ({document}) => {
+    onCreate: async ({document, context}) => {
       // if userId is changing, change the author name too
       if (document.userId) {
-        return await userGetDisplayNameById(document.userId)
+        return await userGetDisplayNameById(document.userId, context)
       }
     },
-    onUpdate: async ({modifier}) => {
+    onUpdate: async ({modifier, context}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return await userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId, context)
       }
     }
   },
