@@ -1,6 +1,5 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { Utils } from '../../vulcan-lib/utils';
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
@@ -299,9 +298,9 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: [userOwns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async (comment: DbComment): Promise<boolean> => {
+      getValue: async (comment: DbComment, context: ResolverContext): Promise<boolean> => {
         if (!comment.postId) return false;
-        const post = await mongoFindOne("Posts", {_id: comment.postId});
+        const post = await context.Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
       }
@@ -426,9 +425,9 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async comment => {
+      getValue: async (comment, context) => {
         if (!comment.postId) return false;
-        const post = await mongoFindOne("Posts", {_id: comment.postId});
+        const post = await context.Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
       }
