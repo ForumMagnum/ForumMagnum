@@ -95,13 +95,10 @@ const NotificationTypeSettingsWidget = ({
   const notificationType = getNotificationTypeByUserSetting(path);
 
   const cleanValue = legacyToNewNotificationTypeSettings(value);
-  if (isLegacyNotificationTypeSettings(value) || !value) {
-    updateCurrentValues({ [path]: cleanValue });
-  }
 
   const modifyChannelValue = useCallback((channel: NotificationChannel, changes: Partial<NotificationChannelSettings>) => {
     const newSettings = {
-      ...value,
+      ...cleanValue,
       [channel]: { ...cleanValue[channel], ...changes }
     };
     updateCurrentValues({ [path]: newSettings });

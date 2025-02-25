@@ -1581,7 +1581,10 @@ const schema: SchemaType<"Users"> = {
     ...notificationTypeSettingsField(),
     onCreate: () => {
       if (!isLWorAF) {
-        return {...defaultNotificationTypeSettings, channel: 'both'}
+        return {
+          onsite: { ...defaultNotificationTypeSettings.onsite },
+          email: { ...defaultNotificationTypeSettings.email, enabled: true },
+        };
       }
     }
   },
