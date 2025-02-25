@@ -1,7 +1,8 @@
-import { Posts } from '../lib/collections/posts';
-import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from './vulcan-lib';
+import { Posts } from '../lib/collections/posts/collection';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import { createNotification } from './notificationCallbacksHelpers';
+import { addGraphQLMutation, addGraphQLResolvers } from "../lib/vulcan-lib/graphql";
+import { updateMutator } from "./vulcan-lib/mutators";
 
 addGraphQLMutation('acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post');
 addGraphQLResolvers({

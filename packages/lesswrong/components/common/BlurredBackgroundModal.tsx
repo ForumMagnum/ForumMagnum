@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import Popover from "@material-ui/core/Popover";
 import Fade from "@material-ui/core/Fade";
 import classNames from "classnames";

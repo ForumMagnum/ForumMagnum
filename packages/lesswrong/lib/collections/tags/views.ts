@@ -1,6 +1,6 @@
 import { Tags } from './collection';
 import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { jsonArrayContainsSelector } from '@/lib/utils/viewUtils';
 import { hasWikiLenses } from '@/lib/betas';
 

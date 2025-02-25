@@ -1,4 +1,4 @@
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 
 const fixFrontpageCounts = false

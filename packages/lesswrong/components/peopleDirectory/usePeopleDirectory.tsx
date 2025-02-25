@@ -60,12 +60,6 @@ type PeopleDirectoryContext = {
 
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
 
-const tagCountQuery = gql`
-  query ActiveTagCount {
-    ActiveTagCount
-  }
-`;
-
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
   const navigate = useNavigate();
@@ -91,7 +85,11 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     },
   });
 
-  const {data: tagCountResult} = useQuery(tagCountQuery);
+  const {data: tagCountResult} = useQuery(gql`
+    query ActiveTagCount {
+      ActiveTagCount
+    }
+  `);
   const tagCount = tagCountResult?.ActiveTagCount ?? 0;
 
   const roles = useSearchableMultiSelect({

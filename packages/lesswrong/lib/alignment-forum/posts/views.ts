@@ -1,4 +1,4 @@
-import { Posts } from '../../collections/posts';
+import { Posts } from '../../collections/posts/collection';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
 Posts.addView("alignmentSuggestedPosts", function () {

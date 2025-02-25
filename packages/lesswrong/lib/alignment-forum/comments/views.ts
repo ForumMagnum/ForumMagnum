@@ -1,4 +1,4 @@
-import { Comments } from "../../collections/comments";
+import { Comments } from "../../collections/comments/collection";
 import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
 
 Comments.addView("alignmentSuggestedComments", function (terms) {

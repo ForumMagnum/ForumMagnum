@@ -1,7 +1,7 @@
 import { ensureCustomPgIndex, ensureIndex } from "@/lib/collectionIndexUtils";
 import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
 import { MultiDocuments } from "./collection";
-import { userIsAdminOrMod } from '@/lib/vulcan-users';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { viewFieldAllowAny } from "@/lib/utils/viewConstants";
 
 declare global {

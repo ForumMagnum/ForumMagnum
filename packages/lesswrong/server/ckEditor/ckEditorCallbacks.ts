@@ -8,7 +8,6 @@ import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { restrictViewableFields, userCanDo } from '../../lib/vulcan-users/permissions';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
-import { getCollectionHooks } from '../mutationCallbacks';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { ckEditorApiHelpers } from './ckEditorApi';
@@ -16,25 +15,6 @@ import { ckEditorApiHelpers } from './ckEditorApi';
 export function generateLinkSharingKey(): string {
   return randomSecret();
 }
-
-getCollectionHooks("Posts").newSync.add(function addLinkSharingKey(post: DbPost): DbPost {
-  return {
-    ...post,
-    linkSharingKey: generateLinkSharingKey()
-  };
-});
-
-
-getCollectionHooks("Posts").updateBefore.add(function onEditAddLinkSharingKey(data: Partial<DbPost>, {oldDocument}): Partial<DbPost> {
-  if (!oldDocument.linkSharingKey) {
-    return {
-      ...data,
-      linkSharingKey: generateLinkSharingKey()
-    };
-  } else {
-    return data;
-  }
-});
 
 defineMutation({
   name: "unlockPost",

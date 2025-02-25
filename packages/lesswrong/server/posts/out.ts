@@ -1,5 +1,5 @@
-import { addStaticRoute } from '../vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { addStaticRoute } from '../vulcan-lib/staticRoutes';
+import { Posts } from '../../lib/collections/posts/collection';
 import type { ServerResponse } from 'http';
 
 const redirect = (res: ServerResponse, url: string, post: DbPost | null) => {

@@ -1,4 +1,4 @@
-import { getAllCollections } from "../vulcan-lib";
+import { getAllCollections } from "@/lib/vulcan-lib/getCollection";
 import { DatabaseIndexSet } from "./databaseIndexSet";
 
 export function getMiscDbIndexes() {

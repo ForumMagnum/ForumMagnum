@@ -1,7 +1,7 @@
 import {registerMigration, fillDefaultValues} from './migrationUtils'
 import {Users} from '../../lib/collections/users/collection'
 
-registerMigration({
+export default registerMigration({
   name: 'notificationNewMention',
   dateWritten: '2023-01-18',
   idempotent: true,

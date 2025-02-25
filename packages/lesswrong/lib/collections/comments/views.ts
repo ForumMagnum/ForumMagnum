@@ -34,6 +34,7 @@ declare global {
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
     commentIds?: string[],
+    minimumKarma?: number,
   }
   
   /**
@@ -93,7 +94,8 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
-      rejected: { $ne: true }
+      rejected: { $ne: true },
+      ...(typeof terms.minimumKarma === 'number' ? {baseScore: {$gte: terms.minimumKarma}} : {}),
     },
     options: {
       sort: {postedAt: -1},
@@ -289,15 +291,26 @@ Comments.addView("profileComments", (terms: CommentsViewTerms) => {
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
-    selector: {deletedPublic: false},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    selector: { deletedPublic: false },
+    options: { 
+      sort: terms.sortBy 
+        ? sortings[terms.sortBy]
+        : {postedAt: -1}, 
+      limit: terms.limit || 5 
+    },
   };
 });
 
 Comments.addView("recentComments", (terms: CommentsViewTerms) => {
+
   return {
     selector: { score:{$gt:0}, deletedPublic: false},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    options: {
+      sort: terms.sortBy 
+        ? sortings[terms.sortBy] 
+        : { postedAt: -1 }, 
+      limit: terms.limit || 5
+    },
   };
 });
 

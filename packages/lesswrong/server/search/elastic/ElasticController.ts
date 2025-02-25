@@ -1,6 +1,6 @@
 import { Application, Request, Response, json } from "express";
 import ElasticService from "./ElasticService";
-import { UsersRepo } from "../../repos";
+import UsersRepo from "../../repos/UsersRepo";
 import uniq from "lodash/uniq";
 import { SearchOptions, SearchQuery, queryRequestSchema } from "@/lib/search/NativeSearchClient";
 

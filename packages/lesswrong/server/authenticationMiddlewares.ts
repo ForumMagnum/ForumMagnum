@@ -23,7 +23,7 @@ import { promisify } from 'util';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { oauth2 } from '@googleapis/oauth2';
 import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
-import { userIsAdmin } from '../lib/vulcan-users';
+import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';

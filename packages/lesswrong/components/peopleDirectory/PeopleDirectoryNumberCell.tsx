@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 

@@ -27,4 +27,5 @@ export const dogstatsd = isDatadogEnabled
     })
   : null;
 
+// eslint-disable-next-line no-barrel-files/no-barrel-files
 export default tracer;

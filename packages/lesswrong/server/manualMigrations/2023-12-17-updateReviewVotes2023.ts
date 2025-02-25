@@ -2,7 +2,7 @@ import { updateReviewVoteTotals } from '../reviewVoteUpdate';
 import { registerMigration } from './migrationUtils';
 
 
-registerMigration({
+export default registerMigration({
   name: "updateReviewVotes2023",
   dateWritten: "2023-12-23",
   idempotent: true,

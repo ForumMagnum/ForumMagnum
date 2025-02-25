@@ -1,6 +1,6 @@
 import React from 'react';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
 
