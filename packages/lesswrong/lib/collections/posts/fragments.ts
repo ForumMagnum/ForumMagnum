@@ -42,9 +42,6 @@ registerFragment(`
       _id
       html
     }
-    tags {
-      ...TagPreviewFragment
-    }
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }

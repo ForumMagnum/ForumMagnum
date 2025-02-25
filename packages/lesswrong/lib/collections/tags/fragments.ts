@@ -145,6 +145,9 @@ registerFragment(`
       _id
       htmlHighlight
     }
+    summaries {
+      ...MultiDocumentContentDisplay
+    }
     canVoteOnRels
     isArbitalImport
   }
