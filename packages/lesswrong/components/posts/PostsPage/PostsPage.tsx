@@ -1017,8 +1017,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
               centralColumn: commentsSection,
               isCommentToC: true
             },
+            {
+              centralColumn: <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+            }
           ]}
-          tocRowMap={[0, 0, 2]}
+          tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
           answerCount={answerCount}
           commentCount={commentCount}
