@@ -102,6 +102,7 @@ class PgCollection<
     const quiet = data?.options?.quiet ?? false;
     try {
       const {sql, args} = query.compile();
+      console.log({sql, args});
       const client = getSqlClientOrThrow(target);
 
       result = await client.any(sql, args, () => `${sql}: ${JSON.stringify(args)}`, quiet);
