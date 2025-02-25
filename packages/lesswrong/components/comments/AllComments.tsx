@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 
@@ -13,16 +12,6 @@ const styles = defineStyles('AllComments', theme => ({
     padding: 16,
     marginBottom: 32,
     ...theme.typography.body2,
-  },
-  checkboxSetting: {
-    marginBottom: 8,
-  },
-  checkbox: {
-    padding: 0,
-    marginRight: 4,
-  },
-  label: {
-    verticalAlign: "center",
   },
 }));
 
@@ -81,13 +70,12 @@ const AllComments = () => {
   const [settings, setSettings] = useState(defaultCommentsViewSettings);
 
   const terms: CommentsViewTerms = isEmpty(query) ? {
-    view: 'allRecentComments', 
+    view: 'allRecentComments',
     limit: 100,
     sortBy: settings.sortBy,
     minimumKarma: settings.minimumKarma,
   } : query;
 
-  
   const toggleSettings = () => {
     setShowSettings(!showSettings);
   }
