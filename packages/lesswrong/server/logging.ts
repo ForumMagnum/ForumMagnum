@@ -114,20 +114,20 @@ export function logGraphqlQueryStarted(operationName: string, queryString: strin
     const view = variables?.input?.terms?.view;
     if (view) {
       // eslint-disable-next-line no-console
-      console.log(`query: ${operationName} with view: ${variables?.input?.terms?.view}`);
+      console.log(`query: ${operationName} with view: ${variables?.input?.terms?.view} and body: ${queryString}`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`query: ${operationName}`);
+      console.log(`query: ${operationName} with body: ${queryString}`);
     }
   }
   if (logGraphqlMutationsSetting.get() && queryString && queryString.startsWith("mutation")) {
     const editedFields = variables?.data;
     if (editedFields) {
       // eslint-disable-next-line no-console
-      console.log(`mutation: ${operationName} editing ${JSON.stringify(Object.keys(editedFields))}`);
+      console.log(`mutation: ${operationName} editing ${JSON.stringify(Object.keys(editedFields))} and body: ${queryString}`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`mutation: ${operationName}`);
+      console.log(`mutation: ${operationName} with body: ${queryString}`);
     }
   }
 }
