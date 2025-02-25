@@ -7,9 +7,9 @@ import { createMutator, deleteMutator, updateMutator } from '../vulcan-lib/mutat
 import { performCheck } from '../vulcan-lib/utils';
 
 export interface MutationOptions<T extends DbObject> {
-  newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
-  editCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
-  removeCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
+  newCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
+  editCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
+  removeCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
   create?: boolean,
   update?: boolean,
   upsert?: boolean,
@@ -37,11 +37,11 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     const mutationName = getCreateMutationName(typeName);
 
     // check function called on a user to see if they can perform the operation
-    const check = async (user: DbUser|null, document: T|null): Promise<boolean> => {
+    const check = async (user: DbUser|null, document: T|null, context: ResolverContext): Promise<boolean> => {
       // OpenCRUD backwards compatibility
       const check = mutationOptions.newCheck;
       if (check) {
-        return await check(user, document);
+        return await check(user, document, context);
       }
       // check if they can perform "foo.new" operation (e.g. "movie.new")
       // OpenCRUD backwards compatibility
@@ -94,11 +94,11 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     const mutationName = getUpdateMutationName(typeName);
 
     // check function called on a user and document to see if they can perform the operation
-    const check = async (user: DbUser|null, document: T|null) => {
+    const check = async (user: DbUser|null, document: T|null, context: ResolverContext) => {
       // OpenCRUD backwards compatibility
       const check = mutationOptions.editCheck;
       if (check) {
-        return await check(user, document);
+        return await check(user, document, context);
       }
 
       if (!user || !document) return false;
@@ -199,11 +199,11 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     // mutation for removing a specific document (same checks as edit mutation)
     const mutationName = getDeleteMutationName(typeName);
 
-    const check = async (user: DbUser|null, document: T|null) => {
+    const check = async (user: DbUser|null, document: T|null, context: ResolverContext) => {
       // OpenCRUD backwards compatibility
       const check = mutationOptions.removeCheck;
       if (check) {
-        return await check(user, document);
+        return await check(user, document, context);
       }
 
       if (!user || !document) return false;

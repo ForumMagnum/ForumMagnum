@@ -15,9 +15,9 @@ export const MultiDocuments = createCollection({
   schema,
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
-    newCheck: (user, multiDocument) => canMutateParentDocument(user, multiDocument, 'create'),
-    editCheck: async (user, multiDocument: DbMultiDocument) => {
-      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update');
+    newCheck: (user, multiDocument, context) => canMutateParentDocument(user, multiDocument, 'create', context),
+    editCheck: async (user, multiDocument: DbMultiDocument, context) => {
+      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update', context);
       if (!canEditParent) {
         return false;
       }
