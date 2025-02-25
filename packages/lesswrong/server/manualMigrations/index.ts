@@ -3,9 +3,10 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
-// to run a migration, first start a server, 
-// then execute the following in a terminal for each migration you wish to run:
-// scripts/serverShellCommand.sh "Globals.migrations.nameOfMigration()"
+// To run a migration, run:
+//   yarn repl dev "packages/lesswrong/server/manualMigrations/migrationUtils.ts" 'runMigration("migrationName")'
+// Replace "dev" with the environment (dev, prod, local) you want to migrate.
+// You do not need to have a server running.
 
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';

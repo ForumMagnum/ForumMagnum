@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import classNames from "classnames";

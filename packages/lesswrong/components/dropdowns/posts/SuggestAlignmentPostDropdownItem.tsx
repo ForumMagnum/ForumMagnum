@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../../lib/alignment-forum/posts/helpers';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';

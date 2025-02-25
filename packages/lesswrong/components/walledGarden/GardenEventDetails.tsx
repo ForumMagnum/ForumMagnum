@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useMessages } from "../common/withMessages";
 import { makeLinkAbsolute } from "./GardenCodesItem";

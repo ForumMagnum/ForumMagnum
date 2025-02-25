@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import HistoryIcon from '@material-ui/icons/History';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';

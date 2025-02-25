@@ -1,7 +1,7 @@
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
-import { serverId } from "../analyticsWriter";
+import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";

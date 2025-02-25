@@ -1,4 +1,3 @@
-import { Components, registerComponent, getCollection } from '../../lib/vulcan-lib';
 import { LoadMoreCallback, useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { getSchema } from '../../lib/utils/getSchema';
@@ -6,6 +5,8 @@ import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -41,7 +42,7 @@ export const Datatable = <
     limit,
     enableTotal: true,
   });
-  return <DatatableLayout collectionName={collection.options.collectionName}>
+  return <DatatableLayout collectionName={collection.collectionName}>
     <DatatableContents
       columns={columns}
       collection={collection}

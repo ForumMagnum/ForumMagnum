@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';

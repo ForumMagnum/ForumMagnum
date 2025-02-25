@@ -2,10 +2,11 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

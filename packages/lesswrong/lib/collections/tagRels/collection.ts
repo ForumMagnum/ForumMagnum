@@ -1,11 +1,12 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils'
-import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
 import { isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 
 const schema: SchemaType<"TagRels"> = {
   tagId: {
@@ -98,6 +99,16 @@ export const TagRels: TagRelsCollection = createCollection({
       return false;
     },
   }),
+  voteable: {
+    timeDecayScoresCronjob: true,
+    userCanVoteOn: (
+      user: DbUser,
+      document: DbTagRel,
+      voteType: string|null,
+      _extendedVote: any,
+      context: ResolverContext,
+    ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
+  },
 });
 
 TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context: ResolverContext|null): Promise<boolean> => {
@@ -110,15 +121,5 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 }
 
 addUniversalFields({collection: TagRels})
-makeVoteable(TagRels, {
-  timeDecayScoresCronjob: true,
-  userCanVoteOn: (
-    user: DbUser,
-    document: DbTagRel,
-    voteType: string|null,
-    _extendedVote: any,
-    context: ResolverContext,
-  ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
-});
 
 export default TagRels;

@@ -1,4 +1,3 @@
-import { Vulcan } from '../../lib/vulcan-lib';
 import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
@@ -43,7 +42,7 @@ function generateAllComponentsVite(): string {
 function generateAllComponents(): string {
   const componentsDir = "packages/lesswrong/components";
   const header = `// Generated file - run "yarn generate" to update
-import { importComponent } from '../vulcan-lib';
+import { importComponent } from '../vulcan-lib/components';
 
 `;
 
@@ -117,10 +116,7 @@ export function generateTypes(repoRoot?: string) {
 
 // After running this you still need to run:
 //   yarn graphql-codegen --config codegen.yml
-const generateTypesAndSQLSchema = (rootDir?: string) => {
+export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
 }
-
-Vulcan.generateTypes = generateTypes;
-Vulcan.generateTypesAndSQLSchema = generateTypesAndSQLSchema;

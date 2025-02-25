@@ -1,12 +1,13 @@
-import { createCollection, getCollection } from "@/lib/vulcan-lib";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/lib/collectionUtils";
 import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
-import { membersGroup, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
-import { makeVoteable } from "@/lib/make_voteable";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
+import { createCollection } from "@/lib/vulcan-lib/collections.ts";
+import { addUniversalFields } from "@/lib/collectionUtils";
+import { getDefaultMutations } from "@/lib/vulcan-core/default_mutations.ts";
+import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
@@ -31,6 +32,9 @@ export const MultiDocuments = createCollection({
     removeCheck: () => false,
   }),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
+  },
 });
 
 addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
@@ -88,14 +92,3 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
 
   return true;
 };
-
-membersGroup.can([
-  'multidocuments.smallDownvote',
-  'multidocuments.bigDownvote',
-  'multidocuments.smallUpvote',
-  'multidocuments.bigUpvote',
-]);
-
-makeVoteable(MultiDocuments, {
-  timeDecayScoresCronjob: false,
-});

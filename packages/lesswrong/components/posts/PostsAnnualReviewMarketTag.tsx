@@ -1,5 +1,5 @@
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
@@ -304,17 +304,6 @@ export type ForumEventVoteData = {
   postIds?: string[]
 }
 
-export const addForumEventVoteQuery = gql`
-  mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
-    AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
-  }
-`;
-const removeForumEventVoteQuery = gql`
-  mutation RemoveForumEventVote($forumEventId: String!) {
-    RemoveForumEventVote(forumEventId: $forumEventId)
-  }
-`;
-
 const DEFAULT_VOTE_INDEX = Math.floor(NUM_TICKS / 2);
 
 /**
@@ -517,8 +506,16 @@ export const ForumEventPoll = ({
     return comments?.find(comment => comment.userId === currentUser?._id) || null;
   }, [comments, currentUser]);
 
-  const [addVote] = useMutation(addForumEventVoteQuery);
-  const [removeVote] = useMutation(removeForumEventVoteQuery);
+  const [addVote] = useMutation(gql`
+    mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
+      AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
+    }
+  `);
+  const [removeVote] = useMutation(gql`
+    mutation RemoveForumEventVote($forumEventId: String!) {
+      RemoveForumEventVote(forumEventId: $forumEventId)
+    }
+  `);
 
   /**
    * When the user clicks the "x" icon, or when a logged out user tries to vote,

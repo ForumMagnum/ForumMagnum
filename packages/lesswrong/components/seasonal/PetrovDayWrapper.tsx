@@ -1,4 +1,4 @@
-import { registerComponent, Components} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useEffect, useState} from 'react';
 import { useQuery, gql } from '@apollo/client';
 import moment from '../../lib/moment-timezone';

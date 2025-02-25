@@ -10,11 +10,22 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
+
+
 const PostFixedPositionToCHeading = ({post, classes}: {
-  post: PostsListWithVotes
+  post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
-  return <div className={classes.readTime}>{post.readTimeMinutes} min read</div>
+  const { LWTooltip } = Components;
+  const wordCount = post.contents?.wordCount;
+
+  const readTime = <div className={classes.readTime}>{post.readTimeMinutes} min read</div>
+
+  if (!wordCount) return readTime;
+
+  return <LWTooltip title={`${Number(wordCount.toPrecision(2)).toLocaleString()} words`}>
+    {readTime}
+  </LWTooltip>
 }
 
 const FixedPositionToCHeadingComponent = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});

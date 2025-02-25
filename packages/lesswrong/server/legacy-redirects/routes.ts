@@ -1,4 +1,4 @@
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../lib/collections/comments/collection';
 import { commentGetPageUrlFromDB, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { faviconUrlSetting, isAF } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
-import { addStaticRoute } from '../vulcan-lib';
+import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { createAnonymousContext } from '../vulcan-lib/query';
 import type { ServerResponse } from 'http';
 

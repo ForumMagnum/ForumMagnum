@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   sidebarInlineReactMobile: {

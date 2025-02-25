@@ -1,21 +1,21 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {
   DayOfWeek,
-  isLegacyNotificationTypeSettings,
+  NotificationTypeSettings,
   LegacyNotificationTypeSettings,
   legacyToNewNotificationTypeSettings,
   NotificationBatchingFrequency,
   NotificationChannel,
   NotificationChannelSettings,
-  NotificationTypeSettings,
+  isLegacyNotificationTypeSettings,
 } from "../../lib/collections/users/schema";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-type NotificationTypeSettingsProps = {
+type NotificationTypeSettingsWidgetProps = {
   path: keyof DbUser;
   value: NotificationTypeSettings | LegacyNotificationTypeSettings;
   updateCurrentValues: Function,
@@ -84,13 +84,13 @@ const getChannelLabel = (channel: NotificationChannel): string => {
   }
 }
 
-const NotificationTypeSettings = ({
+const NotificationTypeSettingsWidget = ({
   path,
   value,
   updateCurrentValues,
   label,
   classes
-}: NotificationTypeSettingsProps) => {
+}: NotificationTypeSettingsWidgetProps) => {
   const { BatchTimePicker, Typography, MenuItem, ToggleSwitch } = Components;
   const notificationType = getNotificationTypeByUserSetting(path);
 
@@ -165,13 +165,13 @@ const NotificationTypeSettings = ({
   );
 }
 
-const NotificationTypeSettingsComponent = registerComponent('NotificationTypeSettings', NotificationTypeSettings, {
+const NotificationTypeSettingsWidgetComponent = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
   styles,
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    NotificationTypeSettings: typeof NotificationTypeSettingsComponent
+    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidgetComponent
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from '../../lib/moment-timezone';
 
 /// A date, formatted for an email. Unlike FormatDate (which is used on regular

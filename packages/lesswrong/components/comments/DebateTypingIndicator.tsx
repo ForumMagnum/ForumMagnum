@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {

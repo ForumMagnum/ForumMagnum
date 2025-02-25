@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@material-ui/icons/Email';
 
 const styles = (theme: ThemeType) => ({

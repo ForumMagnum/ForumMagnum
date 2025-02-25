@@ -1,6 +1,6 @@
 import { Subscriptions } from './collection';
 import { subscriptionTypes } from './schema'
-import { Utils } from '../../vulcan-lib';
+import { Utils } from '../../vulcan-lib/utils';
 import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {
@@ -28,7 +28,7 @@ export const isDefaultSubscriptionType =
  * @returns {Boolean}
  */
 export const performSubscriptionAction = async (action: "subscribe"|"unsubscribe", collection: CollectionBase<any>, itemId: string, user: DbUser) => {
-  const collectionName = collection.options.collectionName
+  const collectionName = collection.collectionName
   const newSubscription: Partial<DbSubscription> = {
     state: action === "subscribe" ? 'subscribed' : 'suppressed',
     documentId: itemId,

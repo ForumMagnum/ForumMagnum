@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import Card from "@material-ui/core/Card";

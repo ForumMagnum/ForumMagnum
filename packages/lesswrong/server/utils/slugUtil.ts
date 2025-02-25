@@ -1,6 +1,6 @@
 import { randomLowercaseId } from "@/lib/random";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
-import { getCollectionHooks } from "../mutationCallbacks";
+import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from "../mutationCallbacks";
 import { slugify } from "@/lib/utils/slugify";
 
 
@@ -110,7 +110,7 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
 }) {
   const collectionName = collection.collectionName;
 
-  getCollectionHooks(collectionName).createBefore.add(async (doc, createProps) => {
+  const slugCreateBeforeCallbackFunction = async function (doc: DbInsertion<ObjectsByCollectionName[N]>, createProps: CreateCallbackProperties<N>) {
     const {newDocument} = createProps;
     const title = getTitle(newDocument);
     const titleSlug = doc.slug ?? slugify(title);
@@ -138,9 +138,13 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
         slug: titleSlug,
       };
     }
-  });
+  };
 
-  getCollectionHooks(collectionName).updateBefore.add(async (doc, updateProps) => {
+  Object.defineProperty(slugCreateBeforeCallbackFunction, 'name', { value: `slugCreateBeforeCallbackFunction-${collectionName}`, writable: false });
+
+  getCollectionHooks(collectionName).createBefore.add(slugCreateBeforeCallbackFunction);
+
+  const slugUpdateBeforeCallbackFunction = async function (doc: Partial<ObjectsByCollectionName[N]>, updateProps: UpdateCallbackProperties<N>) {
     const {oldDocument, newDocument, data} = updateProps;
     const oldTitle = getTitle(oldDocument);
     const newTitle = getTitle(newDocument);
@@ -200,5 +204,9 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
       case "rejectNewDocument":
         throw new Error(`Slug ${changedSlug} is already taken`);
     }
-  });
+  }
+
+  Object.defineProperty(slugUpdateBeforeCallbackFunction, 'name', { value: `slugUpdateBeforeCallbackFunction-${collectionName}`, writable: false });
+
+  getCollectionHooks(collectionName).updateBefore.add(slugUpdateBeforeCallbackFunction);
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';

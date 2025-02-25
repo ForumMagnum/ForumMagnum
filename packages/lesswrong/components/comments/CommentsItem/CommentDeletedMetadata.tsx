@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 
