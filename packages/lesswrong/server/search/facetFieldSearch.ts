@@ -1,4 +1,4 @@
-import { ensureCustomPgIndex } from "../../lib/collectionIndexUtils";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 type FacetField = {
   name: string,
@@ -30,11 +30,14 @@ export const getDefaultFacetFieldSelector = (pgField: string): string => `
   "banned" IS NULL
 `;
 
-for (const {name, pgField} of allowedFacetFields) {
-  // The structure of this index should match the SQL query in `searchFacets`
-  void ensureCustomPgIndex(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_tsvector_${name}"
-    ON "Users" (TO_TSVECTOR('english', ${pgField}))
-    WHERE ${getDefaultFacetFieldSelector(pgField)}
-  `);
+export function getFacetFieldIndexes(): DatabaseIndexSet {
+  const indexSet = new DatabaseIndexSet();
+  for (const {name, pgField} of allowedFacetFields) {
+    indexSet.addCustomPgIndex(`
+      CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_tsvector_${name}"
+      ON "Users" (TO_TSVECTOR('english', ${pgField}))
+      WHERE ${getDefaultFacetFieldSelector(pgField)}
+    `);
+  }
+  return indexSet;
 }

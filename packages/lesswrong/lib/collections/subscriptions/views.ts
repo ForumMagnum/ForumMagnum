@@ -1,5 +1,4 @@
 import { Subscriptions } from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 import { subscriptionTypes } from "./schema";
 
 declare global {
@@ -20,7 +19,6 @@ Subscriptions.addView("subscriptionState", function (terms: SubscriptionsViewTer
     options: {sort: {createdAt: -1}, limit: 1}
   };
 });
-ensureIndex(Subscriptions, {userId: 1, documentId: 1, collectionName: 1, type: 1, createdAt: 1});
 
 Subscriptions.addView("subscriptionsOfType", function (terms: SubscriptionsViewTerms) {
   return {

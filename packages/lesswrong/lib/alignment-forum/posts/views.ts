@@ -1,7 +1,5 @@
 import { Posts } from '../../collections/posts/collection';
-import { ensureIndex } from '../../collectionIndexUtils';
-import { augmentForDefaultView } from '../../collections/posts/views';
-import { viewFieldNullOrMissing } from "../../vulcan-lib/collections";
+import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
 Posts.addView("alignmentSuggestedPosts", function () {
   return {
@@ -18,10 +16,3 @@ Posts.addView("alignmentSuggestedPosts", function () {
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, createdAt:1, }),
-  {
-    name: "posts.alignmentSuggestedPosts",
-    partialFilterExpression: { "suggestForAlignmentUserIds.0": {$exists:true} },
-  }
-);

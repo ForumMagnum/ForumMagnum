@@ -1,5 +1,4 @@
 import Digests from "./collection";
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface DigestsViewTerms extends ViewTermsBase {
@@ -20,4 +19,3 @@ Digests.addView("all", function (terms: DigestsViewTerms) {
     options: {sort: {num: -1}}
   }
 })
-ensureIndex(Digests, { num: 1 })

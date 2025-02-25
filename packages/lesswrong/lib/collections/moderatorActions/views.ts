@@ -1,4 +1,3 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import ModeratorActions from './collection';
 import { restrictionModeratorActions } from './schema';
 
@@ -18,7 +17,6 @@ ModeratorActions.addView('userModeratorActions', function (terms: ModeratorActio
     options: { sort: { createdAt: -1 } }
   };
 })
-ensureIndex(ModeratorActions, { userId: 1, createdAt: -1 })
 
 ModeratorActions.addView('restrictionModerationActions', function (terms: ModeratorActionsViewTerms) {
   return {
@@ -26,4 +24,3 @@ ModeratorActions.addView('restrictionModerationActions', function (terms: Modera
     options: { sort: { createdAt: -1 } }
   };
 })
-ensureIndex(ModeratorActions, { type: 1, createdAt: -1, endedAt: -1 })

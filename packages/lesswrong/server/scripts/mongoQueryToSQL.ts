@@ -4,6 +4,7 @@ import SelectQuery from "@/server/sql/SelectQuery";
 import Table from "@/server/sql/Table";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import TableIndex from "../sql/TableIndex";
 
 /**
  * Translates a mongo find query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
@@ -39,10 +40,10 @@ export const rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName
 
 export const ensureIndexToSQL = ({ tableName, indexSpec, options }: { tableName: CollectionNameString, indexSpec: any, options?: any }) => {
   const table = Table.fromCollection(getCollection(tableName));
-  const index = table.getIndex(Object.keys(indexSpec), options) ?? table.addIndex(indexSpec, options);
-  const query = new CreateIndexQuery({ table, index, ifNotExists: true });
+  const tableIndex = new TableIndex(tableName, indexSpec, options);
+  const query = new CreateIndexQuery({ table, index: tableIndex, ifNotExists: true });
   const { sql, args } = query.compile();
 
   // eslint-disable-next-line no-console
-  console.log('query', { indexName: index.getName(), sql, args });
+  console.log('query', { indexName: tableIndex.getName(), sql, args });
 };

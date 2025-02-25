@@ -1,4 +1,3 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import Spotlights from "./collection";
 
 declare global {
@@ -21,9 +20,6 @@ Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: Spotlights
     }
   }
 });
-
-ensureIndex(Spotlights, { lastPromotedAt: -1 });
-ensureIndex(Spotlights, { position: -1 });
 
 Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};

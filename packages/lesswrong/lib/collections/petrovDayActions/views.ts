@@ -1,4 +1,3 @@
-import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { PetrovDayActions } from "./collection"
 import { PetrovDayActionType } from "./schema";
 
@@ -25,7 +24,6 @@ PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
   }
   return selector
 });
-ensureIndex(PetrovDayActions, {userId: 1, actionType: 1});
 
 
 PetrovDayActions.addView("launchDashboard", (terms: PetrovDayActionsViewTerms) => {

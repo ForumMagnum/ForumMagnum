@@ -1,5 +1,4 @@
 import UserEAGDetails from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface UserEAGDetailsViewTerms extends ViewTermsBase {
@@ -15,4 +14,3 @@ UserEAGDetails.addView("dataByUser", function (terms: UserEAGDetailsViewTerms) {
     }
   };
 });
-ensureIndex(UserEAGDetails, { userId: 1 }, { unique: true })

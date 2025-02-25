@@ -30,8 +30,8 @@ export const apolloCacheVoteablePossibleTypes = () => {
   }
 }
 
-export const getVoteableCollections = () => {
-  return getAllCollections().filter(c => c.isVoteable());
+export const getVoteableCollections = (): CollectionBase<VoteableCollectionName>[] => {
+  return getAllCollections().filter((c): c is CollectionBase<VoteableCollectionName> => c.isVoteable());
 }
 
 const currentUserVoteResolver = <N extends CollectionNameString>(

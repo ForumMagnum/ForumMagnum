@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { ensureIndex } from './collectionIndexUtils';
 import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
 
 declare module "simpl-schema" {
@@ -57,7 +56,6 @@ export function addUniversalFields<N extends CollectionNameString>({
       ...legacyDataOptions,
     },
   })
-  ensureIndex(collection, {schemaVersion: 1});
 }
 
 export function isUniversalField(fieldName: string): boolean {

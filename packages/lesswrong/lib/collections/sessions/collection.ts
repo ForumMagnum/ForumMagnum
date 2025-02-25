@@ -1,17 +1,20 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const Sessions: SessionsCollection = createCollection({
   collectionName: 'Sessions',
   dbCollectionName: 'sessions',
   typeName: 'Session',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Sessions', {_id: 1, expires: 1});
+    indexSet.addIndex('Sessions', {expires: 1});
+    return indexSet;
+  },
   logChanges: false,
 });
-
-ensureIndex(Sessions, {_id:1, expires:1});
-ensureIndex(Sessions, {expires: 1});
 
 Sessions.checkAccess = async (
   _user: DbUser|null,

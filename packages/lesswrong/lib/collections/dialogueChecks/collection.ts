@@ -1,13 +1,18 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const DialogueChecks: DialogueChecksCollection = createCollection({
   collectionName: 'DialogueChecks',
   typeName: 'DialogueCheck',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('DialogueChecks', { userId: 1, targetUserId: 1 }, { unique: true });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('DialogueChecks'),
   logChanges: true,
 })
@@ -31,6 +36,5 @@ DialogueChecks.checkAccess = async (user: DbUser|null, document: DbDialogueCheck
 };
 
 addUniversalFields({ collection: DialogueChecks })
-ensureIndex(DialogueChecks, { userId: 1, targetUserId: 1 }, { unique: true });
 
 export default DialogueChecks;

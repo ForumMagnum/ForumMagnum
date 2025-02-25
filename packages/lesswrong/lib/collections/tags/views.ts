@@ -1,7 +1,6 @@
 import { Tags } from './collection';
-import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
-import { viewFieldAllowAny } from '../../vulcan-lib/collections';
-import { userIsAdminOrMod } from '../../vulcan-users/permissions';
+import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { jsonArrayContainsSelector } from '@/lib/utils/viewUtils';
 import { hasWikiLenses } from '@/lib/betas';
 
@@ -34,7 +33,6 @@ Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
     }
   };
 });
-ensureIndex(Tags, {deleted:1, adminOnly:1});
 
 Tags.addView("tagsByTagIds", (terms: TagsViewTerms) => {
   return {
@@ -48,7 +46,6 @@ Tags.addView('allTagsAlphabetical', (terms: TagsViewTerms) => {
     options: {sort: {name: 1}}
   }
 });
-ensureIndex(Tags, {deleted:1, adminOnly:1, name: 1});
 
 Tags.addView("userTags", (terms: TagsViewTerms) => {
   return {
@@ -60,7 +57,6 @@ Tags.addView("userTags", (terms: TagsViewTerms) => {
     options: {sort: {createdAt: -1}},
   }
 });
-ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
 
 Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: ResolverContext) => {
   return {
@@ -81,7 +77,6 @@ Tags.addView('allPagesByNewest', (terms: TagsViewTerms) => {
     options: {sort: {createdAt: -1}},
   }
 });
-ensureIndex(Tags, {deleted:1, adminOnly:1, wikiOnly: 1, createdAt: 1});
 
 Tags.addView('allTagsHierarchical', (terms: TagsViewTerms) => {
   const selector = terms.wikiGrade !== undefined && parseInt(terms.wikiGrade)
@@ -93,8 +88,6 @@ Tags.addView('allTagsHierarchical', (terms: TagsViewTerms) => {
   }
 });
 
-ensureIndex(Tags, {deleted:1, adminOnly:1, wikiGrade: 1, defaultOrder: 1, postCount: 1, name: 1});
-
 Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
   return {
     selector: {
@@ -104,7 +97,6 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
     },
   };
 });
-ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
 
 Tags.addView('tagsBySlugs', (terms: TagsViewTerms) => {
   return {
@@ -130,7 +122,6 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, core:1, name: 1});
 
 Tags.addView('postTypeTags', (terms: TagsViewTerms) => {
   return {
@@ -146,7 +137,6 @@ Tags.addView('postTypeTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, isPostType:1, name: 1});
 
 Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
   return {
@@ -172,7 +162,6 @@ Tags.addView('newTags', (terms: TagsViewTerms) => {
     }
   }
 })
-ensureIndex(Tags, {deleted: 1, createdAt: 1});
 
 Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
   return {
@@ -187,7 +176,6 @@ Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, needsReview: 1, createdAt: 1});
 
 Tags.addView('suggestedFilterTags', (terms: TagsViewTerms) => {
   return {
@@ -203,8 +191,6 @@ Tags.addView('suggestedFilterTags', (terms: TagsViewTerms) => {
   }
 });
 
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, suggestedAsFilter: 1, defaultOrder: 1, name: 1});
-
 Tags.addView('allLWWikiTags', (terms: TagsViewTerms) => {
   return {
     selector: {
@@ -214,8 +200,6 @@ Tags.addView('allLWWikiTags', (terms: TagsViewTerms) => {
   }
 });
 
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportSlug: 1});
-
 Tags.addView('unprocessedLWWikiTags', (terms: TagsViewTerms) => {
   return {
     selector: {
@@ -224,9 +208,6 @@ Tags.addView('unprocessedLWWikiTags', (terms: TagsViewTerms) => {
     }
   }
 });
-
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, tagFlagsIds: 1});
-
 
 Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
   return {
@@ -253,8 +234,6 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
   }
 });
 
-ensureIndex(Tags, {name: 1});
-
 Tags.addView('allArbitalTags', (terms: TagsViewTerms) => {
   return {
     selector: {
@@ -265,9 +244,6 @@ Tags.addView('allArbitalTags', (terms: TagsViewTerms) => {
     }
   }
 });
-
-// TODO: switch this to a custom index, maybe a GIN index?
-ensureIndex(Tags, {name: 1, "legacyData.arbitalPageId": 1});
 
 const pingbackSelector = (terms: TagsViewTerms) => hasWikiLenses
   ? jsonArrayContainsSelector("pingbacks.Tags", terms.tagId)
@@ -286,7 +262,3 @@ Tags.addView("pingbackWikiPages", (terms: TagsViewTerms) => {
     },
   }
 });
-void ensureCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin(pingbacks);`);
-
-// Used in subTags resolver
-ensureIndex(Tags, {parentTagId: 1});

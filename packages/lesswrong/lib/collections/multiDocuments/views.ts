@@ -1,8 +1,7 @@
-import { ensureCustomPgIndex, ensureIndex } from "@/lib/collectionIndexUtils";
 import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
 import { MultiDocuments } from "./collection";
-import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
-import { viewFieldAllowAny } from "@/lib/vulcan-lib/collections.ts";
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { viewFieldAllowAny } from "@/lib/utils/viewConstants";
 
 declare global {
   interface MultiDocumentsViewTerms extends ViewTermsBase {
@@ -64,4 +63,3 @@ MultiDocuments.addView("pingbackLensPages", (terms: MultiDocumentsViewTerms) => 
     },
   }
 });
-void ensureCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);

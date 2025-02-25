@@ -1,5 +1,4 @@
 import AdvisorRequests from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface AdvisorRequestsViewTerms extends ViewTermsBase {
@@ -15,4 +14,3 @@ AdvisorRequests.addView("requestsByUser", function (terms: AdvisorRequestsViewTe
     }
   };
 });
-ensureIndex(AdvisorRequests, { userId: 1 })

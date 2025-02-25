@@ -1,5 +1,4 @@
 import Reports from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface ReportsViewTerms extends ViewTermsBase {
@@ -14,7 +13,6 @@ Reports.addView("allReports", function (terms: ReportsViewTerms) {
     options: {sort: {createdAt: 1}}
   };
 });
-ensureIndex(Reports, {createdAt: 1});
 
 Reports.addView("unclaimedReports", function (terms: ReportsViewTerms) {
   return {
@@ -22,7 +20,6 @@ Reports.addView("unclaimedReports", function (terms: ReportsViewTerms) {
     options: {sort: {createdAt: 1}}
   };
 });
-ensureIndex(Reports, {claimedUserId:1, createdAt: 1});
 
 Reports.addView("claimedReports", function (terms: ReportsViewTerms) {
   return {
@@ -46,7 +43,6 @@ Reports.addView("sunshineSidebarReports", function (terms: ReportsViewTerms) {
     options: {sort: {createdAt: -1}}
   };
 });
-ensureIndex(Reports, {closedAt:1, createdAt: 1});
 
 Reports.addView("closedReports", function (terms: ReportsViewTerms) {
   return {

@@ -1,4 +1,3 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import PodcastEpisodes from "./collection"
 
 declare global {
@@ -14,5 +13,3 @@ PodcastEpisodes.addView("episodeByExternalId", (terms: PodcastEpisodesViewTerms)
   const selector = { _id, externalEpisodeId };
   return { selector };
 });
-
-ensureIndex(PodcastEpisodes, { externalEpisodeId: 1 }, { unique: true });

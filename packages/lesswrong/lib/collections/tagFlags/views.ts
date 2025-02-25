@@ -1,5 +1,4 @@
 import { TagFlags } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface TagFlagsViewTerms extends ViewTermsBase {
@@ -18,5 +17,3 @@ TagFlags.addView('allTagFlags', (terms: TagFlagsViewTerms) => {
     },
   };
 });
-
-ensureIndex(TagFlags, {deleted:1, order:1, name: 1});

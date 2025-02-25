@@ -80,7 +80,6 @@ import './collections/readStatus/collection';
 // Bans
 import './collections/bans/collection';
 import './collections/bans/fragments';
-import './collections/bans/views';
 
 // Chapters
 import './collections/sequences/collection';
@@ -107,7 +106,6 @@ import './collections/localgroups/fragments';
 import './collections/chapters/fragments';
 import './collections/sequences/fragments';
 import './collections/books/fragments';
-import './collections/books/views';
 import './collections/collections/fragments';
 import './collections/collections/views';
 import './collections/collections/helpers';

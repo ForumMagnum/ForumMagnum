@@ -1,5 +1,4 @@
 import Chapters from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface ChaptersViewTerms extends ViewTermsBase {
@@ -14,4 +13,3 @@ Chapters.addView("SequenceChapters", function (terms: ChaptersViewTerms) {
     options: {sort: {number: 1, createdAt: 1}, limit: terms.limit || 20},
   };
 });
-ensureIndex(Chapters, { sequenceId: 1, number: 1 })

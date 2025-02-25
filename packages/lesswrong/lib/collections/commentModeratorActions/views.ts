@@ -1,4 +1,3 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import CommentModeratorActions from './collection';
 
 interface NoViewTerms extends ViewTermsBase {
@@ -27,4 +26,3 @@ CommentModeratorActions.addView('activeCommentModeratorActions', function (terms
     options: { sort: { createdAt: -1 }, limit: terms.limit }
   };
 })
-ensureIndex(CommentModeratorActions, { commentId: 1, createdAt: -1 })

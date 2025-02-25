@@ -5,6 +5,7 @@ import { makeEditable } from '../../editor/make_editable'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbLocalgroup> = {
   newCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
@@ -30,6 +31,16 @@ export const Localgroups: LocalgroupsCollection = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Localgroups', { organizerIds: 1, deleted: 1, name: 1 });
+    indexSet.addIndex('Localgroups', { organizerIds: 1, inactive: 1, deleted: 1, name: 1 });
+    indexSet.addIndex('Localgroups', { organizerIds: 1, inactive: 1, deleted: 1 });
+    indexSet.addIndex('Localgroups', { inactive: 1, deleted: 1, name: 1 });
+    indexSet.addIndex('Localgroups', { mongoLocation: "2dsphere", isOnline: 1, inactive: 1, deleted: 1 });
+    indexSet.addIndex('Localgroups', { isOnline: 1, inactive: 1, deleted: 1, name: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Localgroups'),
   mutations: getDefaultMutations('Localgroups', options),
   logChanges: true,

@@ -1,5 +1,4 @@
 import { Collections } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface CollectionsViewTerms extends ViewTermsBase {
@@ -15,6 +14,3 @@ Collections.addDefaultView((terms: CollectionsViewTerms) => {
   }
   return params;
 })
-
-// Used in Posts and Sequences canonicalCollection resolvers
-ensureIndex(Collections, { slug: "hashed" });

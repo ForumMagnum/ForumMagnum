@@ -1,5 +1,4 @@
 import { Votes } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 import moment from 'moment';
 
 declare global {
@@ -12,16 +11,6 @@ declare global {
     before?: string
   }
 }
-
-ensureIndex(Votes, {cancelled:1, userId:1, documentId:1});
-ensureIndex(Votes, {cancelled:1, documentId:1});
-ensureIndex(Votes, {cancelled:1, userId:1, votedAt:-1});
-
-// Used by getKarmaChanges
-ensureIndex(Votes, {authorIds: 1});
-
-// Used by getUsersTopUpvotedUsers - the index that put `cancelled` first was not very helpful for this since it was doing a full index scan
-ensureIndex(Votes, { userId: 1, cancelled: 1, votedAt: 1 });
 
 Votes.addView("tagVotes", function () {
   return {
@@ -36,7 +25,6 @@ Votes.addView("tagVotes", function () {
     }
   }
 })
-ensureIndex(Votes, {collectionName: 1, votedAt: 1})
 
 Votes.addView("userPostVotes", function ({voteType, collectionName, after, before}, _, context?: ResolverContext) {
   const votedAtFilter = []
@@ -63,7 +51,6 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after, befor
     }
   }
 })
-ensureIndex(Votes, {collectionName: 1, userId: 1, voteType: 1, cancelled: 1, isUnvote: 1, votedAt: 1})
 
 Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverContext) {
   const currentUserId = context?.currentUser?._id;

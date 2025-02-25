@@ -1,7 +1,4 @@
 import LLMConversations from './collection';
-import { ensureIndex } from '@/lib/collectionIndexUtils';
-
-
 
 declare global {
   interface LlmConversationsWithUserViewTerms {
@@ -41,6 +38,3 @@ LLMConversations.addView("llmConversationsAll", function (terms: LlmConversation
       }
   }
 }});
-
-ensureIndex(LLMConversations, { userId: 1, deleted: 1, createdAt: 1 });
-

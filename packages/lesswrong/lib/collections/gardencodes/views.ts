@@ -1,5 +1,4 @@
 import { eventTypes, GardenCodes } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface GardenCodesViewTerms extends ViewTermsBase {
@@ -55,8 +54,6 @@ GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
   }
 })
 
-ensureIndex(GardenCodes, {code:1, deleted: 1});
-ensureIndex(GardenCodes, {userId:1, deleted: 1});
 
 GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
@@ -77,7 +74,5 @@ GardenCodes.addView("publicGardenCodes", function (terms: GardenCodesViewTerms) 
     }
   }
 })
-
-ensureIndex(GardenCodes, {code: 1, deleted: 1, userId: 1, });
 
 GardenCodes.addView("gardenCodeByCode", (terms: GardenCodesViewTerms) => ({}));

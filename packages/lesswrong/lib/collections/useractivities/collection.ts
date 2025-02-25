@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import { addUniversalFields } from '../../collectionUtils'
-import { ensureIndex } from '../../collectionIndexUtils';
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /*
  * User Activities
@@ -44,10 +44,14 @@ export const UserActivities: UserActivitiesCollection = createCollection({
   collectionName: 'UserActivities',
   typeName: 'UserActivity',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('UserActivities', { visitorId: 1, type: 1 });
+    return indexSet;
+  },
   logChanges: true,
 });
 
 addUniversalFields({collection: UserActivities})
-ensureIndex(UserActivities, { visitorId: 1, type: 1 })
 
 export default UserActivities;

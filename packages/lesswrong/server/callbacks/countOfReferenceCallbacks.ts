@@ -246,7 +246,7 @@ export function addCountOfReferenceCallbacks() {
         continue;
       }
       const resync = (documentId: string) => {
-        if (countOfReferencesOptions.resyncElastic) {
+        if (countOfReferencesOptions.resyncElastic && searchIndexedCollectionNamesSet.has(collectionName)) {
           void elasticSyncDocument(collectionName, documentId);
         }
       }
