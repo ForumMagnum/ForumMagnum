@@ -53,7 +53,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
     bulkWrite: (operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>, options?: MongoBulkWriteOptions) => Promise<BulkWriterResult>,
     findOneAndUpdate: any,
     dropIndex: any,
-    indexes: any,
     updateOne: any,
     updateMany: any
   }
@@ -261,8 +260,9 @@ type MongoEnsureIndexOptions<T> = {
     strength: number,
   },
 }
-type MongoIndexSpecification<T> = MongoEnsureIndexOptions<T> & {
+type MongoIndexSpecification<T> = {
   key: MongoIndexKeyObj<T>
+  options: MongoEnsureIndexOptions<T>
 }
 
 type MongoDropIndexOptions = {};

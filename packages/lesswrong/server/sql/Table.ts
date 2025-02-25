@@ -1,6 +1,4 @@
 import { Type, IdType, isResolverOnly } from "./Type";
-import TableIndex from "./TableIndex";
-import { getAllIndexes } from "../databaseIndexes/allIndexes";
 import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
 
 /**
@@ -20,7 +18,6 @@ import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
 class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
   private resolverOnlyFields = new Set<string>();
-  private indexes: TableIndex<T>[] = [];
   private writeAheadLogged = true;
 
   constructor(private name: string) {}
@@ -47,30 +44,6 @@ class Table<T extends DbObject> {
 
   countFields() {
     return Object.keys(this.fields).length;
-  }
-
-  addIndex(key: MongoIndexKeyObj<T>, options?: MongoEnsureIndexOptions<T>) {
-    const index = new TableIndex<T>(this.name, key, options);
-    this.indexes.push(index);
-    return index;
-  }
-
-  hasIndex(fields: string[], options?: MongoEnsureIndexOptions<T>) {
-    return this.indexes.some((index) => index.equals(fields, options));
-  }
-
-  getIndex(fields: string[], options?: MongoEnsureIndexOptions<T>) {
-    return this.indexes.find((index) => index.equals(fields, options));
-  }
-
-  /**
-   * Returns the set of indexes that this table has _as specified in code_ (ie,
-   * in `ensureIndex` calls). If there are extra indexes in the DB due to
-   * manual DB operations, or a migration not having been run, they will not
-   * be included.
-   */
-  getRequestedIndexes() {
-    return this.indexes;
   }
 
   isWriteAheadLogged() {
@@ -107,12 +80,6 @@ class Table<T extends DbObject> {
           );
         }
       }
-    }
-
-    const indexes = getAllIndexes().mongoStyleIndexes[collection.collectionName] ?? [];
-    for (const index of indexes) {
-      const {key, ...options} = index;
-      table.addIndex(key, options);
     }
 
     return table;

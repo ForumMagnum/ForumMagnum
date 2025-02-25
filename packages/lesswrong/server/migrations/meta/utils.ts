@@ -150,8 +150,9 @@ export const createTable = async <N extends CollectionNameString>(
   const table = collection.getTable();
   const {sql, args} = new CreateTableQuery(table, ifNotExists).compile();
   await db.none(sql, args);
-  for (const index of table.getRequestedIndexes()) {
-    await createIndex(db, collection, index, ifNotExists);
+  for (const index of getAllIndexes().mongoStyleIndexes[collection.collectionName] ?? []) {
+    const tableIndex = new TableIndex(table.getName(), index.key, index.options);
+    await createIndex(db, collection, tableIndex, ifNotExists);
   }
 }
 
@@ -192,7 +193,7 @@ export const updateIndexes = async <N extends CollectionNameString>(
   const allIndexes = getAllIndexes();
   const indexesOnCollection = allIndexes.mongoStyleIndexes[collection.collectionName];
   for (const index of indexesOnCollection ?? []) {
-    await collection._ensureIndex(index.key, index);
+    await collection._ensureIndex(index.key, index.options);
     await sleep(100);
   }
 }

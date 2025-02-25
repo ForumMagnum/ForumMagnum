@@ -274,5 +274,14 @@ export function getDbIndexesOnPosts() {
   indexSet.addIndex("Posts", {"fmCrosspost.foreignPostId":1, postedAt:-1});
   indexSet.addIndex("Posts", {defaultRecommendation: 1})
 
+  indexSet.addIndex("Posts",
+    augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, createdAt:1, }),
+    {
+      name: "posts.alignmentSuggestedPosts",
+      partialFilterExpression: { "suggestForAlignmentUserIds.0": {$exists:true} },
+    }
+  );
+
+
   return indexSet;
 }

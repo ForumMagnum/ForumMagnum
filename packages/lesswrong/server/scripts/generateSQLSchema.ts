@@ -249,9 +249,11 @@ class Graph {
 const buildSchemaSQL = () => {
   const graph = new Graph();
   graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
+  const allIndexes = getAllIndexes();
   graph.addNodes(getAllCollections().flatMap((collection) => {
     const table = Table.fromCollection(collection);
-    const indexes: Node[] = table.getRequestedIndexes().map((i) => new IndexNode(table, i));
+    const tableIndexes = (allIndexes.mongoStyleIndexes[collection.collectionName] ?? []).map((i) => new TableIndex(table.getName(), i.key, i.options));
+    const indexes: Node[] = tableIndexes.map((i) => new IndexNode(table, i));
     return indexes.concat(new TableNode(table));
   }));
   const customPgIndexes = getAllIndexes().customPgIndexes;

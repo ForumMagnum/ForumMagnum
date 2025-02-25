@@ -16,8 +16,8 @@ export class DatabaseIndexSet {
       this.mongoStyleIndexes[collectionName] = [];
     }
     this.mongoStyleIndexes[collectionName]!.push({
-      ...options,
       key: index,
+      options,
     });
   }
   
@@ -31,7 +31,7 @@ export function mergeDatabaseIndexSets(indexSets: DatabaseIndexSet[]): DatabaseI
   for (const indexSet of indexSets) {
     for (const collectionName of Object.keys(indexSet.mongoStyleIndexes) as CollectionNameString[]) {
       for (const mongoStyleIndex of indexSet.mongoStyleIndexes[collectionName] ?? []) {
-        merged.addIndex(collectionName, mongoStyleIndex);
+        merged.addIndex(collectionName, mongoStyleIndex.key, mongoStyleIndex.options);
       }
     }
     for (const customPgIndex of indexSet.customPgIndexes) {

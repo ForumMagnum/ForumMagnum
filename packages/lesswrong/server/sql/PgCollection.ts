@@ -12,6 +12,7 @@ import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { getVoteableSchemaFields } from "@/lib/make_voteable";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
+import TableIndex from "./TableIndex";
 
 let executingQueries = 0;
 
@@ -269,7 +270,7 @@ class PgCollection<
     const key: MongoIndexKeyObj<ObjectsByCollectionName[N]> = typeof fieldOrSpec === "string"
       ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;
-    const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
+    const index = new TableIndex(this.tableName, key, options);
     const query = new CreateIndexQuery({ table: this.getTable(), index, ifNotExists: true });
 
     if (!options?.concurrently) {
@@ -340,9 +341,6 @@ class PgCollection<
     dropIndex: async (indexName: string, options?: MongoDropIndexOptions) => {
       const dropIndex = new DropIndexQuery(this.getTable(), indexName);
       await this.executeWriteQuery(dropIndex, {indexName, options})
-    },
-    indexes: (_options: never) => {
-      return Promise.resolve(this.getTable().getRequestedIndexes().map((index) => index.getDetails()));
     },
     updateOne: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
