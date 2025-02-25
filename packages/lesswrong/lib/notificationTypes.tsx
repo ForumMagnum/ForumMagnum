@@ -119,7 +119,7 @@ export interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
-  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>}) => Promise<string>
+  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>, context: ResolverContext}) => Promise<string>
   getIcon: () => ReactNode,
   Display?: FC<{
     notification: NotificationDisplay,
