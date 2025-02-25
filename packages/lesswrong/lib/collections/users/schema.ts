@@ -1712,7 +1712,7 @@ const schema: SchemaType<"Users"> = {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
-  notificationKarmaPowersGained: { // TODO fix in prev PR
+  notificationKarmaPowersGained: {
     label: "Karma powers gained",
     hidden: true,
     ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
