@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";

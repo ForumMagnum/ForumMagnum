@@ -23,12 +23,6 @@ export type UseExpandedFrontpageSectionProps = {
   forceSetCookieIfUndefined?: boolean,
 }
 
-const expandFrontpageSectionMutation = gql`
-  mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {
-    UserExpandFrontpageSection(section: $section, expanded: $expanded)
-  }
-`;
-
 const isDefaultExpanded = (
   currentUser: UsersCurrent | null,
   defaultExpanded: DefaultExpandedType,
@@ -75,7 +69,11 @@ export const useExpandedFrontpageSection = ({
 }: UseExpandedFrontpageSectionProps) => {
   const currentUser = useCurrentUser();
   const [expandFrontpageSection] = useMutation(
-    expandFrontpageSectionMutation,
+    gql`
+      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {
+        UserExpandFrontpageSection(section: $section, expanded: $expanded)
+      }
+    `,
     {errorPolicy: "all"},
   );
   const {captureEvent} = useTracking();

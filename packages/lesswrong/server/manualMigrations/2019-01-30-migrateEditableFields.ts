@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
 function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }: {
@@ -37,7 +37,7 @@ function determineSemVer({draft}: {draft: boolean}) {
 
 const TARGET_SCHEMA_VERSION = 2
 
-registerMigration({
+export default registerMigration({
   name: "migrateEditableFields",
   dateWritten: "2019-01-30",
   idempotent: true,

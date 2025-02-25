@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { gql, useQuery } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';

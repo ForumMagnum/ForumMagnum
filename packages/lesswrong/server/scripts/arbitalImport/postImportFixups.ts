@@ -2,14 +2,14 @@
 
 import Tags from "@/lib/collections/tags/collection"
 import Revisions from "@/lib/collections/revisions/collection"
-import { Globals } from "@/lib/vulcan-lib/config";
 import { connectAndLoadArbitalDatabase } from "./arbitalImport";
 import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
 import { runSqlQuery } from "@/server/sql/sqlClient";
 import keyBy from "lodash/keyBy";
 import reverse from "lodash/reverse";
 
-Globals.removeUnapprovedEdits = async (mysqlConnectionString: string) => {
+// Exported to allow running manually with "yarn repl"
+export const removeUnapprovedEdits = async (mysqlConnectionString: string) => {
   const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const revisionIdsToDelete: string[] = [];
   const importedTags = await Tags.find({

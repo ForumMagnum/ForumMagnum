@@ -1,5 +1,5 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';

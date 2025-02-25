@@ -2,7 +2,7 @@ import { registerMigration, forEachBucketRangeInCollection } from './migrationUt
 import { Revisions } from '../../lib/collections/revisions/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "fillRevisionDraftsField",
   dateWritten: "2021-10-05",
   idempotent: true,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';

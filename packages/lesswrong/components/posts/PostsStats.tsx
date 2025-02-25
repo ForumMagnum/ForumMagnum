@@ -1,4 +1,4 @@
-import { Components as C, registerComponent } from '../../lib/vulcan-lib';
+import { Components as C, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
 const styles = (theme: ThemeType) => ({

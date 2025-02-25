@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { PostsListViewType } from '../hooks/usePostsListView';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 

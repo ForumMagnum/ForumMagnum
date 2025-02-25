@@ -1,14 +1,14 @@
 import Posts from "../lib/collections/posts/collection";
-import { PostEmbeddingsRepo, PostsRepo } from "./repos";
+import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
+import PostsRepo from "./repos/PostsRepo";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
-import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
-import { addCronJob } from "./cronUtil";
+import { addCronJob } from "./cron/cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
@@ -217,6 +217,7 @@ const getEmbeddingsForPosts = async (
   return embeddingsWithHashes;
 }
 
+// Exported to allow running manually with yarn repl
 export const updatePostEmbeddings = async (postId: string) => {
   const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
@@ -237,7 +238,8 @@ const batchUpdatePostEmbeddings = async (postIds: string[]) => {
   await Promise.all(updates);
 }
 
-const updateAllPostEmbeddings = async () => {
+// Exported to allow running manually with yarn repl
+export const updateAllPostEmbeddings = async () => {
   await forEachDocumentBatchInCollection({
     collection: Posts,
     batchSize: 100,
@@ -258,6 +260,7 @@ const updateAllPostEmbeddings = async () => {
   });
 }
 
+// Exported to allow running manually with yarn repl
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
 
@@ -283,14 +286,9 @@ export const updateMissingPostEmbeddings = async () => {
   }
 }
 
-Globals.updatePostEmbeddings = updatePostEmbeddings;
-Globals.updateAllPostEmbeddings = updateAllPostEmbeddings;
-Globals.updateMissingPostEmbeddings = updateMissingPostEmbeddings;
-
-if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
-  addCronJob({
-    name: "updateMissingEmbeddings",
-    interval: "every 24 hours",
-    job: updateMissingPostEmbeddings,
-  });
-}
+export const cronUpdateMissingEmbeddings = addCronJob({
+  name: "updateMissingEmbeddings",
+  interval: "every 24 hours",
+  disabled: !HAS_EMBEDDINGS_FOR_RECOMMENDATIONS,
+  job: updateMissingPostEmbeddings,
+});

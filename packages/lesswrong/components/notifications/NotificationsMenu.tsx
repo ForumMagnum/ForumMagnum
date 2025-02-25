@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';

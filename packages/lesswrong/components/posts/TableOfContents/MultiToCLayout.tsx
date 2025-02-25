@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';

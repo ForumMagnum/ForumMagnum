@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';

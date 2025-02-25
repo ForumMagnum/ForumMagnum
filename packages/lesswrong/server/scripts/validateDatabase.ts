@@ -1,6 +1,6 @@
-import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
+import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
 
 type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string) => void) => Promise<void>;
 type CollectionCustomValidator<T extends DbObject> = {
@@ -180,6 +180,3 @@ export async function validateDatabase()
     await validateCollection(collection);
   }
 }
-
-Vulcan.validateCollection = validateCollection;
-Vulcan.validateDatabase = validateDatabase;

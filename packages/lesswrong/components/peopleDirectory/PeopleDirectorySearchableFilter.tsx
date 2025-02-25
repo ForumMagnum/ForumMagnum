@@ -1,5 +1,5 @@
 import React, { Fragment, ReactNode, useCallback, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { SearchableMultiSelectResult } from "../hooks/useSearchableMultiSelect";
 
 const styles = (theme: ThemeType) => ({

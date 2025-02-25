@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useTheme } from "@/components/themes/useTheme";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";

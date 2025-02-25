@@ -1,7 +1,7 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {

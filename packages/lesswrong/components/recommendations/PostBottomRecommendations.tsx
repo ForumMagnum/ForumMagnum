@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
@@ -7,10 +7,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    background: theme.palette.grey[55],
+    background: isFriendlyUI ? theme.palette.grey[55] : 'transparent',
     padding: "60px 0 80px 0",
     marginTop: 60,
     [theme.breakpoints.down('sm')]: {
@@ -43,6 +44,24 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
 });
+
+const WrapperComponent = ({hasTableOfContents, children}: {
+  hasTableOfContents: boolean
+  children: React.ReactNode
+}) => {
+  const { ToCColumn } = Components;
+  
+  if (isFriendlyUI) {
+    return <ToCColumn
+      tableOfContents={hasTableOfContents ? <div /> : null}
+      notHideable
+    >
+      {children}
+    </ToCColumn>;
+  } else {
+    return <>{children}</>
+  }
+};
 
 const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
@@ -84,7 +103,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     fragmentName: "PostsListWithVotes",
     post,
     maxAgeInDays: 60,
-    ssr
+    ssr,
+    skip: !isFriendlyUI,
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -93,16 +113,13 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
 
   const {
-    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip
+    PostsLoading, EAPostsItem, EALargePostsItem, UserTooltip, PostsItem
   } = Components;
 
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <ToCColumn
-          tableOfContents={hasTableOfContents ? <div /> : null}
-          notHideable
-        >
+        <WrapperComponent hasTableOfContents={!!hasTableOfContents}>
           <div>
             {hasUserPosts &&
               <div className={classes.section}>
@@ -116,9 +133,9 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                   <PostsLoading />
                 }
                 <AnalyticsContext pageSubSectionContext="moreFromAuthor">
-                  {moreFromAuthorPosts?.map((post) => (
-                    <EAPostsItem key={post._id} post={post} />
-                  ))}
+                  {moreFromAuthorPosts?.map((post) => 
+                    <PostsItem key={post._id} post={post} />
+                  )}
                   <div className={classes.viewMore}>
                     <Link to={profileUrl}>
                       View more
@@ -136,16 +153,16 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
               }
               <AnalyticsContext pageSubSectionContext="curatedAndPopular">
                 {curatedAndPopularPosts?.map((post) => (
-                  <EALargePostsItem
+                  isFriendlyUI ? <EALargePostsItem
                     key={post._id}
                     post={post}
                     className={classes.largePostItem}
                     noImagePlaceholder
-                  />
+                  /> : <PostsItem key={post._id} post={post} />
                 ))}
               </AnalyticsContext>
             </div>
-            <div className={classes.section}>
+            {isFriendlyUI && <div className={classes.section}>
               <div className={classes.sectionHeading}>
                 {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
@@ -162,9 +179,10 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                   </Link>
                 </div>
               </AnalyticsContext>
-            </div>
+              </div>
+            }
           </div>
-        </ToCColumn>
+        </WrapperComponent>
       </div>
     </AnalyticsContext>
   );

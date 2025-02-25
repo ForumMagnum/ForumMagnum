@@ -289,12 +289,6 @@ CREATE TABLE "Comments" (
   "moveToAlignmentUserId" VARCHAR(27),
   "agentFoundationsId" TEXT,
   "originalDialogueId" VARCHAR(27),
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -302,7 +296,13 @@ CREATE TABLE "Comments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
 );
 
 -- Index "idx_Comments_schemaVersion"
@@ -806,9 +806,6 @@ CREATE TABLE "ElectionCandidates" (
   "isElectionFundraiser" BOOL NOT NULL DEFAULT FALSE,
   "amountRaised" DOUBLE PRECISION,
   "targetAmount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -816,7 +813,10 @@ CREATE TABLE "ElectionCandidates" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_ElectionCandidates_schemaVersion"
@@ -1289,13 +1289,6 @@ CREATE TABLE "MultiDocuments" (
   "contributionStats" JSONB,
   "htmlWithContributorAnnotations" TEXT,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -1303,7 +1296,14 @@ CREATE TABLE "MultiDocuments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -1719,6 +1719,14 @@ CREATE TABLE "Posts" (
   "agentFoundationsId" TEXT,
   "swrCachingEnabled" BOOL NOT NULL DEFAULT FALSE,
   "generateDraftJargon" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -1727,15 +1735,7 @@ CREATE TABLE "Posts" (
   "pingbacks" JSONB,
   "moderationGuidelines_latest" TEXT,
   "customHighlight" JSONB,
-  "customHighlight_latest" TEXT,
-  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "extendedScore" JSONB,
-  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
-  "afBaseScore" DOUBLE PRECISION,
-  "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "customHighlight_latest" TEXT
 );
 
 -- Index "idx_Posts_schemaVersion"
@@ -2556,9 +2556,6 @@ CREATE TABLE "Revisions" (
   "changeMetrics" JSONB NOT NULL,
   "googleDocMetadata" JSONB,
   "skipAttributions" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2566,7 +2563,10 @@ CREATE TABLE "Revisions" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_Revisions_schemaVersion"
@@ -2880,9 +2880,6 @@ CREATE TABLE "TagRels" (
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "userId" VARCHAR(27),
   "backfilled" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2890,7 +2887,10 @@ CREATE TABLE "TagRels" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "afVoteCount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
 
 -- Index "idx_TagRels_schemaVersion"
@@ -2947,6 +2947,14 @@ CREATE TABLE "Tags" (
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
   "coreTagId" TEXT,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -2958,15 +2966,7 @@ CREATE TABLE "Tags" (
   "subforumWelcomeText" JSONB,
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
-  "moderationGuidelines_latest" TEXT,
-  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "extendedScore" JSONB,
-  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
-  "afBaseScore" DOUBLE PRECISION,
-  "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
+  "moderationGuidelines_latest" TEXT
 );
 
 -- Index "idx_Tags_schemaVersion"
@@ -3694,18 +3694,15 @@ WHERE
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
 
--- CustomIndex "idx_Comments_postId_promotedAt"
-CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
+-- CustomIndex "manual_idx__LWEvents_properties_ip"
+CREATE INDEX IF NOT EXISTS "manual_idx__LWEvents_properties_ip" ON public."LWEvents" USING gin ((("properties" ->> 'ip')::TEXT))
+WITH
+  (fastupdate = TRUE)
 WHERE
-  "promotedAt" IS NOT NULL;
+  name = 'login';
 
--- CustomIndex "idx_Comments_userId_postId_postedAt"
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
-
--- CustomIndex "idx_comments_popular_comments"
-CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
-WHERE
-  ("baseScore" >= 15);
+-- CustomIndex "idx_tags_pingbacks"
+CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
@@ -3719,16 +3716,6 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueRe
 )
 WHERE
   "collabEditorDialogue" IS TRUE;
-
--- CustomIndex "manual_idx__LWEvents_properties_ip"
-CREATE INDEX IF NOT EXISTS "manual_idx__LWEvents_properties_ip" ON public."LWEvents" USING gin ((("properties" ->> 'ip')::TEXT))
-WITH
-  (fastupdate = TRUE)
-WHERE
-  name = 'login';
-
--- CustomIndex "idx_tags_pingbacks"
-CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
 
 -- Function "fm_has_verified_email"
 CREATE OR
@@ -3775,6 +3762,19 @@ WHERE
   "unsubscribeFromAll" IS NOT TRUE AND
   "deleted" IS NOT TRUE AND
   "email" IS NOT NULL;
+
+-- CustomIndex "idx_Comments_postId_promotedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
+WHERE
+  "promotedAt" IS NOT NULL;
+
+-- CustomIndex "idx_Comments_userId_postId_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
+
+-- CustomIndex "idx_comments_popular_comments"
+CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
+WHERE
+  ("baseScore" >= 15);
 
 -- CustomIndex "idx_multi_documents_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin (pingbacks);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';

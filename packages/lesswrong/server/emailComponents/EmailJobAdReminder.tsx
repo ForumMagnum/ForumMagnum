@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
 
 const styles = (theme: ThemeType) => ({

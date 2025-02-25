@@ -1,6 +1,6 @@
 import { VotingProps } from "@/components/votes/votingProps";
 import { isLW } from "../instanceSettings";
-import { Components } from "../vulcan-lib";
+import { Components } from "../vulcan-lib/components";
 import { NamesAttachedReactionsList, UserVoteOnSingleReaction, addReactsVote, getDocumentHighlights, removeReactsVote } from "./namesAttachedReactions";
 import { registerVotingSystem } from "./votingSystems";
 import { loadByIds } from '../loaders';

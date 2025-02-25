@@ -1,5 +1,5 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
-import { userOwns } from "../../vulcan-users";
+import { userOwns } from "../../vulcan-users/permissions";
 import { validateCompareState, validateVote } from "./helpers";
 
 const schema: SchemaType<"ElectionVotes"> = {

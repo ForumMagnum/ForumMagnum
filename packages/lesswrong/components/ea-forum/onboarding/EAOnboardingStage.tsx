@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";

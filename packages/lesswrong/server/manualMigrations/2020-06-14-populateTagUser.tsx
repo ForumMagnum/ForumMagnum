@@ -3,7 +3,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 
-registerMigration({
+export default registerMigration({
   name: "populateTagUser",
   dateWritten: "2020-06-14",
   idempotent: true,

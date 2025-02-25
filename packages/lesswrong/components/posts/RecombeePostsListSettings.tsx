@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';

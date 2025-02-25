@@ -3,9 +3,10 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
-import { createAdminContext, createMutator } from '../vulcan-lib';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
 
 interface CkEditorUserConnectionChange {
   user: { id: string },

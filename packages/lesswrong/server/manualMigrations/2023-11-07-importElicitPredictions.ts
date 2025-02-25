@@ -2,11 +2,13 @@ import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredi
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import { executePromiseQueue } from '../../lib/utils/asyncUtils';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { CommentsRepo, PostsRepo } from '../repos';
+import CommentsRepo from '../repos/CommentsRepo';
+import PostsRepo from '../repos/PostsRepo';
 import { ElicitPredictionData, getPredictionDataFromElicit, getPredictionsFromElicit } from '../resolvers/elicitPredictions';
 import { cheerioParse } from '../utils/htmlUtil';
-import { createAdminContext, createMutator } from '../vulcan-lib';
 import { registerMigration } from './migrationUtils';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
 
 const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuestion, 'schemaVersion'|'legacyData'> => ({
   _id: id,
@@ -35,7 +37,7 @@ const apiPredictionToDBQuestion = (prediction: ElicitPredictionData, questionId:
   isDeleted: false,
 })
 
-registerMigration({
+export default registerMigration({
   name: "importElicitPredictions",
   dateWritten: "2023-11-07",
   idempotent: true,

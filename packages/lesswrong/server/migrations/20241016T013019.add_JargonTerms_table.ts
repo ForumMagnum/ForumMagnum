@@ -2,7 +2,7 @@ export const acceptsSchemaHash = "9bff3fcce056471127ba9282be7be567";
 
 import JargonTerms from "@/lib/collections/jargonTerms/collection"
 import { addField, createTable, dropField, dropTable, updateIndexes } from "./meta/utils"
-import Users from "@/lib/vulcan-users";
+import Users from "@/lib/collections/users/collection";
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, JargonTerms);

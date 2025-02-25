@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';

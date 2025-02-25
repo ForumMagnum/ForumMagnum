@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";

@@ -1,9 +1,9 @@
 import Spotlights from '../lib/collections/spotlights/collection';
-import { addCronJob } from './cronUtil';
+import { addCronJob } from './cron/cronUtil';
 
 const MS_IN_DAY = 1000 * 60 * 60 * 24;
 
-addCronJob({
+export const updatePromotedSpotlightItemCron = addCronJob({
   name: 'updatePromotedSpotlightItem',
   interval: `every 30 minutes`,
   async job() {

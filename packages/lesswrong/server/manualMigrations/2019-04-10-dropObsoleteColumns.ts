@@ -3,7 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "dropObsoleteColumns",
   dateWritten: "2019-04-10",
   idempotent: true,

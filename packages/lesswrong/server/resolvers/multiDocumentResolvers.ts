@@ -5,7 +5,7 @@ import { getToCforMultiDocument } from "../tableOfContents";
 import { loadByIds } from "@/lib/loaders";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { updateMutator } from "../vulcan-lib";
+import { updateMutator } from "../vulcan-lib/mutators";
 import { contributorsField } from '../utils/contributorsFieldHelper';
 
 augmentFieldsDict(MultiDocuments, {

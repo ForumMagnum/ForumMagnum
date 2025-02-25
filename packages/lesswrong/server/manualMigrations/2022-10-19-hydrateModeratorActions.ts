@@ -2,7 +2,7 @@ import Users from "../../lib/collections/users/collection";
 import { triggerAutomodIfNeededForUser } from "../callbacks/sunshineCallbackUtils";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 
-registerMigration({
+export default registerMigration({
   name: "hydrateModeratorActions",
   dateWritten: "2022-10-19",
   idempotent: true,

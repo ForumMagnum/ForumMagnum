@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 // The raw side comment cache objects are not actually visible to the client
 // and are only used internally to generate the user facing `sideComments`

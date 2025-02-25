@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";

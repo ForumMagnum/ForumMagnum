@@ -1,4 +1,4 @@
-import Users from "../../lib/vulcan-users";
+import Users from "../../lib/collections/users/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const acceptsSchemaHash = "be2a53332cb5a42e9fafd13c2e7fde88";

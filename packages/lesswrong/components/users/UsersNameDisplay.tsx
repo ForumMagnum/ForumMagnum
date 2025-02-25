@@ -1,5 +1,5 @@
 import React, { useContext, createContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'

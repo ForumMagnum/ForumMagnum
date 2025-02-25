@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { RouterLocation } from "../../lib/vulcan-lib/routes";
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),

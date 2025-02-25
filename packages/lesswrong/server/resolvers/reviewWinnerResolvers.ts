@@ -1,7 +1,7 @@
 import moment from "moment";
-import { restrictViewableFieldsSingle } from "../../lib/vulcan-users";
+import { restrictViewableFieldsSingle } from "../../lib/vulcan-users/permissions";
 import { defineQuery } from "../utils/serverGraphqlUtil";
-import { createAnonymousContext } from "../vulcan-lib";
+import { createAnonymousContext } from "../vulcan-lib/query";
 import Posts from "../../lib/collections/posts/collection";
 import { updateSplashArtCoordinateCache } from "../../lib/collections/splashArtCoordinates/cache";
 import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost, updateReviewWinnerCache } from "../../lib/collections/reviewWinners/cache";

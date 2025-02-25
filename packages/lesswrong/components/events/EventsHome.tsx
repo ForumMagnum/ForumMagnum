@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';

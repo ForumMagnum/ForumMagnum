@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';

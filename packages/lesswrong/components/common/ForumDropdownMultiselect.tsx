@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';

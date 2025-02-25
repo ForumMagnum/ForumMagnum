@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
@@ -21,6 +20,8 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { sortingInfo } from './ReviewVotingPageMenu';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 

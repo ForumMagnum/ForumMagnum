@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";

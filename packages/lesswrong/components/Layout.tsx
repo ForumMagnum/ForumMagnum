@@ -1,5 +1,5 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib';
+import { Components, registerComponent } from '../lib/vulcan-lib/components';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';

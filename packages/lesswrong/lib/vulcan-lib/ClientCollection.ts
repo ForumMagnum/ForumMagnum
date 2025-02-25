@@ -1,3 +1,5 @@
+import { getVoteableSchemaFields } from "../make_voteable";
+
 class ClientCollection<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
@@ -9,13 +11,23 @@ class ClientCollection<
   typeName: string;
   options: CollectionOptions<N>;
   _schemaFields: SchemaType<N>;
-  _simpleSchema: any;
+  _simpleSchema: any = null;
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
+
+    const votingFields: SchemaType<N> = options.voteable
+      ? getVoteableSchemaFields(options.collectionName as N&VoteableCollectionName, options.voteable) as SchemaType<N>
+      : {};
+    this._schemaFields = {
+      ...options.schema,
+      ...votingFields,
+    };
   }
 
   isConnected() {
@@ -23,11 +35,7 @@ class ClientCollection<
   }
 
   isVoteable(): this is ClientCollection<VoteableCollectionName> {
-    return this.voteable;
-  }
-
-  makeVoteable() {
-    this.voteable = true;
+    return !!this.options.voteable;
   }
 
   hasSlug(): this is ClientCollection<CollectionNameWithSlug> {

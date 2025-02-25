@@ -1,6 +1,7 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,

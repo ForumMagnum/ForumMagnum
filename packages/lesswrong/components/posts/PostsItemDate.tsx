@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';

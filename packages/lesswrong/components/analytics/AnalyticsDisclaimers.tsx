@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isFriendlyUI } from "@/themes/forumTheme";

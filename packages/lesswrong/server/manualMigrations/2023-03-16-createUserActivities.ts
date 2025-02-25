@@ -2,7 +2,7 @@ import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { registerMigration } from './migrationUtils';
 
 // This has to be done as a manual migration because of a bootstrapping issue (typeerrors block the automatic migration from running)
-registerMigration({
+export default registerMigration({
   name: "createUserActivities",
   dateWritten: "2023-03-16",
   idempotent: true,

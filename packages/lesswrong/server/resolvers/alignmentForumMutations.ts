@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';

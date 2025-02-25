@@ -1,6 +1,6 @@
-import { userCanDo } from "@/lib/vulcan-users";
+import { userCanDo } from "@/lib/vulcan-users/permissions.ts";
 import Spotlights from "@/lib/collections/spotlights/collection";
-import { addGraphQLMutation, addGraphQLResolvers } from "../vulcan-lib";
+import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
 
 const specificResolvers = {
   Mutation: {

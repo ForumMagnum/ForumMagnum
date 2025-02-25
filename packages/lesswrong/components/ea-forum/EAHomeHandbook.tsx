@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 

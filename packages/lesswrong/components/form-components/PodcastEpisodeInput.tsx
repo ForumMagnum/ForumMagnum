@@ -4,7 +4,7 @@ import Select from '@material-ui/core/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
 
 const styles = (theme: ThemeType) => ({

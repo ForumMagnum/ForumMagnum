@@ -2,7 +2,7 @@ import { registerMigration, migrateDocuments, fillDefaultValues } from './migrat
 import Users from '../../lib/collections/users/collection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "applyKarmaChangeWidgetDefaults",
   dateWritten: "2019-01-24",
   idempotent: true,

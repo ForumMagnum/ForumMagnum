@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';

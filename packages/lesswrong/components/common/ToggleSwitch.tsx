@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({

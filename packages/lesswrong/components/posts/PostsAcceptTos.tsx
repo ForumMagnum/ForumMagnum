@@ -1,5 +1,5 @@
 import React, { FC, useState, useCallback, PropsWithChildren } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";

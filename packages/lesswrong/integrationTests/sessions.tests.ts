@@ -2,7 +2,7 @@ import "./integrationTestSetup";
 import MongoStore from "../server/vendor/ConnectMongo/MongoStore";
 import ExpressSession, { SessionData } from "express-session";
 import { promisify } from "util";
-import { Sessions } from "../lib/collections/sessions";
+import { Sessions } from "../lib/collections/sessions/collection";
 
 const makeCookie = () => {
   const cookie = new ExpressSession.Cookie();

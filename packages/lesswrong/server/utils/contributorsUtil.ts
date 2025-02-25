@@ -3,9 +3,9 @@ import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import { computeAttributions } from '../attributeEdits';
 import { compareVersionNumbers } from '@/lib/editor/utils';
-import { VotesRepo } from '../repos';
+import VotesRepo from '../repos/VotesRepo';
 import toDictionary from '@/lib/utils/toDictionary';
-import { getCollection } from '../vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { isLWorAF } from '@/lib/instanceSettings';
 
 export type ContributorStats = {

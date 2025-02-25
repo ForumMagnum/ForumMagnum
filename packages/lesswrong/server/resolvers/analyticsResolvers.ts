@@ -1,12 +1,12 @@
 import { PostAnalyticsResult } from "../../components/hooks/usePostAnalytics";
 import { isEAForum } from "../../lib/instanceSettings";
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
 import Posts from "../../lib/collections/posts/collection";
-import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import moment from "moment";
 import groupBy from "lodash/groupBy";
 import { generateDateSeries } from "../../lib/helpers";

@@ -1,9 +1,10 @@
 import {ensureIndex} from "../../collectionIndexUtils";
-import {addUniversalFields, getDefaultMutations, getDefaultResolvers} from "../../collectionUtils";
-import {MutationOptions} from "../../vulcan-core/default_mutations";
-import {createCollection} from "../../vulcan-lib";
+import { createCollection } from "../../vulcan-lib/collections";
 import {userOwns} from "../../vulcan-users/permissions";
 import schema from "./schema";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations, MutationOptions } from "../../vulcan-core/default_mutations";
 
 export const TypingIndicators: TypingIndicatorsCollection = createCollection({
   collectionName: 'TypingIndicators',

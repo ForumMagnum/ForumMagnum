@@ -2,7 +2,7 @@ import { registerCollection } from "@/lib/vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
 import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
-import { registerFragment } from "@/lib/vulcan-lib";
+import { registerFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 export type DbTestObject = {
   _id: string,

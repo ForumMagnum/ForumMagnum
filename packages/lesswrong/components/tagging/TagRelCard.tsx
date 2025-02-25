@@ -2,7 +2,7 @@ import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 

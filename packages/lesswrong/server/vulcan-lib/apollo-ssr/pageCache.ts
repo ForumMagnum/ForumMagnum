@@ -1,7 +1,6 @@
 import LRU from 'lru-cache';
 import type { RenderResult, RenderSuccessResult } from './renderPage';
 import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '../../../lib/abTestImpl';
-import { Globals } from '../../../lib/vulcan-lib';
 import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
@@ -325,7 +324,7 @@ export function getCacheHitRate() {
   return cacheHits / cacheQueriesTotal;
 }
 
-function printCacheState(options: any={}) {
+export function printCacheState(options: any={}) {
   const {pruneCache=false} = options;
   // eslint-disable-next-line no-console
   const log = console.log;
@@ -367,7 +366,6 @@ function printCacheState(options: any={}) {
   }
   log("}");
 }
-Globals.printCacheState = printCacheState;
 
 
 export function checkForMemoryLeaks() {

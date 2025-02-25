@@ -34,6 +34,7 @@ export type CommandLineOptions = {
   command: string|null
   lint: boolean
   vite: boolean
+  noSshTunnel: boolean
 }
 const defaultCommandLineOptions: CommandLineOptions = {
   action: "build",
@@ -48,6 +49,7 @@ const defaultCommandLineOptions: CommandLineOptions = {
   command: null,
   lint: false,
   vite: false,
+  noSshTunnel: false,
 }
 const helpText = (argv0: string) => `usage: yarn ts-node build-esbuild.ts [options]`
 
@@ -115,6 +117,9 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
         case "no-diag":
         case "color":
         case "diag":
+          break;
+        case "--no-ssh-tunnel":
+          result.noSshTunnel = true;
           break;
       }
     } else {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';

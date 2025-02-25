@@ -37,38 +37,6 @@ type AnalyticsSeriesQueryResult = {
   AnalyticsSeries: AnalyticsSeriesValue[];
 };
 
-const MultiPostAnalyticsQuery = gql`
-  query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int) {
-    MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit) {
-      posts {
-        _id
-        title
-        slug
-        postedAt
-        views
-        uniqueViews
-        reads
-        meanReadingTime
-        karma
-        comments
-      }
-      totalCount
-    }
-  }
-`;
-
-const AnalyticsSeriesQuery = gql`
-  query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date) {
-    AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate) {
-      date
-      views
-      reads
-      karma
-      comments
-    }
-  }
-`;
-
 /**
  * Fetches analytics for a given user, sorted by a given field.
  */
@@ -98,7 +66,25 @@ export const useMultiPostAnalytics = ({
     limit,
   }), [userId, postIds, sortBy, desc, limit]);
 
-  const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
+  const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(gql`
+    query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int) {
+      MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit) {
+        posts {
+          _id
+          title
+          slug
+          postedAt
+          views
+          uniqueViews
+          reads
+          meanReadingTime
+          karma
+          comments
+        }
+        totalCount
+      }
+    }
+  `, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });
@@ -193,7 +179,17 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
   const variables = { userId, postIds, startDate, endDate };
-  const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(AnalyticsSeriesQuery, {
+  const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(gql`
+    query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date) {
+      AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate) {
+        date
+        views
+        reads
+        karma
+        comments
+      }
+    }
+  `, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });

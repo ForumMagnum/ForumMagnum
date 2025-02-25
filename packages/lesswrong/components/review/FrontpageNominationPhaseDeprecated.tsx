@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';

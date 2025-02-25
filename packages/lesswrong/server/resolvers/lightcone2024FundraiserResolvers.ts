@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { getStripeIntentsCache } from "../lesswrongFundraiser/stripeIntentsCache";
 import { lightconeFundraiserStripeSecretKeySetting } from "../serverSettings";
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 
 const intentToAmount = (intent: Stripe.PaymentIntent) => intent.amount
 

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";

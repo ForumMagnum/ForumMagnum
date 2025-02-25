@@ -1,7 +1,9 @@
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 
 export const Collections: CollectionsCollection = createCollection({
   collectionName: 'Collections',

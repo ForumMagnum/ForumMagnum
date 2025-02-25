@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';

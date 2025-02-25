@@ -2,7 +2,7 @@ import { registerMigration, fillDefaultValues } from './migrationUtils';
 
 import { Users } from '../../lib/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "setSunshineSnoozeValues",
   dateWritten: "2020-01-24",
   idempotent: true,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnMountTracking, useTracking } from "../../lib/analyticsEvents";
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 

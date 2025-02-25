@@ -235,7 +235,7 @@ export const makeEditable = <N extends CollectionNameString>({
     throw new Error(`Invalid characters in ${fieldName}; only a-z & A-Z are allowed.`);
   }
 
-  const collectionName = collection.options.collectionName;
+  const collectionName = collection.collectionName;
   const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
     const { _id, conversationId } = doc
     if (_id && name) { return {id: `${_id}${name}`, verify: true}}

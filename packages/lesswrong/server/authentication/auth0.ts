@@ -14,7 +14,7 @@ import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
 import { auth0ClientSettings } from "../../lib/publicSettings";
-import { UsersRepo } from "../repos";
+import UsersRepo from "../repos/UsersRepo";
 import { isE2E } from "../../lib/executionEnvironment";
 
 type Auth0Settings = {

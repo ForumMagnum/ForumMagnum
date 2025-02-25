@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';

@@ -3,7 +3,7 @@ import { RecommendationsAlgorithm } from '../../lib/collections/users/recommenda
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
 

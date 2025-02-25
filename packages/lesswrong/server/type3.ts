@@ -1,7 +1,6 @@
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
-import { Globals } from "@/lib/vulcan-lib";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import { captureEvent } from "@/lib/analyticsEvents";
 
 /* Currently unused
@@ -57,7 +56,8 @@ export const regenerateType3Audio = async (post: DbPost) => {
   captureEvent("regenerateType3Audio", {postId: post._id, ...body});
 }
 
-const regenerateType3AudioForPostId = async (postId: string) => {
+// Exported to allow running with "yarn repl"
+export const regenerateType3AudioForPostId = async (postId: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error("Post not found");
@@ -67,7 +67,7 @@ const regenerateType3AudioForPostId = async (postId: string) => {
   }
 }
 
-export const deleteType3Audio = async (post: PostWithAudio) => {
+const deleteType3Audio = async (post: PostWithAudio) => {
   const body = {
     source_url: getPostUrl(post),
   };
@@ -75,7 +75,8 @@ export const deleteType3Audio = async (post: PostWithAudio) => {
   captureEvent("deleteType3Audio", {postId: post._id, ...body});
 }
 
-const deleteType3AudioForPostId = async (postId: string) => {
+// Exported to allow running with "yarn repl"
+export const deleteType3AudioForPostId = async (postId: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error("Post not found");
@@ -83,6 +84,7 @@ const deleteType3AudioForPostId = async (postId: string) => {
   await deleteType3Audio(post);
 }
 
+// Exported to allow running with "yarn repl"
 export const regenerateAllType3AudioForUser = async (userId: string) => {
   const posts = await Posts.find({
     userId
@@ -92,7 +94,3 @@ export const regenerateAllType3AudioForUser = async (userId: string) => {
     await regenerateType3Audio(post);
   }
 }
-
-Globals.regenerateType3AudioForPostId = regenerateType3AudioForPostId;
-Globals.deleteType3AudioForPostId = deleteType3AudioForPostId;
-Globals.regenerateAllType3AudioForUser = regenerateAllType3AudioForUser;

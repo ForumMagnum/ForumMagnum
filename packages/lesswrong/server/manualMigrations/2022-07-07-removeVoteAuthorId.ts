@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Votes from '../../lib/collections/votes/collection';
 
-registerMigration({
+export default registerMigration({
   name: "removeVoteAuthorId",
   dateWritten: "2022-07-07",
   idempotent: true,

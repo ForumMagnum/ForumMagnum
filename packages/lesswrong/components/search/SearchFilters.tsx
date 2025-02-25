@@ -1,5 +1,5 @@
 import React, { MutableRefObject } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';

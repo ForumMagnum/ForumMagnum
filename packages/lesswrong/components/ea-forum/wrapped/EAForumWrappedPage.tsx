@@ -1,5 +1,5 @@
 import React from "react"
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header";

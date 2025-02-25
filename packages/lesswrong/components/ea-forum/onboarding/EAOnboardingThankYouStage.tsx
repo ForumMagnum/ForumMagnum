@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
 import { useEAOnboarding } from "./useEAOnboarding";
 import classNames from "classnames";

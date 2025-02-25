@@ -4,7 +4,7 @@ import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { taggingNameSetting } from '../../lib/instanceSettings';
-import { updateMutator } from '../vulcan-lib';
+import { updateMutator } from '../vulcan-lib/mutators';
 import { updatePostDenormalizedTags } from './helpers';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';

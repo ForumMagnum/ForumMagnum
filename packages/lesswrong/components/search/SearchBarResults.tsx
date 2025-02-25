@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Hits, Configure } from 'react-instantsearch-dom';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';

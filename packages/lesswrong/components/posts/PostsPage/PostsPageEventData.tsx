@@ -13,7 +13,7 @@ import LocalActivityIcon from '@material-ui/icons/LocalActivity';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 

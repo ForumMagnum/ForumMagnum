@@ -1,8 +1,9 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

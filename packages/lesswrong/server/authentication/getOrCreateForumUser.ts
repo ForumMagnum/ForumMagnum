@@ -2,8 +2,8 @@ import type { Profile } from "passport";
 import type { VerifyCallback } from "passport-oauth2";
 import { captureException } from "@sentry/core";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
-import { createMutator, updateMutator } from "../vulcan-lib";
-import Users from "../../lib/vulcan-users";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import Users from "../../lib/collections/users/collection";
 import { promisify } from "util";
 
 export type IdFromProfile<P extends Profile> = (profile: P) => string | number;

@@ -1,7 +1,7 @@
 import { rehostImagesInAllPosts } from "../scripts/convertImagesToCloudinary";
 import { registerMigration } from "./migrationUtils";
 
-registerMigration({
+export default registerMigration({
   name: "rehostPostImages",
   dateWritten: "2022-11-08",
   idempotent: true,

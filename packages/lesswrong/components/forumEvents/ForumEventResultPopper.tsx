@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { formatRole } from '../users/EAUserTooltipContent';
 import { Link } from '@/lib/reactRouterWrapper';

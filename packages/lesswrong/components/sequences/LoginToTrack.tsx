@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import startCase from "lodash/startCase";
 

@@ -1,10 +1,11 @@
 import moment from "moment";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
-import { Globals, createAdminContext, createMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
 
 const AI_TAG_ID = 'sYm3HiWcfZvrGu3ui';
 
@@ -228,7 +229,7 @@ const reviewWinners2022 = [
   "SA9hDewwsYgnuscae"
 ]
 
-Globals.findReviewWinners = async function (year: number) {
+export const findReviewWinners = async function (year: number) {
   const posts = await Posts.find({
     postedAt: {
       $gte: moment(`${year}-01-01`).toDate(),
@@ -249,7 +250,7 @@ Globals.findReviewWinners = async function (year: number) {
 }
 
 
-registerMigration({
+export default registerMigration({
   name: "backfillReviewWinners",
   dateWritten: "2024-01-22",
   idempotent: true,

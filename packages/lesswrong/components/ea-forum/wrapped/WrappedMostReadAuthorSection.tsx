@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";

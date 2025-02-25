@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";

@@ -16,13 +16,13 @@ import PropTypes, { InferProps, Validator } from 'prop-types';
 import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
-
-import { EditorWatchdog, ContextWatchdog } from '../ckeditor5-watchdog';
 import type { WatchdogConfig } from '../ckeditor5-watchdog/watchdog';
 import type { EditorCreatorFunction } from '../ckeditor5-watchdog/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
 import { randomId } from '@/lib/random';
+import { default as EditorWatchdog } from "../ckeditor5-watchdog/editorwatchdog";
+import { default as ContextWatchdog } from "../ckeditor5-watchdog/contextwatchdog";
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 

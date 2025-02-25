@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 // this component is no longer used. 
 // TODO: after making sure that we want to retire the google-calendar based event system, remove this component from the codebase.

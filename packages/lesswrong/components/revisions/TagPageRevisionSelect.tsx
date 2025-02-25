@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '../../lib/instanceSettings';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
 });

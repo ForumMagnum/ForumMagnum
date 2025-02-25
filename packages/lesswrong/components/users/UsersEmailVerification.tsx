@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';

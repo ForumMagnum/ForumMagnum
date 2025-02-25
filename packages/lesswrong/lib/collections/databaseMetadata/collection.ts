@@ -1,5 +1,5 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import { addUniversalFields } from '../../collectionUtils';
 import { ensureCustomPgIndex } from '../../collectionIndexUtils'
 

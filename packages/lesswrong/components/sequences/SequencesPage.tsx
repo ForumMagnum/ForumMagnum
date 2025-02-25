@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';

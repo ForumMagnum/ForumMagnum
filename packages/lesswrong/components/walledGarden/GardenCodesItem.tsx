@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CreateIcon from '@material-ui/icons/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
 import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip/LWPostsPreviewTooltip';

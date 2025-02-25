@@ -2,7 +2,6 @@ import uniq from "lodash/uniq";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import Users from "../../lib/collections/users/collection";
 import { createNotifications } from "../notificationCallbacksHelpers";
-import { Globals } from "../vulcan-lib";
 import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/hooks";
 
 export const getWrappedUsers = async (
@@ -33,7 +32,8 @@ export const getWrappedUsers = async (
   }, {}, {_id: 1, slug: 1, unsubscribeFromAll: 1}).fetch();
 }
 
-const sendWrappedNotifications = async (year: WrappedYear) => {
+// Exported to allow running from "yarn repl"
+export const sendWrappedNotifications = async (year: WrappedYear) => {
   const users = await getWrappedUsers(year);
   const emailUsers = users.filter(({unsubscribeFromAll}) => !unsubscribeFromAll);
 
@@ -69,5 +69,3 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     },
   });
 }
-
-Globals.sendWrappedNotifications = sendWrappedNotifications;

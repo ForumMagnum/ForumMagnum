@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';

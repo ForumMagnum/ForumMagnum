@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (_theme: ThemeType) => ({
   root: {},

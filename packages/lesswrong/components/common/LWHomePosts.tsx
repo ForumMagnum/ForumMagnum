@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Components, capitalize, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -27,6 +26,8 @@ import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { capitalize } from "../../lib/vulcan-lib/utils";
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];

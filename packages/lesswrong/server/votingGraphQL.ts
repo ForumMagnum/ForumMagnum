@@ -1,13 +1,14 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
-import { VoteableCollections, VoteableCollectionOptions } from '../lib/make_voteable';
+import { getVoteableCollections } from '../lib/make_voteable';
 import { getCollection } from '../lib/vulcan-lib/getCollection';
 
 export function createVoteableUnionType() {
-  const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
+  const voteableCollections = getVoteableCollections();
+  const voteableSchema = voteableCollections.length ? `union Voteable = ${voteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
   addGraphQLSchema(voteableSchema);
   
-  for (let collection of VoteableCollections)
+  for (let collection of voteableCollections)
     addVoteMutations(collection);
    
   
@@ -68,7 +69,7 @@ function addVoteMutations(collection: CollectionBase<VoteableCollectionName>) {
   //     updatedDocument: Post
   //     votingPatternsWarning: Bool!
   //   }
-  const typeName = collection.options.typeName;
+  const typeName = collection.typeName;
   const backCompatMutationName = `setVote${typeName}`;
   const mutationName = `performVote${typeName}`;
   
@@ -90,7 +91,7 @@ function addVoteMutations(collection: CollectionBase<VoteableCollectionName>) {
     if (!currentUser) throw new Error("Error casting vote: Not logged in.");
     if (!document) throw new Error("No such document ID");
 
-    const {userCanVoteOn} = VoteableCollectionOptions[collection.collectionName] ?? {};
+    const {userCanVoteOn} = collection.options.voteable ?? {};
     const permissionResult = userCanVoteOn &&
       await userCanVoteOn(currentUser, document, voteType, extendedVote, context);
     if (permissionResult && permissionResult.fail) {

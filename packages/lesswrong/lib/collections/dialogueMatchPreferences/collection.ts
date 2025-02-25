@@ -1,10 +1,11 @@
 import { ensureIndex } from "../../collectionIndexUtils";
-import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils";
 import { MutationOptions, getDefaultMutations } from "../../vulcan-core/default_mutations";
-import { createCollection } from "../../vulcan-lib";
-import { userIsAdmin, userOwns } from "../../vulcan-users";
+import { createCollection } from "../../vulcan-lib/collections";
+import { userIsAdmin, userOwns } from "../../vulcan-users/permissions";
 import DialogueChecks from "../dialogueChecks/collection";
 import schema from "./schema";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbDialogueMatchPreference> = {
   newCheck: async (user: DbUser|null, document: DbDialogueMatchPreference|null) => {

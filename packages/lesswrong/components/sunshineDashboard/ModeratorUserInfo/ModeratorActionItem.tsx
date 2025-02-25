@@ -2,7 +2,7 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../../lib/collections/moderatorActions/schema';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sortBy } from 'underscore';
 import Input from '@material-ui/core/Input';
 import DoneIcon from '@material-ui/icons/Done'

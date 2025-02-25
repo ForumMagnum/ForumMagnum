@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 

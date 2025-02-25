@@ -1,5 +1,5 @@
 import React, { useState, useCallback, ReactNode, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { MessageContext, useMessages } from './withMessages';
 import classnames from 'classnames';
 import Snackbar from '@material-ui/core/Snackbar';

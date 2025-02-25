@@ -1,6 +1,7 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { gardenForm } from './GardenCodeWidget';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

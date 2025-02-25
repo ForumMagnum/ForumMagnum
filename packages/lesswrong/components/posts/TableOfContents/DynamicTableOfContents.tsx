@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 

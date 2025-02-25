@@ -1,6 +1,6 @@
 import React from 'react'
 import { useCurrentUser } from '../../common/withUser';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
 

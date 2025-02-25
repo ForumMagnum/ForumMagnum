@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import { getDefaultFilterSettings } from '../../lib/filterSettings';
 import Users from '../../lib/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "updateUserDefaultTagFilterSettings",
   dateWritten: "2020-03-11",
   idempotent: true,

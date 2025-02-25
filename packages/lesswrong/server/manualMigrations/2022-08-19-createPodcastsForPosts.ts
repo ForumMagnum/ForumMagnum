@@ -36,7 +36,7 @@ const convertEpisodeData = (podcastId: string, episodeData: EpisodeMapping[keyof
   externalEpisodeId: episodeData.externalEpisodeId.toString()
 });
 
-registerMigration({
+export default registerMigration({
   name: 'CreatePodcastsForPosts',
   dateWritten: '2022-08-19',
   idempotent: true,

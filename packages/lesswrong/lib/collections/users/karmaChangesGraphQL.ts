@@ -1,7 +1,7 @@
 import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { addFieldsDict } from '../../utils/schemaUtils';
-import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
+import { addGraphQLResolvers, addGraphQLSchema } from '../../vulcan-lib/graphql';
 import type { TagCommentType } from "../../collections/comments/types";
 import type { KarmaChangeUpdateFrequency } from "./schema";
 

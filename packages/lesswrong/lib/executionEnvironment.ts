@@ -21,9 +21,5 @@ export const isAnyTest = bundleIsTest
 export const isE2E = bundleIsE2E
 export const isPackageTest = bundleIsTest
 
-export const addGlobalForShell = (name: string, value: any) => {
-  // TODO
-}
-
 // Polyfill
 import 'setimmediate';

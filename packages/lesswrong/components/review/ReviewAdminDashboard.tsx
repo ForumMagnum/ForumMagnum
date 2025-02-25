@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';

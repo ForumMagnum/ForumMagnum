@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
 import { useCreate } from '../../lib/crud/withCreate';

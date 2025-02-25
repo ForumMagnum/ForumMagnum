@@ -55,7 +55,7 @@ const POSTS_TO_UPDATE = [
   { postId: 'RQpNHSiWaXTvDxt6R', sequenceId: 'FYMiCeXEgMzsB5stm' },
 ];
 
-registerMigration({
+export default registerMigration({
   name: 'undoBestOfCollectionClobbering',
   dateWritten: '2024-10-31',
   idempotent: true,

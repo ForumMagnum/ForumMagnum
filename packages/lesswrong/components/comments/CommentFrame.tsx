@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';

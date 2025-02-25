@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';

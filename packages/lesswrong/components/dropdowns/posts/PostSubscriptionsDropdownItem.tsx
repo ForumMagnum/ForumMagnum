@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
-import { isAdmin } from "../../../lib/vulcan-users";
+import { isAdmin } from "../../../lib/vulcan-users/permissions";
 import { userHasSubscribeTabFeed } from "../../../lib/betas";
 
 /**

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

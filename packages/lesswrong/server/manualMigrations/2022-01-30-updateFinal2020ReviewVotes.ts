@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import ReviewVotes from '../../lib/collections/reviewVotes/collection';
 import { getCostData, REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
@@ -12,7 +12,7 @@ import fs from 'fs';
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value
 
-registerMigration({
+export default registerMigration({
   name: "updateFinal2020ReviewVotes",
   dateWritten: "2022-01-30",
   idempotent: true,

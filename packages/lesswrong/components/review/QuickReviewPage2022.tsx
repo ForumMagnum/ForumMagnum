@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 

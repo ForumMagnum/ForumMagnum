@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig-server.json",
+  "compilerOptions": {
+    "target": "esnext"
+  },
+  "ts-node": {
+    "transpileOnly": true
+  }
+}
+

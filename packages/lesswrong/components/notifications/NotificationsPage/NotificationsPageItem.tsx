@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useSingle } from "../../../lib/crud/withSingle";
 import type { ForumIconName } from "../../common/ForumIcon";

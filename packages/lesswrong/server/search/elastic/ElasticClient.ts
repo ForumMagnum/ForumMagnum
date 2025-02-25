@@ -5,14 +5,10 @@ import type {
   SearchResponse,
 } from "@elastic/elasticsearch/lib/api/types";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
-import {
-  elasticCloudIdSetting,
-  elasticPasswordSetting,
-  elasticUsernameSetting,
-  isElasticEnabled,
-} from "./elasticSettings";
 import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
 import sortBy from "lodash/sortBy";
+import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting } from "./elasticSettings";
+import { isElasticEnabled } from "../../../lib/instanceSettings";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;

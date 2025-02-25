@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
-import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib";
+import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";

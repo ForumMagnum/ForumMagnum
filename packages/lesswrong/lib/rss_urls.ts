@@ -1,4 +1,4 @@
-import { combineUrls, getSiteUrl } from './vulcan-lib';
+import { combineUrls, getSiteUrl } from './vulcan-lib/utils';
 
 export type RSSTerms = any
 

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, RefObject, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useCreate } from '../../../lib/crud/withCreate';

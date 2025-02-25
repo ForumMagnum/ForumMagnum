@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react';
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   divider: {

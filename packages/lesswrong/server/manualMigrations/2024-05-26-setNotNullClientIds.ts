@@ -3,7 +3,7 @@ import { registerMigration } from "./migrationUtils";
 
 const idxName = 'idx_idx_ClientIds_clientId_unique'
 
-registerMigration({
+export default registerMigration({
   name: "setNotNullClientIds",
   dateWritten: "2024-05-06",
   idempotent: true,

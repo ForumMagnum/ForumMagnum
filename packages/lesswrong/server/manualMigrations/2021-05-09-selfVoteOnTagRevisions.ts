@@ -3,7 +3,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 
-registerMigration({
+export default registerMigration({
   name: "selfVoteOnTagRevisions",
   dateWritten: "2021-05-09",
   idempotent: true,

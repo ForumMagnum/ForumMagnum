@@ -1,11 +1,12 @@
 import { getSearchClient, getSearchIndexName } from '../search/searchUtil'
-import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
 import {tagUrlBaseSetting} from '@/lib/instanceSettings'
 import { filterNonnull } from '../utils/typeGuardUtils'
+import { Components } from "../vulcan-lib/components";
+import { getSiteUrl } from "../vulcan-lib/utils";
 
 const MARKER = "@";
 

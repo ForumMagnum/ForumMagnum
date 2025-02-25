@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { WrappedYear } from "./hooks";
 
 const styles = (theme: ThemeType) => ({

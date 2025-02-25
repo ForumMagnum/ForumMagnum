@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { tagStyle, smallTagTextStyle, coreTagStyle } from "../tagging/FooterTag";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";

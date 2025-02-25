@@ -3,8 +3,8 @@ import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
-import { Posts } from '../../lib/collections/posts'
-import { Comments } from '../../lib/collections/comments'
+import { Posts } from '../../lib/collections/posts/collection'
+import { Comments } from '../../lib/collections/comments/collection'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';

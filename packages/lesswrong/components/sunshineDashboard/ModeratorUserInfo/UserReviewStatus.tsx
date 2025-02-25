@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
 const styles = (_theme: ThemeType) => ({
   root: {

@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";

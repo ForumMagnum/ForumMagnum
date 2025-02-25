@@ -5,7 +5,7 @@ import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';

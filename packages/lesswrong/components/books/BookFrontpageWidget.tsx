@@ -1,7 +1,7 @@
 import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';

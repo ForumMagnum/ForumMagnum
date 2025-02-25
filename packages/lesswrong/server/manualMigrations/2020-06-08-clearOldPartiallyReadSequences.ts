@@ -6,7 +6,7 @@ const excludeOld = (partiallyReadSequences: Array<any>, dateCutoff: Date): Array
   return _.filter(partiallyReadSequences, s=>s.lastReadTime >= dateCutoff);
 }
 
-registerMigration({
+export default registerMigration({
   name: "clearOldPartiallyReadSequences",
   dateWritten: "2020-06-08",
   idempotent: true,

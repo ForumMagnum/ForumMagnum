@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';

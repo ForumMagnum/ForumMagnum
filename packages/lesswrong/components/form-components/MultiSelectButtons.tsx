@@ -1,6 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
@@ -38,17 +37,17 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const MultiSelectButtons = ({ value, label, options, path, classes }: FormComponentProps<string> & {
+const MultiSelectButtons = ({ value, label, options, path, updateCurrentValues, classes }: FormComponentProps<string> & {
   options: Array<{ value: string; label?: string }>;
   classes: ClassesType<typeof styles>;
-}, context: any) => {
+}) => {
   const handleClick = (option: string) => {    
     if (value && value.includes(option)) {
-      context.updateCurrentValues({
+      void updateCurrentValues({
         [path]: _.without(value, option)
       })
     } else {
-      context.updateCurrentValues({
+      void updateCurrentValues({
         [path]: [...value, option]
       })
     }
@@ -75,10 +74,6 @@ const MultiSelectButtons = ({ value, label, options, path, classes }: FormCompon
     })}
   </div>
 }
-
-(MultiSelectButtons as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const MultiSelectButtonsComponent = registerComponent("MultiSelectButtons", MultiSelectButtons, {styles});
 

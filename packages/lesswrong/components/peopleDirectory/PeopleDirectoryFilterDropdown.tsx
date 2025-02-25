@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useEventListener } from "../hooks/useEventListener";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";

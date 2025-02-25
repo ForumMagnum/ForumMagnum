@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';

@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import { Tags } from '../../lib/collections/tags/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 
-registerMigration({
+export default registerMigration({
   name: "tagLastCommentedAt",
   dateWritten: "2020-09-15",
   idempotent: true,

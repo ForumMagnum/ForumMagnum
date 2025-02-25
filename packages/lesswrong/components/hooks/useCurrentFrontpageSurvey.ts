@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { getFragment } from "@/lib/vulcan-lib";
+import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 import { hasSurveys } from "@/lib/betas";
 
 export const useCurrentFrontpageSurvey = (): {

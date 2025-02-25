@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useImageContext } from './ImageContext';
 import { useMulti } from '../../../lib/crud/withMulti';
 

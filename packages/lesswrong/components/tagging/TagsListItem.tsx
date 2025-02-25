@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';

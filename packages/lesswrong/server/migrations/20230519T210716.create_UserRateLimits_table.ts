@@ -41,7 +41,7 @@
  */
 export const acceptsSchemaHash = "cc8bba3f53cc75cb4b3864c0426830a8";
 
-import { UserRateLimits } from "../../lib/collections/userRateLimits"
+import { UserRateLimits } from "../../lib/collections/userRateLimits/collection"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

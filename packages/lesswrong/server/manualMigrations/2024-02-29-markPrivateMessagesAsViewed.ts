@@ -1,7 +1,7 @@
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
-registerMigration({
+export default registerMigration({
   name: "markPrivateMessagesAsViewed",
   dateWritten: "2024-02-29",
   idempotent: true,

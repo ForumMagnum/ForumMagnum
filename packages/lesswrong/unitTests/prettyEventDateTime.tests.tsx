@@ -7,7 +7,7 @@ import '../lib/index';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Components } from '../lib/vulcan-lib';
+import { Components } from '../lib/vulcan-lib/components';
 
 describe('PrettyEventDateTime', () => {
   const { PrettyEventDateTime } = Components;

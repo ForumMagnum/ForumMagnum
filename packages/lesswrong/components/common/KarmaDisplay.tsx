@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 

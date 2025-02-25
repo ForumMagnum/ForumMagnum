@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -6,8 +6,7 @@ import {useCurrentUser} from "../common/withUser"
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { useLocation } from '../../lib/routeUtil';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 

@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
-import { Posts } from './collections/posts';
+import { Posts } from './collections/posts/collection';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';

@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import Tags from '../../lib/collections/tags/collection';
 import Users from '../../lib/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "migrateCommunityFilterSettings",
   dateWritten: "2022-06-30",
   idempotent: true,

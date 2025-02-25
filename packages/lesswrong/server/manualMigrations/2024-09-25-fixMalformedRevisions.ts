@@ -17,7 +17,7 @@ interface PostRevisionInfo {
   last_attached_revision_draft: boolean | null;
 }
 
-registerMigration({
+export default registerMigration({
   name: "fixMalformedRevisions",
   dateWritten: "2024-09-25",
   idempotent: true,

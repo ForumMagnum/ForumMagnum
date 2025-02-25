@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {MutableRefObject, ReactNode, useState} from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';

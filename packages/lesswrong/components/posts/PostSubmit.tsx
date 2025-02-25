@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -8,6 +7,8 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 
 export const styles = (theme: ThemeType) => ({
   formButton: {
@@ -65,8 +66,10 @@ const PostSubmit = ({
   cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
-  cancelCallback, document, collectionName, classes
-}: PostSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
+  cancelCallback, document, collectionName,
+  updateCurrentValues,
+  classes
+}: PostSubmitProps, { addToSuccessForm, submitForm }: any) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
@@ -115,7 +118,7 @@ const PostSubmit = ({
             onClick={() => {
               captureEvent("feedbackRequestButtonClicked")
               if (!!document.title) {
-                updateCurrentValues({draft: true});
+                void updateCurrentValues({draft: true});
                 addToSuccessForm((createdPost: DbPost) => {
                   // eslint-disable-next-line
                   window.Intercom(
@@ -132,7 +135,7 @@ const PostSubmit = ({
         </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => updateCurrentValues({draft: true})}
+          onClick={() => void updateCurrentValues({draft: true})}
         >
           {saveDraftLabel}
         </Button>
@@ -162,9 +165,7 @@ PostSubmit.propTypes = {
 };
 
 PostSubmit.contextTypes = {
-  updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
   submitForm: PropTypes.func
 }
 

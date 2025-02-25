@@ -29,7 +29,7 @@ export function makeLowKarmaSelector (karmaThreshold: number): MongoSelector<DbP
   }
 }
 
-registerMigration({
+export default registerMigration({
   name: "noIndexLowKarma",
   dateWritten: "2020-05-13",
   idempotent: true,

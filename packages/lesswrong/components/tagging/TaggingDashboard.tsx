@@ -4,7 +4,7 @@ import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSe
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";

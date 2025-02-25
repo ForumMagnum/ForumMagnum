@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 
-registerMigration({
+export default registerMigration({
   name: "fixCapitalizedSlugs",
   dateWritten: "2019-05-14",
   idempotent: true,

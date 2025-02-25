@@ -33,7 +33,7 @@ import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/uti
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
-import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { logFieldChanges } from '../fieldChanges';
 import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
@@ -234,11 +234,12 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [afterCreateProperties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+
   logger('newAfter')
   // OpenCRUD backwards compatibility
   document = await hooks.newAfter.runCallbacks({
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [currentUser]
+    properties: [currentUser, afterCreateProperties]
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
   // note: query for document to get fresh document with collection-hooks effects applied
@@ -472,7 +473,8 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     document,
     oldDocument,
     currentUser,
-    collection
+    collection,
+    properties,
   ]);
   
   void logFieldChanges({currentUser, collection, oldDocument, data: origData});

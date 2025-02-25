@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { Components } from '../lib/vulcan-lib';
+import { Components } from '../lib/vulcan-lib/components';
 import { wrapWithMuiTheme } from './themeProvider';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';

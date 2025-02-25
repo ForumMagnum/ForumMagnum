@@ -1,6 +1,6 @@
 import React from "react";
 import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotlight";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { isLWorAF } from "../../lib/instanceSettings";

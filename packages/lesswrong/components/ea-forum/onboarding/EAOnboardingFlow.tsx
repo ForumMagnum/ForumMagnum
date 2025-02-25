@@ -1,5 +1,5 @@
 import React from 'react'
-import {Components, registerComponent} from '../../../lib/vulcan-lib'
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components'
 
 const EAOnboardingFlow = ({viewAsAdmin}: {
   // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account

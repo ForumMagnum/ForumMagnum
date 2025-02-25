@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";

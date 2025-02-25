@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
 
-registerMigration({
+export default registerMigration({
   name: "updateCoauthorsSchema",
   dateWritten: "2022-06-02",
   idempotent: true,

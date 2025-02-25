@@ -1,4 +1,4 @@
-import { userIsAdmin } from "../../lib/vulcan-users";
+import { userIsAdmin } from "../../lib/vulcan-users/permissions";
 import { revokeAllAccessTokens } from "../posts/googleDocImport";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 

@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
-registerMigration({
+export default registerMigration({
   name: "filterDebateResponses",
   dateWritten: "2023-09-08",
   idempotent: true,

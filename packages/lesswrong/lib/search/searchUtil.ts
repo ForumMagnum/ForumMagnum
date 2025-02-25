@@ -6,7 +6,8 @@ import {isElasticEnabled} from '../instanceSettings'
 import stringify from "json-stringify-deterministic";
 
 export const searchIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const;
-export type SearchIndexCollectionName = typeof searchIndexedCollectionNames[number];
+export const searchIndexedCollectionNamesSet = new TupleSet(searchIndexedCollectionNames);
+export type SearchIndexCollectionName = UnionOf<typeof searchIndexedCollectionNamesSet>;
 export type SearchIndexedDbObject = DbComment | DbPost | DbUser | DbSequence | DbTag;
 export interface SearchIndexedCollection extends CollectionBase<SearchIndexCollectionName> {}
 

@@ -6,7 +6,6 @@ import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
-import { Globals } from '../vulcan-lib';
 import { sleep } from '../../lib/helpers';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
 
@@ -67,7 +66,7 @@ async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string,
   }
 }
 
-async function migrateDialogue(dialogue: PostsOriginalContents) {
+async function _migrateDialogue(dialogue: PostsOriginalContents) {
   const postId = dialogue._id;
   const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
   const { anyChanges, migratedHtml, remoteDocument } = await wrapMessageContents(dialogue);
@@ -99,7 +98,7 @@ async function migrateDialogue(dialogue: PostsOriginalContents) {
   }
 }
 
-Globals.migrateDialogue = async (postId: string) => {
+export const migrateDialogue = async (postId: string) => {
   const dialogue = await fetchFragmentSingle({
     collectionName: "Posts",
     fragmentName: "PostsOriginalContents",
@@ -107,10 +106,10 @@ Globals.migrateDialogue = async (postId: string) => {
     currentUser: null,
     skipFiltering: true,
   });
-  if (dialogue) await migrateDialogue(dialogue)
+  if (dialogue) await _migrateDialogue(dialogue)
 }
 
-registerMigration({
+export default registerMigration({
   name: "widgetizeDialogueMessages",
   dateWritten: "2023-10-25",
   idempotent: true,
@@ -122,7 +121,7 @@ registerMigration({
       currentUser: null,
       skipFiltering: true,
     });
-    const dialogueMigrations = dialogues.map(migrateDialogue);
+    const dialogueMigrations = dialogues.map(_migrateDialogue);
 
     await Promise.all(dialogueMigrations);
     await ckEditorApi.flushAllCkEditorCollaborations();

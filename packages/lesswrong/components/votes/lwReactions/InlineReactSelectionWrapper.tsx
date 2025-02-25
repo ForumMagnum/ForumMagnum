@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
 

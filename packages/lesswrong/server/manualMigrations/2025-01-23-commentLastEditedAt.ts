@@ -4,7 +4,7 @@ import { Comments } from "@/lib/collections/comments/collection";
 import { getLatestRev } from "../editor/utils";
 import Revisions from "@/lib/collections/revisions/collection";
 
-registerMigration({
+export default registerMigration({
   name: "commentLastEditedAt",
   dateWritten: "2025-02-23",
   idempotent: true,

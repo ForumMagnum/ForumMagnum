@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useCallback } from 'react';
 import { useIsInView, useTracking } from "../../lib/analyticsEvents";
 

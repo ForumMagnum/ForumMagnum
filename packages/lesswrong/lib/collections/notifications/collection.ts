@@ -1,8 +1,9 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbNotification> = {
   newCheck: (user: DbUser|null, document: DbNotification|null) => {
@@ -34,5 +35,10 @@ addUniversalFields({
   collection: Notifications,
   createdAtOptions: {canRead: [userOwns]},
 })
+
+Notifications.checkAccess = async (user: DbUser|null, document: DbNotification, context: ResolverContext|null): Promise<boolean> => {
+  if (!user || !document) return false;
+  return userOwns(user, document) ? userCanDo(user, 'notifications.view.own') : userCanDo(user, `conversations.view.all`)
+};
 
 export default Notifications;

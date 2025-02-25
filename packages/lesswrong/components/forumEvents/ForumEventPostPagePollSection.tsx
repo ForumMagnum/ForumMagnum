@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";

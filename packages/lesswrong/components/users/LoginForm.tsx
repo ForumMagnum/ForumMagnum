@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useCallback, useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation } from '@apollo/client';

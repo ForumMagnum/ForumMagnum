@@ -2,7 +2,6 @@ import fs from 'mz/fs';
 import { z } from "zod";
 import Papa from 'papaparse';
 import Users from '../../lib/collections/users/collection';
-import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
 import UserEAGDetails from '../../lib/collections/userEAGDetails/collection';
 import moment from 'moment';
@@ -29,8 +28,9 @@ export type UserEAGDetailsRow = z.infer<typeof csvSchema>;
 /**
  * Given a CSV with users' EAG data, import it to the "UserEAGDetails" table, replacing any existing user data.
  * Users can appear multiple times in the CSV, so we try to pick the most recently submitted row per user.
+ * Exported to allow running manually with "yarn repl"
  */
-Vulcan.importEAGUserDetails = wrapVulcanAsyncScript(
+export const importEAGUserDetails = wrapVulcanAsyncScript(
   'importEAGUserDetails',
   async (fileName='EAG_users.csv') => {
     const now = new Date()

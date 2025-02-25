@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
-registerMigration({
+export default registerMigration({
   name: "nominationCount2019",
   dateWritten: "2020-12-04",
   idempotent: true,

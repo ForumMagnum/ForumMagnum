@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import DialogActions from '@material-ui/core/DialogActions';

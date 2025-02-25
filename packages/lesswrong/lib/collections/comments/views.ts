@@ -3,7 +3,7 @@ import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } fr
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
-import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import { Comments } from './collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
@@ -35,6 +35,7 @@ declare global {
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
     commentIds?: string[],
+    minimumKarma?: number,
   }
   
   /**
@@ -94,7 +95,8 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
-      rejected: { $ne: true }
+      rejected: { $ne: true },
+      ...(typeof terms.minimumKarma === 'number' ? {baseScore: {$gte: terms.minimumKarma}} : {}),
     },
     options: {
       sort: {postedAt: -1},
@@ -329,15 +331,26 @@ ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, 
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
-    selector: {deletedPublic: false},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    selector: { deletedPublic: false },
+    options: { 
+      sort: terms.sortBy 
+        ? sortings[terms.sortBy]
+        : {postedAt: -1}, 
+      limit: terms.limit || 5 
+    },
   };
 });
 
 Comments.addView("recentComments", (terms: CommentsViewTerms) => {
+
   return {
     selector: { score:{$gt:0}, deletedPublic: false},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    options: {
+      sort: terms.sortBy 
+        ? sortings[terms.sortBy] 
+        : { postedAt: -1 }, 
+      limit: terms.limit || 5
+    },
   };
 });
 ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));

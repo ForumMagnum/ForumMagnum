@@ -1,4 +1,4 @@
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import { addUniversalFields } from '../../collectionUtils';
 import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'

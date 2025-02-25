@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';

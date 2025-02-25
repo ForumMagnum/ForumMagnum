@@ -1,8 +1,9 @@
-import { createCollection } from "../../vulcan-lib";
-import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils"
+import { createCollection } from "../../vulcan-lib/collections";
 import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
 import schema from "./schema";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const SurveySchedules = createCollection({
   collectionName: "SurveySchedules",

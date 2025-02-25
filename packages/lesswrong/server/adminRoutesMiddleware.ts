@@ -1,6 +1,7 @@
 import type {AddMiddlewareType} from './apolloServer.ts'
 import express from 'express'
-import {getRouteMatchingPathname, makeAbsolute, userCanAccessRoute} from '../lib/vulcan-lib'
+import { getRouteMatchingPathname, userCanAccessRoute } from "../lib/vulcan-lib/routes";
+import { makeAbsolute } from "../lib/vulcan-lib/utils";
 
 export const addAdminRoutesMiddleware = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(checkAdminRouteAccess)

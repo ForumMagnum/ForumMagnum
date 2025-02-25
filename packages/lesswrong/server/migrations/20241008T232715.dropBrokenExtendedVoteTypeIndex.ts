@@ -38,7 +38,7 @@
  */
 export const acceptsSchemaHash = "2632feebddfb9dab3164c82e2f77bdb8";
 
-import { Votes } from "@/lib/collections/votes";
+import { Votes } from "@/lib/collections/votes/collection.ts";
 import { dropIndexByName } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

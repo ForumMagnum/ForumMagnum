@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useGlobalKeydown } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
-import { userIsAdminOrMod } from '../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { userHasDarkModeHotkey } from '../../lib/betas';
 import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
 import { isLW } from '@/lib/instanceSettings';

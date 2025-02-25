@@ -1,5 +1,5 @@
 import { defineMutation } from './utils/serverGraphqlUtil';
-import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 
 addGraphQLMutation('markAsReadOrUnread(postId: String, isRead:Boolean): Boolean');
 addGraphQLResolvers({

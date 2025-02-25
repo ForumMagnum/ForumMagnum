@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';

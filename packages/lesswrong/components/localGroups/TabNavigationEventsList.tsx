@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import moment from '../../lib/moment-timezone';

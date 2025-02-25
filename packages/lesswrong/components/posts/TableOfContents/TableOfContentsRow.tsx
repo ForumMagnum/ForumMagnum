@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';

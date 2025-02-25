@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useDialog } from '../../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';

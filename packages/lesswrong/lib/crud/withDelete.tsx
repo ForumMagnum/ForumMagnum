@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { extractFragmentInfo, collectionNameToTypeName } from '../vulcan-lib';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
+import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
+import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
 
 // Delete mutation query used on the client. Eg:
 //

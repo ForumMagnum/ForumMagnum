@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { useApolloClient } from '@apollo/client/react/hooks';

@@ -1,11 +1,11 @@
 import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { useSubscribedLocation } from "../../../lib/routeUtil";
-import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,

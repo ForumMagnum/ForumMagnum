@@ -1,13 +1,13 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
-import { useLocation } from '@/lib/routeUtil';
 import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 export const styles = (_theme: ThemeType) => ({
   root: {

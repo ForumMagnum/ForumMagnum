@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';

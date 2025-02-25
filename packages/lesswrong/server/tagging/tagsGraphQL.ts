@@ -1,8 +1,9 @@
-import { createMutator, addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { createMutator } from "../vulcan-lib/mutators";
+import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
 
 export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
   tagId: string,

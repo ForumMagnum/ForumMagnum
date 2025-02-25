@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';

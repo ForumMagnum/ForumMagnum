@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
@@ -12,6 +11,8 @@ import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@material-ui/core/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery, getFragment } from "../../lib/vulcan-lib/fragments";
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.

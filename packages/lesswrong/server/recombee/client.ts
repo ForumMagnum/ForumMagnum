@@ -17,7 +17,6 @@ import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/query';
-import Globals from '@/lib/vulcan-lib/config';
 import util from 'util';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 
@@ -787,21 +786,4 @@ const recombeeApi = {
 
 export { helpers as recombeeRequestHelpers, recombeeApi };
 
-Globals.recombee = recombeeApi;
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this might only be useful for GET calls, since POST/DELETE/etc operations often don't return anything meaningful.
-// This isn't guaranteed to produce sane results in every single case, but seems like it should be fine most of the time.
-Globals.recombee.log = Object.fromEntries(Object.entries(Globals.recombee).map(([key, val]) => {
-  if (typeof val !== 'function') {
-    return [key, val];
-  }
-
-  const withLoggedOutput = async (...args: any[]) => {
-    const result = await val(...args);
-    // eslint-disable-next-line no-console
-    console.log(util.inspect(result, { depth: null }));
-    return result;
-  };
-
-  return [key, withLoggedOutput];
-}));
+export const recombee = recombeeApi;

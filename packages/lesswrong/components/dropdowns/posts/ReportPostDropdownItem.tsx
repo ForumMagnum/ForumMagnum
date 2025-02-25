@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'

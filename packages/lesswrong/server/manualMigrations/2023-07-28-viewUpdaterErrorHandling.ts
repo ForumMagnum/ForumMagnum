@@ -3,7 +3,7 @@ import { registerMigration } from './migrationUtils';
 
 // This updates the functions created in packages/lesswrong/server/manualMigrations/2023-01-13-createViewUpdater.ts
 // to handle the case where a table name is already lowercase
-registerMigration({
+export default registerMigration({
   name: "viewUpdaterErrorHandling",
   dateWritten: "2023-07-28",
   idempotent: true,

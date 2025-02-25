@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';

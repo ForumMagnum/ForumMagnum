@@ -1,12 +1,10 @@
-import { pluralize } from '../vulcan-lib';
+import { pluralize } from '../vulcan-lib/pluralize';
 import { typeNameToCollectionName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import { viewTermsToQuery } from '../utils/viewUtils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 import { loggerConstructor } from '../utils/logging';
-import { mingoIsInSet, mingoAddToSet, mingoBelongsToSet, mingoUpdateInSet, mingoReorderSet, mingoRemoveFromSet } from './mingoUpdates';
-import type { MingoDocument, MingoQueryResult } from './mingoUpdates';
-
+import { mingoAddToSet, mingoBelongsToSet, MingoDocument, mingoIsInSet, MingoQueryResult, mingoRemoveFromSet, mingoReorderSet, mingoUpdateInSet } from "./mingoUpdates";
 
 export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
   const mutationName = getCreateMutationName(typeName);

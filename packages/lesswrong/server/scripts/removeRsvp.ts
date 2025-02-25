@@ -1,7 +1,7 @@
-import { Posts } from "../../lib/collections/posts";
-import { Globals } from "../vulcan-lib";
+import { Posts } from "../../lib/collections/posts/collection";
 
-const removeRsvp = async (eventId: string, userNameOrId: string) => {
+// Exported to allow running manually with "yarn repl"
+export const removeRsvp = async (eventId: string, userNameOrId: string) => {
   const event = await Posts.findOne({_id: eventId});
   if (!event) {
     throw new Error("Event does not exist");
@@ -24,5 +24,3 @@ const removeRsvp = async (eventId: string, userNameOrId: string) => {
     {$set: {rsvps: newRsvps}},
   );
 }
-
-Globals.removeRsvp = removeRsvp;

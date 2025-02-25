@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defaultPostsLayout, PostsLayout, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';

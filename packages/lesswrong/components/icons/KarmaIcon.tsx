@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import classNames from 'classnames';
 

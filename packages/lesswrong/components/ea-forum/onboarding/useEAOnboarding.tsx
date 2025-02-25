@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
-import { Components } from "../../../lib/vulcan-lib";
+import { Components } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useTracking } from "../../../lib/analyticsEvents";

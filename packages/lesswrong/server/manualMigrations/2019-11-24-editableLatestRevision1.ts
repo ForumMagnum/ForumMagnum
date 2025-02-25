@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { getCollection } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
@@ -15,7 +15,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 //  4. Run editableDropDenormalizedField to drop the now-unused denormalized
 //     content fields, for smaller tables and faster database operations.
 
-registerMigration({
+export default registerMigration({
   name: "editableAddLatestRevisionField",
   dateWritten: "2019-11-24",
   idempotent: true,

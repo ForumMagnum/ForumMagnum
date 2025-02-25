@@ -1,9 +1,9 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments';
+import { Comments } from '../comments/collection';
 import TagRels from '../tagRels/collection';
-import { Posts } from '../posts';
+import { Posts } from '../posts/collection';
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable

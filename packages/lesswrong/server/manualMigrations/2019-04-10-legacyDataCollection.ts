@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "moveLegacyData",
   dateWritten: "2019-04-10",
   idempotent: true,

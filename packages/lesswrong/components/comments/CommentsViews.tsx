@@ -1,6 +1,5 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
@@ -8,7 +7,7 @@ import qs from 'qs'
 import { isEmpty } from 'underscore';
 import type { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
   const currentUser = useCurrentUser();

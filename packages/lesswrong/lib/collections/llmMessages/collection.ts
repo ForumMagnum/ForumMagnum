@@ -1,8 +1,8 @@
 import { addUniversalFields } from "@/lib/collectionUtils";
-import { createCollection } from "@/lib/vulcan-lib";
+import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import schema from "./schema"
 import { ensureIndex } from "@/lib/collectionIndexUtils";
-import { isAdmin, userOwns } from "@/lib/vulcan-users";
+import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions.ts";
 
 const LlmMessages: LlmMessagesCollection = createCollection({
   collectionName: "LlmMessages",

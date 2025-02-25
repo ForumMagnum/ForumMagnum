@@ -95,7 +95,7 @@ export const getDefaultFragmentText = <N extends CollectionNameString>(
 
   if (fieldNames.length) {
     const fragmentText = `
-      fragment ${collection.options.collectionName}DefaultFragment on ${collection.typeName} {
+      fragment ${collection.collectionName}DefaultFragment on ${collection.typeName} {
         ${fieldNames.map(fieldName => {
           return fieldName+'\n';
         }).join('')}

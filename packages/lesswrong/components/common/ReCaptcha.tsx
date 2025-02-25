@@ -1,7 +1,7 @@
 // Copied from: https://raw.githubusercontent.com/codeep/react-recaptcha-v3/master/src/ReCaptcha.js
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { registerComponent } from '../../lib/vulcan-lib'
+import { registerComponent } from '../../lib/vulcan-lib/components'
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings'
 import { isClient } from '../../lib/executionEnvironment';
 

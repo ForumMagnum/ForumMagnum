@@ -6,7 +6,7 @@ import { encode } from 'querystring'
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 import { randomId } from '@/lib/random';
 
 const ElicitUserType = `type ElicitUser {

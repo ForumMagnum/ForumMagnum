@@ -64,7 +64,7 @@ export function getDatabaseConfig(opts: Partial<CommandLineOptions>) {
   // postgresUrl to a loopback connection.
   let tunneledPgConnectionString: string|null = null;
   let sshTunnelCommand: string[]|null = null;
-  if (dbConfig?.sshTunnel) {
+  if (dbConfig?.sshTunnel && !opts.noSshTunnel) {
     if (!dbConfig.sshTunnel.key) die(`SSH tunnel needs a key`);
     if (!dbConfig.sshTunnel.host) die(`SSH tunnel needs a host`);
 

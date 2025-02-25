@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { Components, registerComponent } from '@/lib/vulcan-lib'
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx'
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 /** Hack: Inlined styling for the emoji-picker shadow DOM */

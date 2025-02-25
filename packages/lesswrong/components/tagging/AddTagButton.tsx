@@ -1,5 +1,5 @@
 import React, { ReactNode, useRef, useState }  from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';

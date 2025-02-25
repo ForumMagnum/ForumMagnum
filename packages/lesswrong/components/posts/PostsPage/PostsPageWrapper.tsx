@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
@@ -11,6 +10,8 @@ import { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { useApolloClient } from '@apollo/client';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,

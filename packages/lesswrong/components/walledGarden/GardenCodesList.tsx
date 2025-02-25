@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({

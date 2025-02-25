@@ -1,5 +1,5 @@
-import {PingbackDocument, RouterLocation} from './vulcan-lib'
-import {Posts} from './collections/posts'
+import { PingbackDocument, RouterLocation } from './vulcan-lib/routes'
+import { Posts } from './collections/posts/collection'
 import {Users} from './collections/users/collection'
 import Tags from './collections/tags/collection'
 

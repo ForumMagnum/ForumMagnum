@@ -1,6 +1,6 @@
 import { ensureIndex } from "../../collectionIndexUtils";
 import { addUniversalFields } from "../../collectionUtils";
-import { createCollection } from "../../vulcan-lib";
+import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
 
 const RecommendationsCaches: RecommendationsCachesCollection = createCollection({

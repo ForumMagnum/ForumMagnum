@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';

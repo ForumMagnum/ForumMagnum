@@ -1,8 +1,8 @@
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import { LWEvents } from '../../lib/collections/lwevents'
+import { LWEvents } from '../../lib/collections/lwevents/collection'
 import { ReadStatuses } from '../../lib/collections/readStatus/collection'
 
-registerMigration({
+export default registerMigration({
   name: "denormalizeReadStatus",
   dateWritten: "2019-05-09",
   idempotent: true,

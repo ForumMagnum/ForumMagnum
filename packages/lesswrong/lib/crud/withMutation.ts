@@ -1,6 +1,6 @@
 import { graphql } from '@apollo/client/react/hoc';
 import { useMutation, gql, OperationVariables } from '@apollo/client';
-import { getFragment } from '../vulcan-lib';
+import { getFragment } from '../vulcan-lib/fragments';
 import * as _ from 'underscore';
 
 /**

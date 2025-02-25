@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';

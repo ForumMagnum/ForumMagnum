@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_2021_BOOK_BANNER_COOKIE, HIDE_FEATURED_RESOURCE_COOKIE } from '../../lib/cookies/cookies';

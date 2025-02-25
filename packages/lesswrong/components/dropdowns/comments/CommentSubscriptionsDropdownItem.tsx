@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments, userHasSubscribeTabFeed } from "../../../lib/betas";
-import { isAdmin } from "../../../lib/vulcan-users";
+import { isAdmin } from "../../../lib/vulcan-users/permissions";
 
 /**
  * A list of props that go into each subscription menu item,

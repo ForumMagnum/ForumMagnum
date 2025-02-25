@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { EditTagForm } from '../EditTagPage';
 import { useApolloClient } from '@apollo/client/react';

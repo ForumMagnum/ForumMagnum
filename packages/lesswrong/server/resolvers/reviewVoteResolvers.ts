@@ -1,5 +1,3 @@
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
-import { addGraphQLQuery, addGraphQLSchema } from "../vulcan-lib";
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { Posts } from '../../lib/collections/posts/collection'
@@ -7,6 +5,7 @@ import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
 import { REVIEW_YEAR, reviewElectionName } from '../../lib/reviewUtils';
 import { TARGET_REVIEW_VOTING_NUM } from '../../components/review/ReviewProgressVoting';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 
 addGraphQLResolvers({
   Mutation: {

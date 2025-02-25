@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers } from "../vulcan-lib";
+import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
 import { refreshSettingsCaches } from "../loadDatabaseSettings";
 
 addGraphQLMutation("RefreshDbSettings: Boolean");

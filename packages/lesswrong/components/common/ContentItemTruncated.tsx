@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 

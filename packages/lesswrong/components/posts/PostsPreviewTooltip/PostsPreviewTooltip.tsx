@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Components } from "../../../lib/vulcan-lib";
+import { Components } from "../../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 
 export interface DialogueMessageInfo {

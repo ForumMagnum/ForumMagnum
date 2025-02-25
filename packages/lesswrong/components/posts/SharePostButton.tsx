@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';

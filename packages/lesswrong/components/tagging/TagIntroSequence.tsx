@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { useMulti } from '../../lib/crud/withMulti'
-import { Components, registerComponent } from '../../lib/vulcan-lib'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 
 const PREVIEW_N = 3
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

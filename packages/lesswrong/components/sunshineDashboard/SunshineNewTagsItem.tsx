@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';

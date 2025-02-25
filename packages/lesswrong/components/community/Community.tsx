@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useRef } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -7,12 +7,9 @@ import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
-import { useLocation } from '../../lib/routeUtil';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-
 import Button from '@material-ui/core/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -20,7 +17,8 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
 import { isFriendlyUI } from '../../themes/forumTheme';
-
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   section: {

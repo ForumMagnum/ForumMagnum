@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';

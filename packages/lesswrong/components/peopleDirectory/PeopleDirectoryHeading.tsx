@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { COLUMN_HORIZONTAL_PADDING } from "./PeopleDirectoryResultRow";

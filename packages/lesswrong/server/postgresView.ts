@@ -1,6 +1,6 @@
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import { addCronJob, CronJobSpec } from "./cronUtil";
+import { addCronJob, CronJobSpec } from "./cron/cronUtil";
 
 type PostgresViewRefreshSpec = {
   interval: string,
@@ -8,6 +8,8 @@ type PostgresViewRefreshSpec = {
 }
 
 export class PostgresView {
+  private cronJob: CronJobSpec|null = null;
+
   constructor(
     private name: string,
     private createViewQuery: string,
@@ -15,7 +17,15 @@ export class PostgresView {
     private refreshSpec?: PostgresViewRefreshSpec,
     private dependencies?: SchemaDependency[],
     private queryTimeout = 60,
-  ) {}
+  ) {
+    if (this.refreshSpec) {
+      this.cronJob = addCronJob({
+        name: `refreshPostgresView-${this.name}`,
+        interval: this.refreshSpec.interval,
+        job: () => this.refresh(getSqlClientOrThrow()),
+      });
+    }
+  }
 
   getName(): string {
     return this.name;
@@ -39,14 +49,8 @@ export class PostgresView {
     }
   }
 
-  registerCronJob() {
-    if (this.refreshSpec) {
-      addCronJob({
-        name: `refreshPostgresView-${this.name}`,
-        interval: this.refreshSpec.interval,
-        job: () => this.refresh(getSqlClientOrThrow()),
-      });
-    }
+  getCronJob() {
+    return this.cronJob;
   }
 }
 
@@ -58,12 +62,7 @@ export const createPostgresView = (
   createIndexQueries: string[] = [],
   refreshSpec?: PostgresViewRefreshSpec,
   dependencies?: SchemaDependency[],
-) => {
-  for (const view of postgresViews) {
-    if (view.getCreateViewQuery() === createViewQuery) {
-      return;
-    }
-  }
+): PostgresView => {
   const view = new PostgresView(
     name,
     createViewQuery,
@@ -72,6 +71,7 @@ export const createPostgresView = (
     dependencies,
   );
   postgresViews.push(view);
+  return view;
 }
 
 export const getPostgresViewByName = (name: string): PostgresView => {
@@ -84,14 +84,3 @@ export const getPostgresViewByName = (name: string): PostgresView => {
 
 export const getAllPostgresViews = (): PostgresView[] => postgresViews;
 
-
-export function registerViewCronJobs() {
-  try {
-    for (const view of getAllPostgresViews()) {
-      view.registerCronJob();
-    }
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to ensure Postgres views exist:", e);
-  }
-}

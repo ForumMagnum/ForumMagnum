@@ -2,11 +2,11 @@ import groupBy from "lodash/groupBy"
 import uniq from "lodash/uniq"
 import moment from "moment"
 import { forumSelect } from "../forumTypeUtils"
-import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
+import { userIsAdmin, userIsMemberOf } from "../vulcan-users/permissions"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import { AutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RateLimitUser, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { ModeratorActions } from "../collections/moderatorActions"
+import { ModeratorActions } from "../collections/moderatorActions/collection"
 import { EXEMPT_FROM_RATE_LIMITS } from "../collections/moderatorActions/schema"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {

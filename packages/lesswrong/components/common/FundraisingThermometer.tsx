@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/publicSettings';

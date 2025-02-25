@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
-registerMigration({
+export default registerMigration({
   name: "postsModifiedAtField",
   dateWritten: "2019-11-04",
   idempotent: true,

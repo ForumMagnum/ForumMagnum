@@ -1,5 +1,5 @@
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
-import { DatabaseMetadataRepo } from "./repos";
+import DatabaseMetadataRepo from "./repos/DatabaseMetadataRepo";
 import { getSqlClient } from './sql/sqlClient';
 import { isAnyTest } from '../lib/executionEnvironment';
 

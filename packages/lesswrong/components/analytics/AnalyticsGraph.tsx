@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { TooltipProps } from "recharts";
 import { requireCssVar } from "../../themes/cssVars";

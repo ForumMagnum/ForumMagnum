@@ -1,9 +1,7 @@
-
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-
 import { Tags } from '../../lib/collections/tags/collection';
 
-registerMigration({
+export default registerMigration({
   name: "defaultOrderTags",
   dateWritten: "2020-04-28",
   idempotent: true,

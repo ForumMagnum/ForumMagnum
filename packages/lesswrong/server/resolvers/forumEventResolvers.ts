@@ -1,5 +1,5 @@
 import { captureEvent } from '@/lib/analyticsEvents';
-import { addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 
 
 addGraphQLResolvers({

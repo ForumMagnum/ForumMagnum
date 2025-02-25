@@ -28,7 +28,7 @@
 // the MUI source.
 
 // TODO: Add registerStyles() to register styles without the component.
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';

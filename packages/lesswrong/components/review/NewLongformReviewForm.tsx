@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 
 const styles = (theme: ThemeType) => ({

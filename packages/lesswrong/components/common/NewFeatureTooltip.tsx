@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { useHover } from './withHover';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 
 const HANDLE_SIZE = 9; // Should be an odd number

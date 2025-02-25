@@ -25,7 +25,7 @@ const defaultReviewerByForum: ForumOptions<string | null> = {
 }
 const defaultReviewer = forumSelect(defaultReviewerByForum)
 
-registerMigration({
+export default registerMigration({
   name: "guaranteedPostReviewer",
   dateWritten: "2020-11-12",
   idempotent: true,

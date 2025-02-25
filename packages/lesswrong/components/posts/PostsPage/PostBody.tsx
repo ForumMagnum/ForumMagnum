@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';

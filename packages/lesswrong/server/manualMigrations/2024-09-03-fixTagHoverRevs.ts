@@ -5,7 +5,7 @@ import { forEachDocumentBatchInCollection , registerMigration } from "./migratio
 
 //eslint-disable-file no-console
 
-registerMigration({
+export default registerMigration({
   name: "fixTagHoverRevs",
   dateWritten: "2024-09-03",
   idempotent: true,

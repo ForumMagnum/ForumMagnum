@@ -1,7 +1,7 @@
 import { getCollectionHooks } from '../mutationCallbacks';
 import difference from 'lodash/difference';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import Users from '../../lib/vulcan-users';
+import Users from '../../lib/collections/users/collection';
 
 
 getCollectionHooks("Localgroups").createValidate.add((validationErrors: Array<any>, {document: group}) => {

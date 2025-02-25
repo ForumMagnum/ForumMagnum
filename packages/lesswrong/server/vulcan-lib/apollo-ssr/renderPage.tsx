@@ -10,7 +10,6 @@ import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
-import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
@@ -38,6 +37,7 @@ import { responseIsCacheable } from '../../cacheControlMiddleware';
 import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 import { ensureClientId } from '@/server/clientIdMiddleware';
+import { captureEvent } from '@/lib/analyticsEvents';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -191,7 +191,7 @@ function recordSsrAnalytics(
 
   const abTestGroups = rendered.allAbTestGroups;
 
-  Vulcan.captureEvent("ssr", {
+  captureEvent("ssr", {
     url,
     tabId,
     clientId,
@@ -384,8 +384,13 @@ function logRenderQueueState() {
       }
     })
 
-    Vulcan.captureEvent("renderQueueState", {
-      queueState
+    captureEvent("renderQueueState", {
+      queueState: queueState.map(q => ({
+        ...q,
+        userId: q.userId ?? null,
+        userAgent: q.userAgent ?? null,
+        startTime: q.startTime.toISOString(),
+      })) as JsonArray,
     });
   }
 }

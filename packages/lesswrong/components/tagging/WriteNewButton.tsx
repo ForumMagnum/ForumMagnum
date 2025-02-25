@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';

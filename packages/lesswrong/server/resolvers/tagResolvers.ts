@@ -5,7 +5,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Users } from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
@@ -30,7 +30,6 @@ import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { Globals, updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
@@ -42,6 +41,7 @@ import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
+import { updateMutator } from "../vulcan-lib/mutators";
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -875,7 +875,8 @@ defineMutation({
   }
 });
 
-Globals.recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+// Exported to allow running from "yarn repl"
+export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description");
@@ -893,7 +894,8 @@ Globals.recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   );
 }
 
-Globals.recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+// Exported to allow running from "yarn repl"
+export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const lenses = await MultiDocuments.find({

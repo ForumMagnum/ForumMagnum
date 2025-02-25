@@ -10,12 +10,13 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { buildRevision } from '../editor/make_editable_callbacks';
-import { createAdminContext, createMutator, Globals, updateMutator } from '../vulcan-lib';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -520,31 +521,12 @@ const ckEditorApiHelpers = {
   }
 };
 
-Globals.cke = {
+// Exported to allow running manually with "yarn repl"
+export const cke = {
   ...ckEditorApi,
   ...ckEditorApiHelpers,
-  ...documentHelpers
+  ...documentHelpers,
 };
 
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this is only useful for GET calls, since ckEditor doesn't often return anything for POST/DELETE/etc operations.
-// This isn't guaranteed to produce sane results in every single case, but seems fine for the things I've tested.
-Globals.cke.log = Object.fromEntries(
-  Object.entries(Globals.cke).map(([key, val]) => {
-    if (typeof val !== 'function') {
-      return [key, val];
-    }
-
-    // Bind the original function to Globals.cke to preserve 'this'
-    const withLoggedOutput = async function (...args: any[]) {
-      const result = await val.apply(Globals.cke, args);
-      // eslint-disable-next-line no-console
-      console.log({ result });
-      return result;
-    };
-
-    return [key, withLoggedOutput];
-  })
-);
 
 export { ckEditorApi, ckEditorApiHelpers, documentHelpers };

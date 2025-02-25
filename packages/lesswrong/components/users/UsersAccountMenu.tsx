@@ -1,5 +1,5 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';

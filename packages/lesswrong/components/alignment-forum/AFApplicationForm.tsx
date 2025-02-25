@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
 import DialogActions from '@material-ui/core/DialogActions';

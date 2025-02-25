@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   formButton: {

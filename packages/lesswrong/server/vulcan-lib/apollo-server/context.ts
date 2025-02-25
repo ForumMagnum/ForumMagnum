@@ -12,14 +12,15 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { getCollectionsByName } from '../../../lib/vulcan-lib/collections';
+import { getCollectionsByName } from '../../../lib/vulcan-lib/getCollection';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
-import { getAllRepos, UsersRepo } from '../../repos';
+import { getAllRepos } from '../../repos';
+import UsersRepo from '../../repos/UsersRepo';
 import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';

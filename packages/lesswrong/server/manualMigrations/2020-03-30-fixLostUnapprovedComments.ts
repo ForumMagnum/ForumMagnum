@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 // (Only done for comments, not posts, because posts had proper UI for showing
 // that they were awaiting moderation, and suddenly posting old posts would
 // mostly create spam and duplicates.)
-registerMigration({
+export default registerMigration({
   name: "fixLostUnapprovedComments",
   dateWritten: "2020-03-30",
   idempotent: true,

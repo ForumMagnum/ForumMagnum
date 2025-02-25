@@ -10,7 +10,7 @@
 import React, { ReactNode } from 'react';
 import PropTypes, { InferProps, Validator } from 'prop-types';
 
-import { ContextWatchdog } from '../ckeditor5-watchdog';
+import { default as ContextWatchdog } from '../ckeditor5-watchdog/contextwatchdog';
 import type { WatchdogConfig } from '../ckeditor5-watchdog/watchdog';
 
 import type { Context, ContextConfig } from '@ckeditor/ckeditor5-core';

@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import classNames from "classnames";
 

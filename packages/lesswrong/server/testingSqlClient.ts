@@ -157,6 +157,7 @@ type DropAndCreatePgArgs = {
   dropExisting?: boolean,
 }
 
+// Exported to allow running with "yarn repl"
 export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreatePgArgs) => {
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());

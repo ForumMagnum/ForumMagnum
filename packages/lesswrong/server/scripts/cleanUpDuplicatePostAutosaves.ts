@@ -1,12 +1,13 @@
-import { Posts } from "../../lib/collections/posts";
-import { Globals, computeContextFromUser, createMutator, updateMutator } from "../vulcan-lib";
+import { Posts } from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import Conversations from "../../lib/collections/conversations/collection";
 import groupBy from "lodash/groupBy";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import Messages from "../../lib/collections/messages/collection";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
-Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
+export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
   const db = getSqlClientOrThrow();
   const adminUser = await Users.findOne(adminUserId);
   if (!adminUser?.isAdmin) {

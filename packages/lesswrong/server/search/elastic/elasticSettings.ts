@@ -1,7 +1,5 @@
 import { PublicInstanceSetting } from "../../../lib/instanceSettings";
 
-export {isElasticEnabled} from '../../../lib/instanceSettings'
-
 export const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
   "elasticsearch.cloudId",
   null,

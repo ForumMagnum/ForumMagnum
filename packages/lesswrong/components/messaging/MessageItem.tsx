@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';

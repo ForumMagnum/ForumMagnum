@@ -2,7 +2,7 @@ import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { Utils } from '../../vulcan-lib';
+import { Utils } from '../../vulcan-lib/utils';
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';

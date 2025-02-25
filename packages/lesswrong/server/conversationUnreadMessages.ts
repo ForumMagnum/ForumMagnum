@@ -1,6 +1,6 @@
 import { createPostgresView } from "./postgresView";
 
-createPostgresView(
+export const conversationUnreadMessagesView = createPostgresView(
   "ConversationUnreadMessages",
   `CREATE OR REPLACE VIEW "ConversationUnreadMessages" AS
     SELECT q."conversationId", q."userId", EXISTS (

@@ -1,12 +1,11 @@
-import { addCronJob } from '../cronUtil';
+import { addCronJob } from '../cron/cronUtil';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
-import { Globals } from '../../lib/vulcan-lib/config';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import feedparser from 'feedparser-promised';
-import { userIsAdminOrMod } from '../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from '../resolvers/htmlDiff';
@@ -14,7 +13,7 @@ import { sanitize } from '../../lib/vulcan-lib/utils';
 import { dataToHTML } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';
 
-const runRSSImport = async () => {
+export const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
   // eslint-disable-next-line no-console
   console.log(`Refreshing ${feeds.length} RSS feeds`);
@@ -191,10 +190,8 @@ defineQuery({
   },
 });
 
-addCronJob({
+export const addNewRSSPostsCron = addCronJob({
   name: 'addNewRSSPosts',
   interval: 'every 10 minutes',
   job: runRSSImport
 });
-
-Globals.runRSSImport = runRSSImport

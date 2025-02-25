@@ -1,16 +1,17 @@
 import moment from "moment";
 import { CommentModeratorActions } from "../../lib/collections/commentModeratorActions/collection";
 import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorActions/schema";
-import { Comments } from "../../lib/collections/comments";
-import { ModeratorActions } from "../../lib/collections/moderatorActions";
+import { Comments } from "../../lib/collections/comments/collection";
+import { ModeratorActions } from "../../lib/collections/moderatorActions/collection";
 import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
 import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import Votes from "../../lib/collections/votes/collection";
 import { getWithLoader } from "../../lib/loaders";
-import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
 import { forumSelect } from "../../lib/forumTypeUtils";
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';

@@ -5,10 +5,10 @@ import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
-import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../../../lib/vulcan-lib";
+import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema } from "../../../lib/vulcan-lib/graphql";
 import { getClientIP } from '@/server/utils/getClientIP';
-import { LWEvents } from "../../../lib/collections/lwevents";
-import Users from "../../../lib/vulcan-users";
+import { LWEvents } from "../../../lib/collections/lwevents/collection";
+import Users from "../../../lib/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
@@ -23,7 +23,7 @@ import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
 import {userFindOneByEmail} from "../../commonQueries";
 import { ClientIds } from "../../../lib/collections/clientIds/collection";
-import { UsersRepo } from '../../repos';
+import UsersRepo from '../../repos/UsersRepo';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility

@@ -1,8 +1,9 @@
 import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
   tagFlagId?: string,

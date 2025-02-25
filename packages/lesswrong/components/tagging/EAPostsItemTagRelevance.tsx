@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { voteButtonsDisabledForUser } from "../../lib/collections/users/helpers";
 import { useDialog } from "../common/withDialog";

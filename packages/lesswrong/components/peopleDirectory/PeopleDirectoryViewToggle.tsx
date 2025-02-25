@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";

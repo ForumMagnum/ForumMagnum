@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
-import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 

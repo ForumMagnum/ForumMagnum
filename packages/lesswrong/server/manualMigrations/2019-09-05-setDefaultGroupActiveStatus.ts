@@ -2,7 +2,7 @@ import { registerMigration, fillDefaultValues } from './migrationUtils';
 
 import { Localgroups } from '../../lib/collections/localgroups/collection';
 
-registerMigration({
+export default registerMigration({
   name: "setDefaultGroupActiveStatus",
   dateWritten: "2019-09-05",
   idempotent: true,

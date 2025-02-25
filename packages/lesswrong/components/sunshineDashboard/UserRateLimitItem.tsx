@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/schema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
 

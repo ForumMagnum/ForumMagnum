@@ -2,7 +2,7 @@ import { userCanUseTags } from "../../lib/betas";
 import { canVoteOnTagAsync } from "../../lib/voting/tagRelVoteRules";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { taggingNameSetting } from "../../lib/instanceSettings";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
 
 getCollectionHooks("TagRels").createBefore.add(async (_, {currentUser, newDocument}) => {
   const {tagId, postId} = newDocument;

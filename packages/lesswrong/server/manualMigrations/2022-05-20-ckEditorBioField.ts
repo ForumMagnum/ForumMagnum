@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentInCollection } from './migrationUtils';
 import { Users } from '../../lib/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "ckEditorBioField",
   dateWritten: "2022-05-20",
   idempotent: true,

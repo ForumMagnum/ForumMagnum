@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import Input from "@material-ui/core/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 

@@ -1,6 +1,6 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({

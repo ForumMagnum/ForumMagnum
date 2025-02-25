@@ -5,14 +5,6 @@
 import deepmerge from 'deepmerge';
 import './config';
 
-
-// collections used to auto-generate schemas
-let collections: any = [];
-export const addGraphQLCollection = (collection: any) => {
-  collections.push(collection);
-}
-export const getCollections = () => collections;
-
 // additional schemas
 let schemas: string[] = [];
 export const addGraphQLSchema = (schema: string) => {

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
@@ -9,6 +8,8 @@ import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {

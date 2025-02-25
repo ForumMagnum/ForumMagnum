@@ -3,7 +3,7 @@ import { commentIsHidden } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';

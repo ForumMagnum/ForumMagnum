@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
 import { CausePrioIcon } from '../icons/causePrioIcon';

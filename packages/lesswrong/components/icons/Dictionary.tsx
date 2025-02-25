@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
 export const DictionaryIcon = (props: React.HTMLAttributes<SVGElement>) => {

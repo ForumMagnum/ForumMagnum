@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useOverrideLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType) => ({
   conversationSection: {

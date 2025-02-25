@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import classNames from 'classnames';

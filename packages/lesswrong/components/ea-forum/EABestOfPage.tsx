@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";

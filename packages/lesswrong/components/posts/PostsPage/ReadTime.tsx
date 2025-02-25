@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { Components } from '@/lib/vulcan-lib/components';
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {

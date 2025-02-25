@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers } from "../vulcan-lib";
+import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
 import RecommendationService from "./RecommendationService";
 
 addGraphQLMutation("observeRecommendation(postId: String!): Boolean");

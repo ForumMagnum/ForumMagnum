@@ -1,7 +1,6 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import { Globals } from "../vulcan-lib";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
@@ -121,7 +120,8 @@ function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<s
   return indexedInViewEvents;
 }
 
-async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Date) {
+// Exported to allow running manually with "yarn repl"
+export async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Date) {
   const db = getSqlClientOrThrow();
 
   const inViewEvents: InViewEvent[] = JSON.parse((await readFile(inViewEventsFilepath)).toString());
@@ -196,12 +196,10 @@ async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Da
   }
 }
 
-async function backfillFrontpageViews(frontpageLoadsFilepath: string) {
+// Exported to allow running manually with "yarn repl"
+export async function backfillFrontpageViews(frontpageLoadsFilepath: string) {
   const frontpageViewEvents: FrontpageView[] = JSON.parse((await readFile(frontpageLoadsFilepath)).toString());
   const frontpageViewEventsWithDates = frontpageViewEvents.map(event => ({ ...event, timestamp: new Date(event.timestamp) }));
   const userHomePageEvents = frontpageViewEventsWithDates.map((event) => googleVertexHelpers.createViewHomePageEvent(event));
   await googleVertexApi.importUserEvents(userHomePageEvents);
 }
-
-Globals.backfillVertexPosts = backfillVertexPosts;
-Globals.backfillVertexFrontpageViews = backfillFrontpageViews;

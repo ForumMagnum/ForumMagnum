@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const WIDTH = 220

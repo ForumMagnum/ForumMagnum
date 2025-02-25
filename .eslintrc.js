@@ -266,6 +266,8 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": 0,
     "@typescript-eslint/type-annotation-spacing": 1,
     "@typescript-eslint/switch-exhaustiveness-check": 1,
+
+    "no-barrel-files/no-barrel-files": 1,
   },
   "overrides": [
     {
@@ -298,7 +300,8 @@ module.exports = {
     "babel",
     "react",
     "react-hooks",
-    "import"
+    "import",
+    "no-barrel-files"
   ],
   "settings": {
     "import/core-modules": [

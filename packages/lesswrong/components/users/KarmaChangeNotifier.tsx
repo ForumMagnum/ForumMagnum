@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';

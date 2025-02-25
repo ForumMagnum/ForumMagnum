@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CoreReadingCollection } from './LWCoreReading';
 
 const styles = (theme: ThemeType) => ({

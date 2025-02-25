@@ -1,4 +1,3 @@
-import { Components, registerComponent, getFragment } from '@/lib/vulcan-lib';
 import { useMessages } from '@/components/common/withMessages';
 import React from 'react';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '@/lib/collections/users/helpers';
@@ -10,7 +9,9 @@ import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { useNavigate } from '@/lib/reactRouterWrapper';
+import { useNavigate } from '@/lib/routeUtil.tsx';
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,12 +29,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const passwordResetMutation = gql`
-  mutation resetPassword($email: String) {
-    resetPassword(email: $email)
-  }
-`
-
 const UsersEditForm = ({terms, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
@@ -43,7 +38,11 @@ const UsersEditForm = ({terms, classes}: {
   const navigate = useNavigate();
   const client = useApolloClient();
   const { ErrorAccessDenied } = Components;
-  const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
+  const [ mutate, loading ] = useMutation(gql`
+    mutation resetPassword($email: String) {
+      resetPassword(email: $email)
+    }
+  `, { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 

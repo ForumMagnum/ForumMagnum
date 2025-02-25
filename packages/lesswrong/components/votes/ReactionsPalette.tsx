@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';

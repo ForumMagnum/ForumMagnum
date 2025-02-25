@@ -4,7 +4,7 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { LWEvents } from '@/lib/collections/lwevents';
+import { LWEvents } from '@/lib/collections/lwevents/collection.ts';
 import pick from 'lodash/pick';
 import { FieldChangeResult } from '@/lib/collections/lwevents/fragments';
 

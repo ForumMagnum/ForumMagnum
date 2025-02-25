@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
@@ -13,9 +13,8 @@ import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { timeframeLabels, timeframeSettings as defaultTimeframes } from './timeframeUtils'
-import type { TimeframeSettingType } from './timeframeUtils';
 import pick from 'lodash/pick';
+import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 

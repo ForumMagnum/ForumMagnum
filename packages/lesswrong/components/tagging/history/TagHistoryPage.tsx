@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';

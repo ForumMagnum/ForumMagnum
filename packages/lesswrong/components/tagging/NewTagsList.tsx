@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {

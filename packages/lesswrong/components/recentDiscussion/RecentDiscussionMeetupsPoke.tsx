@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import { useMessages } from '../common/withMessages';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent'
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';

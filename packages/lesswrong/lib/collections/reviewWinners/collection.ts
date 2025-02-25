@@ -1,9 +1,10 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { ensureIndex } from '../../collectionIndexUtils';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
   newCheck: (user: DbUser|null) => {

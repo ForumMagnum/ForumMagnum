@@ -20,13 +20,12 @@ import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
-import { isElasticEnabled } from './search/elastic/elasticSettings';
-import {Posts} from '../lib/collections/posts';
-import { VotesRepo } from './repos';
-import { isLWorAF } from '../lib/instanceSettings';
+import { Posts } from '../lib/collections/posts/collection';
+import VotesRepo from './repos/VotesRepo';
 import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
+import { isElasticEnabled, isLWorAF } from "../lib/instanceSettings";
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -51,7 +50,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   context: ResolverContext,
 }): Promise<VoteDocTuple> => {
   // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, extendedVote, user, voteId });
+  const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,
@@ -239,7 +238,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!context)
     context = createAnonymousContext();
 
-  const collectionName = collection.options.collectionName;
+  const collectionName = collection.collectionName;
   document = document || await collection.findOne({_id: documentId});
 
   if (!document) throw new Error("Error casting vote: Document not found.");
@@ -282,7 +281,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     return {
       vote: null,
       modifiedDocument: {
-        __typename: collection.options.typeName,
+        __typename: collection.typeName,
         ...document,
       } as any,
       showVotingPatternWarning,
@@ -334,7 +333,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
         // necessary, but I believe it's something to do with graphql union types.
         // This has been here (in some form) since long before we
         // typescript-ified.
-        __typename: collection.options.typeName,
+        __typename: collection.typeName,
         ...document,
       } as any,
       showVotingPatternWarning,

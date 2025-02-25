@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isEAForum } from '../../lib/instanceSettings';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userBlockedCommentingReason } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';

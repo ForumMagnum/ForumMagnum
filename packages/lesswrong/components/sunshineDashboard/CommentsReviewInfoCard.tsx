@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import DoneIcon from '@material-ui/icons/Done';
 import LinkIcon from '@material-ui/icons/Link';

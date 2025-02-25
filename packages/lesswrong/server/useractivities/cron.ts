@@ -5,8 +5,7 @@ import max from 'lodash/fp/max';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
-import { addCronJob } from '../cronUtil';
-import { Vulcan } from '../vulcan-lib';
+import { addCronJob } from '../cron/cronUtil';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';
 import { isAnyTest } from '../../lib/executionEnvironment';
 
@@ -302,6 +301,8 @@ async function concatNewActivity({
  *    will have a complete array representing their activity in each hour.
  *    All of these arrays will be the same length (i.e. we zero-pad as necessary)
  *  - Rows from inactive users will be deleted
+ *
+ * Exported to allow running manually with "yarn repl"
  */
 export async function updateUserActivities(props?: {
   updateStartDate?: Date,
@@ -344,6 +345,7 @@ export async function updateUserActivities(props?: {
 /**
  * Clear all UserActivity data and backfill it all the way back to ACTIVITY_WINDOW_HOURS ago.
  * This takes about 10 minutes on prod (EA Forum)
+ * Exported to allow running manually with "yarn repl"
  */
 export async function backfillUserActivities() {
   const dataDb = getSqlClientOrThrow();
@@ -376,15 +378,11 @@ export async function backfillUserActivities() {
 }
 
 
-if (isEAForum || isLW ) {
-  addCronJob({
-    name: 'updateUserActivitiesCron',
-    interval: 'every 3 hours',
-    async job() {
-      await updateUserActivities({randomWait: true});
-    }
-  });
-}
-
-Vulcan.updateUserActivities = updateUserActivities;
-Vulcan.backfillUserActivities = backfillUserActivities;
+export const updateUserActivitiesCron = addCronJob({
+  name: 'updateUserActivitiesCron',
+  interval: 'every 3 hours',
+  disabled: !isEAForum && !isLW,
+  async job() {
+    await updateUserActivities({randomWait: true});
+  }
+});

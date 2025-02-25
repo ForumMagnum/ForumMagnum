@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';

@@ -1,10 +1,10 @@
-import {addGraphQLMutation, addGraphQLResolvers} from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
-import { updateMutator } from '../vulcan-lib';
-import { Comments } from '../../lib/collections/comments';
-import {CommentsRepo} from "../repos";
+import { updateMutator } from '../vulcan-lib/mutators';
+import { Comments } from '../../lib/collections/comments/collection';
+import CommentsRepo from '../repos/CommentsRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import toDictionary from '../../lib/utils/toDictionary';
 import mapValues from 'lodash/mapValues';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';

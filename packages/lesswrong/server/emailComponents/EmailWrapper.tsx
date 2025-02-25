@@ -1,6 +1,6 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
 

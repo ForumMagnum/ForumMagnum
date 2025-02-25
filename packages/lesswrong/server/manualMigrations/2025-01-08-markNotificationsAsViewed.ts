@@ -1,7 +1,7 @@
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 
-registerMigration({
+export default registerMigration({
   name: "markNotificationsAsViewed",
   dateWritten: "2025-01-08",
   idempotent: true,

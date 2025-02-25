@@ -1,8 +1,8 @@
-import { Vulcan } from "../vulcan-lib";
 import { createTestingSqlClient, killAllConnections } from "../testingSqlClient";
 import { closeSqlClient } from "../sql/sqlClient";
 
-Vulcan.dropAndSeedJestPg = async () => {
+// Exported to allow running manually with "yarn repl"
+export const dropAndSeedJestPg = async () => {
   const id = "jest_template";
   // eslint-disable-next-line no-console
   console.log("Killing connections");

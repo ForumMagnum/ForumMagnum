@@ -428,3 +428,7 @@ export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean =
     || post._id === aboutPostIdSetting.get()
   );
 };
+
+export const postIsPublic = (post: DbPost) => {
+  return !post.draft && post.status === postStatuses.STATUS_APPROVED
+};

@@ -10,7 +10,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';

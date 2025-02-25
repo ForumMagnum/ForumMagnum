@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';

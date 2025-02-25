@@ -2,7 +2,7 @@ import '../client/publicSettings' // Must come first
 
 // Imports required for this file:
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
-import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib';
+import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib/components';
 import { randomId } from '../lib/random';
 
 // Imports required for the whole app:

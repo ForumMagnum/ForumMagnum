@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
 import { preferredHeadingCase } from "../../themes/forumTheme";

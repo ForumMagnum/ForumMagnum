@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';

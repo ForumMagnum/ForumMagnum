@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil'
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
   tag: TagFragment,

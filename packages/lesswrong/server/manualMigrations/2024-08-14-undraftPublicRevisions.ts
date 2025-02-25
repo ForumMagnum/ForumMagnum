@@ -22,7 +22,7 @@ export const undraftPublicPostRevisions = async (db: SqlClient | ITask<{}>) => {
   `);
 }
 
-registerMigration({
+export default registerMigration({
   name: "undraftPublicPostRevisions",
   dateWritten: "2024-08-14",
   idempotent: true,

@@ -1,5 +1,5 @@
 import "../integrationTestSetup";
-import { runQuery } from '../../server/vulcan-lib';
+import { runQuery } from '../../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { Components, getFragment, registerComponent } from "@/lib/vulcan-lib";
 import { useMulti } from "@/lib/crud/withMulti";
 import Button from '@material-ui/core/Button';
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {

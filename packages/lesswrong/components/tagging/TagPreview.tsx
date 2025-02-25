@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';

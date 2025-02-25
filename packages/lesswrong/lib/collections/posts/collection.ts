@@ -1,7 +1,6 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
@@ -9,6 +8,9 @@ import { formGroups } from './formGroups';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { hasAuthorModeration } from '../../betas';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { postCheckAccess } from './checkAccess';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -47,6 +49,9 @@ export const Posts = createCollection({
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: true,
+  },
   dependencies: [
     {type: "extension", name: "btree_gin"},
     {type: "extension", name: "earthdistance"},
@@ -123,6 +128,8 @@ makeEditable({
     },
   }
 })
+
+Posts.checkAccess = postCheckAccess;
 
 
 export default Posts;

@@ -1,8 +1,10 @@
 import { userCanUseTags } from "../../betas";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
-import { createCollection } from '../../vulcan-lib';
-import { userIsAdmin, userOwns } from "../../vulcan-users";
+import { createCollection } from '../../vulcan-lib/collections';
+import { userIsAdmin, userOwns } from "../../vulcan-users/permissions";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const schema: SchemaType<"UserTagRels"> = {
   tagId: {

@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 import classNames from 'classnames';
 import { CommentTreeNode, addGapIndicators, flattenCommentBranch, unflattenComments } from '../../lib/utils/unflatten';

@@ -1,5 +1,5 @@
 import React, { MouseEvent, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -15,13 +15,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
-import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';

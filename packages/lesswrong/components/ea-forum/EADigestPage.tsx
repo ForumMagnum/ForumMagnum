@@ -1,5 +1,4 @@
 import React, { CSSProperties } from "react";
-import { Components, fragmentTextForQuery, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
@@ -10,6 +9,8 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -158,15 +159,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const digestPostsQuery = gql`
-  query getDigestPosts($num: Int) {
-    DigestPosts(num: $num) {
-      ...PostsListWithVotes
-    }
-  }
-  ${fragmentTextForQuery('PostsListWithVotes')}
-`
-
 const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -189,12 +181,18 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const digest = results?.[0]
   
   // get the list of posts in this digest
-  const { data, loading } = useQuery(digestPostsQuery, {
-      ssr: true,
-      skip: !digestNum || !digest,
-      variables: {num: digestNum},
+  const { data, loading } = useQuery(gql`
+    query getDigestPosts($num: Int) {
+      DigestPosts(num: $num) {
+        ...PostsListWithVotes
+      }
     }
-  )
+    ${fragmentTextForQuery('PostsListWithVotes')}
+  `, {
+    ssr: true,
+    skip: !digestNum || !digest,
+    variables: {num: digestNum},
+  })
   
   const onSubscribeClick = async () => {
     captureEvent("digestAdSubscribed")

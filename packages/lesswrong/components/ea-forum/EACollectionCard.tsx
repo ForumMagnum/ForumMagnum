@@ -1,5 +1,5 @@
 import React, { useCallback, ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";

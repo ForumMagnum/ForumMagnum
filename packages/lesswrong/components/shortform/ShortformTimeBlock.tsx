@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 

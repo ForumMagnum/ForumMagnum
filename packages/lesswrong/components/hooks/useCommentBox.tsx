@@ -1,5 +1,5 @@
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react';
-import { Components } from '../../lib/vulcan-lib';
+import { Components } from '../../lib/vulcan-lib/components';
 import { hookToHoc } from '../../lib/hocUtils';
 import type { CloseableComponent } from '../common/withDialog';
 

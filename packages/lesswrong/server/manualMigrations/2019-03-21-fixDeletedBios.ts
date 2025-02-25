@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
-registerMigration({
+export default registerMigration({
   name: "fixDeletedBios",
   dateWritten: "2019-03-21",
   idempotent: true,

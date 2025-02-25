@@ -1,4 +1,4 @@
-import { getCollection } from './vulcan-lib/collections';
+import { getCollection } from './vulcan-lib/getCollection';
 
 // Simple function wrappers around mongodb operations. These are slightly silly
 // and exist primarily for the purpose of breaking import cycles; because they

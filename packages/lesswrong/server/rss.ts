@@ -1,19 +1,20 @@
 import RSS from 'rss';
-import { Comments } from '../lib/collections/comments';
+import { Comments } from '../lib/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
-import { addStaticRoute, createAnonymousContext } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
+import { addStaticRoute } from "./vulcan-lib/staticRoutes";
+import { createAnonymousContext } from "./vulcan-lib/query";
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed

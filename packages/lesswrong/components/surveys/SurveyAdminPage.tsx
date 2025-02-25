@@ -1,5 +1,5 @@
 import React, { FormEvent, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useMulti } from "@/lib/crud/withMulti";

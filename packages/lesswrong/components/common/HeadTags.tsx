@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';

@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from "./migration
 import { Comments } from "../../lib/collections/comments/collection";
 import { Votes } from "../../lib/collections/votes/collection";
 
-registerMigration({
+export default registerMigration({
   name: "populateApprovalVoteCount",
   dateWritten: "2022-11-28",
   idempotent: true,

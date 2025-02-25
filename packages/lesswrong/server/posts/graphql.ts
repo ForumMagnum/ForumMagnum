@@ -4,7 +4,7 @@ GraphQL config
 
 */
 
-import { addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 
 const specificResolvers = {
   Mutation: {

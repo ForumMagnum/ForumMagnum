@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   meta: {

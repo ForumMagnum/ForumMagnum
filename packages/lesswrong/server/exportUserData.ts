@@ -1,29 +1,28 @@
-import { Bans } from "../lib/collections/bans";
+import { Bans } from "../lib/collections/bans/collection";
 import { ClientIds } from "../lib/collections/clientIds/collection";
 import Collections from "../lib/collections/collections/collection";
 import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
 import Localgroups from "../lib/collections/localgroups/collection";
 import Messages from "../lib/collections/messages/collection";
-import { ModeratorActions } from "../lib/collections/moderatorActions";
+import { ModeratorActions } from "../lib/collections/moderatorActions/collection";
 import Notifications from "../lib/collections/notifications/collection";
-import { PetrovDayLaunchs } from "../lib/collections/petrovDayLaunchs";
+import { PetrovDayLaunchs } from "../lib/collections/petrovDayLaunchs/collection";
 import Posts from "../lib/collections/posts/collection";
 import ReadStatuses from "../lib/collections/readStatus/collection";
 import Reports from "../lib/collections/reports/collection";
 import Revisions from "../lib/collections/revisions/collection";
 import RSSFeeds from "../lib/collections/rssfeeds/collection";
 import Sequences from "../lib/collections/sequences/collection";
-import { Subscriptions } from "../lib/collections/subscriptions";
+import { Subscriptions } from "../lib/collections/subscriptions/collection";
 import TagRels from "../lib/collections/tagRels/collection";
 import Tags from "../lib/collections/tags/collection";
 import UserMostValuablePosts from "../lib/collections/userMostValuablePosts/collection";
 import Users from "../lib/collections/users/collection";
 import UserTagRels from "../lib/collections/userTagRels/collection";
-import { Votes } from "../lib/collections/votes";
+import { Votes } from "../lib/collections/votes/collection";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { writeFile } from "fs/promises";
-import { Globals } from "./vulcan-lib";
 import CkEditorUserSessions from "@/lib/collections/ckEditorUserSessions/collection";
 import CurationEmails from "@/lib/collections/curationEmails/collection";
 import DialogueChecks from "@/lib/collections/dialogueChecks/collection";
@@ -31,21 +30,24 @@ import ElectionVotes from "@/lib/collections/electionVotes/collection";
 import ElicitQuestionPredictions from "@/lib/collections/elicitQuestionPredictions/collection";
 import GardenCodes from "@/lib/collections/gardencodes/collection";
 import GoogleServiceAccountSessions from "@/lib/collections/googleServiceAccountSessions/collection";
-import { LWEvents } from "@/lib/collections/lwevents";
+import { LWEvents } from "@/lib/collections/lwevents/collection.ts";
 import PostRecommendations from "@/lib/collections/postRecommendations/collection";
 import RecommendationsCaches from "@/lib/collections/recommendationsCaches/collection";
 import ReviewVotes from "@/lib/collections/reviewVotes/collection";
 import TypingIndicators from "@/lib/collections/typingIndicators/collection";
 import UserEAGDetails from "@/lib/collections/userEAGDetails/collection";
 import UserJobAds from "@/lib/collections/userJobAds/collection";
-import { UserRateLimits } from "@/lib/collections/userRateLimits";
+import { UserRateLimits } from "@/lib/collections/userRateLimits/collection.ts";
 
 type Entry<N extends CollectionNameString> = [
   CollectionBase<N>,
   {fetch: () => Promise<ObjectsByCollectionName[N][]>},
 ];
 
-/** Please ensure that we know that the user is who they say they are! */
+/**
+ * Please ensure that we know that the user is who they say they are!
+ * Exported to allow running with "yarn repl".
+ */
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
   outfile?: string,
@@ -123,4 +125,3 @@ export const exportUserData = async (
   return result;
 }
 
-Globals.exportUserData = exportUserData;

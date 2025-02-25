@@ -2,7 +2,7 @@ import { registerMigration, fillDefaultValues } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "setDefaultSubscriptionTypes",
   dateWritten: "2019-11-27",
   idempotent: true,

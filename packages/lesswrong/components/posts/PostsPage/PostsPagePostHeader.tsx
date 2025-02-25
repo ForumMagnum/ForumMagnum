@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';

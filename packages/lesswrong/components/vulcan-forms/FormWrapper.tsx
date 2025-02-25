@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { gql } from '@apollo/client';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
@@ -15,6 +14,8 @@ import { WrappedSmartFormProps } from './propTypes';
 import { Form } from './Form';
 import * as _ from 'underscore';
 import { NavigationContext } from '@/lib/vulcan-core/appContext';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const intlSuffix = '_intl';
 

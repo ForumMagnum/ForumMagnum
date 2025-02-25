@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';

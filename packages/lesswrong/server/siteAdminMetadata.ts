@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery } from './vulcan-lib';
+import { addGraphQLQuery, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import process from 'process';
 import os from 'os';
 import { execSync } from 'child_process';

@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
-import { useLocation } from "../../lib/routeUtil";
 import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
-import { userCanDo } from "../../lib/vulcan-users";
-import { Link, useNavigate } from "../../lib/reactRouterWrapper";
+import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const MAX_WIDTH = 1100;
 

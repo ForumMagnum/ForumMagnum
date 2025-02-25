@@ -64,4 +64,3 @@ export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | nu
   }
 }
 
-export default datadogRum;

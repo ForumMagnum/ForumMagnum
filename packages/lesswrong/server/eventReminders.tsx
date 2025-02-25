@@ -5,7 +5,7 @@ import { Posts } from '../lib/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Users } from '../lib/collections/users/collection';
 import { getUsersToNotifyAboutEvent } from './notificationCallbacks';
-import { addCronJob } from './cronUtil';
+import { addCronJob } from './cron/cronUtil';
 import { updateMutator } from './vulcan-lib/mutators';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EventTomorrowReminder';
@@ -62,13 +62,12 @@ async function checkAndSendUpcomingEventEmails() {
   }
 }
 
-if (!testServerSetting.get()) {
-  addCronJob({
-    name: "Send upcoming-event reminders",
-    // every minute
-    cronStyleSchedule: '* * * * *',
-    job() {
-      void checkAndSendUpcomingEventEmails();
-    }
-  });
-}
+export const cronCheckAndSendUpcomingEventEmails = addCronJob({
+  name: "Send upcoming-event reminders",
+  // every minute
+  cronStyleSchedule: '* * * * *',
+  disabled: testServerSetting.get(),
+  job() {
+    void checkAndSendUpcomingEventEmails();
+  }
+});

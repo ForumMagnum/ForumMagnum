@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";

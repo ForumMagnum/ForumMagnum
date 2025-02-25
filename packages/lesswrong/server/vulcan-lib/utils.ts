@@ -21,4 +21,3 @@ Utils.performCheck = async <T extends DbObject>(
   }
 };
 
-export { Utils };

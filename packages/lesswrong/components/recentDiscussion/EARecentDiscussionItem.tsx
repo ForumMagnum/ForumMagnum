@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";

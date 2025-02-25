@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import { LWEvents } from '../../lib/collections/lwevents';
-import { Subscriptions } from '../../lib/collections/subscriptions';
+import { LWEvents } from '../../lib/collections/lwevents/collection';
+import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 import { getSchema } from '../../lib/utils/getSchema';
 import { registerMigration } from './migrationUtils';
 
-registerMigration({
+export default registerMigration({
   name: "revertSubforumNotifSettings",
   dateWritten: "2023-01-10",
   idempotent: true,

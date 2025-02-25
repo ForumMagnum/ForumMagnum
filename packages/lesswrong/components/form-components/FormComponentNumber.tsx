@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const FormComponentNumber = (props: FormComponentProps<number>) => {
   return <Components.MuiTextField

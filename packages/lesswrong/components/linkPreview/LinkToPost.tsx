@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { linkStyle } from './PostLinkPreview';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';

@@ -1,10 +1,11 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType) => ({
