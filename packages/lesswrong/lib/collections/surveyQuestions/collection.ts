@@ -1,5 +1,5 @@
 import { createCollection } from "../../vulcan-lib/collections";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { ensureIndex } from "@/lib/collectionIndexUtils";
 import schema from "./schema";
 import { addUniversalFields } from "../../collectionUtils";

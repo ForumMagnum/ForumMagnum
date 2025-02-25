@@ -2,7 +2,7 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const Spotlights: SpotlightsCollection = createCollection({

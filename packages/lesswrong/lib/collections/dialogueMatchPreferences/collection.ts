@@ -1,5 +1,4 @@
-import { ensureIndex } from "../../collectionIndexUtils";
-import { MutationOptions, getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { createCollection } from "../../vulcan-lib/collections";
 import { userIsAdmin, userOwns } from "../../vulcan-users/permissions";
 import DialogueChecks from "../dialogueChecks/collection";

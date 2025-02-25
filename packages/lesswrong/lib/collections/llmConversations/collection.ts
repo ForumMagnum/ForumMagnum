@@ -2,7 +2,7 @@ import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import schema from "./schema";
 import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions.ts";
 import { addUniversalFields } from "@/lib/collectionUtils";
-import { getDefaultMutations } from "@/lib/vulcan-core/default_mutations.ts";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 
 const LlmConversations: LlmConversationsCollection = createCollection({

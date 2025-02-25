@@ -1,7 +1,7 @@
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 

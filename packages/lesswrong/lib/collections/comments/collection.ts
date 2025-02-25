@@ -3,7 +3,7 @@ import { createCollection } from '../../vulcan-lib/collections';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { makeEditable } from '../../editor/make_editable';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addUniversalFields } from "../../collectionUtils";

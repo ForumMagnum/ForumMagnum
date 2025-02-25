@@ -3,7 +3,7 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { createCollection } from "../../vulcan-lib/collections";
 import { registerFragment } from "../../vulcan-lib/fragments";
 import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const ElicitQuestions: ElicitQuestionsCollection = createCollection({

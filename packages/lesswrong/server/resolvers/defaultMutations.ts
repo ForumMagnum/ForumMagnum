@@ -1,8 +1,8 @@
-import { convertDocumentIdToIdInSelector, Utils } from '../vulcan-lib/utils';
-import { collectionNameToGraphQLType } from '../vulcan-lib/collections';
-import { userCanDo, userOwns } from '../vulcan-users/permissions';
+import { convertDocumentIdToIdInSelector, Utils } from '@/lib/vulcan-lib/utils';
+import { collectionNameToGraphQLType } from '@/lib/vulcan-lib/collections';
+import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
-import { loggerConstructor } from '../utils/logging';
+import { loggerConstructor } from '@/lib/utils/logging';
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
