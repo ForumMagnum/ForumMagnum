@@ -1,7 +1,6 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { Utils } from '../../vulcan-lib/utils';
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
@@ -10,6 +9,7 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
+import { updateMutator } from '@/server/vulcan-lib/mutators';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -383,7 +383,7 @@ const schema: SchemaType<"Comments"> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        void Utils.updateMutator({
+        void updateMutator({
           collection: context.Posts,
           context,
           documentId: document.postId,
