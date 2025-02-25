@@ -1,13 +1,13 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
 
-const styles = (theme: ThemeType): JssStyles => ({})
+const styles = (theme: ThemeType) => ({})
 
 const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList & { debate: true },
   treeOptions: CommentTreeOptions,
 }) => {

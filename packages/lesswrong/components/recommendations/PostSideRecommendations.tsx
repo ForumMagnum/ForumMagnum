@@ -1,5 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostSideRecommendations } from "../../lib/postSideRecommendations";
 import { useCurrentUser } from "../common/withUser";
 import classNames from "classnames";
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
 const PostSideRecommendations = ({post, className, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();

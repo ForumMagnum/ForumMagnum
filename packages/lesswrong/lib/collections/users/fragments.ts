@@ -25,7 +25,6 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2024DonatedFlair
   }
 `);
 
@@ -58,6 +57,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
     frontpagePostCount
@@ -222,6 +222,8 @@ registerFragment(`
     hideSunshineSidebar
     optedOutOfSurveys
     postGlossariesPinned
+    generateJargonForDrafts
+    generateJargonForPublishedPosts
   }
 `);
 
@@ -266,6 +268,7 @@ registerFragment(`
       posts {
         _id
         scoreChange
+        postId
         title
         slug
         addedReacts {
@@ -277,6 +280,7 @@ registerFragment(`
       comments {
         _id
         scoreChange
+        commentId
         description
         postId
         postTitle
@@ -301,6 +305,92 @@ registerFragment(`
           userId
         }
         eaAddedReacts
+      }
+      todaysKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+      }
+      thisWeeksKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
       }
     }
   }
@@ -390,19 +480,18 @@ registerFragment(`
   }
 `)
 
+// Fragment used for the map markers on /community. This is a much-larger-than-
+// usual number of users, so keep this fragment minimal.
 registerFragment(`
   fragment UsersMapEntry on User {
-    ...UsersMinimumInfo
-    createdAt
-    isAdmin
-    groups
-    location
-    googleLocation
-    mapLocation
+    _id
+    displayName
+    username
+    fullName
+    slug
+    mapLocationLatLng { lat lng }
     mapLocationSet
-    mapMarkerText
     htmlMapMarkerText
-    mongoLocation
   }
 `);
 
@@ -514,6 +603,8 @@ registerFragment(`
 
     deleted
     permanentDeletionRequestedAt
+
+    twitterProfileURLAdmin
   }
 `)
 
@@ -568,6 +659,7 @@ registerFragment(`
     website
     linkedinProfileURL
     facebookProfileURL
+    blueskyProfileURL
     twitterProfileURL
     githubProfileURL
   }
@@ -597,5 +689,12 @@ registerFragment(`
     karma
     jobTitle
     organization
+  }
+`);
+
+registerFragment(`
+  fragment UsersSocialMediaInfo on User {
+    ...UsersProfile
+    twitterProfileURLAdmin
   }
 `);

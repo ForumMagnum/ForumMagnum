@@ -1,9 +1,10 @@
 import { ApolloError, gql } from '@apollo/client';
 import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
-import { extractFragmentInfo, collectionNameToTypeName } from '../vulcan-lib';
 import { updateCacheAfterCreate } from './cacheUpdates';
 import { loggerConstructor } from '../utils/logging';
 import { useCallback, useMemo } from 'react';
+import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
+import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
 
 /**
  * Create mutation query used on the client. Eg:

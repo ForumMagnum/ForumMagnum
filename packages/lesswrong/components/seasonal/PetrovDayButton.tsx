@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
@@ -25,7 +25,7 @@ export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
@@ -140,8 +140,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
-  classes: ClassesType,
+const PetrovDayButton = ({classes, alreadyLaunched }: {
+  classes: ClassesType<typeof styles>,
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {
@@ -229,7 +229,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
               <div className={classes.button}>
                 {renderButtonAsPressed ? 
                   <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                    <img src={"../petrovButtonPressedDark.png"}/> 
                   </LWTooltip>
                   :
                   <LWTooltip title="Are you sure?" placement="right">

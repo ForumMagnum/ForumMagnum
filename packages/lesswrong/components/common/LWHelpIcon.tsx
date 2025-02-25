@@ -1,8 +1,8 @@
 import React from 'react';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     fontSize: "1.3em",
     width: "1.5em",
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWHelpIcon = ({classes}: {classes: ClassesType}) => {
+const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 

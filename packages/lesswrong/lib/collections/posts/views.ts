@@ -5,11 +5,11 @@ import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings
 import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
-import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
-import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
+import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
@@ -19,7 +19,9 @@ import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+const eventBuffer = isEAForum
+  ? { startBuffer: 1, endBuffer: null }
+  : { startBuffer: 6, endBuffer: 3 };
 
 export const POST_SORTING_MODES = new TupleSet([
   "magic", "top", "topAdjusted", "new", "old", "recentComments"
@@ -65,7 +67,6 @@ declare global {
     notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
-    excludeContents?: boolean,
     includeArchived?: boolean,
     includeDraftEvents?: boolean,
     includeShared?: boolean,
@@ -80,6 +81,8 @@ declare global {
     algoActivityFactor?: number
     algoActivityHalfLifeHours?: number
     algoActivityWeight?: number
+    requiredUnnominated?: boolean,
+    requiredFrontpage?: boolean,
     // END
   }
   type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
@@ -129,7 +132,7 @@ export const filters: Record<string,any> = {
   },
   // TODO(Review) is this indexed?
   "unnominated": {
-    positiveReviewVoteCount: 0
+    positiveReviewVoteCount: {$lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD}
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -150,6 +153,9 @@ export const filters: Record<string,any> = {
     tagRelevance: {$ne: {}}
   },
   "includeMetaAndPersonal": {},
+  "linkpost": {
+    url: {$exists: true},
+  }
 }
 
 /**
@@ -1097,10 +1103,12 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
-  ]}
+  const timeSelector = {
+    $or: [
+      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
+      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
+    ],
+  };
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   // make sure that, by default, events are not global
   let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
@@ -1257,8 +1265,11 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
-      draft: viewFieldAllowAny,
-      rejected: null
+      rejected: null,
+      $or: [
+        { wasEverUndrafted: true },
+        { draft: false }
+      ]
     },
     options: {
       sort: {
@@ -1449,9 +1460,13 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) 
 
 // used to find a user's upvoted posts, so they can nominate them for the Review
 Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+  const nominationFilter = terms.requiredUnnominated ? {positiveReviewVoteCount: { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }} : {}
+  const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {}
   return {
     selector: {
       userId: {$ne: context?.currentUser?._id,},
+      ...frontpageFilter,
+      ...nominationFilter,
       isEvent: false
     },
     options: {
@@ -1474,7 +1489,7 @@ const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) },
+      $or: [{[`tagRelevance.${longformReviewTagId}`]: {$gte: 1}}, {positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) }}],
       _id: { $nin: reviewExcludedPostIds }
     },
     options: {
@@ -1483,16 +1498,42 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       sort: {
         lastCommentedAt: -1
       },
-      ...(terms.excludeContents ?
-        {projection: {contents: 0}} :
-        {})
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
+  augmentForDefaultView({ positiveReviewVoteCount: 1, tagRelevance: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
+
+Posts.addView("frontpageReviewWidget", (terms: PostsViewTerms) => {
+  if (!terms.reviewYear) {
+    throw new Error("reviewYear is required for reviewVoting view");
+  }
+  return {
+    selector: {
+      $or: [
+        {[`tagRelevance.${longformReviewTagId}`]: {$gte: 1}},
+        {
+          $and: [
+            {postedAt: {$gte: moment.utc(`${terms.reviewYear}-01-01`).toDate()}},
+            {postedAt: {$lt: moment.utc(`${terms.reviewYear+1}-01-01`).toDate()}},
+            {positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) }}
+          ]
+        }
+      ],
+      _id: { $nin: reviewExcludedPostIds }
+    },
+    options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        lastCommentedAt: -1
+      },
+    }
+  }
+})
+
 
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
@@ -1524,9 +1565,6 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
       sort: {
         lastCommentedAt: -1
       },
-      ...(terms.excludeContents ?
-        {projection: {contents: 0}} :
-        {})
     }
   }
 })

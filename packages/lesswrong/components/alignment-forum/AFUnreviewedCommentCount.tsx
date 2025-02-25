@@ -1,8 +1,8 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useMulti } from "../../lib/crud/withMulti";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     marginTop: 32,
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AFUnreviewedCommentCount = ({ post, classes }: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   //this gets number of comments submitted by non-members or suggested by members that haven't been processed yet

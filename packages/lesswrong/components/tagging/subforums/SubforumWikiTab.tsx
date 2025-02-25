@@ -1,21 +1,21 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { EditTagForm } from '../EditTagPage';
 import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPage';
+import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPageUtils';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   centralColumn: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -42,7 +42,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   revision?: string,
   truncated: boolean,
   setTruncated: (truncated: boolean) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     PostsListSortDropdown,

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery, gql } from '@apollo/client';
 import { rowStyles } from './MigrationsDashboardRow';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...rowStyles,
   row: {
     display: 'flex',
@@ -16,25 +16,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const migrationsQuery = gql`
-  query MigrationsDashboardQuery {
-    MigrationsDashboard {
-      migrations {
-        name
-        dateWritten
-        runs { name started finished succeeded }
-        lastRun
-      }
-    }
-  }
-`;
-
 const MigrationsDashboard = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { SingleColumnSection, Loading, SectionTitle } = Components;
-  const { data, loading } = useQuery(migrationsQuery, { ssr: true });
+  const { data, loading } = useQuery(gql`
+    query MigrationsDashboardQuery {
+      MigrationsDashboard {
+        migrations {
+          name
+          dateWritten
+          runs { name started finished succeeded }
+          lastRun
+        }
+      }
+    }
+  `, { ssr: true });
   
   if (!userIsAdmin(currentUser)) {
     return <SingleColumnSection>Sorry, you need to be logged in as an admin to use this page.</SingleColumnSection>;

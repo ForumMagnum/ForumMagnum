@@ -1,10 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width:"100%",
     background: theme.palette.panelBackground.default,
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BigCollectionsCard = ({ collection, url, classes }: {
   collection: CoreReadingCollection,
   url: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LinkCard, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
@@ -82,7 +82,7 @@ const BigCollectionsCard = ({ collection, url, classes }: {
         <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
       </div>}
       <div className={classes.content} style={cardContentStyle}>
-        <Typography variant="title" className={classes.title}>
+        <Typography variant="title">
           <Link to={url}>{collection.title}</Link>
         </Typography>
         <Typography variant="subheading" className={classes.author}>

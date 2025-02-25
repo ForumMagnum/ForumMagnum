@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   text: {
     ...theme.typography.body2,
     width: 680,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewLongformReviewForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsNewForm, SingleColumnSection, Row } = Components
 
@@ -42,7 +42,7 @@ export const NewLongformReviewForm = ({classes}: {
       </ul>
       <p>If you're reviewing a specific single-post in depth, you should also write a short comment review linking to this post.</p>
       <Row justifyContent="flex-end">
-        <Button className={classes.button} onClick={() => setShowText(false)}>Click to hide</Button>
+        <Button onClick={() => setShowText(false)}>Click to hide</Button>
       </Row>
     </div>}
     <PostsNewForm />

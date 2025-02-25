@@ -1,11 +1,10 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   map: {
     height: '100vh',
     marginTop: -theme.spacing.mainLayoutPaddingTop,
@@ -13,11 +12,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: 0,
     },
   }
-}))
-
+});
 
 const CommunityMembersFullMap = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SearchResultsMap } = Components
   

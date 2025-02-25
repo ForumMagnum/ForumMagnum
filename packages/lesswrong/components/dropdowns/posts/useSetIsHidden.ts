@@ -1,5 +1,5 @@
 import { useMutation, gql } from '@apollo/client';
-import { fragmentTextForQuery } from '../../../lib/vulcan-lib';
+import { fragmentTextForQuery } from '../../../lib/vulcan-lib/fragments';
 import { useCurrentUser } from '@/components/common/withUser';
 import some from 'lodash/some';
 import reject from 'lodash/reject';

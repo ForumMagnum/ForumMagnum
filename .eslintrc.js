@@ -18,6 +18,7 @@ const restrictedImportsPaths = [
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
+  { name: "url", message: "'url' is a nodejs polyfill; use getUrlClass() instead" },
 ]
 
 module.exports = {
@@ -150,28 +151,6 @@ module.exports = {
       allowUnsafeDynamicCyclicDependency: true,
     }],
     "import/no-mutable-exports": 1,
-    "import/no-restricted-paths": ["error", {"zones": [
-      {
-        target: "packages/lesswrong/components",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into components - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/lib",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into lib - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/client",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into client - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/themes",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into themes - move the shared code into lib",
-      },
-    ]}],
     "no-restricted-imports": ["error", {
       "paths": restrictedImportsPaths,
       patterns: [
@@ -287,6 +266,8 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": 0,
     "@typescript-eslint/type-annotation-spacing": 1,
     "@typescript-eslint/switch-exhaustiveness-check": 1,
+
+    "no-barrel-files/no-barrel-files": 1,
   },
   "overrides": [
     {
@@ -319,7 +300,8 @@ module.exports = {
     "babel",
     "react",
     "react-hooks",
-    "import"
+    "import",
+    "no-barrel-files"
   ],
   "settings": {
     "import/core-modules": [
@@ -348,8 +330,11 @@ module.exports = {
     "afterEach": true
   },
   "ignorePatterns": [
-    "build.js",
+    "build.ts",
+    // Excluded here because it's also excluded in `tsconfig.json`, and they
+    // need to match.
+    "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
-    ".eslintrc.js"
+    ".eslintrc.js",
   ]
 }

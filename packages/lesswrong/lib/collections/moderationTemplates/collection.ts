@@ -1,8 +1,9 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { makeEditable } from "../../editor/make_editable";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const ModerationTemplates: ModerationTemplatesCollection = createCollection({
   collectionName: 'ModerationTemplates',

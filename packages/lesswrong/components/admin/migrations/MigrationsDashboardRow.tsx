@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 
 export const rowStyles = {
@@ -23,11 +23,11 @@ export const rowStyles = {
     minWidth: 140,
   },
 };
-const styles = (theme: ThemeType): JssStyles => rowStyles;
+const styles = (_theme: ThemeType) => rowStyles;
 
 const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}: {
   migration: any,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [expanded, setExpanded] = React.useState(false);
   
@@ -54,7 +54,7 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
       <span className={classes.middleColumn}>{status}</span>
       <span className={classes.lastRun}>{lastRun}</span>
     </div>
-    {expanded && <ul className={classes.runs}>
+    {expanded && <ul>
       {runs.map((run: AnyBecauseTodo) => <li key={run.started}>
         Started {run.started}
         {run.finished && <>, finished {run.finished}</>}

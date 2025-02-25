@@ -1,16 +1,15 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   outdatedWarning: {
     float: "right",
     position: 'relative',
     [theme.breakpoints.down('xs')]: {
       float: "none",
-      marginTop: 7,
       display: 'block'
     }
   },
@@ -44,7 +43,7 @@ function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|Post
 const CommentOutdatedWarning = ({comment, post, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!postHadMajorRevision(comment, post))
     return null;

@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
+export const postsItemLikeStyles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.postStyle,
     position: "relative",
@@ -63,7 +63,7 @@ export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
   location: {
     color: theme.palette.text.dim40,
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const LocalGroupsItem = ({group, classes}: {
   group: localGroupsHomeFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsItemMetaInfo, GroupLinks } = Components
   

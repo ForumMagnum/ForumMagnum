@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -27,7 +27,7 @@ import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
-import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -177,14 +177,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: 6,
     },
   },
-  donationIcon: {
-    position: "relative",
-    bottom: 1,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 24,
-    marginLeft: 8
-  },
-})
+});
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
@@ -489,14 +482,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
-           {user.givingSeason2024DonatedFlair &&
-              <LWTooltip
-                placement="bottom-start"
-                title="Donated to the Donation Election fund"
-              >
-                <ForumIcon icon="GivingHand" className={classes.donationIcon} />
-              </LWTooltip>
-            }
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
@@ -518,7 +503,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
             <div className={classes.interests}>
               <div>Interests:</div>
               {user.profileTags.map((tag) =>
-                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon />
+                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon hoverable={true} />
               )}
             </div>
           }

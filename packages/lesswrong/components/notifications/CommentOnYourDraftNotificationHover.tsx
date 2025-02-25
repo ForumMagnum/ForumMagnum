@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     ...theme.typography.commentStyle,
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { UsersName, Loading } = Components;
   const postId = notification.documentId;

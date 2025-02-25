@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "& .MuiList-padding": {
@@ -21,7 +21,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 })
 
 const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,

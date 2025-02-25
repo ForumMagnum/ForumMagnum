@@ -4,9 +4,9 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 import type {SortableContainerProps, SortEvent, SortEventWithTag} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
-export const makeSortableListComponent = ({renderItem}: {
-  renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id: string) => void, classes: ClassesType }) => React.ReactNode
-}) => {
+export function makeSortableListComponent<Styles extends AnyStyles>({renderItem}: {
+  renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id: string) => void, classes: ClassesType<Styles> }) => React.ReactNode
+}) {
   // For some reason the SortableElement HoC's type annotation, under React 18,
   // doesn't accurately reflect the fact that extra parameters get passed
   // through to the underlying component. (In React 16 this wasn't an issue, and
@@ -15,7 +15,7 @@ export const makeSortableListComponent = ({renderItem}: {
   const SortableItem: AnyBecauseHard = SortableElement(({contents, removeItem, classes}: {
     contents: string,
     removeItem: (id: string) => void,
-    classes: ClassesType
+    classes: ClassesType<Styles>
   }) => <>
     {renderItem({contents, removeItem, classes})}
   </>);
@@ -24,7 +24,7 @@ export const makeSortableListComponent = ({renderItem}: {
     items: string[],
     removeItem: (id: string) => void,
     className?: string,
-    classes: ClassesType
+    classes: ClassesType<Styles>
   }) => {
     return <span className={className}>
       {items.map((contents, index) => {
@@ -48,7 +48,7 @@ export const makeSortableListComponent = ({renderItem}: {
     value: string[],
     setValue: (value: string[]) => void,
     className?: string,
-    classes: ClassesType,
+    classes: ClassesType<Styles>,
   } & SortableContainerProps) => {
     const {value, setValue, className, ...otherProps} = props;
     

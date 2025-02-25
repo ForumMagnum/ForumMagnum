@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { userGetEditUrl } from "../../../lib/vulcan-users/helpers";
 import { userCanEditUser } from "../../../lib/collections/users/helpers";
 import { useMessages } from "../../common/withMessages";
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
 
 const EAUsersProfileLinks = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();

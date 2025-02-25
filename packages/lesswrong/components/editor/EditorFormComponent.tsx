@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
@@ -23,6 +22,9 @@ import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOption
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
+import { CKEditorPortalProvider } from './CKEditorPortalProvider';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -79,25 +81,21 @@ export const EditorFormComponent = ({
   label,
   formVariant,
   commentStyles,
+  updateCurrentValues,
   classes,
-}: {
+}: FormComponentProps<any> & {
   form: any,
-  formType: "edit"|"new",
   formProps: FormProps,
   document: any,
-  name: any,
   fieldName: any,
-  value: any,
   hintText: string,
-  placeholder: string,
-  label: string,
   formVariant?: "default" | "grey",
   commentStyles: boolean,
   classes: ClassesType<typeof styles>,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
-  const { updateCurrentValues, submitForm } = context;
+  const { submitForm } = context;
   const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
@@ -290,7 +288,7 @@ export const EditorFormComponent = ({
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
-    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+    void updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
   }, {
     rateLimitMs: autosaveInterval,
     callOnLeadingEdge: true,
@@ -335,7 +333,7 @@ export const EditorFormComponent = ({
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
-    updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
+    void updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
     void throttledSetContentsValue({})
     
     if (autosave) {
@@ -489,6 +487,7 @@ export const EditorFormComponent = ({
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
     />}
+    <CKEditorPortalProvider>
     <Components.Editor
       ref={editorRef}
       _classes={classes}
@@ -515,6 +514,7 @@ export const EditorFormComponent = ({
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
+    </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" &&
       <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
     }
@@ -541,7 +541,6 @@ export const EditorFormComponentComponent = registerComponent('EditorFormCompone
 (EditorFormComponent as any).contextTypes = {
   addToSubmitForm: PropTypes.func,
   addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
   submitForm: PropTypes.func,
 };
 

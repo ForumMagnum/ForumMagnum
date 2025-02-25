@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/schema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   rateLimitForm: {
     [theme.breakpoints.up('md')]: {
       border: theme.palette.border.normal,
@@ -122,7 +122,7 @@ const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {
 
 export const UserRateLimitItem = ({userId, classes}: {
   userId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, MenuItem, Loading, MetaInfo, LWTooltip } = Components;
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
@@ -170,7 +170,7 @@ export const UserRateLimitItem = ({userId, classes}: {
     return <Loading />;
   }
 
-  return <div className={classes.root}>
+  return <div>
     {/** Doesn't have both a comment and post rate limit */}
     {existingRateLimits.length < 2 && <div>
       Set Rate Limit: <Select

@@ -3,6 +3,7 @@ import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSql
 import { createSqlConnection } from "./sqlConnection";
 import { testServerSetting } from "../lib/instanceSettings";
 import { readFile } from "fs/promises";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const loadDbSchema = async (client: SqlClient) => {
   try {
@@ -77,7 +78,21 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
-  await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
+  
+  let retry = false;
+  let retryCount = 0;
+  do {
+    try {
+      retry = false;
+      await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
+    } catch(e) {
+      if (retryCount++ < 3 && /source database .* is being accessed by other users/.test(e.message)) {
+        await sleep(1000);
+        retry = true;
+      }
+    }
+  } while (retry);
+
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
   setSqlClient(sql);
@@ -142,6 +157,7 @@ type DropAndCreatePgArgs = {
   dropExisting?: boolean,
 }
 
+// Exported to allow running with "yarn repl"
 export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreatePgArgs) => {
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());

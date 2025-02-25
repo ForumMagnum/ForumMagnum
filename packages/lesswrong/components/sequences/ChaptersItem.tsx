@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginLeft: 10,
     marginBottom: 24,
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ChaptersItem = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [edit,setEdit] = useState(false);
 

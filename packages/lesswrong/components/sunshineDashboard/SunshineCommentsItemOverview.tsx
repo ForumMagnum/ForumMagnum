@@ -1,10 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   comment: {
     fontSize: "1rem",
     lineHeight: "1.5em"
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineCommentsItemOverview = ({ comment, classes }: {
   comment: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { markdown = "" } = comment.contents || {}
   const commentExcerpt = markdown && markdown.substring(0,38);

@@ -1,7 +1,7 @@
 // TODO: maybe sort by first use instead of frequency?
 export function countInstancesOfJargon(
   jargonTerm: JargonTermsPost | JargonTerms,
-  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage,
+  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage | PostsEditQueryFragment,
   normalizedPostContents?: string
 ) {
   const postText = normalizedPostContents ?? (post.contents?.html ?? "").toLowerCase();

@@ -1,6 +1,7 @@
 const commonFields = (nullable: boolean) => ({
   hidden: true,
-  canCreate: ['admins' as const],
+  required: false,
+  canCreate: ['members' as const,'sunshineRegiment' as const],
   canRead: ['guests' as const],
   canUpdate: ['admins' as const],
   optional: nullable,
@@ -8,10 +9,6 @@ const commonFields = (nullable: boolean) => ({
 });
 
 const schema: SchemaType<"ElicitQuestions"> = {
-  _id: {
-    type: String,
-    ...commonFields(false)
-  },
   title: {
     type: String,
     ...commonFields(false)
@@ -26,12 +23,7 @@ const schema: SchemaType<"ElicitQuestions"> = {
   },
   resolvesBy: {
     type: Date,
-    ...commonFields(false)
-  },
-  createdAt: {
-    type: Date,
-    onInsert: question => question.createdAt ?? new Date(),
-    ...commonFields(false)
+    ...commonFields(true)
   },
 };
 

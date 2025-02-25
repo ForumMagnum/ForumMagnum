@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import {
   SocialMediaProfileField,
@@ -12,7 +12,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 
 const COLLAPSED_SECTION_HEIGHT = 70
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     columnGap: 14,
@@ -136,7 +136,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumMember = ({user, isOrganizer, classes}: {
   user: UsersProfile,
   isOrganizer?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const bioRef = useRef<HTMLDivElement>(null)
   
@@ -155,7 +155,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   
   const userKarma = user.karma || 0
   const bioNode = (
-    user.biography?.html ||
+    user.htmlBio ||
     user.howICanHelpOthers?.html
   ) && <>
     <div
@@ -163,9 +163,9 @@ const SubforumMember = ({user, isOrganizer, classes}: {
       ref={bioRef}
       onClick={() => setCollapsed(false)}
     >
-      {user.biography?.html && <ContentStyles contentType="post" className={classes.bioContentStyles}>
+      {user.htmlBio && <ContentStyles contentType="post" className={classes.bioContentStyles}>
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: user.biography.html }}
+          dangerouslySetInnerHTML={{__html: user.htmlBio }}
           description={`user ${user._id} bio`}
           nofollow={userKarma < nofollowKarmaThreshold.get()}
         />
@@ -183,7 +183,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </>
   
   return <div className={classes.root}>
-    <div className={classes.profilePhotoCol}>
+    <div>
       <ProfilePhoto user={user} from="subforum_members" />
     </div>
     <div>

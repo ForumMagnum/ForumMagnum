@@ -3,14 +3,14 @@ import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import Users from '../lib/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionIndexUtils';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/query';
@@ -149,26 +149,48 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
   }
 }
 
-export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail, context}: {
+export const createNotification = async ({
+  userId,
+  notificationType,
+  documentType,
+  documentId,
+  extraData,
+  noEmail,
+  fallbackNotificationTypeSettings = defaultNotificationTypeSettings,
+  context,
+}: {
   userId: string,
   notificationType: string,
   documentType: NotificationDocument|null,
   documentId: string|null,
-  
-  // extraData: something JSON-serializable that gets attached to the notification.
-  // May affect how it is displayed, but can't affect when it's delivered.
-  extraData?: any,
 
-  // noEmail: If set, this notification can never be sent by email (even if the user's
-  // config settings say that it would be).
+  /**
+   * extraData: something JSON-serializable that gets attached to the notification.
+   * May affect how it is displayed, but can't affect when it's delivered.
+   */
+  extraData?: AnyBecauseTodo,
+
+  /**
+   * noEmail: If set, this notification can never be sent by email (even if the
+   * user's config settings say that it would be).
+   */
   noEmail?: boolean|null,
-  
+
+  /**
+   * Fallback notification settings for if the user has no value set on their
+   * account, of if this notification type is not associated with a particular
+   * user setting
+   */
+  fallbackNotificationTypeSettings?: NotificationTypeSettings,
+
   context: ResolverContext,
 }) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
-  const notificationTypeSettings = (userSettingField && user[userSettingField]) ? user[userSettingField] : defaultNotificationTypeSettings;
+  const notificationTypeSettings = (userSettingField && user[userSettingField])
+    ? user[userSettingField]
+    : fallbackNotificationTypeSettings;
 
   let notificationData = {
     userId: userId,
@@ -223,19 +245,51 @@ export const createNotification = async ({userId, notificationType, documentType
   }
 }
 
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail, context }: {
+export const createNotifications = ({
+  userIds,
+  notificationType,
+  documentType,
+  documentId,
+  extraData,
+  noEmail,
+  fallbackNotificationTypeSettings,
+  context,
+}: {
   userIds: Array<string>
   notificationType: string,
   documentType: NotificationDocument|null,
   documentId: string|null,
+  /**
+   * extraData: something JSON-serializable that gets attached to the notification.
+   * May affect how it is displayed, but can't affect when it's delivered.
+   */
   extraData?: any,
+  /**
+   * noEmail: If set, this notification can never be sent by email (even if the
+   * user's config settings say that it would be).
+   */
   noEmail?: boolean|null,
+  /**
+   * Fallback notification settings for if the user has no value set on their
+   * account, of if this notification type is not associated with a particular
+   * user setting
+   */
+  fallbackNotificationTypeSettings?: NotificationTypeSettings,
   context?: ResolverContext,
 }) => {
-  const nonnullContext = context || await createAnonymousContext();
+  const nonnullContext = context || createAnonymousContext();
   return Promise.all(
     userIds.map(async userId => {
-      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail, context: nonnullContext});
+      await createNotification({
+        userId,
+        notificationType,
+        documentType,
+        documentId,
+        extraData,
+        noEmail,
+        fallbackNotificationTypeSettings,
+        context: nonnullContext,
+      });
     })
   );
 }

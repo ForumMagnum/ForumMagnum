@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -13,7 +13,7 @@ const styles = (_: ThemeType) => ({
 const PinToProfileDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { mutate: updateComment } = useUpdate({

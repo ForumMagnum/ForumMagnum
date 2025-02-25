@@ -1,8 +1,9 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   newOrEditForm: {
     maxWidth: 695,
     marginLeft: "auto",
@@ -46,7 +47,7 @@ const CollectionsEditForm = ({documentId, successCallback, cancelCallback, class
   documentId: string,
   successCallback: any,
   cancelCallback: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classNames(classes.newOrEditForm,classes.editForm)}>

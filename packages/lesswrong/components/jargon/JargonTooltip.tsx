@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
-import { useTracking } from '@/lib/analyticsEvents';
+import classNames from 'classnames';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -18,7 +19,13 @@ const styles = (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 0,
     '& $jargonWord': {
-      color: theme.palette.grey[400]
+      color: theme.palette.text.jargonTerm,
+      '&:after': {
+        content: '""',
+      },
+      '&:first-child': {
+        color: "unset"
+      }
     },
     '& strong $jargonWord, & b $jargonWord': {
       color: 'unset',
@@ -26,11 +33,22 @@ const styles = (theme: ThemeType) => ({
   },
   jargonWord: {
     cursor: 'default',
-    color: theme.palette.text.jargonTerm,
+    '&:after': {
+      content: '"°"',
+      display: 'inline-block',
+      width: 4,
+      height: 4,
+    },
+    '&:hover': {
+      opacity: .6
+    },
     'a &': {
       // When the span is inside a link, inherit the link's color
       color: 'inherit',
     }
+  },
+  pinnedJargonWord: {
+    color: theme.palette.text.jargonTerm,
   },
   metadata: {
     marginTop: 8,
@@ -50,6 +68,19 @@ const styles = (theme: ThemeType) => ({
     marginRight: 4,
     position: 'relative',
     top: 1,
+  },
+  open: {
+    border: `1px solid ${theme.palette.lwTertiary.main}`,
+  },
+  close: {
+    color: theme.palette.grey[500],
+    marginRight: 'auto',
+    marginLeft: 10
+  },
+  warning: {
+    color: theme.palette.text.warning,
+    fontSize: '.9em',
+    marginBottom: 8,
   }
 });
 
@@ -125,7 +156,8 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
     </>;
   }
 
-  const tooltip = <Card className={classes.card}>
+  const tooltip = <Card className={classNames(classes.card, open && classes.open)}>
+    {!approved && <div className={classes.warning}>Unapproved by author. Believe at your own peril</div>}
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
       replacedSubstrings={replacedSubstrings}
@@ -134,9 +166,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       {humansAndOrAIEditedText && <div><span className={classes.metadataItem}>
         {icons}{humansAndOrAIEditedText}
       </span></div>}
-
-      {!approved && <div>Unapproved</div>}
-      {deleted && <div>Deleted</div>}
+      {open && <div className={classes.close}><em>Click to close</em></div>}
     </div>
   </Card>
 
@@ -146,22 +176,27 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
     return <>{children}</>;
   }
 
-  return <LWTooltip
-    title={tooltip}
-    tooltip={false}
-    // We don't want text in the post to reflow when jargon terms are highlighted
-    inlineBlock={false}
-    placement={placement}
-    className={tooltipClassName}
-    titleClassName={tooltipTitleClassName}
-    forceOpen={open}
-  >
-    <LWClickAwayListener onClickAway={() => setOpen(false)}>
-      <span className={classes.jargonWord} onClick={clickTooltip}>
-        {children}
-      </span>
-    </LWClickAwayListener>
-  </LWTooltip>;
+  return <AnalyticsContext nestedPageElementContext={term}>
+    <LWTooltip
+      title={tooltip}
+      tooltip={false}
+      // We don't want text in the post to reflow when jargon terms are highlighted
+      inlineBlock={false}
+      placement={placement}
+      className={tooltipClassName}
+      titleClassName={tooltipTitleClassName}
+      forceOpen={open}
+      analyticsProps={{ pageElementContext: 'jargonTermHovered' }}
+      otherEventProps={{ term }}
+    >
+      <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        {/* TODO: fix this so that it uses "displayAsPinned" instead of "postGlossariesPinned" */}
+        <span className={classNames(classes.jargonWord, postGlossariesPinned && classes.pinnedJargonWord)} onClick={clickTooltip}>
+          {children}
+        </span>
+      </LWClickAwayListener>
+    </LWTooltip>
+  </AnalyticsContext>;
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

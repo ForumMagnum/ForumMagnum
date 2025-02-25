@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -82,14 +82,14 @@ const formatBio = (bio?: string): string => htmlToTextDefault(bio ?? "");
 
 export const formatStat = (value?: number): string => {
   value ??= 0;
-  return value > 10000
+  return value >= 10000
     ? `${Math.floor(value / 1000)} ${String(value % 1000).padStart(3, "0")}`
     : String(value);
 }
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     displayName,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
@@ -12,7 +12,7 @@ import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSe
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   topSection: {
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AllTagsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()

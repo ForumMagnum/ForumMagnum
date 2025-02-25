@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
@@ -43,7 +43,7 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
@@ -131,7 +131,7 @@ const getPostCategory = (post: PostsBase) => {
 }
 
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const LWPostsPreviewTooltip = ({

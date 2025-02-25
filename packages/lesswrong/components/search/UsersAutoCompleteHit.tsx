@@ -1,7 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const UsersAutoCompleteHit = ({document, classes}: {
   document: SearchUser
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (document) {
     return <div className={classes.root}>

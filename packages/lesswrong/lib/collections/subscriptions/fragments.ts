@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment SubscriptionState on Subscription {
@@ -10,5 +10,13 @@ registerFragment(`
     collectionName
     deleted
     type
+  }
+`);
+
+registerFragment(`
+  fragment MembersOfGroupFragment on Subscription {
+    user {
+      ...UsersMinimumInfo
+    }
   }
 `);

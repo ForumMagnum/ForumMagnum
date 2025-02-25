@@ -1,23 +1,27 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles =>  ({
+const styles = (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,
     }
-  }
+  },
+  verticalHeightSpacer: {
+    minHeight: "100vh",
+  },
 })
 
 const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
   showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { loadingInitial, loadMoreProps, results } = useMulti({
+  const { loadingInitial, loadMoreProps, loading, results } = useMulti({
     terms,
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
@@ -30,30 +34,30 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
     return (<Components.Typography variant="body2">{noResultsMessage}</Components.Typography>)
   }
   if (loadingInitial || !validResults) {
-    return <Components.Loading />
+    return <div className={classes.verticalHeightSpacer}>
+      <Components.Loading />
+    </div>
   }
   
-  return (
-    <div className={classes.root}>
-      {validResults.map(comment =>
-        <div key={comment._id}>
-          <Components.CommentsNode
-            treeOptions={{
-              condensed: false,
-              post: comment.post || undefined,
-              tag: comment.tag || undefined,
-              showPostTitle: true,
-              forceNotSingleLine: true
-            }}
-            comment={comment}
-            startThreadTruncated={truncated}
-            showPinnedOnProfile={showPinnedOnProfile}
-          />
-        </div>
-      )}
-      <Components.LoadMore {...loadMoreProps} />
-    </div>
-  )
+  return <div className={classes.root}>
+    {validResults.map(comment =>
+      <div key={comment._id}>
+        <Components.CommentsNode
+          treeOptions={{
+            condensed: false,
+            post: comment.post || undefined,
+            tag: comment.tag || undefined,
+            showPostTitle: true,
+            forceNotSingleLine: true
+          }}
+          comment={comment}
+          startThreadTruncated={truncated}
+          showPinnedOnProfile={showPinnedOnProfile}
+        />
+      </div>
+    )}
+    <Components.LoadMore {...loadMoreProps} />
+  </div>
 }
 
 const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {styles});

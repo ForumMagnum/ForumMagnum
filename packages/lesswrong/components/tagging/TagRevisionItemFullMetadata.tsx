@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: isFriendlyUI ? 12 : undefined,
   },
@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {FormatDate, UsersName, ChangeMetricsDisplay, SmallSideVote} = Components;
   const tagUrl = tagGetUrl(tag);

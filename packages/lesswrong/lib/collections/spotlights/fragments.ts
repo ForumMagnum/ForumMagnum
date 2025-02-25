@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment SpotlightMinimumInfo on Spotlight {
@@ -26,9 +26,28 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment SpotlightReviewWinner on Spotlight {
+    ...SpotlightMinimumInfo
+    description {
+      html
+    }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
+  }
+`);
+
+registerFragment(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
-    document {
+    post {
+      _id
+      slug
+    }
+    sequence {
+      _id
+    }
+    tag {
       _id
       slug
     }
@@ -37,9 +56,31 @@ registerFragment(`
 registerFragment(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
-    document {
+    post {
       _id
       title
+      slug
+      user {
+        _id
+        displayName
+        slug
+      }
+      reviews {
+        ...CommentsList
+      }
+    }
+    sequence {
+      _id
+      title
+      user {
+        _id
+        displayName
+        slug
+      }
+    }
+    tag {
+      _id
+      name
       slug
       user {
         _id
@@ -55,6 +96,7 @@ registerFragment(`
     }
   }
 `);
+
 
 registerFragment(`
   fragment SpotlightEditQueryFragment on Spotlight {

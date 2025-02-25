@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@material-ui/core/Select';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Reviews2019 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
@@ -58,7 +58,7 @@ const Reviews2019 = ({classes}: {
             <SectionFooterCheckbox
               onClick={handleSetExpandUnread}
               value={expandUnread}
-              label={<div className={classes.personalBlogpostsCheckboxLabel}>Expand Unread Comments</div>}
+              label={<div>Expand Unread Comments</div>}
             />
           </LWTooltip>
           <Select

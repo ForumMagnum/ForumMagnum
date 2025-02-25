@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
@@ -9,7 +9,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';
 
-const recentDisucssionFeedComponents = forumSelect({
+const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
     ThreadComponent: Components.RecentDiscussionThread,
     ShortformComponent: Components.RecentDiscussionThread,
@@ -77,7 +77,7 @@ const RecentDiscussionFeed = ({
     TagRevisionComponent,
     SubscribeReminderComponent,
     MeetupsPokeComponent,
-  } = recentDisucssionFeedComponents;
+  } = recentDisucssionFeedComponents();
 
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">

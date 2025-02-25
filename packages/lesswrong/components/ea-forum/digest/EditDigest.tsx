@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
@@ -12,8 +11,10 @@ import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDiges
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1400,
     margin: '10px auto'
@@ -152,7 +153,7 @@ type TagUsage = {
 }
 
 
-const EditDigest = ({classes}: {classes: ClassesType}) => {
+const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {params} = useLocation()
   const {flash} = useMessages()
   const currentUser = useCurrentUser()
@@ -511,10 +512,10 @@ const EditDigest = ({classes}: {classes: ClassesType}) => {
           </div>
         </div>
       </div>
-      
+
       <table className={classes.table}>
         <thead>
-          <tr className={classes.headerRow}>
+          <tr>
             <th className={classes.centeredColHeader}>
               Email?
               <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 14})}>

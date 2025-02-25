@@ -1,7 +1,6 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -14,7 +13,7 @@ import { communityPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     gridColumn: '1 / 4',
@@ -116,8 +115,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 195,
     width: 373,
   },
-}))
-
+});
 
 const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
   events: PostsList[],
@@ -126,7 +124,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   hideSpecialCards?: boolean,
   hideGroupNames?: boolean,
   cardClassName?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { timezone } = useTimezone()

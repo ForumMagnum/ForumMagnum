@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 40
   },

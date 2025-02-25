@@ -1,14 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { hasDigests, hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 
 // Also used in ModerationLog
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   adminHomeOrModerationLogPage: {
     fontFamily: theme.typography.fontFamily,
   
@@ -36,7 +36,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AdminHome = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {SingleColumnSection, AdminMetadata, Loading} = Components;
   const currentUser = useCurrentUser();
@@ -67,6 +67,7 @@ const AdminHome = ({ classes }: {
 
       <h3>Site Admin</h3>
       <ul>
+        {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
         {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         {hasTwitterFeatures && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>

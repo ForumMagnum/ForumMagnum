@@ -2,6 +2,7 @@ import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 import {forumSelect} from './forumTypeUtils'
 import {isEAForum} from './instanceSettings'
+import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -99,21 +100,26 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
 export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
-export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
-// The following dates cut off their phase at the end of the day
-export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
-export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
-export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
-export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
+
+// these are deprecated, but preserved for now in case we want to revert
+
+// export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
+// // The following dates cut off their phase at the end of the day
+// export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
+// export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
+// export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
+// export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
+
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
 
-export type ReviewWinnerSectionName = 'rationality' | 'optimization' | 'modeling' | 'ai' | 'practical' | 'misc';
-export type ReviewWinnerYear = 2018 | 2019 | 2020 | 2021 | 2022;
-export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & {
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerCategory, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
+
+export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & { 
   leftHeightPct?: number;
   middleHeightPct?: number;
   rightHeightPct?: number;
@@ -132,9 +138,6 @@ export interface ReviewYearGroupInfo {
   imgUrl: string;
   coords: CoordinateInfo;
 }
-
-export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
-export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
@@ -156,6 +159,7 @@ export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasPr
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
 export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
+export const queuedRequestTimeoutSecondsSetting = new DatabasePublicSetting<number>('queuedRequestTimeoutSeconds', 60);
 
 export type Auth0ClientSettings = {
   domain: string,
@@ -192,3 +196,15 @@ export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'i
 export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
 
 export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
+
+export const lightconeFundraiserUnsyncedAmount = new DatabasePublicSetting<number>('lightconeFundraiser.unsyncedAmount', 0);
+export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeFundraiser.paymentLinkId', '');
+export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
+export const lightconeFundraiserThermometerGoalAmount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0);
+export const lightconeFundraiserThermometerGoal2Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000);
+export const lightconeFundraiserThermometerGoal3Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal3Amount', 3000000);
+export const lightconeFundraiserPostId = new DatabasePublicSetting<string>('lightconeFundraiser.postId', '');
+export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lightconeFundraiser.active', false);
+
+export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
+export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);

@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren } from "react"
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CENTRAL_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import { Link } from "../../lib/reactRouterWrapper";
 
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
 const ExternalLink: FC<PropsWithChildren<{href: string}>> = ({href, children}) =>
   <a href={href} target="_blank" rel="noreferrer">{children}</a>
 
-const EATermsOfUsePage = ({classes}: {classes: ClassesType}) => {
+const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {Typography} = Components;
   return (
     <div className={classes.root}>

@@ -1,11 +1,11 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: isFriendlyUI ? {
     cursor: "pointer",
     color: theme.palette.grey[1000],
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CommentShortformIcon = ({comment, post, classes, simple}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
 }) => {
 

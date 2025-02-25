@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
@@ -15,7 +15,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -98,7 +98,7 @@ const SubscribeButton = ({
   isSubscribedOverride?: boolean,
   subscribeUserToTagOverride?: (tag: TagBasicInfo, filterMode: FilterMode) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // useSubscribeUserToTag ultimately uses a useState to store the filter settings internally,
   // this means that updates here do not affect the isSubscribed of other places this hook is used.

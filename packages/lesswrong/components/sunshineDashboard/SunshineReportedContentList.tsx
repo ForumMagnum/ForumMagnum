@@ -1,16 +1,16 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineReportedContent,
   }
 })
 
 const SunshineReportedContentList = ({ classes, currentUser }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
   const { SunshineListTitle, SunshineReportedItem, SunshineListCount, LoadMore } = Components

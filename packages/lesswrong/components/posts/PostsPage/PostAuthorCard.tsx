@@ -1,12 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[100],
     padding: '15px 30px 20px',
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostAuthorCard = ({author, currentUser, classes}: {
   author: PostsAuthors_user,
   currentUser: UsersCurrent|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Typography, ContentStyles, NewConversationButton, NotifyMeButton, CloudinaryImage2 } = Components
   
@@ -113,8 +113,8 @@ const PostAuthorCard = ({author, currentUser, classes}: {
           />}
         </div>
       </div>
-      {author.biography?.html && <ContentStyles contentType="comment" className={classes.bio}>
-        <div dangerouslySetInnerHTML={{__html: truncate(author.biography.html, 100, 'words')}} />
+      {author.htmlBio && <ContentStyles contentType="comment" className={classes.bio}>
+        <div dangerouslySetInnerHTML={{__html: truncate(author.htmlBio, 100, 'words')}} />
       </ContentStyles>}
     </div>
   </AnalyticsContext>

@@ -1,16 +1,18 @@
-import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
-import SpeakerWaveIcon from "@heroicons/react/24/outline/SpeakerWaveIcon";
+import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
+import GiftIcon from "@heroicons/react/24/solid/GiftIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
@@ -78,6 +80,7 @@ import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
 import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
@@ -118,7 +121,11 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-
+import MuiArrowDownRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
+import MuiDragIndicatorIcon from '@material-ui/icons/DragIndicator';
+import MuiNoteAddOutlinedIcon from '@material-ui/icons/NoteAddOutlined';
+import ThumbsUpIcon from '@material-ui/icons/ThumbUp';
+import ThumbUpOutlineIcon from '@material-ui/icons/ThumbUpOutlined';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -156,6 +163,8 @@ import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
 import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
+import { DictionaryIcon } from "../icons/Dictionary";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -175,9 +184,11 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "UserOutline" |
   "UserCircle" |
   "Users" |
   "UsersOutline" |
+  "Gift" |
   "Bell" |
   "BellAlert" |
   "BellBorder" |
@@ -284,7 +295,13 @@ export type ForumIconName =
   "FullscreenExit" |
   "TickReaction" |
   "CrossReaction" |
-  "CrossReactionCap";
+  "CrossReactionCap" |
+  "Dictionary" |
+  "ArrowDownRight" |
+  "DragIndicator" |
+  "NoteAdd" |
+  "ThumbUp" |
+  "ThumbUpOutline";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -299,9 +316,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
+    Gift: GiftIcon,
     Bell: MuiNotificationsIcon,
     BellAlert: BellAlertIcon,
     BellBorder: MuiBellBorderIcon,
@@ -408,7 +427,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon,
+    ArrowDownRight: MuiArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -422,9 +447,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
+    Gift: GiftIcon,
     Bell: BellIcon,
     BellAlert: BellAlertIcon,
     BellBorder: BellOutlineIcon,
@@ -531,26 +558,32 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon,
+    ArrowDownRight: ArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
 };
 
-export type IconProps = {
-  className: string,
+type IconProps = {
+  className?: string,
   onClick?: MouseEventHandler<SVGElement>,
   onMouseDown?: MouseEventHandler<SVGElement>,
 }
 
-export type IconComponent = ComponentType<Partial<IconProps>>;
+type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType) => ({
+const styles = defineStyles("ForumIcon", (_: ThemeType) => ({
   root: {
     userSelect: "none",
-    width: "1em",
-    height: "1em",
     display: "inline-block",
     flexShrink: 0,
-    fontSize: 24,
+    width: "var(--icon-size, 1em)",
+    height: "var(--icon-size, 1em)",
+    fontSize: "var(--icon-size, 24px)",
   },
   linkRotation: {
     transform: "rotate(-45deg)",
@@ -558,9 +591,11 @@ const styles = (_: ThemeType) => ({
       marginRight: 12
     }
   },
+}), {
+  stylePriority: -2,
 });
 
-type IconClassName = keyof ClassesType<typeof styles>;
+type IconClassName = "root"|"linkRotation"
 
 // This is a map from forum types to icon names to keys in the `styles` object.
 const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
@@ -571,19 +606,36 @@ const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>
   },
 };
 
-export type ForumIconProps = Partial<IconProps> & {
+type ForumIconProps = IconProps & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
   style?: CSSProperties,
 };
 
+/**
+ * An icon, drawn from a table of icons with some forum/theme-specific variants.
+ *
+ * WARNING: There is a Safari-specific bug, which affects what styles you can
+ * safely use in a `className` that you pass in. Historically, the default was
+ * that an icon had a default fontSize of 24px and a default width and height
+ * of 1em, which is equal to the font size, so you could override fontSize alone
+ * to get a square icon of any size. Unfortunately, in Safari, an `em` on an
+ * SVG is an inconsistent unit which fails to scale with the zoom level.
+ *
+ * In the common case of a square icon, you can override the CSS variable
+ * --icon-size and this will adjust all three attributes at once. Eg:
+ *     myClassname: {
+ *       "--icon-size": "18px"
+ *     }
+ * Note that you must specify the unit (px); a number alone will not work.
+ */
 const ForumIcon = ({
   icon,
   noDefaultStyles,
   className,
-  classes,
   ...props
-}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
+}: ForumIconProps) => {
+  const classes = useStyles(styles);
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
@@ -594,17 +646,17 @@ const ForumIcon = ({
 
   const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
-  const fullClassName = classNames(className, {
-    [classes.root]: !noDefaultStyles,
-    [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
-  });
+  const fullClassName = classNames(
+    className,
+    !noDefaultStyles && classes.root,
+    !noDefaultStyles && customClass
+  );
 
   return <Icon className={fullClassName} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
-  styles,
-  stylePriority: -2,
+const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {
+  areEqual: "auto",
 });
 
 declare global {

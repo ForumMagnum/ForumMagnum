@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   divider: {
     display: 'flex',
     alignItems: 'center',
@@ -30,7 +30,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { DebateResponse } = Components;
 

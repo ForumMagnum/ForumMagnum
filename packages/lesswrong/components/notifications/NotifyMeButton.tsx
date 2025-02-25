@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
@@ -10,7 +10,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 // component still talks about 'subscriptions', but we're moving to calling them
 // 'notifications enabled'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -23,12 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     marginRight: 6,
   } : {},
-  hideOnMobile: {
+  hideLabelOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
     }
   },
-  hide: {
+  hideLabel: {
     display: "none"
   },
 })
@@ -57,7 +57,7 @@ const NotifyMeButton = ({
   asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showIcon?: boolean,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean

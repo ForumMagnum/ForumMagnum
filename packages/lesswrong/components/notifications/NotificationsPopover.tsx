@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
@@ -10,6 +10,8 @@ import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
+import { gql, useMutation } from "@apollo/client";
+import classNames from "classnames";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -54,16 +56,29 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 12,
   },
-  noKarma: {
+  karmaNotificationMessage: {
     fontSize: 13,
     fontWeight: 500,
     color: theme.palette.grey[600],
+  },
+  noKarma: {
+    marginTop: 3,
+    marginBottom: 12,
+    fontStyle: "italic"
+  },
+  karmaSubsectionTitle: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: theme.palette.grey[600],
+    marginBottom: 6,
   },
   link: {
     fontWeight: 600,
     color: theme.palette.primary.main,
   },
-  notifications: {},
+  notifications: {
+    margin: "0 -8px",
+  },
   notification: {
     display: "flex",
   },
@@ -82,17 +97,36 @@ const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
   }
 }
 
+const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
+  switch (batchingFrequency) {
+    case "realtime":  return "appear in real time";
+    case "daily":  return "are batched daily";
+    case "weekly": return "are batched weekly";
+    case "disabled": return "are disabled";
+  }
+}
+
 const defaultLimit = 20;
 
-const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classes}: {
+const NotificationsPopover = ({
+  karmaChanges,
+  onOpenNotificationsPopover,
+  closePopover,
+  classes,
+}: {
   karmaChanges?: KarmaChanges,
-  markAllAsRead?: () => void,
+  onOpenNotificationsPopover?: () => void,
   closePopover?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const [markingAsRead, setMarkingAsRead] = useState(false);
   const [limit, setLimit] = useState(defaultLimit);
-  const {data, loading: notificationsLoading} = useNotificationDisplays(limit);
+  const {
+    data,
+    loading: notificationsLoading,
+    refetch,
+  } = useNotificationDisplays(limit);
   const loadMore = useCallback(() => setLimit((limit) => limit + 10), []);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -100,8 +134,8 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
 
   const toggleMenu = useCallback(() => {
     setIsOpen((open) => !open);
-    markAllAsRead?.();
-  }, [markAllAsRead]);
+    onOpenNotificationsPopover?.();
+  }, [onOpenNotificationsPopover]);
 
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
@@ -110,19 +144,60 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     closePopover?.();
   }, [closePopover, closeMenu]);
 
-  const notifs = useRef<NotificationDisplay[]>([]);
-  if (
-    data?.NotificationDisplays?.results?.length &&
-    data.NotificationDisplays.results.length !== notifs.current.length
-  ) {
-    notifs.current = data.NotificationDisplays.results ?? [];
-  }
+  const [markAllAsReadMutation] = useMutation(gql`
+    mutation MarkAllNotificationsAsRead {
+      MarkAllNotificationsAsRead
+    }
+  `);
+
+  const markAllAsRead = useCallback(async () => {
+    try {
+      setMarkingAsRead(true);
+      await markAllAsReadMutation();
+      await refetch();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    } finally {
+      setMarkingAsRead(false);
+    }
+  }, [markAllAsReadMutation, refetch]);
+
+  const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
 
   useEffect(() => {
-    if (!notificationsLoading && notifs.current.length <= defaultLimit) {
-      markAllAsRead?.();
+    if (!notificationsLoading && notifs.length <= defaultLimit) {
+      onOpenNotificationsPopover?.();
     }
-  }, [notificationsLoading, markAllAsRead]);
+  }, [notificationsLoading, onOpenNotificationsPopover, notifs.length]);
+
+  const hasNewKarmaChanges = useMemo(() => cachedKarmaChanges &&
+    (
+      cachedKarmaChanges.posts?.length ||
+      cachedKarmaChanges.comments?.length ||
+      cachedKarmaChanges.tagRevisions?.length
+    ), [cachedKarmaChanges]
+  )
+  // Show a section under the new karma notifications called "Today",
+  // which includes all karma notifications from the past 24 hours
+  const todaysKarmaChanges = cachedKarmaChanges?.todaysKarmaChanges
+  const hasKarmaChangesToday = useMemo(() => todaysKarmaChanges &&
+    (
+      todaysKarmaChanges.posts?.length ||
+      todaysKarmaChanges.comments?.length ||
+      todaysKarmaChanges.tagRevisions?.length
+    ), [todaysKarmaChanges]
+  )
+  // Show a section under the new karma notifications called "This week",
+  // which includes all karma notifications from the past week
+  const thisWeeksKarmaChanges = cachedKarmaChanges?.thisWeeksKarmaChanges
+  const hasKarmaChangesThisWeek = useMemo(() => thisWeeksKarmaChanges &&
+    (
+      thisWeeksKarmaChanges.posts?.length ||
+      thisWeeksKarmaChanges.comments?.length ||
+      thisWeeksKarmaChanges.tagRevisions?.length
+    ), [thisWeeksKarmaChanges]
+  )
 
   if (!currentUser) {
     return null;
@@ -133,13 +208,14 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     subscribedToDigest,
   } = currentUser;
 
-  const showNotifications = !!(notifs.current.length > 0 || cachedKarmaChanges);
+  const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday || hasKarmaChangesThisWeek);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
     LoadMore, NotificationsPopoverNotification, ForumIcon, LWClickAwayListener,
     PopperCard, DropdownMenu, DropdownItem, Loading,
   } = Components;
+
   return (
     <AnalyticsContext pageSectionContext="notificationsPopover">
       <NotificationsPopoverContext.Provider value={{ closeNotifications }}>
@@ -159,6 +235,8 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                   <DropdownItem
                     title="Mark all as read"
                     onClick={markAllAsRead}
+                    loading={markingAsRead}
+                    disabled={markingAsRead}
                   />
                   <DropdownItem
                     title="Notification settings"
@@ -176,31 +254,53 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                   title="Karma & reacts"
                   titleClassName={classes.sectionTitle}
                 />
-                {cachedKarmaChanges &&
+                {!!hasNewKarmaChanges &&
                   <NotificationsPageKarmaChangeList
                     karmaChanges={cachedKarmaChanges}
                   />
                 }
-                {!cachedKarmaChanges &&
-                  <div className={classes.noKarma}>
-                    No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-                    <NotifPopoverLink
-                      to={karmaSettingsLink}
-                      className={classes.link}
-                    >
-                      Change settings
-                    </NotifPopoverLink>
+                {!hasNewKarmaChanges && !hasKarmaChangesToday && !hasKarmaChangesThisWeek &&
+                  <div className={classNames(classes.karmaNotificationMessage, classes.noKarma)}>
+                    <em>No new karma or reacts</em>
                   </div>
                 }
+                {!!hasKarmaChangesToday &&
+                  <div>
+                    <div className={classes.karmaSubsectionTitle}>Today</div>
+                    <NotificationsPageKarmaChangeList
+                      karmaChanges={todaysKarmaChanges}
+                      truncateAt={3}
+                    />
+                  </div>
+                }
+                {!!hasKarmaChangesThisWeek &&
+                  <div>
+                    <div className={classes.karmaSubsectionTitle}>This week</div>
+                    <NotificationsPageKarmaChangeList
+                      karmaChanges={thisWeeksKarmaChanges}
+                      truncateAt={2}
+                    />
+                  </div>
+                }
+                <div className={classes.karmaNotificationMessage}>
+                  Notifications {getSettingsNudge(updateFrequency)}.{" "}
+                  <NotifPopoverLink
+                    to={karmaSettingsLink}
+                    className={classes.link}
+                  >
+                    Change settings
+                  </NotifPopoverLink>
+                </div>
                 <SectionTitle
                   title="Posts & comments"
                   titleClassName={classes.sectionTitle}
                 />
                 <div className={classes.notifications}>
-                  {notifs.current.map((notification) =>
+                  {notifs.map((notification) =>
                     <NotificationsPopoverNotification
                       key={notification._id}
                       notification={notification}
+                      refetch={refetch}
                     />
                   )}
                   <LoadMore

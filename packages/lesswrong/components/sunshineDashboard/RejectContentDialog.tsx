@@ -5,12 +5,12 @@ import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Card from '@material-ui/core/Card'
 import EditIcon from '@material-ui/icons/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialogContent: {
     width: 400,
     backgroundColor: theme.palette.panelBackground.default,
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RejectContentDialog = ({classes, rejectContent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
   const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;

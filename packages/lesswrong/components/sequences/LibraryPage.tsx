@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   pageTitle: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const LibraryPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
 
@@ -31,7 +31,7 @@ const LibraryPage = ({classes}: {
       <Divider />
       <SingleColumnSection>
         <SectionTitle title="Curated Sequences" />
-        <div className={classes.sequencesGridWrapperWrapper}>
+        <div>
           <SequencesGridWrapper
             terms={{'view':'curatedSequences', limit:100}}
             itemsPerPage={24}
@@ -45,7 +45,7 @@ const LibraryPage = ({classes}: {
         <SectionTitle  title="Community Sequences" >
           <SequencesNewButton />
         </SectionTitle>
-        <div className={classes.sequencesGridWrapperWrapper}>
+        <div>
           <SequencesGridWrapper
             terms={{'view':'communitySequences', limit:12}}
             itemsPerPage={24}

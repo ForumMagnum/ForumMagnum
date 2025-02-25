@@ -1,10 +1,10 @@
 import React from 'react';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const CollectionTableOfContents = ({classes, collection}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   collection: CollectionsPageFragment
 }) => {
   const { TableOfContents } = Components 

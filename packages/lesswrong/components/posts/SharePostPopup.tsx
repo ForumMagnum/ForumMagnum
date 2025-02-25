@@ -1,4 +1,3 @@
-import { Components, getSiteUrl, registerComponent } from "../../lib/vulcan-lib";
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
@@ -11,10 +10,12 @@ import { forumTitleSetting } from "../../lib/instanceSettings";
 import { getPostDescription } from "./PostsPage/PostsPage";
 import { siteImageSetting } from "../vulcan-core/App";
 import classNames from "classnames";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 
 const ANIMATION_DURATION = 300;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
     borderRadius: theme.borderRadius.default,
@@ -182,7 +183,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType };
+type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
 
 const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) => {
   return (
@@ -202,7 +203,7 @@ const SharePostPopup = ({
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   onClose: () => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();

@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
@@ -11,8 +11,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -66,7 +65,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
 
@@ -113,7 +112,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
             description={`tag ${tag.name}`}
-            className={classes.description}
           />
         </ContentStyles>
       </div>

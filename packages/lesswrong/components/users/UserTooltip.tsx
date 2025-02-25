@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
@@ -28,7 +28,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
   // LW specific
   hideFollowButton?: boolean,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const content = isFriendlyUI 

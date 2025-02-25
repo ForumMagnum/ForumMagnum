@@ -113,6 +113,9 @@ export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
 export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 export const hasSidenotes = isLWorAF;
+export const visitedLinksHaveFilledInCircle = isLWorAF;
+export const hasWikiLenses = isLWorAF;
+export const hasSubforums = isEAForum;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to
@@ -122,7 +125,8 @@ export const hasAuthorModeration = !isEAForum || isAnyTest;
 export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100;
 export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
 export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW
-export const userWillPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
+/* if this is reduced to 0, we need to make sure to handle spam somehow */
+export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

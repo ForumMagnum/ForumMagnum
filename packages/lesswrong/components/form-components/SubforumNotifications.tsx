@@ -1,10 +1,10 @@
 import startCase from 'lodash/startCase';
 import React from 'react';
 import { NotificationChannelOption } from '../../lib/collections/users/schema';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({})
+const styles = (theme: ThemeType) => ({})
 
 const SubforumNotifications = (props: FormComponentProps<boolean>) => {
   const currentUser = useCurrentUser();

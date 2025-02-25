@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
@@ -78,26 +78,24 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// This is the data for the next EAGx (Toronto, CA)
-const eagName = 'EAGxToronto'
+// This is the data for the next EAGx (Singapore)
+const eagName = 'EAGxSingapore'
 const eagLocation = {
-  lat: 43.6532,
-  lng: -79.3832,
+  lat: 1.293200,
+  lng: 103.857109,
 }
-const eagCountry = 'CA'
-const eagPostLink = "/events/WGeby2GfMHH8jXmMY/eagxtoronto"
-const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxtoronto-2024"
-const applicationDeadline = moment.utc('2024-07-31', 'YYYY-MM-DD')
+const eagCountry = 'SG'
+const eagPostLink = "/posts/ygKf2PhKAFdaogHJy/apply-by-nov-30-eagxsingapore-in-december"
+const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxsingapore-2024"
+const applicationDeadline = moment.utc('2024-11-30', 'YYYY-MM-DD')
 
 
 /**
  * This is an experimental banner at the top of the EA Forum homepage.
  * We are considering displaying a small banner when an EAG(x) application deadline is near,
  * visible only to users who we think are in a relevant location for that conference.
- *
- * UPDATE: I've now removed it from EAHome. We'll probably redesign it and try again in the future.
  */
-const EAGBanner = ({classes}: {classes: ClassesType}) => {
+const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EAG_BANNER_COOKIE]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
@@ -131,9 +129,9 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   const userInCountry = countryCode === eagCountry
   const isRelevant = userLocationNearby || userInCountry
   if (
+    !isRelevant ||
     moment.utc().isAfter(applicationDeadline, 'day') ||
-    cookies[HIDE_EAG_BANNER_COOKIE] === "true" ||
-    !isRelevant
+    cookies[HIDE_EAG_BANNER_COOKIE] === "true"
   ) {
     return null;
   }
@@ -170,7 +168,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
                   <ForumIcon icon="QuestionMarkCircle" className={classes.infoIcon} />
                 </LWTooltip>
               </div>
-              <div className={classes.bottomRow}>
+              <div>
                 <HoverPreviewLink href={eagPostLink}>
                   <span className={classes.bold}>{eagName}</span>
                 </HoverPreviewLink>{" "}

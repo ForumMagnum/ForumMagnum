@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { makeSortableListComponent } from '../form-components/sortableList';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   listEditor: {
     display: "flex"
   },
@@ -30,7 +30,7 @@ export function EditableUsersList({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[]) => void,
   label: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) {
   const {ErrorBoundary, UsersSearchAutoComplete} = Components;
   

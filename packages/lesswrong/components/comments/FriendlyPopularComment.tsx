@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -92,7 +92,7 @@ const styles = (theme: ThemeType) => ({
 const PopularCommentTitle: FC<{
   comment: CommentsListWithParentMetadata,
   post: NonNullable<Pick<CommentsListWithParentMetadata, "post">["post"]>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({comment, post, classes}) => {
   const {isRead} = useRecordPostView(post);
   const {PostsTooltip} = Components;
@@ -120,7 +120,7 @@ const PopularCommentTitle: FC<{
 
 const FriendlyPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);

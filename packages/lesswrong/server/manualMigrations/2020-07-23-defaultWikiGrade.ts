@@ -2,7 +2,7 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
 import { Tags } from '../../lib/collections/tags/collection';
 
-registerMigration({
+export default registerMigration({
   name: "defaultWikiGrade",
   dateWritten: "2020-07-23",
   idempotent: true,

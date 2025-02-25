@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   tagContainer: {
     display: "flex",
     flexWrap: "wrap",
@@ -24,7 +24,7 @@ const FormComponentQuickTakesTags = ({
   updateCurrentValues,
   classes,
 }: FormComponentProps<AnyBecauseTodo> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     loading,

@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import moment from 'moment';
 import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { loadMoreTimeframeMessages, TimeframeType } from './timeframeUtils';
-
-const styles = (theme: ThemeType): JssStyles => ({
-})
 
 interface TimeBlockRange {
   before: Moment
@@ -19,9 +16,8 @@ interface TimeBlockRange {
   getTitle: (size: 'xsDown' | 'smUp' | null) => string
 }
 
-const PostsTimeframeListExponential = ({postListParameters, classes}: {
+const PostsTimeframeListExponential = ({postListParameters}: {
   postListParameters: PostsViewTerms,
-  classes: ClassesType,
 }) => {
   const { PostsTimeBlock, Typography } = Components;
   const now = useCurrentTime();
@@ -37,28 +33,28 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
       after: moment(now).add(-24,'hours').startOf('day'),
       before: moment(now).endOf('day'),
       timeframe: "daily",
-      getTitle: (size) => preferredHeadingCase("Today and Yesterday"),
+      getTitle: (_size) => preferredHeadingCase("Today and Yesterday"),
     },
     // Past week
     {
       after: moment(now).add(-7*24,'hours').startOf('day'),
       before: moment(now).add(-24,'hours').startOf('day'),
       timeframe: "weekly",
-      getTitle: (size) => preferredHeadingCase("Past week"),
+      getTitle: (_size) => preferredHeadingCase("Past week"),
     },
     // Past two weeks
     {
       after: moment(now).add(-14*24,'hours').startOf('day'),
       before: moment(now).add(-7*24,'hours').startOf('day'),
       timeframe: "weekly",
-      getTitle: (size) => preferredHeadingCase("Past 14 days"),
+      getTitle: (_size) => preferredHeadingCase("Past 14 days"),
     },
     // Past month
     {
       after: moment(now).add(-31*24,'hours').startOf('day'),
       before: moment(now).add(-14*24,'hours').startOf('day'),
       timeframe: "monthly",
-      getTitle: (size) => preferredHeadingCase("Past 31 days"),
+      getTitle: (_size) => preferredHeadingCase("Past 31 days"),
     }
   ];
   
@@ -69,7 +65,7 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
     before: moment(now).add(-31*24,'hours').startOf('day'),
     timeframe: "monthly",
     // Not calling preferredHeadingCase because month names are always capitalized
-    getTitle: (size) => `Since ${roundedMonthStart.format("MMMM Do")}`,
+    getTitle: (_size) => `Since ${roundedMonthStart.format("MMMM Do")}`,
   });
 
   // Month-blocks created by clicking Load More
@@ -104,7 +100,6 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
     </div>)}
     <Typography
       variant="body1"
-      className={classes.loadMore}
       onClick={loadMoreMonths}
     >
       <a>{preferredHeadingCase(loadMoreTimeframeMessages["monthly"])}</a>
@@ -112,16 +107,7 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
   </div>
 }
 
-const getMultiDayTitle = (
-  startDate: moment.Moment,
-  endDate: moment.Moment,
-  size: 'xsDown' | 'smUp' | null
-) => {
-  const dayOfWeekFormat = (size==='smUp') ? "dddd" : "ddd";
-  return `${startDate.format(dayOfWeekFormat)}-${endDate.format(dayOfWeekFormat)}, ${startDate.format("MMM Do YYYY")}`
-}
-
-const PostsTimeframeListExponentialComponent = registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponential, {styles});
+const PostsTimeframeListExponentialComponent = registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponential);
 
 declare global {
   interface ComponentTypes {

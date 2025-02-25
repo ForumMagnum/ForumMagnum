@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
@@ -11,7 +11,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 // Same as above context provider but for whether a post is being served as a recommendation
 export const IsRecommendationContext = React.createContext<boolean>(false);
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     minWidth: isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
@@ -22,7 +22,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   includeBookmark?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 

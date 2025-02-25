@@ -1,15 +1,16 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { gardenForm } from './GardenCodeWidget';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...gardenForm(theme)
   }
 })
 
 export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, successCallback}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gardenCodeId: string,
   successCallback?: any,
   cancelCallback?: any,

@@ -1,18 +1,9 @@
-/*
-
-Utilities
-
-*/
-
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import getSlug from 'speakingurl';
-import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-import type { ToCData } from '../../lib/tableOfContents';
 import sanitizeHtml from 'sanitize-html';
-import { containsKana, fromKana } from "hepburn";
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
@@ -84,7 +75,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
   }
 }
 
-// NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
+// NOTE: validateUrl and tryToFixUrl are duplicates of the code in ckEditor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
 export const validateUrl = (url: string) => {
   try {
@@ -119,32 +110,11 @@ export const getOutgoingUrl = function (url: string): string {
   return getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
 };
 
-export const slugify = function (s: string): string {
-  if (containsKana(s)) {
-    s = fromKana(s);
-  }
-
-  var slug = getSlug(s, {
-    truncate: 60
-  });
-
-  // can't have posts with an "edit" slug
-  if (slug === 'edit') {
-    slug = 'edit-1';
-  }
-
-  // If there is nothing in the string that can be slugified, just call it unicode
-  if (slug === "") {
-    slug = "unicode"
-  }
-
-  return slug;
-};
-
 export const getDomain = function(url: string | null): string|null {
   if (!url) return null;
   try {
-    const hostname = urlObject.parse(url).hostname
+    const URLClass = getUrlClass()
+    const hostname = new URLClass(url).hostname
     return hostname!.replace('www.', '');
   } catch (error) {
     return null;
@@ -342,7 +312,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      '*': [...footnoteAttributes, 'data-internal-id'],
+      '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -405,7 +375,8 @@ export const sanitize = function(s: string): string {
       'estimaker.app',
       'viewpoints.xyz',
       'calendly.com',
-      'neuronpedia.org'
+      'neuronpedia.org',
+      'lwartifacts.vercel.app'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
@@ -429,6 +400,10 @@ export const sanitize = function(s: string): string {
         'ck-cta-button-centered',
         'detailsBlockContent',
         'calendly-preview',
+        'conditionallyVisibleBlock',
+        'defaultVisible',
+        'defaultHidden',
+        /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],

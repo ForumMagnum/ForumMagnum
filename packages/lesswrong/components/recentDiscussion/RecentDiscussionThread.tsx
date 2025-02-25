@@ -1,9 +1,6 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CloseIcon from '@material-ui/icons/Close';
 
 import classNames from 'classnames';
@@ -18,7 +15,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
@@ -169,7 +166,7 @@ const RecentDiscussionThread = ({
   isSubforumIntroPost?: boolean,
   commentTreeOptions?: CommentTreeOptions,
   dismissCallback?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {

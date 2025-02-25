@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql, ObservableQuery, QueryHookOptions, WatchQueryFetchPolicy } from '@apollo/client';
+import { useQuery, gql, ObservableQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
-import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const loadMoreDistance = 500;
 
@@ -25,7 +25,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   sortKeyType: string,
   renderers: any,
 }) => {
-  const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
+  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
   const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
@@ -108,10 +108,32 @@ const MixedTypeFeed = (args: {
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
-  
+
+  // Hide the loading spinner
+  hideLoading?: boolean,
+
+  // Disable automatically loading more - only show the initially fetched documents
+  disableLoadMore?: boolean,
+
+  className?: string,
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, reorderOnRefetch=false } = args;
-  
+  const {
+    resolverName,
+    resolverArgs=null,
+    resolverArgsValues=null,
+    fragmentArgs=null,
+    fragmentArgsValues=null,
+    sortKeyType,
+    renderers,
+    firstPageSize=20,
+    pageSize=20,
+    refetchRef,
+    reorderOnRefetch=false,
+    hideLoading,
+    disableLoadMore,
+    className,
+  } = args;
+
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
   
@@ -200,16 +222,16 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
-  return <div>
+  return <div className={className}>
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
     )}
-    
-    <div ref={bottomRef}/>
+
+    {!disableLoadMore && <div ref={bottomRef}/>}
     {error && <div>{error.toString()}</div>}
-    {!reachedEnd && <Loading/>}
+    {!hideLoading && !reachedEnd && <Loading/>}
   </div>
 }
 
@@ -242,4 +264,3 @@ declare global {
     MixedTypeFeed: typeof MixedTypeInfiniteComponent,
   }
 }
-

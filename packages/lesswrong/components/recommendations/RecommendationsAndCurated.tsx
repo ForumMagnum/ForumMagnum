@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
@@ -14,7 +13,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const curatedUrl = "/recommendations"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: isFriendlyUI ? {} : {
     marginTop: -12,
   },
@@ -120,7 +119,7 @@ const RecommendationsAndCurated = ({
   classes,
 }: {
   configName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "recommendations",
@@ -182,7 +181,7 @@ const RecommendationsAndCurated = ({
 
     const titleText = isEAForum ? "Classic posts" : "Recommendations"
     const titleNode = (
-      <div className={classes.title}>
+      <div>
         <SectionTitle
           title={
             <>
@@ -265,7 +264,7 @@ const RecommendationsAndCurated = ({
             <AnalyticsContext pageSubSectionContext="continueReading">
               <LWTooltip placement="top-start" title={continueReadingTooltip}>
                 <Link to={"/library"}>
-                  <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
+                  <SectionSubtitle>
                     Continue Reading
                   </SectionSubtitle>
                 </Link>

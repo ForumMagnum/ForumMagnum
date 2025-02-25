@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
@@ -85,7 +85,7 @@ const EARecentDiscussionQuickTake = ({
   comments?: CommentsListWithTopLevelComment[],
   refetch: () => void,
   expandAllThreads?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     isSkippable,

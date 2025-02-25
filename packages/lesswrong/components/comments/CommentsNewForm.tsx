@@ -1,4 +1,3 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
@@ -20,6 +19,8 @@ import moment from 'moment';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -187,6 +188,8 @@ const CommentSubmit = ({
   cancelCallback,
   loading,
   submitLabel = "Submit",
+  cancelLabel = "Cancel",
+  className,
   classes,
 }: {
   isMinimalist: boolean;
@@ -197,6 +200,8 @@ const CommentSubmit = ({
   cancelCallback?: CommentCancelCallback;
   loading: boolean;
   submitLabel?: React.ReactNode;
+  cancelLabel?: React.ReactNode;
+  className?: string,
   classes: ClassesType<typeof styles>;
 }) => {
   const { Loading } = Components;
@@ -214,7 +219,7 @@ const CommentSubmit = ({
 
   return (
     <div
-      className={classNames(classes.submit, {
+      className={classNames(classes.submit, className, {
         [classes.submitMinimalist]: isMinimalist,
         [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
@@ -226,7 +231,7 @@ const CommentSubmit = ({
           className={classNames(formButtonClass, classes.cancelButton)}
           {...cancelBtnProps}
         >
-          Cancel
+          {cancelLabel}
         </Button>
       )}
       <Button
@@ -268,6 +273,7 @@ export type CommentsNewFormProps = {
   overrideHintText?: string,
   quickTakesSubmitButtonAtBottom?: boolean,
   isAnswer?: boolean,
+  cancelLabel?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -290,6 +296,7 @@ const CommentsNewForm = ({
   overrideHintText,
   quickTakesSubmitButtonAtBottom,
   isAnswer,
+  cancelLabel,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -480,7 +487,11 @@ const CommentsNewForm = ({
           })
           : undefined
         }>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning
+            contentType="comment"
+            lastRateLimitExpiry={lastRateLimitExpiry}
+            rateLimitMessage={rateLimitMessage}
+          />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
@@ -515,6 +526,7 @@ const CommentsNewForm = ({
                 ...formProps,
                 ...answerFormProps,
               }}
+              cancelLabel={cancelLabel}
               submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
             />
           </div>

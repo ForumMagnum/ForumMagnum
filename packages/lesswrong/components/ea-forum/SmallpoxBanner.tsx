@@ -1,6 +1,5 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -13,7 +12,7 @@ const featuredPost = '/posts/jk7A3NMdbxp65kcJJ/500-million-but-not-a-single-one-
 const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
 const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   link: {
     '&:hover': {
       opacity: 'unset'
@@ -24,10 +23,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: '100%',
     objectFit: 'cover',
   }
-}))
+});
 
 const SmallpoxBanner = ({ classes }: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { SingleColumnSection } = Components
   

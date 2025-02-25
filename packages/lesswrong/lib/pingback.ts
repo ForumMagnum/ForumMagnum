@@ -1,6 +1,7 @@
-import {PingbackDocument, RouterLocation} from './vulcan-lib'
-import {Posts} from './collections/posts'
+import { PingbackDocument, RouterLocation } from './vulcan-lib/routes'
+import { Posts } from './collections/posts/collection'
 import {Users} from './collections/users/collection'
+import Tags from './collections/tags/collection'
 
 export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'
@@ -28,6 +29,7 @@ export async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legac
 
 export async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
   const post = await Posts.findOne({slug: slug})
+  // FIXME: Handle oldSlugs
   if (!post) return null
   return await getPostPingbackById(parsedUrl, post._id)
 }
@@ -40,6 +42,23 @@ export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<
   if (!user) return null
  
   return ({collectionName: 'Users', documentId: user._id})
+}
+
+export async function getTagPingbackById(parsedUrl: RouterLocation, tagId: string|null): Promise<PingbackDocument | null> {
+  if (!tagId) return null;
+  return {collectionName: "Tags", documentId: tagId};
+}
+
+export async function getTagPingbackBySlug(parsedUrl: RouterLocation, slug: string): Promise<PingbackDocument | null> {
+  // TODO: Handle lenses
+  const tag = await Tags.findOne(
+    {$or: [
+      {slug},
+      {oldSlugs: slug}
+    ]}
+  );
+  if (!tag) return null;
+  return getTagPingbackById(parsedUrl, tag._id);
 }
 
 interface ValidationUserPartial {

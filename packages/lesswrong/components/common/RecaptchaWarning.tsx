@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   warningText: {
     margin: 10,
     padding: 20,
@@ -32,7 +32,7 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
       return <div className={classes.warningText}>
         You've been flagged by our spam detection system. Please message an admin via
         Intercom (the chat bubble in the bottom right corner) or send a private message to admin
-        <Link className={classes.link} to="/users/habryka"> habryka</Link> to activate posting- and commenting-privileges on your account.
+        <Link className={classes.link} to="/users/habryka4"> habryka</Link> to activate posting- and commenting-privileges on your account.
       </div>
     default:
       return <div className={classes.warningText}>

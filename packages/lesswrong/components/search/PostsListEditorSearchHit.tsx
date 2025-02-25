@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit,
     borderBottom: "solid 1px",
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const post = hit as SearchPost;
   const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;

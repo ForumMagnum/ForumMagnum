@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
@@ -8,7 +8,7 @@ import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -86,7 +86,7 @@ const LoadMore = ({
   // hideLoading: Reserve space for the load spinner as normal, but don't show it
   hideLoading?: boolean,
   hidden?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   sectionFooterStyles?: boolean,
   afterPostsListMarginTop?: boolean,
   message?: string,

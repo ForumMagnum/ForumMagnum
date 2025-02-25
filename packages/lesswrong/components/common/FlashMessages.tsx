@@ -1,12 +1,12 @@
 import React, { useState, useCallback, ReactNode, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { MessageContext, useMessages } from './withMessages';
 import classnames from 'classnames';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     '& .MuiSnackbarContent-message': {
       color: theme.palette.text.maxIntensity,
@@ -57,7 +57,7 @@ export const MessageContextProvider = ({children}: {
 }
 
 const FlashMessages = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const getProperties = (message: WithMessagesMessage) => {
     if (typeof message === 'string') {

@@ -1,9 +1,8 @@
 import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
-import { graphqlTypeToCollectionName } from "../../vulcan-lib/collections";
 import { isLWorAF } from "../../instanceSettings";
 
-const DOCUMENT_TYPES = ['Sequence', 'Post'];
+const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
 
 interface ShiftSpotlightItemParams {
   startBound: number;
@@ -38,12 +37,13 @@ const schema: SchemaType<"Spotlights"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     order: 10,
+    // TODO: remove this once old clients have cycled out and aren't querying this field anymore
+    // Has been replaced by the post, sequence, and tag fields
     resolveAs: {
       fieldName: 'document',
       addOriginalField: true,
-      // TODO: try a graphql union type?
-      type: 'Post!',
-      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
+      type: `Post!`,
+      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbTag> | null> => {
         switch(spotlight.documentType) {
           case "Post": {
             const document = await context.loaders.Posts.load(spotlight.documentId);
@@ -53,10 +53,56 @@ const schema: SchemaType<"Spotlights"> = {
             const document = await context.loaders.Sequences.load(spotlight.documentId);
             return accessFilterSingle(context.currentUser, context.Sequences, document, context);
           }
+          case "Tag": {
+            const document = await context.loaders.Tags.load(spotlight.documentId);
+            return accessFilterSingle(context.currentUser, context.Tags, document, context);
+          }
         }
       }
     },
   },
+
+  post: resolverOnlyField({
+    type: Object,
+    graphQLtype: "Post",
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost> | null> => {
+      if (spotlight.documentType !== "Post") {
+        return null;
+      }
+
+      const post = await context.loaders.Posts.load(spotlight.documentId);
+      return accessFilterSingle(context.currentUser, context.Posts, post, context);
+    }
+  }),
+
+  sequence: resolverOnlyField({
+    type: Object,
+    graphQLtype: "Sequence",
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbSequence> | null> => {
+      if (spotlight.documentType !== "Sequence") {
+        return null;
+      }
+
+      const sequence = await context.loaders.Sequences.load(spotlight.documentId);
+      return accessFilterSingle(context.currentUser, context.Sequences, sequence, context);
+    }
+  }),
+
+  tag: resolverOnlyField({
+    type: Object,
+    graphQLtype: "Tag",
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbTag> | null> => {
+      if (spotlight.documentType !== "Tag") {
+        return null;
+      }
+
+      const tag = await context.loaders.Tags.load(spotlight.documentId);
+      return accessFilterSingle(context.currentUser, context.Tags, tag, context);
+    }
+  }),
   
   /**
    * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
@@ -67,10 +113,10 @@ const schema: SchemaType<"Spotlights"> = {
     typescriptType: 'SpotlightDocumentType',
     control: 'select',
     form: {
-      options: () => DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
+      options: () => SPOTLIGHT_DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
     },
-    ...schemaDefaultValue(DOCUMENT_TYPES[0]),
-    allowedValues: DOCUMENT_TYPES,
+    ...schemaDefaultValue(SPOTLIGHT_DOCUMENT_TYPES[0]),
+    allowedValues: [...SPOTLIGHT_DOCUMENT_TYPES],
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],

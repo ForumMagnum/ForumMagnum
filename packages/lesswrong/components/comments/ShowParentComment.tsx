@@ -1,10 +1,10 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
@@ -44,7 +44,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   comment: CommentsList,
   active?: boolean,
   onClick?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   if (!comment) return null;

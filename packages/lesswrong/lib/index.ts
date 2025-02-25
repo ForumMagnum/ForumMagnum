@@ -1,4 +1,3 @@
-
 // vulcan:users
 import './vulcan-users/index';
 
@@ -11,6 +10,7 @@ import './permissions';
 // ## Voting
 import './voting/voteTypes';
 import './voting/votingSystems';
+import './voting/reactionsAndLikes';
 import './voting/namesAttachedReactions';
 
 //MomentJS configuration
@@ -26,7 +26,6 @@ import './collections/clientIds/collection';
 // Notifications
 import './collections/notifications/collection';
 import './collections/notifications/views';
-import './collections/notifications/permissions';
 import './collections/notifications/fragments';
 
 // Images
@@ -35,14 +34,12 @@ import './collections/images/collection';
 // Inbox
 import './collections/messages/collection'
 import './collections/messages/views';
-import './collections/messages/permissions';
 import './collections/messages/helpers';
 import './collections/messages/fragments';
 
 import './collections/conversations/collection'
 import './collections/conversations/views';
 import './collections/conversations/helpers';
-import './collections/conversations/permissions';
 import './collections/conversations/fragments';
 
 // RSSFeeds
@@ -56,7 +53,9 @@ import './collections/reports/views'
 import './collections/reports/fragments'
 
 // LWEvents
-import './collections/lwevents/index';
+import './collections/lwevents/collection';
+import './collections/lwevents/fragments';
+import './collections/lwevents/views';
 
 // TagFlags
 import './collections/tagFlags/collection';
@@ -79,13 +78,17 @@ import './collections/debouncerEvents/collection';
 // ReadStatuses
 import './collections/readStatus/collection';
 // Bans
-import './collections/bans/index'
+import './collections/bans/collection';
+import './collections/bans/fragments';
+import './collections/bans/views';
+
 // Chapters
 import './collections/sequences/collection';
 import './collections/sequences/views';
 import './collections/sequences/helpers';
 
 import './collections/chapters/collection';
+
 import './collections/books/collection';
 import './collections/collections/collection';
 
@@ -99,7 +102,6 @@ import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';
-import './collections/localgroups/permissions';
 import './collections/localgroups/fragments';
 
 import './collections/chapters/fragments';
@@ -114,7 +116,6 @@ import './alignment-forum/users/fragments';
 
 import './collections/tagRels/collection';
 import './collections/tagRels/views';
-import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/userTagRels/collection';
@@ -126,33 +127,26 @@ import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
 import './collections/tags/schema';
+import './collections/tags/permissions';
 
 import './collections/tweets/collection'
 
 import './collections/chapters/views';
 
-import './collections/sequences/permissions';
-import './collections/collections/permissions';
-import './collections/books/permissions';
-
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
-import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
 import './collections/userJobAds/collection';
 import './collections/userJobAds/fragments';
-import './collections/userJobAds/permissions';
 import './collections/userJobAds/views';
 
 import './collections/userEAGDetails/collection';
 import './collections/userEAGDetails/fragments';
-import './collections/userEAGDetails/permissions';
 import './collections/userEAGDetails/views';
 
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
-import './collections/userMostValuablePosts/permissions';
 import './collections/userMostValuablePosts/views';
 
 import './collections/useractivities/collection';
@@ -176,7 +170,9 @@ import './collections/forumEvents/fragments';
 import './collections/forumEvents/views';
 
 // Subscriptions
-import './collections/subscriptions';
+import './collections/subscriptions/collection';
+import './collections/subscriptions/fragments';
+import './collections/subscriptions/views';
 
 // Podcasts
 import './collections/podcasts/collection';
@@ -189,7 +185,6 @@ import './collections/podcastEpisodes/views';
 // Posts
 import './collections/posts/schema';
 import './collections/posts/views';
-import './collections/posts/permissions';
 import './collections/posts/helpers';
 
 // PostViews
@@ -203,7 +198,6 @@ import './collections/revisions/collection'
 import './collections/revisions/views'
 //
 // Users
-import './collections/users/permissions';
 import './collections/users/helpers';
 import './collections/users/schema';
 import './collections/users/recommendationSettings';
@@ -212,9 +206,12 @@ import './collections/users/views';
 import './collections/users/fragments';
 
 // Comments
-import './collections/comments'
+import './collections/comments/collection';
+import './collections/comments/views';
+import './collections/comments/voting';
 
-import './collections/petrovDayLaunchs'
+import './collections/petrovDayLaunchs/collection';
+import './collections/petrovDayLaunchs/fragments';
 
 import './collections/petrovDayActions/collection'
 import './collections/petrovDayActions/fragments'
@@ -225,28 +222,39 @@ import './collections/featuredResources/views'
 import './collections/featuredResources/fragments'
 
 // Votes
-import './collections/votes';
+import './collections/votes/collection';
+import './collections/votes/fragments';
+import './collections/votes/views';
 
 // Spotlights
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';
-import './collections/spotlights/permissions';
 import './collections/spotlights/views';
 
 // Moderator actions
-import './collections/moderatorActions/index';
+import './collections/moderatorActions/collection';
+import './collections/moderatorActions/fragments';
+import './collections/moderatorActions/views';
 
 // Comment moderator actions
-import './collections/commentModeratorActions/index';
+import './collections/commentModeratorActions/collection';
+import './collections/commentModeratorActions/fragments';
+import './collections/commentModeratorActions/views';
 
 // ModerationTemplates
-import './collections/moderationTemplates/index';
+import './collections/moderationTemplates/collection';
+import './collections/moderationTemplates/fragments';
+import './collections/moderationTemplates/views';
 
 // CurationNotices
-import './collections/curationNotices/index';
+import './collections/curationNotices/collection';
+import './collections/curationNotices/fragments';
+import './collections/curationNotices/views';
 
 // UserRateLimits
-import './collections/userRateLimits/index';
+import './collections/userRateLimits/collection';
+import './collections/userRateLimits/fragments';
+import './collections/userRateLimits/views';
 
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
@@ -255,17 +263,21 @@ import './collections/postEmbeddings/collection';
 import './collections/sideCommentCaches/collection';
 import './collections/sideCommentCaches/fragments';
 
-// Internationalization
-import './i18n-en-us/en_US';
+// MultiDocuments
+import "./collections/multiDocuments/collection";
+import "./collections/multiDocuments/fragments";
+import "./collections/multiDocuments/views";
 
 // Misc.
 import './helpers'
 import './routes';
 
-import './components';
+import '@/allComponents';
 
 // PostRelation
-import './collections/postRelations';
+import './collections/postRelations/collection';
+import './collections/postRelations/fragments';
+import './collections/postRelations/views';;
 
 // PostRecommendations
 import './collections/postRecommendations/collection';
@@ -286,8 +298,8 @@ import './collections/googleServiceAccountSessions/fragments';
 import './collections/googleServiceAccountSessions/views';
 
 // Collections supporting vendored libraries
-import './collections/cronHistories';
-import './collections/sessions';
+import './collections/cronHistories/collection';
+import './collections/sessions/collection';
 
 // dialogue typing indicators
 import './collections/typingIndicators/collection';
@@ -313,12 +325,14 @@ import './collections/dialogueMatchPreferences/views';
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
 
-// Arbital link cache
+// Arbital
 import './collections/arbitalCache/collection';
+import './collections/arbitalTagContentRels/collection';
 
 // Review winners
 import './collections/reviewWinners/collection';
 import './collections/reviewWinners/fragments';
+import './collections/reviewWinners/views';
 
 // Review winners
 import './collections/reviewWinnerArts/collection';
@@ -355,7 +369,6 @@ import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
 
 // Alignment Forum
-import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
 import './alignment-forum/posts/views';
 

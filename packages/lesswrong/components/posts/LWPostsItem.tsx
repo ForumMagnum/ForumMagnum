@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
@@ -8,12 +8,13 @@ import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
+import { isLW } from '@/lib/instanceSettings';
 
 
 export const KARMA_WIDTH = 32;
@@ -322,7 +323,10 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: 8
   },
   reviewPostButton: {
-    marginLeft: 10
+    marginLeft: 10,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: -8,
+    }
   },
   unreadDebateResponsesIcon: {
     height: 14,
@@ -339,7 +343,33 @@ export const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.5
     }
-  }
+  },
+  rsvps: {
+    position: "relative",
+    top: 2,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 16,
+    },
+  },
+  rsvpCount: {
+    position: "relative",
+    top: -2,
+    fontSize: "1rem",
+    fontWeight: 300,
+    color: theme.palette.greyAlpha(0.9),
+  },
+  afterSpacerWrap: {
+    [theme.breakpoints.down('xs')]: {
+      flexBasis: '100%',
+    },
+  },
+  tertiaryRow: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: "auto",
+    flexShrink: 0,
+  },
 })
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -406,11 +436,13 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
     AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
-    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
+    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons, ResponseIcon,
   } = Components;
 
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
+
+  const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";
 
   return (
     <AnalyticsContext {...analyticsProps}>
@@ -489,12 +521,22 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 </div>
               }
 
-              { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
+              {post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
                 <Components.EventVicinity post={post} />
               </PostsItem2MetaInfo>}
-
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
+
+              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+                {post.rsvpCounts?.yes && <>
+                  <ResponseIcon response="yes"/>
+                  <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>
+                </>}
+                {post.rsvpCounts?.maybe && <>
+                  <ResponseIcon response="maybe"/>
+                  <span className={classes.rsvpCount}>{post.rsvpCounts.maybe}</span>
+                </>}
+              </PostsItem2MetaInfo>}
 
               {showAuthor && <PostsItem2MetaInfo className={classes.author}>
                 <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
@@ -510,46 +552,48 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} emphasizeIfNew={emphasizeIfNew} />}
 
               <div className={classes.mobileSecondRowSpacer}/>
+              <div className={classes.tertiaryRow}>
+                {reviewIsActive && <div className={classes.mobileSecondRowSpacer}/>}
+                {showIcons && <div className={classes.mobileIcons}>
+                  <PostsItemIcons post={post} />
+                </div>}
 
-              {showIcons && <div className={classes.mobileIcons}>
-                <PostsItemIcons post={post} />
-              </div>}
+                {<div className={classes.mobileActions}>
+                  {!resumeReading && <PostActionsButton post={post} autoPlace />}
+                </div>}
 
-              {<div className={classes.mobileActions}>
-                {!resumeReading && <PostActionsButton post={post} autoPlace />}
-              </div>}
+                {!resumeReading && <div className={classes.commentsIcon}>
+                  <PostsItemComments
+                    small={false}
+                    commentCount={commentCount}
+                    onClick={toggleComments}
+                    unreadComments={hasUnreadComments}
+                    newPromotedComments={hasNewPromotedComments}
+                  />
+                </div>}
 
-              {!resumeReading && <div className={classes.commentsIcon}>
-                <PostsItemComments
-                  small={false}
-                  commentCount={commentCount}
-                  onClick={toggleComments}
-                  unreadComments={hasUnreadComments}
-                  newPromotedComments={hasNewPromotedComments}
-                />
-              </div>}
+                {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
 
-              {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
+                {postEligibleForReview(post) && postPassedNomination(post) && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
+                  <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
+                  Review
+                </LWTooltip>}/></span>}
 
-              {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
-                <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
-                Review
-              </LWTooltip>}/></span>}
+                {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
 
-              {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
+                  <PostsItem2MetaInfo className={classes.reviewCounts}>
+                    {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                    {/* TODO:(Review) still 2019 */}
+                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
+                  </PostsItem2MetaInfo>
 
-                <PostsItem2MetaInfo className={classes.reviewCounts}>
-                  {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
-                  {/* TODO:(Review) still 2019 */}
-                  {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
-                </PostsItem2MetaInfo>
-
-              </LWTooltip>}
+                </LWTooltip>}
+              </div>
               {bookmark && <div className={classes.bookmark}>
                 <BookmarkButton post={post}/>
               </div>}
               <div className={classes.mobileDismissButton}>
-                <DismissButton {...{showDismissButton, onDismiss}} />
+                {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
               </div>
 
               {resumeReading &&

@@ -1,10 +1,10 @@
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useCallback, useRef } from "react";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import { isPostCategory } from "../../lib/collections/posts/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tabs: {
     width: "100%",
     "& .MuiTab-root": {
@@ -33,7 +33,7 @@ const EditPostCategory = ({
   path: string;
   placeholder: string;
   updateCurrentValues: Function;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { postCategory, url } = document;
   const lastUrlRef = useRef(url);

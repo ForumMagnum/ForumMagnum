@@ -6,6 +6,8 @@ import { encode } from 'querystring'
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
+import { createMutator } from '../vulcan-lib/mutators';
+import { randomId } from '@/lib/random';
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
@@ -131,7 +133,7 @@ interface ElicitQuestionWithPredictions {
   title: string,
   notes: string | null,
   resolution: boolean,
-  resolvesBy: Date,
+  resolvesBy: Date|null,
   predictions: DbElicitQuestionPrediction[]
 }
 
@@ -176,7 +178,11 @@ async function getElicitQuestionWithPredictions(questionId: string) {
 async function getLocalElicitQuestionWithPredictions(questionId: string): Promise<ElicitQuestionWithPredictions | Record<any, never>> {
   const [questionData, predictionData] = await Promise.all([
     ElicitQuestions.findOne(questionId),
-    ElicitQuestionPredictions.find({ binaryQuestionId: questionId }).fetch()
+    ElicitQuestionPredictions.find({
+      binaryQuestionId: questionId,
+      isDeleted: false,
+      prediction: {$ne: null},
+    }).fetch()
   ]);
   
   if (!questionData) return {};
@@ -206,7 +212,7 @@ export function addElicitResolvers() {
         }
       },
       Mutation: {
-        async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {                  
+        async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {
           if (!currentUser) throw Error("Can only make elicit prediction when logged in")
           // Elicit API is (to be) shut down. We don't support predictions (yet?)
           if (useElicitApi) {
@@ -218,11 +224,41 @@ export function addElicitResolvers() {
             }
 
             return await getElicitQuestionWithPredictions(questionId);
+          } else {
+            // Create a prediction
+            const predictionObj = (await createMutator({
+              collection: ElicitQuestionPredictions,
+              document: {
+                prediction,
+                binaryQuestionId: questionId,
+                notes: "",
+                creator: {
+                  _id: randomId(),
+                  displayName: currentUser.displayName ?? currentUser._id,
+                  sourceUserId: currentUser._id,
+                  isQuestionCreator: false, //TODO
+                },
+                userId: currentUser._id,
+                sourceUrl: "",
+                sourceId: "",
+              },
+              currentUser,
+              validate: false,
+            })).data;
+            
+            // Delete any predictions by this user other than this one
+            await ElicitQuestionPredictions.rawUpdateMany({
+              binaryQuestionId: questionId,
+              userId: currentUser._id,
+              _id: {$ne: predictionObj._id},
+            }, {
+              $set: { isDeleted: true }
+            });
           }
 
           // When not using their API, use the imported data
           return await getLocalElicitQuestionWithPredictions(questionId)
-        }
+        },
       }
     };
     

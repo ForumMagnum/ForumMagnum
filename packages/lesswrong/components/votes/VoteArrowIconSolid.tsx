@@ -4,11 +4,11 @@ import IconButton from '@material-ui/core/IconButton';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
 import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[400],
     fontSize: 'inherit',
@@ -110,7 +110,7 @@ const VoteArrowIconSolid = ({
   largeArrow = false,
   classes,
 }: BaseVoteArrowIconProps & {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
 
   const { mainColor, lightColor } = useVoteColors(color);

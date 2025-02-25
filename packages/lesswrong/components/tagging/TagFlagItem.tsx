@@ -1,7 +1,7 @@
 import React from "react"
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -9,7 +9,7 @@ import Card from "@material-ui/core/Card";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
@@ -40,7 +40,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   itemType?: ItemTypeName,
   showNumber?: boolean,
   style?: "white"|"grey"|"black",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
@@ -98,7 +98,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
           <Card className={classes.hoverCard}>
             <ContentStyles contentType="comment">
               <ContentItemBody
-                className={classes.highlight}
                 dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
                 description={tagFlagDescription[itemType]}
               />

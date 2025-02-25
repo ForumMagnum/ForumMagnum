@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

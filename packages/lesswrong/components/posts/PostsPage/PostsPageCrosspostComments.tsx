@@ -1,13 +1,14 @@
 import React from "react";
-import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../../lib/instanceSettings";
 import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { combineUrls } from "../../../lib/vulcan-lib/utils";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
+const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const context = useCrosspostContext();
   if (!context?.foreignPost) {
     return null;

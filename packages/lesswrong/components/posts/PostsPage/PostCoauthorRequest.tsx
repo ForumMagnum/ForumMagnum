@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   coauthorRequest: {
     border: theme.palette.border.grey400,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -47,7 +48,7 @@ const isRequestedCoauthor = (
 const PostCoauthorRequest = ({post, currentUser, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [error, setError] = useState<string|undefined>();
   const [loading, setLoading] = useState(false);

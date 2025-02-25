@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   divider: {
     width: 80,
     marginBottom:theme.spacing.unit,
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TableOfContentsDivider = ({ scaleStyling, classes }: {
   scaleStyling?: CSSProperties
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.divider} style={scaleStyling}/>
 }

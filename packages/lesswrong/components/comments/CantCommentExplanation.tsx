@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userBlockedCommentingReason } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: "1em 0",
   },
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CantCommentExplanation = ({post, classes}: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const author = post.user;

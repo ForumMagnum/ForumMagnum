@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import { getSpotlightDisplayTitle } from './SpotlightItem';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   form: {
     padding: 16,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -15,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const SpotlightsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
 
@@ -23,13 +25,14 @@ export const SpotlightsPage = ({classes}: {
 
   const { query } = useLocation();
   const onlyDrafts = query.drafts === 'true';
+  const noDrafts = query.drafts === 'false';
 
   const { results: spotlights = [], loading, refetch, loadMoreProps } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
-      limit: 100
+      limit: 500
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -45,7 +48,8 @@ export const SpotlightsPage = ({classes}: {
   }, [spotlights]);
 
   const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
-  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
+  const draftSpotlights = spotlights.filter(spotlight => spotlight.draft)
+  const uniqueDocumentIds = [...new Set(draftSpotlights.map(spotlight => spotlight.documentId))];
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
@@ -66,20 +70,22 @@ export const SpotlightsPage = ({classes}: {
         level: 1
       },
       ...upcomingSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
+        title: getSpotlightDisplayTitle(spotlight),
         anchor: spotlight._id,
         level: 2
       })),
-      {
-        title: "Draft Spotlights",
-        anchor: "draft-spotlights",
-        level: 1
-      },
-      ...draftSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
-        anchor: spotlight._id,
-        level: 2
-      })),
+      ...(noDrafts ? [] : [
+        {
+          title: "Draft Spotlights",
+          anchor: "draft-spotlights",
+          level: 1
+        },
+        ...draftSpotlights.map(spotlight => ({
+          title: getSpotlightDisplayTitle(spotlight),
+          anchor: spotlight._id,
+          level: 2
+        }))
+      ]),
     ],
   }
 
@@ -99,14 +105,17 @@ export const SpotlightsPage = ({classes}: {
       </div>
       {loading && !onlyDrafts && <Loading/>}
       <SectionTitle title="Upcoming Spotlights">
-        <div>Total: {totalUpcomingDuration} days</div>
+        <div>Total: {totalUpcomingDuration} days, {upcomingSpotlights.length} spotlights</div>
       </SectionTitle>
       {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
       <LoadMore {...loadMoreProps} />
-      <SectionTitle title="Draft Spotlights">
-        <div>Total: {totalDraftDuration} days</div>
-      </SectionTitle>
-      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {!noDrafts && <div>
+        <SectionTitle title="Draft Spotlights">
+          <div>Total: {totalDraftDuration} days, {uniqueDocumentIds.length} spotlights</div>
+        </SectionTitle>
+        {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
+        <LoadMore {...loadMoreProps} />
+      </div>}
     </SingleColumnSection>
   </ToCColumn>
 }

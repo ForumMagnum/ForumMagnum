@@ -1,9 +1,8 @@
-// TODO: Import component in components.ts
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
+import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
@@ -39,7 +38,7 @@ export const GlossaryEditorPage = ({classes}: {
     },
     itemsPerPage: 50,
     collectionName: "Posts",
-    fragmentName: 'PostsPage',
+    fragmentName: 'PostsEditQueryFragment',
   })
 
   const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles, ErrorAccessDenied, Row, UsersNameDisplay } = Components
@@ -48,7 +47,7 @@ export const GlossaryEditorPage = ({classes}: {
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }
-  if (!userWillPassivelyGenerateJargonTerms(currentUser)) {
+  if (!userCanPassivelyGenerateJargonTerms(currentUser)) {
     return <SingleColumnSection>
       Currently, the Glossary Editor is only available to users with over 100 karma.
     </SingleColumnSection>;

@@ -3,12 +3,12 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import LockIcon from '@material-ui/icons/Lock'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import flatMap from 'lodash/flatMap';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
 
   },
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AltAccountInfo = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)

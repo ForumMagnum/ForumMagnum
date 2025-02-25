@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 
 
@@ -48,6 +48,13 @@ registerFragment(`
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
+    spotlight {
+      ...SpotlightReviewWinner
+    }
+    reviews {
+      ...CommentsList
+    }
+    finalReviewVoteScoreHighKarma
   }
 `);
 
@@ -161,6 +168,7 @@ registerFragment(`
       name
       organizerIds
     }
+    rsvpCounts
 
     podcastEpisodeId
     forceAllowType3Audio
@@ -249,9 +257,6 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
-      biography {
-        ...RevisionDisplay
-      }
       profileImageId
       
       # Author moderation info
@@ -286,7 +291,7 @@ registerFragment(`
       ...CommentsList
     }
     tags {
-      ...TagPreviewFragment
+      ...TagBasicInfo
     }
     socialPreviewData {
       _id
@@ -317,6 +322,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SunshineCurationPostsList on Post {
+    ...PostsList
+    curationNotices {
+      ...CurationNoticesFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
     tagRel(tagId: $tagId) {
@@ -341,6 +355,9 @@ registerFragment(`
     canonicalSource
     noIndex
     viewCount
+    tags {
+      ...TagPreviewFragment
+    }
     socialPreviewData {
       _id
       text
@@ -584,6 +601,7 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
+    generateDraftJargon
   }
 `);
 
@@ -826,6 +844,31 @@ registerFragment(`
     }
     contents {
       markdown
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostForReviewWinnerItem on Post {
+    _id
+    spotlight {
+      _id
+    }
+    reviewWinner {
+      _id
+      category
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsTwitterAdmin on Post {
+    ...PostsListWithVotes
+    user {
+      ...UsersSocialMediaInfo
+    }
+    coauthors {
+      ...UsersSocialMediaInfo
     }
   }
 `)

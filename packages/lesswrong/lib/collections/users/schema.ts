@@ -1,8 +1,7 @@
 import SimpleSchema from 'simpl-schema';
-import { slugify, getNestedProperty } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
@@ -20,7 +19,9 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
+import { DeferredForumSelect } from '../../forumTypeUtils';
+import { getNestedProperty } from "../../vulcan-lib/utils";
+import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -38,7 +39,7 @@ import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = (user: DbInsertion<DbUser>): string => {
+export const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
@@ -70,24 +71,7 @@ export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
 
 
 export const MAX_NOTIFICATION_RADIUS = 300
-export const karmaChangeNotifierDefaultSettings = {
-  // One of the string keys in karmaNotificationTimingChocies
-  updateFrequency: "daily",
 
-  // Time of day at which daily/weekly batched updates are released, a number
-  // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  // Default corresponds to 3am PST.
-  timeOfDayGMT: 11,
-
-  // A string day-of-the-week name, spelled out and capitalized like "Monday".
-  // Always in GMT, regardless of the user's timezone (timezone matters for day
-  // of the week because time zones could take it across midnight.)
-  dayOfWeekGMT: "Saturday",
-
-  // A boolean that determines whether we hide or show negative karma updates.
-  // False by default because people tend to drastically overweigh negative feedback
-  showNegativeKarma: false,
-};
 
 export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
 export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
@@ -130,6 +114,9 @@ export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequen
 
 export interface KarmaChangeSettingsType {
   updateFrequency: KarmaChangeUpdateFrequency
+  /**
+   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
+   */
   timeOfDayGMT: number
   dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   showNegativeKarma: boolean
@@ -156,6 +143,21 @@ const karmaChangeSettingsType = new SimpleSchema({
     optional: true,
   }
 })
+
+export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
+  EAForum: {
+    updateFrequency: "realtime",
+    timeOfDayGMT: 11, // 3am PST
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+  default: {
+    updateFrequency: "daily",
+    timeOfDayGMT: 11,
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+} as const);
 
 const notificationTypeSettings = new SimpleSchema({
   channel: {
@@ -188,7 +190,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as const,
+  control: "NotificationTypeSettingsWidget" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
@@ -308,6 +310,25 @@ export const PROGRAM_PARTICIPATION = [
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
+type LatLng = {
+  lat: number
+  lng: number
+};
+const latLng = new SimpleSchema({
+  lat: {
+    type: Number,
+  },
+  lng: {
+    type: Number,
+  },
+});
+addGraphQLSchema(`
+  type LatLng {
+    lat: Float!
+    lng: Float!
+  }
+`);
+
 /**
  * @summary Users schema
  * @type {Object}
@@ -320,7 +341,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['admins'],
     canCreate: ['members'],
     hidden: true,
-    onInsert: user => {
+    onCreate: ({document: user}) => {
       if (!user.username && user.services?.twitter?.screenName) {
         return user.services.twitter.screenName;
       }
@@ -367,7 +388,7 @@ const schema: SchemaType<"Users"> = {
   isAdmin: {
     type: Boolean,
     label: 'Admin',
-    input: 'checkbox',
+    control: 'checkbox',
     optional: true,
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
@@ -439,7 +460,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
-    input: 'text',
+    control: 'text',
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ownsOrIsMod,
@@ -471,39 +492,6 @@ const schema: SchemaType<"Users"> = {
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
-  // The user's profile URL slug // TODO: change this when displayName changes
-  // Unique user slug for URLs, copied over from Vulcan-Accounts
-  slug: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    order: 40,
-    group: formGroups.adminOptions,
-    
-    onCreate: async ({ document: user }) => {
-      // create a basic slug from display name and then modify it if this slugs already exists;
-      const displayName = createDisplayName(user);
-      const basicSlug = slugify(displayName);
-      return await getUnusedSlugByCollectionName('Users', basicSlug);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const slugLower = data.slug.toLowerCase();
-        const isUsed = !oldDocument.oldSlugs?.includes(slugLower) && await slugIsUsed("Users", slugLower)
-        if (isUsed) {
-          throw Error(`Specified slug is already used: ${slugLower}`)
-        }
-        return slugLower;
-      }
-      if (data.displayName && data.displayName !== oldDocument.displayName) {
-        const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
-          return slugForNewName;
-        }
-      }
-    }
-  },
   
   noindex: {
     type: Boolean,
@@ -531,7 +519,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       options: function() {
         const groups = _.without(
-          _.keys(userGroups),
+          _.keys(getAllUserGroups()),
           'guests',
           'members',
           'admins'
@@ -929,6 +917,26 @@ const schema: SchemaType<"Users"> = {
     label: "Pin glossaries on posts, and highlight all instances of each term",
     order: 98,
     ...schemaDefaultValue(false),
+  },
+
+  generateJargonForDrafts: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    group: formGroups.siteCustomizations,
+    ...schemaDefaultValue(false),
+  },
+
+  generateJargonForPublishedPosts: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    group: formGroups.siteCustomizations,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    ...schemaDefaultValue(true),
   },
 
   acceptedTos: {
@@ -1736,8 +1744,7 @@ const schema: SchemaType<"Users"> = {
     type: Number,
     denormalized: true,
     optional: true,
-    onInsert: (document, currentUser) => 0,
-
+    onCreate: () => 0,
 
     ...denormalizedCountOfReferences({
       fieldName: "frontpagePostCount",
@@ -1840,6 +1847,22 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     hidden: isEAForum
   },
+  
+  mapLocationLatLng: resolverOnlyField({
+    type: latLng,
+    graphQLtype: "LatLng",
+    typescriptType: "LatLng",
+    canRead: ['guests'],
+    resolver: (user: DbUser, _args: void, _context: ResolverContext) => {
+      const mapLocation = user.mapLocation;
+      if (!mapLocation?.geometry?.location) return null;
+
+      const { lat, lng } = mapLocation.geometry.location;
+      if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+      
+      return { lat, lng };
+    }
+  }),
 
   mapLocationSet: {
     type: Boolean,
@@ -2327,30 +2350,6 @@ const schema: SchemaType<"Users"> = {
     tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
     group: formGroups.adminOptions,
   },
-  oldSlugs: {
-    type: Array,
-    optional: true,
-    canRead: ['guests'],
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug)  {
-        // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
-        return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== data.slug) || []), oldDocument.slug])]
-      }
-      // The next three lines are copy-pasted from slug.onUpdate
-      if (data.displayName && data.displayName !== oldDocument.displayName) {
-        const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
-          // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
-          return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
-        }
-      }
-    }
-  },
-  'oldSlugs.$': {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-  },
   noExpandUnreadCommentsReview: {
     type: Boolean,
     optional: true,
@@ -2534,7 +2533,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ["guests"],
     canUpdate: [userOwns, "admins"],
     hidden: true,
-    onInsert: (user) => user.createdAt,
+    onCreate: ({document: user}) => user.createdAt,
     ...schemaDefaultValue(new Date(0)),
   },
 
@@ -2671,6 +2670,25 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.socialMedia,
     order: 2,
   },
+  blueskyProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
+      smallBottomMargin: true,
+    },
+    group: formGroups.socialMedia,
+    order: 3,
+  },
+  /**
+   * Twitter profile URL that the user can set in their public profile. "URL" is a bit of a misnomer here,
+   * if entered correctly this will be *just* the handle (e.g. "eaforumposts" for the account at https://twitter.com/eaforumposts)
+   */
   twitterProfileURL: {
     type: String,
     hidden: true,
@@ -2684,7 +2702,28 @@ const schema: SchemaType<"Users"> = {
       smallBottomMargin: true,
     },
     group: formGroups.socialMedia,
-    order: 3,
+    order: 4,
+  },
+  /**
+   * Twitter profile URL that can only be set by mods/admins. for when a more reliable reference is needed than
+   * what the user enters themselves (e.g. for tagging authors from the EA Forum twitter account)
+   */
+  twitterProfileURLAdmin: {
+    type: String,
+    optional: true,
+    nullable: true,
+    hidden: !isEAForum,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      heading: "Social media (private, for admin use)",
+      smallBottomMargin: false,
+    },
+    group: formGroups.adminOptions,
+    order: 11
   },
   githubProfileURL: {
     type: String,
@@ -3095,19 +3134,6 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
-  },
-
-  // Giving season 2024
-  givingSeason2024DonatedFlair: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
-    group: formGroups.adminOptions,
-    label: '"I Donated" flair for giving season 2024',
-    hidden: !isEAForum,
-    ...schemaDefaultValue(false),
   },
 };
 

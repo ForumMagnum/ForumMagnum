@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
@@ -17,7 +17,7 @@ import { useMapStyle } from '@/components/hooks/useMapStyle';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -83,7 +83,7 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
 const LocalEventWrapperPopUpComponent = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUp);
 
 
-const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
+const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
@@ -102,7 +102,7 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
 })
 const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
-  classes: ClassesType,
+  classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
@@ -148,7 +148,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 
 export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
 

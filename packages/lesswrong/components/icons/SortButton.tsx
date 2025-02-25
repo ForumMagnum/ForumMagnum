@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import SwapVert from '@material-ui/icons/SwapVert';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
   label?: JSX.Element|string,

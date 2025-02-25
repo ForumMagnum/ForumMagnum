@@ -1,5 +1,5 @@
 import { defineFeedResolver } from "../utils/feedUtil";
-import { addGraphQLSchema } from "../vulcan-lib";
+import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";

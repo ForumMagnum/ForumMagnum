@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
@@ -14,13 +14,13 @@ import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
+import { getKarmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -103,7 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // zero, respectively.
 const ColoredNumber = ({n, classes}: {
   n: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (n>0) {
     return <span className={classes.gainedPoints}>{`+${n}`}</span>
@@ -116,7 +116,7 @@ const ColoredNumber = ({n, classes}: {
 
 const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   karmaChanges: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   handleClose: (ev: React.MouseEvent) => any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
@@ -127,6 +127,8 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
     || (comments && (comments.length > 0))
     || (tagRevisions && (tagRevisions.length > 0))
   )
+
+  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices();
   
   return (
     <Typography variant="body2">
@@ -201,7 +203,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
 const KarmaChangeNotifier = ({currentUser, className, classes}: {
   currentUser: UsersCurrent, //component can only be used if logged in
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
@@ -300,7 +302,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
 
 const NewReactions = ({reactionChanges, classes}: {
   reactionChanges: ReactionChange[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ReactionIcon, LWTooltip } = Components;
 

@@ -1,16 +1,14 @@
 import React, { useCallback } from 'react'
-import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
+import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
-import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
-import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 
-const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
-const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
 
@@ -96,7 +94,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   const {
     EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
-    FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner,
+    HeadTags, BotSiteBanner, EAGBanner,
   } = Components
   return (
     <AnalyticsContext pageContext="homePage">
@@ -105,11 +103,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
       {shouldRenderBotSiteBanner && <BotSiteBanner />}
-
-      {reviewIsActive() && <SingleColumnSection>
-        <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
-      </SingleColumnSection>}
-
+      <EAGBanner />
       <EAHomeMainContent FrontpageNode={FrontpageNodeWithClasses} />
     </AnalyticsContext>
   )

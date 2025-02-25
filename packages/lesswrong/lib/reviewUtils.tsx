@@ -1,29 +1,40 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLWorAF } from "./instanceSettings"
-import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
+import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
+import { isDevelopment } from './executionEnvironment'; 
+import { DatabasePublicSetting, ReviewYearGroupInfo, ReviewSectionInfo } from './publicSettings';
 
-export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
-const years = new TupleSet(reviewYears);
-export type ReviewYear = UnionOf<typeof years>;
+export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
+export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
+
+/** Review year is the year under review, not the year in which the review takes place. */
+export const REVIEW_YEAR = 2023
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2022
+
+const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022] as const;
+export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
+export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
+
+export type ReviewYear = UnionOf<typeof reviewYears>;
+export type PublishedReviewYear = UnionOf<typeof publishedReviewYears>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
   const year = parseInt(yearParam)
-  if (years.has(year)) {
+  if (reviewYears.has(year)) {
     return year
   }
   throw Error("Not a valid Review Year")
 }
 
-/** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
+
+export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
+
 
 // This is broken out partly to allow EA Forum or other fora to do reviews with different names
 // (previously EA Forum did a "decade review" rather than a single year review)
@@ -34,6 +45,10 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+
+export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
+export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
+export const longformReviewTagId = "aRnXghESsn4HDm872"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
@@ -48,19 +63,41 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   }
 }
 
+const TIMEZONE_OFFSET = isDevelopment 
+  ? -24*2 // we start testing each phase a few days before it starts
+  : 8 // Pacific Time
+
+export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+
+export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
+export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-10`).add(TIMEZONE_OFFSET, 'hours')
+
+// these displays are used to show the end of the phase in the review widget,
+// because people often interpret the end of the phase as the end of the day
+export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNominationPhaseEnd(reviewYear).subtract(1, 'days')
+export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
+export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
+
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
-
   const currentDate = moment.utc()
-  const reviewStart = moment.utc(annualReviewStart.get())
+  const reviewStart = getReviewStart(REVIEW_YEAR)
   if (currentDate < reviewStart) return "UNSTARTED"
 
-  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
-  const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
-  const reviewEnd = moment.utc(annualReviewEnd.get())
+  const nominationsPhaseEnd = getNominationPhaseEnd(REVIEW_YEAR)
+  const reviewPhaseEnd = getReviewPhaseEnd(REVIEW_YEAR)
+  const votingEnd = getVotingPhaseEnd(REVIEW_YEAR)
+  const reviewEnd = getResultsPhaseEnd(REVIEW_YEAR)
   
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
@@ -98,39 +135,37 @@ export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  return getReviewPhase() !== "COMPLETE"
+  return isLWorAF && getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
-  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
+  if (isLWorAF && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
+  if (isEAForum && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
 }
 
 export function postEligibleForReview (post: PostsBase) {
-  if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWorAF && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
+  if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
+  if (post.shortform) return false
   return true
 }
 
-export function postIsVoteable (post: PostsBase) {
+export function postPassedNomination (post: PostsBase) {
   return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
-
 }
 
-
-export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
+export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase) {
   if (!eligibleToNominate(currentUser)) return false
-  if (post.userId === currentUser!._id) return false
-  if (!postIsVoteable(post)) return false
+  if (currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))) return false
   return (postEligibleForReview(post))
 }
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
+  if (isLWorAF && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
+  if (isEAForum && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
 }
 
@@ -164,7 +199,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Highly misleading, harmful, or unimportant.</p>
-          <div><em>Costs 45 points</em></div>
+          <div><em>Costs 45 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -174,7 +209,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Very misleading, harmful, or unimportant.</p>
-          <div><em>Costs 10 points</em></div>
+          <div><em>Costs 10 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -184,7 +219,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Misleading, harmful or unimportant.</p>
-          <div><em>Costs 1 point</em></div>
+          <div><em>Costs 1 point (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -194,7 +229,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>No strong opinion on this post,</p>
-          <div><em>Costs 0 points</em></div>
+          <div><em>Costs 0 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -204,7 +239,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Good</p>
-          <div><em>Costs 1 point</em></div>
+          <div><em>Costs 1 point (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -214,7 +249,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Quite important</p>
-          <div><em>Costs 10 points</em></div>
+          <div><em>Costs 10 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -224,7 +259,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Extremely important</p>
-          <div><em>Costs 45 points</em></div>
+          <div><em>Costs 45 points (of 500)</em></div>
           {overSpentWarning}
         </div>
       },

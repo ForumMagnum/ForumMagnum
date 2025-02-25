@@ -4,26 +4,25 @@ import Reports from '../lib/collections/reports/collection';
 
 import { Bans } from '../lib/collections/bans/collection';
 import Users from '../lib/collections/users/collection';
-import { Votes } from '../lib/collections/votes';
+import { Votes } from '../lib/collections/votes/collection';
 import { clearVotesServer } from './voteServer';
 import { Posts } from '../lib/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
-import { Comments } from '../lib/collections/comments'
-import { VoteableCollections } from '../lib/make_voteable';
-
-import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
+import { Comments } from '../lib/collections/comments/collection'
+import { getVoteableCollections } from '../lib/make_voteable';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
-import { createAdminContext } from './vulcan-lib/query';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
-import { UsersRepo } from './repos';
+import UsersRepo from './repos/UsersRepo';
 import { syncDocumentWithLatestRevision } from './editor/utils';
-
+import { getCollection } from "../lib/vulcan-lib/getCollection";
+import { createMutator, deleteMutator, updateMutator } from "./vulcan-lib/mutators";
+import { createAdminContext, runQuery } from "./vulcan-lib/query";
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
   // Update latest Activity timestamp on conversation when new message is added
@@ -91,7 +90,7 @@ export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext
 }
 
 export const nullifyVotesForUser = async (user: DbUser) => {
-  for (let collection of VoteableCollections) {
+  for (let collection of getVoteableCollections()) {
     await nullifyVotesForUserAndCollection(user, collection);
   }
 }
@@ -102,7 +101,7 @@ interface DateRange {
 }
 
 export const nullifyVotesForUserByTarget = async (user: DbUser, targetUserId: string, dateRange: DateRange) => {
-  for (let collection of VoteableCollections) {
+  for (let collection of getVoteableCollections()) {
     await nullifyVotesForUserAndCollectionByTarget(user, collection, targetUserId, dateRange);
   }
 }
@@ -299,7 +298,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
     if (!revision.collectionName) {
       continue;
     }
-    const collection = getCollectionsByName()[revision.collectionName];
+    const collection = getCollection(revision.collectionName);
     const document = await collection.findOne({_id: revision.documentId})
     if (document && revision.fieldName) {
       await syncDocumentWithLatestRevision(

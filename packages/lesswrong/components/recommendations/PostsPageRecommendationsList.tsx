@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import type {
   RecommendationsAlgorithmWithStrategy,
@@ -51,7 +51,7 @@ const PostsPageRecommendationsList = ({
   bias?: number,
   features?: WeightedFeature[],
   forceLoggedOutView?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const post = usePostsPageContext()?.fullPost;
   if (!post) {

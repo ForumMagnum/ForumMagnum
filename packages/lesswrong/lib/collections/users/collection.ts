@@ -1,11 +1,15 @@
-import schema from './schema';
-import { createCollection, addGraphQLQuery, addGraphQLResolvers } from '../../vulcan-lib';
+import schema, { createDisplayName } from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isEAForum } from '../../instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { addSlugFields } from '@/lib/utils/schemaUtils';
+import { createCollection } from "../../vulcan-lib/collections";
+import { addGraphQLQuery, addGraphQLResolvers } from "../../vulcan-lib/graphql";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const Users = createCollection({
   collectionName: 'Users',
@@ -57,6 +61,18 @@ addGraphQLResolvers({
 addGraphQLQuery('currentUser: User');
 
 addUniversalFields({collection: Users});
+
+addSlugFields({
+  collection: Users,
+  getTitle: (u) => u.displayName ?? createDisplayName(u),
+  includesOldSlugs: true,
+  onCollision: "rejectIfExplicit",
+  slugOptions: {
+    canUpdate: ['admins'],
+    order: 40,
+    group: formGroups.adminOptions,
+  },
+});
 
 makeEditable({
   collection: Users,
@@ -141,6 +157,11 @@ makeEditable({
     },
   }
 });
+
+Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
+  if (document && document.deleted && !userOwns(user, document)) return userCanDo(user, 'users.view.deleted')
+  return true
+};
 
 Users.postProcess = (user: DbUser): DbUser => {
   // The `node-postgres` library is smart enough to automatically convert string

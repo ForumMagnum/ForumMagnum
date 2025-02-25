@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     marginTop: 16,
     fontStyle: "italic",
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const UserReviewStatus = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const { FormatDate, UsersNameWrapper, AltAccountInfo } = Components
@@ -29,7 +29,7 @@ export const UserReviewStatus = ({classes, user}: {
   const firstClientId = user.associatedClientIds?.[0];
   return <div className={classes.root}>
     {(user.reviewedByUserId && user.reviewedAt)
-      ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
+      ? <div>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
       : null 
     }
     {user.banned

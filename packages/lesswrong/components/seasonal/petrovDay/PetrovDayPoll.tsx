@@ -1,10 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 
-export const PetrovDayPoll = ({classes}: {
-  classes: ClassesType,
-}) => {
+export const PetrovDayPoll = () => {
   const { SingleColumnSection, Error404, ContentStyles } = Components
   const currentUser = useCurrentUser()
   if (!currentUser) return <Error404/>

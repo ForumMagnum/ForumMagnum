@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { formPreviewSizeByImageType } from './ImageUpload';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& img": {
       display: "block",
@@ -46,7 +46,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   label: string,
   croppingAspectRatio?: number,
   placeholderUrl?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {uploadImage, ImageUploadScript} = useImageUpload({
     imageType: name as ImageType,

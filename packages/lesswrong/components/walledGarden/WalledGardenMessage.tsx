@@ -1,7 +1,7 @@
 import React from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   messageStyling: {
     marginTop: "100px",
     maxWidth: 620
@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const WalledGardenMessage = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, ContentStyles } = Components
   return <SingleColumnSection className={classes.messageStyling}>

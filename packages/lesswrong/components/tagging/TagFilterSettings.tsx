@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterSettings, FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
@@ -9,7 +9,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: "auto",
     ...theme.typography.commentStyle,
@@ -70,7 +70,7 @@ const TagFilterSettings = ({
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AddTagButton, FilterMode, LWTooltip } = Components
   const currentUser = useCurrentUser()
@@ -114,7 +114,7 @@ const TagFilterSettings = ({
       />
 
       {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
-          <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+          <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
             if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
               const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
               setTagFilter({tagId, tagName, filterMode: defaultFilterMode})

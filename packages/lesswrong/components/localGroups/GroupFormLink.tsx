@@ -1,8 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
 import { useDialog } from '../common/withDialog'
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { Link } from '../../lib/reactRouterWrapper';
 
 
 const GroupFormLink = ({documentId, isOnline}: {
@@ -21,12 +22,12 @@ const GroupFormLink = ({documentId, isOnline}: {
 
   if (documentId) {
     return <SectionButton>
-      <span onClick={handleOpenGroupForm}>{preferredHeadingCase('Edit Group')}</span>
+      <a onClick={handleOpenGroupForm} href="#">{preferredHeadingCase('Edit Group')}</a>
     </SectionButton>
   } else {
     return <SectionButton>
       <AddLocationIcon />
-      <span onClick={handleOpenGroupForm}>{preferredHeadingCase('New Group')}</span>
+      <a onClick={handleOpenGroupForm} href="#">{preferredHeadingCase('New Group')}</a>
     </SectionButton>
   }
 }

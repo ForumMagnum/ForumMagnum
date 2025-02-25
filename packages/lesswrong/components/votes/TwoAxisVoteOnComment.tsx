@@ -1,16 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     whiteSpace: "nowrap",
   },
 });
 
 interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {

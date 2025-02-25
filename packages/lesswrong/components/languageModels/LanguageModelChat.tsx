@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import Button from '@material-ui/core/Button';
@@ -238,7 +238,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
-        editor={getCkCommentEditor(forumTypeSetting.get())}
+        editor={getCkCommentEditor()}
         isCollaborative={false}
         onChange={(_event, editor: Editor) => {
           // debouncedValidateEditor(editor.model.document)

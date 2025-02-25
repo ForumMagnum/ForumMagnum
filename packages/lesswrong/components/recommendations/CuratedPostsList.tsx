@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isEAForum } from "../../lib/instanceSettings";

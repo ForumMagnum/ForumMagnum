@@ -1,5 +1,5 @@
 import React, { FC, useCallback } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
@@ -37,6 +37,9 @@ export const getDisplayConfig = ({
       ...(comment
         ? {Icon: "CommentFilled", iconVariant: "primary"}
         : {Icon: "DocumentFilled", iconVariant: "grey"}
+      ),
+      ...(type === "wrapped" &&
+        {Icon: "Gift", iconVariant: "wrapped"}
       ),
     };
   } catch (e) {

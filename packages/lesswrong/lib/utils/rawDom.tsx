@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { isClient } from "../executionEnvironment";
 
 
@@ -40,7 +40,10 @@ export function rawDomNodeToReactComponent(node: Node) {
   function DomNodeComponent(props: {}) {
     const containerRef = useRef<HTMLSpanElement|null>(null);
     
-    useEffect(() => {
+    // Insert contents in `useLayoutEffect` so that the screen can't paint with
+    // substituted content missing, and so that it precedes any `useEffect`s
+    // (most notably the footnote-extraction useEffect in `FootnotePreview`).
+    useLayoutEffect(() => {
       if (containerRef.current) {
         // If this has been attached somewhere else, detach it
         if (node.parentElement && node.parentElement !== containerRef.current) {
@@ -213,7 +216,7 @@ export function reduceRangeToText(range: Range): Range|null {
       // Inside a text node, buf after all of the actual text. Find the next
       // text node in the tree, and set the position to be the start of that
       // one rather than the end of this one.
-      const nextTextNode = nextTextNodeAfter(startContainer as Text);
+      const nextTextNode = nextNonemptyTextNodeAfter(startContainer as Text);
       if (!nextTextNode) return null;
       result.setStart(nextTextNode, 0);
     }
@@ -231,7 +234,7 @@ export function reduceRangeToText(range: Range): Range|null {
     if (pos.nodeType === Node.TEXT_NODE) {
       result.setStart(pos, 0);
     } else {
-      const nextTextNode = nextTextNodeAfter(pos);
+      const nextTextNode = nextNonemptyTextNodeAfter(pos);
       if (!nextTextNode) return null;
       result.setStart(nextTextNode, 0);
     }
@@ -274,6 +277,14 @@ function nextTextNodeAfter(node: Node): Text|null {
   do {
     pos = nextLeafNodeAfter(pos);
   } while (pos && pos.nodeType !== Node.TEXT_NODE);
+  return pos as Text|null;
+}
+
+function nextNonemptyTextNodeAfter(node: Node): Text|null {
+  let pos: Node|null = node;
+  do {
+    pos = nextLeafNodeAfter(pos);
+  } while (pos && (pos.nodeType !== Node.TEXT_NODE || pos.textContent===null || !pos.textContent.length));
   return pos as Text|null;
 }
 

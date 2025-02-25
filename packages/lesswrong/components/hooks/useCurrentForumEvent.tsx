@@ -4,7 +4,7 @@ import { hasForumEvents } from "../../lib/betas";
 
 type CurrentForumEventContext = {
   currentForumEvent: ForumEventsDisplay | null,
-  isEventPost: (post: PostsBase) => boolean,
+  isEventPost: (post: PostsBase, tag?: TagBasicInfo | null) => boolean,
   refetch?: () => void
 }
 
@@ -28,8 +28,8 @@ export const CurrentForumEventProvider: FC<{
   });
   const currentForumEvent = results?.[0] ?? null;
 
-  const isEventPost = useCallback((post: PostsBase) => {
-    const tag = currentForumEvent?.tag;
+  const isEventPost = useCallback((post: PostsBase, tag?: TagBasicInfo | null) => {
+    tag ??= currentForumEvent?.tag;
     if (!tag) {
       return false;
     }

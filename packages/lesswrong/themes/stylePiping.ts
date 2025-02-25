@@ -1,7 +1,7 @@
 import { requireCssVar } from "./cssVars";
 import { isFriendlyUI } from "./forumTheme";
 
-const hideSpoilers = (theme: ThemeType): JssStyles => ({
+const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
   '& a, & a:hover, & a:focus, & a::after, & li': {
@@ -12,7 +12,7 @@ const hideSpoilers = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const spoilerStyles = (theme: ThemeType): JssStyles => ({
+const spoilerStyles = (theme: ThemeType) => ({
   '& p.spoiler': {
     margin: 0,
   },
@@ -56,7 +56,7 @@ const spoilerStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
+const metaculusPreviewStyles = (theme: ThemeType) => ({
   '& div.metaculus-preview': {
     backgroundColor: theme.palette.panelBackground.metaculusBackground,
     '& iframe': {
@@ -67,7 +67,7 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
+const manifoldPreviewStyles = (_theme: ThemeType) => ({
   "& div.manifold-preview": {
     "& iframe": {
       width: "100%",
@@ -77,17 +77,20 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
+const neuronpediaPreviewStyles = (theme: ThemeType) => ({
   "& div.neuronpedia-preview": {
     "& iframe": {
       width: "100%",
-      height: 440,
-      border: "none",
+      height: 360,
+      maxWidth: 639,
+      border: "1px solid",
+      borderColor: theme.palette.grey[300],
+      borderRadius: 6,
     },
   },
 });
 
-export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
+export const calendlyPreviewStyles = (theme: ThemeType) => ({
   "& div.calendly-preview": {
     "& iframe": {
       "width": "calc(100% - 10px)",
@@ -102,7 +105,7 @@ export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
+const strawpollPreviewStyles = (_theme: ThemeType) => ({
   "& div.strawpoll-embed": {
     "& iframe": {
       width: "100%",
@@ -112,7 +115,7 @@ const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
+const metaforecastPreviewStyles = (_theme: ThemeType) => ({
   "& div.metaforecast-preview": {
     "& iframe": {
       width: "100%",
@@ -122,7 +125,7 @@ const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
+const owidPreviewStyles = (_theme: ThemeType) => ({
   '& div.owid-preview': {
     '& iframe': {
       width: '100%',
@@ -132,7 +135,7 @@ const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
+const estimakerPreviewStyles = (_theme: ThemeType) => ({
   '& div.estimaker-preview': {
     display: 'flex',
     '& iframe': {
@@ -143,7 +146,7 @@ const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
+const viewpointsPreviewStyles = (_theme: ThemeType) => ({
   '& div.viewpoints-preview': {
     display: 'flex',
     '& iframe': {
@@ -154,7 +157,7 @@ const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
+const youtubePreviewStyles = (_theme: ThemeType) => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
     height: 0,
@@ -170,7 +173,17 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const tableStyles = (theme: ThemeType): JssStyles => ({
+const lwartifactsPreviewStyles = (_theme: ThemeType) => ({
+  '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
+  }
+})
+
+const tableStyles = (theme: ThemeType) => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
   border: theme.palette.border.table,
@@ -193,7 +206,7 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
   }),
 });
 
-const tableCellStyles = (theme: ThemeType): JssStyles => ({
+const tableCellStyles = (theme: ThemeType) => ({
   minWidth: "2em",
   padding: ".4em",
   border: theme.palette.border.tableCell,
@@ -212,12 +225,12 @@ const tableCellStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const tableHeadingStyles = (theme: ThemeType): JssStyles => ({
+const tableHeadingStyles = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.tableHeading,
   fontWeight: 700
 });
 
-const hrStyles = (theme: ThemeType): JssStyles => ({
+const hrStyles = (theme: ThemeType) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -236,7 +249,7 @@ const hrStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const footnoteStyles = (theme: ThemeType): JssStyles => ({
+const footnoteStyles = (_theme: ThemeType) => ({
   '& .footnote-item > *': {
     verticalAlign: "text-top",
   },
@@ -254,7 +267,7 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
+const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
     // that tries to turn border off and on to indicate selection. Use
@@ -335,9 +348,20 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
+  "& .conditionallyVisibleBlock": {
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    padding: 8,
+    "&.defaultHidden": {
+      display: "none",
+    },
+  },
+});
+
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
+// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
 requireCssVar("palette", "panelBackground", "default")
 requireCssVar("palette", "error", "main")
@@ -346,7 +370,7 @@ requireCssVar("palette", "grey", 300)
 requireCssVar("palette", "grey", 600)
 requireCssVar("palette", "grey", 1000)
 
-const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
+const ctaButtonStyles = (theme: ThemeType) => ({
   '& .ck-cta-button': {
     display: 'block',
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -358,7 +382,7 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: theme.borderRadius.default,
+    borderRadius: isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -368,10 +392,10 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.primary.dark,
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
-    '&:visited': {
+    '&:visited, &.visited': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
-    '&:visited:hover': {
+    '&:visited:hover, &.visited:hover': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
     '&:disabled': {
@@ -385,7 +409,7 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const baseBodyStyles = (theme: ThemeType): JssStyles => ({
+const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
   wordBreak: "break-word",
@@ -455,7 +479,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     verticalAlign: 'baseline',
     top: '-0.6em',
     fontSize: '65%',
-    position: 'relative'
+    position: 'relative',
+    lineHeight: 0,
   },
   '& sub': {
     fontSize: '70%',
@@ -470,10 +495,10 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited': {
+  '& a:visited, & a.visited': {
     color: theme.palette.link.visited
   },
-  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -519,7 +544,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const postBodyStyles = (theme: ThemeType): JssStyles => {
+export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
@@ -533,8 +558,10 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
@@ -571,7 +598,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean): JssStyles => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
   // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
 
   const pointerEvents = dontIncludePointerEvents ?
@@ -657,7 +684,7 @@ export const smallPostStyles = (theme: ThemeType) => {
   };
 }
 
-export const pBodyStyle = (theme: ThemeType): JssStyles => ({
+export const pBodyStyle = (_theme: ThemeType) => ({
   marginTop: "1em",
   marginBottom: "1em",
   '&:first-child': {
@@ -671,7 +698,7 @@ export const pBodyStyle = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const ckEditorStyles = (theme: ThemeType): JssStyles => {
+export const ckEditorStyles = (theme: ThemeType) => {
   return {
     '& .ck': {
       '& code .public-DraftStyleDefault-block': {

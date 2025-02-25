@@ -138,9 +138,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
-      id: 'leastwrong',
+      id: 'bestoflesswrong',
       title: 'Best of LessWrong',
-      link: '/leastwrong',
+      link: '/bestoflesswrong',
       tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,
     }, {
@@ -308,8 +308,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       selectedIconComponent: PeopleDirectorySelectedIcon,
       tooltip: 'Search and filter Forum users',
       showOnMobileStandalone: true,
-      showOnCompressed: true,
-      flag: "new",
+      showOnCompressed: true
     }, {
       id: 'takeAction',
       title: 'Take action',
@@ -371,6 +370,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'cookies',
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
+      subItem: true,
+    }, {
+      id: 'copyright',
+      title: preferredHeadingCase('Copyright'),
+      link: '/posts/KK6AE8HzPkR2KnqSg/new-forum-license-creative-commons',
       subItem: true,
     }, {
       id: 'divider2',

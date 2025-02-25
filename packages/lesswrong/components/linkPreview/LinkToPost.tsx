@@ -1,12 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { linkStyle } from './PostLinkPreview';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  link: {
-    ...linkStyle(theme),
+const styles = (theme: ThemeType) => ({
+  ...linkStyle(theme),
+  linkColor: {
     color: theme.palette.primary.main,
   },
 });
@@ -15,16 +16,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 // provided post object, rather than integrating with user-provided markup.
 const LinkToPost = ({post, classes}: {
   post: PostsList|null,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!post) {
     return <span>[Deleted]</span>
   }
 
   const {PostsTooltip} = Components;
+  const visited = post?.isRead;
   return (
     <PostsTooltip post={post} placement="bottom-start" clickable>
-      <Link className={classes.link} to={postGetPageUrl(post)}>
+      <Link className={classNames(classes.link, classes.linkColor, visited && "visited")} to={postGetPageUrl(post)}>
         {post.title}
       </Link>
     </PostsTooltip>

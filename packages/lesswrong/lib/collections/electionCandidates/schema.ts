@@ -12,8 +12,8 @@ const schema: SchemaType<"ElectionCandidates"> = {
     control: "select",
     options: () => [
       {
-        value: "givingSeason23",
-        label: "EA Giving Season 2023",
+        value: "givingSeason24",
+        label: "EA Giving Season 2024",
       },
     ],
   },

@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
@@ -74,16 +74,16 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || !currentForumEvent?.includesPoll,
+    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || currentForumEvent.eventFormat !== "POLL",
   });
 
   // Only show this section for forum events that have a poll
-  if (!currentForumEvent || !post || !currentForumEvent.includesPoll) {
+  if (!currentForumEvent || !post || currentForumEvent.eventFormat !== "POLL") {
     return null;
   }
 
   // Only show this section for posts tagged with the event tag
-  const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
+  const relevance = currentForumEvent.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0;
   if (relevance < 1) {
     return null;
   }

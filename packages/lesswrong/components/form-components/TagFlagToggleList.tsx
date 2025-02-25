@@ -1,27 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   
 });
 
-const TagFlagToggleList = ({ value, path }: {
-  value: string[];
-  path: string;
-}, context: any) => {
+const TagFlagToggleList = ({ value, path, updateCurrentValues }: FormComponentProps<string[]>) => {
   const { Loading, TagFlagItem } = Components
 
   const handleClick = (option: string) => {    
     if (value.includes(option)) {
-      context.updateCurrentValues({
+      void updateCurrentValues({
         [path]: _.without(value, option)
       })
     } else {
-      context.updateCurrentValues({
+      void updateCurrentValues({
         [path]: [...value, option]
       })
     }
@@ -47,10 +43,6 @@ const TagFlagToggleList = ({ value, path }: {
     })}
   </div></DeferRender>
 }
-
-(TagFlagToggleList as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const TagFlagToggleListComponent = registerComponent("TagFlagToggleList", TagFlagToggleList, {styles});
 

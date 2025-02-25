@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
@@ -105,7 +105,7 @@ const ContentExcerpt = ({
   moreLink: string,
   contentType: ContentStyleType,
   alwaysExpandInPlace?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
 

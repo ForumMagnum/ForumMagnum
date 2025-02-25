@@ -3,7 +3,7 @@
  * FormWrapper.tsx, which itself wraps Form, which is defined in Form.tsx.
  */
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
 import * as _ from 'underscore';

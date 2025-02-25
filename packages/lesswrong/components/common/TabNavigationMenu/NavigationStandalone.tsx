@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
@@ -12,7 +12,7 @@ import { componentWithChildren } from '../../../lib/utils/componentsWithChildren
 
 const Slide = componentWithChildren(BadlyTypedSlide);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
   // and the right-hand sidebar is visible,
   // the center column is positioned slightly closer to the center of the screen.
@@ -52,7 +52,7 @@ const NavigationStandalone = ({
   sidebarHidden: boolean,
   unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { TabNavigationMenu } = Components
   const { location } = useLocation();

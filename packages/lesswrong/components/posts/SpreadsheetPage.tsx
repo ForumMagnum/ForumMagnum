@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,6 +12,7 @@ import { useQuery, gql } from '@apollo/client';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -32,7 +33,7 @@ const headerStyle = (theme: ThemeType) => ({
   zIndex: 1,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: -150, // adjusting for footer
     position: "relative",
@@ -372,7 +373,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SpreadsheetPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components
@@ -499,7 +500,7 @@ const SpreadsheetPage = ({classes}: {
               Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
             </p>
             <p>
-              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"}>{"our tag page"}</HoverPreviewLink>.
+              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={tagGetUrl({slug: "coronavirus"})}>{"our tag page"}</HoverPreviewLink>.
             </p>
           </div>
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>

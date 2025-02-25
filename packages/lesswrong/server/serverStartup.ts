@@ -4,11 +4,10 @@ import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
 import PgCollection, { DbTarget } from './sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
-import { isAnyTest, CommandLineArguments } from '../lib/executionEnvironment';
+import { isAnyTest } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { getCommandLineArguments } from './commandLine';
-import { Globals } from '../lib/vulcan-lib/config';
+import { CommandLineArguments, getCommandLineArguments } from './commandLine';
 import { getBranchDbName } from "./branchDb";
 import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
@@ -26,9 +25,6 @@ const numCPUs = cpus().length;
 export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
 export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
 const processRestartDelay = 5000;
-
-// Do this here to avoid a dependency cycle
-Globals.dropAndCreatePg = dropAndCreatePg;
 
 const initConsole = () => {
   const isTTY = process.stdout.isTTY;

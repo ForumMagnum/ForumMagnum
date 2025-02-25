@@ -1,11 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { useLocation } from '@/lib/routeUtil';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import type { Option } from '../common/InlineSelect';
-import { useNavigate } from '@/lib/reactRouterWrapper';
-
+import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   setRestoreScrollPos?: (pos: number) => void
@@ -18,6 +16,7 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
 
   const sortByOptions = [
     {value: "top", label: "Top"},
+    {value: "magic", label: "Magic (New & Upvoted)"},
     {value: "new", label: "Newest"},
     {value: "old", label: "Oldest"},
     {value: "recentComments", label: "Recent Replies"}

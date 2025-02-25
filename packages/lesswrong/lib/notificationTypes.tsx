@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
-import { Posts } from './collections/posts';
+import { Posts } from './collections/posts/collection';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
@@ -30,6 +30,8 @@ import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import Sequences from './collections/sequences/collection';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
+import { tagGetUrl } from './collections/tags/helpers';
+import isEqual from 'lodash/isEqual';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -83,7 +85,10 @@ type NotificationDisplaySequence = Pick<DbSequence, "_id" | "title">;
 
 /** Main type for the notifications page */
 export type NotificationDisplay =
-  Pick<DbNotification, "_id" | "type" | "link" | "message" | "createdAt"> & {
+  Pick<
+    DbNotification,
+    "_id" | "type" | "link" | "viewed" | "message" | "createdAt" | "extraData"
+  > & {
     post?: NotificationDisplayPost,
     comment?: NotificationDisplayComment,
     tag?: NotificationDisplayTag,
@@ -155,8 +160,19 @@ const registerNotificationType = ({allowedChannels = ["none", "onsite", "email",
 
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
-  if (notificationTypeClass.userSettingField)
-    notificationTypesByUserSetting[notificationTypeClass.userSettingField] = notificationTypeClass;
+
+  const {userSettingField} = notificationTypeClass;
+  if (userSettingField) {
+    // Due to a technical limitation notifications using the same user setting
+    // must also use the same channels
+    const currentValue = notificationTypesByUserSetting[userSettingField];
+    if (currentValue && !isEqual(currentValue.allowedChannels, notificationTypeClass.allowedChannels)) {
+      // eslint-disable-next-line no-console
+      console.error(`Error: Conflicting channels for notifications using "${userSettingField}"`);
+    }
+    notificationTypesByUserSetting[userSettingField] = notificationTypeClass;
+  }
+
   return notificationTypeClass;
 }
 
@@ -656,10 +672,9 @@ export const NewMessageNotification = registerNotificationType({
 
 export const WrappedNotification = registerNotificationType({
   name: "wrapped",
-  userSettingField: "notificationPrivateMessage",
-  allowedChannels: ["onsite", "email", "both"],
-  async getMessage() {
-    return "Check out your EA Forum 2023 Wrapped"
+  userSettingField: null,
+  async getMessage({extraData}: GetMessageProps) {
+    return `Check out your ${extraData?.year ?? 2023} EA Forum Wrapped`;
   },
   getIcon() {
     return <GiftIcon style={flatIconStyles}/>
@@ -667,8 +682,8 @@ export const WrappedNotification = registerNotificationType({
   getLink() {
     return "/wrapped"
   },
-  Display: ({notification: {link}}) => <>
-    Check out your 2022 <Link to={link}>EA Forum Wrapped</Link>
+  Display: ({notification: {link, extraData}}) => <>
+    Check out your {extraData?.year ?? 2023} <Link to={link}>EA Forum Wrapped</Link>
   </>,
 });
 
@@ -689,7 +704,6 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
-  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbPost;
     const name = await postGetAuthorName(document);
@@ -819,7 +833,7 @@ export const KarmaPowersGainedNotification = registerNotificationType({
     return "Your votes are stronger because your karma went up!"
   },
   getLink() {
-    return `/tag/vote-strength`;
+    return tagGetUrl({slug: 'vote-strength'});
   },
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
@@ -889,7 +903,12 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/editPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("NewCommentOnDraftNotification documentId is missing");
+    }
+    const { linkSharingKey } = extraData;
+    const url = postGetEditUrl(documentId, false, linkSharingKey);
+    return url;
   },
   Display: ({Post}) => <>New comments on your draft <Post /></>,
 });

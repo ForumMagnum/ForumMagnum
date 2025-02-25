@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { voteButtonsDisabledForUser } from "../../lib/collections/users/helpers";
 import { useDialog } from "../common/withDialog";
@@ -8,7 +8,7 @@ import { useVote } from "../votes/withVote";
 import { useMessages } from "../common/withMessages";
 import classNames from "classnames";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -43,7 +43,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  */
 const EAPostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {openDialog} = useDialog();
   const {flash} = useMessages();

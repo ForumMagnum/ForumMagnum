@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from "../common/withHover";
 import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
@@ -86,7 +86,7 @@ const dialogStyles = () => ({
 
 const BadgeWrapper = ({commentCount, classes, children}: {
   commentCount: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
   if (commentCount>1) {

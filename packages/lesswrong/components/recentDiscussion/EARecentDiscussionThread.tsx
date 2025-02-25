@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
@@ -100,7 +100,7 @@ const EARecentDiscussionThread = ({
   comments?: CommentsList[],
   refetch: () => void,
   expandAllThreads?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     isSkippable,

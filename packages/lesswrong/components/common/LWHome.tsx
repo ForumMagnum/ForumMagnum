@@ -1,13 +1,15 @@
-import { combineUrls, Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
+import { useCurrentUser } from './withUser';
+import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -39,25 +41,26 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
+    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
+
+  const currentUser = useCurrentUser();
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
+          {reviewIsActive() && <>
+            {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+            </SingleColumnSection>}
+          </>}
+          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
-          {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
-            <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
-          {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
-            <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
-          <SingleColumnSection>
             <DismissibleSpotlightItem current/>
-          </SingleColumnSection> 
+          </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}

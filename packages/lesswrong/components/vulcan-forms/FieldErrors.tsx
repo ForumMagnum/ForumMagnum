@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.errorStyle
   }
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const FieldErrors = ({ errors, classes }: {
   errors: any[]
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => (
   <ul className={classNames(classes.root, "form-input-errors")}>
     {errors.map((error, index) => (

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
@@ -9,7 +9,7 @@ import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     borderTop: theme.palette.border.faint,
   },
@@ -167,7 +167,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
   votesVisible: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {flash} = useMessages()
   

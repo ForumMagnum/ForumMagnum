@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, reactBallotAxes, ReactBallotAxis, ReactBallotStandaloneReaction, reactBallotStandaloneReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import chunk from 'lodash/chunk';
 import { VotingProps } from './votingProps';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   agreementSection: {
@@ -95,13 +95,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 interface ReactBallotVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const BallotRow = ({axis, voteProps, classes}: {
   axis: ReactBallotAxis,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.hoverBallotRow}>
     <AxisDirectionButton axis={axis} direction="up" voteProps={voteProps} classes={classes}/>
@@ -113,7 +113,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
   axis: ReactBallotAxis,
   voteProps: VotingProps<VoteableTypeClient>,
   direction: "up"|"down",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AxisVoteButton } = Components;
   
@@ -152,7 +152,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
 const AxisScoreDisplay = ({axis, voteProps, classes}: {
   axis: ReactBallotAxis,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const score = voteProps?.document?.extendedScore?.[axis.name] || 0;
   if (score===0) return null;
@@ -167,7 +167,7 @@ const AxisScoreDisplay = ({axis, voteProps, classes}: {
 const ReactionDisplay = ({reaction, voteProps, classes}: {
   reaction: ReactBallotStandaloneReaction,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const count = voteProps.document?.extendedScore?.[reaction.name] || 0;
   if (!count) return null;
@@ -178,7 +178,7 @@ const ReactionDisplay = ({reaction, voteProps, classes}: {
 const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   reaction: ReactBallotStandaloneReaction,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const emoji = reaction.icon;
   const isSelected = !!voteProps.document?.currentUserExtendedVote?.[reaction.name];
@@ -240,7 +240,7 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, vo
         </div>)}
         
         <div className={classes.hoverBallotRow}>
-          <span className={classes.overallLabel}>Overall</span>
+          <span>Overall</span>
           <OverallVoteAxis
             document={document}
             hideKarma={hideKarma}

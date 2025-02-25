@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
@@ -14,7 +14,7 @@ const USER_SETTING_NAMES = {
   showRecommendedPartners: 'showRecommendedPartners'
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     marginTop: isFriendlyUI ? 10 : undefined,
@@ -47,7 +47,7 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo } = Components
   const currentUser = useCurrentUser();

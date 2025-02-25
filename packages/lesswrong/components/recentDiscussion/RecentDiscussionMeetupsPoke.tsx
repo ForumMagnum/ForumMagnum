@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import { useMessages } from '../common/withMessages';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent'
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -10,7 +10,7 @@ import Input from '@material-ui/core/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RecentDiscussionMeetupsPoke = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geolocationLoading, setGeolocationLoading] = useState(false);

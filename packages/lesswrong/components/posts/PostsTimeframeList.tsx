@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
@@ -9,7 +9,7 @@ import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loading: {
     opacity: .4,
   },
@@ -34,7 +34,7 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
   includeTags: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
   const [dim,setDim] = useState(dimWhenLoading);

@@ -10,6 +10,7 @@ import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
+import { getVoteableSchemaFields } from "@/lib/make_voteable";
 
 let executingQueries = 0;
 
@@ -51,26 +52,41 @@ class PgCollection<
   typeName: string;
   options: CollectionOptions<N>;
   _schemaFields: SchemaType<N>;
+
+  /**
+   * Schema fields, but converted into the format used by the simple-schema
+   * library. This is a cache of the conversion; when _schemaFields changes it
+   * should be invalidated by setting it to null. Do not access directly; use
+   * getSimpleSchema.
+   */
   _simpleSchema: any;
+
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private table: Table<ObjectsByCollectionName[N]>;
-  private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
+
+    const votingFields: SchemaType<N> = options.voteable
+      ? getVoteableSchemaFields(options.collectionName as N&VoteableCollectionName, options.voteable) as SchemaType<N>
+      : {};
+    // Schema fields, passed as the schema option to createCollection or added
+    // later with addFieldsDict. Do not access directly; use getSchema.
+    this._schemaFields = {
+      ...options.schema,
+      ...votingFields,
+    };
   }
 
   isConnected() {
     return !!getSqlClient();
   }
 
-  isVoteable(): this is PgCollection<VoteableCollectionName> {
-    return this.voteable;
-  }
-
-  makeVoteable() {
-    this.voteable = true;
+  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollection<VoteableCollectionName> {
+    return !!this.options.voteable;
   }
 
   hasSlug(): this is PgCollection<CollectionNameWithSlug> {
@@ -138,11 +154,7 @@ class PgCollection<
     return this.executeQuery(query, data, "write");
   }
 
-  find(
-    selector?: MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ): FindResult<ObjectsByCollectionName[N]> {
+  find: FindFn<ObjectsByCollectionName[N]> = (selector, options, projection) => {
     return {
       fetch: async () => {
         const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, { ...options, projection });
@@ -157,11 +169,7 @@ class PgCollection<
     };
   }
 
-  async findOne(
-    selector?: string | MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ): Promise<ObjectsByCollectionName[N]|null> {
+  findOne: FindOneFn<ObjectsByCollectionName[N]> = async (selector, options, projection) => {
     const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, {limit: 1, ...options, projection});
     const result = await this.executeReadQuery(select, {selector, options, projection});
     return result ? result[0] : null;

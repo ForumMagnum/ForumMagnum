@@ -1,6 +1,6 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -26,6 +26,8 @@ import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
+import pick from 'lodash/pick';
+import { postListSettingUrlParameterNames } from '../posts/PostsListSettings';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -35,7 +37,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -119,7 +121,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
 const UsersProfileFn = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -145,6 +147,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
     }
   }
+
+  const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
+  useEffect(() => {
+    if (restoreScrollPos === -1) return;
+
+    window.scrollTo({top: restoreScrollPos})
+    setRestoreScrollPos(-1);
+  }, [restoreScrollPos])
 
   const renderMeta = () => {
     if (!user) return null
@@ -242,14 +252,19 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
-    const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
+    const postTerms: PostsViewTerms = {
+      view: "userPosts",
+      ...pick(query, postListSettingUrlParameterNames),
+      userId: user._id,
+      authorIsUnreviewed: null
+    };
     const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
     const postQueryMode = (query.sortedBy || query.view ||  "new")
     const currentPostSortingMode = POST_SORTING_MODES.has(postQueryMode) ? postQueryMode : "new"
-    terms.sortedBy = currentPostSortingMode
+    postTerms.sortedBy = currentPostSortingMode
     
     const currentFilter = query.filter ||  "all"
     
@@ -260,7 +275,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
-    terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
     
 
     const username = userGetDisplayName(user)
@@ -390,7 +405,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
               {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
-              <PostsList2 terms={terms} hideAuthor />
+              <PostsList2 terms={postTerms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
@@ -420,11 +435,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
             </SingleColumnSection>}
             <SingleColumnSection>
-                <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
-                  <AnalyticsContext pageElementContext='userProfileCommentSort'>
-                    Sorted by <CommentsSortBySelector />
-                  </AnalyticsContext>
-                </SectionTitle>
+              <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
+                <AnalyticsContext pageElementContext='userProfileCommentSort'>
+                  Sorted by <CommentsSortBySelector setRestoreScrollPos={setRestoreScrollPos} />
+                </AnalyticsContext>
+              </SectionTitle>
               <Components.RecentComments
                 terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile

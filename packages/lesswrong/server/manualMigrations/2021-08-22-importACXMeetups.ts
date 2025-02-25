@@ -1,11 +1,11 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
-import { createMutator } from '../vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { createMutator } from '../vulcan-lib/mutators';
+import { Posts } from '../../lib/collections/posts/collection';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 
 const what3WordsAPIKey = "FM5HBWEL"
 
@@ -33,7 +33,7 @@ async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: str
   return responseData.results[0]
 }
 
-registerMigration({
+export default registerMigration({
   name: "importACXMeetups",
   dateWritten: "2021-08-22",
   idempotent: true,

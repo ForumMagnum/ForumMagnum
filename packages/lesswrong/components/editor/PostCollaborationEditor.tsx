@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -10,7 +10,7 @@ import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
 const PostCollaborationEditor = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();
@@ -81,6 +81,9 @@ const PostCollaborationEditor = ({ classes }: {
 
   // If the post has a link-sharing key which is not in the URL, redirect to add
   // the link-sharing key to the URL
+  // NOTE: this only works if you're the primary author, an admin, or have already been added to `linkSharingKeyUsedBy`
+  // by previously accessing the post using the link-sharing key, due to the linkSharingKey read permissions.
+  // If someone else knows the post ID, they shouldn't be able to view the post.
   if (post.linkSharingKey && !key) {
     return <PermanentRedirect url={getPostCollaborateUrl(post._id, false, post.linkSharingKey)} status={302}/>
   }

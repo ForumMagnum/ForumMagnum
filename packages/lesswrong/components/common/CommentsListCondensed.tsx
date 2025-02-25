@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isEAForum } from '../../lib/instanceSettings';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   subheader: {
     fontSize: 14,
   },
@@ -23,7 +23,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   showTotal?: boolean,
   hideTag?: boolean,
   shortformButton?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [showShortformFeed, setShowShortformFeed] = useState(false);

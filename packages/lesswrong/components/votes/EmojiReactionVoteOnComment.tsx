@@ -1,6 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, EmojiReaction, emojiReactions } from '../../lib/voting/votingSystems';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { CommentVotingComponentProps, EmojiReactionType, emojiReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { VotingProps } from './votingProps';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   hoverBallot: {
@@ -67,13 +67,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 interface EmojiReactionVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const EmojiReaction = ({reaction, voteProps, classes}: {
-  reaction: EmojiReaction,
+  reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const count = voteProps.document?.extendedScore?.[reaction.name] || 0
   if (!count) return null
@@ -85,9 +85,9 @@ const EmojiReaction = ({reaction, voteProps, classes}: {
 }
 
 const BallotEmojiReaction = ({reaction, voteProps, classes}: {
-  reaction: EmojiReaction,
+  reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const isSelected = !!voteProps.document?.currentUserExtendedVote?.[reaction.name]
   const { openDialog } = useDialog()
@@ -117,7 +117,7 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
 
 const EmojiReactionsAxis = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover()
   

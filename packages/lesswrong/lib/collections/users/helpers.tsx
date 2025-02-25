@@ -1,12 +1,11 @@
-import bowser from 'bowser';
-import { isClient, isServer } from '../../executionEnvironment';
+import { isServer } from '../../executionEnvironment';
 import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
-import { Components } from '../../vulcan-lib';
+import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
@@ -340,7 +339,7 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -368,22 +367,7 @@ export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): str
 }
 
 
-
-const clientRequiresMarkdown = (): boolean => {
-  if (isClient &&
-      window &&
-      window.navigator &&
-      window.navigator.userAgent) {
-
-      return (bowser.mobile || bowser.tablet)
-  }
-  return false
-}
-
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
-  if (clientRequiresMarkdown()) {
-    return true
-  }
   if (!user) {
     return false;
   }
@@ -616,6 +600,7 @@ export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): 
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
+  blueskyProfileURL: 'bsky.app/profile/',
   twitterProfileURL: 'twitter.com/',
   githubProfileURL: 'github.com/'
 }

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: '10px 20px 20px 10px'
   },
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   digest: DigestsMinimumInfo,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { mutate: updateDigest } = useUpdate({
     collectionName: 'Digests',

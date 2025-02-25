@@ -1,9 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ManageSubscriptionsLink = ({document, removeItem, classes }: {
   document?: any,
   removeItem?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <Link to="/manageSubscriptions">
     <Button color="secondary" variant="outlined"

@@ -1,5 +1,5 @@
 import React from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const AUTHOR_MARKER_STYLES = {
@@ -8,7 +8,7 @@ export const AUTHOR_MARKER_STYLES = {
   marginRight: -3,
 };
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
     textAlign: 'left',
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsAuthors = ({classes, post, pageSectionContext}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   pageSectionContext?: string,
 }) => {

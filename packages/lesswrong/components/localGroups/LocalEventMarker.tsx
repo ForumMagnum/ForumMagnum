@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { createStyles } from '@material-ui/core/styles';
 import { ArrowSVG } from './Icons';
 import RoomIcon from '@material-ui/icons/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -10,7 +9,7 @@ import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     width: 15, 
     height: 15,
@@ -23,7 +22,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fill: theme.palette.event,
     opacity: 0.8,
   },
-}))
+});
 
 const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   event: PostsList,
@@ -31,7 +30,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   handleInfoWindowClose: (eventId: string) => void,
   infoOpen: boolean,
   location: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location

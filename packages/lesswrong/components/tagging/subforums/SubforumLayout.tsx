@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
@@ -24,7 +24,7 @@ const gridTemplateColumns = `
   1fr
 `
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   titleWrapper: {
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
@@ -122,7 +122,7 @@ export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, 
   bannerImageId: string,
   headerComponent: React.ReactNode,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   sidebarComponents?: React.ReactNode[],
 }) => {
   const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing

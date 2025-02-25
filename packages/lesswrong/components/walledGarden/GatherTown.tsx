@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 import { gatherIcon } from '../icons/gatherIcon';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -15,7 +15,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 export const gatherTownUserTrackingIsBroken = new DatabasePublicSetting<boolean>('gatherTownUserTrackingIsBroken', false)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 20,
     ...theme.typography.body2,
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const GatherTown = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = useMulti({
     terms: {

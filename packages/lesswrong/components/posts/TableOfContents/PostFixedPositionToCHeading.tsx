@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostFixedPositionToCHeading = ({post, classes}: {
   post: PostsListWithVotes,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components;
   const wordCount = post.contents?.wordCount;

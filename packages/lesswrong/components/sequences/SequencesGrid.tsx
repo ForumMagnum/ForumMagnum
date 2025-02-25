@@ -1,9 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 // Shared with SequencesGridWrapper
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   grid: {
     marginBottom: 10,
   },
@@ -33,7 +33,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
   sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) =>
   <div className={classes.grid}>

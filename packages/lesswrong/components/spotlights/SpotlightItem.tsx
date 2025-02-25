@@ -7,14 +7,16 @@ import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const TEXT_WIDTH = 350;
 
@@ -46,21 +48,17 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
-    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isFriendlyUI && {
-      maxWidth: SECTION_WIDTH,
-      marginLeft: "auto",
-      marginRight: "auto",
-      [theme.breakpoints.up('md')]: {
-        width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection.
-        // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
-      }
-    })
+    maxWidth: SECTION_WIDTH,
+    marginLeft: "auto",
+    marginRight: "auto",
+    [theme.breakpoints.up('md')]: {
+      width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection.
+      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    }
   },
   spotlightItem: {
     position: "relative",
     borderRadius: theme.borderRadius.default,
-    background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
@@ -68,8 +66,20 @@ const styles = (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      color: theme.palette.grey[100],
+      ...(isFriendlyUI ? {
+        color: theme.palette.grey[100],
+        background: theme.palette.panelBackground.default,
+      } : {
+        // This button is on top of an image that doesn't invert in dark mode, so
+        // we can't use palette-colors that invert
+        color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
+        background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
+      }),
     }
+  },
+  contentContainer: {
+    position: "relative",
+    background: theme.palette.panelBackground.default,
   },
   spotlightFadeBackground: {
     background: "var(--spotlight-fade)",
@@ -333,27 +343,85 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     overflow: "hidden",
+    [theme.breakpoints.down('xs')]: {
+      height: "100% !important",
+    }
   },
   reverseIcon: {
     transform: "rotate(180deg)",
   },
+  reviews: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+    borderTop: theme.palette.border.extraFaint,
+    background: theme.palette.panelBackground.default,
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    }
+  },
+  review: {
+    '&& .CommentFrame-node': {
+      border: "none",
+      margin: 0,
+    },
+    '& .SingleLineComment-commentInfo': {
+      paddingLeft: 13,
+      backgroundColor: theme.palette.background.translucentBackgroundHeavy,
+      borderRadius: 0
+    },
+    '& .CommentsItem-root': {
+      borderBottom: theme.palette.border.extraFaint,
+      backgroundColor: theme.palette.background.pageActiveAreaBackground,
+      '&:last-child': {
+        borderTop: theme.palette.border.extraFaint,
+      }
+    },
+    '& .comments-node-root': {
+      backgroundColor: 'unset',
+    },
+  }
 });
+
+export function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
+  const { customTitle, post, sequence, tag } = spotlight;
+  if (customTitle) return customTitle;
+
+  if (post) return post.title;
+  if (sequence) return sequence.title;
+  if (tag) return tag.name;
+
+  // We should never reach this
+  return "";
+}
+
+function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
+  if (spotlight.post) {
+    return spotlight.post.reviews;
+  }
+  return [];
+}
 
 export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
   hideBanner,
+  showSubtitle=true,
   refetchAllSpotlights,
+  isDraftProcessing,
   className,
   classes,
+  children,
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
   hideBanner?: () => void,
+  showSubtitle?: boolean,
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
+  isDraftProcessing?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
+  children?: React.ReactNode,
 }) => {
   const currentUser = useCurrentUser()
 
@@ -374,16 +442,31 @@ export const SpotlightItem = ({
     fragmentName: "SpotlightDisplay",
   });
 
+  const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight({
+    fragmentName: "SpotlightDisplay",
+  });
+
   const toggleDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
       return;
     }
-    await updateSpotlight({
-      selector: { _id: spotlight._id },
-      data: { draft: !spotlight.draft }
-    });
+    if (!spotlight.draft) {
+      await updateSpotlight({
+        selector: { _id: spotlight._id },
+        data: { draft: !spotlight.draft }
+      });
+    } else {
+      await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+    }
     refetchAllSpotlights?.();
-  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
+  }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, publishAndDeDuplicateSpotlight, refetchAllSpotlights]);
+
+  const handleUndraftSpotlight = async () => {
+    if (isDraftProcessing && spotlight.draft) {
+      await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+      refetchAllSpotlights?.()
+    }
+  }
 
   const deleteDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
@@ -404,8 +487,14 @@ export const SpotlightItem = ({
   const {
     MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
     WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
-    Typography, LWTooltip, ForumIcon,
+    Typography, LWTooltip, ForumIcon, CommentsNode
   } = Components
+
+  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
+
+  const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
+  const spotlightReviews = getSpotlightDisplayReviews(spotlight);
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
       id={spotlight._id}
@@ -415,57 +504,65 @@ export const SpotlightItem = ({
       <div className={classNames(classes.spotlightItem, {
         [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
       })}>
-        <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
-          <div className={classes.title}>
-            <Link to={url}>
-              {spotlight.customTitle ?? spotlight.document.title}
-            </Link>
-            <span className={classes.editDescriptionButton}>
-              {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
-              </LWTooltip>}
-            </span>
-          </div>
-          {spotlight.customSubtitle && <div className={classes.subtitle}>
-            {spotlight.customSubtitle}
-          </div>}
-          {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
-            {editDescription ? 
-              <div className={classes.editDescription}>
-                <WrappedSmartForm
-                  collectionName="Spotlights"
-                  fields={['description']}
-                  documentId={spotlight._id}
-                  mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                  queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => setEditDescription(false)}
+        <div className={classes.contentContainer}>
+          <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
+            <div className={classes.title}>
+              <Link to={url}>
+                {getSpotlightDisplayTitle(spotlight)}
+              </Link>
+              <span className={classes.editDescriptionButton}>
+                {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                  <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                </LWTooltip>}
+              </span>
+            </div>
+            {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
+              {subtitleComponent}
+            </div>}
+            {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {editDescription ? 
+                <div className={classes.editDescription}>
+                  <WrappedSmartForm
+                    collectionName="Spotlights"
+                    fields={['description']}
+                    documentId={spotlight._id}
+                    mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                    queryFragment={getFragment('SpotlightEditQueryFragment')}
+                    successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
+                  />
+                </div>
+                :
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                  description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                 />
-              </div>
-              :
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                description={`${spotlight.documentType} ${spotlight.document._id}`}
-              />
-            }
+              }
+            </div>}
+            {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
+              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
+            </Typography>}
+            <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+          </div>
+          {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
+          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
+            <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
           </div>}
-          {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-            by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
-          </Typography>}
-          <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+          {spotlight.spotlightImageId && <CloudinaryImage2
+            publicId={spotlight.spotlightImageId}
+            darkPublicId={spotlight.spotlightDarkImageId}
+            className={classNames(classes.image, {
+              [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+              [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+            })}
+            imgProps={{w: "500"}}
+            loading="lazy"
+          />}
         </div>
-        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}>
-          <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
-        </div>}
-        {spotlight.spotlightImageId && <CloudinaryImage2
-          publicId={spotlight.spotlightImageId}
-          darkPublicId={spotlight.spotlightDarkImageId}
-          className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-          })}
-          imgProps={{w: "500"}}
-          loading="lazy"
-        />}
+        <div className={classes.reviews}>
+          {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
+            <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
+          </div>)}
+        </div>
         {hideBanner && (
           isFriendlyUI
             ? (
@@ -493,7 +590,7 @@ export const SpotlightItem = ({
         </div>
         <div className={classes.draftButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
-            <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+            <LWTooltip title={spotlight.draft ? "Undraft, and archive duplicates" : "Draft"}>
               <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
                 !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
             </LWTooltip>

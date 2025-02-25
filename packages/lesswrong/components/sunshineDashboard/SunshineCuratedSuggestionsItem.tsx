@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -8,27 +8,41 @@ import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
+import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   audioIcon: {
     width: 14,
     height: 14,
     color: theme.palette.grey[500],
     position: "relative",
     top: 2
-  }
+  },
+  postTitle: isFriendlyUI ? {} : {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    fontSize: "1rem",
+    fontWeight: 500,
+  },
+  titleWithCurationNotice: isFriendlyUI ? {} : {
+    color: 'green',
+    fontWeight: 600,
+  },
 });
 
 const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
-  classes: ClassesType,
-  post: PostsList,
-  setCurationPost?: (post: PostsList) => void,
+  classes: ClassesType<typeof styles>,
+  post: SunshineCurationPostsList,
+  setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {
   const currentUser = useCurrentUser();
+  const { CurationNoticesItem, SunshineListItem, SidebarHoverOver, Typography, PostsHighlight, SidebarInfo, SidebarAction, SidebarActionMenu, ForumIcon, FormatDate } = Components
+
   const { hover, anchorEl, eventHandlers } = useHover();
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshineCurationPostsList',
   });
 
   const handleCurate = () => {
@@ -72,64 +86,70 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
     })
   }
 
+  const hasCurationNotice = post.curationNotices && post.curationNotices.length > 0
+
   return (
     <span {...eventHandlers}>
-      <Components.SunshineListItem hover={hover}>
-        <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Components.Typography variant="title">
+      <SunshineListItem hover={hover}>
+        <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+          <Typography variant="title">
             <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
-          </Components.Typography>
+          </Typography>
           <br/>
-          <Components.PostsHighlight post={post} maxLengthWords={600}/>
-        </Components.SidebarHoverOver>
+          {!post.curatedDate && post.curationNotices.map(curationNotice => <CurationNoticesItem key={curationNotice._id} curationNotice={curationNotice}/>)}
+          <PostsHighlight post={post} maxLengthWords={600}/>
+        </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
-          className="sunshine-sidebar-posts-title">
+          className={classNames(classes.postTitle, {
+            [classes.titleWithCurationNotice]: !!(post.curationNotices.length > 0),
+          })}
+        >
             {post.title}
         </Link>
         <div>
-          <Components.SidebarInfo>
+          <SidebarInfo>
             { post.baseScore }
-          </Components.SidebarInfo>
-          <Components.SidebarInfo>
+          </SidebarInfo>
+          <SidebarInfo>
             <Link to={userGetProfileUrl(post.user)}>
                 {post.user && post.user.displayName}
             </Link>
-          </Components.SidebarInfo>
-          {post.postedAt && <Components.SidebarInfo>
-            <Components.FormatDate date={post.postedAt}/>
-          </Components.SidebarInfo>}
+          </SidebarInfo>
+          {post.postedAt && <SidebarInfo>
+            <FormatDate date={post.postedAt}/>
+          </SidebarInfo>}
           {post.podcastEpisodeId &&
-            <Components.ForumIcon icon="VolumeUp" className={classes.audioIcon} />
+            <ForumIcon icon="VolumeUp" className={classes.audioIcon} />
           }
         </div>
-        <Components.SidebarInfo>
+        <SidebarInfo>
           Endorsed by { post.suggestForCuratedUsernames }
-        </Components.SidebarInfo>
-        { hover && <Components.SidebarActionMenu>
+        </SidebarInfo>
+        { hover && <SidebarActionMenu>
           { setCurationPost && 
-            <Components.SidebarAction title="Write Curation Notice" onClick={() => setCurationPost(post)}>
-              <Components.ForumIcon icon="Shortform"/>
-            </Components.SidebarAction>
+            <SidebarAction title="Write Curation Notice" onClick={() => setCurationPost(post)}>
+              <ForumIcon icon="Shortform"/>
+            </SidebarAction>
           }
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser!._id) ?
-            <Components.SidebarAction title="Endorse Curation" onClick={handleSuggestCurated}>
-              <Components.ForumIcon icon="PlusOne"/>
-            </Components.SidebarAction>
+            <SidebarAction title="Endorse Curation" onClick={handleSuggestCurated}>
+              <ForumIcon icon="PlusOne"/>
+            </SidebarAction>
             :
-            <Components.SidebarAction title="Unendorse Curation" onClick={handleUnsuggestCurated}>
-              <Components.ForumIcon icon="Undo"/>
-            </Components.SidebarAction>
+            <SidebarAction title="Unendorse Curation" onClick={handleUnsuggestCurated}>
+              <ForumIcon icon="Undo"/>
+            </SidebarAction>
           }
-          <Components.SidebarAction title="Curate Post" onClick={handleCurate}>
-            <Components.ForumIcon icon="Star" />
-          </Components.SidebarAction>
-          <Components.SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
-            <Components.ForumIcon icon="Clear"/>
-          </Components.SidebarAction>
-        </Components.SidebarActionMenu>}
-      </Components.SunshineListItem>
+          <SidebarAction title="Curate Post" onClick={handleCurate}>
+            <ForumIcon icon="Star" />
+          </SidebarAction>
+          <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
+            <ForumIcon icon="Clear"/>
+          </SidebarAction>
+        </SidebarActionMenu>}
+      </SunshineListItem>
     </span>
   )
 }

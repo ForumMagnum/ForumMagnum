@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import { gql, useMutation } from "@apollo/client";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
@@ -7,6 +6,8 @@ import { useLocation } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/schema";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,15 +87,6 @@ const formatOptions: Record<string, SettingsOption> = Object.fromEntries(
     ),
 );
 
-const updateSurveyMutation = gql`
-  mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
-    editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
-      ...SurveyMinimumInfo
-    }
-  }
-  ${getFragment("SurveyMinimumInfo")}
-`;
-
 export type SurveyQuestionInfo = {
   _id?: string,
   question: string,
@@ -160,7 +152,14 @@ const SurveyForm = ({survey, refetch, classes}: {
     }]);
   }, []);
 
-  const [updateSurvey] = useMutation(updateSurveyMutation);
+  const [updateSurvey] = useMutation(gql`
+    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
+      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
+        ...SurveyMinimumInfo
+      }
+    }
+    ${getFragment("SurveyMinimumInfo")}
+  `);
 
   const onSubmit = useCallback(async () => {
     setError("");

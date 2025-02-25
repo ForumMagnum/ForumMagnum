@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 export const PROFILE_IMG_DIAMETER = 36
 export const PROFILE_IMG_DIAMETER_MOBILE = 26
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   img: {
     height: PROFILE_IMG_DIAMETER,
     width: PROFILE_IMG_DIAMETER,
@@ -70,7 +70,7 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   noLink?: boolean,
   from?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // placeholder icon, in case nothing else is available
   let imgNode = <AccountCircleIcon

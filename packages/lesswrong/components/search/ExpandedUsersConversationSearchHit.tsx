@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -6,7 +6,7 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -81,7 +81,7 @@ const ExpandedUsersConversationSearchHit = ({
   onSelect: (userId: Hit<any>) => void;
   isModInbox?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { FormatDate, UsersProfileImage, ForumIcon } = Components;
   const user = hit as SearchUser;

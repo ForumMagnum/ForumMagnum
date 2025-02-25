@@ -8,6 +8,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
+import { isClient } from '@/lib/executionEnvironment';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -138,7 +139,7 @@ export const ThemeContextProvider = ({options, children}: {
     {theme, themeOptions, setThemeOptions}),
     [theme, themeOptions, setThemeOptions]
   );
-
+  
   return <ThemeContext.Provider value={themeContext}>
     <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
       {children}

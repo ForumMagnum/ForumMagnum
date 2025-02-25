@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@material-ui/core/Chip/Chip';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
   },
@@ -20,7 +20,7 @@ const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
   value: string,
   path: string,
   document: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   label?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {

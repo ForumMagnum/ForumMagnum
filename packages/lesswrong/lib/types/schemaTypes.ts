@@ -22,7 +22,8 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
-type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
+type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
+type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
@@ -106,9 +107,20 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
+interface CountOfReferenceOptions {
+  foreignCollectionName: CollectionNameString
+  foreignFieldName: string
+  filterFn?: (obj: AnyBecauseHard) => boolean
+  resyncElastic: boolean
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
+  /**
+   * Whether this field must be included in create and update
+   * mutations (separate from whether it is allowed to be null)
+   */
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
@@ -124,6 +136,9 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
+  /**
+   * Whether this field can be null (enforced at the database level)
+   */
   nullable?: boolean,
   
   min?: number,
@@ -164,42 +179,42 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   order?: number,
   label?: string,
   tooltip?: string,
-  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
   group?: FormGroupType<N>,
-  inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
-  //  * onInsert and onEdit are deprecated (but still used) because
-  //    of Vulcan's mass-renaming and switch to named arguments
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
   //    (breaking change) affecting whether it means oldDocument or newDocument
   //  * Return type of these callbacks is not enforced because we don't have the
-  //    field's type in a usable format here. onInsert, onCreate, onEdit, and
-  //    onUpdate should all return a new value for the field, EXCEPT that if
-  //    they return undefined the field value is left unchanged.
+  //    field's type in a usable format here. onCreate and onUpdate should all
+  //    return a new value for the field, EXCEPT that if they return undefined
+  //    the field value is left unchanged.
   //
-  /**
-   * @deprecated
-   */
-  onInsert?: (doc: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null) => any,
-  onCreate?: (args: {data: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, document: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], schema: SchemaType<N>, fieldName: string}) => any,
-  /**
-   * @deprecated
-   */
-  onEdit?: (modifier: any, oldDocument: ObjectsByCollectionName[N], currentUser: DbUser|null, newDocument: ObjectsByCollectionName[N]) => any,
-  onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>, fieldName: string}) => any,
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
-  
-  countOfReferences?: {
-    foreignCollectionName: CollectionNameString
-    foreignFieldName: string
-    filterFn?: (obj: AnyBecauseHard) => boolean
-    resyncElastic: boolean
-  }
+  onCreate?: (args: {
+    data: DbInsertion<ObjectsByCollectionName[N]>,
+    currentUser: DbUser|null,
+    collection: CollectionBase<N>,
+    context: ResolverContext,
+    document: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+    fieldName: string
+  }) => any,
+  onUpdate?: (args: {
+    data: Partial<ObjectsByCollectionName[N]>,
+    oldDocument: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+    document: ObjectsByCollectionName[N],
+    currentUser: DbUser|null,
+    collection: CollectionBase<N>,
+    context: ResolverContext,
+    fieldName: string
+    modifier: MongoModifier<ObjectsByCollectionName[N]>
+  }) => any,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
+
+  countOfReferences?: CountOfReferenceOptions
 }
 
 /** Field specification for a Form field, created from the collection schema */
@@ -211,7 +226,7 @@ type FormField<N extends CollectionNameString> = Pick<
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
+  input: FormInputType
   label: string
   help: string
   path: string
@@ -231,7 +246,8 @@ type FormGroupType<N extends CollectionNameString> = {
   startCollapsed?: boolean,
   helpText?: string,
   hideHeader?: boolean,
-  layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  //layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  layoutComponent?: keyof ComponentTypes
   layoutComponentProps?: Partial<FormGroupLayoutProps>,
   fields?: FormField<N>[]
 }

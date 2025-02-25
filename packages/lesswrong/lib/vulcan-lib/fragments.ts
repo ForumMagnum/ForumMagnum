@@ -1,10 +1,8 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
-
-// This is safe as it uses `import type`
-// eslint-disable-next-line import/no-restricted-paths
-import type SqlFragment from '@/server/sql/SqlFragment';
+// This has a stub for the client bundle
+import SqlFragment from '@/server/sql/SqlFragment';
 
 interface FragmentDefinition {
   fragmentText: string
@@ -37,7 +35,7 @@ export const registerFragment = (fragmentTextSource: string): void => {
 
   const sqlFragment = bundleIsServer
     // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
-    ? new (require("@/server/sql/SqlFragment").default)(
+    ? new SqlFragment(
       fragmentText,
       (name: FragmentName) => Fragments[name].sqlFragment ?? null,
     )
@@ -97,7 +95,7 @@ export const getDefaultFragmentText = <N extends CollectionNameString>(
 
   if (fieldNames.length) {
     const fragmentText = `
-      fragment ${collection.options.collectionName}DefaultFragment on ${collection.typeName} {
+      fragment ${collection.collectionName}DefaultFragment on ${collection.typeName} {
         ${fieldNames.map(fieldName => {
           return fieldName+'\n';
         }).join('')}
@@ -141,8 +139,11 @@ export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
   return sqlFragment;
 }
 
-// Get gql fragment text
-export const getFragmentText = (fragmentName: FragmentName): string => {
+/**
+ * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.
+ * Don't use this for anything that requires the subfragments
+ */
+const getFragmentText = (fragmentName: FragmentName): string => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }

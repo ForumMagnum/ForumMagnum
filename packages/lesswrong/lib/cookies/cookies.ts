@@ -64,8 +64,6 @@ export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   description: "Whether to show the podcast player on a posts pages",
 });
 
-export const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "necessary", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
-
 export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
   name: "hide_welcome_box",
   type: "necessary",
@@ -341,3 +339,11 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
+
+// Pinned glossary
+export const PINNED_GLOSSARY_COOKIE = registerCookie({
+  name: 'pinnedGlossary',
+  type: 'functional',
+  description: 'Whether the glossary is pinned',
+});
+

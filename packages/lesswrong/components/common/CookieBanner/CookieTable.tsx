@@ -1,8 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { CookieSignature, CookieType, CookiesTable } from "../../../lib/cookies/utils";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {},
   heading: {
     padding: 0,
@@ -59,7 +59,7 @@ const CookieTable = ({
   type: CookieType;
   thirdPartyName?: string;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { Typography } = Components;
 

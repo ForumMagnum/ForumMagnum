@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
 import Input from '@material-ui/core/Input';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     padding: 24,
     paddingBottom: isFriendlyUI ? undefined : 12,
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   initialParticipantIds?: string[],
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
@@ -103,7 +103,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
     onClose={onClose}
     fullWidth
     maxWidth={"sm"}
-    dialogClasses={{paper: classes.dialogPaper}}
   >
     <div className={classes.dialog}>
       <h2 className={classes.header}>{preferredHeadingCase("Start Dialogue")}</h2>

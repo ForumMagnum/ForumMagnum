@@ -1,14 +1,14 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from '../comments/commentTree';
 
-const styles = (theme: ThemeType): JssStyles => ({})
+const styles = (theme: ThemeType) => ({})
 
 const isDialogPost = (post: PostsList): post is PostsList & { debate: true } => !!post.debate;
 
 const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {

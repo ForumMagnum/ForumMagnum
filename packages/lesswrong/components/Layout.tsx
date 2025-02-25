@@ -1,10 +1,10 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib';
+import { Components, registerComponent } from '../lib/vulcan-lib/components';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
+import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -14,7 +14,6 @@ import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
@@ -36,7 +35,6 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
-import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -48,7 +46,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -111,135 +109,13 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
-  },
-  imageColumn: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: "100vh",
-    ['@media(max-width: 1000px)']: {
-      display: 'none'
-    },
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
-  },
-  frontpageImage: {
-    right: -50,
-    height: '82vh',
-    objectFit: 'cover',
-    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
-    zIndex: -2,
-    position: 'relative',
-  },
-  bannerText: {
-    ...theme.typography.postStyle,
-    ['@media(max-width: 1375px)']: {
-      width: 250
-    },
-    ['@media(max-width: 1325px)']: {
-      width: 200
-    },
-    ['@media(max-width: 1200px)']: {
-      display: "none"
-    },
-    position: 'absolute',
-    right: 16,
-    bottom: 79,
-    color: theme.palette.grey[900],
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    textAlign: "right",
-    width: 300,
-    '& h2': {
-      fontSize: '2.4rem',
-      lineHeight: '2.6rem',
-      marginTop: 20,
-      marginBottom: 0,
-      textShadow: `
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-      `,
-      '& a:hover': {
-        opacity: 1
-      }
-    },
-    '& h3': {
-      fontSize: '20px',
-      margin: 0,
-      lineHeight: '1.2',
-      marginBottom: 6,
-      textShadow: `
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-      `,
-    },
-    '& button': {
-      ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.primary.main,
-      opacity: .9,
-      border: 'none',
-      color: theme.palette.text.alwaysWhite,
-      fontWeight: 600,
-      borderRadius: '3px',
-      textAlign: 'center',
-      padding: 8,
-      fontSize: '14px',
-      marginTop: 6
-    },
-    '& p': {
-      ...commentBodyStyles(theme),
-      fontSize: '14px',
-      marginBottom: 10,
-    },
-    '& p a': {
-      color: theme.palette.primary.main,
-    }
-  },
-  ticketPricesRaise: {
-    ...theme.typography.commentStyle,
-    fontStyle: 'italic',
-    fontSize: 14,
-    marginTop: 10,
-    '& p': {
-      margin: 4
-    }
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: '100vh',
-    width: '50vw',
-    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
-    zIndex: -1,
-  },
-  lessOnlineBannerDateAndLocation: {
-    ...theme.typography.commentStyle,
-    fontSize: '16px !important',
-    fontStyle: 'normal',
-    marginBottom: '16px !important',
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -337,7 +213,7 @@ const StickyWrapper: FC<{
   headerVisible: boolean,
   headerAtTop: boolean,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
   eaHomeLayout
     ? (
@@ -354,7 +230,7 @@ const StickyWrapper: FC<{
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
@@ -399,9 +275,7 @@ const Layout = ({currentUser, children, classes}: {
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
-  
-  const { captureEvent } = useTracking();
-  
+
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -427,10 +301,14 @@ const Layout = ({currentUser, children, classes}: {
     [autosaveEditorState, setAutosaveEditorState]
   );
 
+  const isWrapped = pathname.startsWith('/wrapped');
+
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  if (pathname.startsWith('/wrapped')) {
+  if (isWrapped) {
     headerBackgroundColor = wrappedBackgroundColor;
+  } else if (pathname.startsWith("/voting-portal")) {
+    headerBackgroundColor = "transparent";
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
@@ -445,7 +323,6 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsClient,
       AnalyticsPageInitializer,
       NavigationEventSender,
-      PetrovGameWrapper,
       EAOnboardingFlow,
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
@@ -459,8 +336,9 @@ const Layout = ({currentUser, children, classes}: {
       GlobalHotkeys,
       LanguageModelLauncherButton,
       LlmChatWrapper,
-      TabNavigationMenuFooter
-      
+      TabNavigationMenuFooter,
+      ReviewVotingCanvas,
+      LWBackgroundImage
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -502,7 +380,6 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
-      <GivingSeasonEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -524,7 +401,7 @@ const Layout = ({currentUser, children, classes}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner />
+                <MaybeCookieBanner isWrapped={isWrapped} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -543,14 +420,14 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
 
-              <div className={classNames(classes.standaloneNavFlex, {
+              <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
               )}>
-                {isFriendlyUI && <AdminToggle />}
+                {isFriendlyUI && !isWrapped && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
@@ -584,18 +461,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {isLW && standaloneNavigation && <div className={classes.imageColumn}>
-                  {/* Background image shown in the top-right corner of LW. The
-                    * loading="lazy" prevents downloading the image if the
-                    * screen-size is such that the image will be hidden by a
-                    * breakpoint. */}
-                  <CloudinaryImage2
-                    loading="lazy"
-                    className={classes.backgroundImage}
-                    publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-                    darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
-                  />
-                </div>}
+                {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
@@ -614,7 +480,7 @@ const Layout = ({currentUser, children, classes}: {
                     <SunshineSidebar/>
                   </DeferRender>
                 </div>}
-                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                {renderLanguageModelChatLauncher && <div>
                   <DeferRender ssr={false}>
                     <LanguageModelLauncherButton/>
                   </DeferRender>
@@ -623,7 +489,6 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
-      </GivingSeasonEventsProvider>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
@@ -641,12 +506,18 @@ const Layout = ({currentUser, children, classes}: {
   return render();
 }
 
-function MaybeCookieBanner() {
+function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   const { IntercomWrapper, CookieBanner } = Components;
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
-  return showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>;
+  if (showCookieBanner) {
+    return (
+      <CookieBanner />
+    );
+  }
+
+  return isWrapped ? null : <IntercomWrapper />
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});

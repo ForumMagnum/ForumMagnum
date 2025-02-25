@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import * as _ from 'underscore'
 import MessageIcon from '@material-ui/icons/Message'
 import DescriptionIcon from '@material-ui/icons/Description'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
   user: SunshineUsersList,

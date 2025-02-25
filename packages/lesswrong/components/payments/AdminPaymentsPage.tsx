@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -9,7 +9,7 @@ import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/hel
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex"
   },
@@ -45,9 +45,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AdminPaymentsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip,
+  const { SingleColumnSection, SectionTitle, Loading, LoadMore,
     UserTooltip, ErrorAccessDenied, ForumIcon } = Components
 
   const { results, loading, loadMoreProps } = useMulti({
@@ -76,7 +76,7 @@ export const AdminPaymentsPage = ({classes}: {
   const currentUser = useCurrentUser()
   if (!currentUser?.isAdmin) return <ErrorAccessDenied />
 
-  return <div className={classes.root}>
+  return <div>
     <SingleColumnSection>
       <SectionTitle title="Payment Admin"/>
       <div>

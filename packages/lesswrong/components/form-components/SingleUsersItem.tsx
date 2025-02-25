@@ -1,9 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import Chip from '@material-ui/core/Chip';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   chip: {
     marginLeft: 4,
     marginRight: 4,
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SingleUsersItem = ({userId, removeItem, classes }: {
   userId: string,
   removeItem: (id: string) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { document, loading } = useSingle({
     documentId: userId,

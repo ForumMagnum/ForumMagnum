@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tag: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -13,8 +13,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 12,
     fontSize: "1.1rem",
     lineHeight: "1.1em",
-    marginBottom: 8
-
+    marginBottom: 8,
+    breakInside: 'avoid-column',
   },
   count: {
     color: theme.palette.grey[500],
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postCount?: number,
 }) => {
   const { PopperCard, TagPreview } = Components;

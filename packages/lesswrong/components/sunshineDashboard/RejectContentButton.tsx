@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 import ReplayIcon from '@material-ui/icons/Replay';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 4
   },
@@ -27,9 +27,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const RejectContentButton = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
@@ -40,9 +39,9 @@ export const RejectContentButton = ({contentWrapper, classes}: {
     setShowRejectionDialog(false);
     rejectContent(reason);
   };
-  
-  return <span className={classes.rejectedIcon} {...eventHandlers}>
-    {content.rejected && <span className={classes.rejectedButton} >
+
+  return <span {...eventHandlers}>
+    {content.rejected && <span >
         <LWTooltip title="Undo rejection">
           <ReplayIcon className={classes.icon} onClick={unrejectContent}/>
         </LWTooltip>
@@ -53,7 +52,6 @@ export const RejectContentButton = ({contentWrapper, classes}: {
     <LWPopper
       open={showRejectionDialog}
       anchorEl={anchorEl}
-      className={classes.popper}
       clickable={true}
       allowOverflow={true}
       placement={"right"}

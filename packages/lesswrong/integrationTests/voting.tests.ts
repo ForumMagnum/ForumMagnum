@@ -5,13 +5,13 @@ import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
 import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
 import { Users } from '../lib/collections/users/collection'
-import { Posts } from '../lib/collections/posts'
-import { Comments } from '../lib/collections/comments'
+import { Posts } from '../lib/collections/posts/collection'
+import { Comments } from '../lib/collections/comments/collection'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { slugify } from '../lib/vulcan-lib/utils';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
+import { slugify } from "@/lib/utils/slugify";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -294,6 +294,7 @@ describe('Voting', function() {
       const resultPost = omitBy(karmaChanges.posts[0], isNil);
       resultPost.should.deep.equal({
         _id: post._id,
+        postId: post._id,
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -331,6 +332,7 @@ describe('Voting', function() {
       const resultPost = omitBy(karmaChanges.posts[0], isNil);
       resultPost.should.deep.equal({
         _id: post._id,
+        postId: post._id,
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -391,6 +393,7 @@ describe('Voting', function() {
       const resultComment = omitBy(karmaChanges.comments[0], isNil);
       resultComment.should.deep.equal({
         _id: comment._id,
+        commentId: comment._id,
         collectionName: "Comments",
         addedReacts: [],
         scoreChange: 1,

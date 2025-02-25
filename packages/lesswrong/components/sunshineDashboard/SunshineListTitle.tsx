@@ -1,7 +1,7 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.normal,
     padding: 12,
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineListTitle = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <Components.Typography variant="body2" className={classes.root}>
     { children }

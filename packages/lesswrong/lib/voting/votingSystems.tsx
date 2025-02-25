@@ -11,8 +11,10 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
+import { isEAForum } from '../instanceSettings';
+import { TagLens } from '../arbital/useTagLenses';
 
-type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
+export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
 
 export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
   document: T,
@@ -40,6 +42,7 @@ export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
+  hasInlineReacts?: boolean,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent?: () => CommentVotingComponent,
   getCommentBottomComponent?: () => CommentVotingBottomComponent,
@@ -60,7 +63,7 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
     currentUser: UsersCurrent
   }) => ExtendedScoreType
   computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>
-  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
+  isAllowedExtendedVote?: (args: {user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType, skipRateLimits?: boolean}) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
   getCommentHighlights?: (props: {
     comment: CommentsList
@@ -68,6 +71,10 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   }) => ContentReplacedSubstringComponentInfo[]
   getPostHighlights?: (props: {
     post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => ContentReplacedSubstringComponentInfo[]
+  getTagOrLensHighlights?: (props: {
+    tagOrLens: TagLens|TagPageFragment,
     voteProps: VotingProps<VoteableTypeClient>
   }) => ContentReplacedSubstringComponentInfo[]
 }
@@ -229,11 +236,11 @@ registerVotingSystem({
   },
 });
 
-export type EmojiReaction = {
+export type EmojiReactionType = {
   name: string,
   icon: string,
 }
-export const emojiReactions: EmojiReaction[] = [
+export const emojiReactions: EmojiReactionType[] = [
   {name: "raised-hands", icon: "🙌"},
   {name: "enthusiasm", icon: "🎉"},
   {name: "empathy", icon: "❤️"},
@@ -357,9 +364,12 @@ export function getVotingSystems(): VotingSystem[] {
   return Object.keys(votingSystems).map(k => votingSystems[k]!);
 }
 
-export async function getVotingSystemNameForDocument(document: VoteableType, context: ResolverContext): Promise<string> {
+export async function getVotingSystemNameForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext): Promise<string> {
+  if (collectionName === "MultiDocuments" || collectionName === "Tags") {
+    return "reactionsAndLikes";
+  }
   if ((document as DbComment).tagId) {
-    return "twoAxis";
+    return isEAForum ? "eaEmojis" : "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);
@@ -370,6 +380,6 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
   return (document as DbPost)?.votingSystem ?? "default";
 }
 
-export async function getVotingSystemForDocument(document: VoteableType, context: ResolverContext) {
-  return getVotingSystemByName(await getVotingSystemNameForDocument(document, context));
+export async function getVotingSystemForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext) {
+  return getVotingSystemByName(await getVotingSystemNameForDocument(document, collectionName, context));
 }

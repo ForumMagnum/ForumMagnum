@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
@@ -6,7 +6,7 @@ import RemoveIcon from '@material-ui/icons/Close';
 import AddIcon from '@material-ui/icons/Add';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   addItem?: any,
   removeItem?: any,
   disabled?: boolean,

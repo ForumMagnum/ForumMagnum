@@ -6,9 +6,7 @@ import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/componen
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
-import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
@@ -18,8 +16,30 @@ import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
-import { zlib } from 'mz';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
+import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import keyBy from 'lodash/keyBy';
+import type { JssStyles } from '@/lib/jssStyles';
+
+export type ClassNameProxy<T extends string = string> = Record<T,string>
+export type StyleDefinition<T extends string = string> = {
+  name: string
+  styles: (theme: ThemeType) => JssStyles<T>
+  options?: StyleOptions
+  nameProxy: ClassNameProxy<T>|null
+}
+
+export type StyleOptions = {
+  // Whether to ignore the presence of colors that don't come from the theme in
+  // the component's stylesheet. Use for things that don't change color with
+  // dark mode.
+  allowNonThemeColors?: boolean,
+  
+  // Default is 0. If classes with overlapping attributes from two different
+  // components' styles wind up applied to the same node, the one with higher
+  // priority wins.
+  stylePriority?: number,
+}
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -27,11 +47,24 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const context: any = {};
   
   // Sort components by stylePriority, tiebroken by name (alphabetical)
-  const componentsWithStyles = filter(Object.keys(ComponentsTable),
-    componentName => ComponentsTable[componentName].options?.styles
-  ) as Array<string>;
-  const componentsWithStylesByName = sortBy(componentsWithStyles, n=>n);
-  const componentsWithStylesByPriority = sortBy(componentsWithStylesByName, (componentName: string) => ComponentsTable[componentName].options?.stylePriority || 0);
+  const componentStyles: Record<string,StyleDefinition> = keyBy(
+    Object.keys(ComponentsTable)
+      .filter(componentName => !!ComponentsTable[componentName].options?.styles)
+      .map(componentName => ({
+        name: componentName,
+        styles: ComponentsTable[componentName].options!.styles!,
+        options: ComponentsTable[componentName].options,
+        nameProxy: null
+      })),
+    c=>c.name
+  );
+  const allStyles = {
+    ...componentStyles,
+    ...topLevelStyleDefinitions,
+  };
+  
+  const stylesByName = sortBy(Object.keys(allStyles), n=>n);
+  const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
@@ -39,9 +72,10 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
       const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
     })}
-    {componentsWithStylesByPriority.map((componentName: string) => {
-      const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
-      return <StyledComponent key={componentName}/>
+    {stylesByNameAndPriority.map((name: string) => {
+      const styles = allStyles[name]!.styles
+      const StyledComponent = withStyles(styles as any, {name})(DummyComponent)
+      return <StyledComponent key={name}/>
     })}
   </div>
   const WrappedTree = wrapWithMuiTheme(DummyTree, context, themeOptions);
@@ -52,8 +86,8 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const cssVars = requestedCssVarsToString(theme);
   
   const mergedCSS = [
-    draftjsStyles(theme),
-    miscStyles(theme),
+    draftjsStyles(),
+    miscStyles(),
     jssStylesheet,
     ...theme.rawCSS,
     cssVars,

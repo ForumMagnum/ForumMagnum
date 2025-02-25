@@ -8,7 +8,7 @@ import './EmailFormatDate';
 import './EmailContentItemBody';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   message: {
   },
 });
@@ -17,7 +17,7 @@ const PrivateMessagesEmail = ({conversations, messages, participantsById, classe
   conversations: Array<DbConversation>,
   messages: Array<DbMessage>,
   participantsById: Record<string,DbUser>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (conversations.length === 1) {
     return <React.Fragment>
@@ -73,7 +73,7 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
   conversation: ConversationsList|DbConversation,
   messages: Array<DbMessage>,
   participantsById: Partial<Record<string,DbUser>>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;

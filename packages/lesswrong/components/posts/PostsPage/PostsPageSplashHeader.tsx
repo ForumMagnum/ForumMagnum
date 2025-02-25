@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from '../../../lib/crud/withMulti';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
@@ -14,7 +14,7 @@ import { useHover } from '../../common/withHover';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { Coordinates } from './ImageCropPreview';
-import { userIsAdminOrMod } from '../../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -365,7 +365,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight } = Components;
+  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight, FormatDate } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -446,10 +446,13 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const topLeftSection = (
     <div className={classes.leftSection}>
       <Link className={classes.reviewNavigation} to="/leastwrong?sort=year">
-        Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in {post.reviewWinner.reviewYear}
+        {/* Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in {post.reviewWinner.reviewYear} */}
+        <FormatDate date={post.postedAt} format="MMMM DD, YYYY" tooltip={false}/>
+        <em> (Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts)</em>
       </Link>
       <Link className={classes.reviewNavigationMobile} to="/leastwrong?sort=year">
-        #{post.reviewWinner.reviewRanking + 1} in {post.reviewWinner.reviewYear} Review
+        <FormatDate date={post.postedAt} format="MMMM DD, YYYY" tooltip={false}/>
+        <em> (#{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount})</em>
       </Link>
     </div>
   );

@@ -11,7 +11,6 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
@@ -34,6 +33,9 @@ import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombe
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
+import { createMutator } from "../vulcan-lib/mutators";
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -362,18 +364,46 @@ export type PostIsCriticismRequest = {
 
 addGraphQLResolvers({
   Query: {
-    async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
-      const { currentUser, repos } = context
+    async UserReadHistory(
+      root: void,
+      args: {
+        limit: number | null,
+        filter: FilterPostsForReview | null,
+        sort: {
+          karma?: boolean,
+        } | null,
+      }, context: ResolverContext) {
+      const {currentUser, repos} = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
       }
 
-      const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
-      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context);
+      const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10, args.filter, args.sort)
+      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context)
       return {
         posts: filteredPosts,
       }
     },
+    async PostsUserCommentedOn(
+      root: void,
+      {limit, filter, sort}: { 
+        limit: number | null, 
+        filter: FilterPostsForReview | null, 
+        sort: { karma?: boolean } | null 
+      },
+      context: ResolverContext,
+    ) {
+      const {currentUser, repos} = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view posts user commented on')
+      }
+
+      const posts = await repos.posts.getPostsUserCommentedOn(currentUser._id, limit ?? 20, filter, sort)
+      return {
+        posts: await accessFilterMultiple(currentUser, Posts, posts, context)
+      }
+    },
+
     async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
       const { currentUser } = context
       if (!currentUser) {
@@ -416,15 +446,6 @@ addGraphQLResolvers({
           rating: 0
         }
       })
-    },
-    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId, limit = 20 }: { userId: string, targetUserId: string, limit: number }, context: ResolverContext) {
-      const { currentUser, repos } = context
-      if (!currentUser) {
-        throw new Error('Must be logged in to view read posts of target user')
-      }
-
-      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
-      return await accessFilterMultiple(currentUser, Posts, posts, context)
     },
     async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
       const { currentUser } = context
@@ -571,7 +592,40 @@ addGraphQLSchema(`
     posts: [Post!]
   }
 `)
-addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
+addGraphQLSchema(`
+  type PostsUserCommentedOnResult {
+    posts: [Post!]
+  }
+`);
+addGraphQLSchema(`
+  input PostReviewFilter {
+    startDate: Date
+    endDate: Date
+    minKarma: Int
+    showEvents: Boolean
+  }
+
+  input PostReviewSort {
+    karma: Boolean
+  }
+`)
+
+addGraphQLQuery(`
+  UserReadHistory(
+    limit: Int, 
+    filter: PostReviewFilter, 
+    sort: PostReviewSort
+  ): UserReadHistoryResult
+`)
+
+addGraphQLQuery(`
+  PostsUserCommentedOn(
+    limit: Int, 
+    filter: PostReviewFilter, 
+    sort: PostReviewSort
+  ): UserReadHistoryResult
+`)
+
 addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
 
 addGraphQLSchema(`
@@ -616,7 +670,6 @@ createPaginatedResolver({
     currentUser,
     limit,
   }),
-  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
 });
 
 createPaginatedResolver({
@@ -763,12 +816,40 @@ createPaginatedResolver({
         throw new Error("You must be an admin to use this resolver")
       }
 
-      // 8 days ago
-      const since = new Date(Date.now() - (8 * 24 * 60 * 60 * 1000));
       const threshold = twitterBotKarmaThresholdSetting.get();
 
-      const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
+      const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ limit, threshold });
       return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
     },
   cacheMaxAgeMs: 0
+});
+
+addGraphQLSchema(`
+  type PostWithApprovedJargon {
+    post: Post!
+    jargonTerms: [JargonTerm!]
+  }
+`);
+
+interface PostWithApprovedJargon {
+  post: Partial<DbPost>;
+  jargonTerms: Partial<DbJargonTerm>[];
+}
+
+createPaginatedResolver({
+  name: "PostsWithApprovedJargon",
+  graphQLType: "PostWithApprovedJargon",
+  callback: async (context, limit): Promise<PostWithApprovedJargon[]> => {
+    const { repos, currentUser, JargonTerms } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("You must be an admin to see posts with approved jargon");
+    }
+
+    const postsWithUnfilteredJargon = await repos.posts.getPostsWithApprovedJargon(limit);
+
+    return await Promise.all(postsWithUnfilteredJargon.map(async ({ jargonTerms, ...post }) => ({
+      post,
+      jargonTerms: await accessFilterMultiple(currentUser, JargonTerms, jargonTerms, context)
+    })));
+  }
 });

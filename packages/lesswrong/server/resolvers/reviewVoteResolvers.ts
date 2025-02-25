@@ -1,12 +1,11 @@
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
-import { addGraphQLQuery, addGraphQLSchema } from "../vulcan-lib";
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { Posts } from '../../lib/collections/posts/collection'
 import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
-import { TARGET_REVIEW_NUM } from '../../components/review/ReviewVotingProgressBar';
+import { REVIEW_YEAR, reviewElectionName } from '../../lib/reviewUtils';
+import { TARGET_REVIEW_VOTING_NUM } from '../../components/review/ReviewProgressVoting';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 
 addGraphQLResolvers({
   Mutation: {
@@ -86,7 +85,7 @@ const givingSeasonResolvers = {
       {electionName}: {electionName: string},
       context: ResolverContext,
     ): Promise<GivingSeasonHeart[]> => {
-      if (electionName !== 'reviewVoting2022') {
+      if (electionName !== reviewElectionName) {
         throw new Error('Invalid electionName!');
       }
       
@@ -108,7 +107,7 @@ const givingSeasonResolvers = {
         throw new Error("Permission denied");
       }
       if (
-        electionName !== 'reviewVoting2022' || 
+        electionName !== reviewElectionName || 
         typeof x !== "number" || x < 0 || x > 1 ||
         typeof y !== "number" || y < 0 || y > 1 ||
         typeof theta !== "number" || theta < -25 || theta > 25
@@ -121,7 +120,7 @@ const givingSeasonResolvers = {
         year: REVIEW_YEAR+""
       }).count();
 
-      if (voteCount < TARGET_REVIEW_NUM) {
+      if (voteCount < TARGET_REVIEW_VOTING_NUM) {
         throw new Error(`User has not voted enough times: ${voteCount}`)
       }
 
@@ -142,7 +141,7 @@ const givingSeasonResolvers = {
         throw new Error("Permission denied");
       }
 
-      if (electionName !== 'reviewVoting2022') {
+      if (electionName !== reviewElectionName) {
         throw new Error('Invalid electionName!');
       }
 

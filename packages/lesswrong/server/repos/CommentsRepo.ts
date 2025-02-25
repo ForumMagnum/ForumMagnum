@@ -9,7 +9,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -343,6 +343,114 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       totalCount: result?.total_count ? parseInt(result.total_count) : 0,
       percentile: result?.percentile ?? 0,
     };
+  }
+
+  /**
+   * Count the number of discussions started for EA Forum Wrapped
+   * We count a "discussion" as a comment with at least 5 descendants or a post
+   * with at least 5 comments
+   */
+  async getEAWrappedDiscussionsStarted(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- CommentsRepo.getEAWrappedDiscussionsStarted
+      SELECT SUM("count")::INTEGER AS "discussionCount"
+      FROM (
+        SELECT COUNT(c.*) AS "count"
+        FROM "Comments" c
+        INNER JOIN "Posts" p ON
+          c."postId" = p."_id"
+        WHERE
+          c."userId" = $1
+          AND c."createdAt" > $2
+          AND c."createdAt" < $3
+          AND c."descendentCount" >= 5
+          AND c."deleted" IS NOT TRUE
+          AND c."deletedPublic" IS NOT TRUE
+          AND ${getViewablePostsSelector("p")}
+        UNION
+        SELECT COUNT(p.*) AS "count"
+        FROM "Posts" p
+        WHERE
+          p."userId" = $1
+          AND p."postedAt" > $2
+          AND p."postedAt" < $3
+          AND p."commentCount" >= 5
+          AND ${getViewablePostsSelector("p")}
+      ) q
+    `, [userId, start, end]);
+    return result?.discussionCount ?? 0;
+  }
+
+  /**
+   * Return an array of { commentId: string; userId: string }, where the `commentId`s correspond to
+   * the parents of the given comment, starting with the most recent (and not including the comment given)
+   */
+  async getParentCommentIds({
+    commentId,
+    limit = 20,
+  }: {
+    commentId: string;
+    limit?: number;
+  }): Promise<Array<{ commentId: string; userId: string }>> {
+    return this.getRawDb().any<{ commentId: string; userId: string }>(
+      `
+      -- CommentsRepo.getParentCommentIdsAndUserIds
+      WITH RECURSIVE parent_comments AS (
+        SELECT
+          "parentCommentId"
+        FROM
+          "Comments"
+        WHERE
+          "_id" = $1
+        UNION
+        SELECT
+          c."parentCommentId"
+        FROM
+          "Comments" c
+          INNER JOIN parent_comments pc ON c."_id" = pc."parentCommentId"
+      )
+      SELECT
+        pc."parentCommentId" AS "commentId",
+        c."userId"
+      FROM
+        parent_comments pc
+      LEFT JOIN "Comments" c ON c._id = pc."parentCommentId"
+      WHERE
+        pc."parentCommentId" IS NOT NULL
+        AND c.deleted IS NOT TRUE
+        AND c."deletedPublic" IS NOT TRUE
+      ORDER BY
+        c."postedAt" DESC LIMIT $2;
+    `,
+      [commentId, limit]
+    );
+  }
+
+  async getPostReviews(postIds: string[], reviewsPerPost: number, minScore: number): Promise<DbComment[][]> {
+    const comments = await this.manyOrNone(`
+      -- CommentsRepo.getPostReviews
+      WITH cte AS (
+        SELECT
+          comment_with_rownumber.*,
+          ROW_NUMBER() OVER (PARTITION BY comment_with_rownumber."postId" ORDER BY comment_with_rownumber."baseScore" DESC) as rn
+        FROM "Comments" comment_with_rownumber
+        WHERE comment_with_rownumber."postId" IN ($1:csv)
+        AND comment_with_rownumber."reviewingForReview" IS NOT NULL
+        AND comment_with_rownumber."baseScore" >= $3
+        AND ${getViewableCommentsSelector('comment_with_rownumber')}
+      )
+      SELECT *
+      FROM cte
+      WHERE rn <= $2
+      ORDER BY "baseScore" DESC
+    `, [postIds, reviewsPerPost, minScore]);
+    
+    const commentsByPost = groupBy(comments, c=>c.postId);
+    return postIds.map(postId => commentsByPost[postId] ?? []);
   }
 }
 

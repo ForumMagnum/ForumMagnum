@@ -1,9 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   editor: {
     "& .ais-InstantSearch__root": {
       margin: "20px 0",
@@ -26,7 +25,7 @@ const SortableList = makeSortableListComponent({
 });
 
 const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.editor}>
     <SortableList
@@ -43,11 +42,6 @@ const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormCompon
     />
   </div>
 }
-
-(PostsListEditor as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-};
 
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.

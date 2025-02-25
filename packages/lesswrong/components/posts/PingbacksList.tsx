@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     marginTop: theme.spacing.unit*2
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PingbacksList = ({classes, postId, limit=5}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postId: string,
   limit?: number
 }) => {

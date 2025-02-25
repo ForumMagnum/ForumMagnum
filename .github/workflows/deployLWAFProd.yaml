@@ -34,7 +34,7 @@ jobs:
     needs: [migrate, upload-ckeditor-bundle]
     strategy:
       matrix: 
-        node-version: [18.x]
+        node-version: [22.12]
         environment: [Lesswrongexpress-env, AlignmentForumProd]
     steps:
     - uses: actions/checkout@v2

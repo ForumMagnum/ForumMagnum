@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   formButton: {
     paddingBottom: "2px",
     fontSize: "16px",
@@ -24,7 +25,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
   commentType?: "post" | "subforum",
   documentId: string,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const isPost = commentType === "post"
   // FIXME: Unstable component will lose state on rerender

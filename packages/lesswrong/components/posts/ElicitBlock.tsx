@@ -1,4 +1,3 @@
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
@@ -12,6 +11,8 @@ import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const elicitDataFragment = `
   _id
@@ -39,19 +40,10 @@ const elicitDataFragment = `
   }
 `
 
-const elicitQuery = gql`
-  query ElicitBlockData($questionId: String) {
-    ElicitBlockData(questionId: $questionId) {
-     ${elicitDataFragment}
-    }
-  }
-  ${getFragment("UsersMinimumInfo")}
-`;
-
 const rootHeight = 50
 const rootPaddingTop = 12
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: rootPaddingTop,
@@ -184,14 +176,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
   const { UsersName, ContentStyles } = Components;
-  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
+  const { data, loading } = useQuery(gql`
+    query ElicitBlockData($questionId: String) {
+      ElicitBlockData(questionId: $questionId) {
+       ${elicitDataFragment}
+      }
+    }
+    ${getFragment("UsersMinimumInfo")}
+  `, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
@@ -200,7 +199,9 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     }
     ${getFragment("UsersMinimumInfo")}  
   `);
-  const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
+  const allPredictions = data?.ElicitBlockData?.predictions || [];
+  const nonCancelledPredictions = allPredictions.filter((p: AnyBecauseTodo) => p.prediction !== null);
+  const sortedPredictions = sortBy(nonCancelledPredictions, ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
   const userHasPredicted = currentUser && some(

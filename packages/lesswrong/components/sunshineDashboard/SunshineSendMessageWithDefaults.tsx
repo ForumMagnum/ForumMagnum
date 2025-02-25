@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import Menu from '@material-ui/core/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@material-ui/icons/Edit";
-import {Components, registerComponent} from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -13,7 +13,7 @@ const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
 

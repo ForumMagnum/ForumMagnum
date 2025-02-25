@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
     ? {
       margin: "8px 0",
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const StickiedPosts = ({
   classes,
 }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, PostsList2, TargetedJobAdSection } = Components
 

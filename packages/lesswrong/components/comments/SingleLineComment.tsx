@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
@@ -12,8 +12,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
-export const singleLineStyles = (theme: ThemeType): JssStyles => ({
-  display: "flex",
+export const singleLineStyles = (theme: ThemeType) => ({
   borderRadius: 3,
   backgroundColor: theme.palette.panelBackground.singleLineComment,
   '&:hover': {
@@ -28,12 +27,13 @@ export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     cursor: "pointer",
   },
   commentInfo: {
+    display: "flex",
     ...singleLineStyles(theme)
   },
   username: {
@@ -158,7 +158,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {anchorEl, hover, eventHandlers} = useHover();
   

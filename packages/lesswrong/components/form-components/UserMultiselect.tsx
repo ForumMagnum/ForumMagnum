@@ -1,8 +1,8 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -29,7 +29,7 @@ const UserMultiselect = ({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[]) => void
   label: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>

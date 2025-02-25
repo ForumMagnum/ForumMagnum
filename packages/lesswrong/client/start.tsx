@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import AppGenerator from './AppGenerator';
 
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
-import { populateComponentsAppDebug } from '../lib/vulcan-lib';
+import { populateComponentsAppDebug } from '../lib/vulcan-lib/components';
 import { initServerSentEvents } from "./serverSentEventsClient";
 import { hydrateRoot } from 'react-dom/client';
 
@@ -22,15 +22,19 @@ export function hydrateClient() {
     document.body.appendChild(rootElement);
   }
 
-  const Main = () => (
-    <AppGenerator
+  const Main = () => {
+    const [renderCount, forceRerender] = useReducer(c => c+1, 0);
+    _forceFullRerender = forceRerender;
+    
+    return <AppGenerator
+      key={renderCount}
       apolloClient={apolloClient}
       foreignApolloClient={foreignApolloClient}
       abTestGroupsUsed={{}}
       themeOptions={window.themeOptions}
       ssrMetadata={window.ssrMetadata}
     />
-  );
+  };
 
   hydrateRoot(
     document.getElementById('react-app')!,
@@ -44,3 +48,9 @@ export function hydrateClient() {
     document.getElementById("ssr-interaction-disable")?.remove();
   });
 };
+
+
+let _forceFullRerender: (() => void)|null = null;
+export function forceFullReactRerender() {
+  _forceFullRerender?.();
+}

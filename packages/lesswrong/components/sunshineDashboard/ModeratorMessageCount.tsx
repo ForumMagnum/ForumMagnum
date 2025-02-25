@@ -1,10 +1,10 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@material-ui/icons/Email';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const ModeratorMessageCount = ({classes, userId}: {
   userId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components
   const { loading, totalCount } = useMulti({

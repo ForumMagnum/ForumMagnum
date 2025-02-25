@@ -3,9 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
-import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useTagBySlug } from '../useTag';
@@ -16,8 +14,11 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';
+import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   tabRow: {
     display: 'flex',
     alignItems: 'center',
@@ -110,7 +111,7 @@ type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
 const TagSubforumPage2 = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     Loading,
@@ -252,7 +253,7 @@ const TagSubforumPage2 = ({classes}: {
     <div className={classNames(classes.header, classes.centralColumn)}>
       {query.flagId && (
         <span>
-          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+          <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
             <TagFlagItem
               itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
               documentId={query.flagId}

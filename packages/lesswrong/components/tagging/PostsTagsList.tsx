@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -18,8 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     marginTop: 2,
     marginBottom: 2,
-    // paddingLeft: 10,
-    // paddingRight: 8
+    marginRight: 2,
+    paddingLeft: 10,
+    paddingRight: 8
   },
   count: {
     ...theme.typography.body2,
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   },
   selected: {
-    backgroundColor: theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[400],
     color: theme.palette.background.pageActiveAreaBackground
   },
   button: {
@@ -39,20 +40,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type TagWithCount = TagPreviewFragment & {count: number}
+type TagWithCount = TagBasicInfo & {count: number}
 
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 
 // those tags.
-export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expandedMinCount=3, defaultMax=6}: {
-  classes: ClassesType,
-  posts: PostsList[]|null,
-  currentFilter: string|null, // the current tag being filtered on the post list
-  handleFilter: (filter: string) => void, // function to update which tag is being filtered
-  expandedMinCount?: number // when showing more tags, this is the number
-  // of posts each tag needs to have to be included
-  defaultMax?: number // default number of tags to show
-}) => {
+export const PostsTagsList = (
+  {
+    classes, 
+    posts, 
+    currentFilter, 
+    handleFilter, 
+    expandedMinCount = 3, 
+    defaultMax = 6,
+    afterChildren,
+  }: {
+    classes: ClassesType<typeof styles>,
+    posts: PostsList[] | null,
+    currentFilter: string | null, // the current tag being filtered on the post list
+    handleFilter: (filter: string) => void, // function to update which tag is being filtered
+    expandedMinCount?: number // when showing more tags, this is the number
+    // of posts each tag needs to have to be included
+    defaultMax?: number // default number of tags to show
+    afterChildren?: React.ReactNode,
+  }) => {
   const { LWTooltip } = Components
 
 
@@ -74,7 +85,7 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expa
     return `Filter posts to only show posts tagged '${tag.name}'`
   }
 
-  const tagButton = (tag: TagWithCount) => <LWTooltip title={tagButtonTooltip(tag)}><div key={tag._id} className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
+  const tagButton = (tag: TagWithCount) => <LWTooltip key={tag._id} title={tagButtonTooltip(tag)}><div className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
     {tag.name} <span className={classes.count}>{tag.count}</span>
   </div></LWTooltip>
 
@@ -82,6 +93,7 @@ export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expa
 
   return <div className={classes.root}>
     {slicedTags.map(tag => tagButton(tag))}
+    {afterChildren}
     {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>More</a></LWTooltip>}
     {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>Fewer</a>}
   </div>;

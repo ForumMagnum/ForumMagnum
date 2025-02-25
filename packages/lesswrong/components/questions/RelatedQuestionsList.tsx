@@ -1,9 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     marginBottom: 100,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const RelatedQuestionsList = ({ post, classes }: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsItem, SectionTitle } = Components
   

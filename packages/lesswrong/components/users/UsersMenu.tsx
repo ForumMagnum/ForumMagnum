@@ -1,5 +1,5 @@
 import React, { MouseEvent, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -15,15 +15,16 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
-import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum } from '../../lib/instanceSettings';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
+import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
+import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,7 +101,8 @@ const UsersMenu = ({classes}: {
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
   const {
-    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon
+    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon,
+    NewWikiTagMenu
   } = Components
   
   // By default, we show the user's display name as the menu button.
@@ -191,6 +193,13 @@ const UsersMenu = ({classes}: {
           />
         )
       : null,
+    newWikitag: () => tagUserHasSufficientKarma(currentUser, "new") ? (
+      <NewWikiTagMenu>
+        <DropdownItem
+          title={preferredHeadingCase(`New ${taggingNameCapitalSetting.get()}`)}
+        />
+      </NewWikiTagMenu>
+    ) : null,
     newEvent: () => userCanPost(currentUser)
       ? (
         <DropdownItem
@@ -214,7 +223,7 @@ const UsersMenu = ({classes}: {
 
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "newQuestion", "newDialogue", "divider", "newEvent", "newSequence"]
-    : ["newShortform", "newPost", "newEvent"];
+    : ["newShortform", "newPost", "newWikitag", "newEvent"];
 
   return (
     <div className={classes.root} {...eventHandlers}>

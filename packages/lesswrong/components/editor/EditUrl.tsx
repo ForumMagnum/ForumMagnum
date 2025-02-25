@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib';
+import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: theme.spacing.unit
   },
@@ -55,24 +55,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
-  value: string,
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: FormComponentProps<string> & {
   path: keyof DbPost,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   document: Partial<DbPost>,
   defaultValue?: string,
-  label?: string,
   hintText?: string,
-  placeholder?: string,
   tooltip?: string,
-  updateCurrentValues<T extends {}>(values: T): void,
-  setFooterContent(content: any): void,
-  inputProperties: {
-    labels?: {
-      active: string,
-      inactive: string,
-    },
-  },
 }) => {
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
@@ -82,7 +71,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   }
 
   const updateValue = (value: string | null) => {
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: value,
     });
   }
@@ -114,10 +103,6 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
     if (!value || value.length < 1) {
       setEditorActive(false);
     }
-  }
-
-  if (inputProperties.labels) {
-    placeholder = inputProperties.labels[active ? 'active' : 'inactive'];
   }
 
   return (

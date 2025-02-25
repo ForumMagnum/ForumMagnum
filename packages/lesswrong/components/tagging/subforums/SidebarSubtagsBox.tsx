@@ -4,12 +4,12 @@ import React, { useCallback, useState } from "react";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: "1em 1.5em",
     borderRadius: theme.borderRadius.default,
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SidebarSubtagsBox = ({ tag, className, classes }: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
 
@@ -128,6 +128,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
         <FooterTag
           key={tag._id}
           tag={tag}
+          hoverable={true}
           hideScore={true}
           hideRelatedTags
           PreviewWrapper={PreviewWrapper}
@@ -136,6 +137,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
           <FooterTag
             key={tag._id}
             tag={tag}
+            hoverable={true}
             hideScore={true}
             PreviewWrapper={PreviewWrapper}
           />

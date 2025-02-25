@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   commentPadding: {
     padding: 16,
     paddingTop: 12,
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const RejectedCommentsList = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
   const {
@@ -41,7 +41,7 @@ export const RejectedCommentsList = ({classes}: {
     enableTotal: false,
   });
   
-  return <div className={classes.root}>
+  return <div>
     {results?.map(comment =>
       <div key={comment._id}>
         <div className={classes.commentPadding} onClick={()=>setExpanded(true)}>
@@ -51,7 +51,7 @@ export const RejectedCommentsList = ({classes}: {
             </MetaInfo>
             <PostsTooltip postId={comment.postId}>
               <MetaInfo>
-                <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}
                   {comment.post?.title} <ForumIcon icon="Link" className={classes.linkIcon} />
                 </Link>

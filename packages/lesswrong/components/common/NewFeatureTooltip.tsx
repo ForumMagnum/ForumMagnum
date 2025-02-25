@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
 import { useHover } from './withHover';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   container: {
     display: 'inline-block',
     position: 'relative',
@@ -107,7 +107,7 @@ const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement
   children?: ReactNode,
   title?: string,
   placement?: 'top'|'right'|'left'|'bottom',
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     eventProps: {

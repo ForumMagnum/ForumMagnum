@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Geosuggest from 'react-geosuggest';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
-import type { Suggest } from 'react-geosuggest';
+import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
@@ -81,7 +81,7 @@ export const geoSuggestStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...geoSuggestStyles(theme),
     ...theme.typography.commentStyle
@@ -158,9 +158,11 @@ const LocationPicker = ({
   stringVersionFieldName,
   variant = "default",
   classes,
+  locationTypes,
 }: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
+  locationTypes?: QueryType[],
   classes: ClassesType<typeof styles>,
 }) => {
   // if this location field has a matching field that just stores the string version of the location,
@@ -221,33 +223,16 @@ const LocationPicker = ({
         onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}
         initialValue={location}
+        types={locationTypes}
       />
     </div>
   );
 }
 
-const LocationFormComponent = ({
-  document,
-  path,
-  label,
-  value,
-  updateCurrentValues,
-  stringVersionFieldName,
-  variant,
-}: FormComponentProps<AnyBecauseTodo> & {
+const LocationFormComponent = (props: FormComponentProps<AnyBecauseTodo> & {
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
-}) => {
-  return <Components.LocationPicker
-    document={document}
-    path={path}
-    label={label}
-    value={value}
-    updateCurrentValues={updateCurrentValues}
-    stringVersionFieldName={stringVersionFieldName}
-    variant={variant}
-  />
-}
+}) => <Components.LocationPicker {...props}/>
 
 const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});

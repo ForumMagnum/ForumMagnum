@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const commentModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('commentModerationWarningCommentId', '')
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderBottom: theme.palette.border.commentBorder,
     padding: 12,
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewCommentModerationWarning = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles, ContentItemBody, Loading } = Components
   
@@ -30,7 +30,7 @@ export const NewCommentModerationWarning = ({classes}: {
   const { html = "" } = document?.contents || {}
 
   return <div className={classes.root}>
-    <ContentStyles contentType="comment" className={classes.modNote}>
+    <ContentStyles contentType="comment">
       {loading && <Loading/>}
       {html &&  <ContentItemBody dangerouslySetInnerHTML={{__html: html }} />}
       {!html && !loading && <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>}

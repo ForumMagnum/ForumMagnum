@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Tooltip from '@material-ui/core/Tooltip';
-import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -58,7 +57,7 @@ export const SlackIcon = (props: any) => <SvgIcon viewBox="70 70 130 130" {...pr
   </g>
 </SvgIcon>
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'inline-block'
   },
@@ -129,7 +128,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginLeft: 0
     }
   }
-}));
+});
 
 const tooltips: Partial<Record<string,string>> = {
   'LW': "This is a LessWrong group",
@@ -141,7 +140,7 @@ const tooltips: Partial<Record<string,string>> = {
 const GroupLinks = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
   noMargin?: Boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event

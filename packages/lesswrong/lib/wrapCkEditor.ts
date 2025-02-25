@@ -1,36 +1,29 @@
-import { ForumTypeString } from "./instanceSettings";
-
-export const getCkEditor = (forumType: ForumTypeString) => {
-  const ckEditor = bundleIsServer ? {} : require('../../../public/lesswrong-editor/build/ckeditor');
-
-  const { EditorWatchdog, getCommentEditor, getPostEditor, getPostEditorCollaboration } = ckEditor;
-  return { EditorWatchdog, getCommentEditor, getPostEditor, getPostEditorCollaboration };
-}
+import { getCkEditor } from "@/client/importCkEditor";
 
 let commentEditor: any = null;
-export const getCkCommentEditor = (forumType: ForumTypeString) => {
-  const { getCommentEditor } = getCkEditor(forumType);
+export const getCkCommentEditor = () => {
+  const { getCommentEditor } = getCkEditor();
   if (!commentEditor) {
-    commentEditor = getCommentEditor(forumType);
+    commentEditor = getCommentEditor();
   }
   return commentEditor;
 }
 
 let postEditor: any = null;
 let postEditorCollaborative: any = null;
-export const getCkPostEditor = (isCollaborative: boolean, forumType: ForumTypeString) => {
-  const { getPostEditor, getPostEditorCollaboration } = getCkEditor(forumType);
+export const getCkPostEditor = (isCollaborative: boolean) => {
+  const { getPostEditor, getPostEditorCollaboration } = getCkEditor();
   if (isCollaborative) {
     if (!postEditorCollaborative) {
-      postEditorCollaborative = getPostEditorCollaboration(forumType);
+      postEditorCollaborative = getPostEditorCollaboration();
     }
     return postEditorCollaborative;
   } else {
     if (!postEditor) {
-      postEditor = getPostEditor(forumType);
+      postEditor = getPostEditor();
     }
     return postEditor;
   }
 }
 
-export const ckEditorBundleVersion = "43.1.0";
+export const ckEditorBundleVersion = "43.1.6";

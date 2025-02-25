@@ -10,7 +10,7 @@ import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../lib/collections/comments/collection';
 import { createAdminContext } from '../vulcan-lib/query';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
@@ -20,8 +20,36 @@ import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderator
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
-import { increaseMaxBaseScore } from './postCallbacks';
 import { captureException } from '@sentry/core';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
+
+async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
+  if (vote.collectionName === "Posts") {
+    const post = newDocument as DbPost;
+    if (post.baseScore > (post.maxBaseScore || 0)) {
+      let thresholdTimestamp: any = {};
+      if (!post.scoreExceeded2Date && post.baseScore >= 2) {
+        thresholdTimestamp.scoreExceeded2Date = new Date();
+      }
+      if (!post.scoreExceeded30Date && post.baseScore >= 30) {
+        thresholdTimestamp.scoreExceeded30Date = new Date();
+      }
+      if (!post.scoreExceeded45Date && post.baseScore >= 45) {
+        thresholdTimestamp.scoreExceeded45Date = new Date();
+      }
+      if (!post.scoreExceeded75Date && post.baseScore >= 75) {
+        thresholdTimestamp.scoreExceeded75Date = new Date();
+      }
+      if (!post.scoreExceeded125Date && post.baseScore >= 125) {
+        thresholdTimestamp.scoreExceeded125Date = new Date();
+      }
+      if (!post.scoreExceeded200Date && post.baseScore >= 200) {
+        thresholdTimestamp.scoreExceeded200Date = new Date();
+      }
+      await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
+    }
+  }
+}
 
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
@@ -32,8 +60,8 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
   
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision);
     }
   }
 }
@@ -47,8 +75,8 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   const { vote, newDocument } = voteDocTuple;
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision);
     }
   }
 
@@ -232,7 +260,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
 
-  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
   const postLink = postGetPageUrl(post, true)
 
   const year = post.postedAt.getFullYear()

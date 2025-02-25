@@ -1,5 +1,4 @@
 import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
-import type { SearchQuery } from "./SearchQuery";
 import type { SearchResult } from "./SearchResult";
 import { algoliaPrefixSetting } from "../../../lib/publicSettings";
 import { indexNameToConfig } from "./ElasticConfig";
@@ -9,9 +8,10 @@ import {
   SEARCH_ORIGIN_DATE,
 } from "./ElasticQuery";
 import moment from "moment";
+import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
 
 type SanitizedIndexName = {
-  index: string,
+  index: string | string[],
   sorting?: string,
 }
 
@@ -36,23 +36,39 @@ class ElasticService {
     private client = new ElasticClient(),
   ) {}
 
-  async runQuery({indexName, params}: SearchQuery): Promise<SearchResult> {
+  async runQuery({indexName, params}: SearchQuery, options: SearchOptions): Promise<SearchResult> {
     const start = Date.now();
 
     const {index, sorting} = this.sanitizeIndexName(indexName);
+    const search = params.query ?? "";
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
-    const result = await this.client.search({
-      index,
-      sorting,
-      search: params.query ?? "",
-      offset: page * hitsPerPage,
-      limit: hitsPerPage,
-      preTag: params.highlightPreTag,
-      postTag: params.highlightPostTag,
-      filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
-      coordinates: this.parseLatLng(params.aroundLatLng),
-    });
+    const skipSearch = search==="" && options.emptyStringSearchResults==="empty";
+    const result = skipSearch
+      ? {hits: {
+          total: 0,
+          hits: [],
+        }}
+      : await (
+        Array.isArray(index)
+          ? this.client.multiSearch({
+            indexes: index,
+            search,
+            offset: page * hitsPerPage,
+            limit: hitsPerPage,
+          })
+          : this.client.search({
+            index,
+            sorting,
+            search,
+            offset: page * hitsPerPage,
+            limit: hitsPerPage,
+            preTag: params.highlightPreTag,
+            postTag: params.highlightPostTag,
+            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+            coordinates: this.parseLatLng(params.aroundLatLng),
+          })
+      );
 
     const nbHits = typeof result.hits.total === "number"
       ? result.hits.total
@@ -169,7 +185,7 @@ class ElasticService {
         op,
       });
     }
-    
+
     for (const filter of existsFilters ?? []) {
       result.push({
         type: "exists",
@@ -228,32 +244,44 @@ class ElasticService {
 
   private sanitizeIndexName(indexName: string): SanitizedIndexName {
     const prefix = algoliaPrefixSetting.get();
-    if (prefix && indexName.indexOf(prefix) === 0) {
-      indexName = indexName.slice(prefix.length)
+    if (prefix) {
+      indexName = indexName.replace(new RegExp(prefix, "g"), "");
     }
     const tokens = indexName.split("_");
-    indexName = tokens[0];
+    const indexNames = tokens[0].split(",");
     const sorting = tokens.length > 1 ? tokens.slice(1).join("_") : undefined;
     return {
-      index: indexName,
+      index: indexNames.length > 1 ? indexNames : indexNames[0],
       sorting,
     };
   }
 
-  private getHits(indexName: string, hits: ElasticSearchHit[]): SearchDocument[] {
-    const config = indexNameToConfig(indexName);
-    return hits.map(({_id, _source, highlight}) => ({
-      ..._source,
-      _id,
-      _snippetResult: {
-        [config.snippet]: extractNamedHighlight(highlight, config.snippet),
-      },
-      ...(config.highlight && {
-        _highlightResult: {
-          [config.highlight]: extractNamedHighlight(highlight, config.highlight),
+  private getHits(
+    indexName: string | string[],
+    hits: ElasticSearchHit[],
+  ): SearchDocument[] {
+    if (Array.isArray(indexName)) {
+      return hits.map(({_id, _source, _index}) => ({
+        ..._source,
+        _id,
+        _index: _index.split("_")[0],
+      }))
+    } else {
+      const config = indexNameToConfig(indexName);
+      return hits.map(({_id, _source, highlight}) => ({
+        ..._source,
+        _id,
+        _index: indexName,
+        _snippetResult: {
+          [config.snippet]: extractNamedHighlight(highlight, config.snippet),
         },
-      }),
-    }));
+        ...(config.highlight && {
+          _highlightResult: {
+            [config.highlight]: extractNamedHighlight(highlight, config.highlight),
+          },
+        }),
+      }));
+    }
   }
 }
 

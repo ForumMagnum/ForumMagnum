@@ -1,7 +1,6 @@
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
-import { Globals } from "@/lib/vulcan-lib";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import { captureEvent } from "@/lib/analyticsEvents";
 
 /* Currently unused
@@ -45,16 +44,20 @@ type PostWithAudio = Pick<DbPost, keyof typeof postWithAudioProjection>;
 const getPostUrl = (post: PostWithAudio) =>
   type3SourceUrlSetting.get() + postGetPageUrl(post);
 
-export const regenerateType3Audio = async (post: PostWithAudio) => {
+export const regenerateType3Audio = async (post: DbPost) => {
   const body = {
     source_url: getPostUrl(post),
     priority: "immediate",
   };
+
+  if (!isPostAllowedType3Audio(post)) return;
+
   await type3ApiRequest("narration/regenerate", "POST", body);
   captureEvent("regenerateType3Audio", {postId: post._id, ...body});
 }
 
-const regenerateType3AudioForPostId = async (postId: string) => {
+// Exported to allow running with "yarn repl"
+export const regenerateType3AudioForPostId = async (postId: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error("Post not found");
@@ -64,7 +67,7 @@ const regenerateType3AudioForPostId = async (postId: string) => {
   }
 }
 
-export const deleteType3Audio = async (post: PostWithAudio) => {
+const deleteType3Audio = async (post: PostWithAudio) => {
   const body = {
     source_url: getPostUrl(post),
   };
@@ -72,7 +75,8 @@ export const deleteType3Audio = async (post: PostWithAudio) => {
   captureEvent("deleteType3Audio", {postId: post._id, ...body});
 }
 
-const deleteType3AudioForPostId = async (postId: string) => {
+// Exported to allow running with "yarn repl"
+export const deleteType3AudioForPostId = async (postId: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error("Post not found");
@@ -80,18 +84,13 @@ const deleteType3AudioForPostId = async (postId: string) => {
   await deleteType3Audio(post);
 }
 
+// Exported to allow running with "yarn repl"
 export const regenerateAllType3AudioForUser = async (userId: string) => {
-  const posts: PostWithAudio[] = await Posts.find({
-    userId,
-  }, {
-    projection: postWithAudioProjection,
+  const posts = await Posts.find({
+    userId
   }).fetch();
 
   for (const post of posts) {
     await regenerateType3Audio(post);
   }
 }
-
-Globals.regenerateType3AudioForPostId = regenerateType3AudioForPostId;
-Globals.deleteType3AudioForPostId = deleteType3AudioForPostId;
-Globals.regenerateAllType3AudioForUser = regenerateAllType3AudioForUser;

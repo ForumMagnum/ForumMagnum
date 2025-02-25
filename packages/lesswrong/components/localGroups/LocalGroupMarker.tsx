@@ -1,14 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     height: 15, 
     width: 15,
@@ -21,7 +20,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fill: theme.palette.group,
     opacity: 0.8,
   },
-}))
+});
 
 const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   group: any,
@@ -29,7 +28,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   handleInfoWindowClose: any,
   infoOpen: boolean,
   location: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location

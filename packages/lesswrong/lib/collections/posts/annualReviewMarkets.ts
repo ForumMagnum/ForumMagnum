@@ -3,7 +3,7 @@ import { loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
 
 // Information about a market, but without bets or comments
-type LiteMarket = {
+export type LiteMarket = {
   // Unique identifer for this market
   id: string
 
@@ -96,8 +96,8 @@ export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<Annua
   return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear(), url: fullMarket.url }
 }
 
-export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey?: string): Promise<LiteMarket | undefined> => {
-  
+export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
+
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");
 
@@ -117,13 +117,13 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
         visibility,
         initialProb,
         marketTier: "play",
-        idempotencyKey: idKey,
-        groupIds: [manifoldLessWrongAnnualReviewTag]
+        groupIds: [manifoldLessWrongAnnualReviewTag],
+        idempotencyKey: idKey.slice(0, 10)
       })
     })
 
     if (!result.ok) {
-      throw new Error(`HTTP error! status: ${result.status}`);
+      throw new Error(`HTTP error! status: ${result.status}. body: ${await result.text()}`);
     }
 
     return result.json()

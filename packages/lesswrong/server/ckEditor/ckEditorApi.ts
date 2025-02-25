@@ -10,12 +10,13 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { buildRevision } from '../editor/make_editable_callbacks';
-import { createAdminContext, createMutator, Globals, updateMutator } from '../vulcan-lib';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
+import { createAdminContext } from "../vulcan-lib/query";
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -385,7 +386,7 @@ const ckEditorApi = {
     if (!bundleVersion)
       throw new Error("Missing argument: bundleVersion");
     
-    const editorBundle = fs.readFileSync("public/lesswrong-editor/build/ckeditor-cloud.js", 'utf8');
+    const editorBundle = fs.readFileSync("ckEditor/build/ckeditor-cloud.js", 'utf8');
     const editorBundleHash = crypto.createHash('sha256').update(editorBundle, 'utf8').digest('hex');
     
     // eslint-disable-next-line no-console
@@ -476,7 +477,7 @@ const ckEditorApiHelpers = {
   // (This is used when reverting through the revision-history UI.)
   async pushRevisionToCkEditor(postId: string, html: string) {
     // eslint-disable-next-line no-console
-    console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html}`);
+    console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html.slice(0, 100)}`);
     const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
     
     // Check for unsaved changes and save them first
@@ -520,28 +521,12 @@ const ckEditorApiHelpers = {
   }
 };
 
-Globals.cke = {
+// Exported to allow running manually with "yarn repl"
+export const cke = {
   ...ckEditorApi,
   ...ckEditorApiHelpers,
-  ...documentHelpers
+  ...documentHelpers,
 };
 
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this is only useful for GET calls, since ckEditor doesn't often return anything for POST/DELETE/etc operations.
-// This isn't guaranteed to produce sane results in every single case, but seems fine for the things I've tested.
-Globals.cke.log = Object.fromEntries(Object.entries(Globals.cke).map(([key, val]) => {
-  if (typeof val !== 'function') {
-    return [key, val];
-  }
-
-  const withLoggedOutput = async (...args: any[]) => {
-    const result = await val(...args);
-    // eslint-disable-next-line no-console
-    console.log({ result });
-    return result;
-  };
-
-  return [key, withLoggedOutput];
-}));
 
 export { ckEditorApi, ckEditorApiHelpers, documentHelpers };

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -42,10 +42,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
-  label?: string,
+  label?: React.ReactNode,
   showIcon?: boolean,
   useArrow?: 'up' | 'down'
   textShadow?: boolean,

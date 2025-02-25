@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 // The body of a content-item (post, comment etc), starting from HTML and
 // rendered with whatever enhancements we can apply to emails. (In a browser,

@@ -1,5 +1,5 @@
 import React, { MutableRefObject } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -15,7 +15,7 @@ import {
 import { communityPath } from '../../lib/routes';
 import IconButton from '@material-ui/core/IconButton';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   filtersColumn: {
     flex: 'none',
     width: 250,
@@ -105,7 +105,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
 const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
   tab: SearchIndexCollectionName
   tagsFilter: Array<string>
   handleUpdateTagsFilter: (tags: Array<string>) => void
@@ -141,7 +141,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
       />
     </>}
     {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
-      attribute="tags"
+      attribute="tags._id"
       defaultRefinement={tagsFilter}
       tagsFilter={tagsFilter}
       setTagsFilter={handleUpdateTagsFilter}

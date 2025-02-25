@@ -1,10 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 
 const AlignmentCrosspostLink = ({post}: {
   post: PostsBase,
-  classes: ClassesType,
 }) => {
   const { LWTooltip } = Components
   if (post.af && !isAF) {

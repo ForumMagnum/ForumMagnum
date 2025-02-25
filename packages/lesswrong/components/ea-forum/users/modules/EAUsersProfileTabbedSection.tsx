@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 import { useCheckMeritsCollapse } from '../../../common/useCheckMeritsCollapse';
@@ -18,7 +18,7 @@ export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
   },
@@ -101,7 +101,7 @@ export type UserProfileTabType = {
 const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   tabs: Array<UserProfileTabType>,
   id?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
   

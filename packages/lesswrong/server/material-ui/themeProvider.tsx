@@ -4,6 +4,7 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import { ThemeContextProvider } from '../../components/themes/useTheme';
 import { AbstractThemeOptions } from '../../themes/themeNames';
 import { createGenerateClassName } from '@material-ui/core/styles';
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 
 export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: typeof SheetsRegistry}>(
   app: React.ReactNode,
@@ -18,9 +19,11 @@ export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: typeof Sheets
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <ThemeContextProvider options={themeOptions}>
+    <ThemeContextProvider options={themeOptions}>
+      <FMJssProvider>
         {app}
-      </ThemeContextProvider>
+      </FMJssProvider>
+    </ThemeContextProvider>
     </JssProvider>
   );
 }

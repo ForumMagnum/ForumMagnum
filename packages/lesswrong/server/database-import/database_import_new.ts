@@ -1,9 +1,8 @@
 import Users from '../../lib/collections/users/collection';
-import { Comments } from '../../lib/collections/comments'
-import { Posts } from '../../lib/collections/posts'
+import { Comments } from '../../lib/collections/comments/collection'
+import { Posts } from '../../lib/collections/posts/collection'
 import { postStatuses } from '../../lib/collections/posts/constants'
-import { Vulcan, createMutator } from '../vulcan-lib';
-import { sanitize, slugify } from '../../lib/vulcan-lib/utils';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/conversionUtils';
 import pgp from 'pg-promise';
@@ -13,6 +12,8 @@ import pick from 'lodash/pick';
 import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
+import { slugify } from '@/lib/utils/slugify';
+import { createMutator } from "../vulcan-lib/mutators";
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -22,7 +23,8 @@ const postgresImportDetails = {
   password: '' // Ommitted for obvious reasons
 }
 
-Vulcan.postgresImport = async () => {
+// Exported to allow running manually with "yarn repl"
+export const postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
   let database = postgresConnector(postgresImportDetails);
@@ -137,7 +139,8 @@ const addParentCommentId = (comment: DbComment, parentComment: DbComment) => {
   }
 }
 
-Vulcan.syncUserPostCount = async () => {
+// Exported to allow running manually with "yarn repl"
+export const syncUserPostCount = async () => {
   const postCounters = await Posts.aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}
   ])

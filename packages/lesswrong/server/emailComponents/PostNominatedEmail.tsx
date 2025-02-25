@@ -7,10 +7,9 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import './EmailPostDate';
 import './EmailFooterRecommendations';
-import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
-import { annualReviewNominationPhaseEnd } from '../../lib/publicSettings';
+import { getNominationPhaseEnd, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import moment from 'moment';
-import { getSiteUrl } from '../vulcan-lib';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 
 
 const PostNominatedEmail = ({documentId, reason}: {
@@ -28,7 +27,7 @@ const PostNominatedEmail = ({documentId, reason}: {
     }
   });
   if (!post) return null;
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
+  const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
 
   return (<React.Fragment>
     <p>Your post <a href={postGetPageUrl(post, true)}>{post.title}</a> has received multiple positive votes for the {REVIEW_NAME_IN_SITU}! On {nominationEndDate.format('MMM Do')}, the nomination vote results will be published, and will be used to help prioritize the Review Phase.</p>

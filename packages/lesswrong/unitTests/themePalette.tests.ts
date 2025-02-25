@@ -2,6 +2,8 @@ import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/componen
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
+import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import type { JssStyles } from '@/lib/jssStyles';
 
 // This component imports a lot of JSX files for plugins and our current build
 // setup for tests can't parse them correctly for some reason. For now we can
@@ -22,6 +24,14 @@ jest.mock("../components/editor/DraftJSEditor", () => {
 import "../server";
 
 describe('JSS', () => {
+  /**
+   * Check that component styles use only colors from the theme, when
+   * instantiated with the default theme. It is okay to use non-palette colors
+   * conditionally, eg with
+   *    `theme.palette.type==="dark" ? "#123456" : theme.palette.panelBackground.default`
+   * since the main purpose of this test is to make sure you don't forget about
+   * dark mode and accidentally make something black-on-black.
+   */
   it('uses only colors from the theme palette', () => {
     importAllComponents();
     const realTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
@@ -45,10 +55,18 @@ describe('JSS', () => {
         assertNoNonPaletteColors(componentName, styles, nonPaletteColors);
       }
     }
-    
+
+    for (const name in topLevelStyleDefinitions) {
+      const styleGetter = topLevelStyleDefinitions[name].styles;
+      const styles = styleGetter(fakeTheme);
+      if (styles && !ComponentsTable[name]?.options?.allowNonThemeColors) {
+        assertNoNonPaletteColors(name, styles, nonPaletteColors);
+      }
+    }
+
     if (nonPaletteColors.length > 0) {
       // eslint-disable-next-line no-console
-      console.error(`No-palette colors in JSS styles:\n${nonPaletteColors.join("\n")}`);
+      console.error(`Non-palette colors in JSS styles:\n${nonPaletteColors.join("\n")}`);
       nonPaletteColors.length.should.equal(0);
     }
   });

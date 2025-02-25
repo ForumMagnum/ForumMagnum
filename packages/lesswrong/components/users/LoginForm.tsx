@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useCallback, useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation } from '@apollo/client';
@@ -9,7 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     wordBreak: "normal",
     padding: 16,
@@ -98,7 +98,7 @@ type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   onClose?: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const LoginForm = (props: LoginFormProps) => {

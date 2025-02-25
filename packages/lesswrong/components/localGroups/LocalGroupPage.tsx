@@ -1,13 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users';
-import { isEAForum } from '../../lib/instanceSettings';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
@@ -15,9 +15,10 @@ import EmailIcon from '@material-ui/icons/Email';
 import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import Person from '@material-ui/icons/Person';
 
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
@@ -82,6 +83,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
+  groupOrganizers: {
+    display: "flex",
+    alignItems: 'center',
+    ...theme.typography.body2,
+    color: theme.palette.text.slightlyDim2,
+    marginBottom: 5,
+  },
+  organizedBy: {
+    marginLeft: 5,
+  },
   groupLocation: {
     ...theme.typography.body2,
     display: "flex",
@@ -90,6 +101,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.text.slightlyDim2,
   },
   groupLocationIcon: {
+    fontSize: 20
+  },
+  organizersIcon: {
     fontSize: 20
   },
   groupCategories: {
@@ -211,10 +225,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       maxWidth: 'none'
     },
   }
-}));
+});
 
 const LocalGroupPage = ({ classes, documentId: groupId }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   documentId: string,
   groupId?: string,
 }) => {
@@ -222,7 +236,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography
+    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
+    HoverOver, LocalGroupSubscribers, UsersNameDisplay,
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -398,6 +413,17 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             {isEAForum ? <Typography variant="display1" className={classes.groupName}>
               {groupNameHeading}
             </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
+
+            {!isEAForum && <div className={classes.groupOrganizers}>
+              <Person className={classes.organizersIcon}/>
+              <div className={classes.organizedBy}>
+                Organized by: {group.organizers.map((user, i) => <>
+                  {(i>0) && <>,&nbsp;</>}
+                  <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
+                </>)}
+              </div>
+            </div>}
+
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}
@@ -420,13 +446,20 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <SectionFooter className={classes.organizerActions}>
               {canCreateEvent &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
-                  <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
-                    New event
-                  </Link>
+                  <HoverOver
+                    disabled={!isLWorAF}
+                    title={<div>
+                      Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
+                    </div>}
+                  >
+                    <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
+                      New event
+                    </Link>
+                  </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
-                (!isEAForum || isAdmin || isGroupAdmin ) &&
-                <GroupFormLink documentId={groupId} />
+                (!isEAForum || isAdmin || isGroupAdmin) &&
+                  <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>
           </div>
@@ -522,6 +555,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {tbdEventsList}
 
         {pastEventsList}
+        
+        {((isAdmin || isGroupAdmin)) && <LocalGroupSubscribers groupId={groupId}/>}
       </SingleColumnSection>
     </div>
   )

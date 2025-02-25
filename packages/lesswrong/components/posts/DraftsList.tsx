@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
 import { userCanPost } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
@@ -10,7 +10,7 @@ import {Link} from "../../lib/reactRouterWrapper";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ListIcon from '@material-ui/icons/List';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {
     display: 'flex'
   },
@@ -35,7 +35,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   userId?: string,
   showAllDraftsLink?: boolean,
   hideHeaderRow?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { PostsItem, Loading } = Components
@@ -93,7 +93,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
             </Components.SectionButton>
           </Link>
         </div>}
-        <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
+        <div onClick={() => setShowSettings(!showSettings)}>
           <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>

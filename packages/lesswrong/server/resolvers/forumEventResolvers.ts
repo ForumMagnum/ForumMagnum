@@ -1,5 +1,5 @@
 import { captureEvent } from '@/lib/analyticsEvents';
-import { addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 
 
 addGraphQLResolvers({
@@ -47,8 +47,26 @@ addGraphQLResolvers({
       })
       return true
     },
+    RemoveForumEventSticker: async (
+      _root: void,
+      {forumEventId, stickerId}: {forumEventId: string, stickerId: string},
+      {currentUser, repos}: ResolverContext,
+    ) => {
+      if (!currentUser) {
+        throw new Error("Permission denied");
+      }
+
+      await repos.forumEvents.removeSticker({ forumEventId, stickerId, userId: currentUser._id })
+
+      captureEvent("removeForumEventSticker", {
+        forumEventId,
+        userId: currentUser._id
+      })
+      return true;
+    },
   },
 })
 
 addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
+addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean')

@@ -1,8 +1,9 @@
 export const defaultZIndexes = {
-  splashHeaderImageOptions: 2000,
   frontpageBooks: 0,
   frontpageSplashImage: 0,
   sequenceBanner: 0,
+  reviewExpandButton: 1,
+  reviewVotingCanvas: 1,
   modTopBar: 1,
   spotlightItem: 1,
   editorPresenceList: 1,
@@ -21,6 +22,7 @@ export const defaultZIndexes = {
   sidebarHoverOver: 3,
   sidebarActionMenu: 3,
   commentPermalinkIcon: 3,
+  newWikiTagButton: 3,
   reviewVotingMenu: 4,
   singleLineCommentHover: 4,
   questionPageWhitescreen: 4,
@@ -42,6 +44,7 @@ export const defaultZIndexes = {
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
+  splashHeaderImageOptions: 2000,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   afNonMemberPopup: 9999,
   lwPopper: 10000,

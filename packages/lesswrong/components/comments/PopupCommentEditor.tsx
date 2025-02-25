@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import type { CommentsNewFormProps } from './CommentsNewForm';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     width: 600,
@@ -67,7 +67,7 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { CommentsNewForm } = Components;
 

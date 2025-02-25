@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
@@ -12,7 +12,7 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 32,
     position: "relative",
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CollectionsPage = ({ documentId, classes }: {
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);

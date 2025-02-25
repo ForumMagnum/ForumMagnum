@@ -1,8 +1,7 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { Link } from "../../lib/reactRouterWrapper";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
     width: "100%",
@@ -21,14 +20,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const BotSiteBanner = ({ classes }: { classes: ClassesType }) => {
+const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection } = Components;
 
   return (
     <SingleColumnSection className={classes.root}>
       <div>
         Welcome to the EA Forum bot site. If you are trying to access the Forum programmatically (either by scraping or
-        via the api) please use this site rather than <Link to={"https://forum.effectivealtruism.org"}>forum.effectivealtruism.org</Link>.
+        via the api) please use this site rather than <a href="https://forum.effectivealtruism.org">forum.effectivealtruism.org</a>.
         <br />
         <br />
         This site has the same content as the main site, but is run in a separate environment to avoid bots overloading the main site

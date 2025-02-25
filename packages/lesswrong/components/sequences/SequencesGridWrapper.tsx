@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import classNames from 'classnames';
@@ -16,7 +16,7 @@ const SequencesGridWrapper = ({
 }: {
   terms: SequencesViewTerms,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   itemsPerPage?: number,
   showLoadMore?: boolean,
   showAuthor?: boolean,
@@ -30,7 +30,7 @@ const SequencesGridWrapper = ({
   });
   
   if (results && results.length) {
-    return (<div className={classNames(className, classes.gridWrapper)}>
+    return (<div className={className}>
       <Components.SequencesGrid sequences={results} showAuthor={showAuthor} />
       {showLoadMore && <Components.LoadMore {...loadMoreProps} />}
     </div>);

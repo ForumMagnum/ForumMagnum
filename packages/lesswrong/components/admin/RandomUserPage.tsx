@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { gql, useLazyQuery } from '@apollo/client';
 import Button from '@material-ui/core/Button';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: -theme.spacing.mainLayoutPaddingTop,
     padding: "24px 36px 60px",
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RandomUserPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [newTabKeyHeld, setNewTabKeyHeld] = useState(false);

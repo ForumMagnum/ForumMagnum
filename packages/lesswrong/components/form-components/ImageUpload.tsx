@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
-import {Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
@@ -148,7 +148,7 @@ const TriggerButton: FC<{
   uploadImage: () => void,
   label?: string,
   horizontal?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({imageType, imageId, uploadImage, label, horizontal, classes}) => {
   let mainClass = classes.button;
   let showIcon = true;
@@ -176,7 +176,7 @@ const RemoveButton: FC<{
   imageType: ImageType,
   imageId?: string,
   removeImage: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({imageType, imageId, removeImage, classes}) => {
   if (!imageId) {
     return null;
@@ -310,11 +310,6 @@ const ImageUpload = ({
       </div>
     </div>
   );
-};
-
-(ImageUpload as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 const ImageUploadComponent = registerComponent("ImageUpload", ImageUpload, {styles});

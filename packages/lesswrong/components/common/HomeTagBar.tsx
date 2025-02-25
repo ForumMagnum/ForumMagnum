@@ -1,14 +1,13 @@
 import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
 import {useMulti} from '../../lib/crud/withMulti.ts'
 import debounce from 'lodash/debounce'
-import {useNavigate} from '../../lib/reactRouterWrapper.tsx'
-import {useLocation} from '../../lib/routeUtil.tsx'
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 import range from 'lodash/range'
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -162,6 +161,15 @@ const styles = (theme: ThemeType) => ({
     margin: 8,
   }
 })
+
+const eventTabProperties = (event?: ForumEventsDisplay): CSSProperties => {
+  return event
+    ? {
+      "--tag-bar-event-background": event.lightColor,
+      "--tag-bar-event-foreground": event.darkColor,
+    } as CSSProperties
+    : {};
+}
 
 export type TopicsBarTab = {
   _id: string,
@@ -348,16 +356,13 @@ const HomeTagBar = (
                       <button
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {
-                          [classes.activeTab]: isActive && !isEventTab,
+                          [classes.activeTab]: isActive && !(isEventTab),
                           [classes.eventTab]: isEventTab,
                           [classes.activeEventTab]: isActive && isEventTab,
                         })}
                         style={
                           isEventTab
-                            ? {
-                              "--tag-bar-event-background": currentForumEvent.lightColor,
-                              "--tag-bar-event-foreground": currentForumEvent.darkColor,
-                            } as CSSProperties
+                            ? eventTabProperties(currentForumEvent)
                             : undefined
                         }
                       >
