@@ -5,10 +5,8 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import {
   DayOfWeek,
   isLegacyNotificationTypeSettings,
-  legacyDefaultNotificationTypeSettings,
   LegacyNotificationTypeSettings,
   legacyToNewNotificationTypeSettings,
-  newToLegacyNotificationTypeSettings,
   NotificationBatchingFrequency,
   NotificationChannel,
   NotificationChannelSettings,
@@ -16,7 +14,7 @@ import {
 } from "../../lib/collections/users/schema";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -67,11 +65,6 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-interface NotificationSettings extends PickedTime {
-  channel: string;
-  batchingFrequency: string;
-}
-
 type NotificationTypeSettingsProps = {
   path: keyof DbUser;
   value: NotificationTypeSettings | LegacyNotificationTypeSettings;
@@ -79,62 +72,6 @@ type NotificationTypeSettingsProps = {
   label: string;
   classes: ClassesType<typeof styles>;
 };
-
-const BookNotificationTypeSettings = ({ path, value, label, updateCurrentValues, classes }: NotificationTypeSettingsProps) => {
-  const { BatchTimePicker, Typography, MenuItem } = Components;
-  const currentValue = { ...legacyDefaultNotificationTypeSettings, ...value };
-  const cleanValue = newToLegacyNotificationTypeSettings(currentValue);
-
-  const notificationType = getNotificationTypeByUserSetting(path);
-  
-  const modifyValue = (changes: Partial<NotificationSettings>) => {
-    void updateCurrentValues({
-      [path]: legacyToNewNotificationTypeSettings({ ...cleanValue, ...changes } as LegacyNotificationTypeSettings)
-    });
-  }
-  
-  const channelOptions: Record<"none" | "onsite" | "email" | "both", React.ReactNode> = {
-    none: <MenuItem value="none" key="none">Don't notify</MenuItem>,
-    onsite: <MenuItem value="onsite" key="onsite">Notify me on-site</MenuItem>,
-    email: <MenuItem value="email" key="email">Notify me by email</MenuItem>,
-    both: <MenuItem value="both" key="both">Notify me both on-site and by email</MenuItem>
-  }
-  
-  return <div className={classes.root}>
-    <Typography variant="body1" className={classes.label}>{label}</Typography>
-    <Typography variant="body2" component="div" className={classes.channelSettings}>
-      <Select
-        value={cleanValue.channel}
-        onChange={(event) =>
-          modifyValue({ channel: event.target.value })}
-      >
-        {/* TODO this isn't quite working because of the change to allowedChannels */}
-        {notificationType.allowedChannels?.length ?
-          notificationType.allowedChannels.map(channel => channelOptions[channel]) : <></>}
-      </Select>
-      { cleanValue.channel !== "none" && <React.Fragment>
-        {" "}
-        <Select
-          value={cleanValue.batchingFrequency}
-          onChange={(event) =>
-            modifyValue({ batchingFrequency: event.target.value })}
-        >
-          <MenuItem value="realtime">immediately</MenuItem>
-          <MenuItem value="daily">daily</MenuItem>
-          <MenuItem value="weekly">weekly</MenuItem>
-        </Select>
-      </React.Fragment>}
-      { (cleanValue.channel !== "none" && (cleanValue.batchingFrequency==="daily" || cleanValue.batchingFrequency==="weekly")) && <React.Fragment>
-        {" at "}
-        <BatchTimePicker
-          mode={cleanValue.batchingFrequency}
-          value={{timeOfDayGMT: cleanValue.timeOfDayGMT, dayOfWeekGMT: cleanValue.dayOfWeekGMT}}
-          onChange={newBatchTime => modifyValue(newBatchTime)}
-        />
-      </React.Fragment>}
-    </Typography>
-  </div>
-}
 
 const getChannelLabel = (channel: NotificationChannel): string => {
   switch (channel) {
@@ -147,7 +84,7 @@ const getChannelLabel = (channel: NotificationChannel): string => {
   }
 }
 
-const FriendlyNotificationTypeSettings = ({
+const NotificationTypeSettings = ({
   path,
   value,
   updateCurrentValues,
@@ -226,32 +163,6 @@ const FriendlyNotificationTypeSettings = ({
       })}
     </div>
   );
-}
-
-function NotificationTypeSettings({
-  path,
-  value,
-  updateCurrentValues,
-  label,
-  classes
-}: NotificationTypeSettingsProps) {
-  if (isBookUI) {
-    return <BookNotificationTypeSettings
-      path={path}
-      value={newToLegacyNotificationTypeSettings(value)}
-      updateCurrentValues={updateCurrentValues}
-      label={label}
-      classes={classes}
-    />
-  }
-
-  return <FriendlyNotificationTypeSettings
-    path={path}
-    value={value}
-    updateCurrentValues={updateCurrentValues}
-    label={label}
-    classes={classes}
-  />
 }
 
 const NotificationTypeSettingsComponent = registerComponent('NotificationTypeSettings', NotificationTypeSettings, {
