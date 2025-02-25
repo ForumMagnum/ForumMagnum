@@ -1,8 +1,10 @@
-import { convertDocumentIdToIdInSelector, Utils } from '@/lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector } from '@/lib/vulcan-lib/utils';
 import { collectionNameToGraphQLType } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '@/lib/utils/logging';
+import { createMutator, deleteMutator, updateMutator } from '../vulcan-lib/mutators';
+import { performCheck } from '../vulcan-lib/utils';
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
@@ -60,7 +62,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
-        await Utils.performCheck(
+        await performCheck(
           check,
           context.currentUser,
           data,
@@ -71,7 +73,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         );
 
         // pass document to boilerplate createMutator function
-        const returnValue = await Utils.createMutator({
+        const returnValue = await createMutator({
           collection,
           document: data,
           currentUser: context.currentUser,
@@ -138,7 +140,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         }
 
         // check if user can perform operation; if not throw error
-        await Utils.performCheck<T>(
+        await performCheck<T>(
           check,
           context.currentUser,
           document,
@@ -149,7 +151,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           collectionName
         );
 
-        return await Utils.updateMutator({
+        return await updateMutator({
           collection,
           selector,
           data,
@@ -238,7 +240,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           );
         }
 
-        await Utils.performCheck<T>(
+        await performCheck<T>(
           check,
           context.currentUser,
           document,
@@ -251,7 +253,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         // TODO: A problem with deleteMutator types means that it demands a
         // documentId instead of a selector
         // @ts-ignore
-        return await Utils.deleteMutator({
+        return await deleteMutator({
           collection,
           selector,
           currentUser: context.currentUser,
