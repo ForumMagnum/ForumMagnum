@@ -4,7 +4,7 @@ import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 export function getMiscDbIndexes() {
   const indexSet = new DatabaseIndexSet();
   
-  for (const collection of getAllCollections()) {
+  for (const collection of getAllCollections().filter(c => 'schemaVersion' in c._schemaFields)) {
     indexSet.addIndex(collection.collectionName, {schemaVersion:1});
   }
 

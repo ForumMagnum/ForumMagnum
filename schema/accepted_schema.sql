@@ -632,9 +632,6 @@ CREATE TABLE "CronHistories" (
   "result" JSONB
 );
 
--- Index "idx_CronHistories_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_CronHistories_schemaVersion" ON "CronHistories" USING btree ("schemaVersion");
-
 -- Index "idx_CronHistories_startedAt"
 CREATE INDEX IF NOT EXISTS "idx_CronHistories_startedAt" ON "CronHistories" USING btree ("startedAt");
 
@@ -866,9 +863,6 @@ CREATE TABLE "ElicitQuestionPredictions" (
   "binaryQuestionId" VARCHAR(27) NOT NULL,
   "isDeleted" BOOL NOT NULL DEFAULT FALSE
 );
-
--- Index "idx_ElicitQuestionPredictions_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_ElicitQuestionPredictions_schemaVersion" ON "ElicitQuestionPredictions" USING btree ("schemaVersion");
 
 -- Table "ElicitQuestions"
 CREATE TABLE "ElicitQuestions" (
@@ -2650,9 +2644,6 @@ CREATE TABLE "Sessions" (
   "expires" TIMESTAMPTZ,
   "lastModified" TIMESTAMPTZ
 );
-
--- Index "idx_Sessions_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Sessions_schemaVersion" ON "Sessions" USING btree ("schemaVersion");
 
 -- Index "idx_Sessions__id_expires"
 CREATE INDEX IF NOT EXISTS "idx_Sessions__id_expires" ON "Sessions" USING btree ("_id", "expires");
