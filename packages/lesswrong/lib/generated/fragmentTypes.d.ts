@@ -540,10 +540,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
   readonly karmaChangeNotifierSettings: {
-    showNegativeKarma: boolean,
-    updateFrequency: "realtime" | "daily" | "weekly" | "disabled",
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   },
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeBatchStart: Date,
@@ -3530,10 +3530,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noSingleLineComments: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly karmaChangeNotifierSettings: {
-    showNegativeKarma: boolean,
-    updateFrequency: "realtime" | "daily" | "weekly" | "disabled",
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   },
   readonly karmaChangeLastOpened: Date,
   readonly shortformFeedId: string,
@@ -3810,10 +3810,10 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly afSubmittedApplication: boolean,
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeNotifierSettings: {
-    showNegativeKarma: boolean,
-    updateFrequency: "realtime" | "daily" | "weekly" | "disabled",
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   },
   readonly notificationShortformContent: {
     onsite: {

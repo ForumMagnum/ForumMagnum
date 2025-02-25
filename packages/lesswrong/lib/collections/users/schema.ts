@@ -258,42 +258,47 @@ export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificatio
 // End migration of NotificationTypeSettings //
 ///////////////////////////////////////////////
 
-const KARMA_NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
-  "realtime",
+const karmaChangeUpdateFrequencies = new TupleSet([
+  "disabled",
   "daily",
   "weekly",
-  "disabled"
+  "realtime",
 ] as const);
-export type KarmaNotificationBatchingFrequency = UnionOf<typeof KARMA_NOTIFICATION_BATCHING_FREQUENCIES>;
-export type KarmaChangeSettings = {
-  updateFrequency: KarmaNotificationBatchingFrequency,
-  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
-  timeOfDayGMT: number,
-  /** Day of week at which weekly updates are released, always in GMT */
+
+export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
+export interface KarmaChangeSettingsType {
+  updateFrequency: KarmaChangeUpdateFrequency
+  /**
+   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
+   */
+  timeOfDayGMT: number
   dayOfWeekGMT: DayOfWeek
   showNegativeKarma: boolean
 }
-const karmaChangeSettingsSchema = new SimpleSchema({
-  showNegativeKarma: {
-    type: Boolean,
-    optional: true,
-  },
+const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
-    allowedValues: Array.from(KARMA_NOTIFICATION_BATCHING_FREQUENCIES),
+    optional: true,
+    allowedValues: Array.from(karmaChangeUpdateFrequencies),
   },
   timeOfDayGMT: {
     type: SimpleSchema.Integer,
+    optional: true,
     min: 0,
     max: 23
   },
   dayOfWeekGMT: {
     type: String,
+    optional: true,
     allowedValues: Array.from(DAYS_OF_WEEK)
+  },
+  showNegativeKarma: {
+    type: Boolean,
+    optional: true,
   },
 })
 
-export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettings>({
+export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
   EAForum: {
     updateFrequency: "realtime",
     timeOfDayGMT: 11, // 3am PST
@@ -1790,7 +1795,7 @@ const schema: SchemaType<"Users"> = {
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
-    type: karmaChangeSettingsSchema, // See KarmaChangeNotifierSettings.tsx
+    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.tsx
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],

@@ -2099,10 +2099,10 @@ interface DbUser extends DbObject {
   showRecommendedPartners: boolean
   hideActiveDialogueUsers: boolean
   karmaChangeNotifierSettings: {
-    showNegativeKarma: boolean,
-    updateFrequency: "realtime" | "daily" | "weekly" | "disabled",
+    updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    showNegativeKarma: boolean,
   }
   karmaChangeLastOpened: Date | null
   karmaChangeBatchStart: Date | null

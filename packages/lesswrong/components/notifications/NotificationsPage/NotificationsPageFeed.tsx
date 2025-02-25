@@ -11,7 +11,7 @@ import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 import { useNotificationDisplays } from "./useNotificationDisplays";
-import { KarmaNotificationBatchingFrequency } from "@/lib/collections/users/schema";
+import { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
 
 const DEFAULT_LIMIT = 20;
 
-const batchingMessages: Record<KarmaNotificationBatchingFrequency, string> = {
+const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
   disabled: "Karma change batching is disabled",
   daily: "Karma changes are batched daily",
   weekly: "Karma changes are batched weekly",
