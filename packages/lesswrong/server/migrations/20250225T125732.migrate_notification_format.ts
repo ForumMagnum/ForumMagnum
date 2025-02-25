@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Users from "@/lib/collections/users/collection";
 import usersSchema, { LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings, NotificationTypeSettings } from "@/lib/collections/users/schema";
 import { updateDefaultValue } from "./meta/utils";
