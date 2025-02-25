@@ -7,11 +7,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
-import { isEAForum } from "@/lib/instanceSettings";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    background: isEAForum ? theme.palette.grey[55] : 'transparent',
+    background: isFriendlyUI ? theme.palette.grey[55] : 'transparent',
     padding: "60px 0 80px 0",
     marginTop: 60,
     [theme.breakpoints.down('sm')]: {
@@ -45,9 +45,22 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAForumWrapperComponent = ({children}: {children: React.ReactNode}) => {
+const WrapperComponent = ({hasTableOfContents, children}: {
+  hasTableOfContents: boolean
+  children: React.ReactNode
+}) => {
   const { ToCColumn } = Components;
-  return <ToCColumn tableOfContents={<div />} notHideable>{children}</ToCColumn>;
+  
+  if (isFriendlyUI) {
+    return <ToCColumn
+      tableOfContents={hasTableOfContents ? <div /> : null}
+      notHideable
+    >
+      {children}
+    </ToCColumn>;
+  } else {
+    return <>{children}</>
+  }
 };
 
 const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
@@ -90,7 +103,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     fragmentName: "PostsListWithVotes",
     post,
     maxAgeInDays: 60,
-    ssr
+    ssr,
+    skip: !isFriendlyUI,
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -102,13 +116,10 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     PostsLoading, EAPostsItem, EALargePostsItem, UserTooltip, PostsItem
   } = Components;
 
-  const WrapperComponent = isEAForum ? EAForumWrapperComponent : React.Fragment;
-
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <WrapperComponent>
-
+        <WrapperComponent hasTableOfContents={!!hasTableOfContents}>
           <div>
             {hasUserPosts &&
               <div className={classes.section}>
@@ -122,9 +133,9 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                   <PostsLoading />
                 }
                 <AnalyticsContext pageSubSectionContext="moreFromAuthor">
-                  {moreFromAuthorPosts?.map((post) => (
-                    isEAForum ? <EAPostsItem key={post._id} post={post} /> : <PostsItem key={post._id} post={post} />
-                  ))}
+                  {moreFromAuthorPosts?.map((post) => 
+                    <PostsItem key={post._id} post={post} />
+                  )}
                   <div className={classes.viewMore}>
                     <Link to={profileUrl}>
                       View more
@@ -142,7 +153,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
               }
               <AnalyticsContext pageSubSectionContext="curatedAndPopular">
                 {curatedAndPopularPosts?.map((post) => (
-                  isEAForum ? <EALargePostsItem
+                  isFriendlyUI ? <EALargePostsItem
                     key={post._id}
                     post={post}
                     className={classes.largePostItem}
@@ -151,7 +162,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                 ))}
               </AnalyticsContext>
             </div>
-            {isEAForum && <div className={classes.section}>
+            {isFriendlyUI && <div className={classes.section}>
               <div className={classes.sectionHeading}>
                 {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
