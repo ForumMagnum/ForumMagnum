@@ -151,7 +151,7 @@ export const defaultNotificationTypeSettings: NotificationTypeSettings = {
 export type LegacyNotificationTypeSettings = {
   channel: "none" | "onsite" | "email" | "both";
   batchingFrequency: "realtime" | "daily" | "weekly";
-  timeOfDayGMT: number;
+  timeOfDayGMT: number; // 0 to 23
   dayOfWeekGMT: DayOfWeek;
 };
 
@@ -201,13 +201,13 @@ export function legacyToNewNotificationTypeSettings(legacyFormat: LegacyNotifica
   return {
     onsite: {
       enabled: onsiteEnabled,
-      batchingFrequency: onsiteEnabled ? batchingFrequency : defaultNotificationTypeSettings.onsite.batchingFrequency,
+      batchingFrequency,
       timeOfDayGMT,
       dayOfWeekGMT,
     },
     email: {
       enabled: emailEnabled,
-      batchingFrequency: emailEnabled ? batchingFrequency : defaultNotificationTypeSettings.email.batchingFrequency,
+      batchingFrequency,
       timeOfDayGMT,
       dayOfWeekGMT,
     },
