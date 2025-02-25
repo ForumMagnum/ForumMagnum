@@ -36,6 +36,8 @@ import { slugify } from '@/lib/utils/slugify';
 import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
+import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
 
 type ArbitalImportOptions = {
   /**
@@ -2314,11 +2316,23 @@ async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: string, 
   }
   const matchedUsers = await loadUserMatching(options.userMatchingFile);
 
-  const lenses =  await MultiDocuments.find({
+  const lenses = await MultiDocuments.find({
     "legacyData.arbitalLensId": { $exists: true },
     collectionName: "Tags",
     fieldName: "description",
   }).fetch();
+
+  // Create array to store mismatches
+  const mismatches: Array<{
+    lensTitle: string | null,
+    lensId: string,
+    revisionId: string,
+    revisionUserId: string | null,
+    lensUserId: string,
+    arbitalLensId: string,
+    arbitalFirstRevisionUserId: string,
+    matchedUserId: string,
+  }> = [];
 
   for (const lens of lenses) {
     // get the first revision
@@ -2347,7 +2361,7 @@ async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: string, 
     }
 
     if (initialRevision.userId !== matchedUser._id) {
-      console.log("Correcting record for", {
+      const mismatch = {
         lensTitle: lens.title,
         lensId: lens._id,
         revisionId: initialRevision._id,
@@ -2356,17 +2370,41 @@ async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: string, 
         arbitalLensId: lens.legacyData.arbitalLensId,
         arbitalFirstRevisionUserId: arbitalFirstRevision.creatorId,
         matchedUserId: matchedUser._id,
-      })
+      };
+      
+      console.log("Correcting record for", mismatch);
+
+      await Revisions.rawUpdateOne({
+        _id: initialRevision._id,
+      }, {
+        $set: { userId: matchedUser._id },
+      });
+
+      await updateDenormalizedHtmlAttributions({
+        document: lens,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      });
+      await updateDenormalizedContributorsList({
+        document: lens,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      });
+
+      mismatches.push(mismatch);
     }
-
-    // // update the revision with the matched user id
-    await Revisions.rawUpdateOne({
-      _id: initialRevision._id,
-    }, {
-      $set: { userId: matchedUser._id },
-    });
-
   }
+
+  // Write mismatches to file
+  if (mismatches.length > 0) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `arbital-lens-user-mismatches-prod-${timestamp}.json`;
+    fs.writeFileSync(filename, JSON.stringify(mismatches, null, 2));
+    console.log(`Wrote ${mismatches.length} mismatches to ${filename}`);
+  } else {
+    console.log("No mismatches found");
+  }
+
 }
 
 Globals.fixArbitalLensFirstRevisionUserId = fixArbitalLensFirstRevisionUserId;
