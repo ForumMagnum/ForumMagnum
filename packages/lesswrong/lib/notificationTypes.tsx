@@ -657,7 +657,6 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  allowedChannels: ["onsite", "email"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
@@ -729,7 +728,6 @@ export const PostSharedWithUserNotification = registerNotificationType({
 export const PostAddedAsCoauthorNotification = registerNotificationType({
   name: "addedAsCoauthor",
   userSettingField: "notificationAddedAsCoauthor",
-  allowedChannels: ["onsite", "email"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbPost;
     const name = await postGetAuthorName(document);

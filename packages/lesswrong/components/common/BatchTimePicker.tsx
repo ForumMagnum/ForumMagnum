@@ -20,10 +20,11 @@ export interface PickedTime {
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange}: {
+const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
   mode: string,
   value: PickedTime,
   onChange: (value: PickedTime) => void,
+  disabled?: boolean,
 }) => {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
@@ -44,6 +45,7 @@ const BatchTimePicker = ({ mode, value, onChange}: {
       <Select
         value={timeOfDay}
         onChange={(event) => applyChange({ timeOfDay: parseInt(event.target.value) })}
+        disabled={disabled}
       >
         { _.range(24).map(hour =>
             <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
@@ -55,8 +57,10 @@ const BatchTimePicker = ({ mode, value, onChange}: {
     
     { mode==="weekly" && <span>
         {" on "}
-        <Select value={dayOfWeek}
+        <Select
+          value={dayOfWeek}
           onChange={(event) => applyChange({ dayOfWeek: event.target.value })}
+          disabled={disabled}
         >
           <MenuItem value="Sunday">Sunday</MenuItem>
           <MenuItem value="Monday">Monday</MenuItem>

@@ -1700,336 +1700,392 @@ interface DbUser extends DbObject {
   autoSubscribeAsOrganizer: boolean
   notificationCommentsOnSubscribedPost: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationShortformContent: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationRepliesToMyComments: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationRepliesToSubscribedComments: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationSubscribedUserPost: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationSubscribedUserComment: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationPostsInGroups: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationSubscribedTagPost: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationSubscribedSequencePost: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationPrivateMessage: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationSharedWithMe: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationAlignmentSubmissionApproved: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationEventInRadius: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationKarmaPowersGained: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationRSVPs: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationGroupAdministration: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationCommentsOnDraft: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationPostsNominatedReview: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationSubforumUnread: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationNewMention: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationDialogueMessages: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationPublishedDialogueMessages: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationAddedAsCoauthor: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationDebateCommentsOnSubscribedPost: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationDebateReplies: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationDialogueMatch: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationNewDialogueChecks: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
   notificationYourTurnMatchForm: {
     onsite: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
     email: {
-      batchingFrequency: "realtime" | "daily" | "weekly" | "disabled",
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
       timeOfDayGMT: number,
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },

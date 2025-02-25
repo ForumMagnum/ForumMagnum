@@ -203,7 +203,7 @@ export const createNotification = async ({
   }
 
   const { onsite, email } = notificationTypeSettings;
-  if (onsite.batchingFrequency !== "disabled") {
+  if (onsite.enabled) {
     const createdNotification = await createMutator({
       collection: Notifications,
       document: {
@@ -223,7 +223,7 @@ export const createNotification = async ({
       });
     }
   }
-  if (email.batchingFrequency !== 'disabled' && !noEmail) {
+  if (email.enabled && !noEmail) {
     const createdNotification = await createMutator({
       collection: Notifications,
       document: {

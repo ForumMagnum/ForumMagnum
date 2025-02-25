@@ -78,7 +78,6 @@ const NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
   "realtime",
   "daily",
   "weekly",
-  "disabled",
 ] as const);
 export type NotificationBatchingFrequency = UnionOf<typeof NOTIFICATION_BATCHING_FREQUENCIES>;
 
@@ -86,6 +85,11 @@ const DAYS_OF_WEEK = new TupleSet(["Monday", "Tuesday", "Wednesday", "Thursday",
 export type DayOfWeek = UnionOf<typeof DAYS_OF_WEEK>;
 
 export type NotificationChannelSettings = {
+  enabled: boolean,
+  /**
+   * Frequency at which we send batched notifications. When enabled is false, this doesn't apply, but is persisted
+   * so the user can restore their old settings
+   */
   batchingFrequency: NotificationBatchingFrequency,
   /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
   timeOfDayGMT: number,
@@ -93,6 +97,9 @@ export type NotificationChannelSettings = {
   dayOfWeekGMT: DayOfWeek
 }
 const notificationChannelSettingsSchema = new SimpleSchema({
+  enabled: {
+    type: Boolean,
+  },
   batchingFrequency: {
     type: String,
     allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
@@ -119,12 +126,14 @@ const notificationTypeSettingsSchema = new SimpleSchema({
 });
 export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   onsite: {
+    enabled: true,
     batchingFrequency: "realtime",
     timeOfDayGMT: 12,
     dayOfWeekGMT: "Monday",
   },
   email: {
-    batchingFrequency: "disabled",
+    enabled: false,
+    batchingFrequency: "realtime",
     timeOfDayGMT: 12,
     dayOfWeekGMT: "Monday",
   }
@@ -186,14 +195,19 @@ export function legacyToNewNotificationTypeSettings(legacyFormat: LegacyNotifica
 
   const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = legacyFormat;
 
+  const onsiteEnabled = (channel === "both" || channel === "onsite");
+  const emailEnabled = (channel === "both" || channel === "email");
+
   return {
     onsite: {
-      batchingFrequency: (channel === "both" || channel === "onsite") ? batchingFrequency : "disabled",
+      enabled: onsiteEnabled,
+      batchingFrequency: onsiteEnabled ? batchingFrequency : defaultNotificationTypeSettings.onsite.batchingFrequency,
       timeOfDayGMT,
       dayOfWeekGMT,
     },
     email: {
-      batchingFrequency: (channel === "both" || channel === "email") ? batchingFrequency : "disabled",
+      enabled: emailEnabled,
+      batchingFrequency: emailEnabled ? batchingFrequency : defaultNotificationTypeSettings.email.batchingFrequency,
       timeOfDayGMT,
       dayOfWeekGMT,
     },
@@ -207,17 +221,17 @@ export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificatio
   const { onsite, email } = newFormat;
 
   let channel: "none" | "onsite" | "email" | "both" = "none";
-  if (onsite.batchingFrequency !== "disabled" && email.batchingFrequency !== "disabled") {
+  if (onsite.enabled && email.enabled) {
     channel = "both";
-  } else if (onsite.batchingFrequency !== "disabled") {
+  } else if (onsite.enabled) {
     channel = "onsite";
-  } else if (email.batchingFrequency !== "disabled") {
+  } else if (email.enabled) {
     channel = "email";
   }
 
   // Not a one-to-one mapping here because the old format doesn't support different settings for each channel
   // when both are enabled. If this is the case, choose the faster frequency for both
-  let batchingFrequency: "realtime" | "daily" | "weekly" = "realtime";
+  let batchingFrequency: NotificationBatchingFrequency = legacyDefaultNotificationTypeSettings.batchingFrequency;
   if (channel === "both") {
     const frequencies = [onsite.batchingFrequency, email.batchingFrequency];
     if (frequencies.includes("realtime")) {
@@ -227,10 +241,8 @@ export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificatio
     } else {
       batchingFrequency = "weekly";
     }
-  } else if (channel === "onsite" && onsite.batchingFrequency !== "disabled") {
-    batchingFrequency = onsite.batchingFrequency;
-  } else if (channel === "email" && email.batchingFrequency !== "disabled") {
-    batchingFrequency = email.batchingFrequency;
+  } else {
+    batchingFrequency = channel === "onsite" ? onsite.batchingFrequency : email.batchingFrequency;
   }
 
   // Use onsite settings as the default for time and day, assuming they are the same for both
@@ -246,9 +258,15 @@ export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificatio
 // End migration of NotificationTypeSettings //
 ///////////////////////////////////////////////
 
-
+const KARMA_NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
+  "realtime",
+  "daily",
+  "weekly",
+  "disabled"
+] as const);
+export type KarmaNotificationBatchingFrequency = UnionOf<typeof KARMA_NOTIFICATION_BATCHING_FREQUENCIES>;
 export type KarmaChangeSettings = {
-  updateFrequency: NotificationBatchingFrequency,
+  updateFrequency: KarmaNotificationBatchingFrequency,
   /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
   timeOfDayGMT: number,
   /** Day of week at which weekly updates are released, always in GMT */
@@ -262,7 +280,7 @@ const karmaChangeSettingsSchema = new SimpleSchema({
   },
   updateFrequency: {
     type: String,
-    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
+    allowedValues: Array.from(KARMA_NOTIFICATION_BATCHING_FREQUENCIES),
   },
   timeOfDayGMT: {
     type: SimpleSchema.Integer,
@@ -1569,7 +1587,7 @@ const schema: SchemaType<"Users"> = {
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
@@ -1577,51 +1595,51 @@ const schema: SchemaType<"Users"> = {
   },
   notificationSubscribedSequencePost: {
     label: "Posts added to sequences I'm subscribed to",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
     hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
     hidden: !isLWorAF,
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} })
+    ...notificationTypeSettingsField({ email: { enabled: true } })
   },
   notificationEventInRadius: {
     label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationKarmaPowersGained: {
     label: "Karma powers gained",
     hidden: true,
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationGroupAdministration: {
     label: "Group administration notifications",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationCommentsOnDraft: {
     label: "Comments on unpublished draft posts I've shared",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationPostsNominatedReview: {
     label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
     // Hide this while review is inactive
     hidden: true,
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   notificationSubforumUnread: {
     label: `New discussions in topics I'm subscribed to`,
@@ -1633,7 +1651,7 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
     hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
@@ -1643,7 +1661,7 @@ const schema: SchemaType<"Users"> = {
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
@@ -1658,12 +1676,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
-    ...notificationTypeSettingsField({ email: {batchingFrequency: "realtime"} }),
+    ...notificationTypeSettingsField({ email: { enabled: true } }),
     hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ onsite: { batchingFrequency: "disabled" } }),
+    ...notificationTypeSettingsField({ onsite: { enabled: false } }),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {

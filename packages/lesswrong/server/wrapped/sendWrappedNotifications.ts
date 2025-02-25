@@ -47,12 +47,14 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     extraData: {year},
     fallbackNotificationTypeSettings: {
       onsite: {
+        enabled: true,
         batchingFrequency: "realtime",
         timeOfDayGMT: 12,
         dayOfWeekGMT: "Monday",
       },
       email: {
-        batchingFrequency: "disabled",
+        enabled: false,
+        batchingFrequency: "realtime",
         timeOfDayGMT: 12,
         dayOfWeekGMT: "Monday",
       }
@@ -69,11 +71,13 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     extraData: {year},
     fallbackNotificationTypeSettings: {
       onsite: {
-        batchingFrequency: "disabled",
+        enabled: false,
+        batchingFrequency: "realtime",
         timeOfDayGMT: 12,
         dayOfWeekGMT: "Monday",
       },
       email: {
+        enabled: true,
         batchingFrequency: "realtime",
         timeOfDayGMT: 12,
         dayOfWeekGMT: "Monday",

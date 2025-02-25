@@ -17,21 +17,53 @@ import {
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    padding: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px"
   },
   label: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
-  channelSettings: {
-    paddingLeft: 20,
-    display: "flex",
-    justifyContent: "space-between"
+  channelLabel: {
+    fontSize: 13
   },
-  channelEnabledSettings: {
+  channelSettings: {
+    paddingLeft: 8,
     display: "flex",
+    gap: "8px",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontSize: 13,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 0,
+    }
+  },
+  channelSettingsDetails: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "4px",
+    ...theme.typography.body2,
+    fontSize: 13,
+    "&>*": {
+      whiteSpace: "nowrap"
+    }
+  },
+  channelSettingsDisabled: {
+    color: theme.palette.grey[600]
+  },
+  toggle: {
+    alignItems: "center",
+    marginRight: 8,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+    }
   }
 })
 
@@ -104,6 +136,17 @@ const BookNotificationTypeSettings = ({ path, value, label, updateCurrentValues,
   </div>
 }
 
+const getChannelLabel = (channel: NotificationChannel): string => {
+  switch (channel) {
+    case "onsite":
+      return "on-site";
+    case "email":
+      return "by email";
+    default:
+      return "";
+  }
+}
+
 const FriendlyNotificationTypeSettings = ({
   path,
   value,
@@ -129,31 +172,24 @@ const FriendlyNotificationTypeSettings = ({
 
   return (
     <div className={classes.root}>
-      <div>
-        <Typography variant="body1" className={classes.label}>
-          {label}
-        </Typography>
-      </div>
+      <Typography variant="body1" className={classes.label}>
+        {label}
+      </Typography>
       {notificationType.allowedChannels?.map((channel: NotificationChannel) => {
-        const channelSettings = cleanValue[channel] || {
-          batchingFrequency: "disabled",
-          timeOfDayGMT: 0,
-          dayOfWeekGMT: "Monday",
-        };
-
-        const toggleEnabled = (val: boolean) => modifyChannelValue(channel, { batchingFrequency: val ? "daily" : "disabled" })
+        const channelSettings: NotificationChannelSettings = cleanValue[channel];
 
         return (
           <div key={channel} className={classes.channelSettings}>
-            <div className={classes.channelEnabledSettings}>
-              <Typography variant="body2" component="div">
-                Notify me on-site
-              </Typography>
+            <div className={classNames(classes.channelSettingsDetails, { [classes.channelSettingsDisabled]: !channelSettings.enabled })}>
+              Notify me {getChannelLabel(channel)}
               <Select
                 value={channelSettings.batchingFrequency}
                 onChange={(event) =>
-                  modifyChannelValue(channel, { batchingFrequency: event.target.value as NotificationBatchingFrequency })
+                  modifyChannelValue(channel, {
+                    batchingFrequency: event.target.value as NotificationBatchingFrequency,
+                  })
                 }
+                disabled={!channelSettings.enabled}
               >
                 <MenuItem value="realtime">immediately</MenuItem>
                 <MenuItem value="daily">daily</MenuItem>
@@ -174,11 +210,17 @@ const FriendlyNotificationTypeSettings = ({
                         dayOfWeekGMT: newPickedTime.dayOfWeekGMT as DayOfWeek,
                       })
                     }
+                    disabled={!channelSettings.enabled}
                   />
                 </>
               )}
             </div>
-            <ToggleSwitch value={channelSettings.batchingFrequency !== "disabled"} setValue={toggleEnabled} smallVersion />
+            <ToggleSwitch
+              value={channelSettings.enabled}
+              setValue={(val) => modifyChannelValue(channel, { enabled: val })}
+              className={classes.toggle}
+              smallVersion
+            />
           </div>
         );
       })}

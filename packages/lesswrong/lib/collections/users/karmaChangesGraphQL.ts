@@ -3,7 +3,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 import type { TagCommentType } from "../../collections/comments/types";
-import type { NotificationBatchingFrequency } from "./schema";
+import type { KarmaNotificationBatchingFrequency, NotificationBatchingFrequency } from "./schema";
 
 // When adding fields here, you almost certainly want to update the
 // `UserKarmaChanges` fragment too
@@ -148,7 +148,7 @@ export type KarmaChanges = {
   startDate?: Date,
   endDate?: Date,
   nextBatchDate?: Date,
-  updateFrequency: NotificationBatchingFrequency,
+  updateFrequency: KarmaNotificationBatchingFrequency,
   posts: PostKarmaChange[],
   comments: CommentKarmaChange[],
   tagRevisions: TagRevisionKarmaChange[],

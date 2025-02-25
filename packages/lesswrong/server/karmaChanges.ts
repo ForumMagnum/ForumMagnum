@@ -1,7 +1,7 @@
 import { Tags } from '../lib/collections/tags/collection';
 import {
   KarmaChangeSettings,
-  NotificationBatchingFrequency,
+  KarmaNotificationBatchingFrequency,
   karmaChangeNotifierDefaultSettings,
 } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
@@ -70,7 +70,7 @@ const getEAKarmaChanges = async (
   votesRepo: VotesRepo,
   args: KarmaChangesArgs,
   nextBatchDate: Date|null,
-  updateFrequency: NotificationBatchingFrequency,
+  updateFrequency: KarmaNotificationBatchingFrequency,
 ): Promise<KarmaChanges> => {
   const changes = await votesRepo.getEAKarmaChanges(args);
   const newChanges = categorizeKarmaChanges(changes)
