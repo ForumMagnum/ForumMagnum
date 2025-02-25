@@ -327,12 +327,13 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
-const notificationTypeSettingsField = (overrideSettings?: PartialDeep<NotificationTypeSettings>) => {
-  const defaultValue = {
-    onsite: { ...defaultNotificationTypeSettings.onsite, ...overrideSettings?.onsite },
-    email: { ...defaultNotificationTypeSettings.email, ...overrideSettings?.email }
+const mergeNotificationSettings = (override?: PartialDeep<NotificationTypeSettings>, base: NotificationTypeSettings = defaultNotificationTypeSettings) => {
+  return {
+    onsite: { ...base.onsite, ...override?.onsite },
+    email: { ...base.email, ...override?.email }
   }
-
+}
+const notificationTypeSettingsField = (defaultValue: NotificationTypeSettings | DeferredForumSelect<NotificationTypeSettings> = defaultNotificationTypeSettings) => {
   // TODO remove once migration is complete
   const migrationFields = {
     blackbox: true
@@ -1642,7 +1643,10 @@ const schema: SchemaType<"Users"> = {
 
   notificationCommentsOnSubscribedPost: {
     label: `Comments on posts/events I'm subscribed to`,
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily"}}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationShortformContent: {
     label: isEAForum
@@ -1652,23 +1656,24 @@ const schema: SchemaType<"Users"> = {
   },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRepliesToSubscribedComments: {
     label: "Replies to comments I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
-    onCreate: () => {
-      if (!isLWorAF) {
-        return {
-          onsite: { ...defaultNotificationTypeSettings.onsite },
-          email: { ...defaultNotificationTypeSettings.email, enabled: true },
-        };
-      }
-    }
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationSubscribedUserComment: {
     label: "Comments by users I'm subscribed to",
@@ -1678,7 +1683,7 @@ const schema: SchemaType<"Users"> = {
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
@@ -1686,55 +1691,58 @@ const schema: SchemaType<"Users"> = {
   },
   notificationSubscribedSequencePost: {
     label: "Posts added to sequences I'm subscribed to",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
     hidden: !isLWorAF,
-    ...notificationTypeSettingsField({ email: { enabled: true } })
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } }))
   },
   notificationEventInRadius: {
     label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
-  notificationKarmaPowersGained: {
+  notificationKarmaPowersGained: { // TODO fix in prev PR
     label: "Karma powers gained",
     hidden: true,
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationGroupAdministration: {
     label: "Group administration notifications",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationCommentsOnDraft: {
     label: "Comments on unpublished draft posts I've shared",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationPostsNominatedReview: {
     label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
     // Hide this while review is inactive
     hidden: true,
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSubforumUnread: {
     label: `New discussions in topics I'm subscribed to`,
-    ...notificationTypeSettingsField({ onsite: { batchingFrequency: "daily" } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { batchingFrequency: "daily" } })),
   },
   notificationNewMention: {
     label: "Someone has mentioned me in a post or a comment",
@@ -1742,7 +1750,7 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
@@ -1752,12 +1760,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ onsite: { batchingFrequency: 'daily' } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { batchingFrequency: 'daily' } })),
     hidden: !isLW,
   },
   notificationDebateReplies: {
@@ -1767,12 +1775,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ onsite: { enabled: false } }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { enabled: false } })),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {
