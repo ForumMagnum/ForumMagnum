@@ -1628,7 +1628,7 @@ const schema: SchemaType<"Users"> = {
   notificationKarmaPowersGained: {
     label: "Karma powers gained",
     hidden: true,
-    ...notificationTypeSettingsField({ email: { enabled: true } }),
+    ...notificationTypeSettingsField(),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",

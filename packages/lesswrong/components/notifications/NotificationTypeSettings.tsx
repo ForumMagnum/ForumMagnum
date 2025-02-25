@@ -9,7 +9,6 @@ import {
   NotificationBatchingFrequency,
   NotificationChannel,
   NotificationChannelSettings,
-  isLegacyNotificationTypeSettings,
 } from "../../lib/collections/users/schema";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
@@ -102,7 +101,7 @@ const NotificationTypeSettingsWidget = ({
       [channel]: { ...cleanValue[channel], ...changes }
     };
     updateCurrentValues({ [path]: newSettings });
-  }, [value, cleanValue, updateCurrentValues, path]);
+  }, [cleanValue, updateCurrentValues, path]);
 
   return (
     <div className={classes.root}>
