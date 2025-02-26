@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useVote } from "./withVote";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
 import classNames from "classnames";

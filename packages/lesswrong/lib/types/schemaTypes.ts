@@ -22,7 +22,8 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
-type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
+type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
+type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
@@ -106,6 +107,13 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
+interface CountOfReferenceOptions {
+  foreignCollectionName: CollectionNameString
+  foreignFieldName: string
+  filterFn?: (obj: AnyBecauseHard) => boolean
+  resyncElastic: boolean
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -171,13 +179,10 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   order?: number,
   label?: string,
   tooltip?: string,
-  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
   group?: FormGroupType<N>,
-  inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
@@ -209,12 +214,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   }) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 
-  countOfReferences?: {
-    foreignCollectionName: CollectionNameString
-    foreignFieldName: string
-    filterFn?: (obj: AnyBecauseHard) => boolean
-    resyncElastic: boolean
-  }
+  countOfReferences?: CountOfReferenceOptions
 }
 
 /** Field specification for a Form field, created from the collection schema */
@@ -226,7 +226,7 @@ type FormField<N extends CollectionNameString> = Pick<
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
+  input: FormInputType
   label: string
   help: string
   path: string
@@ -246,7 +246,8 @@ type FormGroupType<N extends CollectionNameString> = {
   startCollapsed?: boolean,
   helpText?: string,
   hideHeader?: boolean,
-  layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  //layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  layoutComponent?: keyof ComponentTypes
   layoutComponentProps?: Partial<FormGroupLayoutProps>,
   fields?: FormField<N>[]
 }

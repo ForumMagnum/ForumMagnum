@@ -1,10 +1,12 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
+import { userCanDo } from '../../vulcan-users/permissions';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagFlags"> = {
   name: {
@@ -36,13 +38,6 @@ const schema: SchemaType<"TagFlags"> = {
 };
 
 
-const adminActions = [
-  'tagFlags.new',
-  'tagFlags.edit.all',
-];
-
-adminsGroup.can(adminActions);
-
 const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
@@ -65,6 +60,11 @@ export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('TagFlags', {deleted: 1, order: 1, name: 1});
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),
   logChanges: true,

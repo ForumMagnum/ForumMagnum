@@ -1,7 +1,7 @@
-import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { addUniversalFields } from "../../collectionUtils";
-import { createCollection } from "../../vulcan-lib";
+import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 /**
  * Tweets that have been posted by the forum twitter bot. Currently (2024-07-02)
@@ -11,14 +11,17 @@ const Tweets: TweetsCollection = createCollection({
   collectionName: "Tweets",
   typeName: "Tweet",
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Tweets', {postId: 1});
+    indexSet.addIndex('Tweets', {tweetId: 1});
+    return indexSet;
+  },
   logChanges: true,
 });
 
 addUniversalFields({
   collection: Tweets,
 });
-
-ensureIndex(Tweets, {postId: 1});
-ensureIndex(Tweets, {tweetId: 1});
 
 export default Tweets;

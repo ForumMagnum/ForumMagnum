@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import AddAlarmIcon from '@material-ui/icons/AddAlarm';

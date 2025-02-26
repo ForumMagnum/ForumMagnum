@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import PropTypes from 'prop-types'
 import Input from '@material-ui/core/Input';
@@ -60,13 +60,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}: {
+const EditSequenceTitle = ({value, path, placeholder, updateCurrentValues, classes}: FormComponentProps<string> & {
   classes: ClassesType<typeof styles>;
-  inputProperties: any;
-  value: string;
-  path: string;
-  placeholder?: string;
-}, context: any) => {
+}) => {
   return <div className={classes.root}>
     <div className={classes.imageScrim}/>
     <div className={classes.wrapper}>
@@ -76,7 +72,7 @@ const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}:
           placeholder={placeholder}
           value={value}
           onChange={(event) => {
-            context.updateCurrentValues({
+            void updateCurrentValues({
               [path]: event.target.value
             })
           }}
@@ -86,10 +82,6 @@ const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}:
     </div>
   </div>
 }
-
-EditSequenceTitle.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const EditSequenceTitleComponent = registerComponent("EditSequenceTitle", EditSequenceTitle, {styles});
 

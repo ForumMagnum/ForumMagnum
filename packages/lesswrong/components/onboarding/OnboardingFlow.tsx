@@ -1,5 +1,5 @@
 import React, {ReactNode, useCallback, useEffect, useState} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 import {useCurrentUser} from '../common/withUser'
 import {EAOnboardingContextProvider} from '../ea-forum/onboarding/useEAOnboarding'
 

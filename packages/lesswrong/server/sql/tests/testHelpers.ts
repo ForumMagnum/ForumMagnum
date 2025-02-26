@@ -2,7 +2,7 @@ import { registerCollection } from "@/lib/vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
 import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
-import { registerFragment } from "@/lib/vulcan-lib";
+import { registerFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 export type DbTestObject = {
   _id: string,
@@ -49,13 +49,6 @@ export const TestCollection = {
 export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
 (TestCollection as any).getTable = () => testTable;
 registerCollection(TestCollection);
-
-testTable.addIndex({a: 1, b: 1});
-testTable.addIndex({a: 1, "c.d": 1});
-testTable.addIndex({a: 1, b: 1}, {unique: true});
-testTable.addIndex({a: 1, b: 1}, {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
-testTable.addIndex({b: 1}, {collation: {locale: "en", strength: 2}});
-testTable.addIndex({a: 1, c: 1}, {concurrently: true});
 
 export type DbTestObject2 = {
   _id: string,

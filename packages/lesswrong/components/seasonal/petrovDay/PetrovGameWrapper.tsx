@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { registerComponent, Components } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import { DatabasePublicSetting } from '@/lib/publicSettings';
 import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpotlightItem';
 import { useSingle } from '@/lib/crud/withSingle';
 import { gql, useQuery } from '@apollo/client';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 
 const styles = (theme: ThemeType) => ({
   citizenEast: {

@@ -1,4 +1,6 @@
+import { addCronJob } from "./cron/cronUtil";
 import { createPostgresView } from "./postgresView";
+import { getSqlClientOrThrow } from "./sql/sqlClient";
 
 const createUserLoginTokensQuery = `
   CREATE MATERIALIZED VIEW IF NOT EXISTS "UserLoginTokens" AS
@@ -19,7 +21,7 @@ const refreshUserLoginTokensIndexQuery = `
   REFRESH MATERIALIZED VIEW CONCURRENTLY "UserLoginTokens"
 `;
 
-createPostgresView(
+export const userLoginTokensView = createPostgresView(
   "UserLoginTokens",
   createUserLoginTokensQuery,
   [createUserLoginTokensIndexQuery],

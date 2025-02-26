@@ -1,14 +1,20 @@
-import GoogleServiceAccountSessions from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface GoogleServiceAccountSessionsViewTerms extends ViewTermsBase {
   }
 }
 
-GoogleServiceAccountSessions.addDefaultView((terms: GoogleServiceAccountSessionsViewTerms) => {
+function defaultView(terms: GoogleServiceAccountSessionsViewTerms) {
   return {
     selector: {
       active: true
     }
   };
-});
+}
+
+export const GoogleServiceAccountSessionsViews = new CollectionViewSet(
+  'GoogleServiceAccountSessions',
+  {},
+  defaultView
+);

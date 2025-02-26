@@ -1,7 +1,6 @@
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
 import { manifoldAPIKeySetting } from "@/lib/instanceSettings";
 import { postGetMarketInfoFromManifold, LiteMarket } from "@/lib/collections/posts/annualReviewMarkets";
-import { Globals } from "@/lib/vulcan-lib";
 import { sleep } from "@/lib/utils/asyncUtils";
 
 const manifoldAPIKey = manifoldAPIKeySetting.get()
@@ -24,7 +23,7 @@ export const getMarketInfoFromManifold = async (marketId: string): Promise<LiteM
   return result.json()
 }
 
-const resolvePosts = async (year: number, limit?: number) => {
+export const resolveReviewMarkets = async (year: number, limit?: number) => {
 
   const resolutionLimitOptions = limit ? {limit} : {}
 
@@ -88,4 +87,3 @@ const resolvePosts = async (year: number, limit?: number) => {
   }
 }
 
-Globals.resolveReviewMarkets = resolvePosts;

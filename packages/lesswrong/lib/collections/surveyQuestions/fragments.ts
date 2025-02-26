@@ -1,4 +1,4 @@
-import { registerFragment } from "@/lib/vulcan-lib";
+import { registerFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 registerFragment(`
   fragment SurveyQuestionMinimumInfo on SurveyQuestion {

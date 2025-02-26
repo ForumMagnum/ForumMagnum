@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";

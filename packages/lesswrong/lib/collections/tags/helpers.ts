@@ -1,7 +1,7 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, tagUrlBaseSetting } from "../../instanceSettings";
-import { combineUrls } from "../../vulcan-lib";
+import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
@@ -137,3 +137,7 @@ export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Respons
   if (!tagSlug) return false;
   return await context.repos.tags.tagRouteWillDefinitelyReturn200(tagSlug);
 }
+
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
+export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
+export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';

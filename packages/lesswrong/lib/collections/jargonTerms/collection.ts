@@ -1,13 +1,15 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from "../../editor/make_editable";
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
-import { Posts } from '../posts';
+import { Posts } from '../posts/collection';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '../posts/helpers';
 import { postCheckAccess } from '../posts/checkAccess';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
   return userIsAdmin(user) || userOwns(user, post) || userIsPostCoauthor(user, post);
@@ -47,6 +49,11 @@ export const JargonTerms: JargonTermsCollection = createCollection({
   collectionName: 'JargonTerms',
   typeName: 'JargonTerm',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('JargonTerms', { postId: 1, term: 1, createdAt: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('JargonTerms'),
   mutations: getDefaultMutations('JargonTerms', options),
   logChanges: true,

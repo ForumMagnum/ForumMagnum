@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@material-ui/core/Checkbox';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';

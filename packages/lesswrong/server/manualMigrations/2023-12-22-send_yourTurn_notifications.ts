@@ -1,5 +1,5 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib/query";
 import { createNotification } from "../notificationCallbacksHelpers";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 
@@ -31,7 +31,7 @@ const getMatchFormYourTurn = async (): Promise<DialogueCheckWithExtraData[]> => 
   return result
 }
 
-registerMigration({
+export default registerMigration({
   name: "sendYourTurnNotifications",
   dateWritten: "2023-12-22",
   idempotent: true,

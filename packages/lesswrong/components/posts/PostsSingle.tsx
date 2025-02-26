@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';

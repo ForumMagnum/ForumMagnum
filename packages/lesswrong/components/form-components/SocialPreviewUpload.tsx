@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Components, getSiteUrl, registerComponent, sanitize } from "../../lib/vulcan-lib";
 import { siteImageSetting } from "../vulcan-core/App";
 import { htmlToText } from "html-to-text";
 import { truncate } from "../../lib/editor/ellipsize";
@@ -16,6 +15,8 @@ import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
 import Input from "@material-ui/core/Input";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 

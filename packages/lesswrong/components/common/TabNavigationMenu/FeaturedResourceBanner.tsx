@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import Divider from '@material-ui/core/Divider';

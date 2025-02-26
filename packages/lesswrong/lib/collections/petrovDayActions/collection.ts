@@ -1,7 +1,9 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbPetrovDayAction> = {
   newCheck: async (user: DbUser|null, document: DbPetrovDayAction|null) => {
@@ -47,7 +49,12 @@ export const PetrovDayActions: PetrovDayActionsCollection = createCollection({
   typeName: 'PetrovDayAction',
   resolvers: getDefaultResolvers('PetrovDayActions'),
   mutations: getDefaultMutations('PetrovDayActions', options),
-  schema
+  schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('PetrovDayActions', { userId: 1, actionType: 1 });
+    return indexSet;
+  },
 });
 
 addUniversalFields({collection: PetrovDayActions})

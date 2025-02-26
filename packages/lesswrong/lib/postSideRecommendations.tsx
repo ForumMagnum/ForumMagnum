@@ -9,7 +9,7 @@ import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
-import { Components } from "./vulcan-lib";
+import { Components } from "./vulcan-lib/components";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 

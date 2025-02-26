@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Components, registerComponent, combineUrls } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
@@ -13,6 +12,9 @@ import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { combineUrls } from "../../lib/vulcan-lib/utils";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -117,28 +119,27 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
     );
 }
 
-const unlinkCrossposterMutation = gql`
-  mutation unlinkCrossposter {
-    unlinkCrossposter
-  }
-`;
-
 /**
  * FMCrosspostControl is the main form component for setting up crossposts
  * It allows the user to choose whether or not to make this post a crosspost,
  * and it also allows them to connect or disconnect their account on the other
  * platform.
  */
-const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentUser}: {
+const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
   updateCurrentValues: Function,
   classes: ClassesType<typeof styles>,
   value: {isCrosspost: boolean, hostedHere?: boolean, foreignPostId?: string},
   path: string,
-  currentUser: UsersCurrent,
 }) => {
+  const currentUser = useCurrentUser();
   const {isCrosspost} = value ?? {};
+  if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
-  const [unlink, {loading: loadingUnlink}] = useMutation(unlinkCrossposterMutation, {errorPolicy: "all"});
+  const [unlink, {loading: loadingUnlink}] = useMutation(gql`
+    mutation unlinkCrossposter {
+      unlinkCrossposter
+    }
+  `, {errorPolicy: "all"});
   const {document, refetch, loading: loadingDocument} = useSingle({
     documentId: currentUser._id,
     collectionName: "Users",

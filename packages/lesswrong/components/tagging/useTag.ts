@@ -1,6 +1,6 @@
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
-import { fragmentTextForQuery } from '@/lib/vulcan-lib';
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments.ts';
 import { hasWikiLenses } from '@/lib/betas';
 import intersection from 'lodash/intersection';
 import pick from 'lodash/pick';

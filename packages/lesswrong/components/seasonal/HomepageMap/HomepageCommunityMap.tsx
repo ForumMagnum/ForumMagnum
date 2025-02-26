@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';

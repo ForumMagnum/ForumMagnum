@@ -2,7 +2,7 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 
