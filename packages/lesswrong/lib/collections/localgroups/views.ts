@@ -1,4 +1,4 @@
-import Localgroups from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {
@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
+function defaultView(terms: LocalgroupsViewTerms) {
   let selector: any = {};
   if(Array.isArray(terms.filters) && terms.filters.length) {
     selector.types = {$in: terms.filters};
@@ -26,9 +26,9 @@ Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
       deleted: false
     }
   };
-});
+}
 
-Localgroups.addView("userOrganizesGroups", function (terms: LocalgroupsViewTerms) {
+function userOrganizesGroups(terms: LocalgroupsViewTerms) {
   return {
     selector: {
       organizerIds: terms.userId,
@@ -36,9 +36,9 @@ Localgroups.addView("userOrganizesGroups", function (terms: LocalgroupsViewTerms
     },
     options: {sort: {name: 1}}
   };
-});
+}
 
-Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
+function userActiveGroups(terms: LocalgroupsViewTerms) {
   return {
     selector: {
       organizerIds: terms.userId,
@@ -46,24 +46,24 @@ Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
     },
     options: {sort: {name: 1}}
   };
-});
+}
 
-Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms) {
+function userInactiveGroups(terms: LocalgroupsViewTerms) {
   return {
     selector: {
       organizerIds: terms.userId,
       inactive: true
     }
   };
-});
+}
 
-Localgroups.addView("all", function (terms: LocalgroupsViewTerms) {
+function all(terms: LocalgroupsViewTerms) {
   return {
     options: {sort: {name: 1}}
   };
-});
+}
 
-Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
+function nearby(terms: LocalgroupsViewTerms) {
   return {
     selector: {
       mongoLocation: {
@@ -85,26 +85,38 @@ Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
       }
     }
   };
-});
+}
 
-Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
+function single(terms: LocalgroupsViewTerms) {
   return {
     selector: {_id: terms.groupId},
     options: {sort: {createdAt: -1}}
   };
-});
+}
 
-Localgroups.addView("local", function () {
+function local() {
   return {
     selector: {$or: [
       {isOnline: false}, {isOnline: {$exists: false}}
     ]},
     options: {sort: {name: 1}}
   };
-});
-Localgroups.addView("online", function () {
+}
+
+function online() {
   return {
     selector: {isOnline: true},
     options: {sort: {name: 1}}
   };
-});
+}
+
+export const LocalgroupsViews = new CollectionViewSet('Localgroups', {
+  userOrganizesGroups,
+  userActiveGroups,
+  userInactiveGroups,
+  all,
+  nearby,
+  single,
+  local,
+  online
+}, defaultView);

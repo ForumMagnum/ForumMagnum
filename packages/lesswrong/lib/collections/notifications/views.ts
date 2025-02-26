@@ -1,4 +1,4 @@
-import Notifications from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface NotificationsViewTerms extends ViewTermsBase {
@@ -10,8 +10,7 @@ declare global {
   }
 }
 
-// will be common to all other view unless specific properties are overwritten
-Notifications.addDefaultView(function (terms: NotificationsViewTerms) {
+function defaultView(terms: NotificationsViewTerms) {
   // const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
@@ -22,10 +21,10 @@ Notifications.addDefaultView(function (terms: NotificationsViewTerms) {
     },
     options: {limit: 1000},
   };
-});
+}
 
 // notifications for a specific user (what you see in the notifications menu)
-Notifications.addView("userNotifications", (terms: NotificationsViewTerms) => {
+function userNotifications(terms: NotificationsViewTerms) {
   if (!terms.userId) {
     throw new Error("userNotifications view called without a userId");
   }
@@ -36,10 +35,10 @@ Notifications.addView("userNotifications", (terms: NotificationsViewTerms) => {
       viewed: terms.viewed == null ? null : (terms.viewed || false)
     }, //Ugly construction to deal with falsy viewed values and null != false in Mongo
     options: {sort: {createdAt: -1}}
-  }
-});
+  };
+}
 
-Notifications.addView("unreadUserNotifications", (terms: NotificationsViewTerms) => {
+function unreadUserNotifications(terms: NotificationsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -47,14 +46,20 @@ Notifications.addView("unreadUserNotifications", (terms: NotificationsViewTerms)
       createdAt: {$gte: terms.lastViewedDate}
     },
     options: {sort: {createdAt: -1}}
-  }
-})
+  };
+}
 
-Notifications.addView("adminAlertNotifications", (terms: NotificationsViewTerms) => {
+function adminAlertNotifications(terms: NotificationsViewTerms) {
   return {
     selector: {
       type: terms.type || null,
     }, //Ugly construction to deal with falsy viewed values and null != false in Mongo
     options: {sort: {createdAt: -1}}
-  }
-});
+  };
+}
+
+export const NotificationsViews = new CollectionViewSet('Notifications', {
+  userNotifications,
+  unreadUserNotifications,
+  adminAlertNotifications
+}, defaultView);

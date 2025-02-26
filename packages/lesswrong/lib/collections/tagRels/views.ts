@@ -1,4 +1,4 @@
-import { TagRels } from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface TagRelsViewTerms extends ViewTermsBase {
@@ -8,8 +8,7 @@ declare global {
   }
 }
 
-
-TagRels.addDefaultView((terms: TagRelsViewTerms) => {
+function defaultView(terms: TagRelsViewTerms) {
   return {
     selector: {
       deleted: false,
@@ -18,22 +17,27 @@ TagRels.addDefaultView((terms: TagRelsViewTerms) => {
       sort: {baseScore: -1},
     },
   };
-});
+}
 
-TagRels.addView('postsWithTag', (terms: TagRelsViewTerms) => {
+function postsWithTag(terms: TagRelsViewTerms) {
   return {
     selector: {
       tagId: terms.tagId,
       baseScore: {$gt: 0},
     },
   }
-});
+}
 
-TagRels.addView('tagsOnPost', (terms: TagRelsViewTerms) => {
+function tagsOnPost(terms: TagRelsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
       baseScore: {$gt: 0},
     },
   }
-});
+}
+
+export const TagRelsViews = new CollectionViewSet('TagRels', {
+  postsWithTag,
+  tagsOnPost
+}, defaultView);

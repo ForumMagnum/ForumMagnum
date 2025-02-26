@@ -1,7 +1,7 @@
-import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
-import { MultiDocuments } from "./collection";
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { viewFieldAllowAny } from "@/lib/utils/viewConstants";
+import { viewFieldAllowAny, jsonArrayContainsSelector } from "@/lib/utils/viewConstants";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 
 declare global {
   interface MultiDocumentsViewTerms extends ViewTermsBase {
@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-MultiDocuments.addDefaultView(function (terms: MultiDocumentsViewTerms, _, context?: ResolverContext) {
+function defaultView(terms: MultiDocumentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const currentUser = context?.currentUser ?? null;
 
   return {
@@ -22,9 +22,9 @@ MultiDocuments.addDefaultView(function (terms: MultiDocumentsViewTerms, _, conte
       ...(!userIsAdminOrMod(currentUser) ? { deleted: false } : {}),
     },
   };
-});
+}
 
-MultiDocuments.addView("lensBySlug", function (terms: MultiDocumentsViewTerms) {
+function lensBySlug(terms: MultiDocumentsViewTerms) {
   return {
     selector: {
       $or: [
@@ -35,9 +35,9 @@ MultiDocuments.addView("lensBySlug", function (terms: MultiDocumentsViewTerms) {
       fieldName: "description",
     },
   };
-});
+}
 
-MultiDocuments.addView("summariesByParentId", function (terms: MultiDocumentsViewTerms) {
+function summariesByParentId(terms: MultiDocumentsViewTerms) {
   return {
     selector: {
       fieldName: 'summary',
@@ -50,9 +50,9 @@ MultiDocuments.addView("summariesByParentId", function (terms: MultiDocumentsVie
       },
     },
   };
-});
+}
 
-MultiDocuments.addView("pingbackLensPages", (terms: MultiDocumentsViewTerms) => {
+function pingbackLensPages(terms: MultiDocumentsViewTerms) {
   return {
     selector: {
       $or: [
@@ -61,5 +61,11 @@ MultiDocuments.addView("pingbackLensPages", (terms: MultiDocumentsViewTerms) => 
       ],
       fieldName: 'description',
     },
-  }
-});
+  };
+}
+
+export const MultiDocumentsViews = new CollectionViewSet('MultiDocuments', {
+  lensBySlug,
+  summariesByParentId,
+  pingbackLensPages
+}, defaultView);

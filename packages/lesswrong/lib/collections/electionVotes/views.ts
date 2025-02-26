@@ -1,4 +1,4 @@
-import ElectionVotes from "./collection";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ElectionVotesViewTerms extends ViewTermsBase {
@@ -7,24 +7,25 @@ declare global {
   }
 }
 
-ElectionVotes.addDefaultView(({
-  electionName,
-  userId,
-}: ElectionVotesViewTerms) => {
+function defaultView(terms: ElectionVotesViewTerms) {
   return {
     selector: {
-      electionName,
-      userId,
+      electionName: terms.electionName,
+      userId: terms.userId,
     },
   };
-});
+}
 
-ElectionVotes.addView('allSubmittedVotes', (terms: ElectionVotesViewTerms) => {
+function allSubmittedVotes(terms: ElectionVotesViewTerms) {
   return {
     selector: {
       electionName: terms.electionName,
       submittedAt: {$exists: true},
     },
   };
-});
+}
+
+export const ElectionVotesViews = new CollectionViewSet('ElectionVotes', {
+  allSubmittedVotes
+}, defaultView);
 

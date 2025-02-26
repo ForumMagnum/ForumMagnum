@@ -4,6 +4,7 @@ import { registerFragment } from '../../vulcan-lib/fragments';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
@@ -48,10 +49,12 @@ declare global {
   }
 }
 
-ClientIds.addView("getClientId", (terms: ClientIdsViewTerms) => {
+function getClientId(terms: ClientIdsViewTerms) {
   return {
     selector: {
       clientId: terms.clientId,
     },
   };
-});
+}
+
+export const ClientIdsViews = new CollectionViewSet('ClientIds', { getClientId });

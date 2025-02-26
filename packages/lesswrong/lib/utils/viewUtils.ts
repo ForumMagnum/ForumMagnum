@@ -1,9 +1,10 @@
-import { getCollection } from '../vulcan-lib/getCollection';
 import { loggerConstructor } from './logging'
 import { DatabasePublicSetting } from '../publicSettings';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from './viewConstants';
+import { allViews } from '../views/allViews';
+import type { CollectionViewSet } from '../views/collectionViewSet';
 
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
@@ -30,8 +31,7 @@ export function describeTerms(collectionName: CollectionNameString, terms: ViewT
  * and options, which is ready to execute (but don't execute it yet).
  */
 export function viewTermsToQuery<N extends CollectionNameString>(collectionName: N, terms: ViewTermsByCollectionName[N], apolloClient?: any, resolverContext?: ResolverContext) {
-  const collection = getCollection(collectionName);
-  return getParameters(collection, terms, apolloClient, resolverContext);
+  return getParameters(collectionName, terms, apolloClient, resolverContext);
 }
 
 /**
@@ -50,12 +50,11 @@ export function getDefaultViewSelector<N extends CollectionNameString>(collectio
  * and options, which is ready to execute (but don't execute it yet).
  */
 function getParameters<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collectionName: N,
   terms: ViewTermsByCollectionName[N] = {},
   apolloClient?: any,
   context?: ResolverContext
 ): MergedViewQueryAndOptions<ObjectsByCollectionName[N]> {
-  const collectionName = collection.collectionName;
   const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
   logger('getParameters(), terms:', terms);
 
@@ -64,8 +63,12 @@ function getParameters<N extends CollectionNameString>(
     options: {},
   };
 
-  if (collection.defaultView) {
-    const defaultParameters = collection.defaultView(terms, apolloClient, context);
+  const collectionViewSet = allViews[collectionName] as CollectionViewSet<N, Record<string, ViewFunction<N>>>;
+
+  const defaultView = collectionViewSet.getDefaultView();
+
+  if (defaultView) {
+    const defaultParameters = defaultView(terms, apolloClient, context);
     const newSelector = mergeSelectors(parameters.selector, defaultParameters.selector);
     parameters = {
       ...merge(parameters, defaultParameters),
@@ -74,9 +77,10 @@ function getParameters<N extends CollectionNameString>(
     logger('getParameters(), parameters after defaultView:', parameters)
   }
 
+
   // handle view option
-  if (terms.view && collection.views[terms.view]) {
-    const viewFn = collection.views[terms.view];
+  if (terms.view && collectionViewSet.getView(terms.view)) {
+    const viewFn = collectionViewSet.getView(terms.view);
     const view = viewFn(terms, apolloClient, context);
     let mergedParameters = mergeSelectors(parameters, view);
 
@@ -158,9 +162,6 @@ export function replaceSpecialFieldSelectors(selector: any): any {
   }
   return result;
 }
-
-export const jsonArrayContainsSelector = (field: string, value: AnyBecauseTodo) =>
-  ({$expr: {$jsonArrayContains: [field, value]}});
 
 const removeAndOr = <T extends DbObject>(selector: MongoSelector<T>) => {
   const copy = {...selector}

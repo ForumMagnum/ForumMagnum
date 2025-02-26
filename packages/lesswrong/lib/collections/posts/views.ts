@@ -4,16 +4,16 @@ import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings
 import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
-import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
-import { Posts } from './collection';
+import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
-import { jsonArrayContainsSelector } from '../../utils/viewUtils';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 import { filter, isEmpty, pick } from 'underscore';
 import { visitorGetsDynamicFrontpage } from '../../betas';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -113,7 +113,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
+function defaultView(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
@@ -223,7 +223,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   }
   
   return params;
-})
+}
 
 const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
   if (filterSettings.personalBlog === "Hidden") {
@@ -382,7 +382,8 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
   }
 }
 
-Posts.addView("userPosts", (terms: PostsViewTerms) => {
+// Define standalone view functions
+function userPosts(terms: PostsViewTerms) {
   const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}}
   return {
     selector: {
@@ -398,7 +399,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
       ...sortOverride
     }
   }
-});
+}
 
 const setStickies = (sortOptions: MongoSort<DbPost>, terms: PostsViewTerms): MongoSort<DbPost> => {
   if (terms.af && terms.forum) {
@@ -415,8 +416,7 @@ const stickiesIndexPrefix = {
   sticky: -1, afSticky: -1, metaSticky: -1, stickyPriority: -1
 };
 
-
-Posts.addView("magic", (terms: PostsViewTerms) => {
+function magic(terms: PostsViewTerms) {
   let selector = { isEvent: false };
   if (isEAForum) {
     selector = {
@@ -428,165 +428,188 @@ Posts.addView("magic", (terms: PostsViewTerms) => {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},
   };
-});
+}
 
-
-Posts.addView("top", (terms: PostsViewTerms) => ({
-  options: {sort: setStickies(sortings.top, terms)}
-}))
-
-Posts.addView("new", (terms: PostsViewTerms) => ({
-  options: {sort: setStickies(sortings.new, terms)}
-}))
-
-Posts.addView("recentComments", (terms: PostsViewTerms) => ({
-  options: {sort: sortings.recentComments}
-}))
-
-Posts.addView("old", (terms: PostsViewTerms) => ({
-  options: {sort: sortings.old}
-}))
-// Covered by the same index as `new`
-
-Posts.addView("timeframe", (terms: PostsViewTerms) => ({
-  options: {limit: terms.limit}
-}))
-
-Posts.addView("daily", (terms: PostsViewTerms) => ({
-  options: {
-    sort: {baseScore: -1}
+function top(terms: PostsViewTerms) {
+  return {
+    options: {sort: setStickies(sortings.top, terms)}
   }
-}));
+}
 
-Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
-  // note: this relies on the selector filtering done in the default view
-  // sorts by the "sortedBy" parameter if it's been passed in, or otherwise sorts by tag relevance
-  options: {
-    sort: sortedBy && sortedBy !== "relevance"
-      ? sortings[sortedBy]
-      : { [`tagRelevance.${tagId}`]: -1, baseScore: -1 },
+function newest(terms: PostsViewTerms) {
+  return {
+    options: {sort: setStickies(sortings.new, terms)}
   }
-}));
+}
 
-Posts.addView("frontpage", (terms: PostsViewTerms) => ({
-  selector: filters.frontpage,
-  options: {
-    sort: {sticky: -1, stickyPriority: -1, score: -1}
+function recentComments(terms: PostsViewTerms) {
+  return {
+    options: {sort: sortings.recentComments}
   }
-}));
+}
 
-Posts.addView("frontpage-rss", (terms: PostsViewTerms) => ({
-  selector: filters.frontpage,
-  options: {
-    sort: {frontpageDate: -1, postedAt: -1}
+function old(terms: PostsViewTerms) {
+  return {
+    options: {sort: sortings.old}
   }
-}));
-// Covered by the same index as `frontpage`
+}
 
-Posts.addView("curated", (terms: PostsViewTerms) => ({
-  selector: filters.curated,
-  options: {
-    sort: {sticky: -1, curatedDate: -1, postedAt: -1}
+function timeframe(terms: PostsViewTerms) {
+  return {
+    options: {limit: terms.limit}
   }
-}));
+}
 
-Posts.addView("curated-rss", (terms: PostsViewTerms) => ({
-  selector: {
-    curatedDate: {$gt: new Date(0)},
-  },
-  options: {
-    sort: {curatedDate: -1, postedAt: -1}
-  }
-}));
-// Covered by the same index as `curated`
-
-Posts.addView("community", (terms: PostsViewTerms) => ({
-  selector: {
-    frontpageDatgroupId: { $exists: false },
-    isEvent: false,
-  },
-  options: {
-    sort: {sticky: -1, score: -1}
-  }
-}));
-
-
-Posts.addView("community-rss", (terms: PostsViewTerms) => ({
-  selector: {
-    frontpageDate: null,
-    maxBaseScore: {$gt: 2}
-  },
-  options: {
-    sort: {postedAt: -1}
-  }
-}));
-// Covered by the same index as `new`
-
-Posts.addView("meta-rss", (terms: PostsViewTerms) => ({
-  selector: {
-    meta: true,
-  },
-  options: {
-    sort: {
-      postedAt: -1
+function daily(terms: PostsViewTerms) {
+  return {
+    options: {
+      sort: {baseScore: -1}
     }
   }
-}))
-// Covered by the same index as `new`
+}
 
-Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
-
-
-Posts.addView("topQuestions", (terms: PostsViewTerms) => ({
-  selector: {
-    question: true,
-    hiddenRelatedQuestion: viewFieldAllowAny,
-    baseScore: {$gte: 40}
-  },
-  options: {
-    sort: { lastCommentedAt: -1 }
+function tagRelevance({ sortedBy, tagId }: PostsViewTerms) {
+  return {
+    // note: this relies on the selector filtering done in the default view
+    // sorts by the "sortedBy" parameter if it's been passed in, or otherwise sorts by tag relevance
+    options: {
+      sort: sortedBy && sortedBy !== "relevance"
+        ? sortings[sortedBy]
+        : { [`tagRelevance.${tagId}`]: -1, baseScore: -1 },
+    }
   }
-}));
+}
 
-Posts.addView("recentQuestionActivity", (terms: PostsViewTerms) => ({
-  selector: {
-    question: true,
-    hiddenRelatedQuestion: viewFieldAllowAny,
-  },
-  options: {
-    sort: {lastCommentedAt: -1}
+function frontpage(terms: PostsViewTerms) {
+  return {
+    selector: filters.frontpage,
+    options: {
+      sort: {sticky: -1, stickyPriority: -1, score: -1}
+    }
   }
-}));
-// covered by same index as 'topQuestions'
+}
 
-/**
- * @summary Scheduled view
- */
-Posts.addView("scheduled", (terms: PostsViewTerms) => ({
-  selector: {
-    status: postStatuses.STATUS_APPROVED,
-    isFuture: true
-  },
-  options: {
-    sort: {postedAt: -1}
+function frontpageRss(terms: PostsViewTerms) {
+  return {
+    selector: filters.frontpage,
+    options: {
+      sort: {frontpageDate: -1, postedAt: -1}
+    }
   }
-}));
-// Covered by the same index as `new`
+}
 
-Posts.addView("rejected", (terms: PostsViewTerms) => ({
-  selector: {
-    rejected: true,
-    authorIsUnreviewed: null
-  },
-  options: {
-    sort: {postedAt: -1}
+function curated(terms: PostsViewTerms) {
+  return {
+    selector: filters.curated,
+    options: {
+      sort: {sticky: -1, curatedDate: -1, postedAt: -1}
+    }
   }
-}));
+}
 
-/**
- * @summary Draft view
- */
-Posts.addView("drafts", (terms: PostsViewTerms) => {
+function curatedRss(terms: PostsViewTerms) {
+  return {
+    selector: {
+      curatedDate: {$gt: new Date(0)},
+    },
+    options: {
+      sort: {curatedDate: -1, postedAt: -1}
+    }
+  }
+}
+
+function community(terms: PostsViewTerms) {
+  return {
+    selector: {
+      frontpageDatgroupId: { $exists: false },
+      isEvent: false,
+    },
+    options: {
+      sort: {sticky: -1, score: -1}
+    }
+  }
+}
+
+function communityRss(terms: PostsViewTerms) {
+  return {
+    selector: {
+      frontpageDate: null,
+      maxBaseScore: {$gt: 2}
+    },
+    options: {
+      sort: {postedAt: -1}
+    }
+  }
+}
+
+function metaRss(terms: PostsViewTerms) {
+  return {
+    selector: {
+      meta: true,
+    },
+    options: {
+      sort: {
+        postedAt: -1
+      }
+    }
+  }
+}
+
+function rss(terms: PostsViewTerms) {
+  // default to 'community-rss' for rss
+  return communityRss(terms);
+}
+
+function topQuestions(terms: PostsViewTerms) {
+  return {
+    selector: {
+      question: true,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      baseScore: {$gte: 40}
+    },
+    options: {
+      sort: { lastCommentedAt: -1 }
+    }
+  }
+}
+
+function recentQuestionActivity(terms: PostsViewTerms) {
+  return {
+    selector: {
+      question: true,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+    },
+    options: {
+      sort: {lastCommentedAt: -1}
+    }
+  }
+}
+
+function scheduled(terms: PostsViewTerms) {
+  return {
+    selector: {
+      status: postStatuses.STATUS_APPROVED,
+      isFuture: true
+    },
+    options: {
+      sort: {postedAt: -1}
+    }
+  }
+}
+
+function rejected(terms: PostsViewTerms) {
+  return {
+    selector: {
+      rejected: true,
+      authorIsUnreviewed: null
+    },
+    options: {
+      sort: {postedAt: -1}
+    }
+  }
+}
+
+function drafts(terms: PostsViewTerms) {
   let query: any = {
     selector: {
       userId: viewFieldAllowAny,
@@ -645,18 +668,20 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
     }
   }
   return query
-});
+}
 
-Posts.addView("all_drafts", (terms: PostsViewTerms) => ({
-  selector: {
-    draft: true
-  },
-  options: {
-    sort: {createdAt: -1}
+function all_drafts(terms: PostsViewTerms) {
+  return {
+    selector: {
+      draft: true
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
   }
-}));
+}
 
-Posts.addView("unlisted", (terms: PostsViewTerms) => {
+function unlisted(terms: PostsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -666,9 +691,10 @@ Posts.addView("unlisted", (terms: PostsViewTerms) => {
     options: {
       sort: {createdAt: -1}
     }
-}});
+  }
+}
 
-Posts.addView("userAFSubmissions", (terms: PostsViewTerms) => {
+function userAFSubmissions(terms: PostsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -678,18 +704,21 @@ Posts.addView("userAFSubmissions", (terms: PostsViewTerms) => {
     options: {
       sort: {createdAt: -1}
     }
-  }});
-
-Posts.addView("slugPost", (terms: PostsViewTerms) => ({
-  selector: {
-    slug: terms.slug,
-  },
-  options: {
-    limit: 1,
   }
-}));
+}
 
-Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
+function slugPost(terms: PostsViewTerms) {
+  return {
+    selector: {
+      slug: terms.slug,
+    },
+    options: {
+      limit: 1,
+    }
+  }
+}
+
+function legacyIdPost(terms: PostsViewTerms) {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
   if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
@@ -702,8 +731,7 @@ Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
       limit: 1
     }
   }
-});
-
+}
 
 const recentDiscussionFilter = {
   baseScore: {$gt:0},
@@ -712,7 +740,8 @@ const recentDiscussionFilter = {
   shortform: viewFieldAllowAny,
   groupId: null,
 }
-Posts.addView("recentDiscussionThreadsList", (terms: PostsViewTerms) => {
+
+function recentDiscussionThreadsList(terms: PostsViewTerms) {
   return {
     selector: {
       ...recentDiscussionFilter
@@ -722,9 +751,9 @@ Posts.addView("recentDiscussionThreadsList", (terms: PostsViewTerms) => {
       limit: terms.limit || 12,
     }
   }
-})
+}
 
-Posts.addView("afRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
+function afRecentDiscussionThreadsList(terms: PostsViewTerms) {
   return {
     selector: {
       ...recentDiscussionFilter
@@ -734,9 +763,9 @@ Posts.addView("afRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
       limit: terms.limit || 12,
     }
   }
-})
+}
 
-Posts.addView("2018reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
+function reviewRecentDiscussionThreadsList2018(terms: PostsViewTerms) {
   return {
     selector: {
       ...recentDiscussionFilter,
@@ -747,9 +776,9 @@ Posts.addView("2018reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) =
       limit: terms.limit || 12,
     }
   }
-})
+}
 
-Posts.addView("2019reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
+function reviewRecentDiscussionThreadsList2019(terms: PostsViewTerms) {
   return {
     selector: {
       ...recentDiscussionFilter,
@@ -760,9 +789,9 @@ Posts.addView("2019reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) =
       limit: terms.limit || 12,
     }
   }
-})
+}
 
-Posts.addView("globalEvents", (terms: PostsViewTerms) => {
+function globalEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
@@ -775,7 +804,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
     ]}
   }
   
-  let query = {
+  return {
     selector: {
       $or: [
         {globalEvent: true},
@@ -798,10 +827,9 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
       }
     }
   }
-  return query
-})
+}
 
-Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
+function nearbyEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
@@ -858,9 +886,9 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     query.selector.types = {$in: [terms.filters]};
   }
   return query;
-});
+}
 
-Posts.addView("events", (terms: PostsViewTerms) => {
+function events(terms: PostsViewTerms) {
   const timeSelector = {
     $or: [
       { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
@@ -899,9 +927,9 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       }
     }
   }
-})
+}
 
-Posts.addView("eventsInTimeRange", (terms: PostsViewTerms) => {
+function eventsInTimeRange(terms: PostsViewTerms) {
   return {
     selector: {
       isEvent: true,
@@ -913,10 +941,9 @@ Posts.addView("eventsInTimeRange", (terms: PostsViewTerms) => {
       }
     }
   }
-})
-// Same index as events
+}
 
-Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
+function upcomingEvents(terms: PostsViewTerms) {
   const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
   
   return {
@@ -931,9 +958,9 @@ Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
       }
     }
   }
-})
+}
 
-Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+function pastEvents(terms: PostsViewTerms) {
   const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
   
   return {
@@ -948,9 +975,9 @@ Posts.addView("pastEvents", (terms: PostsViewTerms) => {
       }
     },
   }
-});
+}
 
-Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
+function tbdEvents(terms: PostsViewTerms) {
   return {
     selector: {
       isEvent: true,
@@ -963,35 +990,34 @@ Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
       }
     },
   }
-});
+}
 
-Posts.addView("nonEventGroupPosts", (terms: PostsViewTerms) => {
+function nonEventGroupPosts(terms: PostsViewTerms) {
   return {
     selector: {
       isEvent: false,
       groupId: terms.groupId ? terms.groupId : null,
     },
   }
-});
+}
 
-Posts.addView("postsWithBannedUsers", function () {
+function postsWithBannedUsers() {
   return {
     selector: {
       bannedUserIds: {$exists: true}
     },
   }
-})
+}
 
-Posts.addView("communityResourcePosts", function () {
+function communityResourcePosts() {
   return {
     selector: {
       _id: {$in: ['bDnFhJBcLQvCY3vJW', 'qMuAazqwJvkvo8teR', 'PqMT9zGrNsGJNfiFR', 'YdcF6WbBmJhaaDqoD', 'mQDoZ2yCX2ujLxJDk']}
     },
   }
-})
-// No index needed
+}
 
-Posts.addView("sunshineNewPosts", function () {
+function sunshineNewPosts() {
   return {
     selector: {
       reviewedByUserId: {$exists: false},
@@ -1002,9 +1028,9 @@ Posts.addView("sunshineNewPosts", function () {
       }
     }
   }
-})
+}
 
-Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
+function sunshineNewUsersPosts(terms: PostsViewTerms) {
   return {
     selector: {
       status: null, // allow sunshines to see posts marked as spam
@@ -1023,9 +1049,9 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       }
     }
   }
-})
+}
 
-Posts.addView("sunshineCuratedSuggestions", function (terms) {
+function sunshineCuratedSuggestions(terms: PostsViewTerms) {
   const audio = terms.audioOnly ? {podcastEpisodeId: {$exists: true}} : {}
   return {
     selector: {
@@ -1040,10 +1066,9 @@ Posts.addView("sunshineCuratedSuggestions", function (terms) {
       hint: "posts.sunshineCuratedSuggestions",
     }
   }
-})
+}
 
-
-Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
+function hasEverDialogued(terms: PostsViewTerms) {
   return {
     selector: {
       $or: [
@@ -1053,9 +1078,9 @@ Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
       collabEditorDialogue: true,
     },
   }
-})
+}
 
-Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
+function pingbackPosts(terms: PostsViewTerms) {
   return {
     selector: {
       ...jsonArrayContainsSelector("pingbacks.Posts", terms.postId),
@@ -1065,10 +1090,10 @@ Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
       sort: { baseScore: -1 },
     },
   }
-});
+}
 
 // TODO: refactor nominations2018 to use nominationCount + postedAt
-Posts.addView("nominations2018", (terms: PostsViewTerms) => {
+function nominations2018(terms: PostsViewTerms) {
   return {
     selector: {
       // FIXME: Should only apply during voting
@@ -1080,10 +1105,10 @@ Posts.addView("nominations2018", (terms: PostsViewTerms) => {
       }
     }
   }
-})
+}
 
 // TODO: refactor nominations2019 to filter for nominationsCount + postedAt
-Posts.addView("nominations2019", (terms: PostsViewTerms) => {
+function nominations2019(terms: PostsViewTerms) {
   return {
     selector: {
       // FIXME: Should only apply during voting
@@ -1095,9 +1120,9 @@ Posts.addView("nominations2019", (terms: PostsViewTerms) => {
       }
     }
   }
-})
+}
 
-Posts.addView("reviews2018", (terms: PostsViewTerms) => {
+function reviews2018(terms: PostsViewTerms) {
   const sortings = {
     "fewestReviews" : {reviewCount2018: 1},
     "mostReviews" : {reviewCount2018: -1},
@@ -1114,7 +1139,7 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
       sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
     }
   }
-})
+}
 
 const reviews2019Sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
   "fewestReviews" : {reviewCount2019: 1},
@@ -1122,7 +1147,7 @@ const reviews2019Sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
   "lastCommentedAt" :  {lastCommentedAt: -1}
 }
 
-Posts.addView("reviews2019", (terms: PostsViewTerms) => {
+function reviews2019(terms: PostsViewTerms) {
   return {
     selector: {
       nominationCount2019: { $gte: 2 }
@@ -1131,9 +1156,9 @@ Posts.addView("reviews2019", (terms: PostsViewTerms) => {
       sort: { ...(terms.sortBy && reviews2019Sortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
-})
+}
 
-Posts.addView("voting2019", (terms: PostsViewTerms) => {
+function voting2019(terms: PostsViewTerms) {
   return {
     selector: {
       nominationCount2019: { $gte: 2 },
@@ -1144,11 +1169,10 @@ Posts.addView("voting2019", (terms: PostsViewTerms) => {
       sort: { ...(terms.sortBy && reviews2019Sortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
-})
-// We're filtering on nominationCount greater than 2, so do not need additional indexes
-// using nominations2018
+}
 
-Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) => ({
+function stickied(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+  return {
     selector: {
       sticky: true,
       ...(context?.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
@@ -1159,10 +1183,9 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) 
       },
     },
   }
-));
+}
 
-// used to find a user's upvoted posts, so they can nominate them for the Review
-Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const nominationFilter = terms.requiredUnnominated ? {positiveReviewVoteCount: { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }} : {}
   const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {}
   return {
@@ -1178,13 +1201,13 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: Res
       }
     }
   }
-})
+}
 
 // Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
 const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
 
 // Nominations for the (≤)2020 review are determined by the number of votes
-Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+function reviewVoting(terms: PostsViewTerms) {
   return {
     selector: {
       $or: [{[`tagRelevance.${longformReviewTagId}`]: {$gte: 1}}, {positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) }}],
@@ -1198,9 +1221,9 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       },
     }
   }
-})
+}
 
-Posts.addView("frontpageReviewWidget", (terms: PostsViewTerms) => {
+function frontpageReviewWidget(terms: PostsViewTerms) {
   if (!terms.reviewYear) {
     throw new Error("reviewYear is required for reviewVoting view");
   }
@@ -1226,10 +1249,9 @@ Posts.addView("frontpageReviewWidget", (terms: PostsViewTerms) => {
       },
     }
   }
-})
+}
 
-
-Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
+function reviewQuickPage(terms: PostsViewTerms) {
   return {
     selector: {
       reviewCount: 0,
@@ -1242,11 +1264,10 @@ Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
       }
     }
   }
-})
-
+}
 
 // During the Final Voting phase, posts need at least one positive vote and at least one review to qualify
-Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
+function reviewFinalVoting(terms: PostsViewTerms) {
   return {
     selector: {
       reviewCount: { $gte: VOTING_PHASE_REVIEW_THRESHOLD },
@@ -1261,9 +1282,9 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
       },
     }
   }
-})
+}
 
-Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+function myBookmarkedPosts(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   // Get list of bookmarked posts from the user object. This is ordered by when
   // the bookmark was created (earlier is older).
   let bookmarkedPostIds = (context?.currentUser?.bookmarkedPostsMetadata
@@ -1292,5 +1313,84 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
       sort: {},
     },
   };
-});
+}
 
+function alignmentSuggestedPosts() {
+  return {
+    selector: {
+      af: false,
+      suggestForAlignmentUserIds: {$exists:true, $ne: []},
+      reviewForAlignmentUserId: viewFieldNullOrMissing
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      },
+      hint: "posts.alignmentSuggestedPosts",
+    }
+  }
+}
+
+
+export const PostsViews = new CollectionViewSet('Posts', {
+  userPosts,
+  magic,
+  top,
+  new: newest, // Using 'newest' as the function name since 'new' is a keyword
+  recentComments,
+  old,
+  timeframe,
+  daily,
+  tagRelevance,
+  frontpage,
+  'frontpage-rss': frontpageRss,
+  curated,
+  'curated-rss': curatedRss,
+  community,
+  'community-rss': communityRss,
+  'meta-rss': metaRss,
+  // TODO: `rss` seemed to be getting set to `new` in server/rss.ts.  Figure out what was going on there.
+  rss,
+  topQuestions,
+  recentQuestionActivity,
+  scheduled,
+  rejected,
+  drafts,
+  all_drafts,
+  unlisted,
+  userAFSubmissions,
+  slugPost,
+  legacyIdPost,
+  recentDiscussionThreadsList,
+  afRecentDiscussionThreadsList,
+  '2018reviewRecentDiscussionThreadsList': reviewRecentDiscussionThreadsList2018,
+  '2019reviewRecentDiscussionThreadsList': reviewRecentDiscussionThreadsList2019,
+  globalEvents,
+  nearbyEvents,
+  events,
+  eventsInTimeRange,
+  upcomingEvents,
+  pastEvents,
+  tbdEvents,
+  nonEventGroupPosts,
+  postsWithBannedUsers,
+  communityResourcePosts,
+  sunshineNewPosts,
+  sunshineNewUsersPosts,
+  sunshineCuratedSuggestions,
+  hasEverDialogued,
+  pingbackPosts,
+  nominations2018,
+  nominations2019,
+  reviews2018,
+  reviews2019,
+  voting2019,
+  stickied,
+  nominatablePostsByVote,
+  reviewVoting,
+  frontpageReviewWidget,
+  reviewQuickPage,
+  reviewFinalVoting,
+  myBookmarkedPosts,
+  alignmentSuggestedPosts,
+}, defaultView);

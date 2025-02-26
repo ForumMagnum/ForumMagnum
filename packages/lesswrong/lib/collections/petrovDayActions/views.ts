@@ -1,5 +1,5 @@
-import { PetrovDayActions } from "./collection"
-import { PetrovDayActionType } from "./schema";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { PetrovDayActionType } from "./schema";
 
 declare global {
   interface PetrovDayActionsViewTerms extends ViewTermsBase {
@@ -10,8 +10,7 @@ declare global {
   }
 }
 
-//Messages for a specific conversation
-PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
+function getAction(terms: PetrovDayActionsViewTerms) {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
   const userId = terms.userId ? {userId: terms.userId} : {}
   const actionType = terms.actionType ? {actionType: terms.actionType} : {}
@@ -22,11 +21,10 @@ PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
       createdAt: {$gte: oneWeekAgo}
     }
   }
-  return selector
-});
+  return selector;
+}
 
-
-PetrovDayActions.addView("launchDashboard", (terms: PetrovDayActionsViewTerms) => {
+function launchDashboard(terms: PetrovDayActionsViewTerms) {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
   const actionTypes: PetrovDayActionType[] = terms.side === 'east' ? ['nukeTheWest', 'eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['nukeTheEast', 'westPetrovAllClear', 'westPetrovNukesIncoming']
@@ -36,9 +34,9 @@ PetrovDayActions.addView("launchDashboard", (terms: PetrovDayActionsViewTerms) =
       actionType: {$in: actionTypes},
     }
   };
-});
+}
 
-PetrovDayActions.addView("adminConsole", (terms: PetrovDayActionsViewTerms) => {
+function adminConsole(terms: PetrovDayActionsViewTerms) {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
   return {
@@ -49,9 +47,9 @@ PetrovDayActions.addView("adminConsole", (terms: PetrovDayActionsViewTerms) => {
       sort: {createdAt: -1}
     }
   };
-});
+}
 
-PetrovDayActions.addView("warningConsole", (terms: PetrovDayActionsViewTerms) => {
+function warningConsole(terms: PetrovDayActionsViewTerms) {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
   const actionTypes: PetrovDayActionType[] = terms.side === 'east' ? ['eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['westPetrovAllClear', 'westPetrovNukesIncoming']
@@ -61,6 +59,13 @@ PetrovDayActions.addView("warningConsole", (terms: PetrovDayActionsViewTerms) =>
       actionType: {$in: actionTypes},
     }
   };
+}
+
+export const PetrovDayActionsViews = new CollectionViewSet('PetrovDayActions', {
+  getAction,
+  launchDashboard,
+  adminConsole,
+  warningConsole
 });
 
 

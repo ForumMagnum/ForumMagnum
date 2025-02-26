@@ -1,4 +1,4 @@
-import UserRateLimits from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   type UserRateLimitsViewTerms = Omit<ViewTermsBase, 'view'> & ({
@@ -12,18 +12,22 @@ declare global {
   })
 }
 
-
-UserRateLimits.addView('userRateLimits', function (terms: UserRateLimitsViewTerms) {
+function userRateLimits(terms: UserRateLimitsViewTerms) {
   const activeFilter = terms.active ? { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }]} : {};
   return {
     selector: { userId: { $in: terms.userIds }, ...activeFilter },
     options: { sort: { createdAt: -1 } }
   };
-});
+}
 
-UserRateLimits.addView('activeUserRateLimits', function (terms: UserRateLimitsViewTerms) {
+function activeUserRateLimits(terms: UserRateLimitsViewTerms) {
   return {
     selector: { endedAt: { $gt: new Date() } },
     options: { sort: { createdAt: -1 } }
   };
+}
+
+export const UserRateLimitsViews = new CollectionViewSet('UserRateLimits', {
+  userRateLimits,
+  activeUserRateLimits
 });

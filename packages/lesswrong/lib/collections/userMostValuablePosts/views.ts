@@ -1,4 +1,5 @@
-import UserMostValuablePosts from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 declare global {
   interface UserMostValuablePostsViewTerms extends ViewTermsBase {
@@ -8,19 +9,24 @@ declare global {
   }
 }
 
-UserMostValuablePosts.addView("currentUserMostValuablePosts", function (terms, _, context?: ResolverContext) {
+function currentUserMostValuablePosts(_terms: UserMostValuablePostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   return {
     selector: {
       userId: context?.currentUser?._id
     }
   };
-});
+}
 
-UserMostValuablePosts.addView("currentUserPost", function (terms: UserMostValuablePostsViewTerms, _, context?: ResolverContext) {
+function currentUserPost(terms: UserMostValuablePostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   return {
     selector: {
       userId: context?.currentUser?._id,
       postId: terms.postId
     }
   };
+}
+
+export const UserMostValuablePostsViews = new CollectionViewSet('UserMostValuablePosts', {
+  currentUserMostValuablePosts,
+  currentUserPost
 });

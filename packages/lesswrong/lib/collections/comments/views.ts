@@ -2,11 +2,12 @@ import moment from 'moment';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
-import { Comments } from './collection';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 
 export const COMMENT_SORTING_MODES = new TupleSet([ 
   "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
@@ -49,7 +50,29 @@ declare global {
   type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
 }
 
-Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
+// Spread into a view to remove the part of the default view selector that hides deleted and
+// unreviewed comments.
+const dontHideDeletedAndUnreviewed = {
+  $or: null,
+  $and: null,
+  rejected: null
+};
+
+
+const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
+  "top": { baseScore: -1 },
+  "magic": { score: -1 },
+  "groupByPost": { postId: 1 },
+  "new": { postedAt: -1 },
+  "newest": { postedAt: -1 },
+  "old": { postedAt: 1 },
+  "oldest": { postedAt: 1 },
+  recentComments: { lastSubthreadActivity: -1 },
+  /** DEPRECATED */
+  recentDiscussion: { lastSubthreadActivity: -1 },
+}
+
+function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -101,31 +124,9 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       sort: {postedAt: -1},
     }
   });
-})
-
-// Spread into a view to remove the part of the default view selector that hides deleted and
-// unreviewed comments.
-const dontHideDeletedAndUnreviewed = {
-  $or: null,
-  $and: null,
-  rejected: null
-};
-
-
-const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
-  "top": { baseScore: -1 },
-  "magic": { score: -1 },
-  "groupByPost": { postId: 1 },
-  "new": { postedAt: -1 },
-  "newest": { postedAt: -1 },
-  "old": { postedAt: 1 },
-  "oldest": { postedAt: 1 },
-  recentComments: { lastSubthreadActivity: -1 },
-  /** DEPRECATED */
-  recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
-Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
+function commentReplies(terms: CommentsViewTerms) {
   return {
     selector: {
       parentCommentId: terms.parentCommentId,
@@ -134,9 +135,9 @@ Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
       sort: {postedAt: -1}
     }
   }
-})
+}
 
-Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
+function postCommentsDeleted(terms: CommentsViewTerms) {
   return {
     selector: {
       ...dontHideDeletedAndUnreviewed,
@@ -145,9 +146,9 @@ Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
     },
     options: {sort: {deletedDate: -1, baseScore: -1, postedAt: -1}}
   };
-});
+}
 
-Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
+function allCommentsDeleted(terms: CommentsViewTerms) {
   return {
     selector: {
       ...dontHideDeletedAndUnreviewed,
@@ -155,18 +156,18 @@ Comments.addView("allCommentsDeleted", (terms: CommentsViewTerms) => {
     },
     options: {sort: {deletedDate: -1, postedAt: -1, baseScore: -1 }}
   };
-});
+}
 
-Comments.addView("checkedByModGPT", (terms: CommentsViewTerms) => {
+function checkedByModGPT(terms: CommentsViewTerms) {
   return {
     selector: {
       modGPTAnalysis: {$exists: true}
     },
     options: {sort: {postedAt: -1}}
   };
-});
+}
 
-Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
+function postCommentsTop(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -174,11 +175,10 @@ Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
       answer: false,
     },
     options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
-
   };
-});
+}
 
-Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
+function postCommentsRecentReplies(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -186,11 +186,10 @@ Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
       answer: false,
     },
     options: {sort: {lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
-
   };
-});
+}
 
-Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
+function postCommentsMagic(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -198,11 +197,10 @@ Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
       answer: false,
     },
     options: {sort: {promoted: -1, deleted: 1, score: -1, postedAt: -1}},
-
   };
-});
+}
 
-Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
+function afPostCommentsTop(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -210,11 +208,10 @@ Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
       answer: false,
     },
     options: {sort: {promoted: -1, deleted: 1, afBaseScore: -1, postedAt: -1}},
-
   };
-});
+}
 
-Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
+function postCommentsOld(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -224,10 +221,9 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
     options: {sort: {deleted: 1, postedAt: 1}},
     parentAnswerId: viewFieldNullOrMissing
   };
-});
-// Uses same index as postCommentsNew
+}
 
-Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
+function postCommentsNew(terms: CommentsViewTerms) {
   if (!terms.postId)
     throw new Error("Invalid postCommentsNew view: postId is required");
   return {
@@ -238,9 +234,9 @@ Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
     },
     options: {sort: {deleted: 1, postedAt: -1}}
   };
-});
+}
 
-Comments.addView("postCommentsBest", (terms: CommentsViewTerms) => {
+function postCommentsBest(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -249,10 +245,9 @@ Comments.addView("postCommentsBest", (terms: CommentsViewTerms) => {
     },
     options: {sort: {promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
   };
-});
-// Same as postCommentsTop
+}
 
-Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
+function postLWComments(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -262,7 +257,7 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
     },
     options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
   };
-})
+}
 
 export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
   "new" :  { isPinnedOnProfile: -1, postedAt: -1},
@@ -273,23 +268,23 @@ export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSel
 } as const;
 
 // This view is DEPRECATED, use profileComments instead. This is here so that old links still work (plus greaterwrong etc)
-Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+function profileRecentComments(terms: CommentsViewTerms) {
   return {
     selector: {deletedPublic: false},
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
-})
+}
 
-Comments.addView("profileComments", (terms: CommentsViewTerms) => {
+function profileComments(terms: CommentsViewTerms) {
   const sortBy = terms.sortBy ?? "new"
   
   return {
     selector: {deletedPublic: false},
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
-})
+}
 
-Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
+function allRecentComments(terms: CommentsViewTerms) {
   return {
     selector: { deletedPublic: false },
     options: { 
@@ -299,10 +294,9 @@ Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
       limit: terms.limit || 5 
     },
   };
-});
+}
 
-Comments.addView("recentComments", (terms: CommentsViewTerms) => {
-
+function recentComments(terms: CommentsViewTerms) {
   return {
     selector: { score:{$gt:0}, deletedPublic: false},
     options: {
@@ -312,9 +306,9 @@ Comments.addView("recentComments", (terms: CommentsViewTerms) => {
       limit: terms.limit || 5
     },
   };
-});
+}
 
-Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
+function afSubmissions(terms: CommentsViewTerms) {
   return {
     selector: {
       af: false,
@@ -322,17 +316,17 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
       deletedPublic: false},
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
-});
+}
 
-Comments.addView("rejected", (terms: CommentsViewTerms) => {
+function rejected(terms: CommentsViewTerms) {
   return {
     selector: {...dontHideDeletedAndUnreviewed, rejected: true},
     options: {sort: { postedAt: -1}, limit: terms.limit || 20},
   };
-})
+}
 
 // As of 2021-10, JP is unsure if this is used
-Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
+function recentDiscussionThread(terms: CommentsViewTerms) {
   // The forum has fewer comments, and so wants a more expansive definition of
   // "recent"
   const eighteenHoursAgo = moment().subtract(forumTypeSetting.get() === 'EAForum' ? 36 : 18, 'hours').toDate();
@@ -345,10 +339,9 @@ Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };
-})
-// Uses same index as postCommentsNew
+}
 
-Comments.addView("afRecentDiscussionThread", (terms: CommentsViewTerms) => {
+function afRecentDiscussionThread(terms: CommentsViewTerms) {
   const sevenDaysAgo = moment().subtract(7, 'days').toDate();
   return {
     selector: {
@@ -360,9 +353,9 @@ Comments.addView("afRecentDiscussionThread", (terms: CommentsViewTerms) => {
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5}
   };
-})
+}
 
-Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
+function postsItemComments(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -372,9 +365,9 @@ Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
-});
+}
 
-Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
+function sunshineNewCommentsList(terms: CommentsViewTerms) {
   return {
     selector: {
       ...dontHideDeletedAndUnreviewed,
@@ -388,7 +381,7 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
-});
+}
 
 export const questionAnswersSortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   ...sortings,
@@ -396,15 +389,15 @@ export const questionAnswersSortings: Record<CommentSortingMode,MongoSelector<Db
   "magic": {promoted: -1, score: -1, postedAt: -1},
 } as const;
 
-Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
+function questionAnswers(terms: CommentsViewTerms) {
   return {
     selector: {postId: terms.postId, answer: true},
     options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
-});
+}
 
 // Used in legacy routes
-Comments.addView("legacyIdComment", (terms: CommentsViewTerms) => {
+function legacyIdComment(terms: CommentsViewTerms) {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
   if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
@@ -417,9 +410,9 @@ Comments.addView("legacyIdComment", (terms: CommentsViewTerms) => {
       limit: 1
     }
   };
-});
+}
 
-Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
+function sunshineNewUsersComments(terms: CommentsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -430,25 +423,24 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
     },
     options: {sort: {postedAt: -1}},
   };
-});
+}
 
-Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
+function defaultModeratorResponses(terms: CommentsViewTerms) {
   return {
     selector: {
       tagId: terms.tagId,
     }
   };
-});
+}
 
-
-Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
+function repliesToAnswer(terms: CommentsViewTerms) {
   return {
     selector: {parentAnswerId: terms.parentAnswerId},
     options: {sort: {baseScore: -1}}
   };
-});
+}
 
-Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
+function answersAndReplies(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -459,9 +451,9 @@ Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
     },
     options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
-});
+}
 
-Comments.addView('topShortform', (terms: CommentsViewTerms) => {
+function topShortform(terms: CommentsViewTerms) {
   const timeRange = ((terms.before || terms.after)
     ? { postedAt: {
       ...(terms.before && {$lt: new Date(terms.before)}),
@@ -485,9 +477,9 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
   };
-});
+}
 
-Comments.addView('shortform', (terms: CommentsViewTerms) => {
+function shortform(terms: CommentsViewTerms) {
   return {
     selector: {
       shortform: true,
@@ -496,9 +488,9 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };
-});
+}
 
-Comments.addView('shortformFrontpage', (terms: CommentsViewTerms, _, context?: ResolverContext) => {
+function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context?.currentUser?._id;
@@ -543,25 +535,25 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms, _, context?: R
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
-});
+}
 
-Comments.addView('repliesToCommentThread', (terms: CommentsViewTerms) => {
+function repliesToCommentThread(terms: CommentsViewTerms) {
   return {
     selector: {
       topLevelCommentId: terms.topLevelCommentId
     },
     options: {sort: {baseScore: -1}}
   }
-});
+}
 
-Comments.addView('shortformLatestChildren', (terms: CommentsViewTerms) => {
+function shortformLatestChildren(terms: CommentsViewTerms) {
   return {
     selector: { topLevelCommentId: terms.topLevelCommentId} ,
     options: {sort: {postedAt: -1}, limit: 500}
   };
-});
+}
 
-Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsViewTerms) => {
+function nominations2018({userId, postId, sortBy="top"}: CommentsViewTerms) {
   return {
     selector: { 
       userId, 
@@ -573,9 +565,9 @@ Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsVie
       sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
-});
+}
 
-Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
+function nominations2019({userId, postId, sortBy="top"}: CommentsViewTerms) {
   return {
     selector: { 
       userId, 
@@ -587,9 +579,9 @@ Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
       sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
-});
+}
 
-Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTerms) => {
+function reviews2018({userId, postId, sortBy="top"}: CommentsViewTerms) {
   return {
     selector: { 
       userId, 
@@ -601,9 +593,9 @@ Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTer
       sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
-});
+}
 
-Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
+function reviews2019({userId, postId, sortBy="top"}: CommentsViewTerms) {
   return {
     selector: { 
       userId, 
@@ -615,10 +607,9 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
       sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
-});
+}
 
-// TODO: try to refactor this
-Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+function reviews({userId, postId, reviewYear, sortBy="top"}: CommentsViewTerms) {
   const reviewingForReviewQuery = reviewYear ? reviewYear+"" : {$ne: null}
   return {
     selector: { 
@@ -631,7 +622,7 @@ Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}
       sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
-});
+}
 
 // TODO merge with subforumFeedSortings
 export const subforumSorting: Record<CommentSortingMode,MongoSelector<DbComment>> = {
@@ -639,14 +630,15 @@ export const subforumSorting: Record<CommentSortingMode,MongoSelector<DbComment>
 }
 export const subforumDiscussionDefaultSorting = "recentComments"
 
-Comments.addView('tagDiscussionComments', (terms: CommentsViewTerms) => ({
+function tagDiscussionComments(terms: CommentsViewTerms) {
+  return {
   selector: {
     tagId: terms.tagId,
     tagCommentType: "DISCUSSION"
   },
-}));
+}};
 
-Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms, _, context?: ResolverContext) => {
+function tagSubforumComments({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms) {
   const sorting = subforumSorting[sortBy] || subforumSorting.new
   return {
   selector: {
@@ -657,11 +649,11 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
   options: {
     sort: sorting,
   },
-}});
+}};
 
 // DEPRECATED (will be deleted once there are no more old clients floating around)
 // For 'Discussion from your subforums' on the homepage
-Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
+function latestSubforumDiscussion(terms: CommentsViewTerms) {
   return {
     selector: {
       tagId: {$in: terms.profileTagIds ?? []},
@@ -674,18 +666,20 @@ Comments.addView('latestSubforumDiscussion', (terms: CommentsViewTerms) => {
       limit: 3,
     },
   }
-});
+}
 
-Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
+function moderatorComments(terms: CommentsViewTerms) {
+  return {
   selector: {
     moderatorHat: true,
   },
   options: {
     sort: {postedAt: -1},
   },
-}));
+}};
 
-Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
+function debateResponses(terms: CommentsViewTerms) {
+  return {
   selector: {
     postId: terms.postId,
     debateResponse: true
@@ -695,9 +689,9 @@ Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
       postedAt: 1
      }
   }
-}));
+}};
 
-Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
+function recentDebateResponses(terms: CommentsViewTerms) {
   return {
     selector: {
       postId: terms.postId,
@@ -706,9 +700,9 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
-});
+}
 
-Comments.addView('forumEventComments', (terms: CommentsViewTerms) => {
+function forumEventComments(terms: CommentsViewTerms) {
   return {
     selector: {
       forumEventId: terms.forumEventId,
@@ -719,5 +713,76 @@ Comments.addView('forumEventComments', (terms: CommentsViewTerms) => {
       sort: { postedAt: -1 },
     },
   };
-});
+}
+
+function alignmentSuggestedComments(terms: CommentsViewTerms) {
+  return {
+    selector: {
+      postId: terms.postId,
+      af: false,
+      suggestForAlignmentUserIds: {$exists:true, $ne: []},
+      reviewForAlignmentUserId: viewFieldNullOrMissing
+    },
+    options: {
+      sort: {
+        postedAt: 1,
+      }, 
+      hint: "comments.alignmentSuggestedComments",
+    }
+  }
+}
+
+
+// Create the CollectionViewSet instance
+export const CommentsViews = new CollectionViewSet('Comments', {
+  commentReplies,
+  postCommentsDeleted,
+  allCommentsDeleted,
+  checkedByModGPT,
+  postCommentsTop,
+  postCommentsRecentReplies,
+  postCommentsMagic,
+  afPostCommentsTop,
+  postCommentsOld,
+  postCommentsNew,
+  postCommentsBest,
+  postLWComments,
+  profileRecentComments,
+  profileComments,
+  allRecentComments,
+  recentComments,
+  afSubmissions,
+  rejected,
+  recentDiscussionThread,
+  afRecentDiscussionThread,
+  postsItemComments,
+  sunshineNewCommentsList,
+  questionAnswers,
+  legacyIdComment,
+  sunshineNewUsersComments,
+  defaultModeratorResponses,
+  repliesToAnswer,
+  answersAndReplies,
+  topShortform,
+  shortform,
+  shortformFrontpage,
+  repliesToCommentThread,
+  shortformLatestChildren,
+  nominations2018,
+  nominations2019,
+  reviews2018,
+  reviews2019,
+  reviews,
+  tagDiscussionComments,
+  tagSubforumComments,
+  latestSubforumDiscussion,
+  moderatorComments,
+  debateResponses,
+  recentDebateResponses,
+  forumEventComments,
+  alignmentSuggestedComments,
+  // Copied over from server/rss.ts
+  rss: recentComments,
+}, defaultView);
+
 
