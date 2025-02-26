@@ -8,3 +8,6 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 // When used in a view, set the query so that any value for this field is
 // permitted, overriding constraints from the default view if they exist.
 export const viewFieldAllowAny = {allowAny:true};
+
+export const jsonArrayContainsSelector = (field: string, value: AnyBecauseTodo) =>
+  ({$expr: {$jsonArrayContains: [field, value]}});

@@ -1,5 +1,5 @@
-import { Subscriptions } from "./collection"
 import { subscriptionTypes } from "./schema";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface SubscriptionsViewTerms extends ViewTermsBase {
@@ -12,15 +12,15 @@ declare global {
   }
 }
 
-Subscriptions.addView("subscriptionState", function (terms: SubscriptionsViewTerms) {
+function subscriptionState(terms: SubscriptionsViewTerms) {
   const { userId, documentId, collectionName, type} = terms
   return {
     selector: {userId, documentId, collectionName, type, deleted: false},
     options: {sort: {createdAt: -1}, limit: 1}
   };
-});
+}
 
-Subscriptions.addView("subscriptionsOfType", function (terms: SubscriptionsViewTerms) {
+function subscriptionsOfType(terms: SubscriptionsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -31,9 +31,9 @@ Subscriptions.addView("subscriptionsOfType", function (terms: SubscriptionsViewT
     },
     options: {sort: {createdAt: -1}}
   };
-});
+}
 
-Subscriptions.addView("membersOfGroup", (terms) => {
+function membersOfGroup(terms: SubscriptionsViewTerms) {
   const { documentId } = terms;
   return {
     selector: {
@@ -48,5 +48,11 @@ Subscriptions.addView("membersOfGroup", (terms) => {
       },
     },
   };
+}
+
+export const SubscriptionsViews = new CollectionViewSet('Subscriptions', {
+  subscriptionState,
+  subscriptionsOfType,
+  membersOfGroup
 });
 

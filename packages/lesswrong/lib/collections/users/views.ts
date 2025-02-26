@@ -1,9 +1,9 @@
-import Users from "../users/collection";
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -40,13 +40,13 @@ const termsToMongoSort = (terms: UsersViewTerms) => {
   );
 }
 
-Users.addView('usersByUserIds', function(terms: UsersViewTerms) {
+function usersByUserIds(terms: UsersViewTerms) {
   return {
     selector: {_id: {$in:terms.userIds}}
   }
-})
+}
 
-Users.addView('usersProfile', function(terms: UsersViewTerms) {
+function usersProfile(terms: UsersViewTerms) {
   if (terms.userId) {
     return {
       selector: {_id:terms.userId}
@@ -56,41 +56,43 @@ Users.addView('usersProfile', function(terms: UsersViewTerms) {
   return {
     selector: {$or: [{slug: terms.slug}, {oldSlugs: terms.slug}]},
   }
-});
+}
 
-Users.addView('LWSunshinesList', function(terms: UsersViewTerms) {
+function LWSunshinesList(terms: UsersViewTerms) {
   return {
     selector: {groups:'sunshineRegiment'},
     options: {
       sort: termsToMongoSort(terms),
     }
   }
-});
+}
 
-Users.addView('LWTrustLevel1List', function(terms: UsersViewTerms) {
+function LWTrustLevel1List(terms: UsersViewTerms) {
   return {
     selector: {groups:'trustLevel1'},
     options: {
       sort: termsToMongoSort(terms),
     }
   }
-});
+}
 
-Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
-  options: {
-    sort: termsToMongoSort(terms),
+function LWUsersAdmin(terms: UsersViewTerms) {
+  return {
+    options: {
+      sort: termsToMongoSort(terms),
+    }
   }
-}));
+}
 
-Users.addView("usersWithBannedUsers", function () {
+function usersWithBannedUsers() {
   return {
     selector: {
       $or: [{bannedPersonalUserIds: {$ne:null}}, {bannedUserIds: {$ne:null}}]
     },
   }
-})
+}
 
-Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
+function sunshineNewUsers(terms: UsersViewTerms) {
   return {
     selector: {
       needsReview: true,
@@ -109,8 +111,9 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
-Users.addView("recentlyActive", function (terms: UsersViewTerms) {
+}
+
+function recentlyActive(terms: UsersViewTerms) {
   return {
     selector: {
       $or: [
@@ -124,8 +127,9 @@ Users.addView("recentlyActive", function (terms: UsersViewTerms) {
       }
     }
   }  
-})
-Users.addView("allUsers", function (terms: UsersViewTerms) {
+}
+
+function allUsers(terms: UsersViewTerms) {
   return {
     options: {
       sort: {
@@ -135,17 +139,17 @@ Users.addView("allUsers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
+}
 
-Users.addView("usersMapLocations", function () {
+function usersMapLocations() {
   return {
     selector: {
       mapLocationSet: true
     },
   }
-})
+}
 
-Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
+function tagCommunityMembers(terms: UsersViewTerms) {
   const bioSelector = terms.hasBio ? {
     $and: [
       {'biography.html': {$exists: true}},
@@ -166,9 +170,9 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
+}
 
-Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
+function reviewAdminUsers(terms: UsersViewTerms) {
   return {
     selector: {
       karma: {$gte: 1000},
@@ -179,9 +183,9 @@ Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
+}
 
-Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
+function usersWithPaymentInfo(terms: UsersViewTerms) {
   return {
     selector: {
       banned: viewFieldNullOrMissing,
@@ -194,7 +198,7 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
       }
     }
   }
-})
+}
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",
@@ -212,9 +216,7 @@ export const hashedPetrovLaunchCodes = [
 })
 ensureIndex(Users, {petrovCodesEnteredHashed: 1})*/
 
-
-
-Users.addView("walledGardenInvitees", function () {
+function walledGardenInvitees() {
   return {
     selector: {
       walledGardenInvite: true
@@ -225,9 +227,9 @@ Users.addView("walledGardenInvitees", function () {
       }
     }
   }
-})
+}
 
-Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersViewTerms) {
+function usersWithOptedInToDialogueFacilitation(terms: UsersViewTerms) {
   return {
     selector: {
       optedInToDialogueFacilitation: true
@@ -238,4 +240,45 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
       }
     }
   }
-})
+}
+
+function alignmentSuggestedUsers() {
+  return {
+    selector: {
+      $or: [
+        {afKarma: {$gte:10}},
+        {afSubmittedApplication: true},
+      ],
+      groups: {$nin: ['alignmentForum']},
+      reviewForAlignmentForumUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
+  }
+}
+
+
+// Create the CollectionViewSet instance
+export const UsersViews = new CollectionViewSet('Users', {
+  usersByUserIds,
+  usersProfile,
+  LWSunshinesList,
+  LWTrustLevel1List,
+  LWUsersAdmin,
+  usersWithBannedUsers,
+  sunshineNewUsers,
+  recentlyActive,
+  allUsers,
+  usersMapLocations,
+  tagCommunityMembers,
+  reviewAdminUsers,
+  usersWithPaymentInfo,
+  walledGardenInvitees,
+  usersWithOptedInToDialogueFacilitation,
+  alignmentSuggestedUsers,
+  // Commented out in the original code:
+  // areWeNuked
+});

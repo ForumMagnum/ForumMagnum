@@ -1,4 +1,5 @@
-import { eventTypes, GardenCodes } from './collection';
+import { eventTypes } from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface GardenCodesViewTerms extends ViewTermsBase {
@@ -9,8 +10,7 @@ declare global {
   }
 }
 
-
-GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
+function defaultView(terms: GardenCodesViewTerms) {
   let selector: any = {
     deleted: false,
   };
@@ -52,10 +52,9 @@ GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
       }
     }
   }
-})
+}
 
-
-GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
+function usersPrivateGardenCodes(terms: GardenCodesViewTerms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: {
@@ -63,9 +62,9 @@ GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
       $or: [{startTime: {$gt: twoHoursAgo }}, {endTime: {$gt: new Date()}}]
     }
   }
-})
+}
 
-GardenCodes.addView("publicGardenCodes", function (terms: GardenCodesViewTerms) {
+function publicGardenCodes(terms: GardenCodesViewTerms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: { 
@@ -73,6 +72,14 @@ GardenCodes.addView("publicGardenCodes", function (terms: GardenCodesViewTerms) 
       $or: [{startTime: {$gt: twoHoursAgo }}, {endTime: {$gt: new Date()}}]
     }
   }
-})
+}
 
-GardenCodes.addView("gardenCodeByCode", (terms: GardenCodesViewTerms) => ({}));
+function gardenCodeByCode(terms: GardenCodesViewTerms) {
+  return {}
+}
+
+export const GardenCodesViews = new CollectionViewSet('GardenCodes', {
+  usersPrivateGardenCodes,
+  publicGardenCodes,
+  gardenCodeByCode
+}, defaultView);

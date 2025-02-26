@@ -1,4 +1,4 @@
-import { LWEvents } from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface LWEventsViewTerms extends ViewTermsBase {
@@ -10,15 +10,14 @@ declare global {
   }
 }
 
-
-LWEvents.addView("adminView", (terms: LWEventsViewTerms) => {
+function adminView(terms: LWEventsViewTerms) {
   return {
     selector: {name: terms.name || null},
     options: {sort: {createdAt: -1}}
   };
-});
+}
 
-LWEvents.addView("postVisits", (terms: LWEventsViewTerms) => {
+function postVisits(terms: LWEventsViewTerms) {
   return {
     selector: {
       documentId: terms.postId,
@@ -27,9 +26,9 @@ LWEvents.addView("postVisits", (terms: LWEventsViewTerms) => {
     },
     options: {sort: {createdAt: -1}, limit: terms.limit || 1},
   };
-});
+}
 
-LWEvents.addView("emailHistory", (terms: LWEventsViewTerms) => {
+function emailHistory(terms: LWEventsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -39,10 +38,9 @@ LWEvents.addView("emailHistory", (terms: LWEventsViewTerms) => {
       sort: {createdAt: -1}
     }
   }
-});
+}
 
-
-LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
+function gatherTownUsers(terms: LWEventsViewTerms) {
   const oneHourAgo = new Date(new Date().getTime()-(60*60*1000));
   return {
     selector: {
@@ -54,13 +52,23 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
       sort: {createdAt: -1}
     }
   }
-})
+}
 
-LWEvents.addView("postEverPublished", (terms) => ({
-  selector: {
-    name: 'fieldChanges',
-    documentId: { $in: terms.postIds },
-    'properties.before.draft': false,
-    'properties.after.draft': true
+function postEverPublished(terms: LWEventsViewTerms) {
+  return {
+    selector: {
+      name: 'fieldChanges',
+      documentId: { $in: terms.postIds },
+      'properties.before.draft': false,
+      'properties.after.draft': true
+    }
   }
-}));
+}
+
+export const LWEventsViews = new CollectionViewSet('LWEvents', {
+  adminView,
+  postVisits,
+  emailHistory,
+  gatherTownUsers,
+  postEverPublished
+});

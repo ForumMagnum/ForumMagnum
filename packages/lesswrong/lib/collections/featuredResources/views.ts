@@ -1,4 +1,4 @@
-import FeaturedResources from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface FeaturedResourcesViewTerms extends ViewTermsBase {
@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-FeaturedResources.addView("activeResources", function (terms: FeaturedResourcesViewTerms) {
+function activeResources(terms: FeaturedResourcesViewTerms) {
   return {
     selector: {
       expiresAt: {$gt: new Date()},
@@ -15,4 +15,8 @@ FeaturedResources.addView("activeResources", function (terms: FeaturedResourcesV
       limit: 5,
     },
   }
+}
+
+export const FeaturedResourcesViews = new CollectionViewSet('FeaturedResources', {
+  activeResources
 });

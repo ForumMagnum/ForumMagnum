@@ -1,4 +1,4 @@
-import CommentModeratorActions from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface NoViewTerms extends ViewTermsBase {
   view?: undefined;
@@ -15,7 +15,7 @@ declare global {
     | ActiveCommentModeratorActionsViewTerms
 }
 
-CommentModeratorActions.addView('activeCommentModeratorActions', function (terms: ActiveCommentModeratorActionsViewTerms) {
+function activeCommentModeratorActions(terms: ActiveCommentModeratorActionsViewTerms) {
   return {
     selector: {
       $or: [
@@ -25,4 +25,8 @@ CommentModeratorActions.addView('activeCommentModeratorActions', function (terms
     },
     options: { sort: { createdAt: -1 }, limit: terms.limit }
   };
-})
+}
+
+export const CommentModeratorActionsViews = new CollectionViewSet('CommentModeratorActions', {
+  activeCommentModeratorActions
+});

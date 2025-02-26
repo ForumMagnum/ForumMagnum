@@ -1,4 +1,4 @@
-import Messages from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface MessagesViewTerms extends ViewTermsBase {
@@ -7,19 +7,23 @@ declare global {
   }
 }
 
-
 //Messages for a specific conversation
-Messages.addView("messagesConversation", function (terms: MessagesViewTerms) {
+function messagesConversation(terms: MessagesViewTerms) {
   return {
     selector: {conversationId: terms.conversationId},
     options: {sort: {createdAt: 1}}
   };
-});
+}
 
 // latest messages for a conversation preview
-Messages.addView("conversationPreview", function (terms: MessagesViewTerms) {
+function conversationPreview(terms: MessagesViewTerms) {
   return {
     selector: {conversationId: terms.conversationId},
     options: {sort: {createdAt: -1}}
   };
+}
+
+export const MessagesViews = new CollectionViewSet('Messages', {
+  messagesConversation,
+  conversationPreview
 });

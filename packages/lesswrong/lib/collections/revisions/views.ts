@@ -1,4 +1,4 @@
-import { Revisions } from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface RevisionsViewTerms extends ViewTermsBase {
@@ -13,7 +13,7 @@ declare global {
 }
 
 // NB: Includes revisions on deleted tags
-Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
+function revisionsByUser(terms: RevisionsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -26,9 +26,9 @@ Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
     },
     options: {sort: {editedAt: -1}},
   }
-});
+}
 
-Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
+function revisionsOnDocument(terms: RevisionsViewTerms) {
   const result = {
     selector: {
       documentId: terms.documentId,
@@ -47,9 +47,9 @@ Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
     }
   }
   return result;
-});
+}
 
-Revisions.addView('revisionByVersionNumber', (terms: RevisionsViewTerms) => {
+function revisionByVersionNumber(terms: RevisionsViewTerms) {
   if (!terms.documentId) throw new Error("documentId is required for revisionByVersionNumber");
   if (!terms.version) throw new Error("version is required for revisionByVersionNumber");
   
@@ -60,4 +60,10 @@ Revisions.addView('revisionByVersionNumber', (terms: RevisionsViewTerms) => {
       ...(terms.fieldName && {fieldName: terms.fieldName}),
     },
   };
+}
+
+export const RevisionsViews = new CollectionViewSet('Revisions', {
+  revisionsByUser,
+  revisionsOnDocument,
+  revisionByVersionNumber
 });

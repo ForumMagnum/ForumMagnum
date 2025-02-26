@@ -1,4 +1,4 @@
-import JargonTerms from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface PostJargonTermsViewTerms {
@@ -22,23 +22,29 @@ declare global {
   });
 }
 
-JargonTerms.addView("postEditorJargonTerms", function (terms: PostJargonTermsViewTerms) {
+function postEditorJargonTerms(terms: PostJargonTermsViewTerms) {
   return {
     selector: { postId: terms.postId },
     options: { sort: { term: 1, createdAt: 1 } }
   };
-});
+}
 
-JargonTerms.addView("glossaryEditAll", function (terms: GlossaryEditAllViewTerms) {
+function glossaryEditAll(terms: GlossaryEditAllViewTerms) {
   return {
     selector: {},
     options: { sort: { term: 1, createdAt: 1 } }
   };
-});
+}
 
-JargonTerms.addView("postsApprovedJargon", function (terms: PostsApprovedJargonViewTerms) {
+function postsApprovedJargon(terms: PostsApprovedJargonViewTerms) {
   return {
     selector: { postId: { $in: terms.postIds }, approved: true },
     options: { sort: { term: 1, createdAt: 1 } }
   };
+}
+
+export const JargonTermsViews = new CollectionViewSet('JargonTerms', {
+  postEditorJargonTerms,
+  glossaryEditAll,
+  postsApprovedJargon
 });

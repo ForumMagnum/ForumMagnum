@@ -7,7 +7,7 @@ import { htmlToText } from 'html-to-text';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import Comments from '../../lib/collections/comments/collection';
 import Posts from '../../lib/collections/posts/collection';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { dataToHTML } from '../editor/conversionUtils';
 import { isEAForum } from '../../lib/instanceSettings';
 import Users from '../../lib/collections/users/collection';

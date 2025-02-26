@@ -368,14 +368,11 @@ import "./collections/llmMessages/fragments";
 
 // Alignment Forum
 import './alignment-forum/posts/helpers';
-import './alignment-forum/posts/views';
 
 import './alignment-forum/comments/helpers';
-import './alignment-forum/comments/views';
 import './alignment-forum/comments/fragments';
 
 import './alignment-forum/users/helpers';
-import './alignment-forum/users/views';
 
 import './analyticsEvents';
 import './abTests';

@@ -1,4 +1,4 @@
-import ForumEvents from "./collection";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ForumEventsViewTerms extends ViewTermsBase {
@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-ForumEvents.addView("upcomingForumEvents", (terms: ForumEventsViewTerms) => {
+function upcomingForumEvents(terms: ForumEventsViewTerms) {
   return {
     selector: {endDate: {$gt: new Date()}},
     options: {
@@ -14,9 +14,9 @@ ForumEvents.addView("upcomingForumEvents", (terms: ForumEventsViewTerms) => {
       limit: terms.limit ?? 20,
     },
   };
-});
+}
 
-ForumEvents.addView("pastForumEvents", (terms: ForumEventsViewTerms) => {
+function pastForumEvents(terms: ForumEventsViewTerms) {
   return {
     selector: {endDate: {$lte: new Date()}},
     options: {
@@ -24,9 +24,9 @@ ForumEvents.addView("pastForumEvents", (terms: ForumEventsViewTerms) => {
       limit: terms.limit ?? 20,
     },
   };
-});
+}
 
-ForumEvents.addView("currentForumEvent", (_terms: ForumEventsViewTerms) => {
+function currentForumEvent(_terms: ForumEventsViewTerms) {
   const now = new Date();
   return {
     selector: {
@@ -38,4 +38,10 @@ ForumEvents.addView("currentForumEvent", (_terms: ForumEventsViewTerms) => {
       limit: 1,
     },
   };
+}
+
+export const ForumEventsViews = new CollectionViewSet('ForumEvents', {
+  upcomingForumEvents,
+  pastForumEvents,
+  currentForumEvent
 });

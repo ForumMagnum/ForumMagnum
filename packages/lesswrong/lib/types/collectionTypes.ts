@@ -34,10 +34,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string,
   options: CollectionOptions<N>,
-  addDefaultView: (view: ViewFunction<N>) => void
-  addView: (viewName: string, view: ViewFunction<N>) => void
-  defaultView?: ViewFunction<N>
-  views: Record<string, ViewFunction<N>>
 
   _schemaFields: SchemaType<N>
   _simpleSchema: any

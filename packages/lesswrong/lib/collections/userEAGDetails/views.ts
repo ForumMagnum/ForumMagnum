@@ -1,4 +1,4 @@
-import UserEAGDetails from "./collection"
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 declare global {
   interface UserEAGDetailsViewTerms extends ViewTermsBase {
@@ -7,10 +7,12 @@ declare global {
   }
 }
 
-UserEAGDetails.addView("dataByUser", function (terms: UserEAGDetailsViewTerms) {
+function dataByUser(terms: UserEAGDetailsViewTerms) {
   return {
     selector: {
       userId: terms.userId
     }
   };
-});
+}
+
+export const UserEAGDetailsViews = new CollectionViewSet('UserEAGDetails', { dataByUser });

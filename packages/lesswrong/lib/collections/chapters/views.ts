@@ -1,4 +1,4 @@
-import Chapters from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ChaptersViewTerms extends ViewTermsBase {
@@ -7,9 +7,13 @@ declare global {
   }
 }
 
-Chapters.addView("SequenceChapters", function (terms: ChaptersViewTerms) {
+function SequenceChapters(terms: ChaptersViewTerms) {
   return {
     selector: {sequenceId: terms.sequenceId},
     options: {sort: {number: 1, createdAt: 1}, limit: terms.limit || 20},
   };
+};
+
+export const ChaptersViews = new CollectionViewSet('Chapters', {
+  SequenceChapters
 });

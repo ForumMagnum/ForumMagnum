@@ -48,8 +48,6 @@ class PgCollection<
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  defaultView: ViewFunction<N> | undefined;
-  views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
@@ -366,20 +364,6 @@ class PgCollection<
       };
     },
   });
-
-  /**
-   * Add a default view function.
-   */
-  addDefaultView(view: ViewFunction<N>) {
-    this.defaultView = view;
-  }
-
-  /**
-   * Add a named view function.
-   */
-  addView(viewName: string, view: ViewFunction<N>) {
-    this.views[viewName] = view;
-  }
 }
 
 export default PgCollection;
