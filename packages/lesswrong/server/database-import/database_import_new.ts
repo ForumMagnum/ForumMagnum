@@ -13,7 +13,6 @@ import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { slugify } from '@/lib/utils/slugify';
-import { Vulcan } from "../../lib/vulcan-lib/config";
 import { createMutator } from "../vulcan-lib/mutators";
 
 const postgresImportDetails = {
@@ -24,7 +23,8 @@ const postgresImportDetails = {
   password: '' // Ommitted for obvious reasons
 }
 
-Vulcan.postgresImport = async () => {
+// Exported to allow running manually with "yarn repl"
+export const postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
   let database = postgresConnector(postgresImportDetails);
@@ -139,7 +139,8 @@ const addParentCommentId = (comment: DbComment, parentComment: DbComment) => {
   }
 }
 
-Vulcan.syncUserPostCount = async () => {
+// Exported to allow running manually with "yarn repl"
+export const syncUserPostCount = async () => {
   const postCounters = await Posts.aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}
   ])

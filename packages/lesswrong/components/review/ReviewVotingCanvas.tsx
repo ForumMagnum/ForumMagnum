@@ -223,56 +223,11 @@ const votingPortalSocialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const heartsQuery = gql`
-  query GivingSeasonHeartsQuery($electionName: String!) {
-    GivingSeasonHearts(electionName: $electionName) {
-      userId
-      displayName
-      x
-      y
-      theta
-    }
-  }
-`;
-
-const addHeartMutation = gql`
-  mutation AddGivingSeasonHeart(
-    $electionName: String!,
-    $x: Float!,
-    $y: Float!,
-    $theta: Float!
-  ) {
-    AddGivingSeasonHeart(
-      electionName: $electionName,
-      x: $x,
-      y: $y,
-      theta: $theta
-    ) {
-      userId
-      displayName
-      x
-      y
-      theta
-    }
-  }
-`;
-
-const removeHeartMutation = gql`
-  mutation RemoveGivingSeasonHeart($electionName: String!) {
-    RemoveGivingSeasonHeart(electionName: $electionName) {
-      userId
-      displayName
-      x
-      y
-      theta
-    }
-  }
-`;
 
 const isValidTarget = (e: EventTarget): e is HTMLDivElement => {
   return "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
 }
-  
+
 
 const MAX_THETA = 25;
 
@@ -335,7 +290,17 @@ const ReviewVotingCanvas = ({
   const currentUser = useCurrentUser();
   const showHearts = currentRoute?.path === "/";
 
-  const {data, refetch} = useQuery(heartsQuery, {
+  const {data, refetch} = useQuery(gql`
+    query GivingSeasonHeartsQuery($electionName: String!) {
+      GivingSeasonHearts(electionName: $electionName) {
+        userId
+        displayName
+        x
+        y
+        theta
+      }
+    }
+  `, {
     variables: {
       electionName: reviewElectionName
     },
@@ -348,12 +313,42 @@ const ReviewVotingCanvas = ({
   }, [data?.GivingSeasonHearts]);
 
   const [rawAddHeart, {loading: isAddingHeart}] = useMutation(
-    addHeartMutation,
+    gql`
+      mutation AddGivingSeasonHeart(
+        $electionName: String!,
+        $x: Float!,
+        $y: Float!,
+        $theta: Float!
+      ) {
+        AddGivingSeasonHeart(
+          electionName: $electionName,
+          x: $x,
+          y: $y,
+          theta: $theta
+        ) {
+          userId
+          displayName
+          x
+          y
+          theta
+        }
+      }
+    `,
     {errorPolicy: "all"},
   );
 
   const [rawRemoveHeart, {loading: isRemovingHeart}] = useMutation(
-    removeHeartMutation,
+    gql`
+      mutation RemoveGivingSeasonHeart($electionName: String!) {
+        RemoveGivingSeasonHeart(electionName: $electionName) {
+          userId
+          displayName
+          x
+          y
+          theta
+        }
+      }
+    `,
     {errorPolicy: "all"},
   );
 

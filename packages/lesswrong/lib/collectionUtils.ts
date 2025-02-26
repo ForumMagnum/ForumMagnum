@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { ensureIndex } from './collectionIndexUtils';
 import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
 
 declare module "simpl-schema" {
@@ -57,21 +56,8 @@ export function addUniversalFields<N extends CollectionNameString>({
       ...legacyDataOptions,
     },
   })
-  ensureIndex(collection, {schemaVersion: 1});
 }
 
 export function isUniversalField(fieldName: string): boolean {
   return fieldName==="_id" || fieldName==="schemaVersion";
-}
-
-export function isUnbackedCollection<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-): boolean {
-  const collectionName: string = collection.collectionName;
-  if (collectionName === 'Settings' || collectionName === 'Callbacks') {
-    // Vulcan collections with no backing database table
-    return true;
-  }
-  
-  return false;
 }

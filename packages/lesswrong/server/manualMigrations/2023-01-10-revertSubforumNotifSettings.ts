@@ -6,7 +6,7 @@ import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 import { getSchema } from '../../lib/utils/getSchema';
 import { registerMigration } from './migrationUtils';
 
-registerMigration({
+export default registerMigration({
   name: "revertSubforumNotifSettings",
   dateWritten: "2023-01-10",
   idempotent: true,

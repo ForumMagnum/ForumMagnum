@@ -70,7 +70,7 @@ export type IndexConfig = {
    * results when used on more structured strings like ids or slugs, which should
    * instead be given the "keyword" mapping.
    * Note that making a change here requires reindexing the data with
-   * `Globals.elasticConfigureIndex`.
+   * `elasticConfigureIndex`.
    */
   mappings?: Mappings,
   /**

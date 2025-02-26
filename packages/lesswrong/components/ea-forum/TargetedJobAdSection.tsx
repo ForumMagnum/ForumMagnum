@@ -22,15 +22,6 @@ type UserCoreTagReads = {
   userReadCount: number,
 }
 
-const query = gql`
-  query getUserReadsPerCoreTag($userId: String!) {
-    UserReadsPerCoreTag(userId: $userId) {
-      tagId
-      userReadCount
-    }
-  }
-  `
-
 /**
  * Section of a page that might display a job ad to the current user.
  */
@@ -67,7 +58,14 @@ const TargetedJobAdSection = () => {
   
   // check the amount that the user has read core tags to help target ads
   const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
-    query,
+    gql`
+      query getUserReadsPerCoreTag($userId: String!) {
+        UserReadsPerCoreTag(userId: $userId) {
+          tagId
+          userReadCount
+        }
+      }
+    `,
     {
       variables: {
         userId: currentUser?._id,

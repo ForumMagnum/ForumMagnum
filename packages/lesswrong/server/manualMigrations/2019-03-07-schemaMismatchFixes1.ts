@@ -2,7 +2,7 @@ import { registerMigration, migrateDocuments, dropUnusedField } from './migratio
 import { Posts } from '../../lib/collections/posts/collection';
 import * as _ from 'underscore';
 
-registerMigration({
+export const scoreExceededDateFalseToNull = registerMigration({
   name: "scoreExceededDateFalseToNull",
   dateWritten: "2019-03-07",
   idempotent: true,
@@ -40,7 +40,7 @@ registerMigration({
   }
 });
 
-registerMigration({
+export const dropUnusedFields1 = registerMigration({
   name: "dropUnusedFields1",
   dateWritten: "2019-03-07",
   idempotent: true,

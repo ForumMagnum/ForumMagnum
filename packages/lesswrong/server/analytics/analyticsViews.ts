@@ -1,6 +1,6 @@
-import { forumSelect } from "../lib/forumTypeUtils";
-import { getAnalyticsConnection } from "./analytics/postgresConnection";
-import { addCronJob } from "./cronUtil";
+import { forumSelect } from "@/lib/forumTypeUtils";
+import { getAnalyticsConnection } from "./postgresConnection";
+import { addCronJob } from "../cron/cronUtil";
 
 const maintenanceQueries = forumSelect({
   EAForum: [
@@ -10,7 +10,7 @@ const maintenanceQueries = forumSelect({
   default: [],
 });
 
-addCronJob({
+export const cronMaintainAnalyticsViews = addCronJob({
   name: "maintainAnalyticsViews",
   interval: "every 24 hours",
   job: async () => {

@@ -1,9 +1,8 @@
 import { randomId } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes/collection';
-import { Vulcan } from '../../lib/vulcan-lib/config';
 
-async function runVoteMigration(collectionName: CollectionNameString) {
+export async function runVoteMigration(collectionName: CollectionNameString) {
   try {
     //Abort early if votes collection is not empty
     if (await Votes.findOneArbitrary()) {
@@ -60,5 +59,3 @@ async function runVoteMigration(collectionName: CollectionNameString) {
      console.error("Error during vote migration:", e);
    }
 }
-
-Vulcan.runVoteMigration = runVoteMigration

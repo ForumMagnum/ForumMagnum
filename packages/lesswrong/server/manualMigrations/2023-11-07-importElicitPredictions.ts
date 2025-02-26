@@ -37,7 +37,7 @@ const apiPredictionToDBQuestion = (prediction: ElicitPredictionData, questionId:
   isDeleted: false,
 })
 
-registerMigration({
+export default registerMigration({
   name: "importElicitPredictions",
   dateWritten: "2023-11-07",
   idempotent: true,

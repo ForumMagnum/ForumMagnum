@@ -1,91 +1,24 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { isAnyTest } from '../../../lib/executionEnvironment';
 import { CronHistories } from '../../../lib/collections/cronHistories/collection';
+import { isDevelopment } from '@/lib/executionEnvironment';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
   _entries: {},
   running: false,
-  options: {
-    //Log job run details to console
-    log: true,
-
-    logger: null,
-
-    //Name of collection to use for synchronisation and logging
-    collectionName: 'cronHistory',
-
-    //Default to using localTime
-    utc: false,
-  },
-  config: function(opts: any) {
-    this.options = _.extend({}, this.options, opts);
-  }
 }
 
-/*
-  Logger factory function. Takes a prefix string and options object
-  and uses an injected `logger` if provided, else falls back to
-  Meteor's `Log` package.
+// Use localtime for evaluating schedules. This configures the 'later' library
+// in a global, side-effectful way. This works out okay because all usages of
+// this library are in this file.
+later.date.localTime();
 
-  Will send a log object to the injected logger, on the following form:
-
-    message: String
-    level: String (info, warn, error, debug)
-    tag: 'SyncedCron'
-*/
-function createLogger(prefix: string) {
-  // Return noop if logging is disabled.
-  if(SyncedCron.options.log === false) {
-    return function() {};
+function log(message: string) {
+  if (!isDevelopment) {
+    // eslint-disable-next-line no-console
+    console.log(message);
   }
-
-  return function(level: "info"|"error"|"warn"|"debug", message: string) {
-
-    var logger = SyncedCron.options && SyncedCron.options.logger;
-
-    if(logger && _.isFunction(logger)) {
-
-      logger({
-        level: level,
-        message: message,
-        tag: prefix
-      });
-
-    } else {
-      //Log[level]({ message: prefix + ': ' + message });
-      
-      // eslint-disable-next-line no-console
-      console.log(prefix + ': ' + message);
-    }
-  }
-}
-
-var log: any;
-
-export function initSyncedCron() {
-  if (isAnyTest) return;
-  var options = SyncedCron.options;
-
-  log = createLogger('SyncedCron');
-
-  ['info', 'warn', 'error', 'debug'].forEach(function(level) {
-    log[level] = _.partial(log, level);
-  });
-
-  // Don't allow TTL less than 5 minutes so we don't break synchronization
-  var minTTL = 300;
-
-  // Use UTC or localtime for evaluating schedules
-  if (options.utc)
-    // eslint-disable-next-line babel/new-cap
-    later.date.UTC();
-  else
-    later.date.localTime();
-
-  // collection holding the job history records
-  SyncedCron._collection = CronHistories;
 }
 
 var scheduleEntry = function(entry: any) {
@@ -93,7 +26,7 @@ var scheduleEntry = function(entry: any) {
   entry._timer =
     SyncedCron._laterSetInterval(SyncedCron._entryWrapper(entry), schedule);
 
-  log.info('Scheduled "' + entry.name + '" next run @'
+  log('Scheduled "' + entry.name + '" next run @'
     + later.schedule(schedule).next(1));
 }
 
@@ -153,7 +86,7 @@ SyncedCron.remove = function(jobName: string) {
       entry._timer.clear();
 
     delete this._entries[jobName];
-    log.info('Removed "' + entry.name + '"');
+    log('Removed "' + entry.name + '"');
   }
 }
 
@@ -200,10 +133,10 @@ SyncedCron._entryWrapper = function(entry: any) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = await self._collection.rawInsert(jobHistory, {quiet: true});
+        jobHistory._id = await CronHistories.rawInsert(jobHistory, {quiet: true});
       } catch(e) {
         if (isDuplicateKeyError(e)) {
-          log.info('Not running "' + entry.name + '" again.');
+          log('Not running "' + entry.name + '" again.');
           return;
         }
 
@@ -213,12 +146,12 @@ SyncedCron._entryWrapper = function(entry: any) {
 
     // run and record the job
     try {
-      log.info('Starting "' + entry.name + '".');
+      log('Starting "' + entry.name + '".');
       var output = entry.job(intendedAt,entry.name); // <- Run the actual job
 
-      log.info('Finished "' + entry.name + '".');
+      log('Finished "' + entry.name + '".');
       if(entry.persist) {
-        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
+        await CronHistories.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -226,9 +159,9 @@ SyncedCron._entryWrapper = function(entry: any) {
         });
       }
     } catch(e) {
-      log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
+      log('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
+        await CronHistories.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e
@@ -242,7 +175,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 // for tests
 SyncedCron._reset = async function() {
   this._entries = {};
-  await this._collection.rawRemove({});
+  await CronHistories.rawRemove({});
   this.running = false;
 }
 
@@ -269,7 +202,7 @@ SyncedCron._laterSetInterval = function(fn: any, sched: any) {
       try {
         fn(intendedAt);
       } catch(e) {
-        log.info('Exception running scheduled job ' + ((e && e.stack) ? e.stack : e));
+        log('Exception running scheduled job ' + ((e && e.stack) ? e.stack : e));
       }
 
       t = SyncedCron._laterSetTimeout(scheduleTimeout, sched);
@@ -277,10 +210,7 @@ SyncedCron._laterSetInterval = function(fn: any, sched: any) {
   }
 
   return {
-
-    /**
-    * Clears the timeout.
-    */
+    // Clears the timeout.
     clear: function() {
       done = true;
       t.clear();
@@ -292,16 +222,13 @@ SyncedCron._laterSetInterval = function(fn: any, sched: any) {
 
 // From: https://github.com/bunkat/later/blob/master/src/core/settimeout.js
 SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
-
   var s = later.schedule(sched)
   var t: any;
   scheduleTimeout();
 
-  /**
-  * Schedules the timeout to occur. If the next occurrence is greater than the
-  * max supported delay (2147483647 ms) than we delay for that amount before
-  * attempting to schedule the timeout again.
-  */
+  // Schedules the timeout to occur. If the next occurrence is greater than the
+  // max supported delay (2147483647 ms) than we delay for that amount before
+  // attempting to schedule the timeout again.
   function scheduleTimeout() {
     var now = Date.now();
     // @ts-ignore
@@ -329,15 +256,9 @@ SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
   }
 
   return {
-
-    /**
-    * Clears the timeout.
-    */
+    // Clears the timeout.
     clear: function() {
       clearTimeout(t);
     }
-
   };
-
 };
-// ---------------------------------------------------------------------------

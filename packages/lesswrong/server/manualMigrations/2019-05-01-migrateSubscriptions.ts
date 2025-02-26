@@ -6,7 +6,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "migrateSubscriptions",
   dateWritten: "2019-05-01",
   idempotent: true,

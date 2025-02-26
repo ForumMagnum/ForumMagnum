@@ -1,4 +1,6 @@
+import { allViews } from '@/lib/views/allViews';
 import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
+import orderBy from 'lodash/orderBy';
 
 // NOT AN ESCAPING FUNCTION FOR UNTRUSTED INPUT
 function wrapWithQuotes(s: string): string {
@@ -8,12 +10,12 @@ function wrapWithQuotes(s: string): string {
 export function generateViewTypes(): string {
   const sb: Array<string> = [];
   const collections = getAllCollections();
-  const collectionsWithViews = collections.filter(collection => Object.keys(collection.views).length > 0);
+  const collectionsWithViews = collections.filter(collection => Object.keys(allViews[collection.collectionName].getAllViews()).length > 0);
   
   for (let collection of collections) {
     const collectionName = collection.collectionName;
-    const views = collection.views;
-    const viewNames = Object.keys(views);
+    const views = allViews[collectionName].getAllViews();
+    const viewNames = orderBy(Object.keys(views), v=>v);
     
     /*sb.push(`interface ${collectionName}View extends ViewBase {\n`);
     sb.push(`  view: ${collectionName}ViewName\n`);
@@ -30,9 +32,10 @@ export function generateViewTypes(): string {
   sb.push("interface ViewTermsByCollectionName {\n");
   for (let collection of collections) {
     const collectionName = collection.collectionName;
+    const collectionViewSet = allViews[collectionName];
     
     // Does this collection have any views?
-    if (Object.keys(collection.views).length > 0 || collection.defaultView) {
+    if (Object.keys(collectionViewSet.getAllViews()).length > 0 || collectionViewSet.getDefaultView()) {
       sb.push(`  ${collectionName}: ${collectionName}ViewTerms\n`);
     } else {
       sb.push(`  ${collectionName}: ViewTermsBase\n`);

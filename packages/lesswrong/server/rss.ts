@@ -16,9 +16,6 @@ import { fetchFragment } from './fetchFragment';
 import { addStaticRoute } from "./vulcan-lib/staticRoutes";
 import { createAnonymousContext } from "./vulcan-lib/query";
 
-Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
-Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
-
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
 

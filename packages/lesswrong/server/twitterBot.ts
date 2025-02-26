@@ -1,4 +1,4 @@
-import { addCronJob } from "./cronUtil";
+import { addCronJob } from "./cron/cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/lib/collections/posts/collection.ts";
@@ -8,7 +8,6 @@ import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts
 import Users from "@/lib/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
-import { Globals } from "../lib/vulcan-lib/config";
 import { createMutator } from "./vulcan-lib/mutators";
 
 const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
@@ -84,7 +83,7 @@ async function postTweet(content: string) {
   }
 }
 
-async function runTwitterBot() {
+export async function runTwitterBot() {
   if (!twitterBotEnabledSetting.get()) return;
 
   const repo = new TweetsRepo();
@@ -127,7 +126,7 @@ async function runTwitterBot() {
   logger(`All attempts failed, no tweets created.`);
 }
 
-addCronJob({
+export const runTwitterBotCron = addCronJob({
   name: "runTwitterBot",
   interval: "every 31 minutes",
   job: async () => {
@@ -135,4 +134,3 @@ addCronJob({
   },
 });
 
-Globals.runTwitterBot = runTwitterBot;

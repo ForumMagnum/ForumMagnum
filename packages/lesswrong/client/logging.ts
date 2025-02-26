@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
+import { captureEvent } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";

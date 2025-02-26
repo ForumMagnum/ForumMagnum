@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';

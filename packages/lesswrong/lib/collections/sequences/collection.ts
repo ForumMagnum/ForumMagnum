@@ -5,6 +5,7 @@ import { makeEditable } from '../../editor/make_editable';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
@@ -27,10 +28,21 @@ const options: MutationOptions<DbSequence> = {
   },
 }
 
+function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbSequence>): MongoIndexKeyObj<DbSequence> {
+  return { hidden:1, af:1, isDeleted:1, ...indexFields };
+}
+
 export const Sequences = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Sequences', augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
+    indexSet.addIndex('Sequences', augmentForDefaultView({ userId: 1, draft: 1, hideFromAuthorPage: 1, userProfileOrder: 1 }))
+    indexSet.addIndex('Sequences', augmentForDefaultView({ curatedOrder:-1 }));
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Sequences'),
   mutations: getDefaultMutations('Sequences', options),
   logChanges: true,
@@ -43,5 +55,28 @@ makeEditable({
   }
 })
 addUniversalFields({collection: Sequences})
+
+Sequences.checkAccess = async (user, document) => {
+  if (!document || document.isDeleted) {
+    return false;
+  }
+  
+  // If it isn't a draft, it's public
+  if (!document.draft) {
+    return true;
+  }
+  
+  if (!user) {
+    return false;
+  }
+  
+  if (userOwns(user, document)) {
+    return true;
+  } else if (userCanDo(user, `sequences.view.all`)) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 export default Sequences;

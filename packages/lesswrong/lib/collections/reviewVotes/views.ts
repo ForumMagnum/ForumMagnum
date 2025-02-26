@@ -1,5 +1,4 @@
-import ReviewVotes from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ReviewVotesViewTerms extends ViewTermsBase {
@@ -10,9 +9,7 @@ declare global {
   }
 }
 
-
-//Messages for a specific conversation
-ReviewVotes.addView("reviewVotesFromUser", (terms: ReviewVotesViewTerms) => {
+function reviewVotesFromUser(terms: ReviewVotesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -20,24 +17,21 @@ ReviewVotes.addView("reviewVotesFromUser", (terms: ReviewVotesViewTerms) => {
       dummy: false
     }
   };
-});
-ensureIndex(ReviewVotes, {year: 1, userId: 1, dummy: 1});
+}
 
-ReviewVotes.addView("reviewVotesForPost", function ({postId}: ReviewVotesViewTerms) {
+function reviewVotesForPost({postId}: ReviewVotesViewTerms) {
   return {
     selector: {postId},
   };
-});
-ensureIndex(ReviewVotes, {postId: 1});
+}
 
-ReviewVotes.addView("reviewVotesForPostAndUser", function ({postId, userId}: ReviewVotesViewTerms) {
+function reviewVotesForPostAndUser({postId, userId}: ReviewVotesViewTerms) {
   return {
     selector: {postId, userId}
   };
-});
-ensureIndex(ReviewVotes, {postId: 1, userId: 1})
+}
 
-ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesViewTerms) {
+function reviewVotesAdminDashboard({year}: ReviewVotesViewTerms) {
   return {
     selector: {
       year: year,
@@ -48,6 +42,12 @@ ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesVi
         createdAt: -1
       }
     }
-  }
-})
-ensureIndex(ReviewVotes, {year: 1, dummy: 1, createdAt: -1});
+  };
+}
+
+export const ReviewVotesViews = new CollectionViewSet('ReviewVotes', {
+  reviewVotesFromUser,
+  reviewVotesForPost,
+  reviewVotesForPostAndUser,
+  reviewVotesAdminDashboard
+});

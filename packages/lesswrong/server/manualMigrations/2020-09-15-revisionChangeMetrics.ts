@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import Revisions from '../../lib/collections/revisions/collection'
 import { getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 
-registerMigration({
+export default registerMigration({
   name: "revisionChangeMetrics",
   dateWritten: "2020-09-15",
   idempotent: true,

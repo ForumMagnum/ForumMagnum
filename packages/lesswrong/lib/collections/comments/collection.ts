@@ -8,6 +8,7 @@ import { makeEditable } from '../../editor/make_editable';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { commentVotingOptions } from './voting';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null) => {
@@ -47,6 +48,7 @@ export const Comments = createCollection({
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),
   logChanges: true,
+  voteable: commentVotingOptions,
 });
 
 addUniversalFields({

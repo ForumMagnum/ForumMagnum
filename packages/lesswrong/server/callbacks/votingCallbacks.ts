@@ -20,9 +20,36 @@ import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderator
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
-import { increaseMaxBaseScore } from './postCallbacks';
 import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+
+async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
+  if (vote.collectionName === "Posts") {
+    const post = newDocument as DbPost;
+    if (post.baseScore > (post.maxBaseScore || 0)) {
+      let thresholdTimestamp: any = {};
+      if (!post.scoreExceeded2Date && post.baseScore >= 2) {
+        thresholdTimestamp.scoreExceeded2Date = new Date();
+      }
+      if (!post.scoreExceeded30Date && post.baseScore >= 30) {
+        thresholdTimestamp.scoreExceeded30Date = new Date();
+      }
+      if (!post.scoreExceeded45Date && post.baseScore >= 45) {
+        thresholdTimestamp.scoreExceeded45Date = new Date();
+      }
+      if (!post.scoreExceeded75Date && post.baseScore >= 75) {
+        thresholdTimestamp.scoreExceeded75Date = new Date();
+      }
+      if (!post.scoreExceeded125Date && post.baseScore >= 125) {
+        thresholdTimestamp.scoreExceeded125Date = new Date();
+      }
+      if (!post.scoreExceeded200Date && post.baseScore >= 200) {
+        thresholdTimestamp.scoreExceeded200Date = new Date();
+      }
+      await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
+    }
+  }
+}
 
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});

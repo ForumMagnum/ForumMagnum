@@ -5,7 +5,7 @@ import { createDummyPost, createDummyLocalgroup } from "./utils";
 import ReviewVotes from "../lib/collections/reviewVotes/collection";
 JSON.stringify({ ReviewVotes });
 
-import { postsNewNotifications } from "../server/notificationCallbacks";
+import { sendNewPostNotifications } from "@/server/callbacks/postCallbackFunctions";
 import { createNotifications } from "../server/notificationCallbacksHelpers";
 
 jest.mock('../server/notificationCallbacksHelpers', () => {
@@ -31,7 +31,7 @@ jest.mock('../server/notificationCallbacksHelpers', () => {
 describe("test postsNewNotifications", () => {
   it("only sends the newPost notifications when the new post is not in a group and not an event", async () => {
     const testPost = await createDummyPost()
-    await postsNewNotifications(testPost)
+    await sendNewPostNotifications(testPost)
     // notify both users subscribed to the author
     expect(createNotifications).toHaveBeenCalledWith({
       userIds: ['222', '333'],
@@ -54,7 +54,7 @@ describe("test postsNewNotifications", () => {
         },
       },
     });
-    await postsNewNotifications(testPost)
+    await sendNewPostNotifications(testPost)
     // only send one notification per user
     expect(createNotifications).toHaveBeenCalledWith({
       userIds: ['222'],
@@ -73,7 +73,7 @@ describe("test postsNewNotifications", () => {
   it("sends the newGroupPost and newPost notifications when the new post is in a group, not an event", async () => {
     const testGroup = await createDummyLocalgroup()
     const testPost = await createDummyPost(null, { groupId: testGroup._id });
-    await postsNewNotifications(testPost)
+    await sendNewPostNotifications(testPost)
 
     expect(createNotifications).toHaveBeenCalledWith({
       userIds: ['111'],
@@ -104,7 +104,7 @@ describe("test postsNewNotifications", () => {
         },
       },
     });
-    await postsNewNotifications(testPost)
+    await sendNewPostNotifications(testPost)
     // only send one notification per user
     expect(createNotifications).toHaveBeenCalledWith({
       userIds: ['111'],

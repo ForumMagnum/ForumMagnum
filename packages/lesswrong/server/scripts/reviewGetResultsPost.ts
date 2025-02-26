@@ -1,8 +1,7 @@
-import { Globals } from "../../lib/vulcan-lib/config";
 import fs from 'fs'
 import { createVotingPostHtml } from "../reviewVoteUpdate";
 
-Globals.getReviewPrizesPost = async () => {
+export const getReviewPrizesPost = async () => {
   const result = await createVotingPostHtml()
   fs.writeFile('reviewResultsPost.txt', result.toString(), err => {
     if (err) {

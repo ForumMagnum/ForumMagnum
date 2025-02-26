@@ -5,7 +5,7 @@ import { htmlToPingbacks } from '../pingbacks';
 import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 import Revisions from '@/lib/collections/revisions/collection';
 
-registerMigration({
+export default registerMigration({
   name: "generatePingbacksAgain",
   dateWritten: "2019-12-05",
   idempotent: true,

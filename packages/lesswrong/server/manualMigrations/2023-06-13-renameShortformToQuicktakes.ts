@@ -1,7 +1,7 @@
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 
-registerMigration({
+export default registerMigration({
   name: "renameShortformToQuicktakes",
   dateWritten: "2023-06-13",
   idempotent: true,

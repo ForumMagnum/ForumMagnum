@@ -95,6 +95,7 @@ const CommentBody = ({
       description={`comment ${comment._id}`}
       nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
       replacedSubstrings={highlights}
+      contentStyleType={contentType}
     />
   </ContentStyles>
 

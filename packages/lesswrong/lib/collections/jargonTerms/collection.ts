@@ -9,6 +9,7 @@ import { userIsPostCoauthor } from '../posts/helpers';
 import { postCheckAccess } from '../posts/checkAccess';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
   return userIsAdmin(user) || userOwns(user, post) || userIsPostCoauthor(user, post);
@@ -48,6 +49,11 @@ export const JargonTerms: JargonTermsCollection = createCollection({
   collectionName: 'JargonTerms',
   typeName: 'JargonTerm',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('JargonTerms', { postId: 1, term: 1, createdAt: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('JargonTerms'),
   mutations: getDefaultMutations('JargonTerms', options),
   logChanges: true,

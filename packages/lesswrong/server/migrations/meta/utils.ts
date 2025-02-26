@@ -14,10 +14,6 @@ import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
-import {
-  expectedIndexes,
-  expectedCustomPgIndexes,
-} from "../../../lib/collectionIndexUtils";
 import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
@@ -26,10 +22,10 @@ import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14
 import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
-import { Globals } from '@/lib/vulcan-lib/config';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { createMutator } from "@/server/vulcan-lib/mutators.ts";
-import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
+import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
+import { getCollection } from "@/lib/vulcan-lib/getCollection";
+import { createMutator } from "@/server/vulcan-lib/mutators";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -154,8 +150,9 @@ export const createTable = async <N extends CollectionNameString>(
   const table = collection.getTable();
   const {sql, args} = new CreateTableQuery(table, ifNotExists).compile();
   await db.none(sql, args);
-  for (const index of table.getRequestedIndexes()) {
-    await createIndex(db, collection, index, ifNotExists);
+  for (const index of getAllIndexes().mongoStyleIndexes[collection.collectionName] ?? []) {
+    const tableIndex = new TableIndex(table.getName(), index.key, index.options);
+    await createIndex(db, collection, tableIndex, ifNotExists);
   }
 }
 
@@ -193,14 +190,18 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
 export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
-  for (const index of expectedIndexes[collection.collectionName] ?? []) {
-    await collection._ensureIndex(index.key, index);
+  const allIndexes = getAllIndexes();
+  const indexesOnCollection = allIndexes.mongoStyleIndexes[collection.collectionName];
+  for (const index of indexesOnCollection ?? []) {
+    await collection._ensureIndex(index.key, index.options);
     await sleep(100);
   }
 }
 
 export const updateCustomIndexes = async (db: SqlClientOrTx) => {
-  for (const index of expectedCustomPgIndexes) {
+  const allIndexes = getAllIndexes();
+  const customPgIndexes = allIndexes.customPgIndexes;
+  for (const index of customPgIndexes) {
     await db.none(index.source);
     await sleep(100);
   }
@@ -217,6 +218,7 @@ export const updateView = async (db: SqlClientOrTx, name: string) => {
   }
 }
 
+// Exported to allow running manually with "yarn repl"
 export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
   db?: SqlClientOrTx,
   collectionName: CollectionNameString,
@@ -368,7 +370,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   await undraftPublicPostRevisions(db);
 }
 
-
+// Exported to allow running manually with "yarn repl"
 export const denormalizeEditableField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
@@ -395,6 +397,3 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}_latest" = r."_id"
   `);
 }
-
-Globals.normalizeEditableField = normalizeEditableField
-Globals.denormalizeEditableField = denormalizeEditableField
