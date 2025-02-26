@@ -974,6 +974,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
           className={classes.description}
           replacedSubstrings={inlineReactHighlights}
           onContentReady={initializeRadioHandlers}
+          contentStyleType="tag"
         />
         <PathInfo tag={tag} lens={selectedLens ?? null} />
       </>

@@ -10,6 +10,7 @@ import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
+import type { ContentStyleType } from './ContentStyles';
 
 interface ExternalProps {
   /**
@@ -65,6 +66,11 @@ interface ExternalProps {
    * have been applied.
    */
   onContentReady?: (content: HTMLDivElement) => void;
+
+  /**
+   * If passed, will change the content style used in HoverPreviewLink.
+   */
+  contentStyleType?: ContentStyleType;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -357,6 +363,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         id={id}
         rel={rel}
         noPrefetch={this.props.noHoverPreviewPrefetch}
+        contentStyleType={this.props.contentStyleType}
       >
         <TagLinkContents/>
       </Components.HoverPreviewLink>
