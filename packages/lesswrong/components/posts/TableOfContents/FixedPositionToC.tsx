@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation } from '../../../lib/routeUtil';
 import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
 import { useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import classNames from 'classnames';
@@ -18,7 +16,7 @@ import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
-
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -225,7 +223,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
-  const disableProgressBar = (!postContext || isServer || postContext.shortform);
+  const disableProgressBar = ((!isLWorAF && !postContext) || isServer || postContext?.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),

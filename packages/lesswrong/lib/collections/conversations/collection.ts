@@ -1,8 +1,10 @@
 import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
   if (user.deleted) return false
@@ -35,6 +37,13 @@ export const Conversations: ConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Conversations', { moderator: 1, messageCount: 1, latestActivity: -1, participantIds: 1 })
+    indexSet.addIndex('Conversations', { participantIds: 1, messageCount: 1, latestActivity: -1 })
+    indexSet.addIndex('Conversations', { participantIds: 1, title: 1 })
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Conversations'),
   mutations: getDefaultMutations('Conversations', options)
 });
@@ -44,5 +53,10 @@ addUniversalFields({
   collection: Conversations,
   createdAtOptions: {canRead: ['members']},
 })
+
+Conversations.checkAccess = async (user: DbUser|null, document: DbConversation, context: ResolverContext|null): Promise<boolean> => {
+  if (!user || !document) return false;
+  return document.participantIds?.includes(user._id) ? userCanDo(user, 'conversations.view.own') : userCanDo(user, `conversations.view.all`)
+};
 
 export default Conversations;

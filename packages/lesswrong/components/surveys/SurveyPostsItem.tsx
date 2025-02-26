@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { captureException } from "@sentry/core";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";

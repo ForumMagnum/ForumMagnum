@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
 import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
@@ -9,6 +8,8 @@ import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
 
 interface ExternalProps {

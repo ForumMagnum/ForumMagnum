@@ -1,6 +1,7 @@
 import React from 'react';
-import { registerComponent, Components, getSiteUrl } from '../../lib/vulcan-lib';
 import './EmailUsername';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 
 const EmailPostAuthors = ({post}: {
   post: PostsRevision

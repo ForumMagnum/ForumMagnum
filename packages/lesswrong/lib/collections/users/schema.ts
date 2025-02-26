@@ -1,8 +1,7 @@
 import SimpleSchema from 'simpl-schema';
-import { getNestedProperty, addGraphQLSchema } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
@@ -21,6 +20,8 @@ import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
+import { getNestedProperty } from "../../vulcan-lib/utils";
+import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -189,7 +190,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as const,
+  control: "NotificationTypeSettingsWidget" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
@@ -387,7 +388,7 @@ const schema: SchemaType<"Users"> = {
   isAdmin: {
     type: Boolean,
     label: 'Admin',
-    input: 'checkbox',
+    control: 'checkbox',
     optional: true,
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
@@ -459,7 +460,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
-    input: 'text',
+    control: 'text',
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ownsOrIsMod,
@@ -518,7 +519,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       options: function() {
         const groups = _.without(
-          _.keys(userGroups),
+          _.keys(getAllUserGroups()),
           'guests',
           'members',
           'admins'

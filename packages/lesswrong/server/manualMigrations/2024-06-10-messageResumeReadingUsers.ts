@@ -3,7 +3,7 @@ import { Users } from '../../lib/collections/users/collection';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { adminAccountSetting } from '@/lib/publicSettings';
 
@@ -57,7 +57,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
 }
 
 
-registerMigration({
+export default registerMigration({
   name: "messageResumeReadingUsers",
   dateWritten: "2024-06-10",
   idempotent: true,

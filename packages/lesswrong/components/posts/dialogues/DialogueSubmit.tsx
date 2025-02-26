@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
@@ -7,7 +7,7 @@ import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../PostsEditForm';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { useNavigate } from '../../../lib/routeUtil';
 
 export const styles = (theme: ThemeType) => ({
   formButton: {

@@ -1,6 +1,5 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
-import ElectionCandidates from "./collection";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 const electionCandidateSortOptions = new TupleSet([
   "mostPreVoted",
@@ -34,19 +33,16 @@ const createSort = (sort?: string) => {
   }
 }
 
-ElectionCandidates.addDefaultView(({
-  electionName,
-  sortBy,
-}: ElectionCandidatesViewTerms) => {
+function defaultView(terms: ElectionCandidatesViewTerms) {
   return {
     selector: {
-      electionName,
+      electionName: terms.electionName,
       isElectionFundraiser: false,
     },
     options: {
-      sort: createSort(sortBy),
+      sort: createSort(terms.sortBy),
     },
   };
-});
+}
 
-ensureIndex(ElectionCandidates, {electionName: 1});
+export const ElectionCandidatesViews = new CollectionViewSet('ElectionCandidates', {}, defaultView);

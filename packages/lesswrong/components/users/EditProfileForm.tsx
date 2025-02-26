@@ -1,15 +1,16 @@
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { useLocation } from '../../lib/routeUtil';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI

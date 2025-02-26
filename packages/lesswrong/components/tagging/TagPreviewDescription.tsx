@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

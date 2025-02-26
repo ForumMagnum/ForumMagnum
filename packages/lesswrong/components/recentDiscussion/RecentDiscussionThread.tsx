@@ -1,9 +1,6 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CloseIcon from '@material-ui/icons/Close';
 
 import classNames from 'classnames';

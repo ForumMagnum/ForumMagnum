@@ -6,7 +6,7 @@ import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { getUser } from '../lib/vulcan-users/helpers';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
 import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';

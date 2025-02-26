@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "../../lib/utils/componentsWithChildren";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
 /**
  * This component adds citation meta tags for use by sites such as Google Scholar.

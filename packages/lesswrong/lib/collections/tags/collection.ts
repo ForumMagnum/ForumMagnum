@@ -1,17 +1,14 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { createCollection } from '../../vulcan-lib/collections';
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
-import { makeVoteable } from '@/lib/make_voteable';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
-
-export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
-export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
-export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 
 export const Tags = createCollection({
   collectionName: 'Tags',
@@ -45,6 +42,9 @@ export const Tags = createCollection({
     },
   }),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
+  },
 });
 
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
@@ -124,9 +124,5 @@ makeEditable({
     },
   }
 })
-
-makeVoteable(Tags, {
-  timeDecayScoresCronjob: false,
-});
 
 export default Tags;

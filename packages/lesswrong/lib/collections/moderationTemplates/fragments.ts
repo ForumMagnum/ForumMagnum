@@ -1,4 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment ModerationTemplateFragment on ModerationTemplate {

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,

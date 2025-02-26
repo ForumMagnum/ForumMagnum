@@ -1,13 +1,10 @@
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../lib/collections/posts/collection';
-import {
-  EA_FORUM_COMMUNITY_TOPIC_ID,
-  EA_FORUM_TRANSLATION_TOPIC_ID,
-  Tags,
-} from '../../lib/collections/tags/collection';
+import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
-import { viewFieldAllowAny } from '../vulcan-lib';
+import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
+import { EA_FORUM_COMMUNITY_TOPIC_ID, EA_FORUM_TRANSLATION_TOPIC_ID } from '@/lib/collections/tags/helpers';
 
 const communityFilters = {
   none: {$or: [

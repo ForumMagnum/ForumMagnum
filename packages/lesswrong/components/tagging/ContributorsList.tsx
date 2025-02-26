@@ -88,10 +88,10 @@ function ToCContributorsList({
       ))}
       {hiddenContributors.length > 0 && (
         <LWTooltip
-          title={hiddenContributors.map((c, i) => (
-            <span key={c.user._id}>
-              <UsersNameDisplay user={c.user} className={classes.contributorName} />
-              {i < hiddenContributors.length - 1 ? ', ' : ''}
+          title={hiddenContributors.map(( {user}, idx) => (
+            <span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
+              <UsersNameDisplay user={user} className={classes.contributorName}/>
+              {idx < hiddenContributors.length - 1 ? ', ' : ''}
             </span>
           ))}
           clickable

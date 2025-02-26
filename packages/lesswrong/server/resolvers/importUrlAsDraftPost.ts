@@ -3,12 +3,14 @@ import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 
 import Posts from '../../lib/collections/posts/collection'
-import { addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib'
 import { fetchFragmentSingle } from '../fetchFragment'
 import { defineMutation } from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 import { eligibleToNominate } from '@/lib/reviewUtils';
+import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
+import { createMutator } from "../vulcan-lib/mutators";
+import { sanitize } from "../../lib/vulcan-lib/utils";
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
