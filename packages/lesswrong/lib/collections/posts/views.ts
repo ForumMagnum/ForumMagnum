@@ -556,8 +556,9 @@ function metaRss(terms: PostsViewTerms) {
 }
 
 function rss(terms: PostsViewTerms) {
-  // default to 'community-rss' for rss
-  return communityRss(terms);
+  // this previously defaulted to 'community-rss' for rss, but it was getting overridden by `new` in server/rss.ts
+  // and we don't want `community-rss` because that excludes frontpaged posts.
+  return newest(terms);
 }
 
 function topQuestions(terms: PostsViewTerms) {
