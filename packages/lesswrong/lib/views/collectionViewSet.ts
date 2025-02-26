@@ -13,9 +13,11 @@ export class CollectionViewSet<N extends CollectionNameString, Views extends Rec
     return this.defaultView;
   }
 
-  getView<T extends keyof Views & string>(viewName: T): Views[T] {
+  getView<T extends keyof Views & string>(viewName: T): Views[T] | undefined {
     if (!this.views[viewName]) {
-      throw new Error(`View ${viewName} not found in collection ${this.collectionName}`);
+      // eslint-disable-next-line no-console
+      console.warn(`View ${viewName} not found in collection ${this.collectionName}`);
+      return undefined;
     }
     return this.views[viewName];
   }

@@ -80,7 +80,7 @@ function getParameters<N extends CollectionNameString>(
 
   // handle view option
   if (terms.view && collectionViewSet.getView(terms.view)) {
-    const viewFn = collectionViewSet.getView(terms.view);
+    const viewFn = collectionViewSet.getView(terms.view)!;
     const view = viewFn(terms, apolloClient, context);
     let mergedParameters = mergeSelectors(parameters, view);
 
