@@ -1,4 +1,3 @@
-import { ensureIndex } from "../../collectionIndexUtils";
 import UserTagRels from "./collection";
 
 declare global {
@@ -16,5 +15,3 @@ UserTagRels.addView('single', ({userId, tagId}: UserTagRelsViewTerms) => {
     }
   });
 })
-
-ensureIndex(UserTagRels, {tagId:1, userId:1}, {unique: true});

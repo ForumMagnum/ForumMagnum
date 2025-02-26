@@ -1,5 +1,4 @@
 import { TagRels } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface TagRelsViewTerms extends ViewTermsBase {
@@ -38,6 +37,3 @@ TagRels.addView('tagsOnPost', (terms: TagRelsViewTerms) => {
     },
   }
 });
-
-ensureIndex(TagRels, {postId:1});
-ensureIndex(TagRels, {tagId:1});

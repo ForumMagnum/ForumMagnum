@@ -1,4 +1,3 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import UserRateLimits from './collection';
 
 declare global {
@@ -13,7 +12,6 @@ declare global {
   })
 }
 
-ensureIndex(UserRateLimits, { userId: 1, createdAt: -1, endedAt: -1 });
 
 UserRateLimits.addView('userRateLimits', function (terms: UserRateLimitsViewTerms) {
   const activeFilter = terms.active ? { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }]} : {};

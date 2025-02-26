@@ -1,7 +1,5 @@
 import { Comments } from "../../collections/comments/collection";
-import { ensureIndex } from '../../collectionIndexUtils';
-import { augmentForDefaultView } from '../../collections/comments/views';
-import { viewFieldNullOrMissing } from "../../vulcan-lib/collections";
+import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
 
 Comments.addView("alignmentSuggestedComments", function (terms) {
   return {
@@ -19,10 +17,3 @@ Comments.addView("alignmentSuggestedComments", function (terms) {
     }
   }
 })
-ensureIndex(Comments,
-  augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, postedAt:1, }),
-  {
-    name: "comments.alignmentSuggestedComments",
-    partialFilterExpression: { "suggestForAlignmentUserIds.0": {$exists:true} },
-  }
-);

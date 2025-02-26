@@ -1,5 +1,4 @@
 import { LWEvents } from "./collection"
-import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface LWEventsViewTerms extends ViewTermsBase {
@@ -18,7 +17,6 @@ LWEvents.addView("adminView", (terms: LWEventsViewTerms) => {
     options: {sort: {createdAt: -1}}
   };
 });
-ensureIndex(LWEvents, {name:1, createdAt:-1});
 
 LWEvents.addView("postVisits", (terms: LWEventsViewTerms) => {
   return {
@@ -43,10 +41,6 @@ LWEvents.addView("emailHistory", (terms: LWEventsViewTerms) => {
   }
 });
 
-ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
-
-// Used in constructAkismetReport
-ensureIndex(LWEvents, {name:1, userId:1, createdAt:-1})
 
 LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
   const oneHourAgo = new Date(new Date().getTime()-(60*60*1000));
@@ -61,15 +55,6 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
     }
   }
 })
-
-// Index used in manual user-by-IP queries, and in some moderator UI
-ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "manual_idx__LWEvents_properties_ip"
-    ON public."LWEvents" USING gin
-    ((("properties"->>'ip')::TEXT))
-    WITH (fastupdate=True)
-    WHERE name='login';
-`);
 
 LWEvents.addView("postEverPublished", (terms) => ({
   selector: {

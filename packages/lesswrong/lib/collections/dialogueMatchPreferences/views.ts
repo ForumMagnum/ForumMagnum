@@ -1,4 +1,3 @@
-import {ensureIndex} from '../../collectionIndexUtils';
 import { DialogueMatchPreferences } from './collection';
 
 declare global {
@@ -16,5 +15,3 @@ DialogueMatchPreferences.addView('dialogueMatchPreferences', (terms: DialogueMat
     },
   };
 });
-
-ensureIndex(DialogueMatchPreferences, { dialogueCheckId: 1 });

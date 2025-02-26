@@ -50,6 +50,10 @@ class ClientCollection<
     return this.executeQuery();
   }
 
+  getIndexes(): never {
+    throw new Error("ClientCollection: getIndexes called on client");
+  }
+
   rawCollection() {
     return this.executeQuery();
   }

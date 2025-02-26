@@ -1,5 +1,4 @@
 import Localgroups from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {
@@ -38,7 +37,6 @@ Localgroups.addView("userOrganizesGroups", function (terms: LocalgroupsViewTerms
     options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { organizerIds: 1, deleted: 1, name: 1 })
 
 Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
@@ -49,7 +47,6 @@ Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
     options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { organizerIds: 1, inactive: 1, deleted: 1, name: 1 });
 
 Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
@@ -59,14 +56,12 @@ Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms)
     }
   };
 });
-ensureIndex(Localgroups, { organizerIds: 1, inactive: 1, deleted: 1 });
 
 Localgroups.addView("all", function (terms: LocalgroupsViewTerms) {
   return {
     options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { inactive: 1, deleted: 1, name: 1 });
 
 Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
   return {
@@ -91,7 +86,6 @@ Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
     }
   };
 });
-ensureIndex(Localgroups, { mongoLocation: "2dsphere", isOnline: 1, inactive: 1, deleted: 1 });
 
 Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
   return {
@@ -114,4 +108,3 @@ Localgroups.addView("online", function () {
     options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { isOnline: 1, inactive: 1, deleted: 1, name: 1 });

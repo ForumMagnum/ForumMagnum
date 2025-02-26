@@ -1,4 +1,3 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import CurationNotices from './collection';
 
 declare global {

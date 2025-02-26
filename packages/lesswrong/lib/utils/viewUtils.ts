@@ -1,9 +1,9 @@
 import { getCollection } from '../vulcan-lib/getCollection';
 import { loggerConstructor } from './logging'
-import { viewFieldNullOrMissing, viewFieldAllowAny } from '../vulcan-lib/collections';
 import { DatabasePublicSetting } from '../publicSettings';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from './viewConstants';
 
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)

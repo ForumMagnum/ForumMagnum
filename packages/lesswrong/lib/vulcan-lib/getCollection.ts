@@ -62,7 +62,7 @@ export const registerCollection = <N extends CollectionNameString>(
 }
 
 // Get a list of all collections, sorted by collection name.
-export const getAllCollections = (): Array<CollectionBase<any>> => {
+export const getAllCollections = (): Array<CollectionBase<CollectionNameString>> => {
   return sortBy(Collections, c=>c.collectionName);
 }
 

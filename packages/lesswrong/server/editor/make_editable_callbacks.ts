@@ -1,7 +1,6 @@
 import {AfterCreateCallbackProperties, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties} from '../mutationCallbacks'
 import {Revisions} from '../../lib/collections/revisions/collection'
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
-import {ensureIndex} from '../../lib/collectionIndexUtils'
 import {htmlToPingbacks} from '../pingbacks'
 import {
   editableCollections,
@@ -44,8 +43,6 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
   const {major} = extractVersionsFromSemver(semver)
   return major===0;
 }
-
-ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
 export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],

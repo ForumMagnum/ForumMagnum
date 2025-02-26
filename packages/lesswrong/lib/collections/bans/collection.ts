@@ -4,6 +4,7 @@ import { createCollection } from '../../vulcan-lib/collections';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbBan> = {
   newCheck: (user: DbUser|null, document: DbBan|null) => {
@@ -26,6 +27,11 @@ export const Bans: BansCollection = createCollection({
   collectionName: 'Bans',
   typeName: 'Ban',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Bans', { ip: 1 })
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Bans'),
   mutations: getDefaultMutations('Bans', options),
   logChanges: true,

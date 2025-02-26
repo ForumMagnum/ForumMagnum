@@ -1,5 +1,4 @@
 import Messages from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface MessagesViewTerms extends ViewTermsBase {
@@ -16,7 +15,6 @@ Messages.addView("messagesConversation", function (terms: MessagesViewTerms) {
     options: {sort: {createdAt: 1}}
   };
 });
-ensureIndex(Messages, { conversationId:1, createdAt:1 });
 
 // latest messages for a conversation preview
 Messages.addView("conversationPreview", function (terms: MessagesViewTerms) {

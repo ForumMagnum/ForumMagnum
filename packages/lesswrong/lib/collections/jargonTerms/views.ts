@@ -1,4 +1,3 @@
-import { ensureIndex } from "@/lib/collectionIndexUtils";
 import JargonTerms from "./collection"
 
 declare global {
@@ -22,8 +21,6 @@ declare global {
     postIds?: undefined
   });
 }
-
-ensureIndex(JargonTerms, { postId: 1, term: 1, createdAt: 1 });
 
 JargonTerms.addView("postEditorJargonTerms", function (terms: PostJargonTermsViewTerms) {
   return {

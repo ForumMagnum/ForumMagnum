@@ -1,5 +1,4 @@
 import ReviewVotes from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface ReviewVotesViewTerms extends ViewTermsBase {
@@ -21,21 +20,18 @@ ReviewVotes.addView("reviewVotesFromUser", (terms: ReviewVotesViewTerms) => {
     }
   };
 });
-ensureIndex(ReviewVotes, {year: 1, userId: 1, dummy: 1});
 
 ReviewVotes.addView("reviewVotesForPost", function ({postId}: ReviewVotesViewTerms) {
   return {
     selector: {postId},
   };
 });
-ensureIndex(ReviewVotes, {postId: 1});
 
 ReviewVotes.addView("reviewVotesForPostAndUser", function ({postId, userId}: ReviewVotesViewTerms) {
   return {
     selector: {postId, userId}
   };
 });
-ensureIndex(ReviewVotes, {postId: 1, userId: 1})
 
 ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesViewTerms) {
   return {
@@ -50,4 +46,3 @@ ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesVi
     }
   }
 })
-ensureIndex(ReviewVotes, {year: 1, dummy: 1, createdAt: -1});

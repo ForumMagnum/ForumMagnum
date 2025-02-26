@@ -1,5 +1,4 @@
 import ForumEvents from "./collection";
-import { ensureIndex } from "../../collectionIndexUtils";
 
 declare global {
   interface ForumEventsViewTerms extends ViewTermsBase {
@@ -16,7 +15,6 @@ ForumEvents.addView("upcomingForumEvents", (terms: ForumEventsViewTerms) => {
     },
   };
 });
-ensureIndex(ForumEvents, {endDate: 1})
 
 ForumEvents.addView("pastForumEvents", (terms: ForumEventsViewTerms) => {
   return {

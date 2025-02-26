@@ -1,6 +1,5 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import { isAF } from '../../instanceSettings';
-import { viewFieldNullOrMissing } from '../../vulcan-lib/collections';
+import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import Conversations from "./collection";
 
 declare global {
@@ -33,7 +32,6 @@ Conversations.addView("moderatorConversations", function (terms: ConversationsVi
     options: {sort: {latestActivity: -1}}
   };
 });
-ensureIndex(Conversations, { moderator: 1, messageCount: 1, latestActivity: -1, participantIds: 1 })
 
 // notifications for a specific user (what you see in the notifications menu)
 Conversations.addView("userConversations", function (terms: ConversationsViewTerms) {
@@ -43,7 +41,6 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
     options: {sort: {latestActivity: -1}}
   };
 });
-ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
 Conversations.addView("userConversationsAll", function (terms: ConversationsViewTerms) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
@@ -71,4 +68,3 @@ Conversations.addView("userGroupUntitledConversations", function (terms: Convers
     options: { sort: { moderator: 1 } },
   };
 });
-ensureIndex(Conversations, { participantIds: 1, title: 1 })

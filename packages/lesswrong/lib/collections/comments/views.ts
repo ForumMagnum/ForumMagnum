@@ -1,13 +1,12 @@
 import moment from 'moment';
-import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
-import { viewFieldNullOrMissing } from '../../vulcan-lib/collections';
 import { Comments } from './collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
 export const COMMENT_SORTING_MODES = new TupleSet([ 
   "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
@@ -126,22 +125,6 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
-export function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbComment>)
-{
-  return combineIndexWithDefaultViewIndex({
-    viewFields: indexFields,
-    prefix: {},
-    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1, postedAt:1, debateResponse:1},
-  });
-}
-
-// Most common case: want to get all the comments on a post, filter fields and
-// `limit` affects it only minimally. Best handled by a hash index on `postId`.
-ensureIndex(Comments, { postId: "hashed" });
-
-// For the user profile page
-ensureIndex(Comments, { userId:1, postedAt:-1 });
-
 Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
   return {
     selector: {
@@ -152,7 +135,6 @@ Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
     }
   }
 })
-ensureIndex(Comments, { parentCommentId: "hashed" });
 
 Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
   return {
@@ -195,10 +177,6 @@ Comments.addView("postCommentsTop", (terms: CommentsViewTerms) => {
 
   };
 });
-ensureIndex(Comments,
-  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
-  { name: "comments.top_comments" }
-);
 
 Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
   return {
@@ -211,10 +189,6 @@ Comments.addView("postCommentsRecentReplies", (terms: CommentsViewTerms) => {
 
   };
 });
-ensureIndex(Comments,
-  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, lastSubthreadActivity: -1, baseScore:-1, postedAt:-1 }),
-  { name: "comments.recent_replies" }
-);
 
 Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
   return {
@@ -227,10 +201,6 @@ Comments.addView("postCommentsMagic", (terms: CommentsViewTerms) => {
 
   };
 });
-ensureIndex(Comments,
-  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, score:-1, postedAt:-1 }),
-  { name: "comments.magic_comments" }
-);
 
 Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
   return {
@@ -243,10 +213,6 @@ Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
 
   };
 });
-ensureIndex(Comments,
-  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, afBaseScore:-1, postedAt:-1 }),
-  { name: "comments.af_top_comments" }
-);
 
 Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
   return {
@@ -273,10 +239,6 @@ Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
     options: {sort: {deleted: 1, postedAt: -1}}
   };
 });
-ensureIndex(Comments,
-  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, postedAt:-1 }),
-  { name: "comments.new_comments" }
-);
 
 Comments.addView("postCommentsBest", (terms: CommentsViewTerms) => {
   return {
@@ -327,8 +289,6 @@ Comments.addView("profileComments", (terms: CommentsViewTerms) => {
   };
 })
 
-ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
-
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: { deletedPublic: false },
@@ -353,7 +313,6 @@ Comments.addView("recentComments", (terms: CommentsViewTerms) => {
     },
   };
 });
-ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
 Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
   return {
@@ -371,7 +330,6 @@ Comments.addView("rejected", (terms: CommentsViewTerms) => {
     options: {sort: { postedAt: -1}, limit: terms.limit || 20},
   };
 })
-ensureIndex(Comments, augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: 1 }));
 
 // As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
@@ -460,10 +418,6 @@ Comments.addView("legacyIdComment", (terms: CommentsViewTerms) => {
     }
   };
 });
-ensureIndex(Comments, {legacyId: "hashed"});
-
-// Used in scoring cron job
-ensureIndex(Comments, {inactive:1,postedAt:1});
 
 Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
   return {
@@ -477,7 +431,6 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}},
   };
 });
-ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
 
 Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
   return {
@@ -494,7 +447,6 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
     options: {sort: {baseScore: -1}}
   };
 });
-ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
 Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
   return {
@@ -508,12 +460,6 @@ Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
     options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
 });
-
-// Used in moveToAnswers
-ensureIndex(Comments, {topLevelCommentId:1});
-
-// Used in findCommentByLegacyAFId
-ensureIndex(Comments, {agentFoundationsId:1});
 
 Comments.addView('topShortform', (terms: CommentsViewTerms) => {
   const timeRange = ((terms.before || terms.after)
@@ -608,18 +554,12 @@ Comments.addView('repliesToCommentThread', (terms: CommentsViewTerms) => {
   }
 });
 
-// Will be used for experimental shortform display on AllPosts page
-ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:1, postedAt: 1, baseScore:1});
-
 Comments.addView('shortformLatestChildren', (terms: CommentsViewTerms) => {
   return {
     selector: { topLevelCommentId: terms.topLevelCommentId} ,
     options: {sort: {postedAt: -1}, limit: 500}
   };
 });
-
-// Will be used for experimental shortform display on AllPosts page
-ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
 Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsViewTerms) => {
   return {
@@ -648,11 +588,6 @@ Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
-// Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary
-ensureIndex(Comments,
-  augmentForDefaultView({ nominatedForReview: 1, userId: 1, postId: 1 }),
-  { name: "comments.nominations2018" }
-);
 
 Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTerms) => {
   return {
@@ -698,16 +633,6 @@ Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}
   };
 });
 
-// Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
-ensureIndex(Comments,
-  augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
-  { name: "comments.reviews2018" }
-);
-ensureIndex(Comments,
-  augmentForDefaultView({tagId: 1}),
-  { name: "comments.tagId" }
-);
-
 // TODO merge with subforumFeedSortings
 export const subforumSorting: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   ...sortings,
@@ -733,7 +658,6 @@ Comments.addView('tagSubforumComments', ({tagId, sortBy=subforumDiscussionDefaul
     sort: sorting,
   },
 }});
-ensureIndex(Comments, augmentForDefaultView({ topLevelCommentId: 1, tagCommentType: 1, tagId:1 }));
 
 // DEPRECATED (will be deleted once there are no more old clients floating around)
 // For 'Discussion from your subforums' on the homepage
@@ -760,10 +684,6 @@ Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
     sort: {postedAt: -1},
   },
 }));
-ensureIndex(Comments,
-  augmentForDefaultView({moderatorHat: 1}),
-  { name: "comments.moderatorHat" }
-);
 
 Comments.addView('debateResponses', (terms: CommentsViewTerms) => ({
   selector: {
@@ -801,28 +721,3 @@ Comments.addView('forumEventComments', (terms: CommentsViewTerms) => {
   };
 });
 
-ensureIndex(Comments, augmentForDefaultView({ forumEventId: 1, userId: 1, postedAt: -1 }));
-
-
-// For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_promotedAt"
-  ON "Comments" ("postId", "promotedAt")
-  WHERE "promotedAt" IS NOT NULL;
-`);
-
-// For allowing `TagsRepo.getUserTopTags` to use an index-only scan, since given previous indexes it needed to pull all the comments to get their "postId".
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_userId_postId_postedAt"
-  ON "Comments" ("userId", "postId", "postedAt");
-`);
-
-// Exists for the sake of `CommentsRepo.getPopularComments`, which otherwise takes several seconds to run on a cold cache
-// Note that while it'll continue to use the index if you _increase_ the baseScore requirement above 15, it won't if you decrease it
-// The other conditions in the query could also have been included in the partial index requirements,
-// but they made a trivial difference so the added complexity (and lack of generalizability) didn't seem worth it
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_comments_popular_comments
-  ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
-  WHERE ("baseScore" >= 15)
-`);

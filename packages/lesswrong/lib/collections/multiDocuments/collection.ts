@@ -1,6 +1,5 @@
 import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
-import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
@@ -8,11 +7,20 @@ import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from "@/lib/vulcan-core/default_mutations.ts";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
   typeName: 'MultiDocument',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('MultiDocuments', { parentDocumentId: 1, collectionName: 1 });
+    indexSet.addIndex('MultiDocuments', { slug: 1 });
+    indexSet.addIndex('MultiDocuments', { oldSlugs: 1 });
+    indexSet.addCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
     newCheck: (user, multiDocument) => canMutateParentDocument(user, multiDocument, 'create'),
@@ -45,10 +53,6 @@ addSlugFields({
   onCollision: "rejectNewDocument",
   includesOldSlugs: true,
 });
-
-ensureIndex(MultiDocuments, { parentDocumentId: 1, collectionName: 1 });
-ensureIndex(MultiDocuments, { slug: 1 });
-ensureIndex(MultiDocuments, { oldSlugs: 1 });
 
 makeEditable({
   collection: MultiDocuments,

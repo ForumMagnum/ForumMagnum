@@ -1,5 +1,4 @@
 import { Revisions } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface RevisionsViewTerms extends ViewTermsBase {
@@ -28,7 +27,6 @@ Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
     options: {sort: {editedAt: -1}},
   }
 });
-ensureIndex(Revisions, {userId: 1, collectionName: 1, editedAt: 1});
 
 Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
   const result = {
@@ -63,5 +61,3 @@ Revisions.addView('revisionByVersionNumber', (terms: RevisionsViewTerms) => {
     },
   };
 });
-
-ensureIndex(Revisions, {collectionName:1, fieldName:1, editedAt:1, _id: 1, changeMetrics:1});

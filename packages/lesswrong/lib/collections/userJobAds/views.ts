@@ -1,5 +1,4 @@
 import UserJobAds from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface UserJobAdsViewTerms extends ViewTermsBase {
@@ -15,7 +14,3 @@ UserJobAds.addView("adsByUser", function (terms: UserJobAdsViewTerms) {
     }
   };
 });
-ensureIndex(UserJobAds, { userId: 1 })
-
-// for userJobAdCron.tsx
-ensureIndex(UserJobAds, { jobName: 1, adState: 1 })

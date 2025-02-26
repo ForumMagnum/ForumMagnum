@@ -1,5 +1,4 @@
 import { PostRelations } from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface PostRelationsViewTerms extends ViewTermsBase {
@@ -17,4 +16,3 @@ PostRelations.addView("allPostRelations", function (terms: PostRelationsViewTerm
     options: {sort: {order: 1, createdAt: -1}}
   };
 });
-ensureIndex(PostRelations, {sourcePostId:1, order:1, createdAt:-1});
