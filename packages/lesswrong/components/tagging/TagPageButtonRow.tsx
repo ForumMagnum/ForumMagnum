@@ -79,9 +79,9 @@ const styles = (theme: ThemeType) => ({
     } : {
       marginLeft: -2,
       marginRight: -5,
-    '& .MuiListItemIcon-root': {
-      marginRight: "unset !important",
-    },
+      '& .MuiListItemIcon-root': {
+        marginRight: "unset !important",
+      },
     }),
   },
   subscribeTo: {
