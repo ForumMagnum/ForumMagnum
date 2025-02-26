@@ -1,6 +1,6 @@
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import { getSchema } from '../lib/utils/getSchema';
-import { Utils } from '../lib/vulcan-lib/utils';
+import { createMutator } from './vulcan-lib/mutators';
 
 export const logFieldChanges = async <
   N extends CollectionNameString
@@ -41,7 +41,7 @@ export const logFieldChanges = async <
   }
   
   if (Object.keys(loggedChangesAfter).length > 0) {
-    void Utils.createMutator({
+    void createMutator({
       collection: LWEvents,
       currentUser,
       document: {

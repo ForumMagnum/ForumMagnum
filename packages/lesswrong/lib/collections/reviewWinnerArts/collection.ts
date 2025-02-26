@@ -1,5 +1,5 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { schema } from './schema';
 import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { ensureIndex } from '../../collectionIndexUtils';

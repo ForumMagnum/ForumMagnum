@@ -16,13 +16,11 @@ import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
-import { getCookieFromReq, clearCookie } from '../../utils/httpUtil';
+import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
-import { mongoFindOne } from '../../../lib/mongoQueries';
 import {userFindOneByEmail} from "../../commonQueries";
-import { ClientIds } from "../../../lib/collections/clientIds/collection";
 import UsersRepo from '../../repos/UsersRepo';
 
 // Meteor hashed its passwords twice, once on the client
@@ -242,7 +240,7 @@ const authenticationResolvers = {
       if (await userFindOneByEmail(email)) {
         throw Error("Email address is already taken");
       }
-      if (await mongoFindOne("Users", { username })) {
+      if (await context.Users.findOne({ username })) {
         throw Error("Username is already taken");
       }
 

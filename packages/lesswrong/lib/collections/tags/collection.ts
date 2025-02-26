@@ -8,7 +8,7 @@ import { formGroups } from './formGroups';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';

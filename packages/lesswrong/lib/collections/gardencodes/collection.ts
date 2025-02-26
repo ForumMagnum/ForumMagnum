@@ -6,7 +6,7 @@ import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 
 function generateCode(length: number) {
   let result = '';

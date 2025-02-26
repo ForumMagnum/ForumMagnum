@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { makeEditable } from "../../editor/make_editable";
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
 import { Posts } from '../posts/collection';

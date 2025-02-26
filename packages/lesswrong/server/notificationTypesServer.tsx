@@ -36,8 +36,8 @@ interface ServerNotificationType {
   canCombineEmails?: boolean,
   skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
-  emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
-  emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,
+  emailSubject: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<string>,
+  emailBody: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<React.ReactNode>,
 }
 // A default skip function is added in serverRegisterNotificationType so it is optional when registering a notification type
 type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
@@ -146,9 +146,9 @@ export const NewShortformNotification = serverRegisterNotificationType({
 export const NewTagPostsNotification = serverRegisterNotificationType({
   name: "newTagPosts",
   canCombineEmails: false,
-  emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const {documentId, documentType} = notifications[0]
-    return await taggedPostMessage({documentId, documentType: documentType as NotificationDocument})
+    return await taggedPostMessage({documentId, documentType: documentType as NotificationDocument, context})
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const {documentId, documentType} = notifications[0]
@@ -162,8 +162,8 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
 export const NewSequencePostsNotification = serverRegisterNotificationType({
   name: "newSequencePosts",
   canCombineEmails: false,
-  emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    const sequence = await getDocument(notifications[0].documentType as NotificationDocument, notifications[0].documentId) as DbSequence;
+  emailSubject: async ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+    const sequence = await getDocument(notifications[0].documentType as NotificationDocument, notifications[0].documentId, context) as DbSequence;
     if (!sequence) throw Error(`Can't find sequence for notification: ${notifications[0]}`)
     return `Posts added to ${sequence.title}`
   },
@@ -518,17 +518,17 @@ export const EmailVerificationRequiredNotification = serverRegisterNotificationT
 export const PostSharedWithUserNotification = serverRegisterNotificationType({
   name: "postSharedWithUser",
   canCombineEmails: false,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const name = await postGetAuthorName(post);
+    const name = await postGetAuthorName(post, context);
     return `${name} shared their ${post.draft ? "draft" : "post"} "${post.title}" with you`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetPageUrl(post, true);
-    const name = await postGetAuthorName(post);
+    const name = await postGetAuthorName(post, context);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
     </p>
@@ -538,18 +538,18 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
 export const PostAddedAsCoauthorNotification = serverRegisterNotificationType({
   name: "addedAsCoauthor",
   canCombineEmails: false,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const name = await postGetAuthorName(post);
+    const name = await postGetAuthorName(post, context);
     const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
     return `${name} added you as a coauthor to the ${postOrDialogue} "${post.title}"`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetEditUrl(post._id, true);
-    const name = await postGetAuthorName(post);
+    const name = await postGetAuthorName(post, context);
     const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
 
     return <p>
@@ -729,21 +729,21 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
 export const PostCoauthorRequestNotification = serverRegisterNotificationType({
   name: "coauthorRequestNotification",
   canCombineEmails: false,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const name = await postGetAuthorName(post);
+    const name = await postGetAuthorName(post, context);
     return `${name} requested that you co-author their post: ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
     const link = postGetPageUrl(post, true);
-    const name = await postGetAuthorName(post);
+    const name = await postGetAuthorName(post, context);
     return (
       <p>
         {name} requested that you co-author their post <a href={link}>{post.title}</a>.
@@ -807,16 +807,16 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
 
 export const NewMentionNotification = serverRegisterNotificationType({
   name: "newMention",
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId, context);
     if (!summary) {
       throw Error(`Can't find document for notification: ${notifications[0]}`);
     }
     
     return `${summary.associatedUserName} mentioned you in ${summary.displayName}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId, context);
     if (!summary) {
       throw Error(`Can't find document for notification: ${notifications[0]}`);
     }

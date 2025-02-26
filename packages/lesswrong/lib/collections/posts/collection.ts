@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';

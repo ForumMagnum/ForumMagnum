@@ -5,12 +5,14 @@ import { getNotificationTypeByNameServer } from './notificationTypesServer';
 import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
-import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts/collection';
 import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import Users from '@/lib/collections/users/collection';
+import { createAnonymousContext } from './vulcan-lib/query';
+import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -43,7 +45,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
-  const user = await getUser(userId);
+  const user = await Users.findOne({_id: userId});
   if (!user) throw new Error(`Missing user: ID ${userId}`);
   const now = new Date();
 
@@ -61,9 +63,11 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
     { _id: {$in: notificationIds}, emailed: true }
   ).fetch();
   
+  const context = await computeContextFromUser({ user, isSSR: false });
   if (notificationsToEmail.length) {
     const emails = await notificationBatchToEmails({
-      user, notifications: notificationsToEmail
+      user, notifications: notificationsToEmail,
+      context
     });
     
     for (let email of emails) {
@@ -72,7 +76,11 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   }
 }
 
-const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
+const notificationBatchToEmails = async ({user, notifications, context}: {
+  user: DbUser,
+  notifications: Array<DbNotification>,
+  context: ResolverContext,
+}) => {
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   
@@ -88,8 +96,8 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
         user,
         to: getUserEmail(user),
         from: notificationTypeRenderer.from,
-        subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
-        body: await notificationTypeRenderer.emailBody({ user, notifications }),
+        subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
+        body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
       }))
   );
 }
@@ -116,7 +124,8 @@ addGraphQLResolvers({
         ).fetch();
         emails = await notificationBatchToEmails({
           user: currentUser,
-          notifications
+          notifications,
+          context
         });
       }
       if (postId) {

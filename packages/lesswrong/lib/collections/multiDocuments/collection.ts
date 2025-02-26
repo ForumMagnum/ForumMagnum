@@ -6,7 +6,7 @@ import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { addUniversalFields } from "@/lib/collectionUtils";
-import { getDefaultMutations } from "@/lib/vulcan-core/default_mutations.ts";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 
 export const MultiDocuments = createCollection({
@@ -15,9 +15,9 @@ export const MultiDocuments = createCollection({
   schema,
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
-    newCheck: (user, multiDocument) => canMutateParentDocument(user, multiDocument, 'create'),
-    editCheck: async (user, multiDocument: DbMultiDocument) => {
-      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update');
+    newCheck: (user, multiDocument, context) => canMutateParentDocument(user, multiDocument, 'create', context),
+    editCheck: async (user, multiDocument: DbMultiDocument, context) => {
+      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update', context);
       if (!canEditParent) {
         return false;
       }

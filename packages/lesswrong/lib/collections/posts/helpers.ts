@@ -1,6 +1,5 @@
 import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -39,8 +38,8 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost): Promise<string> {
-  var user = await mongoFindOne("Users", post.userId);
+export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
+  var user = await context.Users.findOne({_id: post.userId});
   if (user) {
     return userGetDisplayName(user);
   } else {

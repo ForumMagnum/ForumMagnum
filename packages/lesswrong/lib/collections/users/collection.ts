@@ -8,7 +8,7 @@ import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { createCollection } from "../../vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "../../vulcan-lib/graphql";
 import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const Users = createCollection({

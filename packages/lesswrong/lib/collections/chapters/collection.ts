@@ -3,7 +3,7 @@ import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import Sequences from '../sequences/collection';
 import { makeEditable } from '../../editor/make_editable';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
