@@ -91,7 +91,8 @@ async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
   }
 }
 
-getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
+// TODO: move this to a commentCallbackFunctions file.  This was a newAfter.
+async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
     
     // Don't spam-check imported comments
@@ -134,7 +135,7 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
       }
     }
     return comment
-});
+}
 
 getCollectionHooks("Reports").editAsync.add(
   async function runReportCloseCallbacks(newReport: DbReport, oldReport: DbReport) {

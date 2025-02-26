@@ -1,7 +1,6 @@
 import { Posts } from "../../../lib/collections/posts/collection";
 import { Comments } from '../../../lib/collections/comments/collection'
 import { updateMutator } from '../../vulcan-lib/mutators';
-import { getCollectionHooks } from '../../mutationCallbacks';
 import { getCommentAncestorIds, getCommentSubtree } from '../../utils/commentTreeUtils';
 import * as _ from 'underscore';
 
@@ -35,12 +34,12 @@ export async function recalculateAFCommentMetadata(postId: string|null) {
   })
 }
 
-
-getCollectionHooks("Comments").newAsync.add(async function AlignmentCommentsNewOperations (comment: DbComment) {
+// TODO: move this to a commentCallbackFunctions file.  This was a newAsync.
+async function alignmentCommentsNewOperations(comment: DbComment) {
   if (comment.af) {
     await recalculateAFCommentMetadata(comment.postId)
   }
-});
+}
 
 //TODO: Probably change these to take a boolean argument?
 const updateParentsSetAFtrue = async (comment: DbComment) => {
@@ -58,7 +57,8 @@ const updateChildrenSetAFfalse = async (comment: DbComment) => {
   }
 }
 
-export async function commentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {
+// TODO: move this to a commentCallbackFunctions file.  This was an editAsync.
+export async function commentsAlignmentEdit(comment: DbComment, oldComment: DbComment) {
   if (comment.af && !oldComment.af) {
     await updateParentsSetAFtrue(comment);
     await recalculateAFCommentMetadata(comment.postId)
@@ -68,12 +68,11 @@ export async function commentsAlignmentEdit (comment: DbComment, oldComment: DbC
     await recalculateAFCommentMetadata(comment.postId)
   }
 }
-getCollectionHooks("Comments").editAsync.add(commentsAlignmentEdit);
 
-
-getCollectionHooks("Comments").newAsync.add(async function CommentsAlignmentNew (comment: DbComment) {
+// TODO: move this to a commentCallbackFunctions file.  This was a newAsync.
+async function commentsAlignmentNew(comment: DbComment) {
   if (comment.af) {
     await updateParentsSetAFtrue(comment);
     await recalculateAFCommentMetadata(comment.postId)
   }
-});
+}

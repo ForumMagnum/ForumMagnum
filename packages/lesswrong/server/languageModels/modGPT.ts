@@ -1,5 +1,5 @@
 import { getOpenAI } from './languageModelIntegration';
-import { getCollectionHooks } from '../mutationCallbacks';
+import type { UpdateCallbackProperties } from '../mutationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
@@ -262,7 +262,8 @@ async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOrigi
   }
 }
 
-getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
+// TODO: move this to a commentCallbackFunctions file.  This was an updateAsync.
+async function checkModGPTOnCommentUpdate({oldDocument, newDocument}: UpdateCallbackProperties<"Comments">) {
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
@@ -299,9 +300,10 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
   void checkModGPT(newDocument, post)
-})
+}
 
-getCollectionHooks("Comments").createAsync.add(async ({document}) => {
+// TODO: move this to a commentCallbackFunctions file.  This was a createAsync.
+async function checkModGPTOnCommentCreate({document}: {document: DbComment}) {
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
@@ -334,4 +336,4 @@ getCollectionHooks("Comments").createAsync.add(async ({document}) => {
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
   void checkModGPT(document, post)
-})
+}

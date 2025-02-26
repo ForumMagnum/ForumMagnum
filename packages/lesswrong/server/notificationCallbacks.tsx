@@ -383,20 +383,21 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
   });
 }
 
-// add new comment notification callback on comment submit
-getCollectionHooks("Comments").newAsync.add(async function commentsNewNotifications(comment: DbComment) {
+// TODO: move this to a commentCallbackFunctions file.  This was a newAsync.
+async function commentsNewNotifications(comment: DbComment) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
   if (commentIsHidden(comment)) return
   
   void sendNewCommentNotifications(comment)
-});
+}
 
-getCollectionHooks("Comments").editAsync.add(async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment) {
+// TODO: move this to a commentCallbackFunctions file.  This was an editAsync.
+async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment) {
   // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
   if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
     void sendNewCommentNotifications(comment)
   }
-});
+}
 
 getCollectionHooks("Messages").newAsync.add(async function messageNewNotification(message: DbMessage) {
   const conversationId = message.conversationId;
@@ -438,8 +439,8 @@ export async function bellNotifyEmailVerificationRequired (user: DbUser) {
 }
 
 
-// TODO: dedupe this with the one postCallbackFunctions
-const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
+// TODO: dedupe this with the one postCallbackFunctions.  This was an editAsync.
+async function sendAlignmentSubmissionApprovalNotifications(newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) {
   const newlyAF = newDocument.af && !oldDocument.af
   const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
   const reviewed = !!newDocument.reviewForAlignmentUserId
@@ -450,8 +451,6 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
-
-getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
 async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
   const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { captureEvent } from '../../lib/analyticsEvents';
 import Users from '../../lib/collections/users/collection';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { CreateCallbackProperties, CallbackValidationErrors, getCollectionHooks } from '../mutationCallbacks';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { userIsAdminOrMod, userOwns } from '@/lib/vulcan-users/permissions.ts';
 import LWEventsRepo from '../repos/LWEventsRepo';
@@ -18,19 +18,21 @@ getCollectionHooks("Users").updateValidate.add(async function ChangeDisplayNameR
   return validationErrors;
 });
 
-getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser, context }) {
+// TODO: move this to a commentCallbackFunctions file.  This was a createValidate.
+async function commentsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: comment, currentUser, context }: CreateCallbackProperties<"Comments">) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
   await enforceCommentRateLimit({user: currentUser, comment, context});
 
   return validationErrors;
-});
+}
 
-getCollectionHooks("Comments").createAsync.add(async ({document, context}: {
+// TODO: move this to a commentCallbackFunctions file.  This was a createAsync.
+async function trackCommentRateLimitHit({document, context}: {
   document: DbComment
   context: ResolverContext
-}) => {
+}) {
   const user = await Users.findOne(document.userId)
   
   if (user) {
@@ -45,7 +47,7 @@ getCollectionHooks("Comments").createAsync.add(async ({document, context}: {
       })
     }
   }
-})
+}
 
 async function enforceDisplayNameRateLimit({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}) {
   if (userIsAdminOrMod(currentUser)) return;
