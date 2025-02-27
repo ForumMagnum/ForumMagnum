@@ -10,7 +10,7 @@ const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
 
 export const HOVER_CLASSNAME = 'ToCRowHover'
-export const FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
+export const DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
 
 const STICKY_BLOCK_SCROLLER_CLASS_NAME = 'MultiToCLayoutStickyBlockScroller';
 
@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
       top: HEADER_HEIGHT,
-      height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+      height: `calc(100vh - ${HEADER_HEIGHT}px - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
     }
   },
   stickyBlockScroller: {
@@ -101,8 +101,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    maxHeight: `calc(100vh - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
-    height: fullHeightToCEnabled ? `calc(100vh - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)` : undefined,
+    maxHeight: `calc(100vh - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
+    height: fullHeightToCEnabled ? `calc(100vh - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -149,7 +149,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 12,
     paddingTop: 12,
     paddingBottom: 20,
-    height: FIXED_TOC_COMMENT_COUNT_HEIGHT,
+    height: `var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
     bottom: 0,
     left: 0,
     width: 240,
@@ -168,13 +168,15 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
   answerCount?: number,
   commentCount?: number,
+  fixedTocCommentCountHeight?: number,
+  tocContext?: 'tag' | 'post'
 }) => {
   const { LWCommentCount } = Components;
   const tocVisible = true;
@@ -188,7 +190,18 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
 
   const showCommentCount = commentCount !== undefined || answerCount !== undefined;
 
-  return <div className={classes.root}>
+  // Create a ref for the root element to set CSS variable
+  const rootRef = React.useRef<HTMLDivElement>(null);
+
+  // Set the CSS variable when the component mounts or when fixedTocCommentCountHeight changes
+  React.useEffect(() => {
+    if (rootRef.current) {
+      const fixedTocCommentCountHeight = tocContext === 'tag' ? 20 : DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT;
+      rootRef.current.style.setProperty('--fixed-toc-comment-count-height', `${fixedTocCommentCountHeight}px`);
+    }
+  }, [tocContext]);
+
+  return <div className={classes.root} ref={rootRef}>
     <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas, gridTemplateRows }}>
       {segments.map((segment,i) => <React.Fragment key={i}>
         {segment.toc && tocVisible && <>
