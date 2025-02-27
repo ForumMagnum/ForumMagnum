@@ -489,7 +489,10 @@ registerFragment(`
     username
     fullName
     slug
-    mapLocationLatLng { lat lng }
+    mapLocationLatLng {
+      lat
+      lng
+    }
     mapLocationSet
     htmlMapMarkerText
   }
