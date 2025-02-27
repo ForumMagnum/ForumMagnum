@@ -1,8 +1,4 @@
-import moment from 'moment';
-import { captureEvent } from '../../lib/analyticsEvents';
-import Users from '../../lib/collections/users/collection';
-import { CreateCallbackProperties, CallbackValidationErrors, getCollectionHooks } from '../mutationCallbacks';
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { getCollectionHooks } from '../mutationCallbacks';
 import { userIsAdminOrMod, userOwns } from '@/lib/vulcan-users/permissions.ts';
 import LWEventsRepo from '../repos/LWEventsRepo';
 import { isEAForum } from '@/lib/instanceSettings';
@@ -17,37 +13,6 @@ getCollectionHooks("Users").updateValidate.add(async function ChangeDisplayNameR
   }
   return validationErrors;
 });
-
-// TODO: move this to a commentCallbackFunctions file.  This was a createValidate.
-async function commentsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: comment, currentUser, context }: CreateCallbackProperties<"Comments">) {
-  if (!currentUser) {
-    throw new Error(`Can't comment while logged out.`);
-  }
-  await enforceCommentRateLimit({user: currentUser, comment, context});
-
-  return validationErrors;
-}
-
-// TODO: move this to a commentCallbackFunctions file.  This was a createAsync.
-async function trackCommentRateLimitHit({document, context}: {
-  document: DbComment
-  context: ResolverContext
-}) {
-  const user = await Users.findOne(document.userId)
-  
-  if (user) {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, null, context)
-    // if the user has created a comment that makes them hit the rate limit, record an event
-    // (ignore the universal 8 sec rate limit)
-    if (rateLimit && rateLimit.rateLimitType !== 'universal') {
-      captureEvent("commentRateLimitHit", {
-        rateLimitType: rateLimit.rateLimitType,
-        userId: document.userId,
-        commentId: document._id
-      })
-    }
-  }
-}
 
 async function enforceDisplayNameRateLimit({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}) {
   if (userIsAdminOrMod(currentUser)) return;
@@ -69,22 +34,5 @@ async function enforceDisplayNameRateLimit({userToUpdate, currentUser}: {userToU
   if (nameChangeCount >= changesAllowed) {
     const times = changesAllowed === 1 ? 'time' : 'times';
     throw new Error(`You can only change your display name ${changesAllowed} ${times} every ${sinceDaysAgo} days. Please contact support if you would like to change it again`);
-  }
-}
-
-async function enforceCommentRateLimit({user, comment, context}: {
-  user: DbUser,
-  comment: DbInsertion<DbComment>,
-  context: ResolverContext,
-}) {
-  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId, context);
-  if (rateLimit) {
-    const {nextEligible, rateLimitType:_} = rateLimit;
-    if (nextEligible > new Date()) {
-      // "fromNow" makes for a more human readable "how long till I can comment/post?".
-      // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
-      moment.relativeTimeThreshold('ss', 0);
-      throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
-    }
   }
 }

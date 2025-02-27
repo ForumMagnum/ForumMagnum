@@ -5,7 +5,7 @@ import { loggerConstructor } from '../../lib/utils/logging';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
-import { getAdminTeamAccount } from './commentCallbacks';
+import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 
 /**
  * Before a user has been fully approved, keep track of the number of users

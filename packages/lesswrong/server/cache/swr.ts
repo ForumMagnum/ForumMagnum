@@ -158,10 +158,4 @@ const postCallback = ({ _id }: { _id: string }) => {
 getCollectionHooks("Posts").createAfter.add(postCallback);
 getCollectionHooks("Posts").updateAfter.add(postCallback);
 
-// TODO: move this to a commentCallbackFunctions file.  This was a createAfter and updateAfter.
-function invalidatePostOnCommentCreateOrUpdate({ postId }: { postId: string | null }) {
-  if (!postId) return;
-  void swrInvalidatePostRoute(postId);
-}
-
 // See packages/lesswrong/server/voteServer.ts for callback on votes

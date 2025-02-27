@@ -16,7 +16,7 @@ import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recom
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail, userShortformPostTitle} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
-import { getAdminTeamAccount } from './commentCallbacks';
+import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { wrapAndSendEmail } from '../emails/renderEmail';
 import { DatabaseServerSetting } from "../databaseSettings";
 import { EventDebouncer } from '../debouncer';

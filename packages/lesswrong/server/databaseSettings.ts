@@ -9,6 +9,7 @@ import {
 } from '../lib/settingsCache'
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 const runValidateSettings = false
 
@@ -104,3 +105,9 @@ export const tagBotActiveTimeSetting = new DatabaseServerSetting<"always" | "wee
 export const autoFrontpageSetting = new DatabaseServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
 export const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
 export const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
+
+// Akismet API integration
+export const akismetKeySetting = new DatabaseServerSetting<string | null>('akismet.apiKey', null)
+export const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)
+
+export const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
