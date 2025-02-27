@@ -321,8 +321,15 @@ function getFootnoteId(href: string, html: string): string|null {
  *  - Find the footnote reference, and use the data-footnote-index prop
  *  - Find the footnote in the page footer, and if it's inside an <ol> tag, use
  *    its position within that tag's list of children
+ * 
+ * We specifically look for footnotes with an OL parent that has the "footnotes" class
+ * to avoid using versions of the footnote that's present from the ckEditor edit form (present for quick-switching).
  */
 function getFootnoteIndex(href: string, html: string): string|null {
+  // Parse the footnote for its data-footnote-id, use that to find the footnote
+  // reference (which is a span that wraps around the part of the footnote that
+  // got hover-preview-ified), and take the data-footnote-index from that to
+  // display.
   const footnoteId = getFootnoteId(href, html);
   if (!footnoteId) return null;
 
@@ -335,8 +342,7 @@ function getFootnoteIndex(href: string, html: string): string|null {
   
   const allMatchingElements = Array.from(document.querySelectorAll(`#fn${footnoteId}`));
   
-  // First try to find element with an OL parent with the "footnotes" class
-  // This is the most reliable way to get the correct footnote
+  // Try to find element with an OL parent with the "footnotes" class
   // This prevents using the version of the footnote from within quick-switch edit form that has a div parent instead of an ol
   const footnoteWithOlParent = allMatchingElements.find(el => 
     el.parentElement?.tagName === 'OL' &&
@@ -361,13 +367,6 @@ function getFootnoteIndex(href: string, html: string): string|null {
     }
     
     return (olStart + numPrecedingLiElements).toString();
-  }
-  
-  for (const element of allMatchingElements) {
-    const indexAttr = element.getAttribute('data-footnote-index');
-    if (indexAttr) {
-      return indexAttr;
-    }
   }
   
   return null;
