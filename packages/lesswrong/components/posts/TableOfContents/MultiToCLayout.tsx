@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
@@ -175,7 +175,6 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   showSplashPageHeader?: boolean,
   answerCount?: number,
   commentCount?: number,
-  fixedTocCommentCountHeight?: number,
   tocContext?: 'tag' | 'post'
 }) => {
   const { LWCommentCount } = Components;
@@ -191,15 +190,16 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   const showCommentCount = commentCount !== undefined || answerCount !== undefined;
 
   // Create a ref for the root element to set CSS variable
-  const rootRef = React.useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  // Set the CSS variable when the component mounts or when fixedTocCommentCountHeight changes
-  React.useEffect(() => {
+  // Set the CSS variable when the component mounts
+  useEffect(() => {
     if (rootRef.current) {
       const fixedTocCommentCountHeight = tocContext === 'tag' ? 20 : DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT;
       rootRef.current.style.setProperty('--fixed-toc-comment-count-height', `${fixedTocCommentCountHeight}px`);
     }
-  }, [tocContext]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <div className={classes.root} ref={rootRef}>
     <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas, gridTemplateRows }}>
