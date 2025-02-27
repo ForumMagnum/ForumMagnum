@@ -1,6 +1,6 @@
 import JargonTerms from "@/lib/collections/jargonTerms/collection";
 import { augmentFieldsDict } from "@/lib/utils/schemaUtils";
-import { getAdminTeamAccountId } from "@/server/callbacks/commentCallbacks";
+import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
 import Revisions from "@/lib/collections/revisions/collection";
 
 augmentFieldsDict(JargonTerms, {

@@ -2,20 +2,13 @@ import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
 import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
-import { updateMutator } from './vulcan-lib/mutators';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
-import { DatabaseServerSetting } from './databaseSettings';
+import { akismetKeySetting, akismetURLSetting } from './databaseSettings';
 import { getCollectionHooks } from './mutationCallbacks';
-import { captureEvent } from '../lib/analyticsEvents';
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 
-const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
-
-// Akismet API integration
-const akismetKeySetting = new DatabaseServerSetting<string | null>('akismet.apiKey', null)
-const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)
 
 let akismetClient: any = null;
 const getAkismetClient = () => {
@@ -72,7 +65,7 @@ async function constructAkismetReport({document, type="post"}: {
   }
 }
 
-async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
+export async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
   try {
     if (document?.contents?.html?.indexOf("spam-test-string-123") >= 0) {
       // eslint-disable-next-line no-console
@@ -90,51 +83,6 @@ async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
     return false
   }
 }
-
-getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
-    if (!currentUser) throw new Error("Submitted comment has no associated user");
-    
-    // Don't spam-check imported comments
-    if (comment.legacyData?.arbitalPageId) {
-      return comment;
-    }
-
-    const unreviewedUser = !currentUser.reviewedByUserId;
-    
-    if (unreviewedUser && akismetKeySetting.get()) {
-      const start = Date.now();
-
-      const spam = await checkForAkismetSpam({document: comment, type: "comment"})
-
-      const timeElapsed = Date.now() - start;
-      captureEvent('checkForAkismetSpamCompleted', {
-        commentId: comment._id,
-        timeElapsed
-      }, true);
-
-      if (spam) {
-        if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
-          // eslint-disable-next-line no-console
-          console.log("Deleting comment from user below spam threshold", comment)
-          await updateMutator({
-            collection: Comments,
-            documentId: comment._id,
-            // NOTE: This mutation has no user attached. This interacts with commentsDeleteSendPMAsync so that the PM notification of a deleted comment appears to come from themself.
-            set: {
-              deleted: true,
-              deletedDate: new Date(),
-              deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
-            },
-            validate: false,
-          });
-        }
-      } else {
-        //eslint-disable-next-line no-console
-        console.log('Comment marked as not spam', comment._id);
-      }
-    }
-    return comment
-});
 
 getCollectionHooks("Reports").editAsync.add(
   async function runReportCloseCallbacks(newReport: DbReport, oldReport: DbReport) {

@@ -37,11 +37,12 @@ import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/query";
-import { getAdminTeamAccount, getRejectionMessage } from "./commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
+import { getRejectionMessage } from "./commentCallbackFunctions";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -1164,7 +1165,7 @@ export async function sendAlignmentSubmissionApprovalNotifications(newDocument: 
   const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
   const reviewed = !!newDocument.reviewForAlignmentUserId
   
-  const documentType =  newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
+  const documentType = newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
   
   if (newlyAF && userSubmitted && reviewed) {
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})

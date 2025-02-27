@@ -99,7 +99,6 @@ import './server/callbacks/jargonTermCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
-import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';

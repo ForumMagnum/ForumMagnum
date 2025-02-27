@@ -1,7 +1,7 @@
 import { getWrappedUsers } from "./sendWrappedNotifications";
 import { getWrappedDataByYear } from "./wrappedDataByYear";
 import { getWrappedEngagement } from "./wrappedEngagment";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { getAllRepos } from "../repos";
 import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
 import sampleSize from "lodash/fp/sampleSize";

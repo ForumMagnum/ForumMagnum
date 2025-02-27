@@ -147,23 +147,4 @@ export const swrInvalidatePostRoute = async (postId: string) => {
   }
 };
 
-//
-// Callbacks for triggering invalidation
-//
-
-const postCallback = ({ _id }: { _id: string }) => {
-  void swrInvalidatePostRoute(_id);
-};
-
-getCollectionHooks("Posts").createAfter.add(postCallback);
-getCollectionHooks("Posts").updateAfter.add(postCallback);
-
-const commentCallback = ({ postId }: { postId: string | null }) => {
-  if (!postId) return;
-  void swrInvalidatePostRoute(postId);
-};
-
-getCollectionHooks("Comments").createAfter.add(commentCallback);
-getCollectionHooks("Comments").updateAfter.add(commentCallback);
-
 // See packages/lesswrong/server/voteServer.ts for callback on votes

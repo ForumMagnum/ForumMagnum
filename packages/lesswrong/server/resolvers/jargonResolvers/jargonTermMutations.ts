@@ -6,7 +6,7 @@ import { initialGlossaryPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
-import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
+import { getAdminTeamAccount } from '@/server/utils/adminTeamAccount';
 import { z } from 'zod';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';
