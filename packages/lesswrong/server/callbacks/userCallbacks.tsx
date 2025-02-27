@@ -59,18 +59,16 @@ export async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTupl
   }
 }
 
-getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
-{
+function maybeSendVerificationEmail(modifier: MongoModifier<DbUser>, user: DbUser) {
   if(modifier.$set.whenConfirmationEmailSent
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
     void sendVerificationEmailConditional(user);
   }
-});
+}
 
-getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
-{
+async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbUser) {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
     // For each post by this author which has the authorIsUnreviewed flag set,
@@ -104,19 +102,19 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
       });
     }
   }
-});
+}
 
-getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<"Users">) {
+function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
     void triggerReviewIfNeeded(document._id)
   }
-})
+}
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
-getCollectionHooks("Users").newSync.add(async function makeFirstUserAdminAndApproved (user: DbUser) {
+async function makeFirstUserAdminAndApproved(user: DbUser) {
   if (isAnyTest) return user;
   const realUsersCount = await Users.find({}).count();
   if (realUsersCount === 0) {
@@ -127,10 +125,9 @@ getCollectionHooks("Users").newSync.add(async function makeFirstUserAdminAndAppr
     user.groups.push("sunshineRegiment");
   }
   return user;
-});
+}
 
-getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
-{
+function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier<DbUser>, user: DbUser) {
   if (modifier.$set && modifier.$set.karmaChangeNotifierSettings) {
     if (!user.karmaChangeNotifierSettings.updateFrequency
       || modifier.$set.karmaChangeNotifierSettings.updateFrequency !== user.karmaChangeNotifierSettings.updateFrequency) {
@@ -138,9 +135,10 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
       modifier.$set.karmaChangeBatchStart = null;
     }
   }
-});
+  return modifier;
+}
 
-getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
+async function subscribeOnSignup(user: DbUser) {
   // Skip email confirmation if no email address is attached to the account.
   // An email address is required when signing up normally, but might not exist
   // for users created by data import, eg importing Arbital
@@ -148,9 +146,9 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
     return;
 
   await sendVerificationEmailConditional(user);
-});
+}
 
-getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
+async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser) {
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
     const post = await Posts.findOne({_id: newUser.shortformFeedId});
@@ -180,9 +178,9 @@ getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost 
       validate: false,
     });
   }
-});
+}
 
-getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
+async function usersMakeAdmin(user: DbUser) {
   if (isAnyTest) return user;
   // if this is not a dummy account, and is the first user ever, make them an admin
   // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
@@ -191,16 +189,16 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
     user.isAdmin = (realUsersCount === 0);
   }
   return user;
-});
+}
 
-const sendVerificationEmailConditional = async  (user: DbUser) => {
+const sendVerificationEmailConditional = async (user: DbUser) => {
   if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
   }
 }
 
-getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
+async function usersEditCheckEmail(modifier: MongoModifier<DbUser>, user: DbUser) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
 
@@ -236,13 +234,13 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     }
   }
   return modifier;
-});
+}
 
 /**
  * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
  * happens implicitly due to changing another field
  */
-getCollectionHooks("Users").updateBefore.add(async function updateDigestSubscription(data: DbUser, {oldDocument}) {
+async function updateDigestSubscription(data: DbUser, {oldDocument}: {oldDocument: DbUser}) {
   // Handle cases which force you to unsubscribe from the digest:
   // - When a user explicitly unsubscribes from all emails. If they want they can then explicitly re-subscribe
   // to the digest while keeping "unsubscribeFromAll" checked
@@ -315,13 +313,13 @@ getCollectionHooks("Users").updateBefore.add(async function updateDigestSubscrip
 
   const json = await res.json()
   return handleErrorCase(`Error updating digest subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
-});
+}
 
 /**
  * This callback adds all new users to an audience in Mailchimp which will be used for a forthcoming
  * (as of 2021-08-11) drip campaign.
  */
-getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
+async function subscribeToEAForumAudience(user: DbUser) {
   if (isAnyTest || !isEAForum) {
     return;
   }
@@ -355,7 +353,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     // eslint-disable-next-line no-console
     console.log(e);
   });
-});
+}
 
 const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
@@ -373,11 +371,11 @@ const welcomeMessageDelayer = new EventDebouncer({
   },
 });
 
-getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
+async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
   });
-});
+}
 
 const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
 const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
@@ -458,7 +456,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
 }
 
-getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(data: DbUser, {oldDocument}) {
+async function updateDisplayName(data: DbUser, {oldDocument}: {oldDocument: DbUser}) {
   if (data.displayName !== undefined && data.displayName !== oldDocument.displayName) {
     if (!data.displayName) {
       throw new Error("You must enter a display name");
@@ -476,9 +474,9 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
   }
   return data;
-});
+}
 
-getCollectionHooks("Users").createAsync.add(({ document }) => {
+function createAsyncRecombee({ document }: {document: DbUser}) {
   if (!recombeeEnabledSetting.get()) return;
 
   // Skip users without email addresses because that means they're imported
@@ -488,9 +486,9 @@ getCollectionHooks("Users").createAsync.add(({ document }) => {
   void recombeeApi.createUser(document)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }));
-});
+}
 
-getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier, user: DbUser) {
+function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUser) {
   for (const field of simpleUserProfileFields) {
     if (
       (field in modifier.$set && !isEqual(modifier.$set[field], user[field])) ||
@@ -507,9 +505,9 @@ getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier,
     }
   }
   return modifier;
-});
+}
 
-getCollectionHooks("Users").editAsync.add(async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
+async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
   if (!hasType3ApiAccess()) {
     return;
   }
@@ -518,4 +516,21 @@ getCollectionHooks("Users").editAsync.add(async function updatingPostAudio(newUs
   if (nameChanged || deletedChanged) {
     await regenerateAllType3AudioForUser(newUser._id);
   }
-});
+}
+
+getCollectionHooks("Users").editSync.add(maybeSendVerificationEmail);
+getCollectionHooks("Users").editAsync.add(approveUnreviewedSubmissions);
+getCollectionHooks("Users").updateAsync.add(updateUserMayTriggerReview);
+getCollectionHooks("Users").newSync.add(makeFirstUserAdminAndApproved);
+getCollectionHooks("Users").editSync.add(clearKarmaChangeBatchOnSettingsChange);
+getCollectionHooks("Users").newAsync.add(subscribeOnSignup);
+getCollectionHooks("Users").editAsync.add(handleSetShortformPost);
+getCollectionHooks("Users").newSync.add(usersMakeAdmin);
+getCollectionHooks("Users").editSync.add(usersEditCheckEmail);
+getCollectionHooks("Users").updateBefore.add(updateDigestSubscription);
+getCollectionHooks("Users").newAsync.add(subscribeToEAForumAudience);
+getCollectionHooks("Users").newAsync.add(sendWelcomingPM);
+getCollectionHooks("Users").updateBefore.add(updateDisplayName);
+getCollectionHooks("Users").createAsync.add(createAsyncRecombee);
+getCollectionHooks("Users").editSync.add(syncProfileUpdatedAt);
+getCollectionHooks("Users").editAsync.add(updatingPostAudio);

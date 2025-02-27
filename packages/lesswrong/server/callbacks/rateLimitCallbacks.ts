@@ -7,12 +7,13 @@ import { DatabaseServerSetting } from '../databaseSettings';
 const changesAllowedSetting = new DatabaseServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
 const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
 
-getCollectionHooks("Users").updateValidate.add(async function ChangeDisplayNameRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
+// updateValidate
+async function changeDisplayNameRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser }: UpdateCallbackProperties<"Users">) {
   if (oldDocument.displayName !== newDocument.displayName) {
     await enforceDisplayNameRateLimit({ userToUpdate: oldDocument, currentUser: currentUser! });
   }
   return validationErrors;
-});
+}
 
 async function enforceDisplayNameRateLimit({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}) {
   if (userIsAdminOrMod(currentUser)) return;

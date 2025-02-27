@@ -27,7 +27,8 @@ function isAlignmentForumMember(user: DbUser|null) {
   return user?.groups?.includes('alignmentForum')
 }
 
-getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbUser) {
+// editAsync
+async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUser) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     const lwAccount = await getAlignmentForumAccount();
     if (!lwAccount) throw Error("Unable to find the lwAccount to send the new alignment user message")
@@ -70,9 +71,10 @@ getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMA
       validate: false,
     })
   }
-});
+}
 
-getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, context) {
+// editAsync
+async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
       await updateMutator({
@@ -86,5 +88,5 @@ getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserMoveSho
       })
     }
   }
-});
+}
 

@@ -33,10 +33,8 @@ export const registerElasticCallbacks = () => {
     getCollectionHooks(collectionName).editAsync.add(callback);
   }
 
-  getCollectionHooks("Users").editAsync.add(async function reindexDeletedUserContent(
-    newUser: DbUser,
-    oldUser: DbUser,
-  ) {
+  // editAsync
+  async function reindexDeletedUserContent(newUser: DbUser, oldUser: DbUser) {
     if (!!newUser.deleted !== !!oldUser.deleted) {
       const repo = new UsersRepo();
       const [
@@ -57,5 +55,6 @@ export const registerElasticCallbacks = () => {
         ...sequenceIds.map((id) => exporter.updateDocument("Sequences", id)),
       ]);
     }
-  });
+  }
+  getCollectionHooks("Users").editAsync.add(reindexDeletedUserContent);
 }

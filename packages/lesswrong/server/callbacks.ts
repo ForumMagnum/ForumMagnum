@@ -38,7 +38,8 @@ getCollectionHooks("Messages").newAsync.add(async function updateConversationAct
   });
 });
 
-getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
+// editAsync
+async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
   // if the user is setting up their profile and their username changes from that form,
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
@@ -51,18 +52,20 @@ getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNa
       validate: false,
     });
   }
-});
+}
 
-getCollectionHooks("Users").updateAsync.add(async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+// updateAsync
+async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
-});
+}
 
-getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+// editAsync
+function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   const currentBanDate = user.banned
   const previousBanDate = oldUser.banned
   const now = new Date()
@@ -72,7 +75,7 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   if (updatedUserIsBanned && !previousUserWasBanned) {
     void userIPBanAndResetLoginTokens(user);
   }
-});
+}
 
 /**
  * Reverse the given vote, without triggering any karma change notifications
