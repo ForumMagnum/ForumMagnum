@@ -893,6 +893,7 @@ const LWTagPage = () => {
         },
       ]}
       tocRowMap={[0, 1, 1, 1]}
+      tocContext='tag'
     />
   );
   

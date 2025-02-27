@@ -1,6 +1,6 @@
 import React, { FC, MouseEvent } from 'react';
 import classNames from 'classnames';
-import { FIXED_TOC_COMMENT_COUNT_HEIGHT, HOVER_CLASSNAME } from './MultiToCLayout';
+import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 
