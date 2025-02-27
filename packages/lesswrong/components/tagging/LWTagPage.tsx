@@ -213,6 +213,9 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     lineHeight: 'inherit',
     marginBottom: 8,
   },
+  contributorRowContent: {
+    display: 'inline',
+  },
   lastUpdated: {
   },
   alternativeArrowIcon: {
@@ -862,7 +865,7 @@ const LWTagPage = () => {
         }
       </div>
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
-        <span style={{ display: 'inline' }}>
+        <span className={classes.contributorRowContent}>
           <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
           {selectedLens?.contents?.editedAt && <>
             {' '}{'last updated '}
