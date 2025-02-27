@@ -1,7 +1,7 @@
 import Spotlights from "../../../lib/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
-import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
+import { reviewWinnerCache, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { Posts } from "@/lib/collections/posts/collection.ts";
 import { createAdminContext } from "../../vulcan-lib/query";
@@ -125,7 +125,7 @@ export async function createSpotlights() {
   console.log("Creating spotlights for review winners");
 
   const { posts, spotlights } = await getPromptInfo()
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+  const { reviewWinners } = await reviewWinnerCache.get()
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
@@ -175,7 +175,7 @@ export async function createSpotlights() {
 
 // Exported to allow running manually with "yarn repl"
 const updateOldSpotlightsWithSubtitle = async () => {
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+  const { reviewWinners } = await reviewWinnerCache.get()
   const postIds = reviewWinners.map(winner => winner._id);
   const spotlights = await Spotlights.find({ documentId: { $in: postIds }, customSubtitle: null, draft: false, deletedDraft: false }).fetch();
 
@@ -189,7 +189,7 @@ const updateOldSpotlightsWithSubtitle = async () => {
 // and changes the corresponding Post customHighlight to the spotlight description
 // Exported to allow running manually with "yarn repl"
 export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+  const { reviewWinners } = await reviewWinnerCache.get()
   const postIds = reviewWinners.map(winner => winner._id);
 
   const spotlights = await fetchFragment({
