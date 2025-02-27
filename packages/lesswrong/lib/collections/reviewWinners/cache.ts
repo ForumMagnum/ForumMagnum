@@ -18,13 +18,13 @@ export const REVIEW_WINNER_CACHE: ReviewWinnerCache = {
 };
 
 export async function updateReviewWinnerCache(context: ResolverContext) {
+  REVIEW_WINNER_CACHE.lastUpdatedAt = new Date();
   const updatedReviewWinners = await context.repos.reviewWinners.getAllReviewWinnersWithPosts();
   REVIEW_WINNER_CACHE.reviewWinners = updatedReviewWinners;
   REVIEW_WINNER_CACHE.reviewWinnersByPostId = mapValues(
     keyBy(updatedReviewWinners, p => p._id),
     p => p.reviewWinner
   );
-  REVIEW_WINNER_CACHE.lastUpdatedAt = new Date();
 }
 
 export async function getPostReviewWinnerInfo(postId: string, context: ResolverContext): Promise<DbReviewWinner | null> {
