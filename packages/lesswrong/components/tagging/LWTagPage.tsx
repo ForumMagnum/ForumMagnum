@@ -893,6 +893,7 @@ const LWTagPage = () => {
         },
       ]}
       tocRowMap={[0, 1, 1, 1]}
+      tocContext='tag'
     />
   );
   
@@ -974,6 +975,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
           className={classes.description}
           replacedSubstrings={inlineReactHighlights}
           onContentReady={initializeRadioHandlers}
+          contentStyleType="tag"
         />
         <PathInfo tag={tag} lens={selectedLens ?? null} />
       </>
