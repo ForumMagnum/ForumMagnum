@@ -20,9 +20,7 @@ import { updateUserActivitiesCron } from "@/server/useractivities/cron";
 import { expiredRateLimitsReturnToReviewQueueCron } from "@/server/users/cron";
 import { permanentlyDeleteUsersCron } from "@/server/users/permanentDeletion";
 import { updateScoreActiveDocumentsCron, updateScoreInactiveDocumentsCron } from "@/server/votingCron";
-import { userLoginTokensView } from "../userLoginTokens";
-import { uniquePostUpvotersView } from "../recommendations/UniquePostUpvoters";
-import { conversationUnreadMessagesView } from "../conversationUnreadMessages";
+import { getAllPostgresViews } from "../postgresView";
 
 export const allCronJobs: (CronJobSpec|null)[] = [
   cronClearOldCronHistories,
@@ -48,7 +46,5 @@ export const allCronJobs: (CronJobSpec|null)[] = [
   permanentlyDeleteUsersCron,
   updateScoreActiveDocumentsCron,
   updateScoreInactiveDocumentsCron,
-  userLoginTokensView.getCronJob(),
-  uniquePostUpvotersView.getCronJob(),
-  conversationUnreadMessagesView.getCronJob(),
+  ...getAllPostgresViews().map((view) => view.getCronJob()),
 ];

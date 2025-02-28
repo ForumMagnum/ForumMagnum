@@ -2,7 +2,6 @@ import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
-import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
 import UsersRepo from "../../repos/UsersRepo";
 
@@ -77,5 +76,12 @@ export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, ol
     await Votes.rawUpdateMany({documentId: document._id}, {
       $set: {documentIsAf: false}
     }, {multi: true})
+  }
+}
+
+
+export async function postsMoveToAFAddsAlignmentVoting (post: DbPost, oldPost: DbPost) {
+  if (post.af && !oldPost.af) {
+    await Users.rawUpdateOne({_id:post.userId}, {$addToSet: {groups: 'alignmentVoters'}})
   }
 }

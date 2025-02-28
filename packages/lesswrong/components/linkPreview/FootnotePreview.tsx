@@ -323,8 +323,11 @@ function getFootnoteId(href: string, html: string): string|null {
  * Because of different versions of the CkEditor footnote plugin, imported
  * posts, etc, we have several different strategies for doing this:
  *  - Find the footnote reference, and use the data-footnote-index prop
- *  - Find the footnote in the post footer, and if it's inside an <ol> tag, use
+ *  - Find the footnote in the page footer, and if it's inside an <ol> tag, use
  *    its position within that tag's list of children
+ * 
+ * We specifically look for footnotes with an OL parent that has the "footnotes" class
+ * to avoid using versions of the footnote that's present from the ckEditor edit form (present for quick-switching).
  */
 function getFootnoteIndex(href: string, html: string): string|null {
   // Parse the footnote for its data-footnote-id, use that to find the footnote
@@ -334,33 +337,42 @@ function getFootnoteIndex(href: string, html: string): string|null {
   const footnoteId = getFootnoteId(href, html);
   if (!footnoteId) return null;
 
-  const fromFootnoteIndexAttribute = document.getElementById("fnref"+footnoteId)
-    ?.getAttribute("data-footnote-index");
-  if (fromFootnoteIndexAttribute)
-    return fromFootnoteIndexAttribute;
+  const footnoteRef = document.getElementById("fnref"+footnoteId);
+  const fromFootnoteIndexAttribute = footnoteRef?.getAttribute("data-footnote-index");
   
-  const footnoteElement = document.getElementById("fn"+footnoteId);
-  if (footnoteElement) {
-    const parentElement = footnoteElement.parentElement;
-    if (parentElement && parentElement.tagName === 'OL') {
-      const olStartAttr = parentElement.getAttribute("start");
-      const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
-
-      let numPrecedingLiElements = 0;
-      for (let i=0; i<parentElement.children.length; i++) {
-        const elem = parentElement.children.item(i);
-        if (elem === footnoteElement) {
-          break;
-        }
-        if (elem?.tagName === 'LI') {
-          numPrecedingLiElements++;
-        }
-      }
-      return ""+(numPrecedingLiElements+olStart);
-    }
+  if (fromFootnoteIndexAttribute) {
+    return fromFootnoteIndexAttribute;
   }
   
+  const allMatchingElements = Array.from(document.querySelectorAll(`#fn${footnoteId}`));
+  
+  // Try to find element with an OL parent with the "footnotes" class
+  // This prevents using the version of the footnote from within quick-switch edit form that has a div parent instead of an ol
+  const footnoteWithOlParent = allMatchingElements.find(el => 
+    el.parentElement?.tagName === 'OL' &&
+    el.parentElement.classList.contains('footnotes')
+  );
+  
+  if (footnoteWithOlParent) {
+    const parentElement = footnoteWithOlParent.parentElement;
+    
+    const olStartAttr = parentElement?.getAttribute("start");
+    const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
 
+    let numPrecedingLiElements = 0;
+    for (let i=0; i<(parentElement?.children.length ?? 0); i++) {
+      const elem = parentElement?.children.item(i);
+      if (elem === footnoteWithOlParent) {
+        break;
+      }
+      if (elem?.tagName === 'LI') {
+        numPrecedingLiElements++;
+      }
+    }
+    
+    return (olStart + numPrecedingLiElements).toString();
+  }
+  
   return null;
 }
 

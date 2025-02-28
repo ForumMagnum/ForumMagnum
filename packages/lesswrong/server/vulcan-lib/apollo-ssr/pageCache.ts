@@ -368,35 +368,6 @@ export function printCacheState(options: any={}) {
 }
 
 
-export function checkForMemoryLeaks() {
-  if (Object.keys(cachedABtestsIndex).length > 5000) {
-    // eslint-disable-next-line no-console
-    console.log(`Possible memory leak: cachedABtestsIndex has ${Object.keys(cachedABtestsIndex).length} entries`);
-  }
-  if (keysToCheckForExpiredEntries.length > 5000) {
-    // eslint-disable-next-line no-console
-    console.log(`Possible memory leak: keysToCheckForExpiredEntries has ${keysToCheckForExpiredEntries} entries`);
-  }
-  
-  const cachedABtestsIndexArrayElements = sumBy(Object.keys(cachedABtestsIndex), key=>cachedABtestsIndex[key]?.length||0);
-  if (cachedABtestsIndexArrayElements > 5000) {
-    // eslint-disable-next-line no-console
-    console.log(`Possible memory leak: cachedABtestsIndexArrayElements=${cachedABtestsIndexArrayElements}`);
-  }
-  
-  const inProgressRenderCount = sumBy(Object.keys(inProgressRenders), key=>inProgressRenders[key]?.length||0);
-  if (inProgressRenderCount > 100) {
-    // eslint-disable-next-line no-console
-    console.log(`Possible memory leak: inProgressRenderCount=${inProgressRenderCount}`);
-  }
-  
-  const pageCacheContentsBytes = sumBy(pageCache.values(), v=>JSON.stringify(v).length);
-  if (pageCacheContentsBytes > 2*maxPageCacheSizeBytes) {
-    // eslint-disable-next-line no-console
-    console.log(`Possible memory leak: pageCacheContentsBytes=${pageCacheContentsBytes}`);
-  }
-}
-
 export function printInFlightRequests() {
   let inProgressRenderKeys: string[] = [];
   for (let cacheKey of Object.keys(inProgressRenders)) {

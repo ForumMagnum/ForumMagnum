@@ -264,7 +264,8 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   await hooks.newAsync.runCallbacksAsync([
     completedDocument,
     currentUser,
-    collection
+    collection,
+    afterCreateProperties,
   ]);
 
   return { data: completedDocument };
@@ -406,7 +407,8 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
       properties: [
         oldDocument,
         currentUser,
-        document
+        document,
+        properties,
       ]
     })
   );

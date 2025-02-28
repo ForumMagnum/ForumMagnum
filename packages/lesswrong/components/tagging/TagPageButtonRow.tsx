@@ -75,6 +75,14 @@ const styles = (theme: ThemeType) => ({
   },
   subscribeToWrapper: {
     display: "flex !important",
+    ...(isFriendlyUI ? {
+    } : {
+      marginLeft: -2,
+      marginRight: -5,
+      '& .MuiListItemIcon-root': {
+        marginRight: "unset !important",
+      },
+    }),
   },
   subscribeTo: {
   },

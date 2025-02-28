@@ -57,7 +57,7 @@ export async function runServerOnStartupFunctions() {
   initGoogleVertex();
   addElicitResolvers();
   addLegacyRssRoutes();
-  await initReviewWinnerCache();
+  void initReviewWinnerCache();
   addCountOfReferenceCallbacks();
 
   // define executableSchema
