@@ -51,7 +51,7 @@ import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import EyeSlashIcon from "@heroicons/react/24/solid/EyeSlashIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
-import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
+import SettingsIcon from "@heroicons/react/24/outline/Cog6ToothIcon";
 import EnvelopeIcon from "@heroicons/react/24/outline/EnvelopeIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
@@ -59,6 +59,7 @@ import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
 import DocumentIcon from "@heroicons/react/24/solid/DocumentIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
+import ChartBarOutlineIcon from "@heroicons/react/24/outline/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
@@ -530,7 +531,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
-    BarChart: ChartBarIcon,
+    BarChart: ChartBarOutlineIcon,
     Funnel: FunnelIcon,
     FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
