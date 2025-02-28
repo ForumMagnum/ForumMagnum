@@ -61,7 +61,7 @@ const getAllCountOfReferenceFieldsByTargetCollection = (() => {
               acc[foreignCollectionName] = [];
             }
 
-            acc[foreignCollectionName].push(invertedOptions);
+            acc[foreignCollectionName]?.push(invertedOptions);
           });
 
         return acc;
