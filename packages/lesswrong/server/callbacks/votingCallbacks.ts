@@ -10,7 +10,6 @@ import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
-import { Comments } from '../../lib/collections/comments/collection';
 import { createAdminContext } from '../vulcan-lib/query';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
@@ -19,7 +18,7 @@ import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMa
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';
-import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
+import { updateModerateOwnPersonal, updateTrustedStatus } from '../users/moderationUtils';
 import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
@@ -67,8 +66,8 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
 }
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   void grantUserAFKarmaForVote(voteDocTuple);
-  void updateTrustedStatus(voteDocTuple);
-  void updateModerateOwnPersonal(voteDocTuple);
+  void updateTrustedStatus(voteDocTuple, context);
+  void updateModerateOwnPersonal(voteDocTuple, context);
   void increaseMaxBaseScore(voteDocTuple);
   void voteUpdatePostDenormalizedTags(voteDocTuple);
 

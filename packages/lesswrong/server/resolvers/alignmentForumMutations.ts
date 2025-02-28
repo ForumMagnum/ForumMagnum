@@ -2,8 +2,7 @@ import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/gr
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { moveToAFUpdatesUserAFKarma } from '../callbacks/alignment-forum/callbacks';
-import { postsMoveToAFAddsAlignmentVoting } from '../callbacks/alignment-forum/alignmentPostCallbacks';
+import { moveToAFUpdatesUserAFKarma, postsMoveToAFAddsAlignmentVoting } from '../callbacks/alignment-forum/callbacks';
 import { commentsAlignmentEdit, recalculateAFCommentMetadata } from '../callbacks/commentCallbackFunctions';
 
 const alignmentCommentResolvers = {

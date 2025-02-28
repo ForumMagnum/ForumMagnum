@@ -1,36 +1,25 @@
 import Notifications from '../lib/collections/notifications/collection';
 import Conversations from '../lib/collections/conversations/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
-import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts/collection';
-import { getConfirmedCoauthorIds, postGetPageUrl, postIsPublic } from '../lib/collections/posts/helpers';
-import { wrapAndSendEmail } from './emails/renderEmail';
+import { getConfirmedCoauthorIds, postIsPublic } from '../lib/collections/posts/helpers';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EmailCuratedAuthors';
 import * as _ from 'underscore';
-import { Components } from '../lib/vulcan-lib/components';
 import { getCollectionHooks } from './mutationCallbacks';
 
-import React from 'react';
 import { RSVPType } from '../lib/collections/posts/schema';
 import { getSubscribedUsers, createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
 import Messages from '../lib/collections/messages/collection';
-import Tags from '../lib/collections/tags/collection';
-import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
-import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
-import CommentsRepo from './repos/CommentsRepo';
-import uniq from 'lodash/uniq';
-import { DatabaseServerSetting } from './databaseSettings';
-import { forumSelect } from '@/lib/forumTypeUtils';
 
 
 interface NotifyDialogueParticipantProps {
@@ -225,22 +214,3 @@ getCollectionHooks("Conversations").editAsync.add(async function conversationEdi
 export async function bellNotifyEmailVerificationRequired (user: DbUser) {
   await createNotifications({userIds: [user._id], notificationType: 'emailVerificationRequired', documentType: null, documentId: null});
 }
-
-async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
-  const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)
-  for (const subforumId of newSubforumIds) {
-    const subforum = await Tags.findOne(subforumId)
-    if (subforum?.isSubforum) {
-      const modIds = subforum.subforumModeratorIds || []
-      await createNotifications({
-        userIds: modIds,
-        notificationType: 'newSubforumMember',
-        documentType: 'user',
-        documentId: user._id,
-        extraData: {subforumId}
-      })
-    }
-  }
-}
-
-getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)

@@ -111,3 +111,9 @@ export const akismetKeySetting = new DatabaseServerSetting<string | null>('akism
 export const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)
 
 export const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
+
+export const changesAllowedSetting = new DatabaseServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
+export const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
+
+export const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
+export const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
