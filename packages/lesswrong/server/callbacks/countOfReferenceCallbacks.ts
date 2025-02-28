@@ -5,7 +5,15 @@ import { elasticSyncDocument } from "../search/elastic/elasticCallbacks";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import type { AfterCreateCallbackProperties, DeleteCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 
-type CountOfReferenceMap = Record<string, Record<string, CountOfReferenceOptions>>;
+interface InvertedCountOfReferenceOptions {
+  sourceCollectionName: CollectionNameString,
+  referenceFieldName: string,
+  targetKeyFieldName: string,
+  filterFn?: (obj: AnyBecauseHard) => boolean,
+  resyncElastic: boolean,
+}
+
+type CountOfReferenceMap = Record<string, InvertedCountOfReferenceOptions[] | undefined>;
 
 type CollectionFieldEntry = [string, CollectionFieldSpecification<CollectionNameString>];
 type CollectionFieldEntryWithCountOfReferences = [string, CollectionFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions }];
@@ -15,8 +23,18 @@ function isCountOfReferencesField(field: CollectionFieldEntry): field is Collect
 }
 
 /**
- * Memoize the countOfReference field options by collection name, to avoid
- * refetching them on every mutation.
+ * When we mutate a document of collection A, we need to update the
+ * countOfReference fields of all collections B, C, D, etc. that reference A.
+ * However, our field definitions are keyed by collection names B, C, D, etc.
+ * So we need to iterate over all collections and aggregate all the fields
+ * that reference A into an array accessed by collection name A, with a pointer
+ * to the collection and field name that needs to be updated (which is the countOfReference field).
+ * 
+ * This needs to be an array rather than an object because there could in principle be
+ * multiple fields with the same field names that reference A, since they could be
+ * in different collections.
+ *
+ * We also memoize the result to avoid recomputing it on every mutation.
  */
 const getAllCountOfReferenceFieldsByTargetCollection = (() => {
   let allCountOfReferenceFields: CountOfReferenceMap;
@@ -24,18 +42,29 @@ const getAllCountOfReferenceFieldsByTargetCollection = (() => {
     if (!allCountOfReferenceFields) {
       allCountOfReferenceFields = getAllCollections().reduce<CountOfReferenceMap>((acc, collection): CountOfReferenceMap => {
         const schema = getSchema(collection);
-        const collectionName: CollectionNameString = collection.collectionName;
+        const sourceCollectionName: CollectionNameString = collection.collectionName;
 
-        const countOfReferencesFields = Object.fromEntries(
-          Object
-            .entries(schema)
-            .filter(isCountOfReferencesField)
-            .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.countOfReferences])
-        );
-        
-        const updatedAcc: CountOfReferenceMap = { ...acc, [collectionName]: countOfReferencesFields };
+        Object
+          .entries(schema)
+          .filter(isCountOfReferencesField)
+          .forEach(([referenceFieldName, fieldSpec]) => {
+            const { countOfReferences: { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } } = fieldSpec;
+            const invertedOptions: InvertedCountOfReferenceOptions = {
+              sourceCollectionName,
+              referenceFieldName,
+              targetKeyFieldName: foreignFieldName,
+              filterFn,
+              resyncElastic,
+            };
 
-        return updatedAcc;
+            if (!acc[foreignCollectionName]) {
+              acc[foreignCollectionName] = [];
+            }
+
+            acc[foreignCollectionName].push(invertedOptions);
+          });
+
+        return acc;
       }, {});
     }
 
@@ -45,11 +74,11 @@ const getAllCountOfReferenceFieldsByTargetCollection = (() => {
 
 interface CountOfReferenceFunctionGeneratorOptions<N extends CollectionNameString> {
   denormalizedLogger: (...args: any[]) => void,
-  foreignTypeName: string,
-  foreignFieldName: string,
+  targetTypeName: string,
+  targetKeyFieldName: string,
   filter: (obj: AnyBecauseHard) => boolean,
-  collectionName: N,
-  fieldName: string,
+  sourceCollectionName: N,
+  referenceFieldName: string,
   resync: (documentId: string) => void
 }
 
@@ -69,11 +98,11 @@ interface DeleteAsyncCountOfReferenceFunctionOptions<N extends CollectionNameStr
 
 async function updateCountOfReferencesAfterCreate<N extends CollectionNameString>({
   denormalizedLogger,
-  foreignTypeName,
-  foreignFieldName,
+  targetTypeName,
+  targetKeyFieldName,
   filter,
-  collectionName,
-  fieldName,
+  sourceCollectionName,
+  referenceFieldName,
   resync,
   newDocument,
   afterCreateProperties
@@ -83,15 +112,15 @@ async function updateCountOfReferencesAfterCreate<N extends CollectionNameString
   // 2. without it, the type checker might be doing an N by N comparison by number of collections, which is slow
   const newDoc = newDocument as AnyBecauseHard;
 
-  denormalizedLogger(`about to test new ${foreignTypeName}`, newDoc);
+  denormalizedLogger(`about to test new ${targetTypeName}`, newDoc);
 
-  if (newDoc[foreignFieldName] && filter(newDoc)) {
-    denormalizedLogger(`new ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`);
-    const collection = getCollection(collectionName);
-    await collection.rawUpdateOne(newDoc[foreignFieldName], {
-      $inc: { [fieldName]: 1 }
+  if (newDoc[targetKeyFieldName] && filter(newDoc)) {
+    denormalizedLogger(`new ${targetTypeName} should increment ${newDoc[targetKeyFieldName]}`);
+    const collection = getCollection(sourceCollectionName);
+    await collection.rawUpdateOne(newDoc[targetKeyFieldName], {
+      $inc: { [referenceFieldName]: 1 }
     });
-    resync(newDoc[foreignFieldName]);
+    resync(newDoc[targetKeyFieldName]);
   }
 
   return newDoc;
@@ -99,11 +128,11 @@ async function updateCountOfReferencesAfterCreate<N extends CollectionNameString
 
 async function updateCountOfReferencesAfterUpdate<N extends CollectionNameString>({
   denormalizedLogger,
-  foreignTypeName,
-  collectionName,
+  targetTypeName,
+  sourceCollectionName,
   filter,
-  foreignFieldName,
-  fieldName,
+  targetKeyFieldName,
+  referenceFieldName,
   resync,
   newDocument,
   updateAfterProperties,
@@ -114,43 +143,43 @@ async function updateCountOfReferencesAfterUpdate<N extends CollectionNameString
   const newDoc = newDocument as AnyBecauseHard;
   const oldDocument = updateAfterProperties.oldDocument as AnyBecauseHard;
 
-  denormalizedLogger(`about to test updating ${foreignTypeName}`, newDoc, oldDocument);
-  const countingCollection = getCollection(collectionName);
+  denormalizedLogger(`about to test updating ${targetTypeName}`, newDoc, oldDocument);
+  const countingCollection = getCollection(sourceCollectionName);
   if (filter(newDoc) && !filter(oldDocument)) {
     // The old doc didn't count, but the new doc does. Increment on the new doc.
-    if (newDoc[foreignFieldName]) {
-      denormalizedLogger(`updated ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`);
-      await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
-        $inc: { [fieldName]: 1 }
+    if (newDoc[targetKeyFieldName]) {
+      denormalizedLogger(`updated ${targetTypeName} should increment ${newDoc[targetKeyFieldName]}`);
+      await countingCollection.rawUpdateOne(newDoc[targetKeyFieldName], {
+        $inc: { [referenceFieldName]: 1 }
       });
-      resync(newDoc[foreignFieldName]);
+      resync(newDoc[targetKeyFieldName]);
     }
   } else if (!filter(newDoc) && filter(oldDocument)) {
     // The old doc counted, but the new doc doesn't. Decrement on the old doc.
-    if (oldDocument[foreignFieldName]) {
-      denormalizedLogger(`updated ${foreignTypeName} should decrement ${newDoc[foreignFieldName]}`);
-      await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
-        $inc: { [fieldName]: -1 }
+    if (oldDocument[targetKeyFieldName]) {
+      denormalizedLogger(`updated ${targetTypeName} should decrement ${newDoc[targetKeyFieldName]}`);
+      await countingCollection.rawUpdateOne(oldDocument[targetKeyFieldName], {
+        $inc: { [referenceFieldName]: -1 }
       });
-      resync(newDoc[foreignFieldName]);
+      resync(newDoc[targetKeyFieldName]);
     }
-  } else if (filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
-    denormalizedLogger(`${foreignFieldName} of ${foreignTypeName} has changed from ${oldDocument[foreignFieldName]} to ${newDoc[foreignFieldName]}`);
+  } else if (filter(newDoc) && oldDocument[targetKeyFieldName] !== newDoc[targetKeyFieldName]) {
+    denormalizedLogger(`${targetKeyFieldName} of ${targetTypeName} has changed from ${oldDocument[targetKeyFieldName]} to ${newDoc[targetKeyFieldName]}`);
     // The old and new doc both count, but the reference target has changed.
     // Decrement on one doc and increment on the other.
-    if (oldDocument[foreignFieldName]) {
-      denormalizedLogger(`changing ${foreignFieldName} leads to decrement of ${oldDocument[foreignFieldName]}`);
-      await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
-        $inc: { [fieldName]: -1 }
+    if (oldDocument[targetKeyFieldName]) {
+      denormalizedLogger(`changing ${targetKeyFieldName} leads to decrement of ${oldDocument[targetKeyFieldName]}`);
+      await countingCollection.rawUpdateOne(oldDocument[targetKeyFieldName], {
+        $inc: { [referenceFieldName]: -1 }
       });
-      resync(newDoc[foreignFieldName]);
+      resync(newDoc[targetKeyFieldName]);
     }
-    if (newDoc[foreignFieldName]) {
-      denormalizedLogger(`changing ${foreignFieldName} leads to increment of ${newDoc[foreignFieldName]}`);
-      await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
-        $inc: { [fieldName]: 1 }
+    if (newDoc[targetKeyFieldName]) {
+      denormalizedLogger(`changing ${targetKeyFieldName} leads to increment of ${newDoc[targetKeyFieldName]}`);
+      await countingCollection.rawUpdateOne(newDoc[targetKeyFieldName], {
+        $inc: { [referenceFieldName]: 1 }
       });
-      resync(newDoc[foreignFieldName]);
+      resync(newDoc[targetKeyFieldName]);
     }
   }
   return newDoc;
@@ -158,44 +187,43 @@ async function updateCountOfReferencesAfterUpdate<N extends CollectionNameString
 
 async function updateCountOfReferencesAfterDelete<N extends CollectionNameString>({
   denormalizedLogger,
-  foreignTypeName,
-  foreignFieldName,
+  targetTypeName,
+  targetKeyFieldName,
   filter,
-  collectionName,
-  fieldName,
+  sourceCollectionName,
+  referenceFieldName,
   resync,
   deleteAsyncProperties,
 }: DeleteAsyncCountOfReferenceFunctionOptions<N>): Promise<void> {
   const document = deleteAsyncProperties.document as AnyBecauseHard;
 
-  denormalizedLogger(`about to test deleting ${foreignTypeName}`, document);
-  if (document[foreignFieldName] && filter(document)) {
-    denormalizedLogger(`deleting ${foreignTypeName} should decrement ${document[foreignFieldName]}`);
-    const countingCollection = getCollection(collectionName);
-    await countingCollection.rawUpdateOne(document[foreignFieldName], {
-      $inc: { [fieldName]: -1 }
+  denormalizedLogger(`about to test deleting ${targetTypeName}`, document);
+  if (document[targetKeyFieldName] && filter(document)) {
+    denormalizedLogger(`deleting ${targetTypeName} should decrement ${document[targetKeyFieldName]}`);
+    const countingCollection = getCollection(sourceCollectionName);
+    await countingCollection.rawUpdateOne(document[targetKeyFieldName], {
+      $inc: { [referenceFieldName]: -1 }
     });
-    resync(document[foreignFieldName]);
+    resync(document[targetKeyFieldName]);
   }
 }
 
 // TODO: could consider memoizing this function as well
-function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString>(collectionName: N, fieldName: string) {
-  const countOfReferencesFieldOptions = getAllCountOfReferenceFieldsByTargetCollection()[collectionName];
-  const { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } = countOfReferencesFieldOptions[fieldName];
+function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString>(targetCollectionName: N, invertedCountOfReferenceOptions: InvertedCountOfReferenceOptions) {
+  const { sourceCollectionName, referenceFieldName, targetKeyFieldName, filterFn, resyncElastic } = invertedCountOfReferenceOptions;
 
   const resync = (documentId: string) => {
-    if (resyncElastic && searchIndexedCollectionNamesSet.has(collectionName)) {
-      void elasticSyncDocument(collectionName, documentId);
+    if (resyncElastic && searchIndexedCollectionNamesSet.has(sourceCollectionName)) {
+      void elasticSyncDocument(sourceCollectionName, documentId);
     }
   }
 
-  const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
+  const denormalizedLogger = loggerConstructor(`callbacks-${targetCollectionName.toLowerCase()}-denormalized-${referenceFieldName}`)
   
-  const foreignTypeName = collectionNameToTypeName(foreignCollectionName);
+  const targetTypeName = collectionNameToTypeName(targetCollectionName);
   const filter = filterFn ?? ((doc: AnyBecauseHard) => true);
 
-  return { denormalizedLogger, foreignTypeName, foreignFieldName, filter, collectionName, fieldName, resync };
+  return { denormalizedLogger, targetTypeName, targetKeyFieldName, filter, sourceCollectionName, referenceFieldName, resync };
 }
 
 type RunCountOfReferenceCallbacksOptions<N extends CollectionNameString> = {
@@ -206,11 +234,16 @@ type RunCountOfReferenceCallbacksOptions<N extends CollectionNameString> = {
   | { callbackStage: 'deleteAsync', deleteAsyncProperties: DeleteCallbackProperties<N> }
 );
 
-/** TODO: this shouldn't be used until we stop using or refactor `addCountOfReferenceCallbacks` */
 export async function runCountOfReferenceCallbacks<N extends CollectionNameString>(options: RunCountOfReferenceCallbacksOptions<N>) {
-  const countOfReferencesFieldsOnCollection = getAllCountOfReferenceFieldsByTargetCollection()[options.collectionName];
-  for (let fieldName of Object.keys(countOfReferencesFieldsOnCollection)) {
-    const sharedOptions = getSharedCountOfReferenceFunctionOptions(options.collectionName, fieldName);
+  // This is the collection name of the object being created/updated/deleted, i.e. the "target" collection
+  const referenceTargetCollectionName = options.collectionName;
+  const countOfReferencesFieldsReferencingCollection = getAllCountOfReferenceFieldsByTargetCollection()[referenceTargetCollectionName];
+  if (!countOfReferencesFieldsReferencingCollection) {
+    return;
+  }
+
+  for (let invertedCountOfReferenceOptions of countOfReferencesFieldsReferencingCollection) {
+    const sharedOptions = getSharedCountOfReferenceFunctionOptions(referenceTargetCollectionName, invertedCountOfReferenceOptions);
 
     if (options.callbackStage === 'createAfter') {
       const { newDocument, afterCreateProperties } = options;
