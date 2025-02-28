@@ -18,7 +18,6 @@ import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 import type { CommandLineArguments } from './commandLine';
 
@@ -58,7 +57,6 @@ export async function runServerOnStartupFunctions() {
   addElicitResolvers();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
-  addCountOfReferenceCallbacks();
 
   // define executableSchema
   createVoteableUnionType();
