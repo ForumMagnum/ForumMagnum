@@ -1,5 +1,4 @@
 import Notifications from '../lib/collections/notifications/collection';
-import Conversations from '../lib/collections/conversations/collection';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
@@ -153,22 +152,6 @@ getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVote
     }
   }
 })
-
-
-getCollectionHooks("Messages").newAsync.add(async function messageNewNotification(message: DbMessage) {
-  const conversationId = message.conversationId;
-  const conversation = await Conversations.findOne(conversationId);
-  if (!conversation) throw Error(`Can't find conversation for message: ${message}`)
-  
-  // For on-site notifications, notify everyone except the sender of the
-  // message. For email notifications, notify everyone including the sender
-  // (since if there's a back-and-forth in the grouped notifications, you want
-  // to see your own messages.)
-  const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
-
-  // Create notification
-  await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
-});
 
 getCollectionHooks("Conversations").editAsync.add(async function conversationEditNotification(
   conversation: DbConversation,

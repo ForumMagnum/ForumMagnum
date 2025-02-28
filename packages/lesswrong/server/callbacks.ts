@@ -1,29 +1,10 @@
-import Conversations from '../lib/collections/conversations/collection';
-
-import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes/collection';
 import { getVoteableCollections } from '../lib/make_voteable';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { silentlyReverseVote } from './voteServer';
 import { getCollectionHooks } from './mutationCallbacks';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
-import { updateMutator } from "./vulcan-lib/mutators";
 import { createAdminContext } from "./vulcan-lib/query";
-
-getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
-  // Update latest Activity timestamp on conversation when new message is added
-  const user = await Users.findOne(message.userId);
-  const conversation = await Conversations.findOne(message.conversationId);
-  if (!conversation) throw Error(`Can't find conversation for message ${message}`)
-  await updateMutator({
-    collection: Conversations,
-    documentId: conversation._id,
-    set: {latestActivity: message.createdAt},
-    currentUser: user,
-    validate: false,
-  });
-});
-
 
 interface DateRange {
   after?: Date;
