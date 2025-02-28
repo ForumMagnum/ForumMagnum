@@ -23,7 +23,8 @@ function normalizeTagName(name: string) {
     return name;
 }
 
-getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}) => {
+// createValidate
+async function validateTagCreate(validationErrors: Array<any>, {document: tag}: CreateCallbackProperties<'Tags'>): Promise<Array<any>> {
   if (!tag.name || !tag.name.length)
     throw new Error("Name is required");
   if (!isValidTagName(tag.name))
@@ -44,9 +45,10 @@ getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any
     throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
   
   return validationErrors;
-});
+}
 
-getCollectionHooks("Tags").updateValidate.add(async (validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
+// updateValidate
+async function validateTagUpdate(validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}): Promise<Array<any>> {
   if (!isValidTagName(newDocument.name))
     throw new Error(`Invalid ${taggingNameSetting.get()} name`);
 
@@ -64,18 +66,20 @@ getCollectionHooks("Tags").updateValidate.add(async (validationErrors: Array<any
   }
   
   return validationErrors;
-});
+}
 
-getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {
+// updateAfter
+async function cascadeSoftDeleteToTagRels(newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}): Promise<DbTag> {
   // If this is soft deleting a tag, then cascade to also soft delete any
   // tagRels that go with it.
   if (newDoc.deleted && !oldDocument.deleted) {
     await TagRels.rawUpdateMany({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
   }
   return newDoc;
-});
+}
 
-getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {
+// updateAfter
+async function updateParentTagSubTagIds(newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}): Promise<DbTag> {
   // If a parent tag has been added, add this tag to the subTagIds of the parent
   if (newDoc.parentTagId === oldDocument.parentTagId) return newDoc;
 
@@ -102,9 +106,10 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
     })
   }
   return newDoc;
-});
+}
 
-getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
+// newAfter
+async function voteForTagWhenCreated(tagRel: DbTagRel): Promise<DbTagRel> {
   // When you add a tag, vote for it as relevant
   var tagCreator = await Users.findOne(tagRel.userId);
   if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
@@ -119,13 +124,14 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
-});
+}
 
+// updateAfter
 // Users who have this as a profile tag may need to be reexported to elastic
-getCollectionHooks("Tags").updateAfter.add(async (
+async function reexportProfileTagUsersToElastic(
   newDocument: DbTag,
   {oldDocument}: {oldDocument: DbTag},
-) => {
+): Promise<DbTag> {
   const wasDeletedChanged = !!newDocument.deleted !== !!oldDocument.deleted;
   const wasRenamed = newDocument.name !== oldDocument.name;
   const wasSlugChanged = newDocument.slug !== oldDocument.slug;
@@ -140,7 +146,7 @@ getCollectionHooks("Tags").updateAfter.add(async (
     }
   }
   return newDocument;
-});
+}
 
 export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
   let postId: string;

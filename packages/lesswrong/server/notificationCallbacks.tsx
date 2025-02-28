@@ -111,7 +111,8 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
   await Promise.all(notificationPromises)
 }
 
-getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotifications(tagRel: DbTagRel) {
+// newAsync
+async function taggedPostNewNotifications(tagRel: DbTagRel): Promise<void> {
   const subscribedUsers = await getSubscribedUsers({
     documentId: tagRel.tagId,
     collectionName: "Tags",
@@ -128,7 +129,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     console.info("Post tagged, creating notifications");
     await createNotifications({userIds: tagSubscriberIdsToNotify, notificationType: 'newTagPosts', documentType: 'tagRel', documentId: tagRel._id});
   }
-});
+}
 
 async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | undefined> {
   if (email) {

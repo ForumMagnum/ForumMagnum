@@ -4,7 +4,8 @@ import { getCollectionHooks } from "../mutationCallbacks";
 import { taggingNameSetting } from "../../lib/instanceSettings";
 import { Posts } from "../../lib/collections/posts/collection";
 
-getCollectionHooks("TagRels").createBefore.add(async (_, {currentUser, newDocument}) => {
+// createBefore
+async function validateTagRelCreate(newDocument: DbInsertion<DbTagRel>, {currentUser}: CreateCallbackProperties<'TagRels'>): Promise<DbInsertion<DbTagRel>> {
   const {tagId, postId} = newDocument;
 
   if (!userCanUseTags(currentUser) || !currentUser || !tagId) {
@@ -17,4 +18,5 @@ getCollectionHooks("TagRels").createBefore.add(async (_, {currentUser, newDocume
   }
 
   return newDocument;
-});
+}
+
