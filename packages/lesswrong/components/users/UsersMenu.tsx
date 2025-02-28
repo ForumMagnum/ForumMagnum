@@ -2,7 +2,7 @@ import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
+import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
@@ -165,14 +165,14 @@ const UsersMenu = ({classes}: {
               <div className={classes.profileHeaderInfo}>{userGetDisplayName(currentUser)}</div>
             </div>
           }
-          to={`/users/${currentUser.slug}`}
+          to={userGetProfileUrl(currentUser)}
         />
         <DropdownDivider />
       </>
     ) : (
       <DropdownItem
         title={preferredHeadingCase("User Profile")}
-        to={`/users/${currentUser.slug}`}
+        to={userGetProfileUrl(currentUser)}
         icon="User"
         iconClassName={classes.icon}
       />
@@ -273,10 +273,12 @@ const UsersMenu = ({classes}: {
           <div className={classes.writeNewTooltip}>
             <Card>
               <DropdownMenu>
-                {order.map((itemName, i) => {
-                  const Component = items[itemName];
-                  return <Component key={i} />;
-                })}
+                <div onClick={forceUnHover}>
+                  {order.map((itemName, i) => {
+                    const Component = items[itemName];
+                    return <Component key={i} />;
+                  })}
+                </div>
               </DropdownMenu>
             </Card>
           </div>
@@ -285,7 +287,6 @@ const UsersMenu = ({classes}: {
         tooltip={false}
         inlineBlock={false}
         placement="left-start"
-        forceOpen
       >
         <DropdownItem title="Write new" icon="PencilSquare" afterIcon="ThickChevronRight" />
       </LWTooltip>
@@ -305,7 +306,7 @@ const UsersMenu = ({classes}: {
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to={`/users/${currentUser.slug}`}>
+      <Link to={userGetProfileUrl(currentUser)}>
         <Button
           classes={{root: classes.userButtonRoot}}
           onClick={menuButtonOnClick}
