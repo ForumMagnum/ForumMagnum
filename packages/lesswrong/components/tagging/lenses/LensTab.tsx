@@ -12,6 +12,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
   lensTabsContainer: {
     display: 'flex',
+    flexWrap: 'wrap-reverse',
     gap: '4px',
     [theme.breakpoints.up('md')]: {
       alignItems: 'flex-end',

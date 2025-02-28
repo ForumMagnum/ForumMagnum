@@ -208,12 +208,13 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   contributorRow: {
     ...theme.typography.body1,
     color: theme.palette.grey[600],
-    display: 'flex',
-    justifyContent: 'flex-start',
-    columnGap: 4,
+    display: 'block',
     fontSize: '17px',
     lineHeight: 'inherit',
     marginBottom: 8,
+  },
+  contributorRowContent: {
+    display: 'inline',
   },
   lastUpdated: {
   },
@@ -864,11 +865,13 @@ const LWTagPage = () => {
         }
       </div>
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
-        <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
-        {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
-          {'last updated '}
-          {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div>}
+        <span className={classes.contributorRowContent}>
+          <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
+          {selectedLens?.contents?.editedAt && <>
+            {' '}{'last updated '}
+            <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />
+          </>}
+        </span>
       </div>}
       <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tag={tag} selectedLens={selectedLens} />
     </div>
@@ -893,6 +896,7 @@ const LWTagPage = () => {
         },
       ]}
       tocRowMap={[0, 1, 1, 1]}
+      tocContext='tag'
     />
   );
   
@@ -974,6 +978,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
           className={classes.description}
           replacedSubstrings={inlineReactHighlights}
           onContentReady={initializeRadioHandlers}
+          contentStyleType="tag"
         />
         <PathInfo tag={tag} lens={selectedLens ?? null} />
       </>

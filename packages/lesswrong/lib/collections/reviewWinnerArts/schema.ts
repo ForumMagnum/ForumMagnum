@@ -1,5 +1,5 @@
 import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
-import { getReviewWinnerArtCoordinates } from "../splashArtCoordinates/cache";
+import { getReviewWinnerArtCoordinates } from "@/server/review/splashArtCoordinatesCache";
 
 export const schema: SchemaType<"ReviewWinnerArts"> = {
   postId: {

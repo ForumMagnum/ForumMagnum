@@ -13,12 +13,13 @@ const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   },
 }));
 
-const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}: {
+const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false, showIcon = false}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
   lens: MultiDocumentContentDisplay | TagLens,
   revision: RevisionHistoryEntry,
   noContainer?: boolean,
+  showIcon?: boolean
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
@@ -54,7 +55,7 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
   return (noContainer
     ? contents
     : <Components.SingleLineFeedEvent
-        icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
+        icon={showIcon ? <ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/> : undefined}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
         tooltip={!(expanded || !collapsed) && diffBody}
       >

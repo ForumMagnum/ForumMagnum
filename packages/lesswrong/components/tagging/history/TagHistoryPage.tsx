@@ -144,6 +144,7 @@ const TagHistoryPage = () => {
                 headingStyle={"abridged"}
                 documentId={tag._id}
                 showDiscussionLink={false}
+                showIcon={true}
               />
             </div>
           }
@@ -160,6 +161,7 @@ const TagHistoryPage = () => {
                 collapsed={collapseAll && focusedUser!==revision.user?.slug}
                 lens={lens}
                 revision={revision}
+                showIcon={true}
               />
             </div>
           }

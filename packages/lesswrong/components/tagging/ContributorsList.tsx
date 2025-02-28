@@ -8,6 +8,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
+    display: 'inline',
     [theme.breakpoints.down('sm')]: {
       fontSize: '15px',
     },
@@ -132,7 +133,7 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
   const classes = useStyles(styles);
   const { LWTooltip } = Components;
 
-  return <div className={classes.contributorNameWrapper}>
+  return <span className={classes.contributorNameWrapper}>
     <span>Written by </span>
     <ContributorsList
       contributors={topContributors}
@@ -146,7 +147,7 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
     >
       et al.
     </LWTooltip>}
-  </div>
+  </span>
 }
 
 const ContributorsListComponent = registerComponent('ContributorsList', ContributorsList);
