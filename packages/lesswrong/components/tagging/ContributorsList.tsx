@@ -3,8 +3,6 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { FieldsNotNull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/arbital/useTagLenses';
-import { userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
-import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
@@ -53,25 +51,6 @@ export function useDisplayedContributors(contributorsInfo: DocumentContributorsI
 
   return { topContributors, smallContributors };
 }
-
-// const ContributorUsersNameDisplay = ({ user }: { 
-//   user: UsersMinimumInfo|null|undefined
-// }) => {
-//   const classes = useStyles(styles);
-  
-//   if (!user || user.deleted) {
-//     return <span>[deleted]</span>;
-//   }
-
-//   const displayName = userGetDisplayName(user);
-//   const profileUrl = userGetProfileUrl(user);
-
-//   return (
-//     <Link to={profileUrl} className={classes.contributorName}>
-//       {displayName}
-//     </Link>
-//   );
-// };
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   contributors: NonnullDocumentContributorWithStats[],
