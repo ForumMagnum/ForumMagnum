@@ -14,10 +14,10 @@ import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
-import { getPostgresViewByName } from "../../postgresView";
+import type { PostgresView } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
-import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
@@ -207,8 +207,7 @@ export const updateCustomIndexes = async (db: SqlClientOrTx) => {
   }
 }
 
-export const updateView = async (db: SqlClientOrTx, name: string) => {
-  const view = getPostgresViewByName(name);
+export const updateView = async (db: SqlClientOrTx, view: PostgresView) => {
   const query = view.getCreateViewQuery();
   await db.none(query);
   await sleep(100);
