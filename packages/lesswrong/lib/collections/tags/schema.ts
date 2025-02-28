@@ -896,6 +896,19 @@ const schema: SchemaType<"Tags"> = {
     }),
     optional: true,
   },
+
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    group: formGroups.adminOptions,
+    label: "Force Allow T3 Audio",
+    ...schemaDefaultValue(false),
+  },
 }
 
 export default schema;

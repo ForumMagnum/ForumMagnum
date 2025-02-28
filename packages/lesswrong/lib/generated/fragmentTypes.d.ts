@@ -2962,6 +2962,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly forceAllowType3Audio: boolean,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2987,6 +2988,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly forceAllowType3Audio: boolean,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -3187,6 +3189,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly noindex: boolean,
   readonly isPlaceholderPage: boolean,
   readonly coreTagId: string | null,
+  readonly forceAllowType3Audio: boolean,
 }
 
 interface TypingIndicatorInfo { // fragment on TypingIndicators
