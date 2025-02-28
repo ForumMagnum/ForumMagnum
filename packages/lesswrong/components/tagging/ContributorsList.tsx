@@ -3,6 +3,8 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { FieldsNotNull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/arbital/useTagLenses';
+import { userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
@@ -51,16 +53,34 @@ export function useDisplayedContributors(contributorsInfo: DocumentContributorsI
   return { topContributors, smallContributors };
 }
 
+const ContributorUsersNameDisplay = ({ user }: { 
+  user: UsersMinimumInfo|null|undefined
+}) => {
+  const classes = useStyles(styles);
+  
+  if (!user || user.deleted) {
+    return <span>[deleted]</span>;
+  }
+
+  const displayName = userGetDisplayName(user);
+  const profileUrl = userGetProfileUrl(user);
+
+  return (
+    <Link to={profileUrl} className={classes.contributorName}>
+      {displayName}
+    </Link>
+  );
+};
+
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   contributors: NonnullDocumentContributorWithStats[],
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
 }) => {
-  const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-    <UsersNameDisplay user={user} tooltipPlacement="top" className={classes.contributorName} />
+    <ContributorUsersNameDisplay user={user} />
     {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
   </span>))}</>;
 }
@@ -72,7 +92,7 @@ function ToCContributorsList({
   contributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string | null) => void
 }) {
-  const { LWTooltip, UsersNameDisplay } = Components;
+  const { LWTooltip } = Components;
   const classes = useStyles(styles);
 
   const displayedContributors = contributors.slice(0, 2);
@@ -82,7 +102,7 @@ function ToCContributorsList({
     <div className={classes.tocContributors}>
       {displayedContributors.map(({ user }, idx) => (
         <span key={user._id} className={classes.tocContributor} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-          <UsersNameDisplay user={user} className={classes.contributorName} />
+          <ContributorUsersNameDisplay user={user} />
           {(idx < displayedContributors.length - 1) || (idx === displayedContributors.length - 1 && hiddenContributors.length > 0) ? ', ' : ''}
         </span>
       ))}
@@ -90,7 +110,7 @@ function ToCContributorsList({
         <LWTooltip
           title={hiddenContributors.map(( {user}, idx) => (
             <span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-              <UsersNameDisplay user={user} className={classes.contributorName}/>
+              <ContributorUsersNameDisplay user={user} />
               {idx < hiddenContributors.length - 1 ? ', ' : ''}
             </span>
           ))}
