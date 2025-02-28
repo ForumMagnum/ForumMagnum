@@ -1,176 +1,128 @@
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import Users from '../../lib/collections/users/collection';
-import { getCollectionHooks } from '../mutationCallbacks';
-import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
-import { taggingNameSetting } from '../../lib/instanceSettings';
-import { updateMutator } from '../vulcan-lib/mutators';
-import { updatePostDenormalizedTags } from './helpers';
-import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { cascadeSoftDeleteToTagRels, reexportProfileTagUsersToElastic, taggedPostNewNotifications, updateParentTagSubTagIds, validateTagCreate, validateTagRelCreate, validateTagUpdate, voteForTagWhenCreated } from "../callbacks/tagCallbackFunctions";
+import { CallbackValidationErrors, CreateCallbackProperties, AfterCreateCallbackProperties, UpdateCallbackProperties, getCollectionHooks, DeleteCallbackProperties } from "../mutationCallbacks";
 
-function isValidTagName(name: string) {
-  if (!name || !name.length)
-    return false;
-  return true;
-}
+async function tagCreateValidate(validationErrors: CallbackValidationErrors, props: CreateCallbackProperties<'Tags'>): Promise<CallbackValidationErrors> {
+  await validateTagCreate(validationErrors, props);
 
-function normalizeTagName(name: string) {
-  // If the name starts with a hash, strip it off
-  if (name.startsWith("#"))
-    return name.substr(1);
-  else
-    return name;
-}
-
-// createValidate
-async function validateTagCreate(validationErrors: Array<any>, {document: tag}: CreateCallbackProperties<'Tags'>): Promise<Array<any>> {
-  if (!tag.name || !tag.name.length)
-    throw new Error("Name is required");
-  if (!isValidTagName(tag.name))
-    throw new Error(`Invalid ${taggingNameSetting.get()} name (use only letters, digits and dash)`);
-  
-  // If the name starts with a hash, strip it off
-  const normalizedName = normalizeTagName(tag.name);
-  if (tag.name !== normalizedName) {
-    tag = {
-      ...tag,
-      name: normalizedName,
-    };
-  }
-  
-  // Name must be unique
-  const existing = await Tags.find({name: normalizedName, deleted:false}).fetch();
-  if (existing.length > 0)
-    throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
-  
   return validationErrors;
 }
 
-// updateValidate
-async function validateTagUpdate(validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}): Promise<Array<any>> {
-  if (!isValidTagName(newDocument.name))
-    throw new Error(`Invalid ${taggingNameSetting.get()} name`);
+async function tagCreateBefore(doc: DbInsertion<DbTag>, props: CreateCallbackProperties<'Tags'>): Promise<DbInsertion<DbTag>> {
+  // slugCreateBeforeCallbackFunction-Tags
+  // 3x editorSerializationBeforeCreate
 
-  const newName = normalizeTagName(newDocument.name);
-  if (oldDocument.name !== newName) { // Tag renamed?
-    const existing = await Tags.find({name: newName, deleted:false}).fetch();
-    if (existing.length > 0)
-      throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
-  }
-  
-  if (newDocument.name !== newName) {
-    newDocument = {
-      ...newDocument, name: newName
-    }
-  }
-  
+  return doc;
+}
+
+async function tagNewSync(tag: DbTag, currentUser: DbUser | null, context: ResolverContext): Promise<DbTag> {
+  return tag;
+}
+
+async function tagCreateAfter(tag: DbTag, props: AfterCreateCallbackProperties<'Tags'>): Promise<DbTag> {
+  // 3x (editorSerializationAfterCreate, notifyUsersAboutMentions)
+
+  return tag;
+}
+
+async function tagNewAfter(tag: DbTag, currentUser: DbUser | null, props: AfterCreateCallbackProperties<'Tags'>): Promise<DbTag> {
+  return tag;
+}
+
+async function tagCreateAsync(props: AfterCreateCallbackProperties<'Tags'>) {
+  // elasticSyncDocument
+}
+
+async function tagNewAsync(tag: DbTag, currentUser: DbUser | null, collection: CollectionBase<'Tags'>, props: AfterCreateCallbackProperties<'Tags'>) {
+  // 1x convertImagesInObject
+}
+
+async function tagUpdateValidate(validationErrors: CallbackValidationErrors, props: UpdateCallbackProperties<'Tags'>): Promise<CallbackValidationErrors> {
+  await validateTagUpdate(validationErrors, props);
+
   return validationErrors;
 }
 
-// updateAfter
-async function cascadeSoftDeleteToTagRels(newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}): Promise<DbTag> {
-  // If this is soft deleting a tag, then cascade to also soft delete any
-  // tagRels that go with it.
-  if (newDoc.deleted && !oldDocument.deleted) {
-    await TagRels.rawUpdateMany({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
-  }
-  return newDoc;
+async function tagUpdateBefore(tag: Partial<DbTag>, props: UpdateCallbackProperties<'Tags'>): Promise<Partial<DbTag>> {
+  // slugUpdateBeforeCallbackFunction-Tags
+  // 3x editorSerializationEdit
+
+  return tag;
 }
 
-// updateAfter
-async function updateParentTagSubTagIds(newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}): Promise<DbTag> {
-  // If a parent tag has been added, add this tag to the subTagIds of the parent
-  if (newDoc.parentTagId === oldDocument.parentTagId) return newDoc;
-
-  // Remove this tag from the subTagIds of the old parent
-  if (oldDocument.parentTagId) {
-    const oldParent = await Tags.findOne(oldDocument.parentTagId);
-    await updateMutator({
-      collection: Tags,
-      documentId: oldDocument.parentTagId,
-      // TODO change to $pull (reverse of $addToSet) once it is implemented in postgres
-      set: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
-      validate: false,
-    })
-  }
-  // Add this tag to the subTagIds of the new parent
-  if (newDoc.parentTagId) {
-    const newParent = await Tags.findOne(newDoc.parentTagId);
-    await updateMutator({
-      collection: Tags,
-      documentId: newDoc.parentTagId,
-      // TODO change to $addToSet once it is implemented in postgres
-      set: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
-      validate: false,
-    })
-  }
-  return newDoc;
+async function tagEditSync(modifier: MongoModifier<DbTag>, tag: DbTag, _0: DbUser | null, _1: DbTag, props: UpdateCallbackProperties<'Tags'>): Promise<MongoModifier<DbTag>> {
+  return modifier;
 }
 
-// newAfter
-async function voteForTagWhenCreated(tagRel: DbTagRel): Promise<DbTagRel> {
-  // When you add a tag, vote for it as relevant
-  var tagCreator = await Users.findOne(tagRel.userId);
-  if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
-  const { performVoteServer } = require('../voteServer');
-  const {modifiedDocument: votedTagRel} = await performVoteServer({
-    document: tagRel,
-    voteType: 'smallUpvote',
-    collection: TagRels,
-    user: tagCreator,
-    skipRateLimits: true,
-    selfVote: true
-  })
-  await updatePostDenormalizedTags(tagRel.postId);
-  return {...tagRel, ...votedTagRel} as DbTagRel;
+async function tagUpdateAfter(tag: DbTag, props: UpdateCallbackProperties<'Tags'>): Promise<DbTag> {
+  tag = await cascadeSoftDeleteToTagRels(tag, props);
+  tag = await updateParentTagSubTagIds(tag, props);
+  tag = await reexportProfileTagUsersToElastic(tag, props);
+
+  // 3x notifyUsersAboutMentions
+
+  return tag;
 }
 
-// updateAfter
-// Users who have this as a profile tag may need to be reexported to elastic
-async function reexportProfileTagUsersToElastic(
-  newDocument: DbTag,
-  {oldDocument}: {oldDocument: DbTag},
-): Promise<DbTag> {
-  const wasDeletedChanged = !!newDocument.deleted !== !!oldDocument.deleted;
-  const wasRenamed = newDocument.name !== oldDocument.name;
-  const wasSlugChanged = newDocument.slug !== oldDocument.slug;
-  if (wasDeletedChanged || wasRenamed || wasSlugChanged) {
-    const users = await Users.find({
-      profileTagIds: oldDocument._id,
-    }, {
-      projection: {_id: 1},
-    }).fetch();
-    for (const user of users) {
-      void elasticSyncDocument("Users", user._id);
-    }
-  }
+async function tagUpdateAsync(props: UpdateCallbackProperties<'Tags'>) {
+}
+
+async function tagEditAsync(tag: DbTag, oldTag: DbTag, currentUser: DbUser | null, collection: CollectionBase<'Tags'>, props: UpdateCallbackProperties<'Tags'>) {
+  // 3x convertImagesInObject
+  // elasticSyncDocument
+}
+
+getCollectionHooks('Tags').createValidate.add(tagCreateValidate);
+getCollectionHooks('Tags').createBefore.add(tagCreateBefore);
+getCollectionHooks('Tags').newSync.add(tagNewSync);
+getCollectionHooks('Tags').createAfter.add(tagCreateAfter);
+getCollectionHooks('Tags').newAfter.add(tagNewAfter);
+getCollectionHooks('Tags').createAsync.add(tagCreateAsync);
+getCollectionHooks('Tags').newAsync.add(tagNewAsync);
+
+getCollectionHooks('Tags').updateValidate.add(tagUpdateValidate);
+getCollectionHooks('Tags').updateBefore.add(tagUpdateBefore);
+getCollectionHooks('Tags').editSync.add(tagEditSync);
+getCollectionHooks('Tags').updateAfter.add(tagUpdateAfter);
+getCollectionHooks('Tags').updateAsync.add(tagUpdateAsync);
+getCollectionHooks('Tags').editAsync.add(tagEditAsync);
+
+async function tagRelCreateBefore(newDocument: DbInsertion<DbTagRel>, props: CreateCallbackProperties<'TagRels'>): Promise<DbInsertion<DbTagRel>> {
+  await validateTagRelCreate(newDocument, props);
+
   return newDocument;
 }
 
-export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
-  let postId: string;
-  if ("postId" in newDocument) { // is a tagRel
-    // Applying human knowledge here
-    postId = (newDocument as DbTagRel)["postId"];
-  } else if ("tagRelevance" in newDocument) { // is a post
-    postId = newDocument["_id"];
-  } else {
-    return;
-  }
-  void updatePostDenormalizedTags(postId);
+async function tagRelCreateAfter(tagRel: DbTagRel, props: AfterCreateCallbackProperties<'TagRels'>): Promise<DbTagRel> {
+  // 1x countOfReferenceCallbacks
+
+  return tagRel;
 }
 
-export async function recomputeContributorScoresFor(votedRevision: DbRevision) {
-  if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
+async function tagRelNewAfter(tagRel: DbTagRel, currentUser: DbUser | null, props: AfterCreateCallbackProperties<'TagRels'>): Promise<DbTagRel> {
+  tagRel = await voteForTagWhenCreated(tagRel, props);
 
-  if (votedRevision.collectionName === "Tags") {
-    const tag = await Tags.findOne({_id: votedRevision.documentId});
-    if (!tag) return;
-    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description' });
-  } else if (votedRevision.collectionName === "MultiDocuments") {
-    const multiDocument = await MultiDocuments.findOne({_id: votedRevision.documentId});
-    if (!multiDocument) return;
-    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents' });
-  }
+  return tagRel;
 }
+
+async function tagRelNewAsync(tagRel: DbTagRel, currentUser: DbUser | null, collection: CollectionBase<'TagRels'>, props: AfterCreateCallbackProperties<'TagRels'>) {
+  await taggedPostNewNotifications(tagRel, props);
+}
+
+async function tagRelUpdateAfter(tagRel: DbTagRel, props: UpdateCallbackProperties<'TagRels'>): Promise<DbTagRel> {
+  // 1x countOfReferenceCallbacks
+
+  return tagRel;
+}
+
+async function tagRelDeleteAsync(props: DeleteCallbackProperties<'TagRels'>) {
+  // 1x countOfReferenceCallbacks
+}
+
+getCollectionHooks('TagRels').createBefore.add(tagRelCreateBefore);
+getCollectionHooks('TagRels').createAfter.add(tagRelCreateAfter);
+getCollectionHooks('TagRels').newAfter.add(tagRelNewAfter);
+getCollectionHooks('TagRels').newAsync.add(tagRelNewAsync);
+
+getCollectionHooks('TagRels').updateAfter.add(tagRelUpdateAfter);
+
+getCollectionHooks('TagRels').deleteAsync.add(tagRelDeleteAsync);

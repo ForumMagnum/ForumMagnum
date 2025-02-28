@@ -1,9 +1,8 @@
 import Notifications from '../lib/collections/notifications/collection';
 import Conversations from '../lib/collections/conversations/collection';
-import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts/collection';
-import { getConfirmedCoauthorIds, postIsPublic } from '../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PostNominatedEmail';
@@ -13,13 +12,12 @@ import * as _ from 'underscore';
 import { getCollectionHooks } from './mutationCallbacks';
 
 import { RSVPType } from '../lib/collections/posts/schema';
-import { getSubscribedUsers, createNotifications } from './notificationCallbacksHelpers'
+import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
 import Messages from '../lib/collections/messages/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
-import { filterNonnull } from '../lib/utils/typeGuardUtils';
 
 
 interface NotifyDialogueParticipantProps {
@@ -109,26 +107,6 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
   })
 
   await Promise.all(notificationPromises)
-}
-
-// newAsync
-async function taggedPostNewNotifications(tagRel: DbTagRel): Promise<void> {
-  const subscribedUsers = await getSubscribedUsers({
-    documentId: tagRel.tagId,
-    collectionName: "Tags",
-    type: subscriptionTypes.newTagPosts
-  })
-  const post = await Posts.findOne({_id:tagRel.postId})
-  if (post && postIsPublic(post) && !post.authorIsUnreviewed) {
-    const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
-    
-    // Don't notify the person who created the tagRel
-    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, filterNonnull([tagRel.userId]))
-
-    //eslint-disable-next-line no-console
-    console.info("Post tagged, creating notifications");
-    await createNotifications({userIds: tagSubscriberIdsToNotify, notificationType: 'newTagPosts', documentType: 'tagRel', documentId: tagRel._id});
-  }
 }
 
 async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | undefined> {
