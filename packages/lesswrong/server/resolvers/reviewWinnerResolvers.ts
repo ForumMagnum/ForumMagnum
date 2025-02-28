@@ -1,9 +1,8 @@
 import { restrictViewableFieldsSingle } from "../../lib/vulcan-users/permissions";
 import { defineQuery } from "../utils/serverGraphqlUtil";
-import { createAnonymousContext } from "../vulcan-lib/query";
 import Posts from "../../lib/collections/posts/collection";
-import { splashArtCoordinateCache } from "../../lib/collections/splashArtCoordinates/cache";
-import { reviewWinnerCache, ReviewWinnerWithPost } from "../../lib/collections/reviewWinners/cache";
+import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
+import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
 
 

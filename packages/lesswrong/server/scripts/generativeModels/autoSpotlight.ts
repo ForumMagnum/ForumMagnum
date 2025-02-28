@@ -1,7 +1,7 @@
 import Spotlights from "../../../lib/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
-import { reviewWinnerCache, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
+import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { Posts } from "@/lib/collections/posts/collection.ts";
 import { createAdminContext } from "../../vulcan-lib/query";
