@@ -54,34 +54,35 @@ export function useDisplayedContributors(contributorsInfo: DocumentContributorsI
   return { topContributors, smallContributors };
 }
 
-const ContributorUsersNameDisplay = ({ user }: { 
-  user: UsersMinimumInfo|null|undefined
-}) => {
-  const classes = useStyles(styles);
+// const ContributorUsersNameDisplay = ({ user }: { 
+//   user: UsersMinimumInfo|null|undefined
+// }) => {
+//   const classes = useStyles(styles);
   
-  if (!user || user.deleted) {
-    return <span>[deleted]</span>;
-  }
+//   if (!user || user.deleted) {
+//     return <span>[deleted]</span>;
+//   }
 
-  const displayName = userGetDisplayName(user);
-  const profileUrl = userGetProfileUrl(user);
+//   const displayName = userGetDisplayName(user);
+//   const profileUrl = userGetProfileUrl(user);
 
-  return (
-    <Link to={profileUrl} className={classes.contributorName}>
-      {displayName}
-    </Link>
-  );
-};
+//   return (
+//     <Link to={profileUrl} className={classes.contributorName}>
+//       {displayName}
+//     </Link>
+//   );
+// };
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   contributors: NonnullDocumentContributorWithStats[],
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
 }) => {
+  const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-    <ContributorUsersNameDisplay user={user} />
+    <UsersNameDisplay user={user} noTooltip={true} className={classes.contributorName} />
     {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
   </span>))}</>;
 }
@@ -93,7 +94,7 @@ function ToCContributorsList({
   contributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string | null) => void
 }) {
-  const { LWTooltip } = Components;
+  const { LWTooltip, UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   const displayedContributors = contributors.slice(0, 2);
@@ -103,7 +104,7 @@ function ToCContributorsList({
     <div className={classes.tocContributors}>
       {displayedContributors.map(({ user }, idx) => (
         <span key={user._id} className={classes.tocContributor} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-          <ContributorUsersNameDisplay user={user} />
+          <UsersNameDisplay user={user} noTooltip={true} className={classes.contributorName} />
           {(idx < displayedContributors.length - 1) || (idx === displayedContributors.length - 1 && hiddenContributors.length > 0) ? ', ' : ''}
         </span>
       ))}
@@ -111,7 +112,7 @@ function ToCContributorsList({
         <LWTooltip
           title={hiddenContributors.map(( {user}, idx) => (
             <span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-              <ContributorUsersNameDisplay user={user} />
+              <UsersNameDisplay user={user} noTooltip={true} className={classes.contributorName} />
               {idx < hiddenContributors.length - 1 ? ', ' : ''}
             </span>
           ))}
