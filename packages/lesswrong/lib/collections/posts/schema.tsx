@@ -35,7 +35,7 @@ import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
 import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
+import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
