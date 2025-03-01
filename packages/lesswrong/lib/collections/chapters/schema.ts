@@ -1,3 +1,4 @@
+import { editableFields } from '@/lib/editor/make_editable'
 import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
@@ -10,8 +11,14 @@ export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
 }
 
 const schema: SchemaType<"Chapters"> = {
-  // Custom Properties
-
+  ...editableFields("Chapters", {
+    order: 30,
+    getLocalStorageId: (chapter, name) => {
+      if (chapter._id) { return {id: `${chapter._id}_${name}`, verify: true} }
+      return {id: `sequence: ${chapter.sequenceId}_${name}`, verify: false}
+    },
+  }),
+  
   title: {
     type: String,
     optional: true,

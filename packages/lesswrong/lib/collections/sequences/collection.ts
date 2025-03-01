@@ -1,7 +1,6 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { makeEditable } from '../../editor/make_editable';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
@@ -48,12 +47,6 @@ export const Sequences = createCollection({
   logChanges: true,
 })
 
-makeEditable({
-  collection: Sequences,
-  options: {
-    order: 20,
-  }
-})
 addUniversalFields({collection: Sequences})
 
 Sequences.checkAccess = async (user, document) => {

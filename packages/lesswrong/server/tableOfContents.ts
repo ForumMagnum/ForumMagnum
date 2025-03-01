@@ -12,7 +12,7 @@ import { parseDocumentFromString } from '../lib/domParser';
 import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
-import { editableCollectionsFields } from '@/lib/editor/make_editable';
+import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
 async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
 
@@ -52,7 +52,7 @@ async function getHtmlWithContributorAnnotations({
   version: string | null,
   context: ResolverContext,
 }) {
-  if (!editableCollectionsFields[collectionName].includes(fieldName)) {
+  if (!getEditableFieldNamesForCollection(collectionName).includes(fieldName)) {
     // eslint-disable-next-line no-console
     console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
     return null;

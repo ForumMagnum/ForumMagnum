@@ -4,8 +4,6 @@ import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { makeEditable } from '../../editor/make_editable';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { commentVotingOptions } from './voting';
@@ -55,24 +53,5 @@ addUniversalFields({
   collection: Comments,
   createdAtOptions: {canRead: ['admins']},
 });
-
-makeEditable({
-  collection: Comments,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    // Sets the algorithm for determing what storage ids to use for local storage management
-    getLocalStorageId: (comment, name) => {
-      if (comment._id) { return {id: comment._id, verify: true} }
-      if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
-      return {id: ('post:' + comment.postId), verify: false}
-    },
-    hintText: isFriendlyUI ? 'Write a new comment...' : undefined,
-    order: 25,
-    pingbacks: true,
-  }
-})
 
 export default Comments;
