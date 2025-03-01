@@ -1,5 +1,6 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import { useMulti } from '../../lib/crud/withMulti';

@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
 import { useSingle } from '@/lib/crud/withSingle';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
