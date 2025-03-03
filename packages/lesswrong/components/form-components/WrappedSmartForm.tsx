@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
 import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
 import * as _ from 'underscore';
 
@@ -18,14 +18,14 @@ import * as _ from 'underscore';
 function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFormProps<T>) {
   const { collectionName } = props
 
-  if (editableCollections.has(collectionName)) {
+  if (getEditableCollectionNames().includes(collectionName)) {
     return <Components.FormWrapper
       {...props}
       submitCallback={(data: AnyBecauseTodo) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
         
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
-        const editableFields = _.object(editableCollectionsFields[collectionName].map(fieldName => {
+        const editableFields = _.object(getEditableFieldNamesForCollection(collectionName).map(fieldName => {
           const { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions } = (data && data[fieldName]) || {}
           return [
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value

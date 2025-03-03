@@ -9,6 +9,23 @@ export type MakeEditableOptionsFieldName<N extends CollectionNameString> = {
   normalized: true,
 };
 
+
+export interface EditableFieldCallbackOptions {
+  pingbacks: boolean;
+  normalized: boolean;
+}
+
+export interface EditableFieldClientOptions {
+  hasToc?: boolean,
+  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
+  revisionsHaveCommitMessages?: boolean,
+}
+
+export interface EditableFieldOptions {
+  callbackOptions: EditableFieldCallbackOptions;
+  clientOptions: EditableFieldClientOptions;
+}
+
 export type MakeEditableOptions<N extends CollectionNameString> = {
   commentEditor?: boolean,
   commentStyles?: boolean,
@@ -31,10 +48,3 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
   hidden?: boolean,
   hasToc?: boolean,
 } & MakeEditableOptionsFieldName<N>;
-
-export const editableCollectionsFieldOptions: Record<CollectionNameString, Record<string, MakeEditableOptions<CollectionNameString>>> = {} as any;
-
-export const editableFieldIsNormalized = (
-  collectionName: CollectionNameString,
-  fieldName: string,
-) => !!editableCollectionsFieldOptions[collectionName]?.[fieldName]?.normalized;

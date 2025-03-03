@@ -90,6 +90,7 @@ interface BookPageFragment { // fragment on Books
 }
 
 interface BooksDefaultFragment { // fragment on Books
+  readonly contents_latest: string,
   readonly postedAt: Date,
   readonly title: string,
   readonly subtitle: string,
@@ -104,6 +105,7 @@ interface BooksDefaultFragment { // fragment on Books
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
+  readonly contents_latest: string,
   readonly title: string,
   readonly subtitle: string,
   readonly number: number,
@@ -174,6 +176,7 @@ interface CollectionsBestOfFragment { // fragment on Collections
 }
 
 interface CollectionsDefaultFragment { // fragment on Collections
+  readonly contents_latest: string,
   readonly userId: string,
   readonly title: string,
   readonly slug: string,
@@ -231,6 +234,8 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
+  readonly contents_latest: string,
+  readonly pingbacks: any /*{"definitions":[{}]}*/,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly postedAt: Date,
@@ -527,6 +532,7 @@ interface CurationEmailsDefaultFragment { // fragment on CurationEmails
 }
 
 interface CurationNoticesDefaultFragment { // fragment on CurationNotices
+  readonly contents_latest: string,
   readonly userId: string,
   readonly commentId: string | null,
   readonly postId: string,
@@ -797,6 +803,9 @@ interface FieldChangeFragment { // fragment on non-collection type
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents
+  readonly frontpageDescription_latest: string,
+  readonly frontpageDescriptionMobile_latest: string,
+  readonly postPageDescription_latest: string,
   readonly title: string,
   readonly startDate: Date,
   readonly endDate: Date,
@@ -895,6 +904,8 @@ interface GardenCodeFragmentEdit { // fragment on GardenCodes
 }
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
+  readonly contents_latest: string,
+  readonly pingbacks: any /*{"definitions":[{}]}*/,
   readonly code: string,
   readonly title: string,
   readonly userId: string,
@@ -948,6 +959,7 @@ interface JargonTerms { // fragment on JargonTerms
 }
 
 interface JargonTermsDefaultFragment { // fragment on JargonTerms
+  readonly contents_latest: string,
   readonly postId: string,
   readonly term: string,
   readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI" | null,
@@ -1023,6 +1035,7 @@ interface LlmMessagesFragment { // fragment on LlmMessages
 }
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
+  readonly contents_latest: string,
   readonly name: string,
   readonly nameInAnotherLanguage: string,
   readonly organizerIds: Array<string>,
@@ -1058,6 +1071,7 @@ interface MembersOfGroupFragment { // fragment on Subscriptions
 }
 
 interface MessagesDefaultFragment { // fragment on Messages
+  readonly contents_latest: string,
   readonly userId: string,
   readonly conversationId: string,
   readonly noEmail: boolean,
@@ -1073,6 +1087,7 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
 }
 
 interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplates
+  readonly contents_latest: string,
   readonly name: string,
   readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
@@ -1159,6 +1174,8 @@ interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { 
 }
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
+  readonly contents_latest: string,
+  readonly pingbacks: any /*{"definitions":[{}]}*/,
   readonly title: string | null,
   readonly preview: string | null,
   readonly tabTitle: string,
@@ -1471,6 +1488,10 @@ interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
 }
 
 interface PostsDefaultFragment { // fragment on Posts
+  readonly contents_latest: string,
+  readonly pingbacks: any /*{"definitions":[{}]}*/,
+  readonly moderationGuidelines_latest: string,
+  readonly customHighlight_latest: string,
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
@@ -2303,6 +2324,7 @@ interface SequenceContinueReadingFragment { // fragment on Sequences
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
+  readonly contents_latest: string,
   readonly lastUpdated: Date,
   readonly userId: string,
   readonly title: string,
@@ -2546,6 +2568,7 @@ interface SpotlightReviewWinner_description { // fragment on Revisions
 }
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
+  readonly description_latest: string,
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post" | "Tag",
   readonly position: number,
@@ -2913,6 +2936,7 @@ interface TagFlagFragment_contents { // fragment on Revisions
 }
 
 interface TagFlagsDefaultFragment { // fragment on TagFlags
+  readonly contents_latest: string,
   readonly name: string,
   readonly deleted: boolean,
   readonly order: number | null,
@@ -3143,6 +3167,10 @@ interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
 }
 
 interface TagsDefaultFragment { // fragment on Tags
+  readonly description_latest: string,
+  readonly pingbacks: any /*{"definitions":[{}]}*/,
+  readonly subforumWelcomeText_latest: string,
+  readonly moderationGuidelines_latest: string,
   readonly name: string,
   readonly shortName: string | null,
   readonly subtitle: string | null,
@@ -3593,6 +3621,10 @@ interface UsersCurrentPostRateLimit { // fragment on Users
 }
 
 interface UsersDefaultFragment { // fragment on Users
+  readonly moderationGuidelines_latest: string,
+  readonly howOthersCanHelpMe_latest: string,
+  readonly howICanHelpOthers_latest: string,
+  readonly biography_latest: string,
   readonly username: string,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly isAdmin: boolean,

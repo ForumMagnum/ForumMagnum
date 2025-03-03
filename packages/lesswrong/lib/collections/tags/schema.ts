@@ -16,6 +16,8 @@ import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
 import uniqBy from 'lodash/uniqBy';
 import { LikesList } from '@/lib/voting/reactionsAndLikes';
+import { editableFields } from '@/lib/editor/make_editable';
+import { userIsSubforumModerator } from './helpers';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -57,6 +59,47 @@ async function getTagMultiDocuments(
 }
 
 const schema: SchemaType<"Tags"> = {
+  ...editableFields("Tags", {
+    fieldName: "description",
+    commentStyles: true,
+    pingbacks: true,
+    getLocalStorageId: (tag, name) => {
+      if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
+      return {id: `tag:create`, verify:true}
+    },
+    revisionsHaveCommitMessages: true,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
+    },
+    order: 10
+  }),
+
+  ...editableFields("Tags", {
+    fieldName: "subforumWelcomeText",
+    formGroup: formGroups.subforumWelcomeMessage,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...editableFields("Tags", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }),
+  
   name: {
     type: String,
     nullable: false,
