@@ -125,7 +125,7 @@ addGraphQLResolvers({
           emails = [{
             user: currentUser,
             subject: post.title,
-            body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
+            body: <Components.SinglePostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
           }]
         }
       }

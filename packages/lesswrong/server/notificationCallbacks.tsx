@@ -3,7 +3,7 @@ import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import './emailComponents/EmailWrapper';
-import './emailComponents/NewPostEmail';
+import './emailComponents/SinglePostEmail';
 import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EmailCuratedAuthors';

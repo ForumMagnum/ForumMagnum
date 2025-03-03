@@ -9,7 +9,7 @@ const EventTomorrowReminder = ({postId, rsvp}: {
   postId: string,
   rsvp: RSVPType,
 }) => {
-  return <Components.NewPostEmail
+  return <Components.SinglePostEmail
     documentId={postId}
     hideRecommendations
     reason={`you RSVPed ${rsvp.response} to this event`}

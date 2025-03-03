@@ -76,7 +76,7 @@ const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   </p>;
 };
 
-const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
+const SinglePostEmail = ({documentId, reason, hideRecommendations, classes}: {
   documentId: string,
   reason?: string,
   hideRecommendations?: boolean,
@@ -157,10 +157,10 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   </React.Fragment>);
 }
 
-const NewPostEmailComponent = registerComponent("NewPostEmail", NewPostEmail, {styles});
+const SinglePostEmailComponent = registerComponent("SinglePostEmail", SinglePostEmail, {styles});
 
 declare global {
   interface ComponentTypes {
-    NewPostEmail: typeof NewPostEmailComponent
+    SinglePostEmail: typeof SinglePostEmailComponent
   }
 }
