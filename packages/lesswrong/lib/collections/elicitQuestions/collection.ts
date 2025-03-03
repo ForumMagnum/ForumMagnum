@@ -1,7 +1,6 @@
 import schema from './schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { createCollection } from "../../vulcan-lib/collections";
-import { registerFragment } from "../../vulcan-lib/fragments";
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
@@ -26,16 +25,6 @@ export const ElicitQuestions: ElicitQuestionsCollection = createCollection({
   }),
   logChanges: true,
 });
-
-registerFragment(`
-  fragment ElicitQuestionFragment on ElicitQuestion {
-    _id
-    title
-    notes
-    resolution
-    resolvesBy
-  }
-`);
 
 addUniversalFields({
   collection: ElicitQuestions

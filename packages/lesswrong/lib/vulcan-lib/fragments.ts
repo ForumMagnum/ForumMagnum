@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import * as _ from 'underscore';
 // This has a stub for the client bundle
 import SqlFragment from '@/server/sql/SqlFragment';
+import { allFragments } from '../fragments/allFragments';
 
 interface FragmentDefinition {
   fragmentText: string
@@ -11,10 +12,20 @@ interface FragmentDefinition {
   sqlFragment?: SqlFragment,
 }
 
-const Fragments: Record<FragmentName,FragmentDefinition> = {} as any;
+const Fragments: Partial<Record<FragmentName,FragmentDefinition>> = {};
+
+function getMemoizedFragmentInfo(fragmentName: FragmentName): FragmentDefinition {
+  let fragmentDefinition = Fragments[fragmentName];
+  if (!fragmentDefinition) {
+    fragmentDefinition = registerFragment(allFragments[fragmentName]);
+    Fragments[fragmentName] = fragmentDefinition;
+  }
+
+  return fragmentDefinition;
+}
 
 // Get a fragment's name from its text
-export const extractFragmentName = (fragmentText: string): FragmentName => {
+function extractFragmentName(fragmentText: string): FragmentName {
   const match = fragmentText.match(/fragment (.*) on/)
   if (!match) throw new Error("Could not extract fragment name");
   return match[1] as FragmentName;
@@ -22,12 +33,9 @@ export const extractFragmentName = (fragmentText: string): FragmentName => {
 
 
 // Register a fragment, including its text, the text of its subfragments, and the fragment object
-export const registerFragment = (fragmentTextSource: string): void => {
+function registerFragment(fragmentTextSource: string): FragmentDefinition {
   // remove comments
   const fragmentText = fragmentTextSource.replace(/#.*\n/g, '\n');
-
-  // extract name from fragment text
-  const fragmentName = extractFragmentName(fragmentText) as FragmentName;
 
   // extract subFragments from text
   const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
@@ -37,24 +45,24 @@ export const registerFragment = (fragmentTextSource: string): void => {
     // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
     ? new SqlFragment(
       fragmentText,
-      (name: FragmentName) => Fragments[name].sqlFragment ?? null,
+      (name: FragmentName) => getMemoizedFragmentInfo(name).sqlFragment ?? null,
     )
     : undefined;
 
-  // register fragment
-  Fragments[fragmentName] = {
+  const fragmentDefinition: FragmentDefinition = {
     fragmentText,
     sqlFragment,
   };
 
-  // also add subfragments if there are any
-  if(subFragments && subFragments.length) {
-    Fragments[fragmentName].subFragments = subFragments as Array<FragmentName>;
+  if (subFragments && subFragments.length) {
+    fragmentDefinition.subFragments = subFragments as Array<FragmentName>;
   }
+
+  return fragmentDefinition;
 };
 
 // Create gql fragment object from text and subfragments
-const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentName>|undefined) => {
+function getFragmentObject(fragmentText: string, subFragments: Array<FragmentName>|undefined): DocumentNode {
   // pad the literals array with line returns for each subFragments
   const literals = subFragments ? [fragmentText, ...subFragments.map(x => '\n')] : [fragmentText];
 
@@ -69,57 +77,23 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
   }).filter((fragment): fragment is DocumentNode => fragment !== undefined)] : [literals];
 
   return gql.apply(null, gqlArguments);
-};
-
-// Create default "dumb" gql fragment object for a given collection
-export const getDefaultFragmentText = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  schema: SchemaType<N>,
-  options={onlyViewable: true},
-): string|null => {
-  const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
-    /*
-
-    Exclude a field from the default fragment if
-    1. it has a resolver and addOriginalField is false
-    2. it has $ in its name
-    3. it's not viewable (if onlyViewable option is true)
-
-    */
-    const field: CollectionFieldSpecification<N> = schema[fieldName];
-    // OpenCRUD backwards compatibility
-
-    const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
-    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !field.canRead);
-  });
-
-  if (fieldNames.length) {
-    const fragmentText = `
-      fragment ${collection.collectionName}DefaultFragment on ${collection.typeName} {
-        ${fieldNames.map(fieldName => {
-          return fieldName+'\n';
-        }).join('')}
-      }
-    `;
-
-    return fragmentText;
-  } else {
-    return null;
-  }
-};
+}
 
 // Get fragment name from fragment object
-export const getFragmentName = (fragment: AnyBecauseTodo) => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
+export function getFragmentName(fragment: AnyBecauseTodo) {
+  return fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
+}
 
-export const isValidFragmentName = (name: string): name is FragmentName =>
-  !!Fragments[name as FragmentName];
+export function isValidFragmentName(name: string): name is FragmentName {
+  return !!allFragments[name as FragmentName];
+}
 
 // Get actual gql fragment
-export const getFragment = (fragmentName: FragmentName): DocumentNode => {
+export function getFragment(fragmentName: FragmentName): DocumentNode {
   if (!isValidFragmentName(fragmentName)) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
-  const fragmentObject = Fragments[fragmentName].fragmentObject;
+  const fragmentObject = getMemoizedFragmentInfo(fragmentName).fragmentObject;
   if (!fragmentObject) {
     // return fragment object created by gql
     return initializeFragment(fragmentName);
@@ -127,12 +101,12 @@ export const getFragment = (fragmentName: FragmentName): DocumentNode => {
   return fragmentObject;
 };
 
-export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
+export function getSqlFragment(fragmentName: FragmentName): SqlFragment {
   // TODO: Should we also check that nested fragment names are also defined?
   if (!isValidFragmentName(fragmentName)) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
-  const {sqlFragment} = Fragments[fragmentName];
+  const {sqlFragment} = getMemoizedFragmentInfo(fragmentName);
   if (!sqlFragment) {
     throw new Error(`SQL fragment missing (did you request it on the client?)`);
   }
@@ -143,30 +117,30 @@ export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
  * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.
  * Don't use this for anything that requires the subfragments
  */
-const getFragmentText = (fragmentName: FragmentName): string => {
+function getFragmentText(fragmentName: FragmentName): string {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
   // return fragment object created by gql
-  return Fragments[fragmentName].fragmentText;  
-};
+  return getMemoizedFragmentInfo(fragmentName).fragmentText;  
+}
 
-export const initializeFragment = (fragmentName: FragmentName): DocumentNode => {
-  const fragment = Fragments[fragmentName];
+export function initializeFragment(fragmentName: FragmentName): DocumentNode {
+  const fragment = getMemoizedFragmentInfo(fragmentName);
   const fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
-  Fragments[fragmentName].fragmentObject = fragmentObject;
+  fragment.fragmentObject = fragmentObject;
   return fragmentObject;
-};
+}
 
-export const getAllFragmentNames = (): Array<FragmentName> => {
+export function getAllFragmentNames(): Array<FragmentName> {
   return Object.keys(Fragments) as Array<FragmentName>;
 }
 
 
-const addFragmentDependencies = (fragments: Array<FragmentName>): Array<FragmentName> => {
+function addFragmentDependencies(fragments: Array<FragmentName>): Array<FragmentName> {
   const result = [...fragments];
   for (let i=0; i<result.length; i++) {
-    const dependencies = Fragments[result[i]].subFragments;
+    const dependencies = getMemoizedFragmentInfo(result[i]).subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
         if (!_.find(result, (s: FragmentName)=>s===subfragment))
@@ -180,7 +154,7 @@ const addFragmentDependencies = (fragments: Array<FragmentName>): Array<Fragment
 // Given a fragment name (or an array of fragment names), return text which can
 // be added to a graphql query to define that fragment (or fragments) and its
 // (or their) dependencies.
-export const fragmentTextForQuery = (fragmentOrFragments: FragmentName|Array<FragmentName>): string => {
+export function fragmentTextForQuery(fragmentOrFragments: FragmentName|Array<FragmentName>): string {
   const rootFragments: Array<FragmentName> = Array.isArray(fragmentOrFragments) ? fragmentOrFragments : [fragmentOrFragments];
   const fragmentsUsed = addFragmentDependencies(rootFragments);
   return fragmentsUsed.map(fragmentName => getFragmentText(fragmentName)).join("\n");

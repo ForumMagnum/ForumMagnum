@@ -1,8 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-
-
-registerFragment(`
+export const PostsMinimumInfo = `
   fragment PostsMinimumInfo on Post {
     _id
     slug
@@ -23,11 +19,11 @@ registerFragment(`
     debate
     collabEditorDialogue
   }
-`);
+`
 
 // ...PostsAuthors
 
-registerFragment(`
+export const PostsTopItemInfo = `
   fragment PostsTopItemInfo on Post {
     ...PostsMinimumInfo
     ...PostsAuthors
@@ -56,9 +52,9 @@ registerFragment(`
     }
     finalReviewVoteScoreHighKarma
   }
-`);
+`
 
-registerFragment(`
+export const PostsBase = `
   fragment PostsBase on Post {
     ...PostsMinimumInfo
     
@@ -181,17 +177,17 @@ registerFragment(`
     
     disableRecommendation
   }
-`);
+`
 
-registerFragment(`
+export const PostsWithVotes = `
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
-registerFragment(`
+export const PostsListWithVotes = `
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
@@ -209,18 +205,18 @@ registerFragment(`
       externalEpisodeId
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsListWithVotesAndSequence = `
   fragment PostsListWithVotesAndSequence on Post {
     ...PostsListWithVotes
     canonicalSequence {
       ...SequencesPageFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsReviewVotingList = `
   fragment PostsReviewVotingList on Post {
     ...PostsListWithVotes
     reviewVoteScoreAllKarma
@@ -230,9 +226,9 @@ registerFragment(`
     reviewVoteScoreAF
     reviewVotesAF
   }
-`)
+`
 
-registerFragment(`
+export const PostsModerationGuidelines = `
   fragment PostsModerationGuidelines on Post {
     ...PostsMinimumInfo
     frontpageDate
@@ -251,9 +247,9 @@ registerFragment(`
       }
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsAuthors = `
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
@@ -268,9 +264,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostsListBase = `
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
@@ -304,9 +300,9 @@ registerFragment(`
     dialogTooltipPreview
     disableSidenotes
   }
-`);
+`
 
-registerFragment(`
+export const PostsList = `
   fragment PostsList on Post {
     ...PostsListBase
     deletedDraft
@@ -319,36 +315,36 @@ registerFragment(`
     }
     fmCrosspost
   }
-`);
+`
 
-registerFragment(`
+export const SunshineCurationPostsList = `
   fragment SunshineCurationPostsList on Post {
     ...PostsList
     curationNotices {
       ...CurationNoticesFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsListTag = `
   fragment PostsListTag on Post {
     ...PostsList
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsListTagWithVotes = `
   fragment PostsListTagWithVotes on Post {
     ...PostsListWithVotes
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsDetails = `
   fragment PostsDetails on Post {
     ...PostsListBase
 
@@ -449,9 +445,9 @@ registerFragment(`
       ...JargonTermsPost
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostsExpandedHighlight = `
   fragment PostsExpandedHighlight on Post {
     _id
     contents {
@@ -459,9 +455,9 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostsPlaintextDescription = `
   fragment PostsPlaintextDescription on Post {
     _id
     contents {
@@ -469,11 +465,11 @@ registerFragment(`
       plaintextDescription
     }
   }
-`);
+`
 
 // Same as PostsPage, with added just optional arguments to the content field
 // and a list of revisions
-registerFragment(`
+export const PostsRevision = `
   fragment PostsRevision on Post {
     ...PostsDetails
 
@@ -486,9 +482,9 @@ registerFragment(`
       ...RevisionMetadata
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsRevisionEdit = `
   fragment PostsRevisionEdit on Post {
     ...PostsDetails
 
@@ -501,9 +497,9 @@ registerFragment(`
       ...RevisionMetadata
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsWithNavigationAndRevision = `
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
@@ -516,9 +512,9 @@ registerFragment(`
       ...ReviewWinnerAll
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsWithNavigation = `
   fragment PostsWithNavigation on Post {
     ...PostsPage
     ...PostSequenceNavigation
@@ -528,10 +524,10 @@ registerFragment(`
       ...ReviewWinnerAll
     }
   }
-`)
+`
 
 // This is a union of the fields needed by PostsTopNavigation and BottomNavigation.
-registerFragment(`
+export const PostSequenceNavigation = `
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
@@ -550,9 +546,9 @@ registerFragment(`
       }
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsPage = `
   fragment PostsPage on Post {
     ...PostsDetails
     version
@@ -564,9 +560,9 @@ registerFragment(`
     }
     myEditorAccess
   }
-`)
+`
 
-registerFragment(`
+export const PostsEdit = `
   fragment PostsEdit on Post {
     ...PostsDetails
     ...PostSideComments
@@ -603,53 +599,53 @@ registerFragment(`
     }
     generateDraftJargon
   }
-`);
+`
 
-registerFragment(`
+export const PostsEditQueryFragment = `
   fragment PostsEditQueryFragment on Post {
     ...PostsEdit
     contents(version: $version) {
       ...RevisionEdit
     }
   }
-`);
-registerFragment(`
+`
+export const PostsEditMutationFragment = `
   fragment PostsEditMutationFragment on Post {
     ...PostsEdit
     contents {
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostsRevisionsList = `
   fragment PostsRevisionsList on Post {
     _id
     revisions {
       ...RevisionMetadata
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsRecentDiscussion = `
   fragment PostsRecentDiscussion on Post {
     ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const ShortformRecentDiscussion = `
   fragment ShortformRecentDiscussion on Post {
     ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsListWithTopLevelComment
     }
   }
-`);
+`
 
-registerFragment(`
+export const UsersBannedFromPostsModerationLog = `
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
@@ -659,9 +655,9 @@ registerFragment(`
     _id
     bannedUserIds
   }
-`)
+`
 
-registerFragment(`
+export const SunshinePostsList = `
   fragment SunshinePostsList on Post {
     ...PostsListBase
 
@@ -707,9 +703,9 @@ registerFragment(`
       }
     }
   }
-`)
+`
 
-registerFragment(`
+export const WithVotePost = `
   fragment WithVotePost on Post {
     __typename
     _id
@@ -722,9 +718,9 @@ registerFragment(`
     afExtendedScore
     voteCount
   }
-`);
+`
 
-registerFragment(`
+export const HighlightWithHash = `
   fragment HighlightWithHash on Post {
     _id
     contents {
@@ -732,14 +728,14 @@ registerFragment(`
       htmlHighlightStartingAtHash(hash: $hash)
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostWithDialogueMessage = `
   fragment PostWithDialogueMessage on Post {
     _id
     dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
   }
-`);
+`
 
 /**
  * Note that the side comments cache isn't actually used by the client. We
@@ -756,7 +752,7 @@ registerFragment(`
  * isn't the end of the word, but it is a _big_ field that we don't want to
  * waste bandwidth on).
  */
-registerFragment(`
+export const PostSideComments = `
   fragment PostSideComments on Post {
     _id
     sideComments
@@ -764,16 +760,16 @@ registerFragment(`
       ...SideCommentCacheMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostWithGeneratedSummary = `
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
   }
-`);
+`
 
-registerFragment(`
+export const PostsBestOfList = `
   fragment PostsBestOfList on Post {
     ...PostsListWithVotes
     podcastEpisode {
@@ -795,9 +791,9 @@ registerFragment(`
     }
     firstVideoAttribsForPreview
   }
-`);
+`
 
-registerFragment(`
+export const PostsRSSFeed = `
   fragment PostsRSSFeed on Post {
     ...PostsPage
     scoreExceeded2Date
@@ -808,9 +804,9 @@ registerFragment(`
     scoreExceeded200Date
     metaDate
   }
-`);
+`
 
-registerFragment(`
+export const PostsOriginalContents = `
   fragment PostsOriginalContents on Post {
     _id
     contents {
@@ -821,18 +817,18 @@ registerFragment(`
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostsHTML = `
   fragment PostsHTML on Post {
     _id
     contents {
       ...RevisionHTML
     }
   }
-`);
+`
 
-registerFragment(`
+export const PostsForAutocomplete = `
   fragment PostsForAutocomplete on Post {
     _id
     title
@@ -846,9 +842,9 @@ registerFragment(`
       markdown
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostForReviewWinnerItem = `
   fragment PostForReviewWinnerItem on Post {
     _id
     spotlight {
@@ -859,9 +855,9 @@ registerFragment(`
       category
     }
   }
-`)
+`
 
-registerFragment(`
+export const PostsTwitterAdmin = `
   fragment PostsTwitterAdmin on Post {
     ...PostsListWithVotes
     user {
@@ -871,4 +867,4 @@ registerFragment(`
       ...UsersSocialMediaInfo
     }
   }
-`)
+`

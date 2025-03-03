@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const FeaturedResourcesFragment = `
   fragment FeaturedResourcesFragment on FeaturedResource {
     _id
     title
@@ -9,4 +7,4 @@ registerFragment(`
     ctaUrl
     expiresAt
   }
-`);
+`

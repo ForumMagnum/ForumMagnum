@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { registerFragment } from '../../vulcan-lib/fragments';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -27,20 +26,6 @@ addUniversalFields({
   collection: ClientIds,
   createdAtOptions: {canRead: ['admins']},
 });
-
-
-registerFragment(`
-  fragment ModeratorClientIDInfo on ClientId {
-    _id
-    clientId
-    createdAt
-    firstSeenReferrer
-    firstSeenLandingPage
-    users {
-      ...UsersMinimumInfo
-    }
-  }
-`);
 
 declare global {
   interface ClientIdsViewTerms extends ViewTermsBase {

@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const CommentModeratorActionDisplay = `
   fragment CommentModeratorActionDisplay on CommentModeratorAction {
     _id
     comment {
@@ -12,4 +10,4 @@ registerFragment(`
     createdAt
     endedAt
   }
-`);
+`
