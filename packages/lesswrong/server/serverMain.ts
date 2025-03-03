@@ -6,7 +6,6 @@ import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
-import { addAllEditableCallbacks } from './editor/make_editable_callbacks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { initGoogleVertex } from './google-vertex/client';
 import { addElicitResolvers } from './resolvers/elicitPredictions';
@@ -51,7 +50,6 @@ export async function runServerOnStartupFunctions() {
   startMemoryUsageMonitor();
   initLegacyRoutes();
   await startupSanityChecks();
-  addAllEditableCallbacks();
   await refreshKarmaInflationCache();
   initGoogleVertex();
   addElicitResolvers();

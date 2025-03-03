@@ -3,7 +3,7 @@ import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/
 import './fragments';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
-import { makeEditable } from '../../editor/make_editable';
+import { editableFields } from '../../editor/make_editable';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from "../../vulcan-core/default_mutations";
@@ -31,6 +31,14 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...editableFields("GardenCodes", {
+    pingbacks: true,
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 20
+  }),
+  
   code: {
     type: String,
     optional: true,
@@ -201,16 +209,5 @@ addSlugFields({
   getTitle: (gc) => gc.title,
   includesOldSlugs: false,
 });
-
-makeEditable({
-  collection: GardenCodes,
-  options: {
-    pingbacks: true,
-    commentEditor: true,
-    commentStyles: true,
-    hideControls: true,
-    order: 20
-  }
-})
 
 export default GardenCodes;

@@ -1,7 +1,6 @@
 import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { makeEditable } from '../../editor/make_editable'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
@@ -45,23 +44,6 @@ export const Localgroups: LocalgroupsCollection = createCollection({
   mutations: getDefaultMutations('Localgroups', options),
   logChanges: true,
 });
-
-makeEditable({
-  collection: Localgroups,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    order: 25,
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members'],
-      canCreate: ['members']
-    },
-    hintText: "Short description"
-  }
-})
 
 addUniversalFields({collection: Localgroups})
 

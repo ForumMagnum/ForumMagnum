@@ -1,7 +1,6 @@
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import { getEditableCollectionNames, getEditableFieldNamesForCollection, editableFieldIsNormalized } from '../../lib/editor/make_editable'
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
-import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 import * as _ from 'underscore';
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
@@ -16,8 +15,8 @@ export const validateMakeEditableDenormalization = async () => {
     console.error("    "+err);
   }
   
-  for (let collectionName of editableCollections) {
-    for (let editableField of editableCollectionsFields[collectionName]!) {
+  for (let collectionName of getEditableCollectionNames()) {
+    for (let editableField of getEditableFieldNamesForCollection(collectionName)) {
       if (editableFieldIsNormalized(collectionName, editableField)) {
         continue;
       }

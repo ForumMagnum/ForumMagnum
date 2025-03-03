@@ -1,4 +1,3 @@
-import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
@@ -52,27 +51,6 @@ addSlugFields({
   getTitle: (md) => md.title ?? md.tabTitle,
   onCollision: "rejectNewDocument",
   includesOldSlugs: true,
-});
-
-makeEditable({
-  collection: MultiDocuments,
-  options: {
-    fieldName: "contents",
-    order: 30,
-    commentStyles: true,
-    normalized: true,
-    revisionsHaveCommitMessages: true,
-    pingbacks: true,
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members'],
-      canCreate: ['members']
-    },
-    getLocalStorageId: (multiDocument: DbMultiDocument, name: string) => {
-      const { _id, parentDocumentId, collectionName } = multiDocument;
-      return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
-    },
-  },
 });
 
 MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {

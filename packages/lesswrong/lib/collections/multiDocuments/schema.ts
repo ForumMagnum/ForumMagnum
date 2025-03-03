@@ -3,6 +3,7 @@ import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+import { editableFields } from "@/lib/editor/make_editable";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
@@ -18,6 +19,23 @@ export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, d
 }
 
 const schema: SchemaType<"MultiDocuments"> = {
+  ...editableFields("MultiDocuments", {
+    fieldName: "contents",
+    order: 30,
+    commentStyles: true,
+    normalized: true,
+    revisionsHaveCommitMessages: true,
+    pingbacks: true,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
+    },
+    getLocalStorageId: (multiDocument: DbMultiDocument, name: string) => {
+      const { _id, parentDocumentId, collectionName } = multiDocument;
+      return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
+    },
+  }),
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
   // In the case of summaries, we don't have a title that needs to be in the "body"; we just use the tab title in the summary tab.
   title: {
