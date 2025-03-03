@@ -1,5 +1,6 @@
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { useMutation, gql } from '@apollo/client';
-import { getFragment } from '../../../lib/vulcan-lib/fragments';
+
 
 export const useModerateComment = ({fragmentName}: {
   fragmentName: FragmentName,
@@ -10,7 +11,7 @@ export const useModerateComment = ({fragmentName}: {
         ...${fragmentName}
       }
     }
-    ${getFragment(fragmentName)}
+    ${fragmentTextForQuery(fragmentName)}
   `);
   
   async function mutate(args: {commentId: string, deleted: boolean, deletedReason: string, deletedPublic?: boolean}) {

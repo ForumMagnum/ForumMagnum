@@ -1,7 +1,7 @@
 import React from 'react';
 import { styles } from './SequencesNewForm';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback, classes }: {
   documentId: string,
@@ -19,8 +19,8 @@ const SequencesEditForm = ({ documentId, successCallback, cancelCallback, remove
         cancelCallback={cancelCallback}
         removeSuccessCallback={removeSuccessCallback}
         showRemove={true}
-        queryFragment={getFragment('SequencesEdit')}
-        mutationFragment={getFragment('SequencesEdit')}
+        queryFragmentName={'SequencesEdit'}
+        mutationFragmentName={'SequencesEdit'}
       />
     </div>
   )

@@ -4,7 +4,7 @@ import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,8 +43,8 @@ export const EditPaymentInfoPage = ({classes}: {
         }}
         // cancelCallback={cancelCallback}
         showRemove={false}
-        queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersEdit')}
+        queryFragmentName={'UsersEdit'}
+        mutationFragmentName={'UsersEdit'}
         submitLabel="Save"
       />
   </ContentStyles>;

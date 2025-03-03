@@ -16,7 +16,7 @@ import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 const TEXT_WIDTH = 350;
 
@@ -526,8 +526,8 @@ export const SpotlightItem = ({
                     collectionName="Spotlights"
                     fields={['description']}
                     documentId={spotlight._id}
-                    mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                    queryFragment={getFragment('SpotlightEditQueryFragment')}
+                    mutationFragmentName={'SpotlightEditQueryFragment'}
+                    queryFragmentName={'SpotlightEditQueryFragment'}
                     successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
                   />
                 </div>
@@ -607,8 +607,8 @@ export const SpotlightItem = ({
             <WrappedSmartForm
               collectionName="Spotlights"
               documentId={spotlight._id}
-              mutationFragment={getFragment('SpotlightEditQueryFragment')}
-              queryFragment={getFragment('SpotlightEditQueryFragment')}
+              mutationFragmentName={'SpotlightEditQueryFragment'}
+              queryFragmentName={'SpotlightEditQueryFragment'}
               successCallback={onUpdate}
             />
             </SpotlightEditorStyles>

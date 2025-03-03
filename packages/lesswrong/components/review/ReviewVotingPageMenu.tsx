@@ -12,7 +12,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isLW, isLWorAF } from '@/lib/instanceSettings';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 

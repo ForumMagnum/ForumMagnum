@@ -4,7 +4,7 @@ import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
@@ -20,8 +20,8 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
       key={`${tag?._id}_${tag?.description?.version}`}
       collectionName="Tags"
       documentId={tag._id}
-      queryFragment={getFragment('TagEditFragment')}
-      mutationFragment={getFragment('TagWithFlagsFragment')}
+      queryFragmentName={'TagEditFragment'}
+      mutationFragmentName={'TagWithFlagsFragment'}
       successCallback={successCallback}
       cancelCallback={cancelCallback}
       addFields={isLWorAF ? ['summaries'] : []}

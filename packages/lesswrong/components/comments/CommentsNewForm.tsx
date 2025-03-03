@@ -20,7 +20,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -499,7 +499,7 @@ const CommentsNewForm = ({
             <WrappedSmartForm
               id="new-comment-form"
               collectionName="Comments"
-              mutationFragment={getFragment(fragment)}
+              mutationFragmentName={fragment}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
               submitCallback={(data: unknown) => {

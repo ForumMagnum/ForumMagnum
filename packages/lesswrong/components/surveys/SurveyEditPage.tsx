@@ -7,7 +7,8 @@ import { useSingle } from "@/lib/crud/withSingle";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/schema";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -158,7 +159,7 @@ const SurveyForm = ({survey, refetch, classes}: {
         ...SurveyMinimumInfo
       }
     }
-    ${getFragment("SurveyMinimumInfo")}
+    ${fragmentTextForQuery("SurveyMinimumInfo")}
   `);
 
   const onSubmit = useCallback(async () => {

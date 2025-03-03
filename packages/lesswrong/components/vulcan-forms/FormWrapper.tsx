@@ -15,9 +15,38 @@ import { Form } from './Form';
 import * as _ from 'underscore';
 import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { getFragment } from '@/lib/vulcan-lib/fragments';
+
 
 const intlSuffix = '_intl';
+
+function convertFields(field: string) {
+  return field.slice(-5) === intlSuffix ? `${field}{ locale value }` : field;
+}
+
+/**
+ * generate query fragment based on the fields that can be edited. Note: always add _id.
+ */
+function generateQueryFragment<N extends CollectionNameString>(queryFragmentName: string, collection: CollectionBase<N>, queryFields: string[]) {
+  return gql`
+    fragment ${queryFragmentName} on ${collection.typeName} {
+      _id
+      ${queryFields.map(convertFields).join('\n')}
+    }
+  `;
+}
+
+/**
+ * generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
+ */
+function generateMutationFragment<N extends CollectionNameString>(mutationFragmentName: string, collection: CollectionBase<N>, mutationFields: string[]) {
+  return gql`
+    fragment ${mutationFragmentName} on ${collection.typeName} {
+      _id
+      ${mutationFields.map(convertFields).join('\n')}
+    }
+  `;
+}
 
 /**
  * Get fragment used to decide what data to load from the server to populate the form,
@@ -58,49 +87,14 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
     mutationFields = mutationFields.concat(props.addFields);
   }
 
-  const convertFields = (field: AnyBecauseTodo) => {
-    return field.slice(-5) === intlSuffix ? `${field}{ locale value }` : field;
-  };
+  // default to generated fragments if no fragment name is provided
+  const queryFragment = props.queryFragmentName
+    ? getFragment(props.queryFragmentName)
+    : generateQueryFragment(queryFragmentName, collection, queryFields);
 
-  // generate query fragment based on the fields that can be edited. Note: always add _id.
-  const generatedQueryFragment = gql`
-    fragment ${queryFragmentName} on ${collection.typeName} {
-      _id
-      ${queryFields.map(convertFields).join('\n')}
-    }
-  `;
-
-  // generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
-  const generatedMutationFragment = gql`
-    fragment ${mutationFragmentName} on ${collection.typeName} {
-      _id
-      ${mutationFields.map(convertFields).join('\n')}
-    }
-  `;
-
-  // default to generated fragments
-  let queryFragment = generatedQueryFragment;
-  let mutationFragment = generatedMutationFragment;
-
-  // if queryFragment or mutationFragment props are specified, accept either fragment object or fragment string
-  if (props.queryFragment) {
-    queryFragment = typeof props.queryFragment === 'string'
-      ? gql`${props.queryFragment}`
-      : props.queryFragment;
-  }
-  if (props.mutationFragment) {
-    mutationFragment = typeof props.mutationFragment === 'string'
-      ? gql`${props.mutationFragment}`
-      : props.mutationFragment;
-  }
-
-  // same with queryFragmentName and mutationFragmentName
-  if (props.queryFragmentName) {
-    queryFragment = getFragment(props.queryFragmentName);
-  }
-  if (props.mutationFragmentName) {
-    mutationFragment = getFragment(props.mutationFragmentName);
-  }
+  const mutationFragment = props.mutationFragmentName
+    ? getFragment(props.mutationFragmentName)
+    : generateMutationFragment(mutationFragmentName, collection, mutationFields);
 
   // get query & mutation fragments from props or else default to same as generatedFragment
   return { queryFragment, mutationFragment };

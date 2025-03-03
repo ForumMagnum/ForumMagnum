@@ -69,6 +69,9 @@ import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
 import { getAllCollections } from '../vulcan-lib/getCollection';
+import uniq from 'lodash/uniq';
+import SqlFragment from '@/server/sql/SqlFragment';
+import type { DocumentNode } from 'graphql';
 
 // Create default "dumb" gql fragment object for a given collection
 function getDefaultFragmentText<N extends CollectionNameString>(
@@ -107,13 +110,21 @@ function getDefaultFragmentText<N extends CollectionNameString>(
   }
 };
 
-const defaultFragments = Object.fromEntries(
-  getAllCollections()
-    .map(collection => [`${collection.collectionName}DefaultFragment`, getDefaultFragmentText(collection, collection._schemaFields)])
-    .filter(([_, fragment]) => fragment !== null)
-) as Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
+const getDefaultFragments = (() => {
+  let defaultFragments: Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
+  return () => {
+    if (!defaultFragments) {
+      defaultFragments = Object.fromEntries(
+        getAllCollections()
+          .map(collection => [`${collection.collectionName}DefaultFragment`, getDefaultFragmentText(collection, collection._schemaFields)])
+          .filter(([_, fragment]) => fragment !== null)
+      ) as Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
+    }
+    return defaultFragments;
+  }
+})();
 
-export const allFragments = {
+const staticFragments = {
   ...alignmentCommentsFragments,
   ...alignmentPostsFragments,
   ...alignmentUsersFragments,
@@ -182,5 +193,67 @@ export const allFragments = {
   ...usersFragments,
   ...votesFragments,
   ...subscribedUserFeedFragments,
-  ...defaultFragments,
 };
+
+// This needs to have deferred execution because getDefaultFragments needs to be called after the collections are registered
+// Once we refactor the collections to just be exported objects instead of effectfully-"registered" into globals, we might be able to simplify this
+export const getAllFragments = (() => {
+  let allFragments: typeof staticFragments & Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
+  return () => {
+    if (!allFragments) {
+      allFragments = {
+        ...staticFragments,
+        ...getDefaultFragments(),
+      };
+    }
+    return allFragments;
+  };
+})();
+
+interface FragmentDefinition {
+  fragmentText: string
+  subFragments?: Array<FragmentName>
+  fragmentObject?: DocumentNode
+  sqlFragment?: SqlFragment
+}
+
+const memoizedFragmentInfo: Partial<Record<FragmentName, FragmentDefinition>> = {};
+
+// Register a fragment, including its text, the text of its subfragments, and the fragment object
+function registerFragment(fragmentTextSource: string): FragmentDefinition {
+  // remove comments
+  const fragmentText = fragmentTextSource.replace(/#.*\n/g, '\n');
+
+  // extract subFragments from text
+  const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
+  const subFragments = uniq(matchedSubFragments.map(f => f.replace('...', '')));
+
+  const sqlFragment = bundleIsServer
+    // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
+    ? new SqlFragment(
+      fragmentText,
+      (name: FragmentName) => getMemoizedFragmentInfo(name).sqlFragment ?? null,
+    )
+    : undefined;
+
+  const fragmentDefinition: FragmentDefinition = {
+    fragmentText,
+    sqlFragment,
+  };
+
+  if (subFragments && subFragments.length) {
+    fragmentDefinition.subFragments = subFragments as Array<FragmentName>;
+  }
+
+  return fragmentDefinition;
+}
+
+export function getMemoizedFragmentInfo(fragmentName: FragmentName): FragmentDefinition {
+  let fragmentDefinition = memoizedFragmentInfo[fragmentName];
+  if (!fragmentDefinition) {
+    fragmentDefinition = registerFragment(getAllFragments()[fragmentName]);
+    memoizedFragmentInfo[fragmentName] = fragmentDefinition;
+  }
+
+  return fragmentDefinition;
+}

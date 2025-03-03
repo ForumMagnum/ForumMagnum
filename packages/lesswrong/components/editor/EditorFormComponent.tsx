@@ -23,7 +23,8 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from './CKEditorPortalProvider';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -250,7 +251,7 @@ export const EditorFormComponent = ({
         ...RevisionEdit
       }
     }
-    ${getFragment('RevisionEdit')}
+    ${fragmentTextForQuery('RevisionEdit')}
   `);
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited

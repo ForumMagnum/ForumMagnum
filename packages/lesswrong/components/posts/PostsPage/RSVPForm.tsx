@@ -10,7 +10,8 @@ import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from "../../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -41,7 +42,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
         ...PostsDetails
         }
     }
-    ${getFragment("PostsDetails")}
+    ${fragmentTextForQuery("PostsDetails")}
   `)
   const navigate = useNavigate();
   const currentUser = useCurrentUser()

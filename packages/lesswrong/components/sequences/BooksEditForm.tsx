@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 const BooksEditForm = ({documentId, successCallback, cancelCallback, prefilledProps}: {
   documentId: string,
@@ -17,8 +17,8 @@ const BooksEditForm = ({documentId, successCallback, cancelCallback, prefilledPr
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
         showRemove={true}
-        queryFragment={getFragment('BookEdit')}
-        mutationFragment={getFragment('BookPageFragment')}
+        queryFragmentName={'BookEdit'}
+        mutationFragmentName={'BookPageFragment'}
       />
     </div>
   )

@@ -6,7 +6,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +35,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
         ...PostsReviewVotingList
       }
     }
-    ${getFragment("PostsReviewVotingList")} 
+    ${fragmentTextForQuery("PostsReviewVotingList")} 
   `);
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {

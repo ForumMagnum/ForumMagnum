@@ -8,7 +8,7 @@ import moment from 'moment';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 export const gardenForm = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -127,8 +127,8 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType<typeof s
           <Components.WrappedSmartForm
             collectionName="GardenCodes"
             fields={fields}
-            mutationFragment={getFragment("GardenCodeFragment")}
-            queryFragment={getFragment("GardenCodeFragment")}
+            mutationFragmentName={'GardenCodeFragment'}
+            queryFragmentName={'GardenCodeFragment'}
             formComponents={{
               FormSubmit: SubmitComponent,
               FormGroupLayout: Components.FormGroupNoStyling

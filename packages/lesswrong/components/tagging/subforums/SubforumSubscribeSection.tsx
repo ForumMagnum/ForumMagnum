@@ -7,7 +7,8 @@ import classNames from 'classnames';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from "../../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -49,7 +50,7 @@ const SubforumSubscribeSection = ({
         ...UsersCurrent
       }
     }
-    ${getFragment("UsersCurrent")}
+    ${fragmentTextForQuery("UsersCurrent")}
   `, {refetchQueries: ['getCurrentUser']});
   const { LWTooltip } = Components
 

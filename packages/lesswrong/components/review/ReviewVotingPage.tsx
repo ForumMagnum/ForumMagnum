@@ -21,7 +21,8 @@ import { sortingInfo } from './ReviewVotingPageMenu';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -143,7 +144,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         ...PostsReviewVotingList
       }
     }
-    ${getFragment("PostsReviewVotingList")} 
+    ${fragmentTextForQuery("PostsReviewVotingList")} 
   `);
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)

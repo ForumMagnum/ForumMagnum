@@ -1,5 +1,6 @@
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { useMutation, gql } from '@apollo/client';
-import { getFragment } from '../../lib/vulcan-lib/fragments';
+
 
 export const usePublishAndDeDuplicateSpotlight = ({fragmentName}: {
   fragmentName: FragmentName,
@@ -10,7 +11,7 @@ export const usePublishAndDeDuplicateSpotlight = ({fragmentName}: {
         ...${fragmentName}
       }
     }
-    ${getFragment(fragmentName)}
+    ${fragmentTextForQuery(fragmentName)}
   `);
   
   async function mutate(args: {spotlightId: string}) {

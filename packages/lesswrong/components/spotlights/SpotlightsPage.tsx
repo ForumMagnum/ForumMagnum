@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { getSpotlightDisplayTitle } from './SpotlightItem';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -99,7 +99,7 @@ export const SpotlightsPage = ({classes}: {
         <SpotlightEditorStyles>
           <WrappedSmartForm
             collectionName="Spotlights"
-            mutationFragment={getFragment('SpotlightEditQueryFragment')}
+            mutationFragmentName={'SpotlightEditQueryFragment'}
           />
         </SpotlightEditorStyles>
       </div>

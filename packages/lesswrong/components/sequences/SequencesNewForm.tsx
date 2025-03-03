@@ -5,7 +5,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType) => ({
@@ -172,8 +172,8 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
           cancelCallback={cancelCallback}
           removeSuccessCallback={removeSuccessCallback}
           prefilledProps={{userId: currentUser._id}}
-          queryFragment={getFragment('SequencesEdit')}
-          mutationFragment={getFragment('SequencesPageFragment')}
+          queryFragmentName={'SequencesEdit'}
+          mutationFragmentName={'SequencesPageFragment'}
         />
       </div>
     )
