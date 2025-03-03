@@ -61,9 +61,8 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const HideFrontPageButtonComponent = registerComponent(
-  'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItem,
+const HideFrontpagePostDropdownItemComponent = registerComponent(
+  'HideFrontpagePostDropdownItem', HideFrontpagePostDropdownItem,
   {
     styles,
     hocs: [withErrorBoundary],
@@ -72,6 +71,6 @@ const HideFrontPageButtonComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    HideFrontpagePostDropdownItem: typeof HideFrontPageButtonComponent
+    HideFrontpagePostDropdownItem: typeof HideFrontpagePostDropdownItemComponent
   }
 }

@@ -267,7 +267,7 @@ const CommentsNode = ({
   const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
     <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
     {showExtraChildrenButton}
-    {childComments.map(child => <Components.CommentsNode
+    {childComments.map(child => <CommentsNodeComponent
       isChild={true}
       treeOptions={treeOptions}
       comment={child.item}

@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import type { ContentItemBodyRef, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType) => ({
@@ -48,7 +48,7 @@ const CommentBody = ({
   classes,
 }: {
   comment: CommentsList,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: ContentItemBodyRef|null,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,

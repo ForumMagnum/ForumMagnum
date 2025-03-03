@@ -13,11 +13,12 @@ import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
 import { useMapStyle } from '../hooks/useMapStyle';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -70,18 +71,17 @@ const styles = (theme: ThemeType) => ({
   filters: {
     width: 100
   }
-});
+}));
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
   initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
-  classes: ClassesType<typeof styles>,
   className?: string,
   showUsersByDefault?: boolean,
   showGroupsByDefault?: boolean,
@@ -89,6 +89,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   hideLegend?: boolean,
   petrovButton?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const { query } = useLocation()
   const groupQueryTerms: LocalgroupsViewTerms = groupTerms || {view: "all", filters: query?.filters || [], includeInactive: query?.includeInactive === 'true'}
 
@@ -193,21 +194,21 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   </div>
 }
 
-const personalMapMarkerStyles = (theme: ThemeType) => ({
+const personalMapMarkerStyles = defineStyles("PersonalMapLocationMarkers", (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
     fill: theme.palette.individual,
     opacity: 0.8
   }
-})
-const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}: {
+}));
+const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows}: {
   users: Array<UsersMapEntry>,
   handleClick: (userId: string) => void,
   handleClose: (userId: string) => void,
   openWindows: any,
-  classes: ClassesType<typeof personalMapMarkerStyles>,
 }) => {
+  const classes = useStyles(personalMapMarkerStyles);
   const { StyledMapPopup } = Components
   
   const mapLocations = filterNonnull(users.map(user => {
@@ -253,9 +254,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
     })}
   </React.Fragment>
 }
-const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkers, {
-  styles: personalMapMarkerStyles
-});
+const PersonalMapLocationMarkersComponent = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkers);
 
 const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
   events: Array<PostsList>,
@@ -297,11 +296,11 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
 
 
 
-const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap, { styles });
+const CommunityMapComponent = registerComponent("CommunityMap", CommunityMap);
 
 declare global {
   interface ComponentTypes {
     CommunityMap: typeof CommunityMapComponent
-    PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersTypes
+    PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersComponent
   }
 }

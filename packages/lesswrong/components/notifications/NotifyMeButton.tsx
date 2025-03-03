@@ -140,14 +140,10 @@ const NotifyMeButton = ({
     : maybeToolipButton;
 }
 
-const SubscribeToComponent = registerComponent(
-  'NotifyMeButton',
-  NotifyMeButton,
-  {styles},
-);
+const NotifyMeButtonComponent = registerComponent('NotifyMeButton', NotifyMeButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    NotifyMeButton: typeof SubscribeToComponent
+    NotifyMeButton: typeof NotifyMeButtonComponent
   }
 }
