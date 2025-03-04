@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { NetworkStatus, gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { VertexConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import { isServer } from '../../lib/executionEnvironment';

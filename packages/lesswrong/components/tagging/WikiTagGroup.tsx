@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useQuery, gql, NetworkStatus } from '@apollo/client';
+import { gql, NetworkStatus } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
