@@ -48,7 +48,6 @@ class SelectFragmentQuery<
      */
     prefixGenerator?: PrefixGenerator,
   ) {
-    // const fragment = getSqlFragment(fragmentName);
     const projection = sqlFragment.buildProjection<N>(
       currentUser,
       resolverArgs,
