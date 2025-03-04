@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { registerMigration } from "./migrationUtils";
 import LWEvents from "@/lib/collections/lwevents/collection";
 import { executePromiseQueue, sleep } from "@/lib/utils/asyncUtils";
