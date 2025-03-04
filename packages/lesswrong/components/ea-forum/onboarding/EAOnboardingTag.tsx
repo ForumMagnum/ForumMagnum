@@ -1,11 +1,9 @@
 import React, { useCallback, MouseEvent } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useSubscribeUserToTag } from "@/lib/filterSettings";
-import React from "react";
 
 const TAG_SIZE = 103;
 
