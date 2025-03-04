@@ -36,6 +36,8 @@ import type { ContentItemBody } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { useDisplayedContributors } from "./ContributorsList";
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -646,11 +648,19 @@ const LWTagPage = () => {
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 
-  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(false);
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
+  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   
   const toggleEmbeddedPlayer = tag && tagHasAudioPlayer(tag) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("audioPlayerToggle", { action, tagId: tag._id });
+    setCookie(
+      SHOW_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
 
