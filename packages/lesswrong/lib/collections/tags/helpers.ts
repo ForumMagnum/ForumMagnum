@@ -143,28 +143,10 @@ export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
 export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
 
-
-/**
- * Whether the tag is allowed AI generated audio
- */
 export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
-  // TODO: Remove this once we have a real permissions check
-  return true; // while testing
-
   if (!allowTypeIIIPlayerSetting.get()) return false
 
-  //TODO: Figure out this permissions check for real
-
-  try {
-    return !!(
-        // tag.baseScore > type3KarmaCutoffSetting.get() ||
-        (tag.forceAllowType3Audio ?? false) && tag.description && !tag.deleted
-    );
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
-    return false;
-  }
+  return !!tag.forceAllowType3Audio && !!tag.description && !tag.deleted
 }
 
 export const tagHasAudioPlayer = (tag: TagPageFragment): boolean => {
