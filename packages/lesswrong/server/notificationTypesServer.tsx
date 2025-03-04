@@ -68,23 +68,16 @@ export const NewPostNotification = serverRegisterNotificationType({
     return post.title;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    if (notifications.length === 1) {
-      console.log("One post, using SinglePostEmail")
-      const postId = notifications[0].documentId;
-      if (!postId) throw Error(`Can't find post to generate body for: ${postId}`)
-      return <Components.SinglePostEmail documentId={postId}/>
-    } else {
-      console.log("Multiple posts, using MultiPostEmail")
-      const postIds = notifications.map(n => n.documentId).filter(postId => {
-        if (!postId) {
-          console.error(`Can't find post to generate body for: ${postId}`)
-          return false;
-        }
-        return true;
-      }) as string[];
+    const postIds = notifications.map(n => n.documentId).filter(postId => {
+      if (!postId) {
+        // eslint-disable-next-line no-console
+        console.error(`Can't find post to generate body for: ${postId}`)
+        return false;
+      }
+      return true;
+    }) as string[];
 
-      return <Components.MultiPostEmail postIds={postIds}/>
-    }
+    return <Components.PostsEmail postIds={postIds}/>
   },
 });
 
@@ -108,7 +101,7 @@ export const NewEventNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event post to generate body for: ${postId}`)
-    return <Components.SinglePostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -123,7 +116,7 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find group post to generate body for: ${postId}`)
-    return <Components.SinglePostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -174,7 +167,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
-      return <Components.SinglePostEmail documentId={ tagRel.postId}/>
+      return <Components.PostsEmail postIds={ [tagRel.postId] }/>
     }
   }
 })
@@ -623,7 +616,7 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
-    return <Components.SinglePostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
+    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 

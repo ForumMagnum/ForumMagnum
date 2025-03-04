@@ -4,7 +4,7 @@ import { Posts } from '../lib/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import './emailComponents/EmailWrapper';
 import './emailComponents/SinglePostEmail';
-import './emailComponents/MultiPostEmail';
+import './emailComponents/PostsEmail';
 import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EmailCuratedAuthors';

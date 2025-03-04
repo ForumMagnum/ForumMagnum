@@ -54,7 +54,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <Components.SinglePostEmail documentId={post._id} reason={reason}/>
+      body: <Components.PostsEmail postIds={[post._id]} reason={reason}/>
     });
   }
 }
