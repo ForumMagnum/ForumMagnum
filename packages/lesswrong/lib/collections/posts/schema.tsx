@@ -1,6 +1,6 @@
 import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -162,7 +162,7 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+const schemaDefaultValueFmCrosspost = schemaDefaultValue<'Posts'>({
   isCrosspost: false,
 })
 
@@ -211,6 +211,11 @@ const schema: SchemaType<"Posts"> = {
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
     },
+  }),
+
+  ...slugFields("Posts", {
+    getTitle: (post) => post.title,
+    includesOldSlugs: false,
   }),
   
   // Timestamp of post first appearing on the site (i.e. being approved)

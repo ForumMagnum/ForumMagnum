@@ -8,40 +8,6 @@ import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 import { moveToAFUpdatesUserAFKarma } from './alignment-forum/callbacks';
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, debateMustHaveCoauthor, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from './postCallbackFunctions';
 
-
-// TODO: refactor these in some way similar to countOfReferences callbacks?
-// post slug callbacks
-// const { slugCreateBeforeCallbackFunction, slugUpdateBeforeCallbackFunction } = getSlugCallbacks<'Posts'>({
-//   collection: Posts,
-//   getTitle: (post) => post.title,
-//   includesOldSlugs: false,
-//   collectionsToAvoidCollisionsWith: ['Posts'],
-//   onCollision: 'newDocumentGetsSuffix',
-// });
-
-// TODO: refactor these in some way similar to countOfReferences callbacks?
-// post `contents` callbacks
-// const postContentsEditableCallbackOptions = {
-//   fieldName: 'contents',
-//   collectionName: 'Posts',
-//   normalized: true,
-//   pingbacks: true,
-// } as const;
-
-// const postModerationGuidelinesEditableCallbackOptions = {
-//   fieldName: 'moderationGuidelines',
-//   collectionName: 'Posts',
-//   normalized: true,
-//   pingbacks: false,
-// } as const;
-
-// const postCustomHighlightEditableCallbackOptions = {
-//   fieldName: 'customHighlight',
-//   collectionName: 'Posts',
-//   normalized: false,
-//   pingbacks: false,
-// } as const;
-
 async function postCreateValidate(validationErrors: CallbackValidationErrors, props: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
   debateMustHaveCoauthor(validationErrors, props);
   await postsNewRateLimit(validationErrors, props);
@@ -52,13 +18,8 @@ async function postCreateValidate(validationErrors: CallbackValidationErrors, pr
 async function postCreateBefore(doc: DbInsertion<DbPost>, props: CreateCallbackProperties<'Posts'>): Promise<DbInsertion<DbPost>> {  
   let mutablePost = doc;
 
-  // mutablePost = await slugCreateBeforeCallbackFunction(mutablePost, props);
   mutablePost = addReferrerToPost(mutablePost, props) ?? mutablePost;
   
-  // mutablePost = await editorSerializationBeforeCreate(mutablePost, props, postContentsEditableCallbackOptions);
-  // mutablePost = await editorSerializationBeforeCreate(mutablePost, props, postModerationGuidelinesEditableCallbackOptions);
-  // mutablePost = await editorSerializationBeforeCreate(mutablePost, props, postCustomHighlightEditableCallbackOptions);
-
   return mutablePost;
 }
 
@@ -128,13 +89,10 @@ async function postUpdateValidate(validationErrors: CallbackValidationErrors, pr
 }
 
 async function postUpdateBefore(post: Partial<DbPost>, props: UpdateCallbackProperties<'Posts'>): Promise<Partial<DbPost>> {
-  // TODO: add forum-gated EA forum callbacks
   if (isEAForum) {
     post = checkTosAccepted(props.currentUser, post);
     assertPostTitleHasNoEmojis(post);
   }
-
-  // post = await slugUpdateBeforeCallbackFunction(post, props);
 
   // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
   await checkRecentRepost(props.newDocument, props.currentUser, props.context);
@@ -159,13 +117,10 @@ async function postUpdateAfter(post: DbPost, props: UpdateCallbackProperties<'Po
   post = await syncTagRelevance(post, props);
   post = await resetDialogueMatches(post, props);
   post = await createNewJargonTermsCallback(post, props);
-  
-  // countOfReference callbacks run after this (and after post editable fields callbacks)
 
   return post;
 }
 
-// TODO: figure out where updatePostEmbeddingsOnChange should go in here
 async function postUpdateAsync(props: UpdateCallbackProperties<'Posts'>) {
   await eventUpdatedNotifications(props);
   await notifyUsersAddedAsCoauthors(props);

@@ -1,7 +1,6 @@
 import schema from "./schema";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
-import { addSlugFields } from "@/lib/utils/schemaUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
@@ -45,13 +44,6 @@ export const MultiDocuments = createCollection({
 });
 
 addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
-addSlugFields({
-  collection: MultiDocuments,
-  collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
-  getTitle: (md) => md.title ?? md.tabTitle,
-  onCollision: "rejectNewDocument",
-  includesOldSlugs: true,
-});
 
 MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {
   if (userIsAdmin(user)) {

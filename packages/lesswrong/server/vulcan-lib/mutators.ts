@@ -49,6 +49,7 @@ import type {
   runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
 } from '../editor/make_editable_callbacks';
 import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
+import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from '../utils/slugUtil';
 
 const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
@@ -213,6 +214,12 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  document = await runSlugCreateBeforeCallback({
+    doc: document,
+    props: properties,
+  });
+
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
@@ -437,6 +444,12 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  data = await runSlugUpdateBeforeCallback({
+    doc: data,
+    props: properties,
+  });
+  
   logger('updateBefore')
   data = await hooks.updateBefore.runCallbacks({
     iterator: data,
