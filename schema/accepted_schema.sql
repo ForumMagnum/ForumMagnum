@@ -914,6 +914,23 @@ CREATE TABLE "FeaturedResources" (
 -- Index "idx_FeaturedResources_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedResources" USING btree ("schemaVersion");
 
+-- Table "FieldChanges"
+CREATE TABLE "FieldChanges" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27),
+  "changeGroup" TEXT,
+  "documentId" TEXT,
+  "fieldName" TEXT,
+  "oldValue" TEXT,
+  "newValue" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);
+
+-- Index "idx_FieldChanges_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_schemaVersion" ON "FieldChanges" USING btree ("schemaVersion");
+
 -- Table "ForumEvents"
 CREATE TABLE "ForumEvents" (
   _id VARCHAR(27) PRIMARY KEY,
