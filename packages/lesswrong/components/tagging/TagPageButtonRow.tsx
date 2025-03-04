@@ -10,11 +10,15 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, tagHasAudioPlayer } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+
+// Audio toggle constants (matching PostsPage/AudioToggle.tsx)
+const PODCAST_ICON_SIZE = 20;
+const PODCAST_ICON_PADDING = 3;
 
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
@@ -95,6 +99,22 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.italic,
   },
   newLensIcon: {},
+  togglePodcastContainer: {
+    alignSelf: 'center',
+    color: theme.palette.text.dim3,
+    height: PODCAST_ICON_SIZE,
+  },
+  audioIcon: {
+    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
+    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
+    padding: PODCAST_ICON_PADDING,
+    transform: isFriendlyUI ? undefined : `translateY(-3px)`,
+    marginRight: -3
+  },
+  audioIconOn: {
+    background: theme.palette.icon.dim05,
+    borderRadius: theme.borderRadius.small,
+  },
 });
 
 /**
@@ -121,6 +141,8 @@ const TagPageButtonRow = ({
   className,
   refetchTag,
   updateSelectedLens,
+  toggleEmbeddedPlayer,
+  showEmbeddedPlayer,
   classes
 }: {
   tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment;
@@ -131,6 +153,8 @@ const TagPageButtonRow = ({
   className?: string;
   refetchTag?: () => Promise<void>;
   updateSelectedLens?: (lensId: string) => void;
+  toggleEmbeddedPlayer?: () => void;
+  showEmbeddedPlayer?: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
@@ -220,8 +244,28 @@ const TagPageButtonRow = ({
     />
   </>;
 
+  // Audio toggle element
+  const audioToggle = tagHasAudioPlayer(tag) && toggleEmbeddedPlayer && (
+    <LWTooltip title={'Listen to this page'} className={classes.togglePodcastContainer}>
+      <a href="#" onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleEmbeddedPlayer();
+      }}>
+        <ForumIcon 
+          icon="VolumeUp" 
+          className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} 
+        />
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "Listen"}
+        </span>
+      </a>
+    </LWTooltip>
+  );
+
   return <AnalyticsContext pageSectionContext="tagPageButtonRow">
     <div className={classNames(classes.buttonsRow, className)}>
+      {audioToggle}
       {!editing && <LWTooltip
         className={classes.buttonTooltip}
         title={editTooltip}

@@ -2954,6 +2954,7 @@ CREATE TABLE "Tags" (
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
   "coreTagId" TEXT,
+  "forceAllowType3Audio" BOOL NOT NULL DEFAULT FALSE,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,

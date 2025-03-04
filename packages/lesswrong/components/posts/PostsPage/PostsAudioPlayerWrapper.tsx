@@ -28,7 +28,7 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
     {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
     </div>}
-    {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} postId={post._id}/>}
+    {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
   </>;
 }
 

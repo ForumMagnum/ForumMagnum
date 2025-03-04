@@ -2,6 +2,8 @@ import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts
 import { DatabaseServerSetting } from "./databaseSettings";
 import { Posts } from "@/lib/collections/posts/collection.ts";
 import { captureEvent } from "@/lib/analyticsEvents";
+import { isTagAllowedType3Audio, tagGetUrl } from "@/lib/collections/tags/helpers";
+import { Tags } from "@/lib/collections/tags/collection";
 
 /* Currently unused
 const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
@@ -37,51 +39,76 @@ const type3ApiRequest = async (
   }
 }
 
-const postWithAudioProjection = {_id: 1, slug: 1} as const;
+const isDocumentAllowedType3Audio = (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags') => {
+  if (collectionName === 'Posts') {
+    return isPostAllowedType3Audio(document as DbPost);
+  } else {
+    return isTagAllowedType3Audio(document as DbTag);
+  }
+} 
 
-type PostWithAudio = Pick<DbPost, keyof typeof postWithAudioProjection>;
+const documentWithAudioProjection = {_id: 1, slug: 1} as const;
+
+type PostWithAudio = Pick<DbPost, keyof typeof documentWithAudioProjection>;
+type TagWithAudio = Pick<DbTag, keyof typeof documentWithAudioProjection>;
 
 const getPostUrl = (post: PostWithAudio) =>
   type3SourceUrlSetting.get() + postGetPageUrl(post);
 
-export const regenerateType3Audio = async (post: DbPost) => {
+const getTagUrl = (tag: TagWithAudio) =>
+  type3SourceUrlSetting.get() + tagGetUrl(tag);
+
+const getDocumentUrl = (document: PostWithAudio | TagWithAudio, collectionName: 'Posts' | 'Tags') => {
+  if (collectionName === 'Posts') {
+    return getPostUrl(document);
+  } else {
+    return getTagUrl(document);
+  }
+}
+
+export const regenerateType3Audio = async (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags') => {
   const body = {
-    source_url: getPostUrl(post),
+    source_url: getDocumentUrl(document, collectionName),
     priority: "immediate",
   };
 
-  if (!isPostAllowedType3Audio(post)) return;
+  if (!isDocumentAllowedType3Audio(document, collectionName)) return;
 
   await type3ApiRequest("narration/regenerate", "POST", body);
-  captureEvent("regenerateType3Audio", {postId: post._id, ...body});
+  captureEvent("regenerateType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
 // Exported to allow running with "yarn repl"
-export const regenerateType3AudioForPostId = async (postId: string) => {
-  const post = await Posts.findOne({_id: postId});
-  if (!post) {
-    throw new Error("Post not found");
+export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
+  const document = await (collectionName === 'Posts' 
+    ? Posts.findOne({_id: documentId})
+
+    : Tags.findOne({_id: documentId}));
+  if (!document) {
+    throw new Error("Document not found");
   }
-  if (isPostAllowedType3Audio(post)) {
-    await regenerateType3Audio(post);
+  if (isDocumentAllowedType3Audio(document, collectionName)) {
+    await regenerateType3Audio(document, collectionName);
   }
 }
 
-const deleteType3Audio = async (post: PostWithAudio) => {
+const deleteType3Audio = async (document: PostWithAudio | TagWithAudio, collectionName: 'Posts' | 'Tags') => {
   const body = {
-    source_url: getPostUrl(post),
+    source_url: getDocumentUrl(document, collectionName),
   };
   await type3ApiRequest("narration/delete-by-url", "DELETE", body);
-  captureEvent("deleteType3Audio", {postId: post._id, ...body});
+  captureEvent("deleteType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
 // Exported to allow running with "yarn repl"
-export const deleteType3AudioForPostId = async (postId: string) => {
-  const post = await Posts.findOne({_id: postId});
-  if (!post) {
-    throw new Error("Post not found");
+export const deleteType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
+  const document = await (collectionName === 'Posts' 
+    ? Posts.findOne({_id: documentId})
+    : Tags.findOne({_id: documentId}));
+  if (!document) {
+    throw new Error("Document not found");
   }
-  await deleteType3Audio(post);
+  await deleteType3Audio(document, collectionName);
 }
 
 // Exported to allow running with "yarn repl"
@@ -91,6 +118,6 @@ export const regenerateAllType3AudioForUser = async (userId: string) => {
   }).fetch();
 
   for (const post of posts) {
-    await regenerateType3Audio(post);
+    await regenerateType3Audio(post, "Posts");
   }
 }

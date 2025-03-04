@@ -1024,6 +1024,7 @@ importComponent("SingleLineTagUpdates", () => require("../../components/tagging/
 importComponent("SubscribeButton", () => require("../../components/tagging/SubscribeButton.tsx"));
 importComponent("SummariesEditForm", () => require("../../components/tagging/SummariesEditForm.tsx"));
 importComponent("TagActivityFeed", () => require("../../components/tagging/TagActivityFeed.tsx"));
+importComponent("TagAudioPlayerWrapper", () => require("../../components/tagging/TagAudioPlayerWrapper.tsx"));
 importComponent("TagCompareRevisions", () => require("../../components/tagging/TagCompareRevisions.tsx"));
 importComponent("TagContributorsList", () => require("../../components/tagging/TagContributorsList.tsx"));
 importComponent("TagDiscussion", () => require("../../components/tagging/TagDiscussion.tsx"));

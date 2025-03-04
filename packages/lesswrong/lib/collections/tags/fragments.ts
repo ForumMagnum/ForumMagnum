@@ -309,6 +309,7 @@ registerFragment(`
       }
     }
     canVoteOnRels
+    forceAllowType3Audio
   }
 `);
 
@@ -351,6 +352,7 @@ registerFragment(`
       }
     }
     canVoteOnRels
+    forceAllowType3Audio
   }
 `);
 
