@@ -163,7 +163,7 @@ const utils = {
       documentId: userToUpdate._id,
       fieldName: "usernameUnset",
       createdAt: {$gt: sinceDate},
-      newValue: false,
+      newValue: "false",
     }).count();
   
     if (nameChangeCount - changesThatWereSettingForTheFirstTime >= changesAllowed) {
