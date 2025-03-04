@@ -1,7 +1,6 @@
 import { getSchema } from "@/lib/utils/getSchema";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { collectionNameToTypeName, getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection";
-import { elasticSyncDocument } from "../search/elastic/elasticCallbacks";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import type { AfterCreateCallbackProperties, DeleteCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 
@@ -214,6 +213,7 @@ function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString
 
   const resync = (documentId: string) => {
     if (resyncElastic && searchIndexedCollectionNamesSet.has(sourceCollectionName)) {
+      const { elasticSyncDocument } = require("../search/elastic/elasticCallbacks"); //cycle-breaking
       void elasticSyncDocument(sourceCollectionName, documentId);
     }
   }

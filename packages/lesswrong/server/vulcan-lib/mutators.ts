@@ -29,13 +29,11 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 */
 
-import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
-import { logFieldChanges } from '../fieldChanges';
-import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
@@ -58,14 +56,14 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   const {
     currentUser = null,
     collection,
-    context = createAnonymousContext(),
     document
   } = createMutatorParams;
 
   const schema = getSchema(collection);
 
   return {
-    currentUser, collection, context,
+    currentUser, collection,
+    context: createMutatorParams.context ?? require('./query').createAnonymousContext(),
     document: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     newDocument: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     schema
@@ -118,15 +116,13 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     document,
     currentUser=null,
     validate=true,
-    context,
   } = createMutatorParams;
   const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
   logger('createMutator() begin')
   logger('(new) document', document);
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = createMutatorParams.context ?? require('./query').createAnonymousContext();
 
   const { collectionName } = collection;
   const schema = getSchema(collection);
@@ -328,7 +324,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   unset = {},
   currentUser=null,
   validate=true,
-  context,
+  context: maybeContext,
   document: oldDocument,
 }: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
@@ -338,8 +334,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = maybeContext ?? require('./query').createAnonymousContext();
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
@@ -550,7 +545,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     props: properties,
   });
   
-  void logFieldChanges({currentUser, collection, oldDocument, data: origData});
+  void require('../fieldChanges').logFieldChanges({currentUser, collection, oldDocument, data: origData});
 
   return { data: document };
 };
@@ -566,7 +561,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   selector,
   currentUser=null,
   validate=true,
-  context,
+  context: maybeContext,
   document,
 }: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
@@ -578,8 +573,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = maybeContext ?? require('./query').createAnonymousContext();
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -668,7 +662,3 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   return { data: document };
 };
-
-Utils.createMutator = createMutator;
-Utils.updateMutator = updateMutator;
-Utils.deleteMutator = deleteMutator;

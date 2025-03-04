@@ -3,7 +3,7 @@ import { isAdmin, userOwns } from "../../vulcan-users/permissions";
 import { isPastVotingDeadline, userCanVoteInDonationElection } from "./helpers";
 import schema from "./schema";
 import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 

@@ -104,13 +104,13 @@ const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming =>
   }
 }
 
-const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>) => {
+const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>, context: ResolverContext) => {
   return await getNotificationTypeByName(notificationType)
-    .getMessage({documentType, documentId, extraData});
+    .getMessage({documentType, documentId, extraData, context});
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
-  let document = await getDocument(documentType, documentId);
+  let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
   if (notificationType.getLink) {
@@ -194,7 +194,7 @@ export const createNotification = async ({
     userId: userId,
     documentId: documentId||undefined,
     documentType: documentType||undefined,
-    message: await notificationMessage(notificationType, documentType, documentId, extraData),
+    message: await notificationMessage(notificationType, documentType, documentId, extraData, context),
     type: notificationType,
     link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,
