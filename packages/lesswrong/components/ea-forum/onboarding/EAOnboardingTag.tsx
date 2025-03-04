@@ -4,6 +4,8 @@ import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
+import { useSubscribeUserToTag } from "@/lib/filterSettings";
+import React from "react";
 
 const TAG_SIZE = 103;
 
@@ -73,21 +75,17 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
 }) => {
   const {viewAsAdmin} = useEAOnboarding();
 
-  const {isSubscribed, onSubscribe} = useNotifyMe({
-    document: tag,
-    overrideSubscriptionType: "newTagPosts",
-    hideFlashes: true,
-  });
+  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
 
   // If viewAsAdmin is true, then this is an admin testing
   // and we don't want any real updates to happen
   const subscribedCallback = useCallback((
-    e: MouseEvent<HTMLDivElement>,
+    _e: MouseEvent<HTMLDivElement>,
     newValue: boolean,
   ) => {
-    !viewAsAdmin && void onSubscribe?.(e);
+    !viewAsAdmin && void subscribeUserToTag(tag, newValue ? "Subscribed" : "Default")
     onSubscribed?.(tag._id, newValue);
-  }, [onSubscribe, onSubscribed, tag._id, viewAsAdmin]);
+  }, [onSubscribed, subscribeUserToTag, tag, viewAsAdmin]);
 
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     viewAsAdmin ? false : (isSubscribed ?? false),
