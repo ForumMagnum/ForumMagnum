@@ -1,16 +1,11 @@
-import {
-  SearchIndexCollectionName,
-  searchIndexedCollectionNames,
-} from "../../../lib/search/searchUtil";
-import { getCollectionHooks } from "../../mutationCallbacks";
+import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
-import { isElasticEnabled } from "../../../lib/instanceSettings";
 
-export const elasticSyncDocument = async (
+export async function elasticSyncDocument(
   collectionName: SearchIndexCollectionName,
   documentId: string,
-) => {
+) {
   try {
     const client = new ElasticClient();
     const exporter = new ElasticExporter(client);
@@ -18,17 +13,5 @@ export const elasticSyncDocument = async (
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(`[${collectionName}] Failed to index Elasticsearch document:`, e);
-  }
-}
-
-export const registerElasticCallbacks = () => {
-  if (!isElasticEnabled) {
-    return;
-  }
-
-  for (const collectionName of searchIndexedCollectionNames) {
-    const callback = ({_id}: DbObject) => elasticSyncDocument(collectionName, _id);
-    getCollectionHooks(collectionName).createAsync.add(({ document }) => callback(document));
-    getCollectionHooks(collectionName).editAsync.add(callback);
   }
 }

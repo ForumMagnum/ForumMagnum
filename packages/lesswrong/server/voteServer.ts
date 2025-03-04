@@ -193,6 +193,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 
     await onVoteCancel(newDocument, vote, collection, user);
   }
+  // TODO: it seems possible we could do an early return here if we have zero vote cancellations, but I want to test it more thoroughly before doing that
   const newScores = await recalculateDocumentScores(document, collection.collectionName, context);
   await collection.rawUpdateOne(
     {_id: document._id},
