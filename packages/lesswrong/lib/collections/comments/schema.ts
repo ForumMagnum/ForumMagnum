@@ -10,6 +10,8 @@ import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
 import { updateMutator } from '@/server/vulcan-lib/mutators';
+import { editableFields } from '@/lib/editor/make_editable';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -26,6 +28,19 @@ export const alignmentOptionsGroup = {
 };
 
 const schema: SchemaType<"Comments"> = {
+  ...editableFields("Comments", {
+    commentEditor: true,
+    commentStyles: true,
+    getLocalStorageId: (comment, name) => {
+      if (comment._id) { return {id: comment._id, verify: true} }
+      if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
+      return {id: ('post:' + comment.postId), verify: false}
+    },
+    hintText: isFriendlyUI ? 'Write a new comment...' : undefined,
+    order: 25,
+    pingbacks: true,
+  }),
+  
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({

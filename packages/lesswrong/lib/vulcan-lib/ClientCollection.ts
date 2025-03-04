@@ -5,8 +5,6 @@ class ClientCollection<
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  defaultView: ViewFunction<N> | undefined;
-  views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
@@ -50,6 +48,10 @@ class ClientCollection<
     return this.executeQuery();
   }
 
+  getIndexes(): never {
+    throw new Error("ClientCollection: getIndexes called on client");
+  }
+
   rawCollection() {
     return this.executeQuery();
   }
@@ -88,14 +90,6 @@ class ClientCollection<
 
   _ensureIndex() {
     return this.executeQuery();
-  }
-
-  addDefaultView(view: ViewFunction<N>) {
-    this.defaultView = view;
-  }
-
-  addView(viewName: string, view: ViewFunction<N>) {
-    this.views[viewName] = view;
   }
 }
 

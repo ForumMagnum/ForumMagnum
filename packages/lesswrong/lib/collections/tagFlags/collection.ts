@@ -1,13 +1,21 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { makeEditable } from '../../editor/make_editable';
+import { editableFields } from '../../editor/make_editable';
 import './fragments'
 import { userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagFlags"> = {
+  ...editableFields("TagFlags", {
+    order: 30,
+    getLocalStorageId: (tagFlag, name) => {
+      if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
+      return {id: `tagFlag: ${name}`, verify: false}
+    },
+  }),
   name: {
     type: String,
     nullable: false,
@@ -59,6 +67,11 @@ export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('TagFlags', {deleted: 1, order: 1, name: 1});
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),
   logChanges: true,
@@ -72,15 +85,5 @@ addSlugFields({
   includesOldSlugs: false,
 });
 
-makeEditable({
-  collection: TagFlags,
-  options: {
-    order: 30,
-    getLocalStorageId: (tagFlag, name) => {
-      if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
-      return {id: `tagFlag: ${name}`, verify: false}
-    },
-  }
-})
 export default TagFlags;
 

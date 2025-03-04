@@ -1,20 +1,23 @@
 import { createCollection } from "../../vulcan-lib/collections";
 import { addUniversalFields } from "../../collectionUtils"
-import { ensureIndex } from "../../collectionIndexUtils";
 import schema from "./schema";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const SideCommentCaches: SideCommentCachesCollection = createCollection({
   collectionName: "SideCommentCaches",
   typeName: "SideCommentCache",
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('SideCommentCaches', {postId: 1});
+    indexSet.addIndex('SideCommentCaches', {postId: 1, version: 1}, {unique: true});
+    return indexSet;
+  },
   resolvers: {},
   mutations: {},
   logChanges: false,
 });
 
 addUniversalFields({collection: SideCommentCaches});
-
-ensureIndex(SideCommentCaches, {postId: 1});
-ensureIndex(SideCommentCaches, {postId: 1, version: 1}, {unique: true});
 
 export default SideCommentCaches;

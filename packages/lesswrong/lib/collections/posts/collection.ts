@@ -3,10 +3,6 @@ import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
-import { makeEditable } from '../../editor/make_editable';
-import { formGroups } from './formGroups';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { hasAuthorModeration } from '../../betas';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
@@ -58,13 +54,6 @@ export const Posts = createCollection({
   ],
 });
 
-const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
-  if (!hasAuthorModeration) {
-    return false;
-  }
-  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
-}
-
 addUniversalFields({
   collection: Posts,
   createdAtOptions: {canRead: ['admins']},
@@ -78,56 +67,6 @@ addSlugFields({
   oldSlugsOptions: {
   },
 });
-
-makeEditable({
-  collection: Posts,
-  options: {
-    formGroup: formGroups.content,
-    order: 25,
-    pingbacks: true,
-    permissions: {
-      canRead: ['guests'],
-      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
-      canCreate: ['members']
-    },
-    hasToc: true,
-    normalized: true,
-  }
-})
-
-makeEditable({
-  collection: Posts,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    formGroup: formGroups.moderationGroup,
-    hidden: isFriendlyUI,
-    order: 50,
-    fieldName: "moderationGuidelines",
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
-      canCreate: [userHasModerationGuidelines]
-    },
-    normalized: true,
-  }
-})
-
-makeEditable({
-  collection: Posts,
-  options: {
-    formGroup: formGroups.highlight,
-    fieldName: "customHighlight",
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['sunshineRegiment', 'admins'],
-      canCreate: ['sunshineRegiment', 'admins'],
-    },
-  }
-})
 
 Posts.checkAccess = postCheckAccess;
 

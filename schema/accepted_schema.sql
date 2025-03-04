@@ -96,6 +96,8 @@ CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");
 -- Table "Books"
 CREATE TABLE "Books" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "postedAt" TIMESTAMPTZ,
   "title" TEXT,
   "subtitle" TEXT,
@@ -107,8 +109,6 @@ CREATE TABLE "Books" (
   "displaySequencesAsGrid" BOOL,
   "hideProgressBar" BOOL,
   "showChapters" BOOL,
-  "contents" JSONB,
-  "contents_latest" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -123,13 +123,13 @@ CREATE INDEX IF NOT EXISTS "idx_Books_collectionId" ON "Books" USING btree ("col
 -- Table "Chapters"
 CREATE TABLE "Chapters" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "title" TEXT,
   "subtitle" TEXT,
   "number" DOUBLE PRECISION,
   "sequenceId" VARCHAR(27),
   "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "contents" JSONB,
-  "contents_latest" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -186,6 +186,8 @@ CREATE INDEX IF NOT EXISTS "idx_ClientIds_userIds" ON "ClientIds" USING gin ("us
 -- Table "Collections"
 CREATE TABLE "Collections" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "title" TEXT NOT NULL,
   "slug" TEXT NOT NULL,
@@ -193,8 +195,6 @@ CREATE TABLE "Collections" (
   "firstPageLink" TEXT NOT NULL,
   "hideStartReadingButton" BOOL,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
-  "contents" JSONB,
-  "contents_latest" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -226,6 +226,9 @@ CREATE INDEX IF NOT EXISTS "idx_CommentModeratorActions_commentId_createdAt" ON 
 -- Table "Comments"
 CREATE TABLE "Comments" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
   "parentCommentId" VARCHAR(27),
   "topLevelCommentId" VARCHAR(27),
   "postedAt" TIMESTAMPTZ NOT NULL,
@@ -299,14 +302,8 @@ CREATE TABLE "Comments" (
   "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB
+  "legacyData" JSONB
 );
-
--- Index "idx_Comments_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Comments_schemaVersion" ON "Comments" USING btree ("schemaVersion");
 
 -- Index "idx_Comments_postId"
 CREATE INDEX IF NOT EXISTS "idx_Comments_postId" ON "Comments" USING btree ("postId");
@@ -586,6 +583,9 @@ WHERE
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
 
+-- Index "idx_Comments_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_Comments_schemaVersion" ON "Comments" USING btree ("schemaVersion");
+
 -- Table "Conversations"
 CREATE TABLE "Conversations" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -657,15 +657,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_CurationEmails_userId" ON "CurationEmails
 -- Table "CurationNotices"
 CREATE TABLE "CurationNotices" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "commentId" VARCHAR(27),
   "postId" VARCHAR(27),
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT
+  "legacyData" JSONB
 );
 
 -- Index "idx_CurationNotices_schemaVersion"
@@ -844,11 +844,11 @@ CREATE TABLE "ElectionVotes" (
 -- Index "idx_ElectionVotes_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_schemaVersion" ON "ElectionVotes" USING btree ("schemaVersion");
 
--- Index "idx_ElectionVotes_electionName_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName_userId" ON "ElectionVotes" USING btree ("electionName", COALESCE("userId", ''));
-
 -- Index "idx_ElectionVotes_electionName"
 CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" USING btree ("electionName");
+
+-- Index "idx_ElectionVotes_electionName_userId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName_userId" ON "ElectionVotes" USING btree ("electionName", COALESCE("userId", ''));
 
 -- Table "ElicitQuestionPredictions"
 CREATE TABLE "ElicitQuestionPredictions" (
@@ -917,6 +917,12 @@ CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedRes
 -- Table "ForumEvents"
 CREATE TABLE "ForumEvents" (
   _id VARCHAR(27) PRIMARY KEY,
+  "frontpageDescription" JSONB,
+  "frontpageDescription_latest" TEXT,
+  "frontpageDescriptionMobile" JSONB,
+  "frontpageDescriptionMobile_latest" TEXT,
+  "postPageDescription" JSONB,
+  "postPageDescription_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
   "endDate" TIMESTAMPTZ NOT NULL,
@@ -935,13 +941,7 @@ CREATE TABLE "ForumEvents" (
   "publicData" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "frontpageDescription" JSONB,
-  "frontpageDescription_latest" TEXT,
-  "frontpageDescriptionMobile" JSONB,
-  "frontpageDescriptionMobile_latest" TEXT,
-  "postPageDescription" JSONB,
-  "postPageDescription_latest" TEXT
+  "legacyData" JSONB
 );
 
 -- Index "idx_ForumEvents_schemaVersion"
@@ -953,6 +953,9 @@ CREATE INDEX IF NOT EXISTS "idx_ForumEvents_endDate" ON "ForumEvents" USING btre
 -- Table "GardenCodes"
 CREATE TABLE "GardenCodes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
   "code" TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
   "userId" VARCHAR(27) NOT NULL,
@@ -966,10 +969,7 @@ CREATE TABLE "GardenCodes" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB
+  "slug" TEXT NOT NULL
 );
 
 -- Index "idx_GardenCodes_schemaVersion"
@@ -1024,6 +1024,8 @@ CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("c
 -- Table "JargonTerms"
 CREATE TABLE "JargonTerms" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "postId" VARCHAR(27) NOT NULL,
   "term" TEXT NOT NULL,
   "approved" BOOL NOT NULL DEFAULT FALSE,
@@ -1031,9 +1033,7 @@ CREATE TABLE "JargonTerms" (
   "altTerms" TEXT[] NOT NULL DEFAULT '{}',
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT
+  "legacyData" JSONB
 );
 
 -- Index "idx_JargonTerms_schemaVersion"
@@ -1124,6 +1124,8 @@ CREATE INDEX IF NOT EXISTS "idx_LlmMessages_conversationId_createdAt" ON "LlmMes
 -- Table "Localgroups"
 CREATE TABLE "Localgroups" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "name" TEXT,
   "nameInAnotherLanguage" TEXT,
   "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
@@ -1144,8 +1146,6 @@ CREATE TABLE "Localgroups" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "salesforceId" TEXT,
-  "contents" JSONB,
-  "contents_latest" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -1200,11 +1200,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_marketId" ON 
 -- Table "Messages"
 CREATE TABLE "Messages" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
   "noEmail" BOOL NOT NULL DEFAULT FALSE,
-  "contents" JSONB,
-  "contents_latest" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -1234,15 +1234,15 @@ CREATE INDEX IF NOT EXISTS "idx_Migrations_schemaVersion" ON "Migrations" USING 
 -- Table "ModerationTemplates"
 CREATE TABLE "ModerationTemplates" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "name" TEXT NOT NULL,
   "collectionName" TEXT NOT NULL,
   "order" DOUBLE PRECISION NOT NULL DEFAULT 10,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT
+  "legacyData" JSONB
 );
 
 -- Index "idx_ModerationTemplates_schemaVersion"
@@ -1277,6 +1277,8 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "Mod
 -- Table "MultiDocuments"
 CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
   "title" TEXT,
   "preview" TEXT,
   "tabTitle" TEXT NOT NULL,
@@ -1301,9 +1303,7 @@ CREATE TABLE "MultiDocuments" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
   "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
-  "contents_latest" TEXT,
-  "pingbacks" JSONB
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -1567,6 +1567,11 @@ CREATE INDEX IF NOT EXISTS "idx_PostViews_windowStart" ON "PostViews" USING btre
 -- Table "Posts"
 CREATE TABLE "Posts" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
+  "moderationGuidelines_latest" TEXT,
+  "customHighlight" JSONB,
+  "customHighlight_latest" TEXT,
   "postedAt" TIMESTAMPTZ NOT NULL,
   "modifiedAt" TIMESTAMPTZ,
   "url" VARCHAR(500),
@@ -1730,16 +1735,8 @@ CREATE TABLE "Posts" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
-  "moderationGuidelines_latest" TEXT,
-  "customHighlight" JSONB,
-  "customHighlight_latest" TEXT
+  "slug" TEXT NOT NULL
 );
-
--- Index "idx_Posts_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");
 
 -- Index "idx_posts_coauthorStatuses_postedAt"
 CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USING gin (
@@ -2334,6 +2331,15 @@ CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCountReviewCount" ON "Po
 -- Index "idx_Posts_userId_postedAt"
 CREATE INDEX IF NOT EXISTS "idx_Posts_userId_postedAt" ON "Posts" USING btree ("userId", "postedAt");
 
+-- Index "idx_Posts_url_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Posts_url_postedAt" ON "Posts" USING btree ("url", "postedAt");
+
+-- Index "idx_Posts_fmCrosspost__foreignPostId_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts" USING gin (("fmCrosspost" -> 'foreignPostId'), "postedAt");
+
+-- Index "idx_Posts_defaultRecommendation"
+CREATE INDEX IF NOT EXISTS "idx_Posts_defaultRecommendation" ON "Posts" USING btree ("defaultRecommendation");
+
 -- Index "idx_posts_alignmentSuggestedPosts"
 CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING gin (
   "status",
@@ -2359,14 +2365,8 @@ CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING 
 WHERE
   ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
 
--- Index "idx_Posts_url_postedAt"
-CREATE INDEX IF NOT EXISTS "idx_Posts_url_postedAt" ON "Posts" USING btree ("url", "postedAt");
-
--- Index "idx_Posts_fmCrosspost__foreignPostId_postedAt"
-CREATE INDEX IF NOT EXISTS "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts" USING gin (("fmCrosspost" -> 'foreignPostId'), "postedAt");
-
--- Index "idx_Posts_defaultRecommendation"
-CREATE INDEX IF NOT EXISTS "idx_Posts_defaultRecommendation" ON "Posts" USING btree ("defaultRecommendation");
+-- Index "idx_Posts_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");
 
 -- Table "RSSFeeds"
 CREATE TABLE "RSSFeeds" (
@@ -2407,11 +2407,11 @@ CREATE TABLE "ReadStatuses" (
 -- Index "idx_ReadStatuses_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_schemaVersion" ON "ReadStatuses" USING btree ("schemaVersion");
 
--- Index "idx_ReadStatuses_userId_postId_isRead_lastUpdated"
-CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_isRead_lastUpdated" ON "ReadStatuses" USING btree ("userId", "postId", "isRead", "lastUpdated");
+-- Index "idx_ReadStatuses_userId_postId"
+CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId" ON "ReadStatuses" USING btree ("userId", "postId");
 
--- Index "idx_ReadStatuses_userId_tagId_isRead_lastUpdated"
-CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_tagId_isRead_lastUpdated" ON "ReadStatuses" USING btree ("userId", "tagId", "isRead", "lastUpdated");
+-- Index "idx_ReadStatuses_userId_tagId"
+CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_tagId" ON "ReadStatuses" USING btree ("userId", "tagId");
 
 -- Table "RecommendationsCaches"
 CREATE TABLE "RecommendationsCaches" (
@@ -2569,9 +2569,6 @@ CREATE TABLE "Revisions" (
   "legacyData" JSONB
 );
 
--- Index "idx_Revisions_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Revisions_schemaVersion" ON "Revisions" USING btree ("schemaVersion");
-
 -- Index "idx_Revisions_userId_collectionName_editedAt"
 CREATE INDEX IF NOT EXISTS "idx_Revisions_userId_collectionName_editedAt" ON "Revisions" USING btree ("userId", "collectionName", "editedAt");
 
@@ -2587,9 +2584,14 @@ CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_
 -- Index "idx_Revisions_documentId_version_fieldName_editedAt"
 CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");
 
+-- Index "idx_Revisions_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_Revisions_schemaVersion" ON "Revisions" USING btree ("schemaVersion");
+
 -- Table "Sequences"
 CREATE TABLE "Sequences" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "lastUpdated" TIMESTAMPTZ NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "title" TEXT NOT NULL,
@@ -2604,8 +2606,6 @@ CREATE TABLE "Sequences" (
   "hidden" BOOL NOT NULL DEFAULT FALSE,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "af" BOOL NOT NULL DEFAULT FALSE,
-  "contents" JSONB,
-  "contents_latest" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -2705,6 +2705,8 @@ CREATE INDEX IF NOT EXISTS "idx_SplashArtCoordinates_reviewWinnerArtId_createdAt
 -- Table "Spotlights"
 CREATE TABLE "Spotlights" (
   _id VARCHAR(27) PRIMARY KEY,
+  "description" JSONB,
+  "description_latest" TEXT,
   "documentId" TEXT NOT NULL,
   "documentType" TEXT NOT NULL DEFAULT 'Sequence',
   "position" DOUBLE PRECISION NOT NULL,
@@ -2726,9 +2728,7 @@ CREATE TABLE "Spotlights" (
   "spotlightDarkImageId" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "description" JSONB,
-  "description_latest" TEXT
+  "legacyData" JSONB
 );
 
 -- Index "idx_Spotlights_schemaVersion"
@@ -2855,15 +2855,15 @@ CREATE INDEX IF NOT EXISTS "idx_Surveys_schemaVersion" ON "Surveys" USING btree 
 -- Table "TagFlags"
 CREATE TABLE "TagFlags" (
   _id VARCHAR(27) PRIMARY KEY,
+  "contents" JSONB,
+  "contents_latest" TEXT,
   "name" TEXT NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "order" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "contents" JSONB,
-  "contents_latest" TEXT
+  "slug" TEXT NOT NULL
 );
 
 -- Index "idx_TagFlags_schemaVersion"
@@ -2905,6 +2905,13 @@ CREATE INDEX IF NOT EXISTS "idx_TagRels_tagId" ON "TagRels" USING btree ("tagId"
 -- Table "Tags"
 CREATE TABLE "Tags" (
   _id VARCHAR(27) PRIMARY KEY,
+  "description" JSONB,
+  "description_latest" TEXT,
+  "pingbacks" JSONB,
+  "subforumWelcomeText" JSONB,
+  "subforumWelcomeText_latest" TEXT,
+  "moderationGuidelines" JSONB,
+  "moderationGuidelines_latest" TEXT,
   "name" TEXT NOT NULL,
   "shortName" TEXT,
   "subtitle" TEXT,
@@ -2959,18 +2966,8 @@ CREATE TABLE "Tags" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
   "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
-  "description" JSONB,
-  "description_latest" TEXT,
-  "pingbacks" JSONB,
-  "subforumWelcomeText" JSONB,
-  "subforumWelcomeText_latest" TEXT,
-  "moderationGuidelines" JSONB,
-  "moderationGuidelines_latest" TEXT
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
 );
-
--- Index "idx_Tags_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Tags_schemaVersion" ON "Tags" USING btree ("schemaVersion");
 
 -- Index "idx_Tags_deleted_adminOnly"
 CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly" ON "Tags" USING btree ("deleted", "adminOnly");
@@ -3032,6 +3029,9 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" U
 
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
+
+-- Index "idx_Tags_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_Tags_schemaVersion" ON "Tags" USING btree ("schemaVersion");
 
 -- Table "Tweets"
 CREATE TABLE "Tweets" (
@@ -3124,11 +3124,11 @@ CREATE TABLE "UserJobAds" (
   "legacyData" JSONB
 );
 
--- Index "idx_UserJobAds_userId_jobName"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserJobAds_userId_jobName" ON "UserJobAds" USING btree ("userId", "jobName");
-
 -- Index "idx_UserJobAds_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_UserJobAds_schemaVersion" ON "UserJobAds" USING btree ("schemaVersion");
+
+-- Index "idx_UserJobAds_userId_jobName"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserJobAds_userId_jobName" ON "UserJobAds" USING btree ("userId", "jobName");
 
 -- Index "idx_UserJobAds_userId"
 CREATE INDEX IF NOT EXISTS "idx_UserJobAds_userId" ON "UserJobAds" USING btree ("userId");
@@ -3199,6 +3199,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels
 -- Table "Users"
 CREATE TABLE "Users" (
   _id VARCHAR(27) PRIMARY KEY,
+  "moderationGuidelines" JSONB,
+  "moderationGuidelines_latest" TEXT,
+  "howOthersCanHelpMe" JSONB,
+  "howOthersCanHelpMe_latest" TEXT,
+  "howICanHelpOthers" JSONB,
+  "howICanHelpOthers_latest" TEXT,
+  "biography" JSONB,
+  "biography_latest" TEXT,
   "username" TEXT,
   "emails" JSONB[],
   "isAdmin" BOOL NOT NULL DEFAULT FALSE,
@@ -3425,19 +3433,8 @@ CREATE TABLE "Users" (
   "legacyData" JSONB,
   "slug" TEXT NOT NULL,
   "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
-  "moderationGuidelines" JSONB,
-  "moderationGuidelines_latest" TEXT,
-  "howOthersCanHelpMe" JSONB,
-  "howOthersCanHelpMe_latest" TEXT,
-  "howICanHelpOthers" JSONB,
-  "howICanHelpOthers_latest" TEXT,
-  "biography" JSONB,
-  "biography_latest" TEXT,
   "recommendationSettings" JSONB
 );
-
--- Index "idx_Users_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Users_schemaVersion" ON "Users" USING btree ("schemaVersion");
 
 -- Index "idx_Users_username"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_Users_username" ON "Users" USING btree (COALESCE("username", ''));
@@ -3583,6 +3580,9 @@ CREATE INDEX IF NOT EXISTS "idx_Users_afSubmittedApplication_reviewForAlignmentF
 -- Index "idx_users_nearbyEventsNotifications"
 CREATE INDEX IF NOT EXISTS "idx_users_nearbyEventsNotifications" ON "Users" USING btree ("nearbyEventsNotificationsMongoLocation");
 
+-- Index "idx_Users_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_Users_schemaVersion" ON "Users" USING btree ("schemaVersion");
+
 -- Table "Votes"
 CREATE TABLE "Votes" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3603,9 +3603,6 @@ CREATE TABLE "Votes" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
 );
-
--- Index "idx_Votes_schemaVersion"
-CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");
 
 -- Index "idx_Votes_cancelled_userId_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_userId_documentId" ON "Votes" USING btree ("cancelled", "userId", "documentId");
@@ -3638,71 +3635,21 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_i
 -- Index "idx_Votes_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
--- CustomIndex "idx_DatabaseMetadata_name"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);
+-- Index "idx_Votes_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");
 
--- CustomIndex "idx_DebouncerEvents_dispatched_af_key_name_filtered"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON public."DebouncerEvents" USING btree (dispatched, af, key, name)
+-- CustomIndex "idx_Comments_postId_promotedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
 WHERE
-  (dispatched IS FALSE);
+  "promotedAt" IS NOT NULL;
 
--- CustomIndex "idx_PageCache_path_abTestGroups_bundleHash"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public."PageCache" USING btree (PATH, "abTestGroups", "bundleHash");
+-- CustomIndex "idx_Comments_userId_postId_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
 
--- CustomIndex "idx_ReadStatuses_userId_postId_tagId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public."ReadStatuses" USING btree (
-  COALESCE("userId", ''::CHARACTER VARYING),
-  COALESCE("postId", ''::CHARACTER VARYING),
-  COALESCE("tagId", ''::CHARACTER VARYING)
-);
-
--- CustomIndex "idx_Users_tsvector_jobTitle"
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_jobTitle" ON "Users" (TO_TSVECTOR('english', "jobTitle"))
+-- CustomIndex "idx_comments_popular_comments"
+CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
 WHERE
-  "jobTitle" IS NOT NULL AND
-  "noindex" IS NOT TRUE AND
-  "hideFromPeopleDirectory" IS NOT TRUE AND
-  "deleted" IS NOT TRUE AND
-  "voteBanned" IS NOT TRUE AND
-  "deleteContent" IS NOT TRUE AND
-  "nullifyVotes" IS NOT TRUE AND
-  "banned" IS NULL;
-
--- CustomIndex "idx_Users_tsvector_organization"
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_organization" ON "Users" (TO_TSVECTOR('english', "organization"))
-WHERE
-  "organization" IS NOT NULL AND
-  "noindex" IS NOT TRUE AND
-  "hideFromPeopleDirectory" IS NOT TRUE AND
-  "deleted" IS NOT TRUE AND
-  "voteBanned" IS NOT TRUE AND
-  "deleteContent" IS NOT TRUE AND
-  "nullifyVotes" IS NOT TRUE AND
-  "banned" IS NULL;
-
--- CustomIndex "idx_Users_tsvector_mapLocationAddress"
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_mapLocationAddress" ON "Users" (
-  TO_TSVECTOR('english', "mapLocation" ->> 'formatted_address')
-)
-WHERE
-  "mapLocation" ->> 'formatted_address' IS NOT NULL AND
-  "noindex" IS NOT TRUE AND
-  "hideFromPeopleDirectory" IS NOT TRUE AND
-  "deleted" IS NOT TRUE AND
-  "voteBanned" IS NOT TRUE AND
-  "deleteContent" IS NOT TRUE AND
-  "nullifyVotes" IS NOT TRUE AND
-  "banned" IS NULL;
-
--- CustomIndex "manual_idx__LWEvents_properties_ip"
-CREATE INDEX IF NOT EXISTS "manual_idx__LWEvents_properties_ip" ON public."LWEvents" USING gin ((("properties" ->> 'ip')::TEXT))
-WITH
-  (fastupdate = TRUE)
-WHERE
-  name = 'login';
-
--- CustomIndex "idx_tags_pingbacks"
-CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
+  ("baseScore" >= 15);
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
@@ -3716,6 +3663,9 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueRe
 )
 WHERE
   "collabEditorDialogue" IS TRUE;
+
+-- CustomIndex "idx_tags_pingbacks"
+CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
 
 -- Function "fm_has_verified_email"
 CREATE OR
@@ -3763,21 +3713,71 @@ WHERE
   "deleted" IS NOT TRUE AND
   "email" IS NOT NULL;
 
--- CustomIndex "idx_Comments_postId_promotedAt"
-CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
+-- CustomIndex "idx_Users_tsvector_jobTitle"
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_jobTitle" ON "Users" (TO_TSVECTOR('english', "jobTitle"))
 WHERE
-  "promotedAt" IS NOT NULL;
+  "jobTitle" IS NOT NULL AND
+  "noindex" IS NOT TRUE AND
+  "hideFromPeopleDirectory" IS NOT TRUE AND
+  "deleted" IS NOT TRUE AND
+  "voteBanned" IS NOT TRUE AND
+  "deleteContent" IS NOT TRUE AND
+  "nullifyVotes" IS NOT TRUE AND
+  "banned" IS NULL;
 
--- CustomIndex "idx_Comments_userId_postId_postedAt"
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
-
--- CustomIndex "idx_comments_popular_comments"
-CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
+-- CustomIndex "idx_Users_tsvector_organization"
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_organization" ON "Users" (TO_TSVECTOR('english', "organization"))
 WHERE
-  ("baseScore" >= 15);
+  "organization" IS NOT NULL AND
+  "noindex" IS NOT TRUE AND
+  "hideFromPeopleDirectory" IS NOT TRUE AND
+  "deleted" IS NOT TRUE AND
+  "voteBanned" IS NOT TRUE AND
+  "deleteContent" IS NOT TRUE AND
+  "nullifyVotes" IS NOT TRUE AND
+  "banned" IS NULL;
+
+-- CustomIndex "idx_Users_tsvector_mapLocationAddress"
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_mapLocationAddress" ON "Users" (
+  TO_TSVECTOR('english', "mapLocation" ->> 'formatted_address')
+)
+WHERE
+  "mapLocation" ->> 'formatted_address' IS NOT NULL AND
+  "noindex" IS NOT TRUE AND
+  "hideFromPeopleDirectory" IS NOT TRUE AND
+  "deleted" IS NOT TRUE AND
+  "voteBanned" IS NOT TRUE AND
+  "deleteContent" IS NOT TRUE AND
+  "nullifyVotes" IS NOT TRUE AND
+  "banned" IS NULL;
+
+-- CustomIndex "idx_DatabaseMetadata_name"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);
+
+-- CustomIndex "idx_DebouncerEvents_dispatched_af_key_name_filtered"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON public."DebouncerEvents" USING btree (dispatched, af, key, name)
+WHERE
+  (dispatched IS FALSE);
+
+-- CustomIndex "manual_idx__LWEvents_properties_ip"
+CREATE INDEX IF NOT EXISTS "manual_idx__LWEvents_properties_ip" ON public."LWEvents" USING gin ((("properties" ->> 'ip')::TEXT))
+WITH
+  (fastupdate = TRUE)
+WHERE
+  name = 'login';
 
 -- CustomIndex "idx_multi_documents_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin (pingbacks);
+
+-- CustomIndex "idx_PageCache_path_abTestGroups_bundleHash"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public."PageCache" USING btree (PATH, "abTestGroups", "bundleHash");
+
+-- CustomIndex "idx_ReadStatuses_userId_postId_tagId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public."ReadStatuses" USING btree (
+  COALESCE("userId", ''::CHARACTER VARYING),
+  COALESCE("postId", ''::CHARACTER VARYING),
+  COALESCE("tagId", ''::CHARACTER VARYING)
+);
 
 -- Function "fm_build_nested_jsonb"
 CREATE OR
@@ -3991,26 +3991,6 @@ REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPT
           )
       $$;
 
--- View "UniquePostUpvoters"
-CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
-SELECT
-  p."_id" AS "postId",
-  ARRAY_AGG(
-    DISTINCT ('x' || SUBSTR(MD5(v."userId"), 1, 8))::BIT(32)::INTEGER
-  ) AS "voters"
-FROM
-  "Posts" p
-  INNER JOIN "Votes" v ON p."_id" = v."documentId" AND
-  v."collectionName" = 'Posts' AND
-  v."cancelled" IS NOT TRUE AND
-  v."isUnvote" IS NOT TRUE AND
-  v."voteType" IN ('smallUpvote', 'bigUpvote')
-GROUP BY
-  p."_id";
-
--- CustomIndex "idx_UniquePostUpvoters_postId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UniquePostUpvoters_postId" ON "UniquePostUpvoters" ("postId");
-
 -- View "ConversationUnreadMessages"
 CREATE OR REPLACE VIEW "ConversationUnreadMessages" AS
 SELECT
@@ -4041,3 +4021,23 @@ FROM
 
 -- CustomIndex "idx_user_login_tokens_hashed_token"
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_login_tokens_hashed_token ON "UserLoginTokens" USING BTREE ("hashedToken");
+
+-- View "UniquePostUpvoters"
+CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
+SELECT
+  p."_id" AS "postId",
+  ARRAY_AGG(
+    DISTINCT ('x' || SUBSTR(MD5(v."userId"), 1, 8))::BIT(32)::INTEGER
+  ) AS "voters"
+FROM
+  "Posts" p
+  INNER JOIN "Votes" v ON p."_id" = v."documentId" AND
+  v."collectionName" = 'Posts' AND
+  v."cancelled" IS NOT TRUE AND
+  v."isUnvote" IS NOT TRUE AND
+  v."voteType" IN ('smallUpvote', 'bigUpvote')
+GROUP BY
+  p."_id";
+
+-- CustomIndex "idx_UniquePostUpvoters_postId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UniquePostUpvoters_postId" ON "UniquePostUpvoters" ("postId");

@@ -1,5 +1,5 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
@@ -42,7 +42,7 @@ export default registerMigration({
   dateWritten: "2019-01-30",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections) {
+    for (let collectionName of getEditableCollectionNames()) {
       const collection = getCollection(collectionName)
       await migrateDocuments({
         description: `Migrate ${collectionName} to new content fields`,
@@ -55,7 +55,7 @@ export default registerMigration({
           let collectionUpdates: Array<any> = []
           let newRevisions: Array<any> = []
           documents.forEach(doc => {
-            editableCollectionsFields[collectionName]!.forEach((fieldName) => {
+            getEditableFieldNamesForCollection(collectionName).forEach((fieldName) => {
               let contentFields
               let newFieldName
               if (["Sequences", "Books", "Chapters", "Collections"].includes(collectionName)) { // Special case for sequences, books, collections and chapters

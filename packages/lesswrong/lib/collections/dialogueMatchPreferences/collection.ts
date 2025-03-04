@@ -5,6 +5,7 @@ import DialogueChecks from "../dialogueChecks/collection";
 import schema from "./schema";
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 const options: MutationOptions<DbDialogueMatchPreference> = {
   newCheck: async (user: DbUser|null, document: DbDialogueMatchPreference|null) => {
@@ -31,6 +32,11 @@ export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = crea
   collectionName: 'DialogueMatchPreferences',
   typeName: 'DialogueMatchPreference',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('DialogueMatchPreferences', { dialogueCheckId: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('DialogueMatchPreferences'),
   mutations: getDefaultMutations('DialogueMatchPreferences', options),
   logChanges: true,

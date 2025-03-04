@@ -3,10 +3,11 @@ import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/
 import './fragments';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
-import { makeEditable } from '../../editor/make_editable';
+import { editableFields } from '../../editor/make_editable';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 function generateCode(length: number) {
   let result = '';
@@ -30,6 +31,14 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...editableFields("GardenCodes", {
+    pingbacks: true,
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 20
+  }),
+  
   code: {
     type: String,
     optional: true,
@@ -181,6 +190,13 @@ export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('GardenCodes', {code: 1, deleted: 1});
+    indexSet.addIndex('GardenCodes', {userId: 1, deleted: 1});
+    indexSet.addIndex('GardenCodes', {code: 1, deleted: 1, userId: 1, });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),
   logChanges: true,
@@ -193,16 +209,5 @@ addSlugFields({
   getTitle: (gc) => gc.title,
   includesOldSlugs: false,
 });
-
-makeEditable({
-  collection: GardenCodes,
-  options: {
-    pingbacks: true,
-    commentEditor: true,
-    commentStyles: true,
-    hideControls: true,
-    order: 20
-  }
-})
 
 export default GardenCodes;

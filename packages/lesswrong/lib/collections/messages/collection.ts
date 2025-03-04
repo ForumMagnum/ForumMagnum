@@ -2,10 +2,10 @@ import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import Conversations from '../conversations/collection'
-import { makeEditable } from '../../editor/make_editable'
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbMessage> = {
   newCheck: async (user: DbUser|null, document: DbMessage|null) => {
@@ -34,28 +34,17 @@ export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Messages', { conversationId:1, createdAt:1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Messages'),
   mutations: getDefaultMutations('Messages', options),
   // Don't log things related to Messages to LWEvents, to keep LWEvents relatively
   // free of confidential stuff that admins shouldn't look at.
   logChanges: false,
 });
-
-makeEditable({
-  collection: Messages,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    permissions: {
-      canRead: ['members'],
-      canCreate: ['members'],
-      canUpdate: userOwns,
-    },
-    order: 2,
-  }
-})
 
 addUniversalFields({
   collection: Messages,

@@ -11,6 +11,8 @@ import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { getVoteableSchemaFields } from "@/lib/make_voteable";
+import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
+import TableIndex from "./TableIndex";
 
 let executingQueries = 0;
 
@@ -46,8 +48,6 @@ class PgCollection<
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  defaultView: ViewFunction<N> | undefined;
-  views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
@@ -97,6 +97,10 @@ class PgCollection<
     return this.table;
   }
 
+  getIndexes() {
+    return this.options.getIndexes?.() ?? new DatabaseIndexSet();
+  }
+ 
   buildPostgresTable() {
     this.table = Table.fromCollection<N>(this);
   }
@@ -264,7 +268,7 @@ class PgCollection<
     const key: MongoIndexKeyObj<ObjectsByCollectionName[N]> = typeof fieldOrSpec === "string"
       ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;
-    const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
+    const index = new TableIndex(this.tableName, key, options);
     const query = new CreateIndexQuery({ table: this.getTable(), index, ifNotExists: true });
 
     if (!options?.concurrently) {
@@ -336,9 +340,6 @@ class PgCollection<
       const dropIndex = new DropIndexQuery(this.getTable(), indexName);
       await this.executeWriteQuery(dropIndex, {indexName, options})
     },
-    indexes: (_options: never) => {
-      return Promise.resolve(this.getTable().getRequestedIndexes().map((index) => index.getDetails()));
-    },
     updateOne: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
       modifier: MongoModifier<ObjectsByCollectionName[N]>,
@@ -363,20 +364,6 @@ class PgCollection<
       };
     },
   });
-
-  /**
-   * Add a default view function.
-   */
-  addDefaultView(view: ViewFunction<N>) {
-    this.defaultView = view;
-  }
-
-  /**
-   * Add a named view function.
-   */
-  addView(viewName: string, view: ViewFunction<N>) {
-    this.views[viewName] = view;
-  }
 }
 
 export default PgCollection;

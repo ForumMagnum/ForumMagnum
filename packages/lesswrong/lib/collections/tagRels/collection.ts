@@ -7,6 +7,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagRels"> = {
   tagId: {
@@ -87,6 +88,12 @@ export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('TagRels', {postId: 1});
+    indexSet.addIndex('TagRels', {tagId: 1});
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
     newCheck: (user: DbUser|null, tag: DbTagRel|null) => {

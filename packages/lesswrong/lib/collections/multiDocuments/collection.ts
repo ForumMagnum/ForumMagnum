@@ -1,6 +1,4 @@
-import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
-import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
@@ -8,11 +6,20 @@ import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
   typeName: 'MultiDocument',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('MultiDocuments', { parentDocumentId: 1, collectionName: 1 });
+    indexSet.addIndex('MultiDocuments', { slug: 1 });
+    indexSet.addIndex('MultiDocuments', { oldSlugs: 1 });
+    indexSet.addCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
     newCheck: (user, multiDocument, context) => canMutateParentDocument(user, multiDocument, 'create', context),
@@ -44,31 +51,6 @@ addSlugFields({
   getTitle: (md) => md.title ?? md.tabTitle,
   onCollision: "rejectNewDocument",
   includesOldSlugs: true,
-});
-
-ensureIndex(MultiDocuments, { parentDocumentId: 1, collectionName: 1 });
-ensureIndex(MultiDocuments, { slug: 1 });
-ensureIndex(MultiDocuments, { oldSlugs: 1 });
-
-makeEditable({
-  collection: MultiDocuments,
-  options: {
-    fieldName: "contents",
-    order: 30,
-    commentStyles: true,
-    normalized: true,
-    revisionsHaveCommitMessages: true,
-    pingbacks: true,
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members'],
-      canCreate: ['members']
-    },
-    getLocalStorageId: (multiDocument: DbMultiDocument, name: string) => {
-      const { _id, parentDocumentId, collectionName } = multiDocument;
-      return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
-    },
-  },
 });
 
 MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {

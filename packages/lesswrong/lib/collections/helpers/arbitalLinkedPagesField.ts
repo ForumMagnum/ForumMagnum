@@ -3,8 +3,8 @@ import { resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '@/lib/loaders';
 import range from 'lodash/range';
 
-interface ArbitalLinkedPagesFieldOptions {
-  collectionName: string;
+interface ArbitalLinkedPagesFieldOptions<N extends CollectionNameString> {
+  collectionName: N;
 }
 
 addGraphQLSchema(`
@@ -25,10 +25,10 @@ addGraphQLSchema(`
   }
 `);
 
-export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions) {
+export function arbitalLinkedPagesField<N extends CollectionNameString>(options: ArbitalLinkedPagesFieldOptions<N>) {
   const { collectionName } = options;
 
-  return resolverOnlyField({
+  return resolverOnlyField<N>({
     type: 'ArbitalLinkedPages',
     graphQLtype: 'ArbitalLinkedPages',
     canRead: ['guests'],

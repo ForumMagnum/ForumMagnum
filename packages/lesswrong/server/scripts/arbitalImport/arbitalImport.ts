@@ -34,6 +34,8 @@ import { slugify } from '@/lib/utils/slugify';
 import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
+import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
 import { createAdminContext } from "@/server/vulcan-lib/query.ts";
 import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
 import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
@@ -2371,3 +2373,104 @@ export const reassignContentsLatestToMultiDocuments = async () => {
     );
   }
 };
+
+
+export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: string, options: ArbitalImportOptions) {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  if (!options.userMatchingFile) {
+    throw new Error("User matching file is required");
+  }
+  const matchedUsers = await loadUserMatching(options.userMatchingFile);
+
+  const lenses = await MultiDocuments.find({
+    "legacyData.arbitalLensId": { $exists: true },
+    collectionName: "Tags",
+    fieldName: "description",
+  }).fetch();
+
+  // Create array to store mismatches
+  const mismatches: Array<{
+    lensTitle: string | null,
+    lensId: string,
+    revisionId: string,
+    revisionUserId: string | null,
+    lensUserId: string,
+    arbitalLensId: string,
+    arbitalFirstRevisionUserId: string,
+    matchedUserId: string,
+  }> = [];
+
+  for (const lens of lenses) {
+    // get the first revision
+    const initialRevision = await Revisions.findOne({
+      documentId: lens._id,
+      updateType: "initial",
+    });
+
+    if (!initialRevision) {
+      console.log(`No initial revision found for lens ${lens._id}`);
+      continue;
+    }
+
+    // find matching page to revision in Arbital DB
+    const arbitalFirstRevision: PagesRow|undefined = arbitalDb.pages.find(p => p.pageId === lens.legacyData.arbitalLensId && p.edit === 1);
+    if (!arbitalFirstRevision) {
+      console.log(`No matching page found for revision ${initialRevision._id} in Arbital DB`);
+      continue;
+    }
+
+    // find matching user in LessWrong DB
+    const matchedUser = matchedUsers[arbitalFirstRevision.creatorId];
+    if (!matchedUser) {
+      console.log(`No matching user found for revision ${initialRevision._id} in LessWrong DB`);
+      continue;
+    }
+
+    if (initialRevision.userId !== matchedUser._id) {
+      const mismatch = {
+        lensTitle: lens.title,
+        lensId: lens._id,
+        revisionId: initialRevision._id,
+        revisionUserId: initialRevision.userId,
+        lensUserId: lens.userId,
+        arbitalLensId: lens.legacyData.arbitalLensId,
+        arbitalFirstRevisionUserId: arbitalFirstRevision.creatorId,
+        matchedUserId: matchedUser._id,
+      };
+      
+      console.log("Correcting record for", mismatch);
+
+      await Revisions.rawUpdateOne({
+        _id: initialRevision._id,
+      }, {
+        $set: { userId: matchedUser._id },
+      });
+
+      await updateDenormalizedHtmlAttributions({
+        document: lens,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      });
+      await updateDenormalizedContributorsList({
+        document: lens,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      });
+
+      mismatches.push(mismatch);
+    }
+  }
+
+  // Write mismatches to file
+  if (mismatches.length > 0) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `arbital-lens-user-mismatches-prod-${timestamp}.json`;
+    fs.writeFileSync(filename, JSON.stringify(mismatches, null, 2));
+    console.log(`Wrote ${mismatches.length} mismatches to ${filename}`);
+  } else {
+    console.log("No mismatches found");
+  }
+
+}
+
+

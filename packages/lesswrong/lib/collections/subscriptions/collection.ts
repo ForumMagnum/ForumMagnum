@@ -5,6 +5,7 @@ import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/de
 import Localgroups from '../localgroups/collection';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbSubscription> = {
   create: true,
@@ -21,6 +22,11 @@ export const Subscriptions: SubscriptionsCollection = createCollection({
   collectionName: 'Subscriptions',
   typeName: 'Subscription',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Subscriptions', {userId: 1, documentId: 1, collectionName: 1, type: 1, createdAt: 1});
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Subscriptions'),
   mutations: getDefaultMutations('Subscriptions', options),
 });

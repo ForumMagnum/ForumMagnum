@@ -2,9 +2,7 @@ import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
-import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
-import { ensureIndex } from "../../../lib/collectionIndexUtils";
 import UsersRepo from "../../repos/UsersRepo";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
@@ -80,4 +78,10 @@ export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, ol
     }, {multi: true})
   }
 }
-ensureIndex(Votes, {documentId:1});
+
+
+export async function postsMoveToAFAddsAlignmentVoting (post: DbPost, oldPost: DbPost) {
+  if (post.af && !oldPost.af) {
+    await Users.rawUpdateOne({_id:post.userId}, {$addToSet: {groups: 'alignmentVoters'}})
+  }
+}

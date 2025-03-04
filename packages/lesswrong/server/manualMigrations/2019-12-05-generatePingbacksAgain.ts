@@ -1,8 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
+import { getEditableFieldsByCollection } from '../../lib/editor/make_editable';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { htmlToPingbacks } from '../pingbacks';
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 import Revisions from '@/lib/collections/revisions/collection';
 
 export default registerMigration({
@@ -10,10 +9,10 @@ export default registerMigration({
   dateWritten: "2019-12-05",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections) {
-      for (let editableField of editableCollectionsFields[collectionName]!) {
-        if (editableCollectionsFieldOptions[collectionName][editableField].pingbacks) {
-          await updatePingbacks(collectionName, editableField);
+    for (let [collectionName, editableFields] of Object.entries(getEditableFieldsByCollection())) {
+      for (let [fieldName, editableField] of Object.entries(editableFields)) {
+        if (editableField.editableFieldOptions.callbackOptions.pingbacks) {
+          await updatePingbacks(collectionName as CollectionNameString, fieldName);
         }
       }
     }

@@ -4,7 +4,7 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
-import { getPostgresViewByName } from "../postgresView";
+import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
 import { getViewablePostsSelector } from "./helpers";
@@ -136,7 +136,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   private async refreshUserLoginTokens() {
-    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
+    await userLoginTokensView.refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {

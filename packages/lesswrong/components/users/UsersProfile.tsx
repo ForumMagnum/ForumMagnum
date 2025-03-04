@@ -232,7 +232,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug) && !user.deleted) {
+    if (slug !== user.slug && user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 

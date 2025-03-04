@@ -39,6 +39,16 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+// This needs to be import type to avoid a dependency cycle
+import type {
+  runCreateBeforeEditableCallbacks as runCreateBeforeEditableCallbacksType,
+  runCreateAfterEditableCallbacks as runCreateAfterEditableCallbacksType,
+  runNewAsyncEditableCallbacks as runNewAsyncEditableCallbacksType,
+  runUpdateBeforeEditableCallbacks as runUpdateBeforeEditableCallbacksType,
+  runUpdateAfterEditableCallbacks as runUpdateAfterEditableCallbacksType,
+  runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
+} from '../editor/make_editable_callbacks';
+import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
 
 const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
@@ -118,6 +128,12 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const schema = getSchema(collection);
 
   const hooks = getCollectionHooks(collectionName);
+
+  const { runCreateBeforeEditableCallbacks, runCreateAfterEditableCallbacks, runNewAsyncEditableCallbacks }: {
+    runCreateBeforeEditableCallbacks: typeof runCreateBeforeEditableCallbacksType,
+    runCreateAfterEditableCallbacks: typeof runCreateAfterEditableCallbacksType,
+    runNewAsyncEditableCallbacks: typeof runNewAsyncEditableCallbacksType,
+  } = require('../editor/make_editable_callbacks');
 
   /*
 
@@ -202,6 +218,12 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [properties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+
+  document = await runCreateBeforeEditableCallbacks({
+    doc: document,
+    props: properties,
+  });
+
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
@@ -230,6 +252,20 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [afterCreateProperties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+
+  // I don't like the casts, but it's what we were doing in `createAfter` callbacks before we pulled out the editable callbacks
+  document = await runCreateAfterEditableCallbacks({
+    newDoc: document as ObjectsByCollectionName[N],
+    props: afterCreateProperties,
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+  
+  // This should happen after the editable callbacks
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    newDocument: document,
+    callbackStage: "createAfter",
+    afterCreateProperties,
+  });
 
   logger('newAfter')
   // OpenCRUD backwards compatibility
@@ -260,8 +296,14 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   await hooks.newAsync.runCallbacksAsync([
     completedDocument,
     currentUser,
-    collection
+    collection,
+    afterCreateProperties,
   ]);
+
+  await runNewAsyncEditableCallbacks({
+    newDoc: completedDocument,
+    props: afterCreateProperties,
+  });
 
   return { data: completedDocument };
 };
@@ -304,6 +346,12 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   let origData = {...data};
 
   const hooks = getCollectionHooks(collectionName);
+
+  const { runUpdateBeforeEditableCallbacks, runUpdateAfterEditableCallbacks, runEditAsyncEditableCallbacks }: {
+    runUpdateBeforeEditableCallbacks: typeof runUpdateBeforeEditableCallbacksType,
+    runUpdateAfterEditableCallbacks: typeof runUpdateAfterEditableCallbacksType,
+    runEditAsyncEditableCallbacks: typeof runEditAsyncEditableCallbacksType,
+  } = require('../editor/make_editable_callbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -394,6 +442,12 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     iterator: data,
     properties: [properties],
   });
+
+  data = await runUpdateBeforeEditableCallbacks({
+    docData: data,
+    props: properties,
+  });
+
   logger('editSync')
   data = modifierToData(
     await hooks.editSync.runCallbacks({
@@ -401,7 +455,8 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
       properties: [
         oldDocument,
         currentUser,
-        document
+        document,
+        properties,
       ]
     })
   );
@@ -453,6 +508,19 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     properties: [properties],
   });
 
+  document = await runUpdateAfterEditableCallbacks({
+    newDoc: document,
+    props: properties,
+  });
+  
+  // This should happen after the editable callbacks
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    newDocument: document,
+    callbackStage: "updateAfter",
+    updateAfterProperties: properties,
+  });
+
   /*
 
   Async
@@ -471,6 +539,11 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     collection,
     properties,
   ]);
+
+  await runEditAsyncEditableCallbacks({
+    newDoc: document,
+    props: properties,
+  });
   
   void require('../fieldChanges').logFieldChanges({currentUser, collection, oldDocument, data: origData});
 
@@ -580,6 +653,12 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   */
   await hooks.deleteAsync.runCallbacksAsync([properties]);
+
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    callbackStage: "deleteAsync",
+    deleteAsyncProperties: properties,
+  });
 
   return { data: document };
 };

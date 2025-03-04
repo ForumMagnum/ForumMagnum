@@ -1,10 +1,10 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { ensureIndex } from '../../collectionIndexUtils';
 import { schema } from './schema';
 import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const splashArtCoordinatesMutationOptions: MutationOptions<DbSplashArtCoordinate> = {
   newCheck: (user: DbUser|null) => {
@@ -24,12 +24,15 @@ export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollec
   collectionName: 'SplashArtCoordinates',
   typeName: 'SplashArtCoordinate',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('SplashArtCoordinates', { reviewWinnerArtId: 1, createdAt: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('SplashArtCoordinates'),
   mutations: getDefaultMutations('SplashArtCoordinates', splashArtCoordinatesMutationOptions),
 });
 
 addUniversalFields({ collection: SplashArtCoordinates });
-
-ensureIndex(SplashArtCoordinates, { reviewWinnerArtId: 1, createdAt: 1 });
 
 export default SplashArtCoordinates;

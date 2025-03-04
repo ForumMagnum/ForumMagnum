@@ -80,7 +80,6 @@ import './collections/readStatus/collection';
 // Bans
 import './collections/bans/collection';
 import './collections/bans/fragments';
-import './collections/bans/views';
 
 // Chapters
 import './collections/sequences/collection';
@@ -107,7 +106,6 @@ import './collections/localgroups/fragments';
 import './collections/chapters/fragments';
 import './collections/sequences/fragments';
 import './collections/books/fragments';
-import './collections/books/views';
 import './collections/collections/fragments';
 import './collections/collections/views';
 import './collections/collections/helpers';
@@ -370,14 +368,11 @@ import "./collections/llmMessages/fragments";
 
 // Alignment Forum
 import './alignment-forum/posts/helpers';
-import './alignment-forum/posts/views';
 
 import './alignment-forum/comments/helpers';
-import './alignment-forum/comments/views';
 import './alignment-forum/comments/fragments';
 
 import './alignment-forum/users/helpers';
-import './alignment-forum/users/views';
 
 import './analyticsEvents';
 import './abTests';
