@@ -6,7 +6,6 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 export const styles = (_theme: ThemeType) => ({
@@ -82,8 +81,8 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
       {!loadingExistingTag && <WrappedSmartForm
         collectionName="Tags"
         documentId={existingTag?._id}
-        queryFragment={getFragment('TagEditFragment')}
-        mutationFragment={getFragment('TagWithFlagsFragment')}
+        queryFragmentName={'TagEditFragment'}
+        mutationFragmentName={'TagWithFlagsFragment'}
         successCallback={async (tag: any) => {
           if (existingTag) {
             await updateTag({

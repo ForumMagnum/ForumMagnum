@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const SequencesPageTitleFragment = `
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
@@ -10,9 +8,9 @@ registerFragment(`
       title
     }
   }
-`);
+`
 
-registerFragment(`
+export const SequencesPageFragment = `
   fragment SequencesPageFragment on Sequence {
     ...SequencesPageTitleFragment
     createdAt
@@ -37,31 +35,31 @@ registerFragment(`
     postsCount
     readPostsCount
   }
-`);
+`
 
-registerFragment(`
+export const SequenceContinueReadingFragment = `
   fragment SequenceContinueReadingFragment on Sequence {
     _id
     title
     gridImageId
     canonicalCollectionSlug
   }
-`);
+`
 
-registerFragment(`
+export const SequencesPageWithChaptersFragment = `
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
       ...ChaptersFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const SequencesEdit = `
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 
       ...RevisionEdit
     }
   }
-`)
+`

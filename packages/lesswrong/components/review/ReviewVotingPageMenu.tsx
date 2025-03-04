@@ -4,15 +4,13 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@material-ui/core/Select';
 import qs from 'qs';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { isLW, isLWorAF } from '@/lib/instanceSettings';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 

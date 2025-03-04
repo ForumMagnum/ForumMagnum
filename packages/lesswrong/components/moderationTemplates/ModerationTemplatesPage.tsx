@@ -5,7 +5,6 @@ import {useMulti} from "../../lib/crud/withMulti";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/schema';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -85,7 +84,7 @@ export const ModerationTemplatesPage = ({classes}: {
         <BasicFormStyles>
           <WrappedSmartForm
             collectionName="ModerationTemplates"
-            mutationFragment={getFragment('ModerationTemplateFragment')}
+            mutationFragmentName={'ModerationTemplateFragment'}
           />
         </BasicFormStyles>
       </div>

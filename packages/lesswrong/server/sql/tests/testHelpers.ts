@@ -2,8 +2,6 @@ import { registerCollection } from "@/lib/vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
 import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
-import { registerFragment } from "@/lib/vulcan-lib/fragments.ts";
-
 export type DbTestObject = {
   _id: string,
   a?: number,
@@ -72,13 +70,6 @@ export const TestCollection2 = {
   },
 } as unknown as CollectionBase<CollectionNameString>;
 
-registerFragment(`
-  fragment TestCollection2DefaultFragment on TestCollection2 {
-    _id
-    data
-  }
-`);
-
 export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
 (TestCollection2 as any).getTable = () => testTable2;
 registerCollection(TestCollection2);
@@ -109,13 +100,6 @@ export const TestCollection3 = {
 export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
 (TestCollection3 as any).getTable = () => testTable3;
 registerCollection(TestCollection3);
-
-registerFragment(`
-  fragment TestCollection3DefaultFragment on TestCollection3 {
-    _id
-    notNullData
-  }
-`);
 
 export type DbTestObject4 = {
   _id: string,
@@ -163,25 +147,6 @@ export const TestCollection4 = {
 export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
 (TestCollection4 as any).getTable = () => testTable4;
 registerCollection(TestCollection4);
-
-registerFragment(`
-  fragment TestCollection4DefaultFragment on TestCollection4 {
-    _id
-    testCollection3Id
-    testCollection3 {
-      ...TestCollection3DefaultFragment
-    }
-  }
-`);
-
-registerFragment(`
-  fragment TestCollection4ArgFragment on TestCollection4 {
-    _id
-    testCollection2(testCollection2Id: $testCollection2Id) {
-      ...TestCollection2DefaultFragment
-    }
-  }
-`);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

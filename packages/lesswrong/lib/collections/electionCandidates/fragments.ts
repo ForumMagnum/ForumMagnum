@@ -1,6 +1,4 @@
-import { registerFragment } from "../../vulcan-lib/fragments";
-
-registerFragment(`
+export const ElectionCandidateBasicInfo = `
   fragment ElectionCandidateBasicInfo on ElectionCandidate {
     _id
     electionName
@@ -23,10 +21,10 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
 // For use in the "Other donation opportunities" section at the bottom of the Giving Portal
-registerFragment(`
+export const ElectionCandidateSimple = `
   fragment ElectionCandidateSimple on ElectionCandidate {
     _id
     name
@@ -35,11 +33,11 @@ registerFragment(`
     fundraiserLink
     description
   }
-`);
+`
 
 // This fragment has to be fully dereferenced, because the context of vote
 // fragments doesn't allow for spreading other fragments
-registerFragment(`
+export const WithVoteElectionCandidate = `
   fragment WithVoteElectionCandidate on ElectionCandidate {
     __typename
     _id
@@ -51,4 +49,4 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`

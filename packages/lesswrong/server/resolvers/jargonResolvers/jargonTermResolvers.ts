@@ -7,7 +7,7 @@ augmentFieldsDict(JargonTerms, {
   humansAndOrAIEdited: {
     resolveAs: {
       type: 'String',
-      resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsDefaultFragment['humansAndOrAIEdited'] | null> => {
+      resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsPost['humansAndOrAIEdited'] | null> => {
         const botAccountId = await getAdminTeamAccountId();
         if (!botAccountId) {
           return null;
