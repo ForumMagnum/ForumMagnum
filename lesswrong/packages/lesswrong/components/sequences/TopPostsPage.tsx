@@ -5,7 +5,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useSuspenseQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
 import { useCurrentUser } from '../common/withUser';
@@ -690,7 +690,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
   };
 
-  const { data, loading } = useQuery(gql`
+  const { data } = useSuspenseQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo
@@ -699,9 +699,9 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
 
-  console.log({data, loading})
+  console.log({data})
 
-  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...(data as any).GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
@@ -760,7 +760,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
             {sectionGrid}
           </div>
-          {loading && <Loading/>}
+          {/* {loading && <Loading/>} */}
           {/* <TopSpotlightsSection classes={classes} 
             yearGroupsInfo={yearGroupsInfo} 
             sectionsInfo={sectionsInfo} 

@@ -2,8 +2,13 @@
 
 import '../pages/api/reactFactoryShim'
 import { Geist, Geist_Mono } from "next/font/google";
-import React from 'react';
-import { ApolloClient, ApolloLink, ApolloProvider, InMemoryCache } from '@apollo/client';
+import React, { Suspense } from 'react';
+import { HttpLink } from '@apollo/client';
+import {
+  ApolloNextAppProvider,
+  ApolloClient,
+  InMemoryCache,
+} from "@apollo/experimental-nextjs-app-support";
 // eslint-disable-next-line no-restricted-imports
 import { Components } from '@/lib/vulcan-lib/components';
 import { EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
@@ -35,21 +40,39 @@ export default function Providers({
     setPublicSettings(publicSettings);
   }
 
-  const apolloClient = new ApolloClient({
-    uri: 'http://localhost:3000/api/graphql',
-    ssrMode: true,
-    cache: new InMemoryCache(),
-    assumeImmutableResults: true,
-  });
-  const foreignApolloClient = new ApolloClient({
-    ssrMode: true,
-    cache: new InMemoryCache(),
-    assumeImmutableResults: true,
-  });
+  function makeClient() {
+    const httpLink = new HttpLink({
+      // this needs to be an absolute url, as relative urls cannot be used in SSR
+      uri: "http://localhost:3000/api/graphql",
+      // you can disable result caching here if you want to
+      // (this does not work if you are rendering your page with `export const dynamic = "force-static"`)
+      fetchOptions: { cache: "no-store" },
+      // you can override the default `fetchOptions` on a per query basis
+      // via the `context` property on the options passed as a second argument
+      // to an Apollo Client data fetching hook, e.g.:
+      // const { data } = useSuspenseQuery(MY_QUERY, { context: { fetchOptions: { cache: "force-cache" }}});
+    });
+  
+    // use the `ApolloClient` from "@apollo/experimental-nextjs-app-support"
+    return new ApolloClient({
+      // use the `InMemoryCache` from "@apollo/experimental-nextjs-app-support"
+      cache: new InMemoryCache(),
+      link: httpLink,
+    });
+  }
+
+  // const apolloClient = new ApolloClient({
+  //   uri: 'http://localhost:3000/api/graphql',
+  //   cache: new InMemoryCache(),
+  //   assumeImmutableResults: true,
+  // });
+  // const foreignApolloClient = new ApolloClient({
+  //   cache: new InMemoryCache(),
+  //   assumeImmutableResults: true,
+  // });
 
   return (
-    <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientProvider value={foreignApolloClient}>
+    <ApolloNextAppProvider makeClient={makeClient}>
         <LayoutOptionsContextProvider>
           <EnvironmentOverrideContext.Provider value={{
             matchSSR: true
@@ -59,7 +82,9 @@ export default function Providers({
                 <MessageContextProvider>
                   <ThemeContextProvider options={getDefaultThemeOptions()}>
                     <FMJssProvider>
-                      <TopPostsPage />
+                      {/* <Suspense fallback={<div>Loading...</div>}> */}
+                        {children}
+                      {/* </Suspense> */}
                     </FMJssProvider>
                   </ThemeContextProvider>
                 </MessageContextProvider>
@@ -67,7 +92,6 @@ export default function Providers({
             </ServerRequestStatusContext.Provider>
           </EnvironmentOverrideContext.Provider>
         </LayoutOptionsContextProvider>
-      </ForeignApolloClientProvider>
-    </ApolloProvider>
+    </ApolloNextAppProvider>
   );
 }
