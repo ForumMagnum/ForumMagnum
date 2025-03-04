@@ -16,7 +16,6 @@ import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 
-// Audio toggle constants (matching PostsPage/AudioToggle.tsx)
 const PODCAST_ICON_SIZE = 20;
 const PODCAST_ICON_PADDING = 3;
 
