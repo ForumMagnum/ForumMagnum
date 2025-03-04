@@ -232,7 +232,7 @@ const LocationPicker = ({
 const LocationFormComponent = (props: FormComponentProps<AnyBecauseTodo> & {
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
-}) => <Components.LocationPicker {...props}/>
+}) => <LocationPickerComponent {...props}/>
 
 const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});

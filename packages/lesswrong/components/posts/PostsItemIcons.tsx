@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CuratedIcon = ({hasColor, classes}: {
+const CuratedIcon = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {

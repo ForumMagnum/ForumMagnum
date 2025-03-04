@@ -10,8 +10,9 @@ import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SideComment", (theme: ThemeType) => ({
   sideCommentIconWrapper: {
     color: theme.palette.icon.dim6,
     paddingLeft: 8,
@@ -73,22 +74,22 @@ const styles = (theme: ThemeType) => ({
   lineColor: {
     background: theme.palette.sideItemIndicator.sideComment,
   },
-});
+}));
 
-const dialogStyles = () => ({
+const dialogStyles = defineStyles("SideCommentDialog", () => ({
   dialogPaper: {
     marginTop: 48,
     marginBottom: 48,
     marginLeft: 18,
     marginRight: 18,
   },
-});
+}));
 
-const BadgeWrapper = ({commentCount, classes, children}: {
+const BadgeWrapper = ({commentCount, children}: {
   commentCount: number,
-  classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
   if (commentCount>1) {
     return <Badge
       classes={{ badge: classes.badge }}
@@ -99,25 +100,25 @@ const BadgeWrapper = ({commentCount, classes, children}: {
   }
 }
 
-const SideCommentIcon = ({commentIds, post, classes}: {
+const SideCommentIcon = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const isMobile = useIsMobile();
   if (isMobile) {
-    return <SideCommentIconMobile commentIds={commentIds} post={post} classes={classes} />;
+    return <SideCommentIconMobile commentIds={commentIds} post={post} />;
   } else {
-    return <SideCommentIconDesktop commentIds={commentIds} post={post} classes={classes} />;
+    return <SideCommentIconDesktop commentIds={commentIds} post={post} />;
   }
 }
 
-const SideCommentDialog = ({ commentIds, post, onClose, classes }: {
+const SideCommentDialog = ({ commentIds, post, onClose }: {
   commentIds: string[]
   post: PostsList,
   onClose: () => void,
-  classes: ClassesType<typeof dialogStyles>
 }) => {
+  const classes = useStyles(dialogStyles);
   const { SideCommentHover, LWDialog } = Components;
 
   return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
@@ -125,13 +126,12 @@ const SideCommentDialog = ({ commentIds, post, onClose, classes }: {
   </LWDialog>;
 }
 
-const SideCommentIconMobile = ({commentIds, post, classes}: {
+const SideCommentIconMobile = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const {SideItem, SideItemLine} = Components;
-
   const { openDialog } = useDialog();
 
   const openModal = () => {
@@ -152,11 +152,11 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentIconDesktop = ({commentIds, post, classes}: {
+const SideCommentIconDesktop = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
   
@@ -199,7 +199,7 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
         className={classes.sideCommentIcon}
       >
         <span className={classes.desktopIcon}>
-          <BadgeWrapper commentCount={commentIds.length} classes={classes}>
+          <BadgeWrapper commentCount={commentIds.length}>
             <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
           </BadgeWrapper>
           {isOpen && <span className={classes.clickToPinMessage}>
@@ -223,12 +223,12 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
+const SideCommentHover = ({commentIds, post, closeDialog}: {
   commentIds: string[],
   post: PostsList,
   closeDialog?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { SideCommentSingle } = Components;
   
   // If there's only one comment (not counting replies to that comment), don't
@@ -248,13 +248,13 @@ const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
   </div>
 }
 
-const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
+const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog}: {
   commentId: string,
   post: PostsList,
   dontTruncateRoot?: boolean,
   closeDialog?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
   
@@ -337,10 +337,10 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
   </div>
 }
 
-const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon, {styles});
-const SideCommentDialogComponent = registerComponent('SideCommentDialog', SideCommentDialog, { styles: dialogStyles });
-const SideCommentHoverComponent = registerComponent('SideCommentHover', SideCommentHover, {styles});
-const SideCommentSingleComponent = registerComponent('SideCommentSingle', SideCommentSingle, {styles});
+const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon);
+const SideCommentDialogComponent = registerComponent('SideCommentDialog', SideCommentDialog);
+const SideCommentHoverComponent = registerComponent('SideCommentHover', SideCommentHover);
+const SideCommentSingleComponent = registerComponent('SideCommentSingle', SideCommentSingle);
 
 declare global {
   interface ComponentTypes {

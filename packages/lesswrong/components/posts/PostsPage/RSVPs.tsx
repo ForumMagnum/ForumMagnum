@@ -196,7 +196,7 @@ const responseIconStyles = (theme: ThemeType) => ({
   },
 });
 
-export function ResponseIcon({response, classes}: {
+function ResponseIcon({response, classes}: {
   response: RsvpResponse
   classes: ClassesType<typeof responseIconStyles>
 }) {

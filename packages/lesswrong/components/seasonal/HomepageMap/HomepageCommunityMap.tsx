@@ -13,11 +13,12 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("HomepageCommunityMap", (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     },
     ...theme.typography.body2
   },
-})
+}))
 
 const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
@@ -83,7 +84,7 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
 const LocalEventWrapperPopUpComponent = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUp);
 
 
-const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
+const localEventMapMarkerWrappersStyles = defineStyles("LocalEventMapMarkerWrappers", (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
@@ -99,11 +100,11 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
     fill: theme.palette.primary.dark,
     opacity: 1
   }
-})
-const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
+}));
+const LocalEventMapMarkerWrappers = ({localEvents}: {
   localEvents: Array<LocalEvent>,
-  classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
+  const classes = useStyles(localEventMapMarkerWrappersStyles);
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
@@ -141,15 +142,13 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
     })}
   </React.Fragment>
 }
-const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappers, {
-  styles: localEventMapMarkerWrappersStyles
-});
+const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappers);
 
 
-export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
+export const HomepageCommunityMap = ({dontAskUserLocation = false}: {
   dontAskUserLocation?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
 
   const currentUser = useCurrentUser()
@@ -191,7 +190,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   </div>;
 }
 
-const HomepageCommunityMapComponent = registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
+const HomepageCommunityMapComponent = registerComponent('HomepageCommunityMap', HomepageCommunityMap);
 
 declare global {
   interface ComponentTypes {
