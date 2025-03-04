@@ -2,7 +2,6 @@ import React from 'react';
 import { gardenForm } from './GardenCodeWidget';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     ...gardenForm(theme)

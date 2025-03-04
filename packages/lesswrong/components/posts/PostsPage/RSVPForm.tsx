@@ -12,7 +12,6 @@ import { useNavigate } from '../../../lib/routeUtil';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
   yes: "Going",

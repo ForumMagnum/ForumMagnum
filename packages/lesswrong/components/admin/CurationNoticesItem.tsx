@@ -13,7 +13,6 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,

@@ -6,7 +6,6 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 export const styles = (_theme: ThemeType) => ({

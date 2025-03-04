@@ -17,7 +17,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const TEXT_WIDTH = 350;
 
 export const descriptionStyles = (theme: ThemeType) => ({

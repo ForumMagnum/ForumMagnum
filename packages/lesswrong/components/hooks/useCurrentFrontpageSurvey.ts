@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { gql, useQuery } from "@apollo/client";
-
-import { hasSurveys } from "@/lib/betas";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import { hasSurveys } from "@/lib/betas";
+
 
 export const useCurrentFrontpageSurvey = (): {
   survey?: SurveyScheduleMinimumInfo,

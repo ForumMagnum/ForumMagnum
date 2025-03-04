@@ -4,7 +4,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16

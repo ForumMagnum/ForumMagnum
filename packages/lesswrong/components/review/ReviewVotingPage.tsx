@@ -23,9 +23,6 @@ import { useDialog } from '../common/withDialog';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
-const isAF = forumTypeSetting.get() === 'AlignmentForum'
-
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",

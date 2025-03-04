@@ -9,7 +9,6 @@ import { gql, useMutation } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",

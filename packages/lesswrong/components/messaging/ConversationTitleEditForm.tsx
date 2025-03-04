@@ -4,7 +4,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 /**
  * Form for editing the title of a private messages conversation and also for
  * adding additional participants.

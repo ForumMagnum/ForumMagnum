@@ -4,7 +4,6 @@ import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,

@@ -8,11 +8,9 @@ import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { useApolloClient } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
-
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,

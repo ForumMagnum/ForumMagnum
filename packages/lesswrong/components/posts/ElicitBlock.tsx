@@ -14,7 +14,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 const elicitDataFragment = `
   _id
   title

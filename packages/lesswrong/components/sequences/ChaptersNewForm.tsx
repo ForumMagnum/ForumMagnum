@@ -3,7 +3,6 @@ import { styles } from './CollectionsEditForm';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
 const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps, classes}: {

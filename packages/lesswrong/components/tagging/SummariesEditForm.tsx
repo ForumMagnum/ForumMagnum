@@ -8,7 +8,6 @@ import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 
-
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
     display: 'flex',

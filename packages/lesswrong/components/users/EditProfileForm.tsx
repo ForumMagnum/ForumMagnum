@@ -8,7 +8,6 @@ import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 

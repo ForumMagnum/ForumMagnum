@@ -9,7 +9,6 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 export const gardenForm = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
   borderRadius: 3,

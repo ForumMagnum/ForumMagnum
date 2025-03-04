@@ -15,7 +15,6 @@ import mapValues from "lodash/mapValues";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 const styles = (theme: ThemeType) => ({
   body: {
     marginBottom: 48

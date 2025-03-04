@@ -6,7 +6,6 @@ import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit

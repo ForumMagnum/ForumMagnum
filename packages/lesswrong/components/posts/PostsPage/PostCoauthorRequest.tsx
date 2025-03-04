@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 const styles = (theme: ThemeType) => ({
   coauthorRequest: {
     border: theme.palette.border.grey400,

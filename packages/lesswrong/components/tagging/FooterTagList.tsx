@@ -19,7 +19,6 @@ import { stableSortTags } from '../../lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
     marginTop: 8,

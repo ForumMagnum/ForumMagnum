@@ -6,7 +6,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { getSpotlightDisplayTitle } from './SpotlightItem';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   form: {
     padding: 16,

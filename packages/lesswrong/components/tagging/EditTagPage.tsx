@@ -4,7 +4,6 @@ import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {

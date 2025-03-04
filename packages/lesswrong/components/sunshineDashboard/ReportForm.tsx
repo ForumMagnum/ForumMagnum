@@ -2,7 +2,6 @@ import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   userId: string,
   postId?: string,

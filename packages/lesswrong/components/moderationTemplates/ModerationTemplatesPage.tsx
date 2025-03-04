@@ -6,7 +6,6 @@ import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moder
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   form: {
     border: theme.palette.border.commentBorder,

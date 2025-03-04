@@ -21,7 +21,6 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 export type FormDisplayMode = "default" | "minimalist"
 
 export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;

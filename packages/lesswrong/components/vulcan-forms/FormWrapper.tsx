@@ -17,7 +17,6 @@ import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
 
-
 const intlSuffix = '_intl';
 
 function convertFields(field: string) {

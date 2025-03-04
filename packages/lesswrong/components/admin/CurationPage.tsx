@@ -7,7 +7,6 @@ import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUt
 import { unflattenComments } from '@/lib/utils/unflatten';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   curated: {
     position: "absolute",

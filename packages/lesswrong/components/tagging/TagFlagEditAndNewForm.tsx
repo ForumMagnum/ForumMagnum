@@ -4,7 +4,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
   tagFlagId?: string,
   onClose?: () => void,

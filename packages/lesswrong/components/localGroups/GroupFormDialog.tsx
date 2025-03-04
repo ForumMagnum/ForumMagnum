@@ -5,7 +5,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   localGroupForm: {
     "& div": {

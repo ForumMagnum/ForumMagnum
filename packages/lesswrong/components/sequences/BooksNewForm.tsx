@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
   successCallback?: () => void,
   cancelCallback?: () => void,

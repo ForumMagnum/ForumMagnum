@@ -1,7 +1,6 @@
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { useMutation, gql } from '@apollo/client';
 
-
 export const useModerateComment = ({fragmentName}: {
   fragmentName: FragmentName,
 }) => {

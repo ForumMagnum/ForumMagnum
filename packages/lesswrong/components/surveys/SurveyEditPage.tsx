@@ -9,7 +9,6 @@ import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,

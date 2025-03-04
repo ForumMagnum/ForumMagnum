@@ -8,7 +8,6 @@ import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,

@@ -2,7 +2,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 export const styles = (theme: ThemeType) => ({
   newOrEditForm: {
     maxWidth: 695,

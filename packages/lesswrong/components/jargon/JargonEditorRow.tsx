@@ -6,7 +6,6 @@ import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-
 export const formStyles = {
   '& .form-section-default > div': {
     display: "flex",

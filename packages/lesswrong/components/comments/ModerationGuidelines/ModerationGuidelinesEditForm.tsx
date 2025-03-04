@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 
-
 const styles = (theme: ThemeType) => ({
   formButton: {
     paddingBottom: "2px",

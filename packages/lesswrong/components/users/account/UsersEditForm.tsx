@@ -12,7 +12,6 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {

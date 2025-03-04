@@ -17,7 +17,6 @@ import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
