@@ -1,11 +1,10 @@
-import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { addUniversalFields } from "@/lib/collectionUtils";
-import { getDefaultMutations } from "@/lib/vulcan-core/default_mutations.ts";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -23,9 +22,9 @@ export const MultiDocuments = createCollection({
   },
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
-    newCheck: (user, multiDocument) => canMutateParentDocument(user, multiDocument, 'create'),
-    editCheck: async (user, multiDocument: DbMultiDocument) => {
-      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update');
+    newCheck: (user, multiDocument, context) => canMutateParentDocument(user, multiDocument, 'create', context),
+    editCheck: async (user, multiDocument: DbMultiDocument, context) => {
+      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update', context);
       if (!canEditParent) {
         return false;
       }
@@ -52,27 +51,6 @@ addSlugFields({
   getTitle: (md) => md.title ?? md.tabTitle,
   onCollision: "rejectNewDocument",
   includesOldSlugs: true,
-});
-
-makeEditable({
-  collection: MultiDocuments,
-  options: {
-    fieldName: "contents",
-    order: 30,
-    commentStyles: true,
-    normalized: true,
-    revisionsHaveCommitMessages: true,
-    pingbacks: true,
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members'],
-      canCreate: ['members']
-    },
-    getLocalStorageId: (multiDocument: DbMultiDocument, name: string) => {
-      const { _id, parentDocumentId, collectionName } = multiDocument;
-      return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
-    },
-  },
 });
 
 MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {

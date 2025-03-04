@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import { Users } from '../../lib/collections/users/collection';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
-import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
+import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createMutator } from '../vulcan-lib/mutators';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { adminAccountSetting } from '@/lib/publicSettings';

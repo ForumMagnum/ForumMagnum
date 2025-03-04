@@ -37,11 +37,12 @@ import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/query";
-import { getAdminTeamAccount, getRejectionMessage } from "./commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
+import { getRejectionMessage } from "./commentCallbackFunctions";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -551,7 +552,7 @@ export function addLinkSharingKey(post: DbPost): DbPost {
 }
 
 /* CREATE AFTER */
-export async function applyNewPostTags(post: DbPost, props: CreateCallbackProperties<'Posts'>) {
+export async function applyNewPostTags(post: DbPost, props: AfterCreateCallbackProperties<'Posts'>) {
   const {currentUser, context} = props;
   if (!currentUser) return post; // Shouldn't happen, but just in case
   
@@ -565,7 +566,7 @@ export async function applyNewPostTags(post: DbPost, props: CreateCallbackProper
   return post;
 }
 
-export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<'Posts'>) {
+export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
   const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
   const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
 
@@ -596,6 +597,36 @@ export async function createNewJargonTermsCallback(post: DbPost, callbackPropert
   }
 
   return post;
+}
+
+export async function updateFirstDebateCommentPostId(newDoc: DbPost, { context, currentUser }: AfterCreateCallbackProperties<'Posts'>) {
+  const { Comments } = context;
+
+  const isFirstDebatePostComment = 'debate' in newDoc
+      ? !!newDoc.debate
+      : false;
+
+  if (currentUser && isFirstDebatePostComment) {
+    // With the editable callback refactoring, this might now be missing a documentId,
+    // but we should really just get rid of this code anyways since debates are deprecated.
+    const revision = await getLatestContentsRevision(newDoc, context);
+    if (!revision?.html) {
+      return newDoc;
+    }
+
+    await createMutator({
+      collection: Comments,
+      document: {
+        userId: currentUser._id,
+        postId: newDoc._id,
+        contents: revision as EditableFieldInsertion,
+        debateResponse: true,
+      },
+      context,
+      currentUser,
+    });
+  }
+  return newDoc;
 }
 
 /* NEW AFTER */
@@ -1164,7 +1195,7 @@ export async function sendAlignmentSubmissionApprovalNotifications(newDocument: 
   const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
   const reviewed = !!newDocument.reviewForAlignmentUserId
   
-  const documentType =  newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
+  const documentType = newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
   
   if (newlyAF && userSubmitted && reviewed) {
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})

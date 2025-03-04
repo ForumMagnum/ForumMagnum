@@ -1,6 +1,13 @@
+import { editableFields } from '@/lib/editor/make_editable';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<"CurationNotices"> = {
+  ...editableFields("CurationNotices", {
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 20
+  }),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const TagBasicInfo = `
   fragment TagBasicInfo on Tag {
     _id
     userId
@@ -31,9 +29,9 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
-registerFragment(`
+export const TagDetailsFragment = `
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
     subtitle
@@ -58,9 +56,9 @@ registerFragment(`
       ...SequencesPageFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagFragment = `
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -79,9 +77,9 @@ registerFragment(`
     }
     canVoteOnRels
   }
-`);
+`
 
-registerFragment(`
+export const TagHistoryFragment = `
   fragment TagHistoryFragment on Tag {
     ...TagFragment
     tableOfContents
@@ -92,9 +90,9 @@ registerFragment(`
       ...MultiDocumentContentDisplay
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagCreationHistoryFragment = `
   fragment TagCreationHistoryFragment on Tag {
     ...TagFragment
     user {
@@ -104,9 +102,9 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagRevisionFragment = `
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -129,9 +127,9 @@ registerFragment(`
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagPreviewFragment = `
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -148,9 +146,9 @@ registerFragment(`
     canVoteOnRels
     isArbitalImport
   }
-`);
+`
 
-registerFragment(`
+export const TagSectionPreviewFragment = `
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -166,9 +164,9 @@ registerFragment(`
     }
     canVoteOnRels
   }
-`);
+`
 
-registerFragment(`
+export const TagSubforumFragment = `
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     subforumModeratorIds
@@ -178,10 +176,10 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
 // TODO: would prefer to fetch subtags in fewer places
-registerFragment(`
+export const TagSubtagFragment = `
   fragment TagSubtagFragment on Tag {
     _id
     subforumModeratorIds
@@ -189,15 +187,15 @@ registerFragment(`
       ...TagPreviewFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagSubforumSidebarFragment = `
   fragment TagSubforumSidebarFragment on Tag {
     ...TagBasicInfo
   }
-`);
+`
 
-registerFragment(`
+export const TagDetailedPreviewFragment = `
   fragment TagDetailedPreviewFragment on Tag {
     ...TagDetailsFragment
     description {
@@ -205,9 +203,9 @@ registerFragment(`
       htmlHighlight
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagWithFlagsFragment = `
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
     tagFlagsIds
@@ -215,9 +213,9 @@ registerFragment(`
       ...TagFlagFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagWithFlagsAndRevisionFragment = `
   fragment TagWithFlagsAndRevisionFragment on Tag {
     ...TagRevisionFragment
     tagFlagsIds
@@ -225,10 +223,10 @@ registerFragment(`
       ...TagFlagFragment
     }
   }
-`);
+`
 
 // This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
-registerFragment(`
+export const ArbitalLinkedPagesFragment = `
   fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
     faster {
       _id
@@ -271,9 +269,9 @@ registerFragment(`
       slug
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagPageArbitalContentFragment = `
   fragment TagPageArbitalContentFragment on Tag {
     lenses {
       ...MultiDocumentWithContributors
@@ -282,9 +280,9 @@ registerFragment(`
       ...ArbitalLinkedPagesFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagPageFragment = `
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
@@ -311,23 +309,23 @@ registerFragment(`
     canVoteOnRels
     forceAllowType3Audio
   }
-`);
+`
 
-registerFragment(`
+export const TagPageWithArbitalContentFragment = `
   fragment TagPageWithArbitalContentFragment on Tag {
     ...TagPageFragment
     ...TagPageArbitalContentFragment
   }  
-`);
+`
 
-registerFragment(`
+export const AllTagsPageFragment = `
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
   }
-`);
+`
 
-registerFragment(`
+export const TagPageWithRevisionFragment = `
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
@@ -354,16 +352,16 @@ registerFragment(`
     canVoteOnRels
     forceAllowType3Audio
   }
-`);
+`
 
-registerFragment(`
+export const TagPageRevisionWithArbitalContentFragment = `
   fragment TagPageRevisionWithArbitalContentFragment on Tag {
     ...TagPageWithRevisionFragment
     ...TagPageArbitalContentFragment
   }  
-`);
+`
 
-registerFragment(`
+export const TagFullContributorsList = `
   fragment TagFullContributorsList on Tag {
     contributors {
       totalCount
@@ -378,9 +376,9 @@ registerFragment(`
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagEditFragment = `
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
@@ -406,9 +404,9 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagRecentDiscussion = `
   fragment TagRecentDiscussion on Tag {
     ...TagFragment
     lastVisitedAt
@@ -416,18 +414,18 @@ registerFragment(`
       ...CommentsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const SunshineTagFragment = `
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const UserOnboardingTag = `
   fragment UserOnboardingTag on Tag {
     _id
     name
@@ -435,17 +433,17 @@ registerFragment(`
     bannerImageId
     squareImageId
   }
-`);
+`
 
-registerFragment(`
+export const TagName = `
   fragment TagName on Tag {
     _id
     name
     slug
   }
-`);
+`
 
-registerFragment(`
+export const ExplorePageTagFragment = `
   fragment ExplorePageTagFragment on Tag {
     ...TagFragment
     contributors(limit: $contributorsLimit) {
@@ -462,9 +460,9 @@ registerFragment(`
     }
     legacyData
   }
-`);
+`
 
-registerFragment(`
+export const ConceptItemFragment = `
   fragment ConceptItemFragment on Tag {
     _id
     core
@@ -486,9 +484,9 @@ registerFragment(`
       displayName
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagPageWithArbitalContentAndLensRevisionFragment = `
   fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
     ...TagPageFragment
     arbitalLinkedPages {
@@ -498,10 +496,10 @@ registerFragment(`
       ...MultiDocumentWithContributorsRevision
     }
   }
-`);
+`
 
-registerFragment(`
+export const WithVoteTag = `
   fragment WithVoteTag on Tag {
     ...TagBasicInfo
   }
-`);
+`

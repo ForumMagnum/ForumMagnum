@@ -5,7 +5,6 @@ import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,8 +66,8 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
         cancelCallback={cancelCallback}
         changeCallback={changeCallback}
         showRemove={true}
-        queryFragment={getFragment('ChaptersEdit')}
-        mutationFragment={getFragment('ChaptersEdit')}
+        queryFragmentName={'ChaptersEdit'}
+        mutationFragmentName={'ChaptersEdit'}
       />
       <Button color="primary" className={classNames(
         classes.addDraftButton,

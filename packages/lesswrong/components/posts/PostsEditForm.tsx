@@ -18,7 +18,6 @@ import DeferRender from '../common/DeferRender';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const editor: Editor | null = null
@@ -162,8 +161,8 @@ const PostsEditForm = ({ documentId, version, classes }: {
             <WrappedSmartForm
               collectionName="Posts"
               documentId={documentId}
-              queryFragment={getFragment('PostsEditQueryFragment')}
-              mutationFragment={getFragment('PostsEditMutationFragment')}
+              queryFragmentName={'PostsEditQueryFragment'}
+              mutationFragmentName={'PostsEditMutationFragment'}
               successCallback={(post: any, options: any) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})

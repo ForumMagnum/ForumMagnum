@@ -56,7 +56,7 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
     </div>
       {/* <WrappedSmartForm
         collectionName="PetrovDayActions"
-        mutationFragment={getFragment('PetrovDayActionInfo')}
+        mutationFragmentName={'PetrovDayActionInfo'}
       /> */}
   </PetrovWorldmapWrapper>
 }

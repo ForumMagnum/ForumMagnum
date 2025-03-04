@@ -1,7 +1,6 @@
 import React from 'react';
 import { gardenForm } from './GardenCodeWidget';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,8 +23,8 @@ export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, succ
       successCallback={successCallback}
       cancelCallback={cancelCallback}
       showRemove={false}
-      queryFragment={getFragment('GardenCodeFragmentEdit')}
-      mutationFragment={getFragment('GardenCodeFragmentEdit')}
+      queryFragmentName={'GardenCodeFragmentEdit'}
+      mutationFragmentName={'GardenCodeFragmentEdit'}
       submitLabel="Save"
     />
   </ContentStyles>

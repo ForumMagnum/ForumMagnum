@@ -117,7 +117,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   const episodeTitleProps = episodeNotFound ? { value: episodeTitle } : { disabled: true, value: episodeTitle };
 
   const createNewEpisode = useCallback(async () => {
-    const episodeData: PodcastEpisodesDefaultFragment = {
+    const episodeData = {
       podcastId,
       externalEpisodeId,
       episodeLink,
