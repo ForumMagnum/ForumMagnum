@@ -42,7 +42,7 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
  * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
  */
-export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | null, mutation: 'create' | 'update') {
+export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | null, mutation: 'create' | 'update', context: ResolverContext) {
   if (!multiDocument) {
     return false;
   }
@@ -64,5 +64,5 @@ export async function canMutateParentDocument(user: DbUser | null, multiDocument
     return false;
   }
 
-  return check(user, parentDocument);
+  return check(user, parentDocument, context);
 }

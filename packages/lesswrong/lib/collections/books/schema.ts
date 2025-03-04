@@ -1,6 +1,14 @@
+import { editableFields } from '@/lib/editor/make_editable';
 import { arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<"Books"> = {
+  ...editableFields("Books", {
+    order: 20,
+    getLocalStorageId: (book, name) => {
+      if (book._id) { return {id: `${book._id}_${name}`, verify: true} }
+      return {id: `collection: ${book.collectionId}_${name}`, verify: false}
+    },
+  }),
 
   // default properties
 

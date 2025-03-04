@@ -1,8 +1,6 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const PodcastSelect = `
   fragment PodcastSelect on Podcast {
     _id
     title
   }
-`);
+`

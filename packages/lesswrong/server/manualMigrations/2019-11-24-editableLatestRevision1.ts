@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable';
 import { Revisions } from '../../lib/collections/revisions/collection';
 
 // The upgrade procedure here is:
@@ -20,8 +20,8 @@ export default registerMigration({
   dateWritten: "2019-11-24",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections)
-    for (let fieldName of editableCollectionsFields[collectionName]!)
+    for (let collectionName of getEditableCollectionNames())
+    for (let fieldName of getEditableFieldNamesForCollection(collectionName))
     {
       const collection = getCollection(collectionName);
       // eslint-disable-next-line no-console

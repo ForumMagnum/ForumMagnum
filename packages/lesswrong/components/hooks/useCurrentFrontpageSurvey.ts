@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import { gql } from "@apollo/client";
 import { useQuery } from '@/lib/crud/useQuery';
-import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 import { hasSurveys } from "@/lib/betas";
+
 
 export const useCurrentFrontpageSurvey = (): {
   survey?: SurveyScheduleMinimumInfo,
@@ -15,7 +16,7 @@ export const useCurrentFrontpageSurvey = (): {
         ...SurveyScheduleMinimumInfo
       }
     }
-    ${getFragment("SurveyScheduleMinimumInfo")}
+    ${fragmentTextForQuery("SurveyScheduleMinimumInfo")}
   `, {
     skip: !hasSurveys,
     ssr: true,

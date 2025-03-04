@@ -2,7 +2,7 @@ import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
+import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
@@ -10,7 +10,6 @@ import Button from '@material-ui/core/Button';
 import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
 import EyeIcon from '@material-ui/icons/Visibility';
 
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
@@ -19,12 +18,14 @@ import { userCanPost } from '../../lib/collections/posts/collection';
 import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import Card from '@material-ui/core/Card';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -75,6 +76,23 @@ const styles = (theme: ThemeType) => ({
       display: 'block'
     }
   } : {},
+  writeNewTooltip: {
+    padding: "0 15px",
+    minWidth: 180
+  },
+  profileHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "4px 0",
+    minWidth: 180,
+    maxWidth: 220
+  },
+  profileHeaderInfo: {
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+  },
 })
 
 const UsersMenu = ({classes}: {
@@ -136,8 +154,31 @@ const UsersMenu = ({classes}: {
     }
   }
   
+  const profileNode =
+    !currentUser.deleted &&
+    (isFriendlyUI ? (
+      <>
+        <DropdownItem
+          title={
+            <div className={classes.profileHeader}>
+              <UsersProfileImage user={currentUser} size={32} />
+              <div className={classes.profileHeaderInfo}>{userGetDisplayName(currentUser)}</div>
+            </div>
+          }
+          to={userGetProfileUrl(currentUser)}
+        />
+        <DropdownDivider />
+      </>
+    ) : (
+      <DropdownItem
+        title={preferredHeadingCase("User Profile")}
+        to={userGetProfileUrl(currentUser)}
+        icon="User"
+        iconClassName={classes.icon}
+      />
+    ));
   const accountSettingsNode = <DropdownItem
-    title={preferredHeadingCase("Account Settings")}
+    title={styleSelect({friendly: "Settings", default: preferredHeadingCase("Account Settings")})}
     to="/account"
     icon="Settings"
     iconClassName={classes.icon}
@@ -158,7 +199,7 @@ const UsersMenu = ({classes}: {
     newPost: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={preferredHeadingCase("New Post")}
+          title={styleSelect({friendly: "Post", default: preferredHeadingCase("New Post")})}
           to="/newPost"
         />
       )
@@ -174,7 +215,7 @@ const UsersMenu = ({classes}: {
     newDialogue: () => canCreateDialogue
       ? (
         <DropdownItem
-          title={preferredHeadingCase("New Dialogue")}
+          title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
           onClick={() => openDialog({componentName:"NewDialogueDialog"})}
         />
       )
@@ -188,7 +229,7 @@ const UsersMenu = ({classes}: {
       showNewButtons && userCanQuickTake(currentUser)
         ? (
           <DropdownItem
-            title={preferredHeadingCase("New Quick Take")}
+            title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
             onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
@@ -203,7 +244,7 @@ const UsersMenu = ({classes}: {
     newEvent: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={preferredHeadingCase("New Event")}
+          title={styleSelect({friendly: "Event", default: preferredHeadingCase("New Event")})}
           to="/newPost?eventForm=true"
         />
       )
@@ -212,7 +253,7 @@ const UsersMenu = ({classes}: {
       showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD
         ? (
           <DropdownItem
-            title={preferredHeadingCase("New Sequence")}
+            title={styleSelect({friendly: "Sequence", default: preferredHeadingCase("New Sequence")})}
             to="/sequencesnew"
           />
         )
@@ -222,12 +263,50 @@ const UsersMenu = ({classes}: {
   const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
 
   const order: (keyof typeof items)[] = isFriendlyUI
-    ? ["newPost", "newShortform", "newQuestion", "newDialogue", "divider", "newEvent", "newSequence"]
+    ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
     : ["newShortform", "newPost", "newWikitag", "newEvent"];
+
+  const writeNewNode = isFriendlyUI ? (
+    <InteractionWrapper>
+      <LWTooltip
+        title={
+          <div className={classes.writeNewTooltip}>
+            <Card>
+              <DropdownMenu>
+                <div onClick={forceUnHover}>
+                  {order.map((itemName, i) => {
+                    const Component = items[itemName];
+                    return <Component key={i} />;
+                  })}
+                </div>
+              </DropdownMenu>
+            </Card>
+          </div>
+        }
+        clickable
+        tooltip={false}
+        inlineBlock={false}
+        placement="left-start"
+      >
+        <DropdownItem title="Write new" icon="PencilSquare" afterIcon="ThickChevronRight" />
+      </LWTooltip>
+    </InteractionWrapper>
+  ) : (
+    <div onClick={(ev) => {
+      if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+        ev.preventDefault()
+      }
+    }}>
+      {order.map((itemName, i) => {
+        const Component = items[itemName];
+        return <Component key={i} />
+      })}
+    </div>
+  );
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to={`/users/${currentUser.slug}`}>
+      <Link to={userGetProfileUrl(currentUser)}>
         <Button
           classes={{root: classes.userButtonRoot}}
           onClick={menuButtonOnClick}
@@ -248,18 +327,10 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
-              <div onClick={(ev) => {
-                if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
-                  ev.preventDefault()
-                }
-              }}>
-                {order.map((itemName, i) => {
-                  const Component = items[itemName];
-                  return <Component key={i} />
-                })}
-              </div>
+              {isFriendlyUI && profileNode}
+              {writeNewNode}
 
-              <DropdownDivider />
+              {!isFriendlyUI && <DropdownDivider />}
 
               {isAF && !isAfMember &&
                 <DropdownItem
@@ -281,15 +352,8 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!currentUser.deleted &&
-                <DropdownItem
-                  title={preferredHeadingCase("User Profile")}
-                  to={`/users/${currentUser.slug}`}
-                  icon="User"
-                  iconClassName={classes.icon}
-                />
-              }
-               {!isEAForum &&
+              {!isFriendlyUI && profileNode}
+              {!isEAForum &&
                 <DropdownItem
                   title={preferredHeadingCase("My Drafts")}
                   to="/drafts"
@@ -312,33 +376,20 @@ const UsersMenu = ({classes}: {
                   />
                 </ThemePickerMenu>
               }
+              {hasBookmarks &&<DropdownItem
+                title={styleSelect({friendly: "Saved & read", default: "Bookmarks"})}
+                to={styleSelect({friendly: "/saved", default: "/bookmarks"})}
+                icon={styleSelect({friendly: "BookmarkBorder", default: "Bookmarks"})}
+                iconClassName={classes.icon}
+              />}
               {isEAForum && <DropdownItem
                 title={"Post stats"}
                 to={userGetAnalyticsUrl(currentUser)}
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
-              {hasBookmarks &&<DropdownItem
-                title={isFriendlyUI ? "Saved & read" : "Bookmarks"}
-                to={isFriendlyUI ? "/saved" : "/bookmarks"}
-                icon="Bookmarks"
-                iconClassName={classes.icon}
-              />}
-              {!isFriendlyUI && accountSettingsNode}
-              {isFriendlyUI && currentUser.shortformFeedId &&
-                <DropdownItem
-                  // TODO: get Habryka's take on what the title here should be
-                  title={preferredHeadingCase("Your Quick Takes")}
-                  to={postGetPageUrl({
-                    _id: currentUser.shortformFeedId,
-                    slug: "shortform",
-                  })}
-                  icon={isFriendlyUI ? "CommentFilled" : "Shortform"}
-                  iconClassName={classes.icon}
-                />
-              }
-              {isFriendlyUI && accountSettingsNode}
-  
+              {accountSettingsNode}
+
               {/*
                 If you're an admin, you can disable your admin + moderator
                 powers and take them back.
@@ -355,9 +406,9 @@ const UsersMenu = ({classes}: {
                   onClick={toggleOn}
                 />
               </div>}
-  
+
               <DropdownDivider />
-              
+
               <DropdownItem
                 title={preferredHeadingCase("Log Out")}
                 to="/logout"

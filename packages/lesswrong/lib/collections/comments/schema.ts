@@ -1,8 +1,6 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { Utils } from '../../vulcan-lib/utils';
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
@@ -11,6 +9,9 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
+import { updateMutator } from '@/server/vulcan-lib/mutators';
+import { editableFields } from '@/lib/editor/make_editable';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -27,6 +28,19 @@ export const alignmentOptionsGroup = {
 };
 
 const schema: SchemaType<"Comments"> = {
+  ...editableFields("Comments", {
+    commentEditor: true,
+    commentStyles: true,
+    getLocalStorageId: (comment, name) => {
+      if (comment._id) { return {id: comment._id, verify: true} }
+      if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
+      return {id: ('post:' + comment.postId), verify: false}
+    },
+    hintText: isFriendlyUI ? 'Write a new comment...' : undefined,
+    order: 25,
+    pingbacks: true,
+  }),
+  
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
@@ -82,16 +96,16 @@ const schema: SchemaType<"Comments"> = {
     type: String,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onCreate: async ({document}) => {
+    onCreate: async ({document, context}) => {
       // if userId is changing, change the author name too
       if (document.userId) {
-        return await userGetDisplayNameById(document.userId)
+        return await userGetDisplayNameById(document.userId, context)
       }
     },
-    onUpdate: async ({modifier}) => {
+    onUpdate: async ({modifier, context}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return await userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId, context)
       }
     }
   },
@@ -299,9 +313,9 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: [userOwns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async (comment: DbComment): Promise<boolean> => {
+      getValue: async (comment: DbComment, context: ResolverContext): Promise<boolean> => {
         if (!comment.postId) return false;
-        const post = await mongoFindOne("Posts", {_id: comment.postId});
+        const post = await context.Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
       }
@@ -384,7 +398,7 @@ const schema: SchemaType<"Comments"> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        void Utils.updateMutator({
+        void updateMutator({
           collection: context.Posts,
           context,
           documentId: document.postId,
@@ -426,9 +440,9 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async comment => {
+      getValue: async (comment, context) => {
         if (!comment.postId) return false;
-        const post = await mongoFindOne("Posts", {_id: comment.postId});
+        const post = await context.Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
       }

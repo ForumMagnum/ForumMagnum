@@ -13,7 +13,7 @@ import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const elicitDataFragment = `
   _id
@@ -190,7 +190,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
        ${elicitDataFragment}
       }
     }
-    ${getFragment("UsersMinimumInfo")}
+    ${fragmentTextForQuery("UsersMinimumInfo")}
   `, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
@@ -198,7 +198,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
         ${elicitDataFragment}
       }
     }
-    ${getFragment("UsersMinimumInfo")}  
+    ${fragmentTextForQuery("UsersMinimumInfo")}  
   `);
   const allPredictions = data?.ElicitBlockData?.predictions || [];
   const nonCancelledPredictions = allPredictions.filter((p: AnyBecauseTodo) => p.prediction !== null);

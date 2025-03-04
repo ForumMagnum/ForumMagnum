@@ -1,15 +1,13 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const CollectionContinueReadingFragment = `
   fragment CollectionContinueReadingFragment on Collection {
     _id
     title
     slug
     gridImageId
   }
-`);
+`
 
-registerFragment(`
+export const CollectionsPageFragment = `
   fragment CollectionsPageFragment on Collection {
     _id
     createdAt
@@ -30,18 +28,18 @@ registerFragment(`
     hideStartReadingButton
     noindex
   }
-`);
+`
 
-registerFragment(`
+export const CollectionsEditFragment = `
   fragment CollectionsEditFragment on Collection {
     ...CollectionsPageFragment
     contents {
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const CollectionsBestOfFragment = `
   fragment CollectionsBestOfFragment on Collection {
     _id
     createdAt
@@ -59,4 +57,4 @@ registerFragment(`
       ...RevisionDisplay
     }
   }
-`);
+`

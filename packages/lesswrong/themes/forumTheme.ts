@@ -8,6 +8,8 @@ import deepmerge from 'deepmerge';
 import { forumSelect } from '../lib/forumTypeUtils';
 import capitalize from 'lodash/capitalize';
 
+export type SiteUIStyle = "book" | "friendly";
+
 /**
  * Is this Forum a muted, dignified book-like experience, or a modern, friendly
  * site with more rounded corners?
@@ -16,13 +18,27 @@ import capitalize from 'lodash/capitalize';
  * hinge on this setting, making a bit like a, "which tribe are you" question,
  * in addition to controlling the basic UI style.
  */
-export const siteUIStyle = forumSelect<"book"|"friendly">({
+export const siteUIStyle = forumSelect<SiteUIStyle>({
   LWAF: "book",
   EAForum: "friendly",
   default: "friendly",
 })
 export const isBookUI = siteUIStyle === "book";
 export const isFriendlyUI = siteUIStyle === "friendly";
+
+type StyleOptions<T> = (Record<SiteUIStyle, T> & Partial<Record<"default", T>>) | (Partial<Record<SiteUIStyle, T>> & Record<"default", T>);
+
+export function styleSelect<T>(styleOptions: StyleOptions<T>, uiStyle?: SiteUIStyle): T {
+  uiStyle ??= siteUIStyle;
+
+  const value = styleOptions[uiStyle];
+  if (value) return value;
+
+  const defaultVal = styleOptions.default;
+  if (defaultVal !== undefined) return defaultVal;
+
+  throw new Error("No valid style option found and no default provided.");
+}
 
 const themeCache = new Map<string,ThemeType>();
 

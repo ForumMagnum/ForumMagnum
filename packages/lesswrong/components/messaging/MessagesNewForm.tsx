@@ -7,7 +7,6 @@ import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -163,7 +162,7 @@ export const MessagesNewForm = ({
             },
           },
         }}
-        mutationFragment={getFragment("messageListFragment")}
+        mutationFragmentName={'messageListFragment'}
         errorCallback={(message: any) => {
           setLoading(false);
           //eslint-disable-next-line no-console

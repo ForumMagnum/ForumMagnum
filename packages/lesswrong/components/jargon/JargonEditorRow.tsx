@@ -5,7 +5,6 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -246,8 +245,8 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
           <WrappedSmartForm
             collectionName="JargonTerms"
             documentId={jargonTerm._id}
-            mutationFragment={getFragment('JargonTerms')}
-            queryFragment={getFragment('JargonTerms')}
+            mutationFragmentName={'JargonTerms'}
+            queryFragmentName={'JargonTerms'}
             successCallback={() => setEdit(false)}
             cancelCallback={() => setEdit(false)}
             formComponents={{ FormSubmit: Components.JargonSubmitButton }}

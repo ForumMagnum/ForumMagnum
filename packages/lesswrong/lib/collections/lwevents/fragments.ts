@@ -1,7 +1,6 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
-registerFragment(`
+export const newEventFragment = `
   fragment newEventFragment on LWEvent {
     _id
     createdAt
@@ -11,9 +10,9 @@ registerFragment(`
     properties
     intercom
   }
-`);
+`
 
-registerFragment(`
+export const lastEventFragment = `
   fragment lastEventFragment on LWEvent {
     _id
     createdAt
@@ -24,9 +23,9 @@ registerFragment(`
     properties
     intercom
   }
-`);
+`
 
-registerFragment(`
+export const lwEventsAdminPageFragment = `
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt
@@ -40,9 +39,9 @@ registerFragment(`
     properties
     intercom
   }
-`);
+`
 
-registerFragment(`
+export const emailHistoryFragment = `
   fragment emailHistoryFragment on LWEvent {
     _id
     createdAt
@@ -50,7 +49,7 @@ registerFragment(`
     name
     properties
   }
-`);
+`
 
 addGraphQLSchema(`
   type FieldChange {
@@ -72,7 +71,7 @@ export type FieldChangeResult<N extends CollectionNameString> = {
   after: Partial<ObjectsByCollectionName[N]>
 }
 
-registerFragment(`
+export const FieldChangeFragment = `
   fragment FieldChangeFragment on FieldChange {
     _id
     createdAt
@@ -81,4 +80,4 @@ registerFragment(`
     before
     after
   }
-`);
+`
