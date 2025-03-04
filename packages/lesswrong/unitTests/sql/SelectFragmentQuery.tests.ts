@@ -9,7 +9,6 @@ describe("SelectFragmentQuery", () => {
     {
       name: "can build fragment queries with a where clause",
       getQuery: () => new SelectFragmentQuery(
-        // "TestCollection4DefaultFragment" as FragmentName,
         new SqlFragment(TestCollection4DefaultFragment, (fragmentName: FragmentName) => getMemoizedFragmentInfo(fragmentName).sqlFragment ?? null),
         {_id: "test-user-id"} as DbUser,
         null,
@@ -36,7 +35,6 @@ describe("SelectFragmentQuery", () => {
     {
       name: "can build fragment queries with resolver args",
       getQuery: () => new SelectFragmentQuery(
-        // "TestCollection4ArgFragment" as FragmentName,
         new SqlFragment(TestCollection4ArgFragment, (fragmentName: FragmentName) => getMemoizedFragmentInfo(fragmentName).sqlFragment ?? null),
         {_id: "test-user-id"} as DbUser,
         {testCollection2Id: "some-test-id"},
