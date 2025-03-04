@@ -72,6 +72,7 @@ import { getAllCollections } from '../vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import SqlFragment from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';
+import { isAnyTest } from '../executionEnvironment';
 
 // Create default "dumb" gql fragment object for a given collection
 function getDefaultFragmentText<N extends CollectionNameString>(
@@ -123,6 +124,15 @@ const getDefaultFragments = (() => {
     return defaultFragments;
   }
 })();
+
+// Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
+// We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
+let testFragments: Record<never, never>;
+if (isAnyTest) {
+  testFragments = require('../../server/sql/tests/testFragments');
+} else {
+  testFragments = {};
+}
 
 const staticFragments = {
   ...alignmentCommentsFragments,
@@ -193,6 +203,7 @@ const staticFragments = {
   ...usersFragments,
   ...votesFragments,
   ...subscribedUserFeedFragments,
+  ...testFragments,
 };
 
 // This needs to have deferred execution because getDefaultFragments needs to be called after the collections are registered
