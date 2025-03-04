@@ -205,11 +205,10 @@ function PostsEmailInner({
       {postElements}
       {!hideRecommendations && (
         <>
-          <hr className={classes.hr}/>
           <EmailFooterRecommendations />
+          <hr className={classes.hr}/>
         </>
       )}
-      <hr className={classes.hr}/>
       {reason && `You are receiving this email because ${reason}.`}
     </>
   );

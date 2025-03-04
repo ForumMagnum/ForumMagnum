@@ -62,10 +62,14 @@ export const NewPostNotification = serverRegisterNotificationType({
   name: "newPost",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const postId = notifications[0].documentId;
-    const post = await Posts.findOne({_id: postId});
-    if (!post) throw Error(`Can't find post to generate subject-line for: ${postId}`)
-    return post.title;
+    if (notifications.length > 1) {
+      return `${notifications.length} new posts by authors you are subscribed to`;
+    } else {
+      const postId = notifications[0].documentId;
+      const post = await Posts.findOne({_id: postId});
+      if (!post) throw Error(`Can't find post to generate subject-line for: ${postId}`)
+      return post.title;
+    }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postIds = notifications.map(n => n.documentId).filter(postId => {
