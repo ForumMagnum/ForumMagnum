@@ -4,7 +4,7 @@ import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'r
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, tagHasAudioPlayer } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -256,14 +256,14 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     right: 8,
     width: AUDIO_PLAYER_WIDTH,
     [theme.breakpoints.down('sm')]: {
-      display: 'none !important',
+      display: 'none',
     },
   },
   nonMobileAudioPlayerSpaceHolder: {
     height: 100
   },
   mobileAudioPlayer: {
-    justifyContent: 'flex-start !important',
+    justifyContent: 'flex-start',
     display: 'flex',
     width: AUDIO_PLAYER_WIDTH,
     '& .T3AudioPlayer-embeddedPlayer': {
@@ -652,7 +652,7 @@ const LWTagPage = () => {
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   
-  const toggleEmbeddedPlayer = tag && tagHasAudioPlayer(tag) ? () => {
+  const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("audioPlayerToggle", { action, tagId: tag._id });
@@ -859,12 +859,12 @@ const LWTagPage = () => {
 
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
-        {tag && showEmbeddedPlayer && <>
+      {tag && showEmbeddedPlayer && <>
         <span className={classNames(classes.nonMobileAudioPlayer)}>
           <Components.TagAudioPlayerWrapper tag={tag} showEmbeddedPlayer={showEmbeddedPlayer} />
         </span>
         <div className={classes.nonMobileAudioPlayerSpaceHolder} />
-        </>}
+      </>}
       {query.flagId && <span>
         <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
           <TagFlagItem 

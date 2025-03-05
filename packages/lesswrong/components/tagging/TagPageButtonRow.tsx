@@ -10,7 +10,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, tagHasAudioPlayer } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
@@ -244,7 +244,7 @@ const TagPageButtonRow = ({
   </>;
 
   // Audio toggle element
-  const audioToggle = tagHasAudioPlayer(tag) && toggleEmbeddedPlayer && (
+  const audioToggle = isTagAllowedType3Audio(tag) && toggleEmbeddedPlayer && (
     <LWTooltip title={'Listen to this page'} className={classes.togglePodcastContainer}>
       <a href="#" onClick={(e) => {
         e.preventDefault();

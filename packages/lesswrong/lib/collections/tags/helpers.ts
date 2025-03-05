@@ -148,7 +148,3 @@ export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
 
   return !!tag.forceAllowType3Audio && !!tag.description && !tag.deleted
 }
-
-export const tagHasAudioPlayer = (tag: TagPageFragment): boolean => {
-  return isTagAllowedType3Audio(tag);
-}

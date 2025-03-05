@@ -47,24 +47,25 @@ const isDocumentAllowedType3Audio = (document: DbPost | DbTag, collectionName: '
   }
 } 
 
-const documentWithAudioProjection = {_id: 1, slug: 1} as const;
+type DocumentWithAudio = {
+  _id: string;
+  slug: string;
+};
 
-type PostWithAudio = Pick<DbPost, keyof typeof documentWithAudioProjection>;
-type TagWithAudio = Pick<DbTag, keyof typeof documentWithAudioProjection>;
-
-const getPostUrl = (post: PostWithAudio) =>
+const getPostUrl = (post: DocumentWithAudio) =>
   type3SourceUrlSetting.get() + postGetPageUrl(post);
 
-const getTagUrl = (tag: TagWithAudio) =>
+const getTagUrl = (tag: DocumentWithAudio) =>
   type3SourceUrlSetting.get() + tagGetUrl(tag);
 
-const getDocumentUrl = (document: PostWithAudio | TagWithAudio, collectionName: 'Posts' | 'Tags') => {
+const getDocumentUrl = (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags') => {
   if (collectionName === 'Posts') {
     return getPostUrl(document);
   } else {
     return getTagUrl(document);
   }
 }
+
 
 export const regenerateType3Audio = async (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags') => {
   const body = {
@@ -92,7 +93,7 @@ export const regenerateType3AudioForDocumentId = async (documentId: string, coll
   }
 }
 
-const deleteType3Audio = async (document: PostWithAudio | TagWithAudio, collectionName: 'Posts' | 'Tags') => {
+const deleteType3Audio = async (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags') => {
   const body = {
     source_url: getDocumentUrl(document, collectionName),
   };

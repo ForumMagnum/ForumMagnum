@@ -1,22 +1,23 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagAudioPlayerWrapper", (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: "30px"
   },
   hideEmbeddedPlayer: {
     display: "none"
   },
-});
+}));
 
-export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer, classes}: {
+export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
   tag: TagPageFragment,
   showEmbeddedPlayer: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
   const { T3AudioPlayer } = Components;
+  const classes = useStyles(styles);
 
   return (
     <>
@@ -30,7 +31,7 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer, classes}: {
   );
 }
 
-const TagAudioPlayerWrapperComponent = registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapper, {styles});
+const TagAudioPlayerWrapperComponent = registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapper);
 
 declare global {
   interface ComponentTypes {
