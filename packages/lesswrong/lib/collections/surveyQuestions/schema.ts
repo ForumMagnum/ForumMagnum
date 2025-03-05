@@ -1,4 +1,4 @@
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 import { foreignKeyField } from "@/lib/utils/schemaUtils";
 
 const commonFields = ({nullable = false}: {
@@ -20,7 +20,7 @@ export const surveyQuestionFormats = {
 export type SurveyQuestionFormat = keyof typeof surveyQuestionFormats;
 
 const schema: SchemaType<"SurveyQuestions"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
 
   surveyId: {
     ...commonFields(),

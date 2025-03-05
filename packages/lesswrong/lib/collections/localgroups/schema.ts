@@ -4,7 +4,7 @@ import { localGroupTypeFormOptions } from './groupTypes';
 import { isEAForum, isLW } from '../../instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import { editableFields } from '@/lib/editor/make_editable';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 export const GROUP_CATEGORIES = [
   {value: 'national', label: 'National'},
@@ -28,7 +28,7 @@ const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
 };
 
 const schema: SchemaType<"Localgroups"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   ...editableFields("Localgroups", {
     commentEditor: true,
     commentStyles: true,

@@ -1,7 +1,7 @@
 import { forumSelect } from '../../forumTypeUtils';
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 export const RATE_LIMIT_ONE_PER_DAY = 'rateLimitOnePerDay';
 export const RATE_LIMIT_ONE_PER_THREE_DAYS = 'rateLimitOnePerThreeDays';
@@ -84,7 +84,7 @@ export const isActionActive = (moderatorAction: Pick<DbModeratorAction, "endedAt
 }
 
 const schema: SchemaType<"ModeratorActions"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

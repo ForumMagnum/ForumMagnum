@@ -1,7 +1,7 @@
 import { userOwns } from "@/lib/vulcan-users/permissions";
 import { ALLOWABLE_COLLECTIONS } from "../moderationTemplates/schema";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 const ACTION_TYPES = [
   'optIn',
@@ -20,7 +20,7 @@ export type PetrovDayActionType = UnionOf<typeof ACTION_TYPES_SET>
 
 
 const schema: SchemaType<"PetrovDayActions"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   // NOTE: this whole schema is bad, sorry Robert
   actionType: {
     type: String,

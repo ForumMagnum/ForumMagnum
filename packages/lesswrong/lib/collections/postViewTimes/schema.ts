@@ -1,8 +1,8 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 export const schema: SchemaType<"PostViewTimes"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   updatedAt: {
     type: Date,
     nullable: false

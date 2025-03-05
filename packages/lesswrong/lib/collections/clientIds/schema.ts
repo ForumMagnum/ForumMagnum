@@ -1,8 +1,8 @@
-import { addUniversalFields } from '@/lib/collectionUtils';
+import { universalFields } from '@/lib/collectionUtils';
 import { arrayOfForeignKeysField, schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<"ClientIds"> = {
-  ...addUniversalFields({
+  ...universalFields({
     createdAtOptions: {canRead: ['admins']},
   }),
 

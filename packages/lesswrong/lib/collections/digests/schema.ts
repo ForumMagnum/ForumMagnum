@@ -1,7 +1,7 @@
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Digests"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   // the digest number (should correspond with the email digest)
   num: {
     type: Number,

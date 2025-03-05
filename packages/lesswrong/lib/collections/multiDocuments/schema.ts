@@ -4,7 +4,7 @@ import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { editableFields } from "@/lib/editor/make_editable";
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
@@ -20,7 +20,7 @@ export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, d
 }
 
 const schema: SchemaType<"MultiDocuments"> = {
-  ...addUniversalFields({
+  ...universalFields({
     legacyDataOptions: {
       canRead: ['guests'],
     }

@@ -4,12 +4,12 @@ import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/de
 import { editableFields } from '../../editor/make_editable';
 import './fragments'
 import { userCanDo } from '../../vulcan-users/permissions';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagFlags"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   ...editableFields("TagFlags", {
     order: 30,
     getLocalStorageId: (tagFlag, name) => {

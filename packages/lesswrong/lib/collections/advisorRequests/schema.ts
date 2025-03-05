@@ -1,7 +1,7 @@
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 export interface JobAdsType {
   state: 'seen'|'expanded'|'interested'|'uninterested'
@@ -25,7 +25,7 @@ const jobAdsType = new SimpleSchema({
 })
 
 const schema: SchemaType<"AdvisorRequests"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

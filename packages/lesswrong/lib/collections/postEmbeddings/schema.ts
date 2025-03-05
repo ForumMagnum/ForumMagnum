@@ -1,5 +1,5 @@
 import { foreignKeyField } from "../../utils/schemaUtils"
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 export const EMBEDDINGS_VECTOR_SIZE = 1536;
 
@@ -13,7 +13,7 @@ const commonFields = (nullable = false) => ({
 });
 
 const schema: SchemaType<"PostEmbeddings"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   postId: {
     ...commonFields(),
     ...foreignKeyField({

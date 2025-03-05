@@ -1,5 +1,5 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils'
+import { universalFields } from '../../collectionUtils'
 import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 /*
@@ -15,7 +15,7 @@ import { schemaDefaultValue } from '../../utils/schemaUtils';
 // set of available migrations to find ones that need running.
 
 const schema: SchemaType<"Migrations"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   name: {
     type: String,
     nullable: false,

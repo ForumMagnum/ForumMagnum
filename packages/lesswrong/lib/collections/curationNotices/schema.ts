@@ -1,9 +1,9 @@
 import { editableFields } from '@/lib/editor/make_editable';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"CurationNotices"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   ...editableFields("CurationNotices", {
     commentEditor: true,
     commentStyles: true,

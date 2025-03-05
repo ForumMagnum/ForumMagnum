@@ -1,10 +1,10 @@
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
 import { validateCompareState, validateVote } from "./helpers";
 
 const schema: SchemaType<"ElectionVotes"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
 
   /** The name of the election */
   electionName: {

@@ -1,9 +1,9 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils'
+import { universalFields } from '../../collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"Images"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   /** @deprecated Use identifier + identifierType = 'originalUrl' */
   originalUrl: {
     type: String,

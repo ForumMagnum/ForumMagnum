@@ -1,7 +1,7 @@
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"PetrovDayLaunchs"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   launchCode: {
     type: String,
     optional: true,

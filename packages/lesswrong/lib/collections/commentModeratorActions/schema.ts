@@ -1,6 +1,6 @@
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 export const DOWNVOTED_COMMENT_ALERT = 'downvotedCommentAlert';
 
@@ -16,7 +16,7 @@ export const isCommentActionActive = (moderatorAction: DbCommentModeratorAction)
 }
 
 const schema: SchemaType<"CommentModeratorActions"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   commentId: {
     ...foreignKeyField({
       idFieldName: "commentId",

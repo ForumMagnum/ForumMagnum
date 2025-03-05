@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema'
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 /**
  * This covers the type of originalContents for all editor types. 
@@ -59,7 +59,7 @@ export const getOriginalContents = <N extends CollectionNameString>(
 }
 
 const schema: SchemaType<"Revisions"> = {
-  ...addUniversalFields({
+  ...universalFields({
     legacyDataOptions: {
       canRead: ['guests'],
       canCreate: ['admins'],

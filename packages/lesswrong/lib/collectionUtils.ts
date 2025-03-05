@@ -10,7 +10,7 @@ declare module "simpl-schema" {
   }
 }
 
-export function addUniversalFields({
+export function universalFields({
   schemaVersion = 1,
   createdAtOptions = {},
   legacyDataOptions = {},

@@ -1,10 +1,10 @@
 import { editableFields } from '@/lib/editor/make_editable';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { userOwns } from '@/lib/vulcan-users/permissions';
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Messages"> = {
-  ...addUniversalFields({ 
+  ...universalFields({ 
     createdAtOptions: {canRead: ['members']}
   }),
   

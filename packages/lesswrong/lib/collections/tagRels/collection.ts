@@ -4,13 +4,13 @@ import { userCanUseTags } from '../../betas';
 import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
 import { isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagRels"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   tagId: {
     nullable: false,
     ...foreignKeyField({

@@ -1,4 +1,4 @@
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 // The databaseMetadata collection is a collection of named, mostly-singleton
 // values. (Currently just databaseId, which is used for ensuring you don't
@@ -6,7 +6,7 @@ import { addUniversalFields } from '../../collectionUtils';
 // file.)
 
 const schema: SchemaType<"DatabaseMetadata"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   name: {
     type: String,
     nullable: false

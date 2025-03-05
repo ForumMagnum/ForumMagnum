@@ -2,7 +2,7 @@ import { editableFields } from "@/lib/editor/make_editable";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
 import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
   stickerEventOptions: {
@@ -33,7 +33,7 @@ const defaultEditableProps: Pick<MakeEditableOptions<'ForumEvents'>, "commentEdi
 };
 
 const schema: SchemaType<"ForumEvents"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   ...editableFields("ForumEvents", {
     fieldName: "frontpageDescription",
     label: "Frontpage description",

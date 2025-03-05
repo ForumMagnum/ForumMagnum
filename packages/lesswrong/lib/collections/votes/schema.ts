@@ -4,7 +4,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { Comments } from '../comments/collection';
 import TagRels from '../tagRels/collection';
 import { Posts } from '../posts/collection';
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
@@ -25,7 +25,7 @@ const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) =>
 }
 
 const schema: SchemaType<"Votes"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   // The id of the document that was voted on
   documentId: {
     type: String,

@@ -1,5 +1,5 @@
 import { arrayOfForeignKeysField, foreignKeyField } from "@/lib/utils/schemaUtils";
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 const commonFields = ({nullable = false}: {
   nullable?: boolean,
@@ -20,7 +20,7 @@ const surveyScheduleTargets = [
 export type SurveyScheduleTarget = typeof surveyScheduleTargets[number]["value"];
 
 const schema: SchemaType<"SurveySchedules"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   surveyId: {
     ...commonFields(),
     ...foreignKeyField({

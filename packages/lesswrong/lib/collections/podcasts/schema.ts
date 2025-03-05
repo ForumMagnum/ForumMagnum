@@ -1,7 +1,7 @@
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 
 const schema: SchemaType<"Podcasts"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
 
   title: {
     type: String,

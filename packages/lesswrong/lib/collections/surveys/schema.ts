@@ -1,9 +1,9 @@
 import { getWithLoader } from "@/lib/loaders";
 import { accessFilterMultiple, resolverOnlyField } from "@/lib/utils/schemaUtils";
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"Surveys"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   name: {
     type: String,
     optional: false,

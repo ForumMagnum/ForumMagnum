@@ -2,7 +2,7 @@ import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
 import { editableFields } from "@/lib/editor/make_editable";
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 
 const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
 
@@ -32,7 +32,7 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
 };
 
 const schema: SchemaType<"Spotlights"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
 
   ...editableFields("Spotlights", {
     fieldName: "description",

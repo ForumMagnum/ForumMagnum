@@ -1,6 +1,6 @@
 import { foreignKeyField } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions.ts";
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 
 const userEditableField = ({nullable = false}: {
   nullable?: boolean,
@@ -13,7 +13,7 @@ const userEditableField = ({nullable = false}: {
 });
 
 const schema: SchemaType<"SurveyResponses"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
   surveyId: {
     ...userEditableField(),
     ...foreignKeyField({

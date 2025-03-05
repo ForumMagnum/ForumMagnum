@@ -1,10 +1,10 @@
 import { reviewWinnerCategories } from "@/lib/reviewUtils";
 import { getWithCustomLoader } from "../../loaders";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 
 export const schema: SchemaType<"ReviewWinners"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
 
   postId: {
     ...foreignKeyField({

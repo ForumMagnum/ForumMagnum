@@ -1,7 +1,7 @@
 import SimpleSchema from "simpl-schema";
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { universalFields } from "@/lib/collectionUtils";
 
 export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
 export type SyncPreference = typeof SYNC_PREFERENCE_VALUES[number];
@@ -22,7 +22,7 @@ const topicPreferenceSchema = new SimpleSchema({
 });
 
 const schema: SchemaType<"DialogueMatchPreferences"> = {
-  ...addUniversalFields({}),
+  ...universalFields({}),
 
   dialogueCheckId: {
     ...foreignKeyField({
