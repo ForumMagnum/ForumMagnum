@@ -8,6 +8,7 @@ import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
+import { allowTypeIIIPlayerSetting } from "../posts/helpers";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -141,3 +142,9 @@ export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Respons
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
 export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
+
+export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
+  if (!allowTypeIIIPlayerSetting.get()) return false
+
+  return !!tag.forceAllowType3Audio && !!tag.description && !tag.deleted
+}

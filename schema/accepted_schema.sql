@@ -956,6 +956,7 @@ CREATE TABLE "GardenCodes" (
   "contents" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
+  "slug" TEXT NOT NULL,
   "code" TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
   "userId" VARCHAR(27) NOT NULL,
@@ -968,8 +969,7 @@ CREATE TABLE "GardenCodes" (
   "afOnly" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL
+  "legacyData" JSONB
 );
 
 -- Index "idx_GardenCodes_schemaVersion"
@@ -1279,6 +1279,8 @@ CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "title" TEXT,
   "preview" TEXT,
   "tabTitle" TEXT NOT NULL,
@@ -1301,9 +1303,7 @@ CREATE TABLE "MultiDocuments" (
   "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
+  "legacyData" JSONB
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -1572,6 +1572,7 @@ CREATE TABLE "Posts" (
   "moderationGuidelines_latest" TEXT,
   "customHighlight" JSONB,
   "customHighlight_latest" TEXT,
+  "slug" TEXT NOT NULL,
   "postedAt" TIMESTAMPTZ NOT NULL,
   "modifiedAt" TIMESTAMPTZ,
   "url" VARCHAR(500),
@@ -1734,8 +1735,7 @@ CREATE TABLE "Posts" (
   "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL
+  "legacyData" JSONB
 );
 
 -- Index "idx_posts_coauthorStatuses_postedAt"
@@ -2857,13 +2857,13 @@ CREATE TABLE "TagFlags" (
   _id VARCHAR(27) PRIMARY KEY,
   "contents" JSONB,
   "contents_latest" TEXT,
+  "slug" TEXT NOT NULL,
   "name" TEXT NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "order" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL
+  "legacyData" JSONB
 );
 
 -- Index "idx_TagFlags_schemaVersion"
@@ -2912,6 +2912,8 @@ CREATE TABLE "Tags" (
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
   "moderationGuidelines_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "name" TEXT NOT NULL,
   "shortName" TEXT,
   "subtitle" TEXT,
@@ -2954,6 +2956,7 @@ CREATE TABLE "Tags" (
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
   "coreTagId" TEXT,
+  "forceAllowType3Audio" BOOL NOT NULL DEFAULT FALSE,
   "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
@@ -2964,9 +2967,7 @@ CREATE TABLE "Tags" (
   "afVoteCount" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
+  "legacyData" JSONB
 );
 
 -- Index "idx_Tags_deleted_adminOnly"
@@ -3205,6 +3206,8 @@ CREATE TABLE "Users" (
   "howOthersCanHelpMe_latest" TEXT,
   "howICanHelpOthers" JSONB,
   "howICanHelpOthers_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "biography" JSONB,
   "biography_latest" TEXT,
   "username" TEXT,
@@ -3431,8 +3434,6 @@ CREATE TABLE "Users" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "recommendationSettings" JSONB
 );
 

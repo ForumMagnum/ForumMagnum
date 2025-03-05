@@ -14,6 +14,7 @@ import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
 import { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { editableFields } from '@/lib/editor/make_editable';
@@ -894,6 +895,8 @@ const schema: SchemaType<"Tags"> = {
 
   ...summariesField('Tags', { group: formGroups.summaries }),
 
+  ...textLastUpdatedAtField('Tags'),
+
   isArbitalImport: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
@@ -949,6 +952,19 @@ const schema: SchemaType<"Tags"> = {
       displayName: { type: String },
     }),
     optional: true,
+  },
+
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    group: formGroups.adminOptions,
+    label: "Force Allow T3 Audio",
+    ...schemaDefaultValue(false),
   },
 }
 
