@@ -4,7 +4,6 @@ import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from '../embeddings';
 import { handleCrosspostUpdate, performCrosspost } from "../fmCrosspost/crosspost";
 import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { rehostPostMetaImages } from '../scripts/convertImagesToCloudinary';
-import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 import { moveToAFUpdatesUserAFKarma } from './alignment-forum/callbacks';
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, debateMustHaveCoauthor, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from './postCallbackFunctions';
 
@@ -107,9 +106,6 @@ async function postCreateAsync(props: AfterCreateCallbackProperties<'Posts'>) {
   await notifyUsersAddedAsPostCoauthors(props);
   await triggerReviewForNewPostIfNeeded(props);
   await autoTagNewPost(props);
-
-  // elastic callback
-  await elasticSyncDocument('Posts', props.document._id);
 }
 
 async function postNewAsync(post: DbPost) {
@@ -200,10 +196,6 @@ async function postEditAsync(post: DbPost, oldPost: DbPost, currentUser: DbUser 
   await updateCommentHideKarma(post, oldPost, context);
   await extractSocialPreviewImage(post, props);
   await oldPostsLastCommentedAt(post, context);
-
-
-  // elastic callbacks
-  await elasticSyncDocument('Posts', post._id);
 }
 
 getCollectionHooks('Posts').createValidate.add(postCreateValidate);

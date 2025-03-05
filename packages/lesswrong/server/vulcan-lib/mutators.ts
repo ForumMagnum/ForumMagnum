@@ -29,13 +29,11 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 */
 
-import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
-import { logFieldChanges } from '../fieldChanges';
-import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
@@ -51,6 +49,10 @@ import type {
   runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
 } from '../editor/make_editable_callbacks';
 import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
+import { isElasticEnabled } from '@/lib/instanceSettings';
+import { searchIndexedCollectionNamesSet } from '@/lib/search/searchUtil';
+// This needs to be import type to avoid a dependency cycle
+import type { elasticSyncDocument as elasticSyncDocumentType } from '../search/elastic/elasticCallbacks';
 
 const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
@@ -58,14 +60,14 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   const {
     currentUser = null,
     collection,
-    context = createAnonymousContext(),
     document
   } = createMutatorParams;
 
   const schema = getSchema(collection);
 
   return {
-    currentUser, collection, context,
+    currentUser, collection,
+    context: createMutatorParams.context ?? require('./query').createAnonymousContext(),
     document: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     newDocument: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     schema
@@ -118,26 +120,30 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     document,
     currentUser=null,
     validate=true,
-    context,
   } = createMutatorParams;
   const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
   logger('createMutator() begin')
   logger('(new) document', document);
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = createMutatorParams.context ?? require('./query').createAnonymousContext();
 
   const { collectionName } = collection;
   const schema = getSchema(collection);
 
   const hooks = getCollectionHooks(collectionName);
 
+  // There are some functions we need to run in various mutator stages which themselves call mutators somewhere,
+  // so to avoid dependency cycles we need to dynamically import them.
   const { runCreateBeforeEditableCallbacks, runCreateAfterEditableCallbacks, runNewAsyncEditableCallbacks }: {
     runCreateBeforeEditableCallbacks: typeof runCreateBeforeEditableCallbacksType,
     runCreateAfterEditableCallbacks: typeof runCreateAfterEditableCallbacksType,
     runNewAsyncEditableCallbacks: typeof runNewAsyncEditableCallbacksType,
   } = require('../editor/make_editable_callbacks');
+
+  const { elasticSyncDocument }: {
+    elasticSyncDocument: typeof elasticSyncDocumentType,
+  } = require('../search/elastic/elasticCallbacks');
 
   /*
 
@@ -295,6 +301,11 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   await hooks.createAsync.runCallbacksAsync(
     [{ ...afterCreateProperties, document: completedDocument, newDocument: completedDocument }],
   );
+
+  if (isElasticEnabled && searchIndexedCollectionNamesSet.has(collectionName)) {
+    void elasticSyncDocument(collectionName, insertedId);
+  }
+
   logger('newAsync')
   // OpenCRUD backwards compatibility
   await hooks.newAsync.runCallbacksAsync([
@@ -328,7 +339,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   unset = {},
   currentUser=null,
   validate=true,
-  context,
+  context: maybeContext,
   document: oldDocument,
 }: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
@@ -338,8 +349,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = maybeContext ?? require('./query').createAnonymousContext();
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
@@ -357,6 +367,10 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     runUpdateAfterEditableCallbacks: typeof runUpdateAfterEditableCallbacksType,
     runEditAsyncEditableCallbacks: typeof runEditAsyncEditableCallbacksType,
   } = require('../editor/make_editable_callbacks');
+
+  const { elasticSyncDocument }: {
+    elasticSyncDocument: typeof elasticSyncDocumentType,
+  } = require('../search/elastic/elasticCallbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -549,8 +563,12 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     newDoc: document,
     props: properties,
   });
+
+  if (isElasticEnabled && searchIndexedCollectionNamesSet.has(collectionName)) {
+    void elasticSyncDocument(collectionName, document._id);
+  }
   
-  void logFieldChanges({currentUser, collection, oldDocument, data: origData});
+  void require('../fieldChanges').logFieldChanges({currentUser, collection, oldDocument, data: origData});
 
   return { data: document };
 };
@@ -566,7 +584,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   selector,
   currentUser=null,
   validate=true,
-  context,
+  context: maybeContext,
   document,
 }: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
@@ -578,8 +596,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = maybeContext ?? require('./query').createAnonymousContext();
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -668,7 +685,3 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   return { data: document };
 };
-
-Utils.createMutator = createMutator;
-Utils.updateMutator = updateMutator;
-Utils.deleteMutator = deleteMutator;

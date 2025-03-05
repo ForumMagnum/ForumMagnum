@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const ReviewWinnerEditDisplay = `
   fragment ReviewWinnerEditDisplay on ReviewWinner {
     _id
     postId
@@ -8,9 +6,9 @@ registerFragment(`
     curatedOrder
     reviewRanking
   }
-`);
+`
 
-registerFragment(`
+export const ReviewWinnerTopPostsDisplay = `
   fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
     _id
     postId
@@ -21,9 +19,9 @@ registerFragment(`
     curatedOrder
     reviewRanking
   }
-`);
+`
 
-registerFragment(`
+export const ReviewWinnerAll = `
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category
@@ -36,9 +34,9 @@ registerFragment(`
     }
     competitorCount
   }
-`);
+`
 
-registerFragment(`
+export const ReviewWinnerTopPostsPage = `
   fragment ReviewWinnerTopPostsPage on ReviewWinner {
     _id
     category
@@ -52,4 +50,4 @@ registerFragment(`
       }
     }
   }
-`);
+`

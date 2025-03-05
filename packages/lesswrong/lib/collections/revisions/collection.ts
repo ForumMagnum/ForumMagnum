@@ -6,7 +6,7 @@ import { postCheckAccess } from '../posts/checkAccess';
 import { createCollection } from "../../vulcan-lib/collections";
 import { getCollection } from "../../vulcan-lib/getCollection";
 import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000

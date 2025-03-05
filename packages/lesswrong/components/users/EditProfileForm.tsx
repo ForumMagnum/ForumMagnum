@@ -8,7 +8,6 @@ import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
@@ -181,8 +180,8 @@ const EditProfileForm = ({classes}: {
           FormGroupLayout: isFriendlyUI ? FormGroupFriendlyUserProfile : undefined,
         }}
         excludeHiddenFields={false}
-        queryFragment={getFragment('UsersProfileEdit')}
-        mutationFragment={getFragment('UsersProfileEdit')}
+        queryFragmentName={'UsersProfileEdit'}
+        mutationFragmentName={'UsersProfileEdit'}
         successCallback={async (user: AnyBecauseTodo) => {
           navigate(userGetProfileUrl(user))
         }}

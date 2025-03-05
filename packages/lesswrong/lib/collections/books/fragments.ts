@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const BookPageFragment = `
   fragment BookPageFragment on Book {
     _id
     createdAt
@@ -24,13 +22,13 @@ registerFragment(`
     hideProgressBar
     showChapters
   }
-`);
+`
 
-registerFragment(`
+export const BookEdit = `
   fragment BookEdit on Book {
     ...BookPageFragment
     contents {
       ...RevisionEdit
     }
   }
-`);
+`

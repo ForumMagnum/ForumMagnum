@@ -17,7 +17,6 @@ import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
@@ -381,7 +380,7 @@ const PostsNewForm = ({classes}: {
           <DeferRender ssr={false}>
               <WrappedSmartForm
                 collectionName="Posts"
-                mutationFragment={getFragment('PostsPage')}
+                mutationFragmentName={'PostsPage'}
                 prefilledProps={prefilledProps}
                 successCallback={(post: any, options: any) => {
                   if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});

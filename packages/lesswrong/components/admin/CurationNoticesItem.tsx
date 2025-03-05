@@ -12,7 +12,6 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -161,8 +160,8 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
           <WrappedSmartForm
             collectionName="CurationNotices"
             documentId={curationNotice._id}
-            mutationFragment={getFragment('CurationNoticesFragment')}
-            queryFragment={getFragment('CurationNoticesFragment')}
+            mutationFragmentName={'CurationNoticesFragment'}
+            queryFragmentName={'CurationNoticesFragment'}
             successCallback={() => setEdit(false)}
             prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
           />

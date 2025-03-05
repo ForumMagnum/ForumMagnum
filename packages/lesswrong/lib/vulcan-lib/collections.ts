@@ -1,4 +1,3 @@
-import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { pluralize } from './pluralize';
 import Collection from "@/server/sql/PgCollection"
@@ -13,9 +12,6 @@ export const createCollection = <N extends CollectionNameString>(
   options: CollectionOptions<N>,
 ): CollectionsByName[N] => {
   const collection: CollectionBase<N> = new Collection(options);
-
-  const defaultFragment = getDefaultFragmentText(collection, options.schema);
-  if (defaultFragment) registerFragment(defaultFragment);
 
   registerCollection(collection);
 

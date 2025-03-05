@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const SuggestAlignmentUser = `
   fragment SuggestAlignmentUser on User {
     ...UsersMinimumInfo
     afKarma
@@ -10,4 +8,4 @@ registerFragment(`
     groups
     afApplicationText
     afSubmittedApplication
-  }`)
+  }`

@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const BansAdminPageFragment = `
   fragment BansAdminPageFragment on Ban {
     _id
     createdAt
@@ -14,4 +12,4 @@ registerFragment(`
     ip
     properties
   }
-`);
+`

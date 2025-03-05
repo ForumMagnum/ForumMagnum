@@ -11,7 +11,6 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
-import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,8 +94,8 @@ const UsersEditForm = ({terms, classes}: {
             navigate(userGetProfileUrl(user))
           }
         }}
-        queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersEdit')}
+        queryFragmentName={'UsersEdit'}
+        mutationFragmentName={'UsersEdit'}
         showRemove={false}
       />
     </div>
