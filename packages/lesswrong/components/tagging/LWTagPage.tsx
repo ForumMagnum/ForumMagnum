@@ -857,11 +857,6 @@ const LWTagPage = () => {
     />
   );
 
-  console.log("in LWTagPage", {
-    editedAt: selectedLens?.contents?.editedAt,
-    textLastUpdatedAt: selectedLens?.textLastUpdatedAt,
-  });
-
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
       {tag && showEmbeddedPlayer && <>
