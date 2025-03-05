@@ -1,6 +1,8 @@
+import { universalFields } from '@/lib/collectionUtils';
 import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<"TypingIndicators"> = {
+  ...universalFields({}),
   userId: {
     type: String,
     nullable: false,

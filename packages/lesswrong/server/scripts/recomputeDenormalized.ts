@@ -38,7 +38,7 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
   console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 
   const collection = getCollection(collectionName)
-  const schema: any = getSchema(collection);
+  const schema = getSchema(collection);
   if (!schema) {
     // eslint-disable-next-line no-console
     console.log(`${collectionName} does not have a schema defined, not computing denormalized values`)

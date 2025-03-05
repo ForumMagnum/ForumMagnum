@@ -1,7 +1,6 @@
 import schema from './schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { createCollection } from "../../vulcan-lib/collections";
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
@@ -24,10 +23,6 @@ export const ElicitQuestions: ElicitQuestionsCollection = createCollection({
     },
   }),
   logChanges: true,
-});
-
-addUniversalFields({
-  collection: ElicitQuestions
 });
 
 export default ElicitQuestions;

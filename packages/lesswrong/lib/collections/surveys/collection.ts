@@ -1,7 +1,6 @@
 import { createCollection } from "../../vulcan-lib/collections";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import schema from "./schema";
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const Surveys: SurveysCollection = createCollection({
@@ -12,7 +11,5 @@ export const Surveys: SurveysCollection = createCollection({
   mutations: getDefaultMutations("Surveys"),
   logChanges: true,
 });
-
-addUniversalFields({collection: Surveys});
 
 export default Surveys;

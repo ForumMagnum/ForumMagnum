@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
@@ -17,5 +16,4 @@ export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
     return indexSet;
   },
 });
-addUniversalFields({collection: DatabaseMetadata});
 

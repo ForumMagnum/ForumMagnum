@@ -1,6 +1,8 @@
 import { foreignKeyField } from '../../../lib/utils/schemaUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"EmailTokens"> = {
+  ...universalFields({}),
   token: {
     type: String,
     nullable: false,

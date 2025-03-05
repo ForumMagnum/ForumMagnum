@@ -1,3 +1,5 @@
+import { universalFields } from "@/lib/collectionUtils";
+
 const commonFields = (nullable: boolean) => ({
   hidden: true,
   required: false,
@@ -9,6 +11,8 @@ const commonFields = (nullable: boolean) => ({
 });
 
 const schema: SchemaType<"ElicitQuestions"> = {
+  ...universalFields({}),
+
   title: {
     type: String,
     ...commonFields(false)

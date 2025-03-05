@@ -3,7 +3,6 @@ import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import Sequences from '../sequences/collection';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -43,8 +42,6 @@ export const Chapters: ChaptersCollection = createCollection({
   mutations: getDefaultMutations('Chapters', options),
   logChanges: true,
 })
-
-addUniversalFields({collection: Chapters})
 
 Chapters.checkAccess = async (user: DbUser|null, document: DbChapter, context: ResolverContext|null): Promise<boolean> => {
   if (!document) return false;

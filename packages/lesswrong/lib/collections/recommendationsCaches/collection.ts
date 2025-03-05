@@ -1,5 +1,4 @@
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
-import { addUniversalFields } from "../../collectionUtils";
 import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
 
@@ -13,10 +12,6 @@ const RecommendationsCaches: RecommendationsCachesCollection = createCollection(
     return indexSet;
   },
   logChanges: true,
-});
-
-addUniversalFields({
-  collection: RecommendationsCaches,
 });
 
 export default RecommendationsCaches;

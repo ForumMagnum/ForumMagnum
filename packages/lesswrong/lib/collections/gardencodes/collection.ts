@@ -4,7 +4,7 @@ import './fragments';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { editableFields } from '../../editor/make_editable';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -31,6 +31,7 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...universalFields({}),
   ...editableFields("GardenCodes", {
     pingbacks: true,
     commentEditor: true,
@@ -185,7 +186,5 @@ export const GardenCodes: GardenCodesCollection = createCollection({
   mutations: getDefaultMutations('GardenCodes'), //, options),
   logChanges: true,
 });
-
-addUniversalFields({collection: GardenCodes})
 
 export default GardenCodes;

@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const EmailTokens: EmailTokensCollection = createCollection({
@@ -13,7 +12,5 @@ export const EmailTokens: EmailTokensCollection = createCollection({
     return indexSet;
   },
 });
-
-addUniversalFields({collection: EmailTokens})
 
 export default EmailTokens;

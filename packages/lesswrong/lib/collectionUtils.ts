@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
+import { schemaDefaultValue } from './utils/schemaUtils';
 
 declare module "simpl-schema" {
   interface SchemaDefinition {
@@ -10,18 +10,16 @@ declare module "simpl-schema" {
   }
 }
 
-export function addUniversalFields<N extends CollectionNameString>({
-  collection,
+export function universalFields({
   schemaVersion = 1,
   createdAtOptions = {},
   legacyDataOptions = {},
 }: {
-  collection: CollectionBase<N>,
   schemaVersion?: number
   createdAtOptions?: Partial<CollectionFieldPermissions>,
   legacyDataOptions?: Partial<CollectionFieldPermissions>,
-}): void {
-  addFieldsDict(collection, {
+}) {
+  const universalFields: Record<string, CollectionFieldSpecification<CollectionNameString>> = {
     _id: {
       optional: true,
       nullable: false,
@@ -55,7 +53,9 @@ export function addUniversalFields<N extends CollectionNameString>({
       canUpdate: ['admins'],
       ...legacyDataOptions,
     },
-  })
+  };
+
+  return universalFields;
 }
 
 export function isUniversalField(fieldName: string): boolean {

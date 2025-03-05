@@ -1,10 +1,12 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import { universalFields } from '../../collectionUtils';
 
 export const DIGEST_STATUSES = new TupleSet(['yes', 'maybe', 'no'] as const)
 export type InDigestStatus = UnionOf<typeof DIGEST_STATUSES>
 
 const schema: SchemaType<"DigestPosts"> = {
+  ...universalFields({}),
   digestId: {
     ...foreignKeyField({
       idFieldName: "digestId",

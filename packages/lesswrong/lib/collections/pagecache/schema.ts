@@ -1,4 +1,5 @@
 import SimpleSchema from "simpl-schema";
+import { universalFields } from '../../collectionUtils';
 
 // export type RenderResult = {
 //   ssrBody: string
@@ -74,6 +75,7 @@ const RenderResultSchemaType = new SimpleSchema({
 });
 
 const schema: SchemaType<"PageCache"> = {
+  ...universalFields({}),
   path: {
     type: String,
     nullable: false,

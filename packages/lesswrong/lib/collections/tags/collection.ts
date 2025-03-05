@@ -3,7 +3,6 @@ import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma } from './helpers';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 
@@ -52,11 +51,5 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
   else
     return true;
 }
-
-addUniversalFields({collection: Tags, legacyDataOptions: {
-  canRead: ['guests'],
-  canCreate: ['admins'],
-  canUpdate: ['admins'],
-}});
 
 export default Tags;

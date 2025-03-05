@@ -1,4 +1,3 @@
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import schema from "./schema"
 import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions.ts";
@@ -15,11 +14,6 @@ const LlmMessages: LlmMessagesCollection = createCollection({
   },
   logChanges: true,
 });
-
-addUniversalFields({
-  collection: LlmMessages,
-});
-
 
 LlmMessages.checkAccess = async (user, llmConversation) => {
   return isAdmin(user) || userOwns(user, llmConversation);

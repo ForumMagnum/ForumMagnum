@@ -1,6 +1,5 @@
 import { createCollection } from "../../vulcan-lib/collections";
 import schema from "./schema";
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -21,7 +20,5 @@ TypingIndicators.checkAccess = async (user: DbUser|null, document: DbTypingIndic
   // no access here via GraphQL API. Instead, access via direct database query inside server sent event logic
   return false
 };
-
-addUniversalFields({ collection: TypingIndicators })
 
 export default TypingIndicators;

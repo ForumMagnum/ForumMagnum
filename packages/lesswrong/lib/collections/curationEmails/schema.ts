@@ -1,3 +1,5 @@
+import { universalFields } from '../../collectionUtils';
+
 const commonFields = (nullable: boolean) => ({
   hidden: true,
   canCreate: ['admins' as const],
@@ -8,6 +10,7 @@ const commonFields = (nullable: boolean) => ({
 });
 
 const schema: SchemaType<'CurationEmails'> = {
+  ...universalFields({}),
   userId: {
     type: String,
     ...commonFields(false)
