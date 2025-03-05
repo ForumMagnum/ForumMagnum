@@ -509,17 +509,7 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   try {
     //htmlContent = await renderToStringWithData(WrappedApp);
     const ssrResult = await renderSSR(WrappedApp, async (queryStr, variables) => {
-      try {
-        return {
-          result: await runStringQueryWithContext(queryStr, variables, requestContext),
-          error: null,
-        }
-      } catch(e) {
-        return {
-          result: null,
-          error: e,
-        }
-      }
+      return runGraphQLQueryForSSR(queryStr, variables, requestContext);
     });
     htmlContent = ssrResult.html;
     cacheResult = ssrResult.cache;
@@ -595,6 +585,20 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
     prefetchedResources,
     aborted: false,
   };
+}
+
+export async function runGraphQLQueryForSSR(queryStr: string, variables: any, context: ResolverContext) {
+  try {
+    return {
+      result: await runStringQueryWithContext(queryStr, variables, context),
+      error: null,
+    }
+  } catch(e) {
+    return {
+      result: null,
+      error: e,
+    }
+  }
 }
 
 const formatTimings = (timings: RenderTimings): string => {
