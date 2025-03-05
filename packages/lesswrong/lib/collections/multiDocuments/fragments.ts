@@ -101,11 +101,16 @@ export const MultiDocumentWithContributorsRevision = `
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
     }
+    summaries {
+      ...MultiDocumentContentDisplay
+    }
+    textLastUpdatedAt
   }
 `
 
-export const WithVoteMultiDocument = `
-  fragment WithVoteMultiDocument on MultiDocument {
+export const WithVoteMultiDocument = `  fragment WithVoteMultiDocument on MultiDocument {
     ...MultiDocumentMinimumInfo
   }
 `
+
+

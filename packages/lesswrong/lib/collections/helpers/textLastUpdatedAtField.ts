@@ -26,7 +26,7 @@ export function textLastUpdatedAtField<T extends CollectionNameString>(
         // Find the first revision that has non-zero changes
         const changedRevision = relevantRevisions.find((rev) => {
           const cm = rev.changeMetrics || {};
-          return (cm.added ?? 0) + (cm.removed ?? 0) !== 0;
+          return (cm.added ?? 0) + (cm.removed ?? 0) > 1;
         });
 
         // if there is no revision with non-zero change metrics, return the last revision

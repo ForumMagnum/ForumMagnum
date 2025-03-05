@@ -1367,6 +1367,8 @@ interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment 
 interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
   readonly contributors: any,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly summaries: Array<MultiDocumentContentDisplay>,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
