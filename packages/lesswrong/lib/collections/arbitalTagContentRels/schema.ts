@@ -1,6 +1,9 @@
+import { addUniversalFields } from '@/lib/collectionUtils';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<'ArbitalTagContentRels'> = {
+  ...addUniversalFields({}),
+
   parentDocumentId: {
     type: String,
     nullable: false,

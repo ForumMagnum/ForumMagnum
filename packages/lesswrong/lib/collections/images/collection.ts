@@ -3,6 +3,7 @@ import { addUniversalFields } from '../../collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"Images"> = {
+  ...addUniversalFields({}),
   /** @deprecated Use identifier + identifierType = 'originalUrl' */
   originalUrl: {
     type: String,
@@ -35,8 +36,6 @@ export const Images: ImagesCollection = createCollection({
     return indexSet;
   },
 });
-addUniversalFields({collection: Images});
-
 
 export default Images;
 

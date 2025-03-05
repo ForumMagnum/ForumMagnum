@@ -1,4 +1,7 @@
+import { addUniversalFields } from '../../collectionUtils';
+
 const schema: SchemaType<"FeaturedResources"> = {
+  ...addUniversalFields({}),
   title: {
     type: String,
     nullable: false,

@@ -31,6 +31,7 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...addUniversalFields({}),
   ...editableFields("GardenCodes", {
     pingbacks: true,
     commentEditor: true,
@@ -201,8 +202,6 @@ export const GardenCodes: GardenCodesCollection = createCollection({
   mutations: getDefaultMutations('GardenCodes'), //, options),
   logChanges: true,
 });
-
-addUniversalFields({collection: GardenCodes})
 
 addSlugFields({
   collection: GardenCodes,

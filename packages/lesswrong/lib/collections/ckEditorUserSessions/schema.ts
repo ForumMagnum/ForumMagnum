@@ -1,4 +1,8 @@
+import { addUniversalFields } from "@/lib/collectionUtils";
+
 const schema: SchemaType<"CkEditorUserSessions"> = {
+  ...addUniversalFields({}),
+
   documentId: {
     type: String,
     nullable: false,

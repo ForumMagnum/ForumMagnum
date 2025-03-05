@@ -4,6 +4,7 @@ import { foreignKeyField } from '../../utils/schemaUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"ReadStatuses"> = {
+  ...addUniversalFields({}),
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
@@ -59,7 +60,5 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
   },
   logChanges: false,
 });
-
-addUniversalFields({collection: ReadStatuses});
 
 export default ReadStatuses;

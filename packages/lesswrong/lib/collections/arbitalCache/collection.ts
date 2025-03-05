@@ -3,6 +3,7 @@ import { addUniversalFields } from "../../collectionUtils";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"ArbitalCaches"> = {
+  ...addUniversalFields({}),
   pageAlias: {
     type: String,
     nullable: false,
@@ -36,7 +37,5 @@ export const ArbitalCaches: ArbitalCachesCollection = createCollection({
   },
   logChanges: true,
 });
-
-addUniversalFields({collection: ArbitalCaches})
 
 export default ArbitalCaches;

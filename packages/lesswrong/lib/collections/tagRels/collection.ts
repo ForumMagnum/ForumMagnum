@@ -10,6 +10,7 @@ import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagRels"> = {
+  ...addUniversalFields({}),
   tagId: {
     nullable: false,
     ...foreignKeyField({
@@ -126,7 +127,5 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
   else
     return true;
 }
-
-addUniversalFields({collection: TagRels})
 
 export default TagRels;

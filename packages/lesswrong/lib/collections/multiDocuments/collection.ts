@@ -3,7 +3,6 @@ import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { addSlugFields } from "@/lib/utils/schemaUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -44,7 +43,6 @@ export const MultiDocuments = createCollection({
   },
 });
 
-addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
 addSlugFields({
   collection: MultiDocuments,
   collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],

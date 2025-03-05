@@ -15,6 +15,7 @@ import { schemaDefaultValue } from '../../utils/schemaUtils';
 // set of available migrations to find ones that need running.
 
 const schema: SchemaType<"Migrations"> = {
+  ...addUniversalFields({}),
   name: {
     type: String,
     nullable: false,
@@ -40,6 +41,5 @@ export const Migrations: MigrationsCollection = createCollection({
   //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),
 });
-addUniversalFields({collection: Migrations});
 
 export default Migrations;

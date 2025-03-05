@@ -1,8 +1,15 @@
 import { getWithCustomLoader } from '../../loaders';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple, schemaDefaultValue } from '../../utils/schemaUtils'
 import { editableFields } from '@/lib/editor/make_editable'
+import { addUniversalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"Collections"> = {
+  ...addUniversalFields({
+    createdAtOptions: {
+      canUpdate: ['admins'],
+      canCreate: ['admins'],
+    },
+  }),
   ...editableFields("Collections", {
     order: 20,
   }),

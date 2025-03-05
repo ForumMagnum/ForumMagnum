@@ -1,7 +1,9 @@
 import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
 import { getReviewWinnerArtCoordinates } from "@/server/review/splashArtCoordinatesCache";
+import { addUniversalFields } from "../../collectionUtils";
 
 export const schema: SchemaType<"ReviewWinnerArts"> = {
+  ...addUniversalFields({}),
   postId: {
     type: String,
     nullable: false,

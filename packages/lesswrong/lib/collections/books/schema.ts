@@ -1,7 +1,9 @@
 import { editableFields } from '@/lib/editor/make_editable';
 import { arrayOfForeignKeysField } from '../../utils/schemaUtils'
+import { addUniversalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Books"> = {
+  ...addUniversalFields({}),
   ...editableFields("Books", {
     order: 20,
     getLocalStorageId: (book, name) => {

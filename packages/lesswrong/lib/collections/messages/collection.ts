@@ -1,4 +1,4 @@
-import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import Conversations from '../conversations/collection'

@@ -1,6 +1,8 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
+import { addUniversalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"PostRelations"> = {
+  ...addUniversalFields({}),
   type: {
     // "subQuestion"
     type: String,

@@ -1,6 +1,9 @@
+import { addUniversalFields } from "@/lib/collectionUtils";
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 const schema: SchemaType<"ElectionCandidates"> = {
+  ...addUniversalFields({}),
+
   /** The name of the election this is a candidate in */
   electionName: {
     type: String,

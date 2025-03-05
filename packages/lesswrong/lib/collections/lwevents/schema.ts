@@ -1,6 +1,11 @@
+import { addUniversalFields } from '@/lib/collectionUtils';
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<"LWEvents"> = {
+  ...addUniversalFields({
+    createdAtOptions: {canRead: ['members']},
+  }),
+
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

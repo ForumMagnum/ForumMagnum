@@ -1,4 +1,7 @@
+import { addUniversalFields } from '../../collectionUtils';
+
 const schema: SchemaType<"GoogleServiceAccountSessions"> = {
+  ...addUniversalFields({}),
   email: {
     type: String,
     canRead: ['members'],

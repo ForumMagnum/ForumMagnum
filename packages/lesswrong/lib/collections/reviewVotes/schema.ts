@@ -1,9 +1,11 @@
 import { schemaDefaultValue, foreignKeyField } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
+import { addUniversalFields } from '../../collectionUtils';
 
 export const DEFAULT_QUALITATIVE_VOTE = 4
 
 const schema: SchemaType<"ReviewVotes"> = {
+  ...addUniversalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

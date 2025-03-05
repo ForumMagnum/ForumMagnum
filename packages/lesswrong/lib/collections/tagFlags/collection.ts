@@ -9,6 +9,7 @@ import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagFlags"> = {
+  ...addUniversalFields({}),
   ...editableFields("TagFlags", {
     order: 30,
     getLocalStorageId: (tagFlag, name) => {
@@ -76,8 +77,6 @@ export const TagFlags: TagFlagsCollection = createCollection({
   mutations: getDefaultMutations('TagFlags', options),
   logChanges: true,
 });
-
-addUniversalFields({collection: TagFlags})
 
 addSlugFields({
   collection: TagFlags,

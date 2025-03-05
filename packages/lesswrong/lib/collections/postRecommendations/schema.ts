@@ -1,7 +1,9 @@
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
+import { addUniversalFields } from "../../collectionUtils";
 
 export const schema: SchemaType<"PostRecommendations"> = {
+  ...addUniversalFields({}),
   /** The user who the recommendation was generated for. */
   userId: {
     ...foreignKeyField({

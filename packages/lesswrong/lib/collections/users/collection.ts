@@ -4,7 +4,6 @@ import { formGroups } from './formGroups';
 import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { createCollection } from "../../vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "../../vulcan-lib/graphql";
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
@@ -56,8 +55,6 @@ addGraphQLResolvers({
   },
 });
 addGraphQLQuery('currentUser: User');
-
-addUniversalFields({collection: Users});
 
 addSlugFields({
   collection: Users,

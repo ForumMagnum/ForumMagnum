@@ -1,6 +1,9 @@
+import { addUniversalFields } from "@/lib/collectionUtils";
 import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 const schema: SchemaType<"DialogueChecks"> = {
+  ...addUniversalFields({}),
+
   // permissions enforced via collection-level checkAccess
   userId: {
     type: String,

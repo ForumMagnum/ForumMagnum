@@ -1,6 +1,13 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
+import { addUniversalFields } from '../../collectionUtils'
 
 const schema: SchemaType<"Reports"> = {
+  ...addUniversalFields({
+    createdAtOptions: {
+      canRead: ['guests'],
+      canUpdate: ['admins'],
+    },
+  }),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

@@ -1,4 +1,7 @@
+import { addUniversalFields } from '../../collectionUtils';
+
 const schema: SchemaType<"UserActivities"> = {
+  ...addUniversalFields({}),
   visitorId: {
     type: String,
     nullable: false

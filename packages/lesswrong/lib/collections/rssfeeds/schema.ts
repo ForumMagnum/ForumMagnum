@@ -1,6 +1,8 @@
 import { schemaDefaultValue, foreignKeyField } from '../../utils/schemaUtils'
+import { addUniversalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"RSSFeeds"> = {
+  ...addUniversalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
