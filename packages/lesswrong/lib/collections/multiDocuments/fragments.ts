@@ -31,6 +31,7 @@ export const MultiDocumentContentDisplay = `
   fragment MultiDocumentContentDisplay on MultiDocument {
     ...MultiDocumentMinimumInfo
     tableOfContents
+    textLastUpdatedAt
     contents {
       ...RevisionEdit
     }
@@ -46,6 +47,7 @@ export const MultiDocumentEdit = `
     summaries {
       ...MultiDocumentContentDisplay
     }
+    textLastUpdatedAt
   }
 `
 

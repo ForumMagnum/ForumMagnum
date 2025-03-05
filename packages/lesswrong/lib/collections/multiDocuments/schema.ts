@@ -1,4 +1,5 @@
 import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
@@ -210,6 +211,8 @@ const schema: SchemaType<"MultiDocuments"> = {
 
   ...summariesField('MultiDocuments', { group: formGroups.summaries }),
 
+  ...textLastUpdatedAtField('MultiDocuments'),
+  
   deleted: {
     type: Boolean,
     canRead: ['guests'],

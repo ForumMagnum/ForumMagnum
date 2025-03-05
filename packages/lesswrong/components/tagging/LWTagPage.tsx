@@ -857,6 +857,11 @@ const LWTagPage = () => {
     />
   );
 
+  console.log("in LWTagPage", {
+    editedAt: selectedLens?.contents?.editedAt,
+    textLastUpdatedAt: selectedLens?.textLastUpdatedAt,
+  });
+
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
       {tag && showEmbeddedPlayer && <>
@@ -924,9 +929,9 @@ const LWTagPage = () => {
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
         <span className={classes.contributorRowContent}>
           <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
-          {selectedLens?.contents?.editedAt && <>
+          {selectedLens?.textLastUpdatedAt && <>
             {' '}{'last updated '}
-            <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />
+            <FormatDate date={selectedLens.textLastUpdatedAt} format="Do MMM YYYY" tooltip={false} />
           </>}
         </span>
       </div>}
