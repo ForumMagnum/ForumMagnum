@@ -318,7 +318,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
       >
         <MenuItem value="all">All lenses</MenuItem>
         {lenses.map(lens =>
-          <MenuItem key={lens._id} value={lens._id}>{`${lens.tabTitle}${lens.tabSubtitle ? `: ${lens.tabSubtitle}` : ""}`}</MenuItem>
+          <MenuItem key={lens._id} value={lens._id}>{`${lens.tabTitle}${lens.tabSubtitle ? `: ${lens.tabSubtitle}` : ""}${lens.deleted ? " [Deleted]" : ""}`}</MenuItem>
         )}
       </Select>
     </div>}

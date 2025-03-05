@@ -1,4 +1,5 @@
-import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField, slugFields } from "@/lib/utils/schemaUtils";
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
@@ -42,6 +43,13 @@ const schema: SchemaType<"MultiDocuments"> = {
       const { _id, parentDocumentId, collectionName } = multiDocument;
       return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
     },
+  }),
+
+  ...slugFields("MultiDocuments", {
+    collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+    getTitle: (md) => md.title ?? md.tabTitle,
+    onCollision: "rejectNewDocument",
+    includesOldSlugs: true,
   }),
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
   // In the case of summaries, we don't have a title that needs to be in the "body"; we just use the tab title in the summary tab.
@@ -217,6 +225,8 @@ const schema: SchemaType<"MultiDocuments"> = {
 
   ...summariesField('MultiDocuments', { group: formGroups.summaries }),
 
+  ...textLastUpdatedAtField('MultiDocuments'),
+  
   deleted: {
     type: Boolean,
     canRead: ['guests'],

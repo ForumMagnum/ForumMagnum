@@ -5,7 +5,7 @@ import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '.
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
-import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue, slugFields } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
@@ -196,7 +196,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
-  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
+  ...schemaDefaultValue<'Users'>({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
 const partiallyReadSequenceItem = new SimpleSchema({
@@ -382,6 +382,17 @@ const schema: SchemaType<"Users"> = {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
       canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  ...slugFields("Users", {
+    getTitle: (u) => u.displayName ?? createDisplayName(u),
+    includesOldSlugs: true,
+    onCollision: "rejectIfExplicit",
+    slugOptions: {
+      canUpdate: ['admins'],
+      order: 40,
+      group: formGroups.adminOptions,
     },
   }),
 

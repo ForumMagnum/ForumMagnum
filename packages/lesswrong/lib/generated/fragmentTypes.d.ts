@@ -1040,6 +1040,7 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly contents_latest: string,
   readonly pingbacks: any /*{"definitions":[{}]}*/,
+  readonly slug: string,
   readonly code: string,
   readonly title: string,
   readonly userId: string,
@@ -1050,7 +1051,6 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly hidden: boolean,
   readonly deleted: boolean,
   readonly afOnly: boolean,
-  readonly slug: string,
 }
 
 interface GoogleServiceAccountSessionAdminInfo { // fragment on GoogleServiceAccountSessions
@@ -1315,12 +1315,14 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
 
 interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly textLastUpdatedAt: Date|null,
   readonly contents: RevisionEdit|null,
 }
 
 interface MultiDocumentEdit extends MultiDocumentContentDisplay { // fragment on MultiDocuments
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
   readonly summaries: Array<MultiDocumentContentDisplay>,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
@@ -1365,6 +1367,7 @@ interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment 
 interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
   readonly contributors: any,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
@@ -1374,6 +1377,8 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly contents_latest: string,
   readonly pingbacks: any /*{"definitions":[{}]}*/,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly title: string | null,
   readonly preview: string | null,
   readonly tabTitle: string,
@@ -1393,8 +1398,6 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly afBaseScore: number,
   readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afVoteCount: number,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1754,6 +1757,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly pingbacks: any /*{"definitions":[{}]}*/,
   readonly moderationGuidelines_latest: string,
   readonly customHighlight_latest: string,
+  readonly slug: string,
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
@@ -1931,7 +1935,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly afBaseScore: number,
   readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afVoteCount: number,
-  readonly slug: string,
 }
 
 interface PostsDetails extends PostsListBase { // fragment on Posts
@@ -3270,10 +3273,10 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly createdAt: Date,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly contents_latest: string,
+  readonly slug: string,
   readonly name: string,
   readonly deleted: boolean,
   readonly order: number | null,
-  readonly slug: string,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -3297,6 +3300,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
+  readonly textLastUpdatedAt: Date|null,
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
   readonly lensesIncludingDeleted: Array<MultiDocumentContentDisplay>,
@@ -3321,6 +3325,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly forceAllowType3Audio: boolean,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -3341,6 +3346,7 @@ interface TagPageWithArbitalContentFragment extends TagPageFragment, TagPageArbi
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly textLastUpdatedAt: Date|null,
   readonly postsDefaultSortOrder: string,
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
@@ -3521,6 +3527,8 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly pingbacks: any /*{"definitions":[{}]}*/,
   readonly subforumWelcomeText_latest: string,
   readonly moderationGuidelines_latest: string,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly name: string,
   readonly shortName: string | null,
   readonly subtitle: string | null,
@@ -3571,8 +3579,6 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly afBaseScore: number,
   readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afVoteCount: number,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
 }
 
 interface TweetsDefaultFragment { // fragment on Tweets
@@ -4024,6 +4030,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly moderationGuidelines_latest: string,
   readonly howOthersCanHelpMe_latest: string,
   readonly howICanHelpOthers_latest: string,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly biography_latest: string,
   readonly username: string,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
@@ -4406,8 +4414,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
   readonly userSurveyEmailSentAt: Date | null,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
   readonly recommendationSettings: {
     frontpage: {
       method: string,

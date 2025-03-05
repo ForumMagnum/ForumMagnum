@@ -959,6 +959,7 @@ CREATE TABLE "GardenCodes" (
   "contents" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
+  "slug" TEXT NOT NULL,
   "code" TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
   "userId" VARCHAR(27) NOT NULL,
@@ -968,8 +969,7 @@ CREATE TABLE "GardenCodes" (
   "type" TEXT NOT NULL DEFAULT 'public',
   "hidden" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "afOnly" BOOL NOT NULL DEFAULT FALSE,
-  "slug" TEXT NOT NULL
+  "afOnly" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_GardenCodes_schemaVersion"
@@ -1282,6 +1282,8 @@ CREATE TABLE "MultiDocuments" (
   "legacyData" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "title" TEXT,
   "preview" TEXT,
   "tabTitle" TEXT NOT NULL,
@@ -1301,9 +1303,7 @@ CREATE TABLE "MultiDocuments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -1575,6 +1575,7 @@ CREATE TABLE "Posts" (
   "moderationGuidelines_latest" TEXT,
   "customHighlight" JSONB,
   "customHighlight_latest" TEXT,
+  "slug" TEXT NOT NULL,
   "postedAt" TIMESTAMPTZ NOT NULL,
   "modifiedAt" TIMESTAMPTZ,
   "url" VARCHAR(500),
@@ -1734,8 +1735,7 @@ CREATE TABLE "Posts" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "slug" TEXT NOT NULL
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_posts_coauthorStatuses_postedAt"
@@ -2860,10 +2860,10 @@ CREATE TABLE "TagFlags" (
   "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
+  "slug" TEXT NOT NULL,
   "name" TEXT NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "order" DOUBLE PRECISION,
-  "slug" TEXT NOT NULL
+  "order" DOUBLE PRECISION
 );
 
 -- Index "idx_TagFlags_schemaVersion"
@@ -2915,6 +2915,8 @@ CREATE TABLE "Tags" (
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
   "moderationGuidelines_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "name" TEXT NOT NULL,
   "shortName" TEXT,
   "subtitle" TEXT,
@@ -2965,9 +2967,7 @@ CREATE TABLE "Tags" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Tags_deleted_adminOnly"
@@ -3209,6 +3209,8 @@ CREATE TABLE "Users" (
   "howOthersCanHelpMe_latest" TEXT,
   "howICanHelpOthers" JSONB,
   "howICanHelpOthers_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "biography" JSONB,
   "biography_latest" TEXT,
   "username" TEXT,
@@ -3432,8 +3434,6 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "recommendationSettings" JSONB
 );
 

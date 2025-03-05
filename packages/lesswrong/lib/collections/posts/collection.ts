@@ -3,7 +3,6 @@ import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
-import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { postCheckAccess } from './checkAccess';
 
@@ -51,16 +50,6 @@ export const Posts = createCollection({
     {type: "extension", name: "btree_gin"},
     {type: "extension", name: "earthdistance"},
   ],
-});
-
-addSlugFields({
-  collection: Posts,
-  getTitle: (post) => post.title,
-  includesOldSlugs: false,
-  slugOptions: {
-  },
-  oldSlugsOptions: {
-  },
 });
 
 Posts.checkAccess = postCheckAccess;

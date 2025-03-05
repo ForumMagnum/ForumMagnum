@@ -8,8 +8,6 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
-import { addSlugCallbacks, getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
-import { slugify } from './slugify';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -316,6 +314,10 @@ SimpleSchema.extendOptions(['countOfReferences']);
 // For fields that are editable, this option allows you to specify the editable field options
 SimpleSchema.extendOptions(['editableFieldOptions']);
 
+// For slug fields, this option allows you to specify the options necessary to run the slug callbacks
+SimpleSchema.extendOptions(['slugCallbackOptions']);
+
+
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of
@@ -453,12 +455,14 @@ export function schemaDefaultValue<N extends CollectionNameString>(
   };
 }
 
-export function addSlugFields<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision="newDocumentGetsSuffix", includesOldSlugs, slugOptions, oldSlugsOptions}: {
-  /**
-   * The collection to add slug fields to.
-   */
-  collection: CollectionBase<N>,
-
+export function slugFields<N extends CollectionNameWithSlug>(collectionName: N, {
+  collectionsToAvoidCollisionsWith,
+  getTitle,
+  onCollision="newDocumentGetsSuffix",
+  includesOldSlugs,
+  slugOptions,
+  oldSlugsOptions,
+}: {
   /**
    * If set, check for collisions not just within the same collision, but also
    * within a provided list of other collections.
@@ -502,20 +506,25 @@ export function addSlugFields<N extends CollectionNameWithSlug>({collection, col
    */
   oldSlugsOptions?: Partial<CollectionFieldSpecification<N>>,
 }) {
-  const collectionName = collection.collectionName;
-  addSlugCallbacks({
-    collection,
-    collectionsToAvoidCollisionsWith: collectionsToAvoidCollisionsWith ?? [collectionName],
-    getTitle, onCollision, includesOldSlugs
-  });
 
-  addFieldsDict(collection, {
+  // If no collectionsToAvoidCollisionsWith are provided, just check for collisions within the same collection.
+  collectionsToAvoidCollisionsWith ??= [collectionName];
+
+  const slugCallbackOptions: SlugCallbackOptions = {
+    collectionsToAvoidCollisionsWith,
+    getTitle,
+    onCollision,
+    includesOldSlugs
+  };
+
+  const slugFields: Record<string, CollectionFieldSpecification<N>> = {
     slug: {
       type: String,
       optional: true,
       nullable: false,
       canRead: ['guests'],
       ...slugOptions,
+      slugCallbackOptions,
     },
     ...(includesOldSlugs ? {
       oldSlugs: {
@@ -531,5 +540,7 @@ export function addSlugFields<N extends CollectionNameWithSlug>({collection, col
         canRead: ['guests'],
       },
     } : {}),
-  });
+  };
+
+  return slugFields;
 }
