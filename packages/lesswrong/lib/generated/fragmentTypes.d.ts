@@ -926,8 +926,8 @@ interface FieldChangeFragment { // fragment on FieldChanges
   readonly changeGroup: string,
   readonly documentId: string,
   readonly fieldName: string,
-  readonly oldValue: string,
-  readonly newValue: string,
+  readonly oldValue: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface FieldChangesDefaultFragment { // fragment on FieldChanges
@@ -935,8 +935,8 @@ interface FieldChangesDefaultFragment { // fragment on FieldChanges
   readonly changeGroup: string,
   readonly documentId: string,
   readonly fieldName: string,
-  readonly oldValue: string,
-  readonly newValue: string,
+  readonly oldValue: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,

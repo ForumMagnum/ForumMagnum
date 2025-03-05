@@ -28,14 +28,17 @@ const schema: SchemaType<"FieldChanges"> = {
     canRead: ['members'],
   },
   
-  // HACK: oldValue and newValue are JSON-serialized values, annotated as type string, because our query-translator only handles jsonb fields correctly when their contents are objects (but this could be a different JSON type such as a number, bool or string)
+  // While these are both JSON values, they can also contain primitives like strings, numbers, booleans, nulls, etc.
+  // They should still get deserialized correctly.
   oldValue: {
-    type: String,
+    type: Object,
+    typescriptType: 'Json',
     blackbox: true,
     canRead: ['members'],
   },
   newValue: {
-    type: String,
+    type: Object,
+    typescriptType: 'Json',
     blackbox: true,
     canRead: ['members'],
   },

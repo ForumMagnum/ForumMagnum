@@ -1,4 +1,4 @@
-import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import { DbTestObject, testTable, runTestCases, testTable5, DbTestObject5 } from "@/server/sql/tests/testHelpers";
 import InsertQuery from "@/server/sql/InsertQuery";
 
 jest.mock('../../lib/random', () => ({
@@ -118,5 +118,12 @@ describe("InsertQuery", () => {
       ], {}, {conflictStrategy: "upsert"}),
       expectedError: "Cannot use conflictStrategy 'upsert' when inserting multiple rows",
     },
+    {
+      name: "can correctly cast and add a type hint for primitive (non-array and non-object) values in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: "test", schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
+      expectedArgs: ["abc", '"test"', 1],
+    },
   ]);
 });
+

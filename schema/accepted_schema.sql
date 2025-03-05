@@ -921,8 +921,8 @@ CREATE TABLE "FieldChanges" (
   "changeGroup" TEXT,
   "documentId" TEXT,
   "fieldName" TEXT,
-  "oldValue" TEXT,
-  "newValue" TEXT,
+  "oldValue" JSONB,
+  "newValue" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB
@@ -930,6 +930,12 @@ CREATE TABLE "FieldChanges" (
 
 -- Index "idx_FieldChanges_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_FieldChanges_schemaVersion" ON "FieldChanges" USING btree ("schemaVersion");
+
+-- Index "idx_FieldChanges_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_documentId_createdAt" ON "FieldChanges" USING btree ("documentId", "createdAt");
+
+-- Index "idx_FieldChanges_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_userId_createdAt" ON "FieldChanges" USING btree ("userId", "createdAt");
 
 -- Table "ForumEvents"
 CREATE TABLE "ForumEvents" (
@@ -3995,14 +4001,12 @@ CREATE OR
 REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
           SELECT COALESCE(
             (SELECT "createdAt"
-            FROM (
-              SELECT JSONB_OBJECT_KEYS("properties"->'after') AS "key", "createdAt"
-              FROM "LWEvents"
-              WHERE "documentId" = userid AND "name" = 'fieldChanges'
-            ) q
-            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
-            ORDER BY "createdAt" DESC
-            LIMIT 1),
+              FROM "FieldChanges"
+              WHERE "documentId" = userid
+                AND "fieldName" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
+              ORDER BY "createdAt" DESC
+              LIMIT 1
+            ),
             (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
             TO_TIMESTAMP(0)
           )
