@@ -508,8 +508,18 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   let cacheResult: SSRGraphQLCache|null = null;
   try {
     //htmlContent = await renderToStringWithData(WrappedApp);
-    const ssrResult = await renderSSR(WrappedApp, (queryStr, variables) => {
-      return runStringQueryWithContext(queryStr, variables, requestContext);
+    const ssrResult = await renderSSR(WrappedApp, async (queryStr, variables) => {
+      try {
+        return {
+          result: await runStringQueryWithContext(queryStr, variables, requestContext),
+          error: null,
+        }
+      } catch(e) {
+        return {
+          result: null,
+          error: e,
+        }
+      }
     });
     htmlContent = ssrResult.html;
     cacheResult = ssrResult.cache;

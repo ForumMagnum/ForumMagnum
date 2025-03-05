@@ -2,7 +2,9 @@ import React, { createContext, useContext } from "react";
 import { type DocumentNode, type QueryHookOptions, type TypedDocumentNode, type QueryResult, type OperationVariables, NetworkStatus } from "@apollo/client";
 import { print as parsedGraphqlToString} from 'graphql/language/printer';
 import { renderToString } from "react-dom/server";
-import { ASTVisitor, visit, SelectionSetNode, FieldNode, ASTNode, ArgumentNode, FragmentSpreadNode, FragmentDefinitionNode } from "graphql";
+import { ASTVisitor, visit, SelectionSetNode, FieldNode, ASTNode, ArgumentNode, FragmentDefinitionNode } from "graphql";
+
+const debugRenderStages = true;
 
 type GraphQLQueryStatus = {
   queryStr: string
@@ -10,10 +12,14 @@ type GraphQLQueryStatus = {
   variables: any
   finished: boolean
   result: any
-  promise: Promise<void>
+  error: any
+  promise: Promise<void>|null
 }
 
-type GraphQLExecuteFn = (queryStr: string, variables: any) => Promise<any>
+type GraphQLExecuteFn = (queryStr: string, variables: any) => Promise<{
+  result: any
+  error: any
+}>
 
 export class SSRGraphQLCache {
   private queries: Record<string, GraphQLQueryStatus> = {};
@@ -31,19 +37,22 @@ export class SSRGraphQLCache {
     if (queryKey in this.queries) {
       return this.queries[queryKey];
     } else {
-      const promise = this.runQuery(queryStr, variables)
-      const queryStatus = {
+      const queryStatus: GraphQLQueryStatus = {
         query: withTypenames, queryStr,
         variables,
         finished: false,
         result: null,
-        promise,
+        error: null,
+        promise: null,
       };
-      this.queries[queryKey] = queryStatus;
-      queryStatus.promise = promise.then((result) => {
+      queryStatus.promise = (async () => {
+        const { result, error } = await this.runQuery(queryStr, variables)
         queryStatus.finished = true;
         queryStatus.result = result;
-      });
+        queryStatus.error = error;
+        queryStatus.promise = null;
+      })()
+      this.queries[queryKey] = queryStatus;
       return queryStatus;
     }
   }
@@ -138,21 +147,22 @@ export class SSRGraphQLCache {
       // Check if this is a referenced object (has _id and __typename)
       if (value._id && value.__typename) {
         const refKey = `${value.__typename}:${value._id}`;
+
+        // Process all nested values before caching
+        const processedObject = { ...value };
+        for (const key in processedObject) {
+          if (key in processedObject) {
+            processedObject[key] = processValue(processedObject[key]);
+          }
+        }
         
         // If this object is already in cache, merge them
         if (cacheObjects[refKey]) {
           cacheObjects[refKey] = deepMerge(
             cacheObjects[refKey] as JsonObject,
-            value
+            processedObject,
           );
         } else {
-          // Process all nested values before caching
-          const processedObject = { ...value };
-          for (const key in processedObject) {
-            if (key in processedObject) {
-              processedObject[key] = processValue(processedObject[key]);
-            }
-          }
           cacheObjects[refKey] = processedObject;
         }
   
@@ -231,6 +241,9 @@ export class SSRGraphQLCache {
       for (const selection of selectionSet.selections) {
         if (selection.kind === 'Field') {
           const fieldName = selection.name.value;
+          if (fieldName === 'recentComments') {
+            //debugger;
+          }
           
           // Skip introspection fields
           if (fieldName.startsWith('__')) {
@@ -270,14 +283,14 @@ export class SSRGraphQLCache {
     }
   
     // Function to process results recursively
-    const processResults = (obj: any): any => {
+    const processResults = (obj: any, prefix: string): any => {
       if (!obj || typeof obj !== 'object') {
         return obj;
       }
   
       // Handle arrays
       if (Array.isArray(obj)) {
-        return obj.map(item => processResults(item));
+        return obj.map(item => processResults(item, prefix));
       }
   
       const newObj: any = {};
@@ -290,17 +303,18 @@ export class SSRGraphQLCache {
         }
   
         // Check if this field had arguments
-        const args = fieldArgsMap.get(key);
+        const args = fieldArgsMap.get(prefix+key);
         const newKey = args ? `${key}${args}` : key;
   
         // Recursively process nested objects
-        newObj[newKey] = processResults(value);
+        const newPrefix = prefix.length>0 ? (`${prefix}${key}.`) : `${key}.`;
+        newObj[newKey] = processResults(value, newPrefix);
       }
   
       return newObj;
     };
   
-    return processResults(results);
+    return processResults(results, "");
   }
 }
 
@@ -327,7 +341,8 @@ export function useQueryServer<TData=any, TVariables=OperationVariables>(
   const queryStatus = resultsCache!.getQuery(query, options?.variables);
   if (queryStatus.finished) {
     return {
-      data: queryStatus.result.data,
+      data: queryStatus.result?.data,
+      error: queryStatus.error,
       loading: false,
       networkStatus: NetworkStatus.ready,
       variables: options?.variables,
@@ -360,23 +375,29 @@ export async function renderSSR(root: React.ReactNode, runQuery: GraphQLExecuteF
 
   // eslint-disable-next-line
   while (true) {
-    console.log("Starting render pass");
+    if (debugRenderStages) {
+      console.log("Starting render pass"); // eslint-disable-line no-console
+    }
     lastRender = renderToString(<GraphQLResultsContext.Provider value={cache}>
       {root}
     </GraphQLResultsContext.Provider>);
-    console.log("Finished render pass");
+    if (debugRenderStages) {
+      console.log("Finished render pass"); // eslint-disable-line no-console
+    }
     await cache.waitForAllQueries();
     
     let newNumQueries = cache.numQueries()
     if (newNumQueries-lastQueryCount > 0) {
-      console.log(`Finished ${newNumQueries-lastQueryCount} queries`);
+      console.log(`Finished ${newNumQueries-lastQueryCount} queries`); // eslint-disable-line no-console
     }
     if (lastQueryCount === newNumQueries)
       break;
     lastQueryCount = newNumQueries;
   }
   
-  console.log("SSR complete");
+  if (debugRenderStages) {
+    console.log("SSR complete"); // eslint-disable-line no-console
+  }
   return {
     html: lastRender,
     cache,
