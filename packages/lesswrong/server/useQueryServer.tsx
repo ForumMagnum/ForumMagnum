@@ -39,7 +39,7 @@ export class SSRGraphQLCache {
     } else {
       const queryStatus: GraphQLQueryStatus = {
         query: withTypenames, queryStr,
-        variables,
+        variables: variables ?? {},
         finished: false,
         result: null,
         error: null,
@@ -87,6 +87,9 @@ export class SSRGraphQLCache {
   }
 
   getQueryCacheEntries(qs: GraphQLQueryStatus, variables: any): [string,any][] {
+    if (!qs.result) {
+      return [];
+    }
     const resultWithArgumentsOnResolverFields = this.addArgumentsToResolverFields(
       qs.query, qs.result.data, qs.variables
     );
