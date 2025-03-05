@@ -307,6 +307,7 @@ export const TagPageFragment = `
       }
     }
     canVoteOnRels
+    forceAllowType3Audio
   }
 `
 
@@ -349,6 +350,7 @@ export const TagPageWithRevisionFragment = `
       }
     }
     canVoteOnRels
+    forceAllowType3Audio
   }
 `
 
