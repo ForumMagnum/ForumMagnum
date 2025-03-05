@@ -216,11 +216,12 @@ const TagHistoryPage = () => {
           render: (metadataChanges: FieldChangeFragment) => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
-            >
-              <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
-                return <span key={fieldName}>{fieldName} from {""+metadataChanges.before[fieldName]} to {""+metadataChanges.after[fieldName]}</span>
-              })}</div>
-            </SingleLineFeedEvent>
+            ><div>
+              <UsersName documentId={metadataChanges.userId}/>
+              {" changed "}{metadataChanges.fieldName}
+              {" from "}{""+metadataChanges.oldValue}
+              {" to "}{""+metadataChanges.newValue}
+            </div></SingleLineFeedEvent>
           },
         },
         lensOrSummaryMetadataChanged: {
@@ -228,11 +229,12 @@ const TagHistoryPage = () => {
           render: (metadataChanges: FieldChangeFragment) => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
-            >
-              <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
-                return <span key={fieldName}>{fieldName} from {""+metadataChanges.before[fieldName]} to {""+metadataChanges.after[fieldName]}</span>
-              })}</div>
-            </SingleLineFeedEvent>
+            ><div>
+              <UsersName documentId={metadataChanges.userId}/>
+              {" changed "}{metadataChanges.fieldName}
+              {" from "}{""+metadataChanges.oldValue}
+              {" to "}{""+metadataChanges.newValue}
+            </div></SingleLineFeedEvent>
           },
         },
       }}

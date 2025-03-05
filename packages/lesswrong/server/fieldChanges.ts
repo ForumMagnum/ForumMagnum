@@ -1,6 +1,6 @@
-import { LWEvents } from '../lib/collections/lwevents/collection';
+import { FieldChanges } from '@/lib/collections/fieldChanges/collection';
 import { getSchema } from '../lib/utils/getSchema';
-import { createMutator } from './vulcan-lib/mutators';
+import { randomId } from '@/lib/random';
 
 export const logFieldChanges = async <
   N extends CollectionNameString
@@ -41,21 +41,18 @@ export const logFieldChanges = async <
   }
   
   if (Object.keys(loggedChangesAfter).length > 0) {
-    void createMutator({
-      collection: LWEvents,
-      currentUser,
-      document: {
-        name: 'fieldChanges',
-        documentId: oldDocument._id,
+    const changeGroup = randomId();
+
+    await Promise.all(Object.keys(loggedChangesAfter).map(key =>
+      FieldChanges.rawInsert({
         userId: currentUser?._id,
-        important: true,
-        properties: {
-          before: loggedChangesBefore,
-          after: loggedChangesAfter,
-        }
-      },
-      validate: false,
-    })
+        changeGroup,
+        documentId: oldDocument._id,
+        fieldName: key,
+        oldValue: loggedChangesBefore[key],
+        newValue: loggedChangesAfter[key],
+      })
+    ));
   }
 }
 

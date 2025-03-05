@@ -148,6 +148,32 @@ export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObjec
 (TestCollection4 as any).getTable = () => testTable4;
 registerCollection(TestCollection4);
 
+export type DbTestObject5 = {
+  _id: string,
+  schemaVersion: number,
+  jsonField: Json,
+};
+
+export const TestCollection5 = {
+  collectionName: "TestCollection5",
+  typeName: "TestCollection5",
+  _schemaFields: {
+    _id: {
+      type: String,
+    },
+    jsonField: {
+      type: Object,
+    },
+    schemaVersion: {
+      type: Number,
+    },
+  },
+} as unknown as CollectionBase<CollectionNameString>;
+
+export const testTable5 = Table.fromCollection<CollectionNameString, DbTestObject5>(TestCollection5);
+(TestCollection5 as any).getTable = () => testTable5;
+registerCollection(TestCollection5);
+
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 
 export type SuccessResult = {

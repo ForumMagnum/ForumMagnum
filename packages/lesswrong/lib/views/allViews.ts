@@ -79,6 +79,7 @@ export const allViews = {
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
   FeaturedResources: FeaturedResourcesViews,
+  FieldChanges: new CollectionViewSet('FieldChanges', {}),
   ForumEvents: ForumEventsViews,
   GardenCodes: GardenCodesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,
