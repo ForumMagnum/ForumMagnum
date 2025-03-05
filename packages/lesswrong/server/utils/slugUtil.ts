@@ -136,14 +136,14 @@ function isCreateBeforeCallbackForSlugCollection<
   N extends CollectionNameString,
   Props extends SlugCreateCallbackProps<N>
 >(props: Props): props is Props & ValidSlugCreateCallbackProps<CollectionNameWithSlug> {
-  return !!props.props.collection._schemaFields.slug.slugCallbackOptions;
+  return !!props.props.schema.slug?.slugCallbackOptions;
 }
 
 function isUpdateBeforeCallbackForSlugCollection<
   N extends CollectionNameString,
   Props extends SlugUpdateCallbackProps<N>
 >(props: Props): props is Props & ValidSlugUpdateCallbackProps<CollectionNameWithSlug> {
-  return !!props.props.collection._schemaFields.slug.slugCallbackOptions;
+  return !!props.props.schema.slug?.slugCallbackOptions;
 }
 
 export async function runSlugCreateBeforeCallback<N extends CollectionNameString>(props: {
