@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
 import PgCollection, { DbTarget } from './sql/PgCollection';

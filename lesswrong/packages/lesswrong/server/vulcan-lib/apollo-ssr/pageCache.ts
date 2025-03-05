@@ -6,7 +6,6 @@ import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
-import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
@@ -285,9 +284,6 @@ export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: st
   const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
 
   const expandedCacheEvent = {...cacheEvent, userType};
-  if (isDatadogEnabled && dogstatsd) {
-    dogstatsd.increment("cache_event", expandedCacheEvent)
-  }
 }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {

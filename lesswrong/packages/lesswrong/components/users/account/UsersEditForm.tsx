@@ -6,8 +6,6 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { isEAForum } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
-import { captureEvent } from '@/lib/analyticsEvents';
-import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
@@ -86,9 +84,6 @@ const UsersEditForm = ({terms, classes}: {
             setTheme(theme);
             captureEvent("setUserTheme", theme);
           }
-
-          // reconfigure datadog RUM in case they have changed their settings
-          configureDatadogRum(user)
 
           flash(`User "${userGetDisplayName(user)}" edited`);
           try {

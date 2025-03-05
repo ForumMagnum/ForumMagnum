@@ -39,7 +39,6 @@ import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
-import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions/collection';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
@@ -214,9 +213,6 @@ export function startWebserver() {
   addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
   addClientIdMiddleware(addMiddleware);
-  if (isDatadogEnabled) {
-    app.use(datadogMiddleware);
-  }
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);

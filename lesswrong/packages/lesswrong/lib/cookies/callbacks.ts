@@ -1,5 +1,4 @@
 import { Cookies } from "react-cookie";
-import { initDatadog } from "../../client/datadogRum";
 import { ALL_COOKIES, CookieType, isCookieAllowed } from "./utils";
 import { initReCaptcha } from "../../client/reCaptcha";
 
@@ -14,7 +13,6 @@ type CookiePreferencesChangedCallbackProps = {
  * There is no way to turn it off without reloading currently (see https://github.com/DataDog/browser-sdk/issues/1008)
  */
 export function cookiePreferencesChanged({cookiePreferences, explicitlyChanged}: CookiePreferencesChangedCallbackProps) {
-  void initDatadog();
   void initReCaptcha();
 
   // Send a cookie_preferences_changed event to Google Tag Manager, which triggers google analytics and hotjar to start

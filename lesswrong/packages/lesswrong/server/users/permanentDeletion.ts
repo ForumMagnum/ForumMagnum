@@ -8,7 +8,6 @@ import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from
 import md5 from "md5";
 import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
-import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
 import { Globals } from "../../lib/vulcan-lib/config";
 import { createAdminContext } from "../vulcan-lib/query";
@@ -161,18 +160,15 @@ addCronJob({
     const usersToDelete = await Users.find({ permanentDeletionRequestedAt: { $lt: deletionRequestCutoff } }).fetch();
 
     if (usersToDelete.length > 10) {
-      dogstatsd?.increment("user_deleted", usersToDelete.length, 1.0, {outcome: 'error'})
       throw new Error("Unexpectedly high number of users queued for deletion")
     }
 
     for (const user of usersToDelete) {
       try {
         await permanentlyDeleteUser(user, defaultDeleteOptions)
-        dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'success'})
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e)
-        dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'error'})
       }
     }
   },

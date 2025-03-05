@@ -16,7 +16,6 @@ import { hydrateClient } from './start';
 import { googleTagManagerInit } from './ga';
 import { initReCaptcha } from './reCaptcha';
 import './type3';
-import { initDatadog } from './datadogRum';
 import miscStyles from '@/themes/globalStyles/miscStyles';
 import draftjsStyles from '@/themes/globalStyles/draftjsStyles';
 import { viteHandleReload } from '@/viteClient/viteReload';
@@ -48,7 +47,6 @@ async function clientStartup() {
   filterConsoleLogSpam();
   
   googleTagManagerInit();
-  void initDatadog();
   void initReCaptcha();
 
   initAutoRefresh();

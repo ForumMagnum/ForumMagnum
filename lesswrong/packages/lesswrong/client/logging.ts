@@ -5,7 +5,6 @@ import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
-import { configureDatadogRum } from './datadogRum';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -58,7 +57,6 @@ function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
 export function onUserChanged(user: UsersCurrent) {
   identifyUserToSentry(user);
   addUserIdToGoogleAnalytics(user);
-  configureDatadogRum(user);
 }
 
 window.addEventListener('load', ev => {
