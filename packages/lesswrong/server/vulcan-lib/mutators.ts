@@ -225,10 +225,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   */
   logger('before callbacks')
 
-  document = await runSlugCreateBeforeCallback({
-    doc: document,
-    props: properties,
-  });
+  document = await runSlugCreateBeforeCallback(properties);
 
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
@@ -464,10 +461,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   */
   logger('before callbacks')
 
-  data = await runSlugUpdateBeforeCallback({
-    doc: data,
-    props: properties,
-  });
+  data = await runSlugUpdateBeforeCallback(properties);
   
   logger('updateBefore')
   data = await hooks.updateBefore.runCallbacks({

@@ -107,61 +107,46 @@ type CollectionWithSlug<N extends CollectionNameWithSlug> = CollectionBase<N> & 
   }
 };
 
-interface SlugCreateCallbackProps<N extends CollectionNameString> {
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-  props: CreateCallbackProperties<N>
+type ValidSlugCreateCallbackProps<N extends CollectionNameWithSlug> = CreateCallbackProperties<N> & {
+  collection: CollectionWithSlug<N>,
+  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
+  document: DbInsertion<ObjectsByCollectionName[N]>,
 }
 
-interface SlugUpdateCallbackProps<N extends CollectionNameString> {
-  doc: Partial<ObjectsByCollectionName[N]>,
-  props: UpdateCallbackProperties<N>
-}
-
-interface ValidSlugCreateCallbackProps<N extends CollectionNameWithSlug> {
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-  props: CreateCallbackProperties<N> & { collection: CollectionWithSlug<N> },
-}
-
-interface ValidSlugUpdateCallbackProps<N extends CollectionNameWithSlug> {
-  doc: Partial<ObjectsByCollectionName[N]>,
-  props: UpdateCallbackProperties<N> & {
-    collection: CollectionWithSlug<N>,
-    oldDocument: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N],
-    data: Partial<ObjectsByCollectionName[N]>,
-  },
-}
+type ValidSlugUpdateCallbackProps<N extends CollectionNameWithSlug> = UpdateCallbackProperties<N> & {
+  collection: CollectionWithSlug<N>,
+  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
+  oldDocument: ObjectsByCollectionName[N],
+  newDocument: ObjectsByCollectionName[N],
+  data: Partial<ObjectsByCollectionName[N]>,
+};
 
 function isCreateBeforeCallbackForSlugCollection<
   N extends CollectionNameString,
-  Props extends SlugCreateCallbackProps<N>
+  Props extends CreateCallbackProperties<N>
 >(props: Props): props is Props & ValidSlugCreateCallbackProps<CollectionNameWithSlug> {
-  return !!props.props.schema.slug?.slugCallbackOptions;
+  return !!props.schema.slug?.slugCallbackOptions;
 }
 
 function isUpdateBeforeCallbackForSlugCollection<
   N extends CollectionNameString,
-  Props extends SlugUpdateCallbackProps<N>
+  Props extends UpdateCallbackProperties<N>
 >(props: Props): props is Props & ValidSlugUpdateCallbackProps<CollectionNameWithSlug> {
-  return !!props.props.schema.slug?.slugCallbackOptions;
+  return !!props.schema.slug?.slugCallbackOptions;
 }
 
-export async function runSlugCreateBeforeCallback<N extends CollectionNameString>(props: {
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-  props: CreateCallbackProperties<N>
-}) {
-  if (!isCreateBeforeCallbackForSlugCollection(props)) {
-    return props.doc;
+export async function runSlugCreateBeforeCallback<N extends CollectionNameString>(createProps: CreateCallbackProperties<N>) {
+  if (!isCreateBeforeCallbackForSlugCollection(createProps)) {
+    return createProps.document;
   }
 
-  const { doc, props: createProps } = props;
-  const slugField = createProps.collection._schemaFields.slug;
+  const { schema, document } = createProps;
+  const slugField = schema.slug;
 
   const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = slugField.slugCallbackOptions;
 
-  const { newDocument } = createProps;
-  const title = getTitle(newDocument);
-  const titleSlug = doc.slug ?? slugify(title);
+  const title = getTitle(document);
+  const titleSlug = document.slug ?? slugify(title);
   const deconflictedTitleSlug = await getUnusedSlug({
     collectionsToCheck: collectionsToAvoidCollisionsWith,
     slug: titleSlug,
@@ -173,7 +158,7 @@ export async function runSlugCreateBeforeCallback<N extends CollectionNameString
       case "rejectIfExplicit":
       case "newDocumentGetsSuffix":
         return {
-          ...doc,
+          ...document,
           slug: deconflictedTitleSlug,
         };
       case "rejectNewDocument":
@@ -182,19 +167,18 @@ export async function runSlugCreateBeforeCallback<N extends CollectionNameString
   } else {
     // TODO If slug is in another document's oldSlugs, remove it from there
     return {
-      ...doc,
+      ...document,
       slug: titleSlug,
     };
   }
 }
 
-export async function runSlugUpdateBeforeCallback<N extends CollectionNameString>(props: SlugUpdateCallbackProps<N>) {
-  if (!isUpdateBeforeCallbackForSlugCollection(props)) {
-    return props.doc;
+export async function runSlugUpdateBeforeCallback<N extends CollectionNameString>(updateProps: UpdateCallbackProperties<N>) {
+  if (!isUpdateBeforeCallbackForSlugCollection(updateProps)) {
+    return updateProps.data;
   }
   
-  const { doc, props: updateProps } = props;
-  const slugField = updateProps.collection._schemaFields.slug;
+  const slugField = updateProps.schema.slug;
 
   const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = slugField.slugCallbackOptions;
 
@@ -212,7 +196,7 @@ export async function runSlugUpdateBeforeCallback<N extends CollectionNameString
   }
 
   if (!changedSlug) {
-    return doc;
+    return data;
   }
 
   const deconflictedSlug = await getUnusedSlug({
@@ -223,7 +207,7 @@ export async function runSlugUpdateBeforeCallback<N extends CollectionNameString
   });
   if (deconflictedSlug === changedSlug) {
     return {
-      ...newDocument,
+      ...data,
       slug: deconflictedSlug,
       ...(includesOldSlugs && {
         oldSlugs: [
@@ -244,7 +228,7 @@ export async function runSlugUpdateBeforeCallback<N extends CollectionNameString
       // FALLTHROUGH
     case "newDocumentGetsSuffix":
       return {
-        ...newDocument,
+        ...data,
         slug: deconflictedSlug,
         ...(includesOldSlugs && {
           oldSlugs: [
