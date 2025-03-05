@@ -1315,12 +1315,14 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
 
 interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly textLastUpdatedAt: Date|null,
   readonly contents: RevisionEdit|null,
 }
 
 interface MultiDocumentEdit extends MultiDocumentContentDisplay { // fragment on MultiDocuments
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
   readonly summaries: Array<MultiDocumentContentDisplay>,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
@@ -1365,6 +1367,8 @@ interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment 
 interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
   readonly contributors: any,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly summaries: Array<MultiDocumentContentDisplay>,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
@@ -3297,6 +3301,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
+  readonly textLastUpdatedAt: Date|null,
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
   readonly lensesIncludingDeleted: Array<MultiDocumentContentDisplay>,
@@ -3321,6 +3326,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly forceAllowType3Audio: boolean,
+  readonly textLastUpdatedAt: Date|null,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -3341,6 +3347,7 @@ interface TagPageWithArbitalContentFragment extends TagPageFragment, TagPageArbi
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly textLastUpdatedAt: Date|null,
   readonly postsDefaultSortOrder: string,
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
