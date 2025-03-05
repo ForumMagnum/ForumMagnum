@@ -1,39 +1,10 @@
-"use client"
+import ServerComponent from "./server"
 
-import '../../pages/api/reactFactoryShim'
-// import { gql, useSuspenseQuery } from '@apollo/client';
-import Link from 'next/link';
 
-// const randomPostData = gql`
-//    query randomPost($id: String!) {
-//     posts(input: {terms: {limit: 2}}) {
-//       results {
-//         _id
-//         title
-//         slug
-//       }
-//     }
-//   }
-// `
 
-export default function Home() {
-  // const { data } = useSuspenseQuery<any>(randomPostData)
+export default async function Test() {
+  const data: string = await fetch("http://localhost:3000/api/floop", {cache: "force-cache"})
+    .then(res => new Promise(resolve => setTimeout(() => resolve(res.json()), 1000)))
 
-  return (<>
-    <div>
-      <p>
-        Look, it's a post
-      </p>
-    </div>
-    {/* <div>
-      {data.posts.results.map((post: any) => (
-        <div key={post._id}>
-          {post.title}
-        </div>
-      ))}
-    </div> */}
-    <Link href="/"><strong>Go Home</strong></Link>
-    {/* <TopPostsPage /> */}
-    </>
-  );
+  return <ServerComponent data={data} />
 }

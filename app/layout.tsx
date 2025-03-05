@@ -8,10 +8,16 @@ import { initDatabases } from '@/server/serverStartup';
 import Script from 'next/script';
 import { getPublicSettings, setPublicSettings } from '@/lib/settingsCache';
 import Loading from './loadingA';
-await initDatabases({
-  postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_URL || '',
-})
+import { getSqlClient } from '@/server/sql/sqlClient';
+
+
+const sqlClient = getSqlClient()
+if (!sqlClient) {
+  await initDatabases({
+    postgresUrl: process.env.PG_URL || '',
+    postgresReadUrl: process.env.PG_URL || '',
+  })
+}
 
 const { serverSettingsObject, publicSettingsObject, loadedDatabaseId } = await loadDatabaseSettings()
 setPublicSettings(publicSettingsObject?.value)
@@ -31,8 +37,8 @@ export default function RootLayout({
       <body>
         <div id="jss-insertion-start" />
         <div id="jss-insertion-end" />
-        <Script strategy="beforeInteractive">
-        {`console.log("WOOP")`}
+        <Script strategy="beforeInteractive" id="public-settings">
+          {`console.log("WOOP")`}
           {`window.publicSettings = ${JSON.stringify(publicSettingsObject?.value)}`}
         </Script>
         <Providers publicSettings={publicSettingsObject?.value}>
@@ -40,7 +46,7 @@ export default function RootLayout({
             {children}
           </Suspense>
         </Providers>
-    </body>
+      </body>
     </html>
   );
 }

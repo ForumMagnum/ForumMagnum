@@ -13,8 +13,10 @@ import { sqlInterpolateArgs } from '@/server/sql/Type';
 import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '@/server/sql/TableIndex';
+import { fileURLToPath } from 'url';
 
-const ROOT_PATH = path.join(__dirname, "../../../");
+// @ts-expect-error "confused about which kind of module resolution we're doing because of nested tsconfigs. will *actually* break if you try and run from inside packages/lesswrong, I think"
+const ROOT_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
 
 const schemaFileHeaderTemplate = `-- GENERATED FILE
