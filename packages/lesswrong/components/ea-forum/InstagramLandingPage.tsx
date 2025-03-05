@@ -23,6 +23,8 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'jCwuozHHjeoLPLemB', // How Long Do Policy Changes Matter?
+  'DgpRaCdvupy6cMbdk', // Nuance in Proxies
   'RLCfqw9DKchfngv3f', // We need a new Artesunate - the miracle drug fades
   'ZuWcG3W3rEBxLceWj', // Teaching AI to reason: this year's most important story
   'dsdSnqf7CALBBwjkL', // DAW announcement

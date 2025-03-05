@@ -1,9 +1,10 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
-import { formProperties } from '../vulcan-forms/schema_utils';
+import type { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
-import { permissionGroups } from "../permissions";
+import type { permissionGroups } from "../permissions";
 import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
+import type { EditableFieldOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -214,7 +215,8 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   }) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 
-  countOfReferences?: CountOfReferenceOptions
+  countOfReferences?: CountOfReferenceOptions;
+  editableFieldOptions?: EditableFieldOptions;
 }
 
 /** Field specification for a Form field, created from the collection schema */

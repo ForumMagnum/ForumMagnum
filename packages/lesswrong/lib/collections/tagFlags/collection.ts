@@ -1,7 +1,7 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { makeEditable } from '../../editor/make_editable';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
+import { editableFields } from '../../editor/make_editable';
 import './fragments'
 import { userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields } from "../../collectionUtils";
@@ -9,6 +9,13 @@ import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagFlags"> = {
+  ...editableFields("TagFlags", {
+    order: 30,
+    getLocalStorageId: (tagFlag, name) => {
+      if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
+      return {id: `tagFlag: ${name}`, verify: false}
+    },
+  }),
   name: {
     type: String,
     nullable: false,
@@ -78,15 +85,5 @@ addSlugFields({
   includesOldSlugs: false,
 });
 
-makeEditable({
-  collection: TagFlags,
-  options: {
-    order: 30,
-    getLocalStorageId: (tagFlag, name) => {
-      if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
-      return {id: `tagFlag: ${name}`, verify: false}
-    },
-  }
-})
 export default TagFlags;
 

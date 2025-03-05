@@ -1,12 +1,11 @@
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { swrInvalidatePostRoute } from '../cache/swr';
-import { EditableCallbackProperties } from '../editor/make_editable_callbacks';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from '../embeddings';
 import { handleCrosspostUpdate, performCrosspost } from "../fmCrosspost/crosspost";
 import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
+import { rehostPostMetaImages } from '../scripts/convertImagesToCloudinary';
 import { moveToAFUpdatesUserAFKarma } from './alignment-forum/callbacks';
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, debateMustHaveCoauthor, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from './postCallbackFunctions';
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, debateMustHaveCoauthor, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from './postCallbackFunctions';
 
 
 // TODO: refactor these in some way similar to countOfReferences callbacks?
@@ -82,20 +81,6 @@ async function postNewSync(post: DbPost, currentUser: DbUser | null, context: Re
   return post;
 }
 
-// async function postCreateAfterEditableCallbacks(
-//   post: DbPost,
-//   props: AfterCreateCallbackProperties<'Posts'>,
-//   editableCallbackOptions: EditableCallbackProperties<'Posts'>
-// ): Promise<DbPost> {
-//   post = await editorSerializationAfterCreate(post, props, editableCallbackOptions);
-//   post = await notifyUsersAboutPingbackMentionsInCreate(post, props, editableCallbackOptions);
-//   if (editableCallbackOptions.fieldName === 'contents') {
-//     post = await updateFirstDebateCommentPostId(post, props);
-//   }
-
-//   return post;
-// }
-
 async function postCreateAfter(post: DbPost, props: AfterCreateCallbackProperties<'Posts'>): Promise<DbPost> {
   await swrInvalidatePostRoute(post._id);
   if (!post.authorIsUnreviewed && !post.draft) {
@@ -103,11 +88,7 @@ async function postCreateAfter(post: DbPost, props: AfterCreateCallbackPropertie
   }
   post = await applyNewPostTags(post, props);
   post = await createNewJargonTermsCallback(post, props);
-
-  // post editable fields callbacks
-  // post = await postCreateAfterEditableCallbacks(post, props, postContentsEditableCallbackOptions);
-  // post = await postCreateAfterEditableCallbacks(post, props, postModerationGuidelinesEditableCallbackOptions);
-  // post = await postCreateAfterEditableCallbacks(post, props, postCustomHighlightEditableCallbackOptions);
+  post = await updateFirstDebateCommentPostId(post, props);
 
   return post;
 }
@@ -125,9 +106,6 @@ async function postCreateAsync(props: AfterCreateCallbackProperties<'Posts'>) {
   await notifyUsersAddedAsPostCoauthors(props);
   await triggerReviewForNewPostIfNeeded(props);
   await autoTagNewPost(props);
-
-  // elastic callback
-  await elasticSyncDocument('Posts', props.document._id);
 }
 
 async function postNewAsync(post: DbPost) {
@@ -136,13 +114,8 @@ async function postNewAsync(post: DbPost) {
     await updatePostEmbeddingsOnChange(post, undefined);
   }
 
-  // post editable fields callbacks
-  // await reuploadImagesInNew(post, postContentsEditableCallbackOptions);
-  // await reuploadImagesInNew(post, postModerationGuidelinesEditableCallbackOptions);
-  // await reuploadImagesInNew(post, postCustomHighlightEditableCallbackOptions);
-
-  // This editable callback only needs to run once, not once per field, since it's not field-specific
-  // await rehostPostMetaImagesInNew(post);
+  // This used to be an editable callback, but it only needs to run once, rather than once per field
+  await rehostPostMetaImages(post);
 }
 
 async function postUpdateValidate(validationErrors: CallbackValidationErrors, props: UpdateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
@@ -166,11 +139,6 @@ async function postUpdateBefore(post: Partial<DbPost>, props: UpdateCallbackProp
   post = await handleCrosspostUpdate(post, props);
   post = onEditAddLinkSharingKey(post, props);
 
-  // post editable fields callbacks
-  // post = await editorSerializationEdit(post, props, postContentsEditableCallbackOptions);
-  // post = await editorSerializationEdit(post, props, postModerationGuidelinesEditableCallbackOptions);
-  // post = await editorSerializationEdit(post, props, postCustomHighlightEditableCallbackOptions);
-
   return post;
 }
 
@@ -188,12 +156,7 @@ async function postUpdateAfter(post: DbPost, props: UpdateCallbackProperties<'Po
   post = await resetDialogueMatches(post, props);
   post = await createNewJargonTermsCallback(post, props);
   
-  // post editable fields callbacks
-  // post = await notifyUsersAboutPingbackMentionsInUpdate(post, props, postContentsEditableCallbackOptions);
-  // post = await notifyUsersAboutPingbackMentionsInUpdate(post, props, postModerationGuidelinesEditableCallbackOptions);
-  // post = await notifyUsersAboutPingbackMentionsInUpdate(post, props, postCustomHighlightEditableCallbackOptions);
-
-  // countOfReference callbacks run after this
+  // countOfReference callbacks run after this (and after post editable fields callbacks)
 
   return post;
 }
@@ -233,14 +196,6 @@ async function postEditAsync(post: DbPost, oldPost: DbPost, currentUser: DbUser 
   await updateCommentHideKarma(post, oldPost, context);
   await extractSocialPreviewImage(post, props);
   await oldPostsLastCommentedAt(post, context);
-
-  // post editable fields callbacks
-  // await reuploadImagesInEdit(post, oldPost, postContentsEditableCallbackOptions);
-  // await reuploadImagesInEdit(post, oldPost, postModerationGuidelinesEditableCallbackOptions);
-  // await reuploadImagesInEdit(post, oldPost, postCustomHighlightEditableCallbackOptions);
-
-  // elastic callbacks
-  await elasticSyncDocument('Posts', post._id);
 }
 
 getCollectionHooks('Posts').createValidate.add(postCreateValidate);

@@ -122,7 +122,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   approved: boolean,
   deleted: boolean,
   altTerms: string[],
-  humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
+  humansAndOrAIEdited: JargonTermsPost['humansAndOrAIEdited'],
   isFirstOccurrence?: boolean,
   placement?: PopperPlacementType
   children: React.ReactNode,

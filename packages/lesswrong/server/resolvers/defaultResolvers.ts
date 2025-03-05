@@ -13,6 +13,7 @@ import isEqual from "lodash/isEqual";
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
 import { getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection.ts";
 import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
+import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -141,8 +142,9 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       let fetchDocs: () => Promise<T[]>;
       if (fragmentName) {
+        const sqlFragment = getSqlFragment(fragmentName as FragmentName);
         const query = new SelectFragmentQuery(
-          fragmentName as FragmentName,
+          sqlFragment,
           currentUser,
           {...resolverArgs, ...terms},
           parameters.selector,
@@ -246,8 +248,9 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       let doc: ObjectsByCollectionName[N] | null;
       if (fragmentName) {
+        const sqlFragment = getSqlFragment(fragmentName as FragmentName);
         const query = new SelectFragmentQuery(
-          fragmentName as FragmentName,
+          sqlFragment,
           currentUser,
           resolverArgs,
           selector,

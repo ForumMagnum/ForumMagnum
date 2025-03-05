@@ -1,6 +1,7 @@
 import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
+import { editableFields } from "@/lib/editor/make_editable";
 
 const SPOTLIGHT_DOCUMENT_TYPES = ['Sequence', 'Post', 'Tag'] as const;
 
@@ -30,6 +31,23 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
 };
 
 const schema: SchemaType<"Spotlights"> = {
+  ...editableFields("Spotlights", {
+    fieldName: "description",
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    getLocalStorageId: (spotlight) => {
+      if (spotlight._id) { return {id: `spotlight:${spotlight._id}`, verify:true} }
+      return {id: `spotlight:create`, verify:true}
+    },
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment']
+    },
+    order: 100
+  }),
+  
   documentId: {
     type: String,
     nullable: false,

@@ -1,7 +1,11 @@
 import { getWithCustomLoader } from '../../loaders';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple, schemaDefaultValue } from '../../utils/schemaUtils'
+import { editableFields } from '@/lib/editor/make_editable'
 
 const schema: SchemaType<"Collections"> = {
+  ...editableFields("Collections", {
+    order: 20,
+  }),
 
   // default properties
   userId: {
