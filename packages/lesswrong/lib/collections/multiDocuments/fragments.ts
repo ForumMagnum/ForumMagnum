@@ -105,7 +105,8 @@ export const MultiDocumentWithContributorsRevision = `
   }
 `
 
-export const WithVoteMultiDocument = `  fragment WithVoteMultiDocument on MultiDocument {
+export const WithVoteMultiDocument = `
+  fragment WithVoteMultiDocument on MultiDocument {
     ...MultiDocumentMinimumInfo
   }
 `
