@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
+import { schemaDefaultValue } from './utils/schemaUtils';
 
 declare module "simpl-schema" {
   interface SchemaDefinition {
