@@ -1,5 +1,5 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addSlugFields, schemaDefaultValue } from '../../utils/schemaUtils';
+import { schemaDefaultValue, slugFields } from '../../utils/schemaUtils';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { editableFields } from '../../editor/make_editable';
 import './fragments'
@@ -15,6 +15,10 @@ const schema: SchemaType<"TagFlags"> = {
       if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
       return {id: `tagFlag: ${name}`, verify: false}
     },
+  }),
+  ...slugFields("TagFlags", {
+    getTitle: (tf) => tf.name,
+    includesOldSlugs: false,
   }),
   name: {
     type: String,
@@ -78,12 +82,6 @@ export const TagFlags: TagFlagsCollection = createCollection({
 });
 
 addUniversalFields({collection: TagFlags})
-
-addSlugFields({
-  collection: TagFlags,
-  getTitle: (tf) => tf.name,
-  includesOldSlugs: false,
-});
 
 export default TagFlags;
 

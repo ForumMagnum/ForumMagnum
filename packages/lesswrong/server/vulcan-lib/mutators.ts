@@ -49,6 +49,7 @@ import type {
   runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
 } from '../editor/make_editable_callbacks';
 import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
+import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from '../utils/slugUtil';
 import { isElasticEnabled } from '@/lib/instanceSettings';
 import { searchIndexedCollectionNamesSet } from '@/lib/search/searchUtil';
 // This needs to be import type to avoid a dependency cycle
@@ -223,6 +224,9 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  document = await runSlugCreateBeforeCallback(properties);
+
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
@@ -456,6 +460,9 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  data = await runSlugUpdateBeforeCallback(properties);
+  
   logger('updateBefore')
   data = await hooks.updateBefore.runCallbacks({
     iterator: data,

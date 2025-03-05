@@ -1,4 +1,4 @@
-import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple, slugFields } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
@@ -99,6 +99,17 @@ const schema: SchemaType<"Tags"> = {
       canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
       canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
+  }),
+
+  ...slugFields("Tags", {
+    collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+    getTitle: (t) => t.name,
+    slugOptions: {
+      canCreate: ['admins', 'sunshineRegiment'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      group: formGroups.advancedOptions,
+    },
+    includesOldSlugs: true,
   }),
   
   name: {

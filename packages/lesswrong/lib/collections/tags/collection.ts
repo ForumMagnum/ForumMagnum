@@ -3,8 +3,6 @@ import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma } from './helpers';
-import { formGroups } from './formGroups';
-import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
@@ -60,16 +58,5 @@ addUniversalFields({collection: Tags, legacyDataOptions: {
   canCreate: ['admins'],
   canUpdate: ['admins'],
 }});
-addSlugFields({
-  collection: Tags,
-  collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
-  getTitle: (t) => t.name,
-  slugOptions: {
-    canCreate: ['admins', 'sunshineRegiment'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
-  },
-  includesOldSlugs: true,
-});
 
 export default Tags;

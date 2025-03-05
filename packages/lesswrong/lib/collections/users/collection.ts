@@ -1,7 +1,5 @@
-import schema, { createDisplayName } from './schema';
+import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { formGroups } from './formGroups';
-import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { createCollection } from "../../vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "../../vulcan-lib/graphql";
 import { addUniversalFields } from "../../collectionUtils";
@@ -58,18 +56,6 @@ addGraphQLResolvers({
 addGraphQLQuery('currentUser: User');
 
 addUniversalFields({collection: Users});
-
-addSlugFields({
-  collection: Users,
-  getTitle: (u) => u.displayName ?? createDisplayName(u),
-  includesOldSlugs: true,
-  onCollision: "rejectIfExplicit",
-  slugOptions: {
-    canUpdate: ['admins'],
-    order: 40,
-    group: formGroups.adminOptions,
-  },
-});
 
 Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
   if (document && document.deleted && !userOwns(user, document)) return userCanDo(user, 'users.view.deleted')

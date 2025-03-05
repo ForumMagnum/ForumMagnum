@@ -1,5 +1,5 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { slugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
@@ -37,6 +37,11 @@ const schema: SchemaType<"GardenCodes"> = {
     commentStyles: true,
     hideControls: true,
     order: 20
+  }),
+
+  ...slugFields("GardenCodes", {
+    getTitle: (gc) => gc.title,
+    includesOldSlugs: false,
   }),
   
   code: {
@@ -165,27 +170,6 @@ const schema: SchemaType<"GardenCodes"> = {
   // },
 };
 
-
-
-//
-// const options = {
-//   newCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     if (!user || !document) return false;
-//     return userCanDo(user, `gardenCodes.new`)
-//   },
-//
-//   editCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     if (!user || !document) return false;
-//     return userCanDo(user, `gardenCode.edit.all`)
-//   },
-//
-//   removeCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     // Nobody should be allowed to remove documents completely from the DB.
-//     // Deletion is handled via the `deleted` flag.
-//     return false
-//   },
-// }
-//
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
@@ -203,11 +187,5 @@ export const GardenCodes: GardenCodesCollection = createCollection({
 });
 
 addUniversalFields({collection: GardenCodes})
-
-addSlugFields({
-  collection: GardenCodes,
-  getTitle: (gc) => gc.title,
-  includesOldSlugs: false,
-});
 
 export default GardenCodes;
