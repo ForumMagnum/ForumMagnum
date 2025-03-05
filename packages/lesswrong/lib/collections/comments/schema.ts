@@ -12,6 +12,7 @@ import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
 import { updateMutator } from '@/server/vulcan-lib/mutators';
 import { editableFields } from '@/lib/editor/make_editable';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { addUniversalFields } from "../../collectionUtils";
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -28,6 +29,10 @@ export const alignmentOptionsGroup = {
 };
 
 const schema: SchemaType<"Comments"> = {
+  ...addUniversalFields({
+    createdAtOptions: {canRead: ['admins']},
+  }),
+  
   ...editableFields("Comments", {
     commentEditor: true,
     commentStyles: true,
