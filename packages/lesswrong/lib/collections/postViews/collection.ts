@@ -1,8 +1,9 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { getDefaultMutations } from '../../vulcan-core/default_mutations';
+import { createCollection } from '../../vulcan-lib/collections';
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { schema } from './schema';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
  * Collection containing aggregated data on view counts (per post, per day). Used by
@@ -12,6 +13,14 @@ export const PostViews = createCollection({
   collectionName: 'PostViews',
   typeName: 'PostViews',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('PostViews', { postId: 1, windowStart: 1, windowEnd: 1 }, { unique: true });
+    indexSet.addIndex('PostViews', { postId: 1 });
+    indexSet.addIndex('PostViews', { windowEnd: 1 });
+    indexSet.addIndex('PostViews', { windowStart: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('PostViews'),
   mutations: getDefaultMutations('PostViews'),
   logChanges: true,
@@ -20,10 +29,5 @@ export const PostViews = createCollection({
 addUniversalFields({
   collection: PostViews,
 });
-
-ensureIndex(PostViews, {postId: 1, windowStart: 1, windowEnd: 1}, {unique: true});
-ensureIndex(PostViews, {postId: 1});
-ensureIndex(PostViews, {windowEnd: 1});
-ensureIndex(PostViews, {windowStart: 1});
 
 export default PostViews;

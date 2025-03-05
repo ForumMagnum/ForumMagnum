@@ -5,14 +5,8 @@ import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
-import Tags from '@/lib/collections/tags/collection';
-import { editableCollectionsFields } from '@/lib/editor/make_editable';
+import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
 import { getCollection } from '@/lib/vulcan-lib/getCollection';
-import { dataToHTML } from './editor/conversionUtils';
-import { EditorContents } from '@/components/editor/Editor';
-import { Globals } from "@/lib/vulcan-lib/config";
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 import { getLatestRev } from './editor/utils';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
@@ -83,6 +77,7 @@ const extractLinks = (html: string): Array<string> => {
   return targets;
 }
 
+// Exported to allow running from "yarn repl"
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
@@ -90,12 +85,15 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
     collection,
     callback: async (batch) => {
       await Promise.all(batch.map(async (doc: ObjectsByCollectionName[N]) => {
-        for (const editableField of editableCollectionsFields[collectionName]) {
-          const editableFieldOptions = editableCollectionsFieldOptions[collectionName][editableField];
+        const editableFields = getEditableFieldsByCollection()[collectionName];
+        if (!editableFields) return;
+
+        for (const [fieldName, editableField] of Object.entries(editableFields)) {
+          const editableFieldOptions = editableField.editableFieldOptions.callbackOptions;
           if (!editableFieldOptions.pingbacks) continue;
           const fieldContents = editableFieldOptions.normalized
-            ? await getLatestRev(doc._id, editableField)
-            : doc[editableField as keyof T] as AnyBecauseHard;
+            ? await getLatestRev(doc._id, fieldName)
+            : doc[fieldName as keyof T] as AnyBecauseHard;
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
             collectionName, documentId: doc._id
@@ -113,16 +111,19 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
   });
 }
 
-Globals.recomputePingbacks = recomputePingbacks;
-Globals.showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
+// Exported to allow running from "yarn repl"
+export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
   const doc = await collection.findOne({_id});
   if (!doc) return;
+
+  const editableFields = getEditableFieldsByCollection()[collectionName];
+  if (!editableFields) return;
   
-  for (const editableField of editableCollectionsFields[collectionName]) {
-    if (!editableCollectionsFieldOptions[collectionName][editableField].pingbacks) continue;
-    const fieldContents = doc[editableField as keyof T] as AnyBecauseHard;
+  for (const [fieldName, editableField] of Object.entries(editableFields)) {
+    if (!editableField.editableFieldOptions.callbackOptions.pingbacks) continue;
+    const fieldContents = doc[fieldName as keyof T] as AnyBecauseHard;
     const html = fieldContents?.html ?? "";
     const pingbacks = await htmlToPingbacks(html, [{
       collectionName, documentId: doc._id

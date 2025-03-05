@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
   rightColumn: {
@@ -26,11 +27,6 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
     zIndex: 2,
     height: 140,
     width: "100%",
-    // background: `linear-gradient(0deg, 
-    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
-    //   ${theme.palette.panelBackground.translucent} 70%,
-    //   transparent 100%
-    // )`,
     opacity: 1,
   },
 
@@ -39,8 +35,6 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
     fontSize: '1.0rem',
     marginBottom: 4,
     color: theme.palette.grey[600],
-    minWidth: 'fit-content',
-    // whiteSpace: 'nowrap',
     display: 'block',
     cursor: 'pointer',
     '&:hover': {
@@ -188,34 +182,39 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   const childrenDefaultLimitToShow = 4;
 
-  return <ContentStyles contentType="tag">
-    <div className={classes.linkedTagsHeader}>
-      <div className={classes.linkedTagsList}>
-        <LinkedPageListSection title="Relies on" linkedPages={requirements} />
-        <LinkedPageListSection title="Teaches" linkedPages={teachesFiltered} />
-        <LinkedPageListSection title="Slower alternatives" linkedPages={slower} />
-        <LinkedPageListSection title="Less technical alternatives" linkedPages={lessTechnical} />
-        <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
-        <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
-        <LinkedPageListSection title="Parents" linkedPages={parents} />
-        <LinkedPageListSection title="Children" linkedPages={children} limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}>
-          {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
-            <div 
-              className={classes.linkedTagMore} 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsChildrenExpanded(true);
-              }}
-            >
-              and {children.length - childrenDefaultLimitToShow} more
-            </div>
-          )}
-        </LinkedPageListSection>
-
+  return <AnalyticsContext pageSectionContext="wikitagRelationshipsRightSidebar">
+    <ContentStyles contentType="tag">
+      <div className={classes.linkedTagsHeader}>
+        <div className={classes.linkedTagsList}>
+          <LinkedPageListSection title="Relies on" linkedPages={requirements} />
+          <LinkedPageListSection title="Teaches" linkedPages={teachesFiltered} />
+          <LinkedPageListSection title="Slower alternatives" linkedPages={slower} />
+          <LinkedPageListSection title="Less technical alternatives" linkedPages={lessTechnical} />
+          <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
+          <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
+          <LinkedPageListSection title="Parents" linkedPages={parents} />
+          <LinkedPageListSection 
+            title="Children" 
+            linkedPages={children} 
+            limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}
+          >
+            {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
+              <div 
+                className={classes.linkedTagMore} 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsChildrenExpanded(true);
+                }}
+              >
+                and {children.length - childrenDefaultLimitToShow} more
+              </div>
+            )}
+          </LinkedPageListSection>
+        </div>
       </div>
-    </div>
-  </ContentStyles>;
+    </ContentStyles>
+  </AnalyticsContext>;
 }
 
 const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
@@ -263,36 +262,38 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   
   return (
-    <ContentStyles contentType="tag">
-      <div className={classes.mobileRelationships}>
-        {requirements.length > 0 && (
-          <div className={classes.relationshipRow}>
-            <span className={classes.spaceAfterWord}>{'Requires: '}</span>
-            {requirements.map((req: ArbitalLinkedPage, i: number) => (
-              <span key={req.slug} className={classes.spaceAfterWord}>
-                <TagsTooltip tagSlug={req.slug}>
-                  <Link to={tagGetUrl(req)}>{req.name}</Link>
-                </TagsTooltip>
-                {i < requirements.length - 1 && ', '}
-              </span>
-            ))}
-          </div>
-        )}
-        {teachesFiltered.length > 0 && (
-          <div className={classes.relationshipRow}>
-            <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
-            {teachesFiltered.map((subject: ArbitalLinkedPage, i: number) => (
-              <span key={subject.slug} className={classes.spaceAfterWord}>
-                <TagsTooltip tagSlug={subject.slug}>
-                  <Link to={tagGetUrl(subject)}>{subject.name}</Link>
-                </TagsTooltip>
-                {i < teachesFiltered.length - 1 && ', '}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </ContentStyles>
+    <AnalyticsContext pageSectionContext="wikitagRelationshipsSmallScreen">
+      <ContentStyles contentType="tag">
+        <div className={classes.mobileRelationships}>
+          {requirements.length > 0 && (
+            <div className={classes.relationshipRow}>
+              <span className={classes.spaceAfterWord}>{'Requires: '}</span>
+              {requirements.map((req: ArbitalLinkedPage, i: number) => (
+                <span key={req.slug} className={classes.spaceAfterWord}>
+                  <TagsTooltip tagSlug={req.slug}>
+                    <Link to={tagGetUrl(req)}>{req.name}</Link>
+                  </TagsTooltip>
+                  {i < requirements.length - 1 && ', '}
+                </span>
+              ))}
+            </div>
+          )}
+          {teachesFiltered.length > 0 && (
+            <div className={classes.relationshipRow}>
+              <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
+              {teachesFiltered.map((subject: ArbitalLinkedPage, i: number) => (
+                <span key={subject.slug} className={classes.spaceAfterWord}>
+                  <TagsTooltip tagSlug={subject.slug}>
+                    <Link to={tagGetUrl(subject)}>{subject.name}</Link>
+                  </TagsTooltip>
+                  {i < teachesFiltered.length - 1 && ', '}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </ContentStyles>
+    </AnalyticsContext>
   );
 }
 
@@ -307,34 +308,36 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
   if (parents.length === 0 && children.length === 0) return null;
 
   return (
-    <ContentStyles contentType="tag" className={classes.parentsAndChildrenSmallScreensRoot}>
-      <div className={classes.parentChildRelationships}>
-        {parents.length > 0 && <div className={classes.parentsOrChildrensSection}>
-          <div className={classes.parentsOrChildrensSectionTitle}>Parents:</div>
-          {parents.map((parent: ArbitalLinkedPage) => (
-            <LinkedPageDisplay key={parent.slug} linkedPage={parent} className={classes.parentOrChild} />
-          ))}
-        </div>}
-        {children.length > 0 && <div className={classes.parentsOrChildrensSection}>
-          <div className={classes.parentsOrChildrensSectionTitle}>Children:</div>
-          {children.slice(0, isChildrenExpanded ? undefined : 2).map((child: ArbitalLinkedPage) => (
-            <LinkedPageDisplay key={child.slug} linkedPage={child} className={classes.parentOrChild} />
-          ))}
-          {!isChildrenExpanded && children.length > 2 && (
-            <div 
-              className={classes.linkedTagMore}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsChildrenExpanded(true);
-              }}
-            >
-              and {children.length - 2} more
-            </div>
-          )}
-        </div>}
-      </div>
-    </ContentStyles>
+    <AnalyticsContext pageSectionContext="wikitagParentsAndChildrenSmallScreens">
+      <ContentStyles contentType="tag" className={classes.parentsAndChildrenSmallScreensRoot}>
+        <div className={classes.parentChildRelationships}>
+          {parents.length > 0 && <div className={classes.parentsOrChildrensSection}>
+            <div className={classes.parentsOrChildrensSectionTitle}>Parents:</div>
+            {parents.map((parent: ArbitalLinkedPage) => (
+              <LinkedPageDisplay key={parent.slug} linkedPage={parent} className={classes.parentOrChild} />
+            ))}
+          </div>}
+          {children.length > 0 && <div className={classes.parentsOrChildrensSection}>
+            <div className={classes.parentsOrChildrensSectionTitle}>Children:</div>
+            {children.slice(0, isChildrenExpanded ? undefined : 2).map((child: ArbitalLinkedPage) => (
+              <LinkedPageDisplay key={child.slug} linkedPage={child} className={classes.parentOrChild} />
+            ))}
+            {!isChildrenExpanded && children.length > 2 && (
+              <div 
+                className={classes.linkedTagMore}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsChildrenExpanded(true);
+                }}
+              >
+                and {children.length - 2} more
+              </div>
+            )}
+          </div>}
+        </div>
+      </ContentStyles>
+    </AnalyticsContext>
   );
 };
 

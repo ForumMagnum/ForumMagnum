@@ -5,7 +5,7 @@ import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { useCurrentUser } from '@/components/common/withUser';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
 import { isMobile } from '@/lib/utils/isMobile';
@@ -13,14 +13,12 @@ import { isMobile } from '@/lib/utils/isMobile';
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
     cursor: "pointer",
-    marginRight: 4,
     display: "flex",
     alignItems: "center",
     color: theme.palette.grey[800],
   },
   selectedLikeButton: {
     cursor: "pointer",
-    marginRight: 4,
     display: "flex",
     alignItems: "center",
     color: theme.palette.grey[600],
@@ -41,6 +39,7 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     paddingBottom: 2,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
+    marginLeft: 1,
   },
   likeCountButtonRow: {
     ...theme.typography.commentStyle,
@@ -127,7 +126,7 @@ const ReactionsAndLikesVote  = ({
   </div>
   
   const likeCountElement = stylingVariant === "buttonRow"
-    ? <span className={classes.likeCountButtonRow}>{`(${likeCount})`}</span>
+    ? <span className={classes.likeCountButtonRow}>{`${likeCount}`}</span>
     : <span className={classes.likeCount}>{likeCount}</span>;
   
 

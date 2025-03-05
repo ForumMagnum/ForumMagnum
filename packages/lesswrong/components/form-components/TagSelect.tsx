@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@material-ui/core/Chip/Chip';

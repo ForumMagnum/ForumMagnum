@@ -1,11 +1,13 @@
 import schema from './schema';
-import { createCollection, getCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils'
-import { userCanDo, membersGroup, userIsAdminOrMod } from '../../vulcan-users/permissions';
+import { userCanDo, userIsAdminOrMod } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
-import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
 import { postCheckAccess } from '../posts/checkAccess';
+import { createCollection } from "../../vulcan-lib/collections";
+import { getCollection } from "../../vulcan-lib/getCollection";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 export const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -24,6 +26,9 @@ export const Revisions: RevisionsCollection = createCollection({
     }
   }),
   logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
+  },
 });
 addUniversalFields({
   collection: Revisions,
@@ -123,16 +128,5 @@ export interface ChangeMetrics {
   added: number
   removed: number
 }
-
-makeVoteable(Revisions, {
-  timeDecayScoresCronjob: false,
-});
-
-membersGroup.can([
-  'revisions.smallDownvote',
-  'revisions.bigDownvote',
-  'revisions.smallUpvote',
-  'revisions.bigUpvote',
-]);
 
 export default Revisions;

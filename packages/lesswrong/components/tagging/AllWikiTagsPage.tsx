@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useLocation } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
@@ -11,6 +10,8 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { useMulti } from '@/lib/crud/withMulti';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -200,6 +201,7 @@ const uncategorizedRootTag = {
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,
+  wikiOnly: true,
 };
 
 // TODO: we really need to figure out a better way to handle this than slugs, especially with the merged rationality page
@@ -214,25 +216,21 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   const classes = useStyles(styles);
   const { Loading } = Components
 
-  // TODO: put in database setting?
-  const documentId = "nDavoyZ2EobkpZNAs"
 
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    skip: !documentId
-  });
+  const redirectHtml = <div>
+    <h2>You have been redirected from Arbital.com</h2>
+    <p>Following the end of the <a href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</a>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
+    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <a href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</a>, <a href="#">Logarithm Guide</a>, and many <a href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</a> by Eliezer.</p>
+    <p>Arbital content is indicated with the Arbital theme color and logo.</p>
+  </div>
 
-  const { html = "" } = document?.contents || {}
+
 
   return (
     <div className={classes.arbitalRedirectNotice}>
       <ArbitalLogo className={classes.arbitalLogo} />
       <div className={classes.arbitalRedirectNoticeContent}>
-        {loading && <Loading />}
-        {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
-        {!html && !loading && <div><em>You have been redirected from Arbital.com</em></div>}
+        {redirectHtml}
       </div>
       <div className={classes.dismissButtonContainer}>
         <button className={classes.dismissButton} onClick={onDismiss}>×</button>
@@ -243,6 +241,7 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
 
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
 
   const { WikiTagGroup, Loading, NewWikiTagButton } = Components;
 
@@ -278,6 +277,7 @@ const AllWikiTagsPage = () => {
   // Function to handle search state changes
   const handleSearchStateChange = (searchState: any) => {
     setCurrentQuery(searchState.query || '');
+    captureEvent('searchQueryUpdated', { query: searchState.query });
   };
 
   const CustomStateResults = connectStateResults(({ searchResults, isSearchStalled }) => {
@@ -291,6 +291,7 @@ const AllWikiTagsPage = () => {
     }
 
     return (
+      <AnalyticsContext searchQuery={currentQuery}>
       <div className={classes.mainContent}>
         {priorityTags.map((tag: ConceptItemFragment) => (
           tag && <WikiTagGroup
@@ -307,6 +308,7 @@ const AllWikiTagsPage = () => {
           noLinkOrHoverOnTitle
         />
       </div>
+      </AnalyticsContext>
     );
   });
 

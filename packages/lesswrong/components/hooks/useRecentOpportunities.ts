@@ -29,12 +29,14 @@ export const useRecentOpportunities =<
   maxAgeInDays = 7,
   post,
   ssr,
+  skip,
 }: {
   fragmentName: FragmentTypeName,
   limit?: number,
   maxAgeInDays?: number,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   ssr?: boolean,
+  skip?: boolean,
 }): UseMultiResult<FragmentTypeName> & {coreTagLabel: string | null} => {
   const coreTags =
     post?.tags
@@ -70,6 +72,7 @@ export const useRecentOpportunities =<
     enableTotal: false,
     ssr,
     fetchPolicy: "cache-and-network",
+    skip,
   });
 
   // If all results have the same core tag as one on the input post, set this as the coreTagLabel. If there are multiple that

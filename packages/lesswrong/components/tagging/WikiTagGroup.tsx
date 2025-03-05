@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 // TODO: single source for here and ConceptItem, must be kept in sync
 const CONCEPT_ITEM_WIDTH = 280;
@@ -140,44 +141,46 @@ const WikiTagGroup = ({
   const showLoadingSpinner = loading && (pages.length === 0) && (networkStatus !== NetworkStatus.fetchMore);
 
   return (
-    <div className={classes.root}>
-      <div className={classes.titleItem}>
-        <ConceptItem
-          wikitag={coreTag}
-          isTitleItem
-          showArbitalIcon={showArbitalIcons}
-          noLinkOrHoverOnTitle={noLinkOrHoverOnTitle}
-        />
-      </div>
-      {showLoadingSpinner && <Loading />}
-      {pages.length > 0 && <div className={classes.children}>
-        <div className={classes.childrenContainer}>
-          <div className={classNames(classes.childrenList)}>
-            {columns.map((columnItems, columnIndex) => (
-              <div key={columnIndex} className={classes.column}>
-                {columnItems.map((childPage, idx) => (
-                  <ConceptItem
-                    key={childPage._id}
-                    wikitag={childPage}
-                    showArbitalIcon={showArbitalIcons}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+    <AnalyticsContext pageSectionContext="wikiTagGroup" tagGroupName={coreTag.name}>
+      <div className={classes.root}>
+        <div className={classes.titleItem}>
+          <ConceptItem
+            wikitag={coreTag}
+            isTitleItem
+            showArbitalIcon={showArbitalIcons}
+            noLinkOrHoverOnTitle={noLinkOrHoverOnTitle}
+          />
         </div>
-      </div>}
-      {pages.length < totalCount && (
-        <LoadMore
-          loading={networkStatus === NetworkStatus.fetchMore}
-          loadMore={loadMore}
-          count={pages.length}
-          totalCount={totalCount}
-          className={classes.loadMore}
-          loadingClassName={classes.loadMoreLoading}
-        />
-      )}
-    </div>
+        {showLoadingSpinner && <Loading />}
+        {pages.length > 0 && <div className={classes.children}>
+          <div className={classes.childrenContainer}>
+            <div className={classNames(classes.childrenList)}>
+              {columns.map((columnItems, columnIndex) => (
+                <div key={columnIndex} className={classes.column}>
+                  {columnItems.map((childPage, idx) => (
+                    <ConceptItem
+                      key={childPage._id}
+                      wikitag={childPage}
+                      showArbitalIcon={showArbitalIcons}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>}
+        {pages.length < totalCount && (
+          <LoadMore
+            loading={networkStatus === NetworkStatus.fetchMore}
+            loadMore={loadMore}
+            count={pages.length}
+            totalCount={totalCount}
+            className={classes.loadMore}
+            loadingClassName={classes.loadMoreLoading}
+          />
+        )}
+      </div>
+    </AnalyticsContext>
   );
 };
 

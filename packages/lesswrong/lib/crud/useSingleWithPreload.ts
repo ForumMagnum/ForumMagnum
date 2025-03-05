@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import { getFragment } from "../vulcan-lib/fragments";
-import { collectionNameToTypeName } from "../vulcan-lib";
+import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
 import { useSingle } from "./withSingle";
 
 export function useSingleWithPreload<

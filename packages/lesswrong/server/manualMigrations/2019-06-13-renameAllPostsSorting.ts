@@ -2,7 +2,7 @@ import { registerMigration, migrateDocuments } from './migrationUtils'
 import Users from '../../lib/collections/users/collection'
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "renameAllPostsSorting",
   dateWritten: "2019-06-13",
   idempotent: true,

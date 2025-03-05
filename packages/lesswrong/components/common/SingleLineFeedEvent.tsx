@@ -1,5 +1,5 @@
 import React from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import Paper from '@material-ui/core/Paper';
@@ -8,7 +8,8 @@ const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
-    margin: 8,
+    marginTop: 8,
+    marginBottom: 8,
     width: "100%",
   },
   tooltipWrapper: {
@@ -62,7 +63,7 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   expanded?: boolean,
   setExpanded?: (expanded: boolean) => void,
   frame?: boolean,
-  icon: React.ReactNode,
+  icon?: React.ReactNode,
   tooltip?: React.ReactNode,
   children: React.ReactNode,
 }) => {
@@ -76,7 +77,7 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   }
 
   const contents = <div className={classNames(classes.root, expands && !expanded && classes.expandable)} onClick={handleClick}>
-    <div className={classNames(classes.icon, frame && classes.iconNextToFrame)}>{icon}</div>
+    {icon && <div className={classNames(classes.icon, frame && classes.iconNextToFrame)}>{icon}</div>}
     <div className={classNames(classes.contents, frame && classes.frame)}>
       {children}
     </div>

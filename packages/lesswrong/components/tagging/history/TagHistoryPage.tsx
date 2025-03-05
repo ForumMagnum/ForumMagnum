@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -144,6 +144,7 @@ const TagHistoryPage = () => {
                 headingStyle={"abridged"}
                 documentId={tag._id}
                 showDiscussionLink={false}
+                showIcon={true}
               />
             </div>
           }
@@ -160,6 +161,7 @@ const TagHistoryPage = () => {
                 collapsed={collapseAll && focusedUser!==revision.user?.slug}
                 lens={lens}
                 revision={revision}
+                showIcon={true}
               />
             </div>
           }

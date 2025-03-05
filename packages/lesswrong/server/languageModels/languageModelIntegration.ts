@@ -1,4 +1,3 @@
-import { Globals } from '../../lib/vulcan-lib/config';
 import OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';

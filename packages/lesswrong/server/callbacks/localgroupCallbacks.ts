@@ -1,28 +1,32 @@
-import { getCollectionHooks } from '../mutationCallbacks';
+import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import difference from 'lodash/difference';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import Users from '../../lib/vulcan-users';
 
-
-getCollectionHooks("Localgroups").createValidate.add((validationErrors: Array<any>, {document: group}) => {
+// createValidate
+function localgroupCreateValidate(validationErrors: CallbackValidationErrors, {document: group}: CreateCallbackProperties<'Localgroups'>) {
   if (!group.isOnline && !group.location)
     throw new Error("Location is required for local groups");
   
   return validationErrors;
-});
+}
 
-getCollectionHooks("Localgroups").updateValidate.add((validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbLocalgroup, newDocument: DbLocalgroup}) => {
+// createAsync
+async function localgroupCreateAsync({document}: AfterCreateCallbackProperties<'Localgroups'>) {
+  await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+}
+
+// updateValidate
+function localgroupUpdateValidate(validationErrors: CallbackValidationErrors, {oldDocument, newDocument}: UpdateCallbackProperties<'Localgroups'>) {
   if (!newDocument.isOnline && !newDocument.location)
     throw new Error("Location is required for local groups");
   
   return validationErrors;
-});
+}
 
-getCollectionHooks("Localgroups").createAsync.add(async ({document}) => {
-  await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
-})
+// updateAsync
+async function localgroupUpdateAsync({ document, oldDocument, context }: UpdateCallbackProperties<'Localgroups'>) {
+  const { Users } = context;
 
-getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}: {document: DbLocalgroup, oldDocument: DbLocalgroup}) => {
   // notify new organizers that they have been added to this group
   const newOrganizerIds = difference(document.organizerIds, oldDocument.organizerIds)
   await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
@@ -46,4 +50,9 @@ getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}
       )
     }
   })
-})
+}
+
+getCollectionHooks('Localgroups').createValidate.add(localgroupCreateValidate);
+getCollectionHooks('Localgroups').createAsync.add(localgroupCreateAsync);
+getCollectionHooks('Localgroups').updateValidate.add(localgroupUpdateValidate);
+getCollectionHooks('Localgroups').updateAsync.add(localgroupUpdateAsync);

@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
-import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
 import { gql, useMutation } from '@apollo/client';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { makeAbsolute } from "../../lib/vulcan-lib/utils";
 
 const styles = (theme: ThemeType) => ({
   root: {

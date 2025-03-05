@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
@@ -593,7 +593,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 <BookmarkButton post={post}/>
               </div>}
               <div className={classes.mobileDismissButton}>
-                <DismissButton {...{showDismissButton, onDismiss}} />
+                {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
               </div>
 
               {resumeReading &&

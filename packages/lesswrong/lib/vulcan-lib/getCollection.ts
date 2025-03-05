@@ -13,8 +13,9 @@ export const getCollection = <N extends CollectionNameString>(name: N): Collecti
   // (This shouldn't ever come up, but it's hard to verify that it doesn't
   // because of legacy Vulcan stuff.)
   const collection = Collections.find(
-    ({ options: { collectionName } }) =>
-      name === collectionName || name === collectionName.toLowerCase()
+    (collection) =>
+      name === collection.collectionName
+      || name === collection.collectionName.toLowerCase()
   );
   
   // If we still can't find the collection, throw an exception. If the argument
@@ -44,8 +45,9 @@ export const isValidCollectionName = (name: string): name is CollectionNameStrin
   
   // Case-insensitive search fallback, similar to getCollection.
   return !!Collections.find(
-    ({ options: { collectionName } }) =>
-      name === collectionName || name === collectionName.toLowerCase()
+    (collection) =>
+      name === collection.collectionName
+      || name === collection.collectionName.toLowerCase()
   );
 }
 
@@ -60,7 +62,7 @@ export const registerCollection = <N extends CollectionNameString>(
 }
 
 // Get a list of all collections, sorted by collection name.
-export const getAllCollections = (): Array<CollectionBase<any>> => {
+export const getAllCollections = (): Array<CollectionBase<CollectionNameString>> => {
   return sortBy(Collections, c=>c.collectionName);
 }
 
@@ -71,5 +73,5 @@ export const typeNameToCollectionName = (typeName: string): CollectionNameString
 }
 
 export const collectionNameToTypeName = (collectionName: CollectionNameString) => {
-  return getCollection(collectionName).options.typeName;
+  return getCollection(collectionName).typeName;
 }

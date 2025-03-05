@@ -313,6 +313,9 @@ SimpleSchema.extendOptions(['logChanges'])
 // addCountOfReferenceCallbacks).
 SimpleSchema.extendOptions(['countOfReferences']);
 
+// For fields that are editable, this option allows you to specify the editable field options
+SimpleSchema.extendOptions(['editableFieldOptions']);
+
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of

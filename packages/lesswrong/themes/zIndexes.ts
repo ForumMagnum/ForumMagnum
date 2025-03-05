@@ -22,6 +22,7 @@ export const defaultZIndexes = {
   sidebarHoverOver: 3,
   sidebarActionMenu: 3,
   commentPermalinkIcon: 3,
+  newWikiTagButton: 3,
   reviewVotingMenu: 4,
   singleLineCommentHover: 4,
   questionPageWhitescreen: 4,

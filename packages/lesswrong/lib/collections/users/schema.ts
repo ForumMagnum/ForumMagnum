@@ -1,8 +1,7 @@
 import SimpleSchema from 'simpl-schema';
-import { getNestedProperty, addGraphQLSchema } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
@@ -20,6 +19,10 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { DeferredForumSelect } from '../../forumTypeUtils';
+import { getNestedProperty } from "../../vulcan-lib/utils";
+import { addGraphQLSchema } from "../../vulcan-lib/graphql";
+import { editableFields } from '@/lib/editor/make_editable';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -69,24 +72,7 @@ export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
 
 
 export const MAX_NOTIFICATION_RADIUS = 300
-export const karmaChangeNotifierDefaultSettings = {
-  // One of the string keys in karmaNotificationTimingChocies
-  updateFrequency: "daily",
 
-  // Time of day at which daily/weekly batched updates are released, a number
-  // of hours [0,24). Always in GMT, regardless of the user's time zone.
-  // Default corresponds to 3am PST.
-  timeOfDayGMT: 11,
-
-  // A string day-of-the-week name, spelled out and capitalized like "Monday".
-  // Always in GMT, regardless of the user's timezone (timezone matters for day
-  // of the week because time zones could take it across midnight.)
-  dayOfWeekGMT: "Saturday",
-
-  // A boolean that determines whether we hide or show negative karma updates.
-  // False by default because people tend to drastically overweigh negative feedback
-  showNegativeKarma: false,
-};
 
 export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
 export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
@@ -129,6 +115,9 @@ export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequen
 
 export interface KarmaChangeSettingsType {
   updateFrequency: KarmaChangeUpdateFrequency
+  /**
+   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
+   */
   timeOfDayGMT: number
   dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   showNegativeKarma: boolean
@@ -155,6 +144,21 @@ const karmaChangeSettingsType = new SimpleSchema({
     optional: true,
   }
 })
+
+export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
+  EAForum: {
+    updateFrequency: "realtime",
+    timeOfDayGMT: 11, // 3am PST
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+  default: {
+    updateFrequency: "daily",
+    timeOfDayGMT: 11,
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+} as const);
 
 const notificationTypeSettings = new SimpleSchema({
   channel: {
@@ -187,7 +191,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings" as const,
+  control: "NotificationTypeSettingsWidget" as const,
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
@@ -331,6 +335,76 @@ addGraphQLSchema(`
  * @type {Object}
  */
 const schema: SchemaType<"Users"> = {
+  ...editableFields("Users", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    }
+  }),
+
+  ...editableFields("Users", {
+    fieldName: 'howOthersCanHelpMe',
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 7,
+    label: "How others can help me",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  ...editableFields("Users", {
+    fieldName: 'howICanHelpOthers',
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 8,
+    label: "How I can help others",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  // biography: Some text the user provides for their profile page and to display
+  // when people hover over their name.
+  //
+  // Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+  // which now exist as resolver-only fields for back-compatibility.
+  ...editableFields("Users", {
+    fieldName: "biography",
+    commentEditor: true,
+    commentStyles: true,
+    hidden: isEAForum,
+    order: isEAForum ? 6 : 40,
+    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
+    label: "Bio",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Tell us about yourself",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+  
   username: {
     type: String,
     optional: true,
@@ -385,7 +459,7 @@ const schema: SchemaType<"Users"> = {
   isAdmin: {
     type: Boolean,
     label: 'Admin',
-    input: 'checkbox',
+    control: 'checkbox',
     optional: true,
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
@@ -457,7 +531,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
-    input: 'text',
+    control: 'text',
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ownsOrIsMod,
@@ -516,7 +590,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       options: function() {
         const groups = _.without(
-          _.keys(userGroups),
+          _.keys(getAllUserGroups()),
           'guests',
           'members',
           'admins'
@@ -2667,6 +2741,21 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.socialMedia,
     order: 2,
   },
+  blueskyProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
+      smallBottomMargin: true,
+    },
+    group: formGroups.socialMedia,
+    order: 3,
+  },
   /**
    * Twitter profile URL that the user can set in their public profile. "URL" is a bit of a misnomer here,
    * if entered correctly this will be *just* the handle (e.g. "eaforumposts" for the account at https://twitter.com/eaforumposts)
@@ -2684,7 +2773,7 @@ const schema: SchemaType<"Users"> = {
       smallBottomMargin: true,
     },
     group: formGroups.socialMedia,
-    order: 3,
+    order: 4,
   },
   /**
    * Twitter profile URL that can only be set by mods/admins. for when a more reliable reference is needed than

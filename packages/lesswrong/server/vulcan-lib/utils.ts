@@ -1,8 +1,6 @@
-import sanitizeHtml from 'sanitize-html';
-import { Utils } from '../../lib/vulcan-lib/utils';
 import { throwError } from './errors';
 
-Utils.performCheck = async <T extends DbObject>(
+export const performCheck = async <T extends DbObject>(
   operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>,
   user: DbUser|null,
   checkedObject: T,
@@ -21,4 +19,3 @@ Utils.performCheck = async <T extends DbObject>(
   }
 };
 
-export { Utils };

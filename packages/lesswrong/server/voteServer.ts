@@ -5,7 +5,7 @@ import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAdminContext, createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
@@ -20,13 +20,16 @@ import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
-import { isElasticEnabled } from './search/elastic/elasticSettings';
-import {Posts} from '../lib/collections/posts';
-import { VotesRepo } from './repos';
-import { isLWorAF } from '../lib/instanceSettings';
+import { Posts } from '../lib/collections/posts/collection';
+import VotesRepo from './repos/VotesRepo';
 import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
+import { isElasticEnabled } from "../lib/instanceSettings";
+import { getCollection } from '@/lib/vulcan-lib/getCollection';
+import Users from '@/lib/collections/users/collection';
+import { capitalize } from '@/lib/vulcan-lib/utils';
+import { getVoteableCollections } from '@/lib/make_voteable';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -51,7 +54,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   context: ResolverContext,
 }): Promise<VoteDocTuple> => {
   // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, extendedVote, user, voteId });
+  const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,
@@ -239,7 +242,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!context)
     context = createAnonymousContext();
 
-  const collectionName = collection.options.collectionName;
+  const collectionName = collection.collectionName;
   document = document || await collection.findOne({_id: documentId});
 
   if (!document) throw new Error("Error casting vote: Document not found.");
@@ -282,7 +285,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     return {
       vote: null,
       modifiedDocument: {
-        __typename: collection.options.typeName,
+        __typename: collection.typeName,
         ...document,
       } as any,
       showVotingPatternWarning,
@@ -334,7 +337,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
         // necessary, but I believe it's something to do with graphql union types.
         // This has been here (in some form) since long before we
         // typescript-ified.
-        __typename: collection.options.typeName,
+        __typename: collection.typeName,
         ...document,
       } as any,
       showVotingPatternWarning,
@@ -631,4 +634,44 @@ export const recalculateDocumentScores = async (document: VoteableType, collecti
     afExtendedScore: await votingSystem.computeExtendedScore(afVotes, context),
     score: recalculateScore({...document, baseScore})
   };
+}
+
+
+/**
+ * Reverse the given vote, without triggering any karma change notifications
+ */
+export async function silentlyReverseVote(vote: DbVote, context: ResolverContext) {
+  const collection = getCollection(vote.collectionName as VoteableCollectionName);
+  const document = await collection.findOne({_id: vote.documentId});
+  const user = await Users.findOne({_id: vote.userId});
+  if (document && user) {
+    await clearVotesServer({ document, collection, user, silenceNotification: true, context });
+  } else {
+    //eslint-disable-next-line no-console
+    console.info("No item or user found corresponding to vote: ", vote, document, user);
+  }
+}
+
+async function nullifyVotesForUserAndCollection(user: DbUser, collection: CollectionBase<VoteableCollectionName>) {
+  const collectionName = capitalize(collection.collectionName);
+  const context = createAdminContext();
+  const votes = await Votes.find({
+    collectionName: collectionName,
+    userId: user._id,
+    cancelled: false,
+  }).fetch();
+  for (let vote of votes) {
+    //eslint-disable-next-line no-console
+    console.log("reversing vote: ", vote)
+    await silentlyReverseVote(vote, context);
+  };
+  //eslint-disable-next-line no-console
+  console.info(`Nullified ${votes.length} votes for user ${user.username}`);
+}
+
+
+export async function nullifyVotesForUser(user: DbUser) {
+  for (let collection of getVoteableCollections()) {
+    await nullifyVotesForUserAndCollection(user, collection);
+  }
 }

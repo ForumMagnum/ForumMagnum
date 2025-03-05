@@ -1,8 +1,8 @@
 import React, { MouseEvent, ReactNode, useCallback, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { userCanStartConversations } from '../../lib/collections/conversations/collection';
 

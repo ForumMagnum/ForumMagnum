@@ -1,9 +1,10 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
+import { createCollection } from '../../vulcan-lib/collections';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { schema } from './schema';
-import { userIsAdminOrMod } from '../../vulcan-users';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { userIsAdminOrMod } from '../../vulcan-users/permissions';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const reviewWinnerArtMutationOptions: MutationOptions<DbReviewWinnerArt> = {
   newCheck: (user: DbUser|null) => {
@@ -26,6 +27,11 @@ export const ReviewWinnerArts = createCollection({
   collectionName: 'ReviewWinnerArts',
   typeName: 'ReviewWinnerArt',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('ReviewWinnerArts', { postId: 1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('ReviewWinnerArts'),
   mutations: getDefaultMutations('ReviewWinnerArts', reviewWinnerArtMutationOptions),
   logChanges: true,
@@ -34,7 +40,5 @@ export const ReviewWinnerArts = createCollection({
 addUniversalFields({
   collection: ReviewWinnerArts,
 });
-
-ensureIndex(ReviewWinnerArts, { postId: 1 });
 
 export default ReviewWinnerArts;

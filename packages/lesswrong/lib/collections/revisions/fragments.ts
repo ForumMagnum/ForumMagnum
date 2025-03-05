@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const RevisionDisplay = `
   fragment RevisionDisplay on Revision {
     _id
     version
@@ -13,16 +11,16 @@ registerFragment(`
     htmlHighlight
     plaintextDescription
   }
-`)
+`
 
-registerFragment(`
+export const RevisionHTML = `
   fragment RevisionHTML on Revision {
     _id
     html
   }
-`)
+`
 
-registerFragment(`
+export const RevisionEdit = `
   fragment RevisionEdit on Revision {
     _id
     version
@@ -41,9 +39,9 @@ registerFragment(`
     htmlHighlight
     plaintextDescription
   }
-`)
+`
 
-registerFragment(`
+export const RevisionMetadata = `
   fragment RevisionMetadata on Revision {
     _id
     version
@@ -58,9 +56,9 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
-registerFragment(`
+export const RevisionMetadataWithChangeMetrics = `
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
@@ -68,9 +66,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const RevisionHistoryEntry = `
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
@@ -82,9 +80,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const RevisionHistorySummaryEdit = `
   fragment RevisionHistorySummaryEdit on Revision {
     ...RevisionHistoryEntry
     summary {
@@ -101,9 +99,9 @@ registerFragment(`
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const RevisionTagFragment = `
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
@@ -113,18 +111,18 @@ registerFragment(`
       ...MultiDocumentParentDocument
     }
   }
-`);
+`
 
-registerFragment(`
+export const RecentDiscussionRevisionTagFragment = `
   fragment RecentDiscussionRevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
       ...TagRecentDiscussion
     }
   }
-`);
+`
 
-registerFragment(`
+export const WithVoteRevision = `
   fragment WithVoteRevision on Revision {
     __typename
     _id
@@ -135,4 +133,4 @@ registerFragment(`
     score
     voteCount
   }
-`);
+`

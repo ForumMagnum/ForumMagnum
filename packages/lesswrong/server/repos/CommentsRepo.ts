@@ -5,11 +5,11 @@ import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -428,6 +428,29 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `,
       [commentId, limit]
     );
+  }
+
+  async getPostReviews(postIds: string[], reviewsPerPost: number, minScore: number): Promise<DbComment[][]> {
+    const comments = await this.manyOrNone(`
+      -- CommentsRepo.getPostReviews
+      WITH cte AS (
+        SELECT
+          comment_with_rownumber.*,
+          ROW_NUMBER() OVER (PARTITION BY comment_with_rownumber."postId" ORDER BY comment_with_rownumber."baseScore" DESC) as rn
+        FROM "Comments" comment_with_rownumber
+        WHERE comment_with_rownumber."postId" IN ($1:csv)
+        AND comment_with_rownumber."reviewingForReview" IS NOT NULL
+        AND comment_with_rownumber."baseScore" >= $3
+        AND ${getViewableCommentsSelector('comment_with_rownumber')}
+      )
+      SELECT *
+      FROM cte
+      WHERE rn <= $2
+      ORDER BY "baseScore" DESC
+    `, [postIds, reviewsPerPost, minScore]);
+    
+    const commentsByPost = groupBy(comments, c=>c.postId);
+    return postIds.map(postId => commentsByPost[postId] ?? []);
   }
 }
 

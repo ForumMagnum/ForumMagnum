@@ -1,7 +1,8 @@
 import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { userOwns } from '../../vulcan-users';
+import { userOwns } from '../../vulcan-users/permissions';
+import { editableFields } from '@/lib/editor/make_editable';
 
 const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
   adminOptions: {
@@ -19,6 +20,10 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
 };
 
 const schema: SchemaType<"Sequences"> = {
+  ...editableFields("Sequences", {
+    order: 20,
+  }),
+  
   lastUpdated: {
     type: Date,
     optional: true,

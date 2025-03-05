@@ -1,12 +1,22 @@
 import Comments from "../lib/collections/comments/collection";
 import Posts from "../lib/collections/posts/collection";
 import Users from "../lib/collections/users/collection";
-import { getAdminTeamAccount, noDeletionPmReason } from "./callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
-import { createAdminContext, Globals, updateMutator } from './vulcan-lib';
 import { sleep } from "../lib/utils/asyncUtils";
+import { createAdminContext } from "./vulcan-lib/query";
+import { updateMutator } from "./vulcan-lib/mutators";
 
-/** Please ensure that we know that the user is who they say they are! */
+
+/**
+ * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
+ */
+export const noDeletionPmReason = 'Requested account deletion';
+
+/**
+ * Please ensure that we know that the user is who they say they are!
+ * Exported to allow running manually with "yarn repl"
+ */
 export const deleteUserContent = async (
   selector: {_id?: string, slug?: string, email?: string},
   outfile?: string,
@@ -73,5 +83,3 @@ export const deleteUserContent = async (
     await sleep(50);
   }
 };
-
-Globals.deleteUserContent = deleteUserContent;

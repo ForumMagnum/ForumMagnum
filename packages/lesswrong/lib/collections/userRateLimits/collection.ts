@@ -1,7 +1,9 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { getDefaultMutations } from '../../vulcan-core/default_mutations';
+import { createCollection } from '../../vulcan-lib/collections';
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
  * Creating a moderator action sets a note on the user's profile for moderators
@@ -16,6 +18,11 @@ export const UserRateLimits: UserRateLimitsCollection = createCollection({
   collectionName: 'UserRateLimits',
   typeName: 'UserRateLimit',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('UserRateLimits', { userId: 1, createdAt: -1, endedAt: -1 });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('UserRateLimits'),
   mutations: getDefaultMutations('UserRateLimits'),
   logChanges: true,

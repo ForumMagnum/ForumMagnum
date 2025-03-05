@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
@@ -51,10 +51,10 @@ const FormSubmit = ({
   cancelCallback,
   document,
   collectionName,
+  updateCurrentValues,
   classes,
 }: FormButtonProps & {classes: ClassesType<typeof styles>},
 {
-  updateCurrentValues,
   addToDeletedValues
 }: FormComponentContext<any>) => {
   const currentUser = useCurrentUser();
@@ -138,10 +138,7 @@ const FormSubmit = ({
 };
 
 (FormSubmit as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
   addToDeletedValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
 }
 
 

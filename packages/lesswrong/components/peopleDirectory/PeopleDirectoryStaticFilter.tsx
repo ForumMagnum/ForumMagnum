@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { MultiSelectResult } from "../hooks/useMultiSelect";
 
 const styles = (_theme: ThemeType) => ({

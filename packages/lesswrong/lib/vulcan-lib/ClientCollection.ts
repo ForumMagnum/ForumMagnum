@@ -1,21 +1,31 @@
+import { getVoteableSchemaFields } from "../make_voteable";
+
 class ClientCollection<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  defaultView: ViewFunction<N> | undefined;
-  views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
   _schemaFields: SchemaType<N>;
-  _simpleSchema: any;
+  _simpleSchema: any = null;
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N>) {
-    this.tableName = tableName;
+  constructor(options: CollectionOptions<N>) {
+    this.collectionName = options.collectionName;
+    this.typeName = options.typeName;
+    this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
+
+    const votingFields: SchemaType<N> = options.voteable
+      ? getVoteableSchemaFields(options.collectionName as N&VoteableCollectionName, options.voteable) as SchemaType<N>
+      : {};
+    this._schemaFields = {
+      ...options.schema,
+      ...votingFields,
+    };
   }
 
   isConnected() {
@@ -23,11 +33,7 @@ class ClientCollection<
   }
 
   isVoteable(): this is ClientCollection<VoteableCollectionName> {
-    return this.voteable;
-  }
-
-  makeVoteable() {
-    this.voteable = true;
+    return !!this.options.voteable;
   }
 
   hasSlug(): this is ClientCollection<CollectionNameWithSlug> {
@@ -40,6 +46,10 @@ class ClientCollection<
 
   getTable() {
     return this.executeQuery();
+  }
+
+  getIndexes(): never {
+    throw new Error("ClientCollection: getIndexes called on client");
   }
 
   rawCollection() {
@@ -80,14 +90,6 @@ class ClientCollection<
 
   _ensureIndex() {
     return this.executeQuery();
-  }
-
-  addDefaultView(view: ViewFunction<N>) {
-    this.defaultView = view;
-  }
-
-  addView(viewName: string, view: ViewFunction<N>) {
-    this.views[viewName] = view;
   }
 }
 

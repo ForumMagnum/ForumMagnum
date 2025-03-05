@@ -1,11 +1,12 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
-import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
+import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { EditableFieldName, MakeEditableOptions, editableCollectionsFieldOptions } from './makeEditableOptions';
+import { getAllCollections } from '../vulcan-lib/getCollection';
+import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -70,13 +71,39 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   revisionsHaveCommitMessages: false,
 }
 
-export const editableCollections = new Set<CollectionNameString>()
-export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
-let editableFieldsSealed = false;
-export function sealEditableFields() { editableFieldsSealed=true }
+interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
+  editableFieldOptions: EditableFieldOptions;
+};
+
+export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
+  return !!field[1].editableFieldOptions;
+}
+
+export const getEditableFieldsByCollection = (() => {
+  let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
+  return () => {
+    if (!editableFieldsByCollection) {
+      const allCollections = getAllCollections();
+      editableFieldsByCollection = allCollections.reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, collection) => {
+        const editableFields = Object.entries(collection._schemaFields).filter(isEditableField);
+        if (editableFields.length > 0) {
+          acc[collection.collectionName] = Object.fromEntries(editableFields);
+        }
+        return acc;
+      }, {});
+    }
+
+    return editableFieldsByCollection;
+  }
+})();
+
+export const getEditableCollectionNames = () => Object.keys(getEditableFieldsByCollection()) as CollectionNameString[];
+export const getEditableFieldNamesForCollection = (collectionName: CollectionNameString) => Object.keys(getEditableFieldsByCollection()[collectionName] ?? {});
+export const getEditableFieldInCollection = <N extends CollectionNameString>(collectionName: N, fieldName: string) => getEditableFieldsByCollection()[collectionName]?.[fieldName];
+export const editableFieldIsNormalized = (collectionName: CollectionNameString, fieldName: string) => !!getEditableFieldInCollection(collectionName, fieldName)?.editableFieldOptions.callbackOptions.normalized;
 
 const buildEditableResolver = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collectionName: N,
   fieldName: string,
   normalized: boolean,
 ): CollectionFieldResolveAs<N> => {
@@ -185,7 +212,7 @@ const buildEditableResolver = <N extends CollectionNameString>(
         // resolvers, and those resolvers depend on these fields existing.
         _id: `${doc._id}_${fieldName}`, //HACK
         documentId: doc._id,
-        collectionName: collection.collectionName,
+        collectionName,
         editedAt: new Date(docField?.editedAt ?? Date.now()),
         originalContents: getOriginalContents(
           context.currentUser,
@@ -200,33 +227,44 @@ const buildEditableResolver = <N extends CollectionNameString>(
   };
 }
 
-export const makeEditable = <N extends CollectionNameString>({
-  collection,
-  options = {},
-}: {
-  collection: CollectionBase<N>,
-  options: MakeEditableOptions<N>,
-}) => {
-  if (editableFieldsSealed)
-    throw new Error("Called makeEditable after addAllEditableCallbacks already ran; this indicates a problem with import order");
-  
-  options = {...defaultOptions, ...options}
+
+const defaultPingbackFields = {
+  // Dictionary from collection name to array of distinct referenced
+  // document IDs in that collection, in order of appearance
+  pingbacks: {
+    type: Object,
+    canRead: 'guests',
+    optional: true,
+    hidden: true,
+    denormalized: true,
+  },
+  "pingbacks.$": {
+    type: Array,
+  },
+  "pingbacks.$.$": {
+    type: String,
+  },
+} as const;
+
+export function editableFields<N extends CollectionNameString>(collectionName: N, options: MakeEditableOptions<N> = {}): Record<string, CollectionFieldSpecification<N>> {  
+  const optionsWithDefaults = { ...defaultOptions, ...options };
   const {
     commentEditor,
     commentStyles,
-    formGroup,
-    permissions,
-    fieldName = "contents" as EditableFieldName<N>,
     label,
     formVariant,
     hintText,
     order,
-    hidden = false,
     hideControls = false,
+    formGroup,
+    permissions,
+    fieldName = "contents" as EditableFieldName<N>,
+    hidden = false,
     pingbacks = false,
     normalized = false,
-    //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
-  } = options
+    revisionsHaveCommitMessages,
+    hasToc,
+  } = optionsWithDefaults;
 
   // We don't want to allow random stuff like escape characters in editable field names, since:
   // 1. why would you do that
@@ -235,7 +273,6 @@ export const makeEditable = <N extends CollectionNameString>({
     throw new Error(`Invalid characters in ${fieldName}; only a-z & A-Z are allowed.`);
   }
 
-  const collectionName = collection.options.collectionName;
   const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
     const { _id, conversationId } = doc
     if (_id && name) { return {id: `${_id}${name}`, verify: true}}
@@ -246,109 +283,113 @@ export const makeEditable = <N extends CollectionNameString>({
       throw Error(`Can't get storage ID for this document: ${doc}`)
     }
   });
-  
-  editableCollections.add(collectionName)
-  editableCollectionsFields[collectionName] = [
-    ...(editableCollectionsFields[collectionName] || []),
-    fieldName
-  ]
-  editableCollectionsFieldOptions[collectionName] = {
-    ...editableCollectionsFieldOptions[collectionName],
-    [fieldName]: {
-      ...options,
-      fieldName,
-      getLocalStorageId
+
+  const callbackOptions: EditableFieldCallbackOptions = {
+    pingbacks,
+    normalized,
+  };
+
+  const clientOptions: EditableFieldClientOptions = {
+    getLocalStorageId,
+    hasToc,
+    revisionsHaveCommitMessages
+  };
+
+  const editableFieldOptions: EditableFieldOptions = {
+    callbackOptions,
+    clientOptions,
+  };
+
+  const formOptions = {
+    label,
+    formVariant,
+    hintText,
+    fieldName,
+    collectionName,
+    commentEditor,
+    commentStyles,
+    hideControls,
+  };
+
+  const editableField: CollectionFieldSpecification<N> = {
+    type: RevisionStorageType,
+    editableFieldOptions,
+    optional: true,
+    logChanges: false, //Logged via Revisions rather than LWEvents
+    typescriptType: "EditableFieldContents",
+    group: formGroup,
+    ...permissions,
+    order,
+    hidden,
+    control: 'EditorFormComponent',
+    resolveAs: buildEditableResolver(collectionName, fieldName, normalized),
+    form: formOptions,
+  };
+
+  const latestRevisionIdFieldName = `${fieldName}_latest`;
+  const latestRevisionIdField: CollectionFieldSpecification<N> = {
+    type: String,
+    canRead: ['guests'],
+    optional: true,
+  };
+
+  const revisionsResolverFieldName = fieldName === "contents"
+    ? "revisions"
+    : camelCaseify(`${fieldName}Revisions`);
+
+  const revisionsResolverField: CollectionFieldSpecification<N> = {
+    type: Object,
+    canRead: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: '[Revision]',
+      arguments: 'limit: Int = 5',
+      resolver: async (post: ObjectsByCollectionName[N], args: { limit: number }, context: ResolverContext) => {
+        const { limit } = args;
+        const { currentUser, Revisions } = context;
+
+        // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
+        // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
+        const loaderResults = await getWithLoader(
+          context,
+          Revisions,
+          `revisionsByDocumentId_${fieldName}_${limit}`,
+          {fieldName},
+          "documentId",
+          post._id,
+          {sort: {editedAt: -1}, limit},
+        );
+
+        return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
+      }
     },
   };
 
-  addFieldsDict(collection, {
-    [fieldName]: {
-      type: RevisionStorageType,
-      optional: true,
-      logChanges: false, //Logged via Revisions rather than LWEvents
-      typescriptType: "EditableFieldContents",
-      group: formGroup,
-      ...permissions,
-      order,
-      hidden,
-      control: 'EditorFormComponent',
-      resolveAs: buildEditableResolver(collection, fieldName, normalized),
-      form: {
-        label,
-        formVariant,
-        hintText,
-        fieldName,
-        collectionName,
-        commentEditor,
-        commentStyles,
-        hideControls,
-      },
-    },
+  const versionResolverFieldName = fieldName === "contents"
+    ? "version"
+    : camelCaseify(`${fieldName}Version`);
 
-    [`${fieldName}_latest`]: {
-      type: String,
-      canRead: ['guests'],
-      optional: true,
-    },
-
-    [fieldName === "contents" ? "revisions" : camelCaseify(`${fieldName}Revisions`)]: {
-      type: Object,
-      canRead: ['guests'],
-      optional: true,
-      resolveAs: {
-        type: '[Revision]',
-        arguments: 'limit: Int = 5',
-        resolver: async (post: ObjectsByCollectionName[N], args: { limit: number }, context: ResolverContext) => {
-          const { limit } = args;
-          const { currentUser, Revisions } = context;
-
-          // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
-          // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
-          const loaderResults = await getWithLoader(
-            context,
-            Revisions,
-            `revisionsByDocumentId_${fieldName}_${limit}`,
-            {fieldName},
-            "documentId",
-            post._id,
-            {sort: {editedAt: -1}, limit},
-          );
-
-          return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
-        }
+  const versionResolverField: CollectionFieldSpecification<N> = {
+    type: String,
+    canRead: ['guests'],
+    optional: true,
+    resolveAs: {
+      type: 'String',
+      resolver: (doc: ObjectsByCollectionName[N]): string => {
+        return (doc as AnyBecauseTodo)[fieldName]?.version
       }
     },
-    
-    [fieldName === "contents" ? "version" : camelCaseify(`${fieldName}Version`)]: {
-      type: String,
-      canRead: ['guests'],
-      optional: true,
-      resolveAs: {
-        type: 'String',
-        resolver: (post: ObjectsByCollectionName[N]): string => {
-          return (post as AnyBecauseTodo)[fieldName]?.version
-        }
-      }
-    }
-  });
-  
-  if (pingbacks) {
-    addFieldsDict(collection, {
-      // Dictionary from collection name to array of distinct referenced
-      // document IDs in that collection, in order of appearance
-      pingbacks: {
-        type: Object,
-        canRead: 'guests',
-        optional: true,
-        hidden: true,
-        denormalized: true,
-      },
-      "pingbacks.$": {
-        type: Array,
-      },
-      "pingbacks.$.$": {
-        type: String,
-      },
-    });
-  }
+  };
+
+  const pingbackFields: Partial<typeof defaultPingbackFields> = pingbacks
+    ? defaultPingbackFields
+    : {};
+
+  return {
+    [fieldName]: editableField,
+    [latestRevisionIdFieldName]: latestRevisionIdField,
+    [revisionsResolverFieldName]: revisionsResolverField,
+    [versionResolverFieldName]: versionResolverField,
+    ...pingbackFields,
+  };
 }

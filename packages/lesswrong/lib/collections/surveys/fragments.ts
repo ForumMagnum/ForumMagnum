@@ -1,6 +1,4 @@
-import { registerFragment } from "@/lib/vulcan-lib";
-
-registerFragment(`
+export const SurveyMinimumInfo = `
   fragment SurveyMinimumInfo on Survey {
     _id
     name
@@ -9,4 +7,4 @@ registerFragment(`
     }
     createdAt
   }
-`);
+`

@@ -151,7 +151,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   markdown: string,
   pageId: string,
   conversionContext: ArbitalConversionContext,
-  convertedPage: PagesRow|PageSummariesRow,
+  convertedPage?: PagesRow|PageSummariesRow,
 }) {
   if (!pageMarkdown) return "";
   const { slugsByPageId, titlesByPageId, pageInfosByPageId, domainsByPageId } = conversionContext;
@@ -216,7 +216,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const url = `/w/${linkSlug}`;
         const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
-          slug: slugify(linkText),
+          slug: linkSlug,
           title: convertedTitle,
           referencedFromPage: pageId,
         });
@@ -633,10 +633,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         const footnoteId = randomId();
         footnotes.push({
           footnoteId,
-          contentsMarkdown: markdown,
+          contentsMarkdown: decodeArbitalEscapes(markdown),
         });
         const numberedFootnoteText = encodeToPreventFurtherMarkdownProcessing(`[${footnoteId}]`);
-        return `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
+        return prefix + `<span class="footnote-reference" data-footnote-id="${footnoteId}" data-footnote-reference id="fnref${footnoteId}"><sup><a href="#fn${footnoteId}" id="fnref=${footnoteId}">${numberedFootnoteText}</a></sup></span>`;
       });
     });
 
@@ -1002,8 +1002,9 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     html += `<ol class="footnote-section footnotes" data-footnote-section role="doc-endnotes">`;
     for (let i=0; i<sortedFootnotes.length; i++) {
       const footnote = sortedFootnotes[i];
+      const footnoteConverter = createConverterInternal(null, pageId);
       const returnLinkHtml = `<span class="footnote-back-link" data-footnote-back-link data-footnote-id="${footnote.footnoteId}"><sup><strong><a href="#fnref${footnote.footnoteId}">^︎</a></strong></sup></span>`;
-      const contentsHtml = converter.makeHtml(footnote.contentsMarkdown);
+      const contentsHtml = footnoteConverter.makeHtml(footnote.contentsMarkdown);
       html += `<li id="fn${footnote.footnoteId}" class="footnote-item" data-footnote-item data-footnote-index="${i+1}" data-footnote-id="${footnote.footnoteId}" role="doc-endnote">${returnLinkHtml}<div class="footnote-content" data-footnote-content>${contentsHtml}</div></li>`;
     }
     html += `</ol>`;
@@ -1027,6 +1028,8 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
     latex = latex.substr(2, latex.length-4);
   }
   
+  const latexWithExcapedHtml = escapeHtml(latex);
+  
   // Next, encode the LaTeX string to protect it from subsequent markdown
   // processing. Without this, things like brackets inside of LaTeX strings
   // would get interpreted as links and get replaced with <a> tags, which of
@@ -1036,7 +1039,7 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
   // matches the behavior of `escapeCharacters_callback` in
   // Markdown.Converter.ts. This escaping will be undone later by
   // `converter.makeHtml`.
-  const encodedLatex = encodeToPreventFurtherMarkdownProcessing(latex);
+  const encodedLatex = encodeToPreventFurtherMarkdownProcessing(latexWithExcapedHtml);
   
   if (inline)
     return `<span class="math-tex">\\\\(${encodedLatex}\\\\)</span>`;
@@ -1048,6 +1051,15 @@ const encodeToPreventFurtherMarkdownProcessing = (s: string): string => {
   return s.replace(/[^a-zA-Z0-9]/g, (ch) => {
     return "~E" + ch.charCodeAt(0) + "E";
   });
+}
+
+const decodeArbitalEscapes = (s: string): string => {
+  return s.replace(/~E(\d+)E/g,
+    (wholeMatch: string, m1: string) => {
+      const charCodeToReplace = parseInt(m1);
+      return String.fromCharCode(charCodeToReplace);
+    }
+  );
 }
 
 function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings, contentsHtml: string) {

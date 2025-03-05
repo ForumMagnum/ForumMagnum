@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { userCanDo } from '../../lib/vulcan-users';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { getSpotlightDisplayTitle } from './SpotlightItem';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -98,7 +98,7 @@ export const SpotlightsPage = ({classes}: {
         <SpotlightEditorStyles>
           <WrappedSmartForm
             collectionName="Spotlights"
-            mutationFragment={getFragment('SpotlightEditQueryFragment')}
+            mutationFragmentName={'SpotlightEditQueryFragment'}
           />
         </SpotlightEditorStyles>
       </div>

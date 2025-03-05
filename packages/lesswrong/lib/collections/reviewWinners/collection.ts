@@ -1,9 +1,10 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
+import { createCollection } from '../../vulcan-lib/collections';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { schema } from './schema';
-import { userIsAdminOrMod } from '../../vulcan-users';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { userIsAdminOrMod } from '../../vulcan-users/permissions';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
   newCheck: (user: DbUser|null) => {
@@ -26,6 +27,13 @@ export const ReviewWinners = createCollection({
   collectionName: 'ReviewWinners',
   typeName: 'ReviewWinner',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('ReviewWinners', { postId: 1 }, { unique: true });
+    indexSet.addIndex('ReviewWinners', { curatedOrder: 1, category: 1 }, { unique: true });
+    indexSet.addIndex('ReviewWinners', { reviewYear: 1, reviewRanking: 1 }, { unique: true });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('ReviewWinners'),
   mutations: getDefaultMutations('ReviewWinners', reviewWinnerMutationOptions),
   logChanges: true,
@@ -34,9 +42,5 @@ export const ReviewWinners = createCollection({
 addUniversalFields({
   collection: ReviewWinners,
 });
-
-ensureIndex(ReviewWinners, { postId: 1 }, { unique: true });
-ensureIndex(ReviewWinners, { curatedOrder: 1, category: 1 }, { unique: true });
-ensureIndex(ReviewWinners, { reviewYear: 1, reviewRanking: 1 }, { unique: true });
 
 export default ReviewWinners;

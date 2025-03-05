@@ -2,6 +2,7 @@ import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, sch
 import { getWithLoader } from './loaders'
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
+import { getAllCollections } from './vulcan-lib/getCollection';
 
 export type PermissionResult = {
   fail: false,
@@ -11,7 +12,7 @@ export type PermissionResult = {
   reason: string
 }
 
-interface CollectionVoteOptions {
+export interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
   customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
   userCanVoteOn?: (
@@ -23,13 +24,14 @@ interface CollectionVoteOptions {
   ) => PermissionResult|Promise<PermissionResult>,
 }
 
-export const VoteableCollections: Array<CollectionBase<VoteableCollectionName>> = [];
-export const VoteableCollectionOptions: Partial<Record<CollectionNameString,CollectionVoteOptions>> = {};
-
 export const apolloCacheVoteablePossibleTypes = () => {
   return {
-    Voteable: VoteableCollections.map(collection => collection.typeName),
+    Voteable: getVoteableCollections().map(collection => collection.typeName),
   }
+}
+
+export const getVoteableCollections = (): CollectionBase<VoteableCollectionName>[] => {
+  return getAllCollections().filter((c): c is CollectionBase<VoteableCollectionName> => c.isVoteable());
 }
 
 const currentUserVoteResolver = <N extends CollectionNameString>(
@@ -49,19 +51,14 @@ const currentUserVoteResolver = <N extends CollectionNameString>(
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <N extends VoteableCollectionName>(
-  collection: CollectionBase<N>,
+export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
+  collectionName: N,
   options: CollectionVoteOptions,
-): void => {
+): SchemaType<N> => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
-  collection.makeVoteable();
-
-  VoteableCollections.push(collection as CollectionBase<VoteableCollectionName>);
-  VoteableCollectionOptions[collection.collectionName] = options;
-
-  addFieldsDict(collection, {
+  return {
     currentUserVote: {
       type: String,
       optional: true,
@@ -139,11 +136,11 @@ export const makeVoteable = <N extends VoteableCollectionName>(
     voteCount: {
       ...denormalizedCountOfReferences({
         fieldName: "voteCount",
-        collectionName: collection.collectionName,
+        collectionName: collectionName,
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: (vote: DbVote) => !vote.cancelled && vote.voteType !== 'neutral' && vote.collectionName === collection.collectionName
+        filterFn: (vote: DbVote) => !vote.cancelled && vote.voteType !== 'neutral' && vote.collectionName === collectionName
       }),
       canRead: ['guests'],
     },
@@ -189,7 +186,7 @@ export const makeVoteable = <N extends VoteableCollectionName>(
       optional: true,
       canRead: ['guests'],
     },
-  });
+  };
 }
 
 async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {

@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const MultiDocumentMinimumInfo = `
   fragment MultiDocumentMinimumInfo on MultiDocument {
     _id
     parentDocumentId
@@ -27,9 +25,9 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
-registerFragment(`
+export const MultiDocumentContentDisplay = `
   fragment MultiDocumentContentDisplay on MultiDocument {
     ...MultiDocumentMinimumInfo
     tableOfContents
@@ -37,9 +35,9 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const MultiDocumentEdit = `
   fragment MultiDocumentEdit on MultiDocument {
     ...MultiDocumentContentDisplay
     arbitalLinkedPages {
@@ -49,18 +47,18 @@ registerFragment(`
       ...MultiDocumentContentDisplay
     }
   }
-`);
+`
 
-registerFragment(`
+export const MultiDocumentParentDocument = `
   fragment MultiDocumentParentDocument on MultiDocument {
     ...MultiDocumentEdit
     parentTag {
       ...TagHistoryFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const MultiDocumentWithContributors = `
   fragment MultiDocumentWithContributors on MultiDocument {
     ...MultiDocumentEdit
     contributors {
@@ -73,9 +71,9 @@ registerFragment(`
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const MultiDocumentRevision = `
   fragment MultiDocumentRevision on MultiDocument {
     ...MultiDocumentMinimumInfo
     contents(version: $version) {
@@ -83,9 +81,9 @@ registerFragment(`
     }
     tableOfContents(version: $version)
   }
-`);
+`
 
-registerFragment(`
+export const MultiDocumentWithContributorsRevision = `
   fragment MultiDocumentWithContributorsRevision on MultiDocument {
     ...MultiDocumentRevision
     contributors(version: $version) {
@@ -102,10 +100,10 @@ registerFragment(`
       ...ArbitalLinkedPagesFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const WithVoteMultiDocument = `
   fragment WithVoteMultiDocument on MultiDocument {
     ...MultiDocumentMinimumInfo
   }
-`);
+`

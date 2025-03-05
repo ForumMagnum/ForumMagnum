@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classNames from 'classnames';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
@@ -25,6 +25,7 @@ const TagRevisionItem = ({
   documentId,
   showDiscussionLink=true,
   noContainer=false,
+  showIcon=false
 }: {
   tag: TagBasicInfo,
   collapsed?: boolean,
@@ -34,6 +35,7 @@ const TagRevisionItem = ({
   documentId: string,
   showDiscussionLink?: boolean,
   noContainer?: boolean,
+  showIcon?: boolean
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
@@ -70,7 +72,7 @@ const TagRevisionItem = ({
   return noContainer
     ? contents
     : <Components.SingleLineFeedEvent
-        icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
+        icon={showIcon ? <ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/> : undefined}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
         tooltip={!(expanded || !collapsed) && diffBody}
       >

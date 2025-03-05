@@ -1,6 +1,8 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, } from '../../collectionUtils';
+import { createCollection } from '../../vulcan-lib/collections';
 import schema from './schema';
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 
 export const ArbitalTagContentRels = createCollection({
   collectionName: 'ArbitalTagContentRels',

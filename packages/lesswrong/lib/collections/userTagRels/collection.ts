@@ -1,8 +1,11 @@
 import { userCanUseTags } from "../../betas";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
-import { createCollection } from '../../vulcan-lib';
-import { userIsAdmin, userOwns } from "../../vulcan-users";
+import { createCollection } from '../../vulcan-lib/collections';
+import { userIsAdmin, userOwns } from "../../vulcan-users/permissions";
+import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 const schema: SchemaType<"UserTagRels"> = {
   tagId: {
@@ -73,6 +76,11 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
   collectionName: 'UserTagRels',
   typeName: 'UserTagRel',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('UserTagRels', { tagId: 1, userId: 1 }, { unique: true });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('UserTagRels'),
   mutations: getDefaultMutations('UserTagRels', {
     newCheck: (user: DbUser|null, userTagRel: DbUserTagRel|null) => {

@@ -9,6 +9,8 @@ import * as _ from 'underscore';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 
+export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
+
 interface SequencePostId {
   sequenceId: string,
   postId: string
