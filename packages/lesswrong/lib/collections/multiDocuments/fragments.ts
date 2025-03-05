@@ -101,9 +101,6 @@ export const MultiDocumentWithContributorsRevision = `
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
     }
-    summaries {
-      ...MultiDocumentContentDisplay
-    }
     textLastUpdatedAt
   }
 `

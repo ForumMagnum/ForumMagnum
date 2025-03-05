@@ -16,48 +16,34 @@ export function textLastUpdatedAtField<T extends CollectionNameString>(
       resolver: async (doc: ObjectsByCollectionName[T], args: void, context: ResolverContext) => {
         const { Revisions } = context;
 
+        const [changedRevision, lastRevision] = await Promise.all([
+          // Query 1: Get the most recent revision with text changes
+          Revisions.findOne(
+            { 
+              documentId: doc._id, 
+              collectionName,
+              $or: [
+                { "changeMetrics.added": { $gt: 1 } },
+                { "changeMetrics.removed": { $gt: 1 } }
+              ]
+            },
+            { 
+              sort: { editedAt: -1 }
+            }
+          ),
+          
+          // Query 2: Get the most recent revision unconditionally
+          Revisions.findOne(
+            { documentId: doc._id, collectionName },
+            { 
+              sort: { editedAt: -1 }
+            }
+          )
+        ]);
 
-        // Find all revisions for this doc, sorted newest first
-        const relevantRevisions = await Revisions.find(
-          { documentId: doc._id, collectionName },
-          { sort: { editedAt: -1 } }
-        ).fetch();
-
-        // Find the first revision that has non-zero changes
-        const changedRevision = relevantRevisions.find((rev) => {
-          const cm = rev.changeMetrics || {};
-          return (cm.added ?? 0) + (cm.removed ?? 0) > 1;
-        });
-
-        // if there is no revision with non-zero change metrics, return the last revision
-        const lastRevision = relevantRevisions[0];
-
-        console.log("in textLastUpdatedAtField resolver", {
-          relevantRevisionsLength: relevantRevisions.length,
-          relevantRevisionsChangeMetrics: relevantRevisions.map(rev => ({cm: rev.changeMetrics, editedAt: rev.editedAt})),
-          changedRevisionChangeMetrics: changedRevision?.changeMetrics,
-          changedRevisionEditedAt: changedRevision?.editedAt,
-          returnValue: changedRevision?.editedAt ?? null,
-        });
-
-        return changedRevision?.editedAt ?? lastRevision?.editedAt ?? null;
-      },
-    //   sqlResolver: ({ field }) => `
-    //     (
-    //       SELECT "editedAt"
-    //       FROM "Revisions"
-    //       WHERE "documentId" = ${field("_id")}
-    //         AND "collectionName" = '${collectionName}'
-    //         AND (
-    //           (
-    //             COALESCE(("changeMetrics"->>'added')::int, 0)
-    //             + COALESCE(("changeMetrics"->>'removed')::int, 0)
-    //           ) != 0
-    //         )
-    //       ORDER BY "editedAt" DESC
-    //       LIMIT 1
-    //     )
-    //   `,
+        // Return the editedAt date from the changed revision if available, otherwise from the last revision
+        return changedRevision?.editedAt || lastRevision?.editedAt || null;
+      }
     }),
   };
 }
