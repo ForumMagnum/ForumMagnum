@@ -6,7 +6,6 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
@@ -38,6 +37,8 @@ import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 import { ensureClientId } from '@/server/clientIdMiddleware';
 import { captureEvent } from '@/lib/analyticsEvents';
+import { SSRGraphQLCache, renderSSR } from '@/server/useQueryServer';
+import { runStringQueryWithContext } from '../query';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -504,8 +505,14 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
   let htmlContent = '';
+  let cacheResult: SSRGraphQLCache|null = null;
   try {
-    htmlContent = await renderToStringWithData(WrappedApp);
+    //htmlContent = await renderToStringWithData(WrappedApp);
+    const ssrResult = await renderSSR(WrappedApp, async (queryStr, variables) => {
+      return runGraphQLQueryForSSR(queryStr, variables, requestContext);
+    });
+    htmlContent = ssrResult.html;
+    cacheResult = ssrResult.cache;
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
@@ -518,7 +525,8 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const head = ReactDOM.renderToString(<Head userAgent={userAgent}/>);
 
   // add Apollo state, the client will then parse the string
-  const initialState = client.extract();
+  //const initialState = client.extract();
+  const initialState = cacheResult?.exportAsApolloClientCache() ?? {};
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
@@ -577,6 +585,20 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
     prefetchedResources,
     aborted: false,
   };
+}
+
+export async function runGraphQLQueryForSSR(queryStr: string, variables: any, context: ResolverContext) {
+  try {
+    return {
+      result: await runStringQueryWithContext(queryStr, variables, context),
+      error: null,
+    }
+  } catch(e) {
+    return {
+      result: null,
+      error: e,
+    }
+  }
 }
 
 const formatTimings = (timings: RenderTimings): string => {

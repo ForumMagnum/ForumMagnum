@@ -4,8 +4,6 @@ import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
-import { getDataFromTree } from '@apollo/client/react/ssr';
-import { renderToString } from 'react-dom/server';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
@@ -23,6 +21,8 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
+import { renderSSR } from '../useQueryServer';
+import { runGraphQLQueryForSSR } from '../vulcan-lib/apollo-ssr/renderPage';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -109,6 +109,8 @@ function addEmailBoilerplate({ css, title, body }: {
   `;
 }
 
+const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
+
 // Render an email. Arguments:
 //
 //   user: A user object. The user the email is being sent to, and also the
@@ -127,9 +129,6 @@ function addEmailBoilerplate({ css, title, body }: {
 //   * While any JSS in withStyles will be included in the email, only a very
 //     limited and inconsistent subset is supported by mail clients
 //
-
-const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
-
 export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
   user: DbUser | null,
   to: string,
@@ -137,13 +136,13 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   subject: string,
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
-}): Promise<RenderedEmail>
-{
+}): Promise<RenderedEmail> {
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
-  const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
+  const context = await computeContextFromUser({user, isSSR: false});
+  const apolloClient = await createClient(context);
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const sheetsRegistry = new SheetsRegistry();
@@ -172,14 +171,12 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     </EmailRenderContext.Provider>
   );
   
-  // Traverse the tree, running GraphQL queries and expanding the tree
-  // accordingly.
-  await getDataFromTree(wrappedBodyComponent);
-  
   validateSheets(sheetsRegistry);
   
   // Render the REACT tree to an HTML string
-  const body = renderToString(wrappedBodyComponent);
+  const { html: body, cache } = await renderSSR(wrappedBodyComponent, async (queryStr, variables) =>
+    runGraphQLQueryForSSR(queryStr, variables, context)
+  );
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
@@ -266,8 +263,7 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   }
 }
 
-function validateSheets(sheetsRegistry: typeof SheetsRegistry)
-{
+function validateSheets(sheetsRegistry: typeof SheetsRegistry) {
   let styleValidator = new StyleValidator();
   
   for (let sheet of sheetsRegistry.registry) {
@@ -281,8 +277,7 @@ function validateSheets(sheetsRegistry: typeof SheetsRegistry)
 
 
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
-async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
-{
+async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean> {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
@@ -332,8 +327,7 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
 
 // Returns a string explanation of why we can't send emails to a given user, or
 // null if there is no such reason and we can email them.
-export function reasonUserCantReceiveEmails(user: DbUser): string|null
-{
+export function reasonUserCantReceiveEmails(user: DbUser): string|null {
   if (user.deleted)
     return "User is deactivated"
   if (!user.email)

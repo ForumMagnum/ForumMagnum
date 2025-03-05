@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@material-ui/icons/FilterList';
 import { useMessages } from '../../common/withMessages';

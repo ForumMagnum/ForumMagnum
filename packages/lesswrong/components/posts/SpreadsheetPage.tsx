@@ -8,7 +8,8 @@ import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
 import * as _ from 'underscore';
 import classNames from 'classnames';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
