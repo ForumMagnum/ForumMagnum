@@ -6,6 +6,7 @@ import type { ToCData } from '../../../lib/tableOfContents';
 import type { ToCDisplayOptions } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import TableOfContentsList from "@/components/posts/TableOfContents/TableOfContentsList";
+import FixedPositionToC from './FixedPositionToC';
 
 const styles = (theme: ThemeType) => ({
 });
@@ -38,7 +39,7 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   if (fixedPositionToc) {
     return (
       <AnalyticsContext pageSectionContext="tableOfContents" componentName="FixedPositionToC">
-        <Components.FixedPositionToC
+        <FixedPositionToC
           tocSections={displayToc.sectionData.sections}
           title={title}
           heading={heading}
