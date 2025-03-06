@@ -6,6 +6,10 @@ import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ReviewVotingWidget from "@/components/review/ReviewVotingWidget";
+import LWPopper from "@/components/common/LWPopper";
+import LWTooltip from "@/components/common/LWTooltip";
+import ReviewPostButton from "@/components/review/ReviewPostButton";
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -76,7 +80,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
-  const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
@@ -124,3 +127,5 @@ declare global {
     PostsItemReviewVote: typeof PostsItemReviewVoteComponent
   }
 }
+
+export default PostsItemReviewVoteComponent;

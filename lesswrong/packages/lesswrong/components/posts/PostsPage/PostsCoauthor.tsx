@@ -3,6 +3,9 @@ import { useCurrentUser } from '../../common/withUser';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
+import UsersNamePending from "@/components/users/UsersNamePending";
+import UsersName from "@/components/users/UsersName";
+import UserCommentMarkers from "@/components/users/UserCommentMarkers";
 
 const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
@@ -23,8 +26,6 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   ) {
     return null;
   }
-
-  const { UsersNamePending, UsersName, UserCommentMarkers } = Components;
   const Component = isPending
     ? UsersNamePending
     : UsersName;
@@ -47,3 +48,5 @@ declare global {
     PostsCoauthor: typeof PostsCoauthorComponent
   }
 }
+
+export default PostsCoauthorComponent;

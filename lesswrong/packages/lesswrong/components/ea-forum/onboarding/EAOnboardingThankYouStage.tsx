@@ -3,6 +3,11 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
 import { useEAOnboarding } from "./useEAOnboarding";
 import classNames from "classnames";
+import EAOnboardingStage from "@/components/ea-forum/onboarding/EAOnboardingStage";
+import EAOnboardingPodcast from "@/components/ea-forum/onboarding/EAOnboardingPodcast";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import EAButton from "@/components/ea-forum/EAButton";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -111,10 +116,6 @@ export const EAOnboardingThankYouStage = ({classes}: {
     void goToNextStage();
     captureOnboardingEvent("onboardingComplete");
   }, [goToNextStage, captureOnboardingEvent]);
-
-  const {
-    EAOnboardingStage, EAOnboardingPodcast, SectionTitle, EAButton, ToggleSwitch,
-  } = Components;
   return (
     <EAOnboardingStage
       stageName="thankyou"
@@ -180,3 +181,5 @@ declare global {
     EAOnboardingThankYouStage: typeof EAOnboardingThankYouStageComponent
   }
 }
+
+export default EAOnboardingThankYouStageComponent;

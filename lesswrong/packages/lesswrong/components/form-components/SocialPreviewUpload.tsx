@@ -17,6 +17,7 @@ import { ckEditorName } from "../editor/Editor";
 import Input from "@material-ui/core/Input";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
+import ImageUpload2 from "@/components/form-components/ImageUpload2";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
@@ -266,8 +267,6 @@ const SocialPreviewUpload = ({
   croppingAspectRatio: number;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { ImageUpload2 } = Components;
-
   const docWithValue = { ...document, socialPreviewData: value };
 
   const textValue = value?.text ?? undefined;
@@ -359,3 +358,5 @@ declare global {
     SocialPreviewUpload: typeof SocialPreviewUploadComponent;
   }
 }
+
+export default SocialPreviewUploadComponent;

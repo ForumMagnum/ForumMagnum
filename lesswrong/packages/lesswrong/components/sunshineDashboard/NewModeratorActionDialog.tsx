@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {
@@ -14,8 +16,6 @@ const NewModeratorActionDialog = ({classes, onClose, userId}: {
   onClose: () => void,
   userId: String
 }) => {
-  const { WrappedSmartForm, LWDialog } = Components;
-  
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>
@@ -41,3 +41,5 @@ declare global {
     NewModeratorActionDialog: typeof NewModeratorActionDialogComponent
   }
 }
+
+export default NewModeratorActionDialogComponent;

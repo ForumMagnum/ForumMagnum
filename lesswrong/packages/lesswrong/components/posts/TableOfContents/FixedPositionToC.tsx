@@ -17,6 +17,8 @@ import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import TableOfContentsRow from "@/components/posts/TableOfContents/TableOfContentsRow";
+import AnswerTocRow from "@/components/posts/TableOfContents/AnswerTocRow";
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -213,8 +215,6 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   classes: ClassesType<typeof styles>,
   hover?: boolean,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -437,3 +437,5 @@ declare global {
     FixedPositionToC: typeof FixedPositionTocComponent
   }
 }
+
+export default FixedPositionTocComponent;

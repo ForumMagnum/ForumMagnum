@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,8 +22,6 @@ const PostsRevisionMessage = ({post, classes}: {
     return null;
   if (!("editedAt" in post.contents))
     return null;
-
-  const { FormatDate } = Components
   return (
     <div className={classes.root}>
       You are viewing a version of this post published on the <FormatDate date={post.contents.editedAt} format="Do MMM YYYY"/>.
@@ -39,3 +38,5 @@ declare global {
     PostsRevisionMessage: typeof PostsRevisionMessageComponent
   }
 }
+
+export default PostsRevisionMessageComponent;

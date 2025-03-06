@@ -5,6 +5,11 @@ import { useMulti } from '@/lib/crud/withMulti';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '@/themes/stylePiping';
+import { ContentStyles } from "@/components/common/ContentStyles";
+import TagSmallPostLink from "@/components/tagging/TagSmallPostLink";
+import FollowUserButton from "@/components/users/FollowUserButton";
+import UserMetaInfo from "@/components/users/UserMetaInfo";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,9 +67,6 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   classes: ClassesType<typeof styles>,
   user: UsersMinimumInfo,
 }) => {
-
-  const { ContentStyles, TagSmallPostLink, FollowUserButton, UserMetaInfo, Loading } = Components
-
   const currentUser = useCurrentUser();
 
   const { htmlBio, displayName } = user;
@@ -122,3 +124,5 @@ declare global {
     LWUserTooltipContent: typeof LWUserTooltipContentComponent
   }
 }
+
+export default LWUserTooltipContentComponent;

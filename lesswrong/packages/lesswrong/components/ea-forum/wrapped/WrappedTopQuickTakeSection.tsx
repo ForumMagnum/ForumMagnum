@@ -2,6 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import WrappedComment from "@/components/ea-forum/wrapped/WrappedComment";
 
 const styles = (_theme: ThemeType) => ({
   topQuickTake: {
@@ -27,7 +30,6 @@ const WrappedTopQuickTakeSection = ({classes}: {
 }) => {
   const {year, data} = useForumWrappedContext();
   const percentile = formatPercentile(data.shortformPercentile);
-  const {WrappedSection, WrappedHeading, WrappedComment} = Components;
   return (
     <WrappedSection pageSectionContext="topQuickTake">
       <WrappedHeading>
@@ -58,3 +60,5 @@ declare global {
     WrappedTopQuickTakeSection: typeof WrappedTopQuickTakeSectionComponent
   }
 }
+
+export default WrappedTopQuickTakeSectionComponent;

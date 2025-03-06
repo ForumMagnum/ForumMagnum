@@ -5,6 +5,7 @@ import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@material-ui/icons/CloudOff";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   user: {
@@ -95,7 +96,7 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
     <div className={classes.activeDot}>
     </div>
     <span className={classes.offlineIcon}>{!connected && <CloudOff/>}</span>
-    {user && <Components.UsersName user={user}/>}
+    {user && <UsersName user={user}/>}
     {isLoggedOutUser && <>Anonymous</>}
   </span>
 }
@@ -107,3 +108,5 @@ declare global {
     PresenceList: typeof PresenceListComponent
   }
 }
+
+export default PresenceListComponent;

@@ -1,9 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
 
 const EventsUpcoming = () => {
-  const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   const terms = { view: 'upcomingEvents', limit: 20 } as const;
 
   return (
@@ -21,3 +23,5 @@ declare global {
     EventsUpcoming: typeof EventsUpcomingComponent
   }
 }
+
+export default EventsUpcomingComponent;

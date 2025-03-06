@@ -58,3 +58,5 @@ declare global {
     NavigationEventSender: typeof NavigationEventSenderComponent
   }
 }
+
+export default NavigationEventSenderComponent;

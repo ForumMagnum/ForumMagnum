@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import IconButton from '@material-ui/core/IconButton';
 import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,9 +114,6 @@ const VoteAgreementIcon = ({
   const handlers = enabled ? eventHandlers : {};
 
   const {mainColor, lightColor} = useVoteColors(color);
-
-  const { ForumIcon } = Components;
-
   const bigVoteVisible = bigVotingTransition || bigVoteCompleted || bigVoted
 
   const strongVoteLargeIconClasses = (upOrDown === "Downvote")
@@ -188,6 +186,8 @@ declare global {
     VoteAgreementIcon: typeof VoteAgreementIconComponent
   }
 }
+
+export default VoteAgreementIconComponent;
 
 
 

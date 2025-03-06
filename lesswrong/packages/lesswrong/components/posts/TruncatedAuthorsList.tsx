@@ -3,6 +3,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import UserNameDeleted from "@/components/users/UserNameDeleted";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -65,9 +68,6 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
   }, [isAnon, authors, topCommentAuthor, ref, classes.item, expandContainer, classes]);
-
-  const {UsersNameDisplay, UserNameDeleted, LWTooltip} = Components;
-
   return isAnon || authors.length === 0
     ? <UserNameDeleted />
     : (
@@ -110,3 +110,5 @@ declare global {
     TruncatedAuthorsList: typeof TruncatedAuthorsListComponent
   }
 }
+
+export default TruncatedAuthorsListComponent;

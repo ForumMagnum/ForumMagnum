@@ -29,3 +29,5 @@ declare global {
     LWDialog: typeof LWDialogComponent
   }
 }
+
+export default LWDialogComponent;

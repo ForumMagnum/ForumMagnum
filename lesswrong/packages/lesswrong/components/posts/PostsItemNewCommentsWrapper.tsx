@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from '../comments/commentTree';
+import PostsItemNewCommentsList from "@/components/posts/PostsItemNewCommentsList";
+import PostsDialogItemNewCommentsList from "@/components/posts/PostsDialogItemNewCommentsList";
 
 const styles = (theme: ThemeType) => ({})
 
@@ -12,8 +14,6 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {
-  const { PostsItemNewCommentsList, PostsDialogItemNewCommentsList } = Components
-
   if (isDialogPost(post)) {
     return <PostsDialogItemNewCommentsList
       terms={terms}
@@ -40,3 +40,5 @@ declare global {
     PostsItemNewCommentsWrapper: typeof PostsItemNewCommentsWrapperComponent
   }
 }
+
+export default PostsItemNewCommentsWrapperComponent;

@@ -77,3 +77,5 @@ declare global {
     BlurredBackgroundModal: typeof BlurredBackgroundModalComponent
   }
 }
+
+export default BlurredBackgroundModalComponent;

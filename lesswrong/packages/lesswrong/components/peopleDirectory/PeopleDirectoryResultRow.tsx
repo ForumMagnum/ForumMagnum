@@ -92,3 +92,5 @@ declare global {
     PeopleDirectoryResultRow: typeof PeopleDirectoryResultRowComponent
   }
 }
+
+export default PeopleDirectoryResultRowComponent;

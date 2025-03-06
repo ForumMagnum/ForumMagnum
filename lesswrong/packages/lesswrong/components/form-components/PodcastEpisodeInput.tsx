@@ -6,6 +6,8 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
+import { Loading } from "@/components/vulcan-core/Loading";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   podcastEpisodeName: {
@@ -21,8 +23,6 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   document: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, MenuItem } = Components;
-
   const { title: postTitle } = document;
 
   const { results: podcasts = [], loading } = useMulti({
@@ -218,3 +218,5 @@ declare global {
     PodcastEpisodeInput: typeof PodcastEpisodeInputComponent
   }
 }
+
+export default PodcastEpisodeInputComponent;

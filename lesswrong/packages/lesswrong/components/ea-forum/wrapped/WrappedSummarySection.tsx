@@ -8,6 +8,10 @@ import { formatPercentile, getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import CoreTagIcon from "@/components/tagging/CoreTagIcon";
+import WrappedShareButton from "@/components/ea-forum/wrapped/WrappedShareButton";
 
 const TOP_PADDING = 12;
 const BOTTOM_PADDING = 14;
@@ -222,10 +226,6 @@ const WrappedSummarySection = ({classes}: {
       console.error(e);
     }
   }, [color, theme]);
-
-  const {
-    WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
-  } = Components;
   return (
     <WrappedSection
       pageSectionContext="summary"
@@ -335,3 +335,5 @@ declare global {
     WrappedSummarySection: typeof WrappedSummarySectionComponent
   }
 }
+
+export default WrappedSummarySectionComponent;

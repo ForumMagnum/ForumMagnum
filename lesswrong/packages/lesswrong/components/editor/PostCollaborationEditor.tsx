@@ -9,6 +9,17 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import ForeignCrosspostEditForm from "@/components/posts/ForeignCrosspostEditForm";
+import { PostVersionHistoryButton } from "@/components/editor/PostVersionHistory";
+import CKPostEditor from "@/components/editor/CKPostEditor";
+import CollabEditorPermissionsNotices from "@/components/editor/CollabEditorPermissionsNotices";
+import PostsAuthors from "@/components/posts/PostsPage/PostsAuthors";
+import Error404 from "@/components/common/Error404";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -34,7 +45,6 @@ const styles = (theme: ThemeType) => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();
 
   const { query: { postId, key } } = useLocation();
@@ -58,7 +68,7 @@ const PostCollaborationEditor = ({ classes }: {
   // Error handling and loading state
   if (error) {
     if (isMissingDocumentError(error)) {
-      return <Components.Error404 />
+      return <Error404 />
     }
     return <SingleColumnSection>Sorry, you don't have access to this draft</SingleColumnSection>
   }
@@ -94,14 +104,14 @@ const PostCollaborationEditor = ({ classes }: {
 
   return <SingleColumnSection>
     <div className={classes.title}>{post.title}</div>
-    <Components.PostsAuthors post={post}/>
-    <Components.CollabEditorPermissionsNotices post={post}/>
+    <PostsAuthors post={post}/>
+    <CollabEditorPermissionsNotices post={post}/>
     {/*!post.draft && <div>
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
     <ContentStyles className={classes.editor} contentType="post">
       <DeferRender ssr={false}>
-        <Components.CKPostEditor
+        <CKPostEditor
           documentId={postId}
           collectionName="Posts"
           fieldName="contents"
@@ -128,3 +138,5 @@ declare global {
     PostCollaborationEditor: typeof PostCollaborationEditorComponent
   }
 }
+
+export default PostCollaborationEditorComponent;

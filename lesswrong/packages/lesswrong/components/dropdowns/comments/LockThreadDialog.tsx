@@ -7,6 +7,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import LWDialog from "@/components/common/LWDialog";
+import { DatePicker } from "@/components/form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
   message: {
@@ -40,8 +42,6 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
     // hard-refresh the page
     window.location.reload();
   }
-
-  const {LWDialog, DatePicker} = Components;
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>Lock Comment Thread</DialogTitle>
@@ -75,3 +75,5 @@ declare global {
     LockThreadDialog: typeof LockThreadDialogComponent
   }
 }
+
+export default LockThreadDialogComponent;

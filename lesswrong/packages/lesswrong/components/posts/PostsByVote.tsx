@@ -1,6 +1,11 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "@/components/posts/PostsItem";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
+import LoadMore from "@/components/common/LoadMore";
 
 const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   postIds: Array<string>,
@@ -10,8 +15,6 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore } = Components
-
   const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
 
@@ -56,3 +59,5 @@ declare global {
     PostsByVote: typeof PostsByVoteComponent
   }
 }
+
+export default PostsByVoteComponent;

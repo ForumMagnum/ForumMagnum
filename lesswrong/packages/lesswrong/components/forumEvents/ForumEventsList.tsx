@@ -2,6 +2,8 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { Link } from "../../lib/reactRouterWrapper";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,7 +30,6 @@ export const ForumEventsList = ({title, view, classes}: {
       view,
     },
   });
-  const {SectionTitle, Loading} = Components;
   return (
     <div className={classes.root}>
       <SectionTitle title={title} />
@@ -58,3 +59,5 @@ declare global {
     ForumEventsList: typeof ForumEventsListComponent
   }
 }
+
+export default ForumEventsListComponent;

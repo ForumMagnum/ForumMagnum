@@ -4,6 +4,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useDialog } from '../common/withDialog';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,7 +45,6 @@ export const LanguageModelLauncherButton = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { ForumIcon } = Components;
   const { openDialog } = useDialog();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
@@ -76,3 +76,5 @@ declare global {
     LanguageModelLauncherButton: typeof LanguageModelLauncherButtonComponent
   }
 }
+
+export default LanguageModelLauncherButtonComponent;

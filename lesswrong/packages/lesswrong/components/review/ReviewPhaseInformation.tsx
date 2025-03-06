@@ -4,6 +4,11 @@ import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
+import ReviewProgressNominations from "@/components/review/ReviewProgressNominations";
+import ReviewProgressReviews from "@/components/review/ReviewProgressReviews";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LWTooltip from "@/components/common/LWTooltip";
+import ReviewProgressVoting from "@/components/review/ReviewProgressVoting";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,9 +43,6 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
 }) => {
-
-  const { ReviewProgressNominations, ReviewProgressReviews, ContentStyles, LWTooltip, ReviewProgressVoting } = Components
-
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const FaqCard = ({linkText, children}: {
@@ -110,4 +112,6 @@ declare global {
     ReviewPhaseInformation: typeof ReviewPhaseInformationComponent
   }
 }
+
+export default ReviewPhaseInformationComponent;
 

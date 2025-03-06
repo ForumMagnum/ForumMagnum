@@ -8,6 +8,11 @@ import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
+import Datatable from "@/components/vulcan-core/Datatable";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import Error404 from "@/components/common/Error404";
+import FormatDate from "@/components/common/FormatDate";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +41,7 @@ const UserDisplay = ({column, document}: {
 }) => {
   const user = document.user || document
   return <div>
-    <Components.UsersName user={user} nofollow />
+    <UsersName user={user} nofollow />
   </div>
 }
 
@@ -65,7 +70,7 @@ const DateDisplay = ({column, document}: {
   column: Column;
   document: any;
 }) => {
-  return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
+  return <div>{document[column.name] && <FormatDate date={document[column.name]}/>}</div>
 }
 
 const columns: Column[] = [
@@ -101,14 +106,14 @@ const ModGPTDashboard = ({classes}: {
   const currentUser = useCurrentUser()
   
   if (!userIsAdminOrMod(currentUser)) {
-    return <Components.Error404 />
+    return <Error404 />
   }
 
   return (
     <div className={classes.root}>
-      <Components.SectionTitle title="ModGPT Dashboard" noTopMargin />
+      <SectionTitle title="ModGPT Dashboard" noTopMargin />
 
-      <Components.Datatable
+      <Datatable
         collectionName="Comments"
         columns={columns}
         fragmentName={'CommentsListWithModGPTAnalysis'}
@@ -126,3 +131,5 @@ declare global {
     ModGPTDashboard: typeof ModGPTDashboardComponent
   }
 }
+
+export default ModGPTDashboardComponent;

@@ -9,6 +9,19 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarInfo from "@/components/sunshineDashboard/SidebarInfo";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import PostsTitle from "@/components/posts/PostsTitle";
+import PostsHighlight from "@/components/posts/PostsHighlight";
+import SidebarActionMenu from "@/components/sunshineDashboard/SidebarActionMenu";
+import SidebarAction from "@/components/sunshineDashboard/SidebarAction";
+import FormatDate from "@/components/common/FormatDate";
+import CommentsNode from "@/components/comments/CommentsNode";
+import { Typography } from "@/components/common/Typography";
+import SunshineCommentsItemOverview from "@/components/sunshineDashboard/SunshineCommentsItemOverview";
+import SunshineNewUsersInfo from "@/components/sunshineDashboard/SunshineNewUsersInfo";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (_theme: ThemeType) => ({
   reportedUser: {
@@ -83,11 +96,6 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
   }
 
   const {comment, post, reportedUser} = report;
-  const {
-    SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight,
-    SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography,
-    SunshineCommentsItemOverview, SunshineNewUsersInfo, UsersName,
-  } = Components;
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -146,3 +154,5 @@ declare global {
     SunshineReportedItem: typeof SunshineReportedItemComponent
   }
 }
+
+export default SunshineReportedItemComponent;

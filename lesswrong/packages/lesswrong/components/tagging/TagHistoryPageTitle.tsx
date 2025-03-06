@@ -39,3 +39,5 @@ declare global {
     TagHistoryPageTitle: typeof TagHistoryPageTitleComponent
   }
 }
+
+export default TagHistoryPageTitleComponent;

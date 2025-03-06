@@ -8,6 +8,11 @@ import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import MessagesNewForm from "@/components/messaging/MessagesNewForm";
+import Error404 from "@/components/common/Error404";
+import { Loading } from "@/components/vulcan-core/Loading";
+import MessageItem from "@/components/messaging/MessageItem";
+import Divider from "@/components/common/Divider";
 
 const styles = (theme: ThemeType) => ({
   conversationTitle: {
@@ -119,9 +124,6 @@ const ConversationContents = ({
       profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from;
     }
   }, [query.from, conversation, currentUser._id]);
-
-  const { MessagesNewForm, Error404, Loading, MessageItem, Divider } = Components;
-
   const renderMessages = () => {
     if (loading && !results) return <Loading />;
     if (!results?.length) return null;
@@ -173,3 +175,5 @@ declare global {
     ConversationContents: typeof ConversationContentsComponent;
   }
 }
+
+export default ConversationContentsComponent;

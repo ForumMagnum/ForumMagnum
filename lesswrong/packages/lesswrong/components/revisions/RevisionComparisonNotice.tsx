@@ -20,3 +20,5 @@ declare global {
     RevisionComparisonNotice: typeof RevisionComparisonNoticeComponent
   }
 }
+
+export default RevisionComparisonNoticeComponent;

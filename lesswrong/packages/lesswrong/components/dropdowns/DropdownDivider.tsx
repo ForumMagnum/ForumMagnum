@@ -30,3 +30,5 @@ declare global {
     DropdownDivider: typeof DropdownDividerComponent
   }
 }
+
+export default DropdownDividerComponent;

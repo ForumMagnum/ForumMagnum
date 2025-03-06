@@ -25,6 +25,15 @@ import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequenc
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import LWPopper from "@/components/common/LWPopper";
+import LWTooltip from "@/components/common/LWTooltip";
+import ThemePickerMenu from "@/components/themes/ThemePickerMenu";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import ForumIcon from "@/components/common/ForumIcon";
+import { NewWikiTagMenu } from "@/components/tagging/NewWikiTagMenu";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,12 +108,6 @@ const UsersMenu = ({classes}: {
   
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  
-  const {
-    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon,
-    NewWikiTagMenu
-  } = Components
-  
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
     {userGetDisplayName(currentUser)}
@@ -378,3 +381,5 @@ declare global {
     UsersMenu: typeof UsersMenuComponent
   }
 }
+
+export default UsersMenuComponent;

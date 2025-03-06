@@ -93,3 +93,5 @@ declare global {
   }
 }
 
+export default StyledMapPopupComponent;
+

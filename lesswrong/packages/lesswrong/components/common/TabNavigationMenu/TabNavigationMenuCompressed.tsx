@@ -5,6 +5,7 @@ import Divider from '@material-ui/core/Divider';
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import TabNavigationCompressedItem from "@/components/common/TabNavigationMenu/TabNavigationCompressedItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,8 +27,6 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { TabNavigationCompressedItem } = Components
-
   return (
     <div className={classes.root}>
       {forumSelect(menuTabs).map(tab => {
@@ -52,3 +51,5 @@ declare global {
     TabNavigationMenuCompressed: typeof TabNavigationMenuCompressedComponent
   }
 }
+
+export default TabNavigationMenuCompressedComponent;

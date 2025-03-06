@@ -38,3 +38,5 @@ declare global {
     FormGroupQuickTakes: typeof FormGroupQuickTakesComponent
   }
 }
+
+export default FormGroupQuickTakesComponent;

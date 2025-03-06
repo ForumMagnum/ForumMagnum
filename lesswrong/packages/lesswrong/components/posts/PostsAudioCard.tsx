@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import PostsPodcastPlayer from "@/components/posts/PostsPage/PostsPodcastPlayer";
 
 const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
   const {eventHandlers} = useHover({
@@ -15,8 +16,6 @@ const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
   if (!post.podcastEpisode) {
     return null;
   }
-
-  const {PostsPodcastPlayer} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div {...eventHandlers}>
@@ -40,3 +39,5 @@ declare global {
     PostsAudioCard: typeof PostsAudioCardComponent;
   }
 }
+
+export default PostsAudioCardComponent;

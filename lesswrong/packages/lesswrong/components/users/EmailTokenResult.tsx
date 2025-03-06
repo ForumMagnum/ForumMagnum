@@ -1,10 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Typography } from "@/components/common/Typography";
 
 const EmailTokenResult = ({message}: {
   message: string,
 }) => {
-  return <Components.Typography variant="body2">{message}</Components.Typography>
+  return <Typography variant="body2">{message}</Typography>
 }
 
 const EmailTokenResultComponent = registerComponent("EmailTokenResult", EmailTokenResult);
@@ -14,3 +15,5 @@ declare global {
     EmailTokenResult: typeof EmailTokenResultComponent
   }
 }
+
+export default EmailTokenResultComponent;

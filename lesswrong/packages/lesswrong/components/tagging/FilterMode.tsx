@@ -15,6 +15,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import PopperCard from "@/components/common/PopperCard";
+import { TagPreview } from "@/components/tagging/TagPreview";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -151,7 +155,6 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });
@@ -393,3 +396,5 @@ declare global {
     FilterMode: typeof FilterModeComponent
   }
 }
+
+export default FilterModeComponent;

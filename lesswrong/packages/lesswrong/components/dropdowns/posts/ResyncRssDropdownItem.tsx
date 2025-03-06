@@ -8,6 +8,12 @@ import RssFeed from "@material-ui/icons/RssFeed";
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import Button from "@/components/vulcan-ui-bootstrap/ui/Button";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import LWDialog from "@/components/common/LWDialog";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   diffExplanation: {
@@ -41,7 +47,6 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
-  const { DropdownItem } = Components;
   const currentUser = useCurrentUser();
   
   if (!post.feedId) {
@@ -71,7 +76,6 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   post: PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Button, ContentStyles, ContentItemBody, LWDialog, Loading } = Components;
   const client = useApolloClient();
   
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed
@@ -173,5 +177,10 @@ declare global {
     ResyncRssDropdownItem: typeof ResyncRssDropdownItemComponent
     ResyncRssDialog: typeof ResyncRssDialogComponent
   }
+}
+
+export {
+  ResyncRssDropdownItemComponent as ResyncRssDropdownItem,
+  ResyncRssDialogComponent as ResyncRssDialog
 }
 

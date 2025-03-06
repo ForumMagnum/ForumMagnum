@@ -6,6 +6,10 @@ import type { ForumIconName } from "../common/ForumIcon";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import ForumIcon from "@/components/common/ForumIcon";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import FormatDate from "@/components/common/FormatDate";
+import TagsTooltip from "@/components/tagging/TagsTooltip";
 
 const ICON_WIDTH = 24;
 
@@ -111,7 +115,6 @@ const EARecentDiscussionItem = ({
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {ForumIcon, UsersNameDisplay, FormatDate, TagsTooltip} = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
@@ -175,3 +178,5 @@ declare global {
     EARecentDiscussionItem: typeof EARecentDiscussionItemComponent,
   }
 }
+
+export default EARecentDiscussionItemComponent;

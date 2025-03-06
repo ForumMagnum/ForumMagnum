@@ -5,6 +5,13 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import SunshineCuratedSuggestionsItem from "@/components/sunshineDashboard/SunshineCuratedSuggestionsItem";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import LoadMore from "@/components/common/LoadMore";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -112,10 +119,6 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCuration
       statusClass = classes.warning;
     }
   }
-
-  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate,
-    LoadMore, LWTooltip, ForumIcon } = Components
-
   return (
     <div className={classNames(classes.root, statusClass)}>
       <SunshineListTitle>
@@ -150,3 +153,5 @@ declare global {
     SunshineCuratedSuggestionsList: typeof SunshineCuratedSuggestionsListComponent
   }
 }
+
+export default SunshineCuratedSuggestionsListComponent;

@@ -6,6 +6,7 @@ import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -60,7 +61,7 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
   return (
     <div className={classes.root}>
       <h3 className={classes.title}>Add/Remove Posts</h3>
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collectionName="Chapters"
         documentId={documentId}
         successCallback={successCallback}
@@ -85,4 +86,6 @@ declare global {
     ChaptersEditForm: typeof ChaptersEditFormComponent
   }
 }
+
+export default ChaptersEditFormComponent;
 

@@ -9,6 +9,12 @@ import { isMobile } from '../../lib/utils/isMobile'
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import { Typography } from "@/components/common/Typography";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (_theme: ThemeType) => ({
   check: {
@@ -77,10 +83,6 @@ const ThemePickerMenu = ({children, classes}: {
     setTheme(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
-
-  const {
-    LWTooltip, Typography, DropdownMenu, DropdownItem, DropdownDivider, ForumIcon,
-  } = Components;
   const submenu = (
     <Paper>
       <DropdownMenu>
@@ -152,3 +154,5 @@ declare global {
     ThemePickerMenu: typeof ThemePickerMenuComponent
   }
 }
+
+export default ThemePickerMenuComponent;

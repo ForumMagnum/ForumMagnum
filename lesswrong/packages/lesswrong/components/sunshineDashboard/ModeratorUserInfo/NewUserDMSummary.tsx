@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import EmailIcon from '@material-ui/icons/Email';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,8 +19,6 @@ export const NewUserDMSummary = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
 }) => {
-  const { LWTooltip } = Components;
-  
   if (!user.usersContactedBeforeReview?.length) return null
   
   return <div className={classes.root}>
@@ -36,3 +35,5 @@ declare global {
     NewUserDMSummary: typeof NewUserDMSummaryComponent
   }
 }
+
+export default NewUserDMSummaryComponent;

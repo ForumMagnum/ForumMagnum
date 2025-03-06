@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { tagHistoryStyles } from './TagHistoryPage';
+import CompareRevisions from "@/components/revisions/CompareRevisions";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ForumIcon from "@/components/common/ForumIcon";
+import TagRevisionItemShortMetadata from "@/components/tagging/TagRevisionItemShortMetadata";
+import SingleLineFeedEvent from "@/components/common/SingleLineFeedEvent";
 
 const styles = defineStyles("SummaryRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -17,7 +22,6 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, ContentStyles, ForumIcon, TagRevisionItemShortMetadata } = Components;
   const [expanded, setExpanded] = useState(false);
   const documentId = revision.documentId;
 
@@ -48,7 +52,7 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
     />
   </ContentStyles>
 
-  return <Components.SingleLineFeedEvent
+  return <SingleLineFeedEvent
     icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
     frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
     tooltip={(collapsed && !expanded) && diffBody}
@@ -58,7 +62,7 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
       <div><TagRevisionItemShortMetadata tag={tag} itemDescription={shortDescription} url={url} revision={revision} /></div>
       {diffBody}
     </>}
-  </Components.SingleLineFeedEvent>
+  </SingleLineFeedEvent>
 }
 
 const SummaryRevisionItemComponent = registerComponent('SummaryRevisionItem', SummaryRevisionItem);
@@ -68,4 +72,6 @@ declare global {
     SummaryRevisionItem: typeof SummaryRevisionItemComponent
   }
 }
+
+export default SummaryRevisionItemComponent;
 

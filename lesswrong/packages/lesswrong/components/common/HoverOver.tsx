@@ -3,9 +3,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import type { FriendlyHoverOverProps } from "./FriendlyHoverOver";
 import type { LWTooltipProps } from "./LWTooltip";
+import LWTooltip from "@/components/common/LWTooltip";
+import FriendlyHoverOver from "@/components/common/FriendlyHoverOver";
 
 const HoverOver = (props: LWTooltipProps & FriendlyHoverOverProps) => {
-  const {LWTooltip, FriendlyHoverOver} = Components;
   const Tooltip = isFriendlyUI ? FriendlyHoverOver : LWTooltip;
   return (
     <Tooltip {...props} />
@@ -22,3 +23,5 @@ declare global {
     HoverOver: typeof HoverOverComponent
   }
 }
+
+export default HoverOverComponent;

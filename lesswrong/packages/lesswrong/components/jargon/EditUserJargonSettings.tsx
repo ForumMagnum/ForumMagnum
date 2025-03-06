@@ -4,6 +4,8 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Checkbox from '@material-ui/core/Checkbox';
 import { JARGON_LLM_MODEL } from './GlossaryEditForm';
+import LWTooltip from "@/components/common/LWTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
 
 const styles = () => ({
   checkboxContainer: {
@@ -21,8 +23,6 @@ export const EditUserJargonSettings = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-
-  const { LWTooltip, MetaInfo } = Components;
   return <>
       <LWTooltip title={<div><div>Automatically generate jargon for all your drafts, by default</div>
       <em>(i.e. send your drafts to {JARGON_LLM_MODEL} every ~5 minutes)</em></div>}>
@@ -55,3 +55,5 @@ declare global {
     EditUserJargonSettings: typeof EditUserJargonSettingsComponent
   }
 }
+
+export default EditUserJargonSettingsComponent;

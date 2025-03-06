@@ -8,6 +8,10 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import chunk from 'lodash/chunk';
 import { VotingProps } from './votingProps';
+import AxisVoteButton from "@/components/votes/AxisVoteButton";
+import OverallVoteAxis from "@/components/votes/OverallVoteAxis";
+import PopperCard from "@/components/common/PopperCard";
+import VoteArrowIcon from "@/components/votes/VoteArrowIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,8 +119,6 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
   direction: "up"|"down",
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AxisVoteButton } = Components;
-  
   return (
     <AxisVoteButton
       VoteIconComponent={({eventHandlers, voted, ...rest}) => {
@@ -132,7 +134,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
           })}
         >
           <span className={classes.voteArrow}>
-            <Components.VoteArrowIcon eventHandlers={{}} voted={voted} {...rest} alwaysColored />
+            <VoteArrowIcon eventHandlers={{}} voted={voted} {...rest} alwaysColored />
           </span>
           <span className={classes.buttonLabel}>
             {direction==="up" ? axis.goodLabel : axis.badLabel}
@@ -209,7 +211,6 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
 
 const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
-  const { OverallVoteAxis, PopperCard } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   
   return <span className={classes.root} {...eventHandlers}>
@@ -261,4 +262,6 @@ declare global {
     ReactBallotVoteOnComment: typeof ReactBallotVoteOnCommentComponent
   }
 }
+
+export default ReactBallotVoteOnCommentComponent;
 

@@ -65,3 +65,5 @@ declare global {
     MuiTextField: typeof MuiTextFieldComponent
   }
 }
+
+export default MuiTextFieldComponent;

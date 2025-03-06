@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@material-ui/core/Chip/Chip';
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import TagsSearchAutoComplete from "@/components/search/TagsSearchAutoComplete";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,12 +41,12 @@ const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
 
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.TagsSearchAutoComplete
+      <ErrorBoundary>
+        <TagsSearchAutoComplete
           clickAction={setSelectedTagId}
           placeholder={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       {(!loading && selectedTag?.name) ?
         <Chip
           onDelete={() => setSelectedTagId(undefined)}
@@ -65,3 +67,5 @@ declare global {
     TagSelect: typeof TagSelectComponent
   }
 }
+
+export default TagSelectComponent;

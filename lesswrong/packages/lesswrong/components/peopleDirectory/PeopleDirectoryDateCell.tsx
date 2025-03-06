@@ -34,3 +34,5 @@ declare global {
     PeopleDirectoryDateCell: typeof PeopleDirectoryDateCellComponent
   }
 }
+
+export default PeopleDirectoryDateCellComponent;

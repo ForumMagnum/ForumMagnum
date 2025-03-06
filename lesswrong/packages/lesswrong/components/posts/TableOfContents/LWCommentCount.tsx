@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { FIXED_TOC_COMMENT_COUNT_HEIGHT, HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +55,6 @@ export const LWCommentCount = ({classes, answerCount, commentCount, label=true}:
   commentCount?: number,
   label?: boolean,
 }) => {
-  const { ForumIcon } = Components;
   return <div className={classes.root}>
         {typeof answerCount === 'number' && <CommentsLink anchor="#answers" className={classes.comments}>
           <div className={classes.answerIcon}>A</div>
@@ -75,3 +75,5 @@ declare global {
     LWCommentCount: typeof LWCommentCountComponent
   }
 }
+
+export default LWCommentCountComponent;

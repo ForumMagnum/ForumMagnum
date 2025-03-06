@@ -5,6 +5,11 @@ import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ForumIcon from "@/components/common/ForumIcon";
+import { MenuItem } from "@/components/common/Menus";
+import EAButton from "@/components/ea-forum/EAButton";
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -81,9 +86,6 @@ const NotifyMeButton = ({
   if (disabled) {
     return null;
   }
-
-  const {LWTooltip, Loading, ForumIcon, MenuItem, EAButton} = Components;
-
   const icon = showIcon && <ListItemIcon>
     {loading
       ? <Loading/>
@@ -151,3 +153,5 @@ declare global {
     NotifyMeButton: typeof SubscribeToComponent
   }
 }
+
+export default SubscribeToComponent;

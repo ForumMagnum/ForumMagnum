@@ -272,3 +272,9 @@ declare global {
     SideItem: typeof SideItemComponent
   }
 }
+
+export {
+  SideItemsContainerComponent as SideItemsContainer,
+  SideItemsSidebarComponent as SideItemsSidebar,
+  SideItemComponent as SideItem
+}

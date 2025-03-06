@@ -7,6 +7,8 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import LockIcon from '@material-ui/icons/Lock'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import flatMap from 'lodash/flatMap';
+import { Loading } from "@/components/vulcan-core/Loading";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,8 +29,6 @@ export const AltAccountInfo = ({classes, user}: {
   user: SunshineUsersList
 }) => {
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
-  const { Loading, LWTooltip } = Components
-
   const associatedUserIds: string[] = user.associatedClientIds
     ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))
     : [];
@@ -77,4 +77,6 @@ declare global {
     AltAccountInfo: typeof AltAccountInfoComponent
   }
 }
+
+export default AltAccountInfoComponent;
 

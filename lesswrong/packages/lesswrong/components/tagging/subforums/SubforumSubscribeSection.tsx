@@ -8,6 +8,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -51,8 +52,6 @@ const SubforumSubscribeSection = ({
     }
     ${getFragment("UsersCurrent")}
   `, {refetchQueries: ['getCurrentUser']});
-  const { LWTooltip } = Components
-
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       e.preventDefault();
@@ -107,3 +106,5 @@ declare global {
     SubforumSubscribeSection: typeof SubforumSubscribeSectionComponent
   }
 }
+
+export default SubforumSubscribeSectionComponent;

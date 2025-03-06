@@ -46,3 +46,5 @@ declare global {
     AlignmentPendingApprovalMessage: typeof AlignmentPendingApprovalMessageComponent
   }
 }
+
+export default AlignmentPendingApprovalMessageComponent;

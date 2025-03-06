@@ -144,3 +144,5 @@ declare global {
     CollapsedFootnotes: typeof CollapsedFootnotesComponent
   }
 }
+
+export default CollapsedFootnotesComponent;

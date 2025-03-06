@@ -102,3 +102,5 @@ declare global {
     EditTitle: typeof EditTitleComponent
   }
 }
+
+export default EditTitleComponent;

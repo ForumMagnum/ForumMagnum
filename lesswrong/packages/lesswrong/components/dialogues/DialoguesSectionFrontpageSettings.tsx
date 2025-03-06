@@ -6,6 +6,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import MetaInfo from "@/components/common/MetaInfo";
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -49,7 +50,6 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   currentShowMyDialogues: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -96,3 +96,5 @@ declare global {
     DialoguesSectionFrontpageSettings: typeof DialoguesSectionFrontpageSettingsComponent
   }
 }
+
+export default DialoguesSectionFrontpageSettingsComponent;

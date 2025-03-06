@@ -13,6 +13,10 @@ import {
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import moment from "moment";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import LWTooltip from "@/components/common/LWTooltip";
+import EAReactsSection from "@/components/votes/EAReactsSection";
+import UserTooltip from "@/components/users/UserTooltip";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -90,8 +94,6 @@ const WrappedComment = ({comment, classes}: {
     commentId: comment._id,
     tagCommentType: "DISCUSSION" as TagCommentType,
   });
-
-  const {LWTooltip, EAReactsSection, UserTooltip, ContentStyles} = Components;
   return (
     <article className={classes.root}>
       {"postTitle" in comment &&
@@ -151,3 +153,5 @@ declare global {
     WrappedComment: typeof WrappedCommentComponent
   }
 }
+
+export default WrappedCommentComponent;

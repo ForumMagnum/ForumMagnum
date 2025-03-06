@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import type { VotingProps } from '../votingProps';
 import Card from '@material-ui/core/Card';
+import ReactionHoverTopRow from "@/components/votes/lwReactions/ReactionHoverTopRow";
+import ReactionQuotesHoverInfo from "@/components/votes/lwReactions/ReactionQuotesHoverInfo";
 
 const styles = (theme: ThemeType) => ({
 })
@@ -20,7 +22,6 @@ const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const reactionNames = Object.keys(reactions);
 
   return <Card>
@@ -47,4 +48,6 @@ declare global {
     InlineReactHoverInfo: typeof InlineReactHoverInfoComponent
   }
 }
+
+export default InlineReactHoverInfoComponent;
 

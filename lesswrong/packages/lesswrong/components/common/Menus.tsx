@@ -60,3 +60,8 @@ declare global {
     MenuItemLink: typeof MenuItemLinkComponent
   }
 }
+
+export {
+  MenuItemComponent as MenuItem,
+  MenuItemLinkComponent as MenuItemLink
+}

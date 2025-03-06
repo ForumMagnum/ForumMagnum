@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import PostsSearchAutoComplete from "@/components/search/PostsSearchAutoComplete";
+import PostsItemWrapper from "@/components/posts/PostsItemWrapper";
 
 const styles = (theme: ThemeType) => ({
   editor: {
@@ -20,7 +22,7 @@ const styles = (theme: ThemeType) => ({
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.PostsItemWrapper documentId={contents} removeItem={removeItem} />
+      <PostsItemWrapper documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -36,7 +38,7 @@ const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormCompon
       }}
       classes={classes}
     />
-    <Components.PostsSearchAutoComplete
+    <PostsSearchAutoComplete
       clickAction={(postId: string) => {
         void updateCurrentValues({ [path]: [...value, postId] });
       }}
@@ -58,3 +60,5 @@ declare global {
     PostsListEditor: typeof PostsListEditorComponent
   }
 }
+
+export default PostsListEditorComponent;

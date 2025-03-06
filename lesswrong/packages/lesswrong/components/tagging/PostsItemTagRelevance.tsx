@@ -7,6 +7,8 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,7 +52,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
   const currentUser = useCurrentUser();
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -104,3 +105,5 @@ declare global {
     PostsItemTagRelevance: typeof PostsItemTagRelevanceComponent
   }
 }
+
+export default PostsItemTagRelevanceComponent;

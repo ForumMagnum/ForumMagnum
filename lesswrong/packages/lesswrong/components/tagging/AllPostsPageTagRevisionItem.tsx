@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Loading } from "@/components/vulcan-core/Loading";
+import TagRevisionItem from "@/components/tagging/TagRevisionItem";
+import LensRevisionItem from "@/components/tagging/history/LensRevisionItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +26,6 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Loading, TagRevisionItem, LensRevisionItem} = Components;
   const {document: revision, loading} = useSingle({
     documentId: revisionId,
     collectionName: "Revisions",
@@ -60,4 +62,6 @@ declare global {
     AllPostsPageTagRevisionItem: typeof AllPostsPageTagRevisionItemComponent
   }
 }
+
+export default AllPostsPageTagRevisionItemComponent;
 

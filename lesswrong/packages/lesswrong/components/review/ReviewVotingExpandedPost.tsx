@@ -7,6 +7,11 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import PostPageReviewButton from "@/components/posts/PostsPage/PostPageReviewButton";
+import ReviewPostComments from "@/components/review/ReviewPostComments";
+import PostsHighlight from "@/components/posts/PostsHighlight";
+import PingbacksList from "@/components/posts/PingbacksList";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,8 +72,6 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const { PostPageReviewButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
-
   const {document: postWithContents, loading} = useSingle({
     documentId: post?._id,
     collectionName: "Posts",
@@ -121,3 +124,5 @@ declare global {
     ReviewVotingExpandedPost: typeof ReviewVotingExpandedPostComponent
   }
 }
+
+export default ReviewVotingExpandedPostComponent;

@@ -4,6 +4,8 @@ import { useHover } from "../common/withHover";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import CollectionsTooltip from "@/components/collections/CollectionsTooltip";
+import EASequenceOrCollectionCard from "@/components/ea-forum/EASequenceOrCollectionCard";
 
 const defaultImageId = forumSelect({
   EAForum: "Banner/yeldubyolqpl3vqqy0m6.jpg",
@@ -50,15 +52,12 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
   const href = collectionGetPageUrl(collection);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
-    const {CollectionsTooltip} = Components;
     return (
       <CollectionsTooltip collection={collection}>
         {children}
       </CollectionsTooltip>
     );
   }, [collection]);
-
-  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={collection.slug}>
       <EASequenceOrCollectionCard
@@ -85,3 +84,5 @@ declare global {
     EACollectionCard: typeof EACollectionCardComponent;
   }
 }
+
+export default EACollectionCardComponent;

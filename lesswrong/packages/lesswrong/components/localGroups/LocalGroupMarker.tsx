@@ -4,6 +4,9 @@ import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import StyledMapPopup from "@/components/localGroups/StyledMapPopup";
+import GroupLinks from "@/components/localGroups/GroupLinks";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -34,13 +37,12 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const { geometry: {location: {lat, lng}}} = location
 
   const { html = "" } = group.contents || {}
-  const { StyledMapPopup, GroupLinks } = Components
   const htmlBody = {__html: html};
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const GroupIcon = () => forumTypeSetting.get() === 'EAForum'
-    ? <Components.ForumIcon icon="Star" className={classes.eaIcon}/>
+    ? <ForumIcon icon="Star" className={classes.eaIcon}/>
     : <GroupIconSVG className={classes.icon}/>;
 
   return <React.Fragment>
@@ -76,4 +78,6 @@ declare global {
     LocalGroupMarker: typeof LocalGroupMarkerComponent
   }
 }
+
+export default LocalGroupMarkerComponent;
 

@@ -8,6 +8,9 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import classNames from "classnames";
 import moment from "moment";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import NewConversationButton from "@/components/messaging/NewConversationButton";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,8 +103,6 @@ const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   const careerStage = user.careerStage?.[0]
     ? CAREER_STAGES.find(({value}) => value === user.careerStage?.[0])
     : null;
-
-  const {UsersProfileImage, NewConversationButton, ForumIcon} = Components;
   return (
     <div
       onClick={onClick}
@@ -180,3 +181,5 @@ declare global {
     PeopleDirectoryCard: typeof PeopleDirectoryCardComponent
   }
 }
+
+export default PeopleDirectoryCardComponent;

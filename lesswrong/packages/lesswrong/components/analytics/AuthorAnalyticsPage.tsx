@@ -13,6 +13,15 @@ import { slugify } from "@/lib/utils/slugify";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import HeadTags from "@/components/common/HeadTags";
+import { Typography } from "@/components/common/Typography";
+import LoadMore from "@/components/common/LoadMore";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import AnalyticsGraph from "@/components/analytics/AnalyticsGraph";
+import AnalyticsPostItem from "@/components/analytics/AnalyticsPostItem";
+import AnalyticsPostItemSkeleton from "@/components/analytics/AnalyticsPostItemSkeleton";
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -250,12 +259,6 @@ const AuthorAnalyticsPage = ({ classes }: {
     setPosts([]);
     setTotalCount(0);
   }, [slug]);
-
-  const {
-    SingleColumnSection, HeadTags, Typography, LoadMore, ForumIcon, LWTooltip,
-    AnalyticsGraph, AnalyticsPostItem, AnalyticsPostItemSkeleton,
-  } = Components;
-
   const isCurrentUser = currentUser?.slug === slug
   if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
     return (
@@ -352,3 +355,5 @@ declare global {
     AuthorAnalyticsPage: typeof AuthorAnalyticsPageComponent;
   }
 }
+
+export default AuthorAnalyticsPageComponent;

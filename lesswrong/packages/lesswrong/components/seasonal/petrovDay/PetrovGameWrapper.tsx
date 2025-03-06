@@ -7,6 +7,11 @@ import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpo
 import { useSingle } from '@/lib/crud/withSingle';
 import { gql, useQuery } from '@apollo/client';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
+import PetrovAdminConsole from "@/components/seasonal/petrovDay/PetrovAdminConsole";
+import PetrovWarningConsole from "@/components/seasonal/petrovDay/PetrovWarningConsole";
+import PetrovLaunchConsole from "@/components/seasonal/petrovDay/PetrovLaunchConsole";
+import PetrovWorldmapWrapper from "@/components/seasonal/petrovDay/PetrovWorldmapWrapper";
+import PetrovDayLossScreen from "@/components/seasonal/PetrovDayLossScreen";
 
 const styles = (theme: ThemeType) => ({
   citizenEast: {
@@ -39,8 +44,6 @@ const styles = (theme: ThemeType) => ({
 export const PetrovGameWrapper = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PetrovAdminConsole, PetrovWarningConsole, PetrovLaunchConsole, PetrovWorldmapWrapper, PetrovDayLossScreen } = Components;
-
   const currentUser = useCurrentUser()
 
   const { results: petrovDayUserActions } = useMulti({
@@ -115,3 +118,5 @@ declare global {
     PetrovGameWrapper: typeof PetrovGameWrapperComponent
   }
 }
+
+export default PetrovGameWrapperComponent;

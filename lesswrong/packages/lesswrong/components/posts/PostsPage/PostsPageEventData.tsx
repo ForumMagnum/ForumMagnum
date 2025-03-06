@@ -16,6 +16,9 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { Typography } from "@/components/common/Typography";
+import SmallMapPreview from "@/components/localGroups/SmallMapPreview";
+import EventTime from "@/components/localGroups/EventTime";
 
 const styles = (theme: ThemeType) => ({
   metadata: {
@@ -206,11 +209,11 @@ const PostsPageEventData = ({classes, post}: {
     </Button>
   }
   
-  return <Components.Typography variant="body2" className={classes.metadata}>
+  return <Typography variant="body2" className={classes.metadata}>
       <div>
         <div className={classes.iconRow}>
           <div className={classes.iconWrapper}><ClockIcon className={classes.icon} /></div>
-          <Components.EventTime post={post} dense={false} />
+          <EventTime post={post} dense={false} />
         </div>
         <div className={classes.iconRow}>
           <div className={classes.iconWrapper}><LocationIcon className={classes.icon} /></div>
@@ -230,9 +233,9 @@ const PostsPageEventData = ({classes, post}: {
         {eventCTA}
       </div>}
       {!post.onlineEvent && <div className={classes.mapbox}>
-        <Components.SmallMapPreview post={post} />
+        <SmallMapPreview post={post} />
       </div>}
-  </Components.Typography>
+  </Typography>
 }
 
 const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {styles});
@@ -242,3 +245,5 @@ declare global {
     PostsPageEventData: typeof PostsPageEventDataComponent
   }
 }
+
+export default PostsPageEventDataComponent;

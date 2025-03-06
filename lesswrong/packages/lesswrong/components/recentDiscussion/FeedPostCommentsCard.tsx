@@ -11,6 +11,10 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import CommentsNode from "@/components/comments/CommentsNode";
+import FeedPostsHighlight from "@/components/posts/FeedPostsHighlight";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import FeedPostCardMeta from "@/components/posts/FeedPostCardMeta";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -123,8 +127,6 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   expandAllThreads: boolean,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNode } = Components;
-
   const [expanded, setExpanded] = useState(expandAllThreads);
 
   const flattenedCommentBranch = flattenCommentBranch(comment);
@@ -194,9 +196,6 @@ const FeedPostCommentsCard = ({
     commentTreeOptions,
     initialExpandAllThreads,
   });
-
-  const { FeedPostsHighlight, PostActionsButton, FeedPostCardMeta } = Components;
-
   return (
     <AnalyticsContext pageSubSectionContext='FeedPostCommentsCard'>
 
@@ -253,3 +252,5 @@ declare global {
     FeedPostCommentsCard: typeof FeedPostCommentsCardComponent,
   }
 }
+
+export default FeedPostCommentsCardComponent;

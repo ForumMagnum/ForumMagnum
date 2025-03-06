@@ -7,6 +7,14 @@ import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import AlignmentPendingApprovalMessage from "@/components/alignment-forum/AlignmentPendingApprovalMessage";
+import LinkPostMessage from "@/components/posts/LinkPostMessage";
+import PostsRevisionMessage from "@/components/posts/PostsPage/PostsRevisionMessage";
+import LWTooltip from "@/components/common/LWTooltip";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import PostPageReviewButton from "@/components/posts/PostsPage/PostPageReviewButton";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -60,7 +68,6 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
@@ -73,7 +80,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
       <>
-        This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+        This is a special post for quick takes by <UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
       </>
     </div>}
 
@@ -109,3 +116,5 @@ declare global {
     PostBodyPrefix: typeof PostBodyPrefixComponent
   }
 }
+
+export default PostBodyPrefixComponent;

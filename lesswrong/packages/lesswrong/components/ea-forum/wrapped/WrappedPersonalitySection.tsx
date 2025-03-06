@@ -13,6 +13,9 @@ import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import WrappedShareButton from "@/components/ea-forum/wrapped/WrappedShareButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -180,8 +183,6 @@ const WrappedPersonalitySection = ({classes}: {
       console.error(e);
     }
   }, [personalityVideo.color, theme]);
-
-  const {WrappedSection, WrappedHeading, WrappedShareButton} = Components;
   const personalityTitle = (
     <>
       <div className={classes.bottomMargin}>
@@ -261,3 +262,5 @@ declare global {
     WrappedPersonalitySection: typeof WrappedPersonalitySectionComponent
   }
 }
+
+export default WrappedPersonalitySectionComponent;

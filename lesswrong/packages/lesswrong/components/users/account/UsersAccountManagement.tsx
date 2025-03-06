@@ -3,6 +3,11 @@ import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useSingle } from '@/lib/crud/withSingle';
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import DummyFormGroup from "@/components/form-components/DummyFormGroup";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { DeactivateAccountSection } from "@/components/users/account/DeactivateAccountSection";
+import { DeleteAccountSection } from "@/components/users/account/DeleteAccountSection";
 
 const styles = (_theme: ThemeType) => ({
   actionsWrapper: {
@@ -17,8 +22,6 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ErrorAccessDenied, DummyFormGroup, Loading, DeactivateAccountSection, DeleteAccountSection } = Components;
-
   const currentUser = useCurrentUser();
   const {document: user} = useSingle({
     slug,
@@ -51,3 +54,5 @@ declare global {
     UsersAccountManagement: typeof UsersAccountManagementComponent
   }
 }
+
+export default UsersAccountManagementComponent;

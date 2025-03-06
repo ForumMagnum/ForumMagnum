@@ -59,3 +59,5 @@ declare global {
     DialogueEditorFeedback: typeof DialogueEditorFeedbackComponent
   }
 }
+
+export default DialogueEditorFeedbackComponent;

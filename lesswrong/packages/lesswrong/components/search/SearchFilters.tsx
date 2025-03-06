@@ -14,6 +14,10 @@ import {
 } from '../../lib/search/searchUtil';
 import { communityPath } from '../../lib/routes';
 import IconButton from '@material-ui/core/IconButton';
+import { Typography } from "@/components/common/Typography";
+import { MenuItem } from "@/components/common/Menus";
+import ForumIcon from "@/components/common/ForumIcon";
+import TagMultiselect from "@/components/form-components/TagMultiselect";
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {
@@ -91,7 +95,7 @@ type TagsRefinementProps = {
 const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
   RefinementListProvided & TagsRefinementProps
 ) => {
-  return <Components.TagMultiselect
+  return <TagMultiselect
     value={tagsFilter ?? []}
     path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
@@ -116,8 +120,6 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
 }) => {
 
   const [pastDay, pastWeek, pastMonth, pastYear] = dateRangeValues;
-  const { Typography, MenuItem, ForumIcon } = Components;
-
   return <div className={classes.filtersColumn}>
     <div className={classes.filtersHeadlineWrapper}>
       <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
@@ -198,3 +200,5 @@ declare global {
     SearchFilters: typeof SearchFiltersComponent
   }
 }
+
+export default SearchFiltersComponent;

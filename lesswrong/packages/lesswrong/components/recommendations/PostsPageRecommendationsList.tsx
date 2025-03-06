@@ -8,6 +8,10 @@ import type {
 } from "../../lib/collections/users/recommendationSettings";
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import DeferRender from "../common/DeferRender";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import PostsPageRecommendationItem from "@/components/recommendations/PostsPageRecommendationItem";
+import PostsLoading from "@/components/posts/PostsLoading";
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
@@ -69,9 +73,6 @@ const PostsPageRecommendationsList = ({
     },
     count: COUNT,
   };
-
-  const {SectionTitle, RecommendationsList, PostsPageRecommendationItem, PostsLoading} = Components;
-
   const loadingFallback = (
     <div className={classes.listWrapper}>
       <PostsLoading />
@@ -115,3 +116,5 @@ declare global {
     PostsPageRecommendationsList: typeof PostsPageRecommendationsListComponent
   }
 }
+
+export default PostsPageRecommendationsListComponent;

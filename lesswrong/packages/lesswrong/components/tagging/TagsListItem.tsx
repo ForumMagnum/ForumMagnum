@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import PopperCard from "@/components/common/PopperCard";
+import { TagPreview } from "@/components/tagging/TagPreview";
 
 const styles = (theme: ThemeType) => ({
   tag: {
@@ -35,7 +37,6 @@ const TagsListItem = ({tag, classes, postCount=3}: {
   classes: ClassesType<typeof styles>,
   postCount?: number,
 }) => {
-  const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
 
   return <div {...eventHandlers} className={classes.tag}>
@@ -62,3 +63,5 @@ declare global {
     TagsListItem: typeof TagsListItemComponent
   }
 }
+
+export default TagsListItemComponent;

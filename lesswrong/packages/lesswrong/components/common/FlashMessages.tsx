@@ -117,3 +117,5 @@ declare global {
     FlashMessages: typeof FlashMessagesComponent
   }
 }
+
+export default FlashMessagesComponent;

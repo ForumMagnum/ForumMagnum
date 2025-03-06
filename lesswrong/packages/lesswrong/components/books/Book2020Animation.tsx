@@ -188,3 +188,5 @@ declare global {
     Book2020Animation: typeof Book2020AnimationComponent
   }
 }
+
+export default Book2020AnimationComponent;

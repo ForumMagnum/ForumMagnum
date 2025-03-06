@@ -5,6 +5,7 @@ import { ConditionalVisibilityMode, conditionalVisibilityModes, ConditionalVisib
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = defineStyles("EditConditionalVisibility", (theme: ThemeType) => ({
   root: {
@@ -31,8 +32,6 @@ export const EditConditionalVisibility = ({initialState, setDocumentState}: Edit
     setState(newState);
   }
   const mode = conditionalVisibilityModes[state.type];
-  const { MenuItem } = Components;
-
   return <div
     className={classes.root} contentEditable={false}
     data-cke-ignore-events={true}
@@ -90,4 +89,6 @@ declare global {
     EditConditionalVisibility: typeof EditConditionalVisibilityComponent
   }
 }
+
+export default EditConditionalVisibilityComponent;
 

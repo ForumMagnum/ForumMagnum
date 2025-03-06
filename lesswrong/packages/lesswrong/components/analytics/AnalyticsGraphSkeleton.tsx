@@ -91,3 +91,5 @@ declare global {
     AnalyticsGraphSkeleton: typeof AnalyticsGraphSkeletonComponent
   }
 }
+
+export default AnalyticsGraphSkeletonComponent;

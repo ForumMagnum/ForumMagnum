@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
+import { Typography } from "@/components/common/Typography";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -24,12 +25,12 @@ const MetaInfo = ({children, classes, button, className}: {
   className?: string
   title?: string,
 }) => {
-  return <Components.Typography
+  return <Typography
     component='span'
     className={classNames(classes.root, button && classes.button, className)}
     variant='body2'>
       {children}
-  </Components.Typography>
+  </Typography>
 }
 
 const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, {styles});
@@ -39,3 +40,5 @@ declare global {
     MetaInfo: typeof MetaInfoComponent
   }
 }
+
+export default MetaInfoComponent;

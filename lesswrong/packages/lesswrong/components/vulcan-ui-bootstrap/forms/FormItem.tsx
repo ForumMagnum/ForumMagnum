@@ -45,3 +45,5 @@ declare global {
   }
 }
 
+export default FormItemComponent;
+

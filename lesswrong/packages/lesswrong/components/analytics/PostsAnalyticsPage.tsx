@@ -13,6 +13,12 @@ import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import classNames from "classnames";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LoginForm from "@/components/users/LoginForm";
+import HeadTags from "@/components/common/HeadTags";
+import { Typography } from "@/components/common/Typography";
+import AnalyticsGraph from "@/components/analytics/AnalyticsGraph";
+import LWTooltip from "@/components/common/LWTooltip";
 
 function formatBounceRate(denominator?: number, numerator?: number) {
   if (!denominator || numerator === undefined || numerator === null) return null
@@ -104,12 +110,6 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
     postIds: [query.postId],
   });
   const overallStats = postAnalytics?.posts?.[0];
-
-  const {
-    SingleColumnSection, LoginForm, HeadTags, Typography, AnalyticsGraph,
-    LWTooltip,
-  } = Components;
-
   if (!query.postId) {
     return null;
   }
@@ -230,3 +230,5 @@ declare global {
     PostsAnalyticsPage: typeof PostsAnalyticsPageComponent;
   }
 }
+
+export default PostsAnalyticsPageComponent;

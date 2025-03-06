@@ -2,6 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
+import LoadMore from "@/components/common/LoadMore";
+import CommentsNode from "@/components/comments/CommentsNode";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -31,18 +35,18 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   const validResults = results?.filter(comment => comment.post?._id || comment.tag?._id)
 
   if (!loadingInitial && validResults && !validResults.length) {
-    return (<Components.Typography variant="body2">{noResultsMessage}</Components.Typography>)
+    return (<Typography variant="body2">{noResultsMessage}</Typography>)
   }
   if (loadingInitial || !validResults) {
     return <div className={classes.verticalHeightSpacer}>
-      <Components.Loading />
+      <Loading />
     </div>
   }
   
   return <div className={classes.root}>
     {validResults.map(comment =>
       <div key={comment._id}>
-        <Components.CommentsNode
+        <CommentsNode
           treeOptions={{
             condensed: false,
             post: comment.post || undefined,
@@ -56,7 +60,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
         />
       </div>
     )}
-    <Components.LoadMore {...loadMoreProps} />
+    <LoadMore {...loadMoreProps} />
   </div>
 }
 
@@ -67,4 +71,6 @@ declare global {
     RecentComments: typeof RecentCommentsComponent,
   }
 }
+
+export default RecentCommentsComponent;
 

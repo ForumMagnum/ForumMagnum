@@ -4,6 +4,7 @@ import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,9 +65,6 @@ export const PostsTagsList = (
     defaultMax?: number // default number of tags to show
     afterChildren?: React.ReactNode,
   }) => {
-  const { LWTooltip } = Components
-
-
   const allTags = posts?.flatMap(post => post.tags) ?? []
   const uniqueTags = [...new Set(allTags)]
   const tagsWithCount: TagWithCount[] = uniqueTags.map(tag => ({
@@ -106,4 +104,6 @@ declare global {
     PostsTagsList: typeof PostsTagsListComponent
   }
 }
+
+export default PostsTagsListComponent;
 

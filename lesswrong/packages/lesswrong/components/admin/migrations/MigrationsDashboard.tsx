@@ -4,6 +4,10 @@ import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery, gql } from '@apollo/client';
 import { rowStyles } from './MigrationsDashboardRow';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import MigrationsDashboardRow from "@/components/admin/migrations/MigrationsDashboardRow";
 
 const styles = (theme: ThemeType) => ({
   ...rowStyles,
@@ -33,7 +37,6 @@ const MigrationsDashboard = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, Loading, SectionTitle } = Components;
   const { data, loading } = useQuery(migrationsQuery, { ssr: true });
   
   if (!userIsAdmin(currentUser)) {
@@ -50,7 +53,7 @@ const MigrationsDashboard = ({classes}: {
       <span className={classes.lastRun}>Last Run (Started)</span>
     </div>
     {data?.MigrationsDashboard?.migrations && data.MigrationsDashboard.migrations.map((migration: AnyBecauseTodo) =>
-      <Components.MigrationsDashboardRow key={migration.name} migration={migration}/>)}
+      <MigrationsDashboardRow key={migration.name} migration={migration}/>)}
   </SingleColumnSection>;
 }
 
@@ -63,3 +66,5 @@ declare global {
     MigrationsDashboard: typeof MigrationsDashboardComponent
   }
 }
+
+export default MigrationsDashboardComponent;

@@ -15,6 +15,8 @@ import { useCurrentUser } from './withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import SearchBarResults from "@/components/search/SearchBarResults";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -167,9 +169,6 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
       captureSearch("searchBar", {query: currentQuery});
     }
   }, [currentQuery, captureSearch])
-
-  const { SearchBarResults, ForumIcon } = Components
-
   if (!isSearchEnabled()) {
     return <div>Search is disabled (ElasticSearch not configured on server)</div>
   }
@@ -221,3 +220,5 @@ declare global {
     SearchBar: typeof SearchBarComponent
   }
 }
+
+export default SearchBarComponent;

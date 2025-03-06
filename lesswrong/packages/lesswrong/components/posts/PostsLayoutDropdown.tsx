@@ -4,6 +4,8 @@ import { defaultPostsLayout, PostsLayout, SettingsOption } from '../../lib/colle
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames';
+import ForumIcon from "@/components/common/ForumIcon";
+import ForumDropdown from "@/components/common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   optionIcon: {
@@ -26,7 +28,6 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
   value?: PostsLayout
   queryParam?: string,
 }) => {
-  const { ForumIcon, ForumDropdown } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -70,3 +71,5 @@ declare global {
     PostsLayoutDropdown: typeof PostsLayoutDropdownComponent
   }
 }
+
+export default PostsLayoutDropdownComponent;

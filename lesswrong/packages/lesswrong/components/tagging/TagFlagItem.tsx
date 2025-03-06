@@ -8,6 +8,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
+import LWPopper from "@/components/common/LWPopper";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,7 +45,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   style?: "white"|"grey"|"black",
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
@@ -116,3 +118,5 @@ declare global {
     TagFlagItem: typeof TagFlagItemComponent
   }
 }
+
+export default TagFlagItemComponent;

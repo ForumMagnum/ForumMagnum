@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   usersWhoReactedRoot: {
@@ -29,8 +30,6 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   showTooltip?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components;
-
   if (reactions.length === 0) return null;
 
   const usersWhoProReacted = reactions.filter(r=>r.reactType!=="disagreed")
@@ -84,4 +83,6 @@ declare global {
     UsersWhoReacted: typeof UsersWhoReactedComponent
   }
 }
+
+export default UsersWhoReactedComponent;
 

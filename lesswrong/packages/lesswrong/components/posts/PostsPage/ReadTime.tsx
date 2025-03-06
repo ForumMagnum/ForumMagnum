@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +17,6 @@ export const ReadTime = ({classes, post, dialogueResponses}: {
   post: PostsList,
   dialogueResponses: CommentsList[],
 }) => {
-  const { LWTooltip } = Components
   const wordCount = useMemo(() => {
     if (!post.debate || dialogueResponses.length === 0) {
       return post.contents?.wordCount || 0;
@@ -53,3 +53,5 @@ declare global {
     ReadTime: typeof ReadTimeComponent
   }
 }
+
+export default ReadTimeComponent;

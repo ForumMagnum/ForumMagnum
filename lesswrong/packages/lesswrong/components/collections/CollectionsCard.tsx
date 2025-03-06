@@ -4,6 +4,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LinkCard from "@/components/common/LinkCard";
+import CloudinaryImage from "@/components/common/CloudinaryImage";
+import UsersName from "@/components/users/UsersName";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -89,7 +93,6 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   mergeTitle?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LinkCard, CloudinaryImage, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
@@ -128,3 +131,5 @@ declare global {
     CollectionsCard: typeof CollectionsCardComponent
   }
 }
+
+export default CollectionsCardComponent;

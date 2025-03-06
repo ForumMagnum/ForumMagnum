@@ -8,6 +8,11 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
+import { Typography } from "@/components/common/Typography";
+import ForumDropdown from "@/components/common/ForumDropdown";
+import LWTooltip from "@/components/common/LWTooltip";
+import AnalyticsGraphSkeleton from "@/components/analytics/AnalyticsGraphSkeleton";
+import AnalyticsDisclaimers from "@/components/analytics/AnalyticsDisclaimers";
 
 const CONTROLS_BREAKPOINT = 650;
 
@@ -253,8 +258,6 @@ export const AnalyticsGraph = ({
   disclaimerEarliestDate?: Date,
   classes: ClassesType<typeof styles>;
 }) => {
-  const {Typography, ForumDropdown, LWTooltip} = Components;
-
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
 
@@ -344,8 +347,6 @@ export const AnalyticsGraph = ({
       className={classes.dateDropdown}
     />
   );
-
-  const {AnalyticsGraphSkeleton, AnalyticsDisclaimers} = Components;
   if (loading || (!userId && !postIds?.length)) {
     return (
       <AnalyticsGraphSkeleton dateOptionDropdown={dateOptionDropdown} />
@@ -442,3 +443,5 @@ declare global {
     AnalyticsGraph: typeof AnalyticsGraphComponent;
   }
 }
+
+export default AnalyticsGraphComponent;

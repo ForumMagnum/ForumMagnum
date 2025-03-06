@@ -14,6 +14,11 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import LWPopper from "@/components/common/LWPopper";
+import { Typography } from "@/components/common/Typography";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -117,9 +122,6 @@ const SubscribeButton = ({
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
-
-  const { LWClickAwayListener, LWPopper, Typography, LWTooltip, ForumIcon } = Components;
-  
   // Get existing NOTIFICATIONS subscription, if there is one
   const subscriptionType = "newTagPosts"
   const { results: notifSubscriptions } = useMulti({
@@ -250,3 +252,5 @@ declare global {
     SubscribeButton: typeof SubscribeButtonComponent
   }
 }
+
+export default SubscribeButtonComponent;

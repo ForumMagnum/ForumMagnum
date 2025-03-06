@@ -4,6 +4,15 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
+import PostsItem from "@/components/posts/PostsItem";
+import SectionButton from "@/components/common/SectionButton";
+import SettingsButton from "@/components/icons/SettingsButton";
+import LWTooltip from "@/components/common/LWTooltip";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SectionSubtitle from "@/components/common/SectionSubtitle";
+import DialoguesSectionFrontpageSettings from "@/components/dialogues/DialoguesSectionFrontpageSettings";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   content: {
@@ -80,7 +89,6 @@ const styles = (theme: ThemeType) => ({
 });
  
 const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
-  const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, Typography } = Components
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
   const currentDate = new Date();
@@ -181,3 +189,5 @@ declare global {
     DialoguesList: typeof DialoguesListComponent
   }
 }
+
+export default DialoguesListComponent;

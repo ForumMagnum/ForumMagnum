@@ -4,6 +4,10 @@ import { useCurrentUser } from '../common/withUser'
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import AnswersList from "@/components/questions/AnswersList";
+import NewAnswerCommentQuestionForm from "@/components/questions/NewAnswerCommentQuestionForm";
+import CantCommentExplanation from "@/components/comments/CantCommentExplanation";
+import RelatedQuestionsList from "@/components/questions/RelatedQuestionsList";
 
 const PostsPageQuestionContent = ({post, answersTree, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
@@ -11,7 +15,6 @@ const PostsPageQuestionContent = ({post, answersTree, refetch}: {
   refetch: () => void,
 }) => {
   const currentUser = useCurrentUser();
-  const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   const author = post.user;
   return (
     <div>
@@ -35,4 +38,6 @@ declare global {
     PostsPageQuestionContent: typeof PostsPageQuestionContentComponent
   }
 }
+
+export default PostsPageQuestionContentComponent;
 

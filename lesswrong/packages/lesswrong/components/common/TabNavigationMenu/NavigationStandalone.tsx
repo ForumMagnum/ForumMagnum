@@ -9,6 +9,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+import TabNavigationMenu from "@/components/common/TabNavigationMenu/TabNavigationMenu";
 
 const Slide = componentWithChildren(BadlyTypedSlide);
 
@@ -54,7 +55,6 @@ const NavigationStandalone = ({
   noTopMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TabNavigationMenu } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;
@@ -89,3 +89,5 @@ declare global {
     NavigationStandalone: typeof NavigationStandaloneComponent
   }
 }
+
+export default NavigationStandaloneComponent;

@@ -13,6 +13,11 @@ import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import LWTooltip from "@/components/common/LWTooltip";
+import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
+import { Loading } from "@/components/vulcan-core/Loading";
+import HeadTags from "@/components/common/HeadTags";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -376,7 +381,6 @@ const SpreadsheetPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
-  const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
       CoronaVirusData {
@@ -668,3 +672,5 @@ declare global {
     SpreadsheetPage: typeof SpreadsheetPageComponent
   }
 }
+
+export default SpreadsheetPageComponent;

@@ -8,6 +8,8 @@ import {
   wrappedSecondaryColor,
   wrappedWhiteColor,
 } from "./wrappedHelpers";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -41,7 +43,6 @@ const WrappedKarmaChangeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="karmaChange">
       <WrappedHeading>
@@ -119,3 +120,5 @@ declare global {
     WrappedKarmaChangeSection: typeof WrappedKarmaChangeSectionComponent
   }
 }
+
+export default WrappedKarmaChangeSectionComponent;

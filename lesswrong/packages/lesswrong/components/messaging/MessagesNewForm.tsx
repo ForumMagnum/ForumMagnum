@@ -8,6 +8,10 @@ import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ForumIcon from "@/components/common/ForumIcon";
+import Error404 from "@/components/common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,7 +96,6 @@ export const MessagesNewForm = ({
   formStyle?: FormDisplayMode;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { WrappedSmartForm, Loading, ForumIcon, Error404 } = Components;
   const [loading, setLoading] = useState(false);
 
   const skip = !templateQueries?.templateId;
@@ -187,3 +190,5 @@ declare global {
     MessagesNewForm: typeof MessagesNewFormComponent;
   }
 }
+
+export default MessagesNewFormComponent;

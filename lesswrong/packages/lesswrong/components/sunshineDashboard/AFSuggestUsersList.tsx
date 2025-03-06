@@ -1,6 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import OmegaIcon from "@/components/icons/OmegaIcon";
+import LoadMore from "@/components/common/LoadMore";
+import AFSuggestUsersItem from "@/components/sunshineDashboard/AFSuggestUsersItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -18,8 +22,6 @@ const AFSuggestUsersList = ({ classes }: {
     fragmentName: 'SuggestAlignmentUser',
     fetchPolicy: 'cache-and-network',
   });
-  const { SunshineListTitle, OmegaIcon, LoadMore, AFSuggestUsersItem } = Components;
-  
   if (results && results.length) {
     return <div>
       <SunshineListTitle>
@@ -44,4 +46,6 @@ declare global {
     AFSuggestUsersList: typeof AFSuggestUsersListComponent
   }
 }
+
+export default AFSuggestUsersListComponent;
 

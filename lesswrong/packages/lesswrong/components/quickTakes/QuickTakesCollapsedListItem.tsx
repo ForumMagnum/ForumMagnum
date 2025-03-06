@@ -9,6 +9,14 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import moment from "moment";
+import KarmaDisplay from "@/components/common/KarmaDisplay";
+import ForumIcon from "@/components/common/ForumIcon";
+import UsersName from "@/components/users/UsersName";
+import LWTooltip from "@/components/common/LWTooltip";
+import FooterTag from "@/components/tagging/FooterTag";
+import CommentsMenu from "@/components/dropdowns/comments/CommentsMenu";
+import LWPopper from "@/components/common/LWPopper";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -141,11 +149,6 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
       }, 0);
     }
   }, [commentsAreClickable, quickTake]);
-
-  const {
-    KarmaDisplay, ForumIcon, UsersName, LWTooltip, FooterTag, CommentsMenu,
-    LWPopper, CommentsNode,
-  } = Components;
   return (
     <div
       onClick={onClick}
@@ -237,3 +240,5 @@ declare global {
     QuickTakesCollapsedListItem: typeof QuickTakesCollapsedListItemComponent
   }
 }
+
+export default QuickTakesCollapsedListItemComponent;

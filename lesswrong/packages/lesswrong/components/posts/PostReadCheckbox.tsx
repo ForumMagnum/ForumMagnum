@@ -6,6 +6,7 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +27,6 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
   post: PostsBase,
   width?: number
 }) => {
-  const { LWTooltip } = Components
   const {postsRead, setPostRead} = useItemsRead();
   
 
@@ -73,4 +73,6 @@ declare global {
     PostReadCheckbox: typeof PostReadCheckboxComponent
   }
 }
+
+export default PostReadCheckboxComponent;
 

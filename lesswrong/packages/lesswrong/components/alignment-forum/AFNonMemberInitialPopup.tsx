@@ -5,6 +5,9 @@ import { useTagBySlug } from '../tagging/useTag';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@material-ui/core/Button'
+import ContentItemBody from "@/components/common/ContentItemBody";
+import LWDialog from "@/components/common/LWDialog";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -34,7 +37,6 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
   const [open, setOpen] = useState(true)
-  const { ContentItemBody, LWDialog, ContentStyles } = Components
   const { tag } = useTagBySlug("af-non-member-popup-first", "TagFragment")
   
   const handleClose = () => {
@@ -77,3 +79,5 @@ declare global {
     AFNonMemberInitialPopup: typeof AFNonMemberInitialPopupComponent
   }
 }
+
+export default AFNonMemberInitialPopupComponent;

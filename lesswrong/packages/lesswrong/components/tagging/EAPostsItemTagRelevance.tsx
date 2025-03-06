@@ -7,6 +7,8 @@ import { useCurrentUser } from "../common/withUser";
 import { useVote } from "../votes/withVote";
 import { useMessages } from "../common/withMessages";
 import classNames from "classnames";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -79,9 +81,6 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
 
   const isUpvoted = document.currentUserVote ? document.currentUserVote.indexOf("Up") > 0 : false;
   const isDownvoted = document.currentUserVote ? document.currentUserVote.indexOf("Down") > 0 : false;
-
-  const {LWTooltip, ForumIcon} = Components;
-
   return (
     <div className={classes.root}>
       <ForumIcon
@@ -126,3 +125,5 @@ declare global {
     EAPostsItemTagRelevance: typeof EAPostsItemTagRelevanceComponent
   }
 }
+
+export default EAPostsItemTagRelevanceComponent;

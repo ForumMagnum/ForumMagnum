@@ -6,6 +6,12 @@ import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import Error404 from "@/components/common/Error404";
+import { Loading } from "@/components/vulcan-core/Loading";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
   tag: TagFragment,
@@ -14,9 +20,8 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   changeCallback?: any,
   warnUnsavedChanges?: boolean,
 }) => {
-  const { ContentStyles } = Components;
   return <ContentStyles contentType="tag">
-    <Components.WrappedSmartForm
+    <WrappedSmartForm
       key={`${tag?._id}_${tag?.description?.version}`}
       collectionName="Tags"
       documentId={tag._id}
@@ -39,13 +44,13 @@ const EditTagPage = () => {
   const client = useApolloClient()
 
   if (loading)
-    return <Components.Loading/>
+    return <Loading/>
   if (!tag)
-    return <Components.Error404/>
+    return <Error404/>
   
   return (
-    <Components.SingleColumnSection>
-      <Components.SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
+    <SingleColumnSection>
+      <SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
         successCallback={ async (tag: any) => {
@@ -53,7 +58,7 @@ const EditTagPage = () => {
           navigate({pathname: tagGetUrl(tag)})
         }}
       />
-    </Components.SingleColumnSection>
+    </SingleColumnSection>
   );
 }
 
@@ -64,3 +69,5 @@ declare global {
     EditTagPage: typeof EditTagPageComponent
   }
 }
+
+export default EditTagPageComponent;

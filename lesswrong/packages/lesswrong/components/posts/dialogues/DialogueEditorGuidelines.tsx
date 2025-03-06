@@ -53,3 +53,5 @@ declare global {
     DialogueEditorGuidelines: typeof DialogueEditorGuidelinesComponent
   }
 }
+
+export default DialogueEditorGuidelinesComponent;

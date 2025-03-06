@@ -4,7 +4,9 @@ import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { ContinueReading } from './withContinueReading';
-
+import PostsItem from "@/components/posts/PostsItem";
+import PostsLoading from "@/components/posts/PostsLoading";
+import SectionFooter from "@/components/common/SectionFooter";
 
 const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
   continueReading: ContinueReading[],
@@ -55,8 +57,6 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
       }
     }
   }
-
-  const { PostsItem, PostsLoading, SectionFooter } = Components;
   if (continueReadingLoading || !continueReading)
     return <PostsLoading/>
 
@@ -90,5 +90,7 @@ declare global {
     ContinueReadingList: typeof ContinueReadingListComponent
   }
 }
+
+export default ContinueReadingListComponent;
 
 

@@ -12,6 +12,17 @@ import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
 import classNames from "classnames";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import NotificationsPageKarmaChangeList from "@/components/notifications/NotificationsPage/NotificationsPageKarmaChangeList";
+import NoNotificationsPlaceholder from "@/components/notifications/NoNotificationsPlaceholder";
+import LoadMore from "@/components/common/LoadMore";
+import NotificationsPopoverNotification from "@/components/notifications/NotificationsPopoverNotification";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import PopperCard from "@/components/common/PopperCard";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -209,13 +220,6 @@ const NotificationsPopover = ({
   } = currentUser;
 
   const showNotifications = !!(notifs.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday || hasKarmaChangesThisWeek);
-
-  const {
-    SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
-    LoadMore, NotificationsPopoverNotification, ForumIcon, LWClickAwayListener,
-    PopperCard, DropdownMenu, DropdownItem, Loading,
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="notificationsPopover">
       <NotificationsPopoverContext.Provider value={{ closeNotifications }}>
@@ -338,3 +342,5 @@ declare global {
     NotificationsPopover: typeof NotificationsPopoverComponent
   }
 }
+
+export default NotificationsPopoverComponent;

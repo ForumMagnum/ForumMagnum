@@ -3,6 +3,14 @@ import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/help
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import RejectedReasonDisplay from "@/components/sunshineDashboard/RejectedReasonDisplay";
+import FormatDate from "@/components/common/FormatDate";
+import MetaInfo from "@/components/common/MetaInfo";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
+import Row from "@/components/common/Row";
+import ForumIcon from "@/components/common/ForumIcon";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   commentPadding: {
@@ -30,10 +38,6 @@ export const RejectedCommentsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const {
-    RejectedReasonDisplay, FormatDate, MetaInfo, PostsTooltip, CommentBody,
-    Row, ForumIcon,
-  } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
     collectionName: "Comments",
@@ -65,7 +69,7 @@ export const RejectedCommentsList = ({classes}: {
         </div>
       </div>
     )}
-    <Components.LoadMore {...loadMoreProps} />
+    <LoadMore {...loadMoreProps} />
   </div>;
 }
 
@@ -76,4 +80,6 @@ declare global {
     RejectedCommentsList: typeof RejectedCommentsListComponent
   }
 }
+
+export default RejectedCommentsListComponent;
 

@@ -4,6 +4,9 @@ import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnC
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
 import classNames from "classnames";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import ReactionsPalette from "@/components/votes/ReactionsPalette";
 
 const styles = (theme: ThemeType) => ({
   tooltip: {
@@ -40,8 +43,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
-  const { LWTooltip, ForumIcon, ReactionsPalette } = Components;
-
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
   const handleOpen = (e: React.MouseEvent) => {
@@ -88,3 +89,5 @@ declare global {
     AddInlineReactionButton: typeof AddInlineReactionButtonComponent
   }
 }
+
+export default AddInlineReactionButtonComponent;

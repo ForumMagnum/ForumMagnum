@@ -7,7 +7,7 @@ import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const DeleteCommentDropdownItem = ({comment, post, tag}: {
   comment: CommentsList,
@@ -54,8 +54,6 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   ) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   if (!comment.deleted) {
     return (
       <DropdownItem
@@ -87,3 +85,5 @@ declare global {
     DeleteCommentDropdownItem: typeof DeleteCommentDropdownItemComponent
   }
 }
+
+export default DeleteCommentDropdownItemComponent;

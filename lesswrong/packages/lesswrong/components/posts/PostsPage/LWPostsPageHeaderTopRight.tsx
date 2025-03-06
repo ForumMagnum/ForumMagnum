@@ -5,6 +5,9 @@ import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import FooterTagList from "@/components/tagging/FooterTagList";
+import AudioToggle from "@/components/posts/PostsPage/AudioToggle";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,8 +65,6 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
-
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
@@ -89,3 +90,5 @@ declare global {
     LWPostsPageHeaderTopRight: typeof LWPostsPageHeaderTopRightComponent
   }
 }
+
+export default LWPostsPageHeaderTopRightComponent;

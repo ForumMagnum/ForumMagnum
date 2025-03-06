@@ -7,6 +7,9 @@ import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
+import PostsLoading from "@/components/posts/PostsLoading";
+import PostsItem from "@/components/posts/PostsItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -26,8 +29,6 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsLoading, PostsItem, LoadMore } = Components
-  
   const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
     collectionName: "Posts",
     terms: {
@@ -83,3 +84,5 @@ declare global {
     BookmarksList: typeof BookmarksListComponent
   }
 }
+
+export default BookmarksListComponent;

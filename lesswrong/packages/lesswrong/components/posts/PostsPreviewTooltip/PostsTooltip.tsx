@@ -8,6 +8,7 @@ import {
   PostsPreviewTooltipSingleWithComment,
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
+import HoverOver from "@/components/common/HoverOver";
 
 const PostsTooltip = ({
   post,
@@ -94,8 +95,6 @@ const PostsTooltip = ({
     {children}
     </>
   };
-
-  const {HoverOver} = Components;
   return (
     <HoverOver
       title={renderTitle()}
@@ -128,3 +127,5 @@ declare global {
     PostsTooltip: typeof PostsTooltipComponent
   }
 }
+
+export default PostsTooltipComponent;

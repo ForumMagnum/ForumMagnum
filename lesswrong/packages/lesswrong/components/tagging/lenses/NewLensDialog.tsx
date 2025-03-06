@@ -4,6 +4,8 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import LWDialog from "@/components/common/LWDialog";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
@@ -47,8 +49,6 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
   updateSelectedLens: (lensId: string) => void,
   onClose?: () => void,
 }) => {
-  const { LWDialog, WrappedSmartForm } = Components;
-  
   const classes = useStyles(styles);
 
   const wrappedSuccessCallback = async (lens: MultiDocumentMinimumInfo) => {
@@ -94,3 +94,5 @@ declare global {
     NewLensDialog: typeof NewLensDialogComponent
   }
 }
+
+export default NewLensDialogComponent;

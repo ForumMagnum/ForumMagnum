@@ -10,7 +10,8 @@ import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import MetaInfo from "@/components/common/MetaInfo";
+import SettingsColumn from "@/components/common/SettingsColumn";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,7 +64,6 @@ const DraftsListSettings = ({
   sortings?: any,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -131,3 +131,5 @@ declare global {
     DraftsListSettings: typeof DraftsListSettingsComponent
   }
 }
+
+export default DraftsListSettingsComponent;

@@ -12,6 +12,17 @@ import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import {DatabasePublicSetting} from "../../lib/publicSettings";
 import { useUpdate } from '../../lib/crud/withUpdate';
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarActionMenu from "@/components/sunshineDashboard/SidebarActionMenu";
+import SidebarAction from "@/components/sunshineDashboard/SidebarAction";
+import OmegaIcon from "@/components/icons/OmegaIcon";
+import SidebarInfo from "@/components/sunshineDashboard/SidebarInfo";
+import FormatDate from "@/components/common/FormatDate";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import PostsHighlight from "@/components/posts/PostsHighlight";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SunshineSendMessageWithDefaults from "@/components/sunshineDashboard/SunshineSendMessageWithDefaults";
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
@@ -76,60 +87,60 @@ const AFSuggestPostsItem = ({post, classes}: {
 
   return (
     <span {...eventHandlers}>
-      <Components.SunshineListItem hover={hover}>
-        <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          { userHasSelfSuggested && <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeader}>
-            <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
+      <SunshineListItem hover={hover}>
+        <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+          { userHasSelfSuggested && <ContentStyles contentType="comment" className={classes.afSubmissionHeader}>
+            <ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
               AF Submission
-            </Components.ContentStyles>
-            <Components.SunshineSendMessageWithDefaults user={post.user}/>
-          </Components.ContentStyles>}
-          <Components.Typography variant="title">
+            </ContentStyles>
+            <SunshineSendMessageWithDefaults user={post.user}/>
+          </ContentStyles>}
+          <Typography variant="title">
             <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
-          </Components.Typography>
+          </Typography>
           <br/>
-          <Components.PostsHighlight post={post} maxLengthWords={600}/>
-        </Components.SidebarHoverOver>
+          <PostsHighlight post={post} maxLengthWords={600}/>
+        </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">
             {post.title}
         </Link>
         <div>
-          <Components.SidebarInfo>
+          <SidebarInfo>
             { post.baseScore }
-          </Components.SidebarInfo>
-          <Components.SidebarInfo>
+          </SidebarInfo>
+          <SidebarInfo>
             <Link to={userGetProfileUrl(post.user)}>
                 {post.user && post.user.displayName}
             </Link>
-          </Components.SidebarInfo>
-          {post.postedAt && <Components.SidebarInfo>
-            <Components.FormatDate date={post.postedAt}/>
-          </Components.SidebarInfo>}
+          </SidebarInfo>
+          {post.postedAt && <SidebarInfo>
+            <FormatDate date={post.postedAt}/>
+          </SidebarInfo>}
         </div>
-        <Components.SidebarInfo>
+        <SidebarInfo>
           Endorsed by { post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user.displayName).join(", ") }
-        </Components.SidebarInfo>
-        { hover && <Components.SidebarActionMenu>
+        </SidebarInfo>
+        { hover && <SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>postUnSuggestForAlignment({currentUser, post, updatePost})}>
+            <SidebarAction title="Unendorse for Alignment" onClick={()=>postUnSuggestForAlignment({currentUser, post, updatePost})}>
               <UndoIcon/>
-            </Components.SidebarAction>
+            </SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>postSuggestForAlignment({currentUser, post, updatePost})}>
+            <SidebarAction title="Endorse for Alignment" onClick={()=>postSuggestForAlignment({currentUser, post, updatePost})}>
               <PlusOneIcon/>
-            </Components.SidebarAction>
+            </SidebarAction>
           }
-          <Components.SidebarAction title="Move to Alignment" onClick={handleMoveToAlignment}>
-            <Components.OmegaIcon/>
-          </Components.SidebarAction>
-          <Components.SidebarAction title="Remove from Alignment Suggestions" onClick={handleDisregardForAlignment}>
+          <SidebarAction title="Move to Alignment" onClick={handleMoveToAlignment}>
+            <OmegaIcon/>
+          </SidebarAction>
+          <SidebarAction title="Remove from Alignment Suggestions" onClick={handleDisregardForAlignment}>
             <ClearIcon/>
-          </Components.SidebarAction>
-        </Components.SidebarActionMenu>}
-      </Components.SunshineListItem>
+          </SidebarAction>
+        </SidebarActionMenu>}
+      </SunshineListItem>
     </span>
   );
 }
@@ -144,3 +155,5 @@ declare global {
     AFSuggestPostsItem: typeof AFSuggestPostsItemComponent
   }
 }
+
+export default AFSuggestPostsItemComponent;

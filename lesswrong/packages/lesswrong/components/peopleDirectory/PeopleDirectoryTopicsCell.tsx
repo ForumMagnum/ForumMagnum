@@ -8,6 +8,8 @@ import {
   emptyTextCellStyles,
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
+import TagsTooltip from "@/components/tagging/TagsTooltip";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,7 +55,6 @@ const TagDisplay = ({name, slug, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {TagsTooltip} = Components;
   return (
     <InteractionWrapper
       key={slug}
@@ -73,7 +74,6 @@ const PeopleDirectoryTopicsCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {LWTooltip} = Components;
   return (
     <div className={classes.root}>
       {(user.tags?.length ?? 0) === 0 &&
@@ -122,3 +122,5 @@ declare global {
     PeopleDirectoryTopicsCell: typeof PeopleDirectoryTopicsCellComponent
   }
 }
+
+export default PeopleDirectoryTopicsCellComponent;

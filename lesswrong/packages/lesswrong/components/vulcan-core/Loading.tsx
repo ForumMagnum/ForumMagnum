@@ -73,3 +73,7 @@ declare global {
 }
 
 export default LoadingComponent;
+
+export {
+  LoadingComponent as Loading
+}

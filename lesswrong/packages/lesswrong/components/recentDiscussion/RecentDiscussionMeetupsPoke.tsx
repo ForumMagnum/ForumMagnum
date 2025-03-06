@@ -9,6 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +69,6 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
   const [label, setLabel] = useState<any>(null)
   const [location, setLocation] = useState<any>(null);
   const { flash } = useMessages();
-  const { Loading } = Components;
   const [hidden, setHidden] = useState(false);
   const [notificationRadius, setNotificationRadius] = useState(30)
   const updateCurrentUser = useUpdateCurrentUser();
@@ -222,3 +222,5 @@ declare global {
     RecentDiscussionMeetupsPoke: typeof RecentDiscussionMeetupsPokeComponent,
   }
 }
+
+export default RecentDiscussionMeetupsPokeComponent;

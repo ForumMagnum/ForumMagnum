@@ -17,6 +17,9 @@ import type { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
+import EAEmojiPalette from "@/components/votes/EAEmojiPalette";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -277,8 +280,6 @@ const EAReactsSection: FC<{
   }, [currentUser, openDialog, voteProps, viewOnly]);
 
   const reactions = getCurrentReactions(voteProps.document?.extendedScore);
-
-  const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
       {reactions.map(({emojiOption, anonymous, score}) => {
@@ -379,3 +380,5 @@ declare global {
     EAReactsSection: typeof EAReactsSectionComponent
   }
 }
+
+export default EAReactsSectionComponent;

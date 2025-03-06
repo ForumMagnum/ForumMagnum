@@ -25,3 +25,5 @@ declare global {
     SubSection: typeof SubSectionComponent
   }
 }
+
+export default SubSectionComponent;

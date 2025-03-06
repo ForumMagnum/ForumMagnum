@@ -2,6 +2,9 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import HoverOver from "@/components/common/HoverOver";
+import EAUserTooltipContent from "@/components/users/EAUserTooltipContent";
+import LWUserTooltipContent from "@/components/users/LWUserTooltipContent";
 
 const styles = () => ({
   root: isFriendlyUI
@@ -30,7 +33,6 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const content = isFriendlyUI 
     ? <EAUserTooltipContent user={user} />
     : <LWUserTooltipContent user={user} hideFollowButton={hideFollowButton} />;
@@ -55,3 +57,5 @@ declare global {
     UserTooltip: typeof UserTooltipComponent
   }
 }
+
+export default UserTooltipComponent;

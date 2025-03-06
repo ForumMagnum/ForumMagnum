@@ -9,3 +9,5 @@ declare global {
   }
 }
 
+export default FormControlComponent;
+

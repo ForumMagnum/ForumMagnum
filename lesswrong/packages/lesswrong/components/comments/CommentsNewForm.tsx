@@ -21,6 +21,14 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ModerationGuidelinesBox from "@/components/comments/ModerationGuidelines/ModerationGuidelinesBox";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import RecaptchaWarning from "@/components/common/RecaptchaWarning";
+import NewCommentModerationWarning from "@/components/sunshineDashboard/NewCommentModerationWarning";
+import RateLimitWarning from "@/components/editor/RateLimitWarning";
+import FormGroupQuickTakes from "@/components/form-components/FormGroupQuickTakes";
+import FormGroupNoStyling from "@/components/form-components/FormGroupNoStyling";
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -204,8 +212,6 @@ const CommentSubmit = ({
   className?: string,
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Loading } = Components;
-
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
@@ -463,12 +469,6 @@ const CommentsNewForm = ({
   ) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
-
-  const {
-    ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning,
-    NewCommentModerationWarning, RateLimitWarning, FormGroupQuickTakes,
-    FormGroupNoStyling,
-  } = Components;
   return (
     <div className={classNames(
       className,
@@ -552,4 +552,6 @@ declare global {
     CommentsNewForm: typeof CommentsNewFormComponent,
   }
 }
+
+export default CommentsNewFormComponent;
 

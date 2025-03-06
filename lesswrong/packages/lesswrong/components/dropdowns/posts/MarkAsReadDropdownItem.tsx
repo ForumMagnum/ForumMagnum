@@ -4,6 +4,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useNamedMutation } from "../../../lib/crud/withMutation";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   const {postsRead, setPostRead} = useItemsRead();
@@ -23,8 +24,6 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
-
-  const {DropdownItem} = Components;
   const title = isRead ? "Mark as Unread" : "Mark as Read";
   return (
     <DropdownItem
@@ -44,3 +43,5 @@ declare global {
     MarkAsReadDropdownItem: typeof MarkAsReadDropdownItemComponent
   }
 }
+
+export default MarkAsReadDropdownItemComponent;

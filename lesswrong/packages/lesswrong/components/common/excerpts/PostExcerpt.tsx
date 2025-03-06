@@ -5,6 +5,8 @@ import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
 import type { CommonExcerptProps } from "./ContentExcerpt";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ContentExcerpt from "@/components/common/excerpts/ContentExcerpt";
 
 const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
   "user" in post;
@@ -43,8 +45,6 @@ const PostExcerpt = ({
     extraVariablesValues: {hash},
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
-
-  const {Loading, ContentExcerpt} = Components;
   if ((loading && !hash) || (loadingHighlight && hash)) {
     return (
       <Loading />
@@ -86,3 +86,5 @@ declare global {
     PostExcerpt: typeof PostExcerptComponent,
   }
 }
+
+export default PostExcerptComponent;

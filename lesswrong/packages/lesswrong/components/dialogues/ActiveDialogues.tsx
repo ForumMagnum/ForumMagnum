@@ -11,7 +11,9 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Visibility from '@material-ui/icons/Visibility';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import isEqual from 'lodash/isEqual';
-
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import { Typography } from "@/components/common/Typography";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -87,8 +89,6 @@ const styles = (theme: ThemeType) => ({
 export const ActiveDialogues = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsTooltip, Typography, UsersName } = Components
-
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [activeDialogues, setActiveDialogues] = useState<ActiveDialogue[]>([]);
   const currentUser = useCurrentUser();
@@ -169,3 +169,5 @@ declare global {
     ActiveDialogues: typeof ActiveDialoguesComponent
   }
 }
+
+export default ActiveDialoguesComponent;

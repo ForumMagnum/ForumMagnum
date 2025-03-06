@@ -102,3 +102,5 @@ declare global {
   }
 }
 
+export default VoteButtonComponent;
+

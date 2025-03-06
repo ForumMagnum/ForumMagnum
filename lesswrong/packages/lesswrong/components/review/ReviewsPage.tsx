@@ -4,6 +4,8 @@ import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ReviewsList from "@/components/review/ReviewsList";
 
 const styles = (theme: ThemeType) => ({
   yearLinks: {
@@ -29,8 +31,6 @@ const styles = (theme: ThemeType) => ({
 
 
 export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
-  const { SingleColumnSection, ReviewsList } = Components
-
   const { params } = useLocation()
 
   if (params.year !== 'all') {
@@ -56,4 +56,6 @@ declare global {
     ReviewsPage: typeof ReviewsPageComponent
   }
 }
+
+export default ReviewsPageComponent;
 

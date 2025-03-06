@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
+import TimeTag from "@/components/common/TimeTag";
 
 /**
  * A date rendered with moment().calendar(). Includes a plethora of special
@@ -11,8 +12,6 @@ import { useTimezone } from '../common/withTimezone';
 const CalendarDate = ({date}: {
   date: Date | string,
 }) => {
-  const { TimeTag } = Components;
-
   const { timezone } = useTimezone();
   return <TimeTag dateTime={date}>{moment(new Date(date)).tz(timezone).calendar()}</TimeTag>
 };
@@ -24,3 +23,5 @@ declare global {
     CalendarDate: typeof CalendarDateComponent
   }
 }
+
+export default CalendarDateComponent;

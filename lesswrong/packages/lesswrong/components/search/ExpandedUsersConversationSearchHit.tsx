@@ -5,6 +5,9 @@ import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import FormatDate from "@/components/common/FormatDate";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -83,7 +86,6 @@ const ExpandedUsersConversationSearchHit = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { FormatDate, UsersProfileImage, ForumIcon } = Components;
   const user = hit as SearchUser;
 
   return (
@@ -128,4 +130,6 @@ declare global {
     ExpandedUsersConversationSearchHit: typeof ExpandedUsersConversationSearchHitComponent
   }
 }
+
+export default ExpandedUsersConversationSearchHitComponent;
 

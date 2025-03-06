@@ -79,3 +79,5 @@ declare global {
     PostsPodcastPlayer: typeof PostsPodcastPlayerComponent,
   }
 }
+
+export default PostsPodcastPlayerComponent;

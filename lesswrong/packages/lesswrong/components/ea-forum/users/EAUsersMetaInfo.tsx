@@ -4,6 +4,12 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import { SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "../../../lib/collections/users/helpers";
 import { communityPath } from "../../../lib/routes";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ForumIcon from "@/components/common/ForumIcon";
+import FormatDate from "@/components/common/FormatDate";
+import SocialMediaLink from "@/components/users/SocialMediaLink";
+import LWTooltip from "@/components/common/LWTooltip";
+import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconsRow: {
@@ -65,9 +71,6 @@ const EAUsersMetaInfo = ({user, classes}: {
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(
     (field: SocialMediaProfileField) => user[field],
   );
-
-  const { ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip, SocialMediaIcon } = Components;
-
   return (
     <ContentStyles contentType="comment" className={classes.iconsRow}>
       <LWTooltip title={`${userKarma} karma`}>
@@ -139,3 +142,5 @@ declare global {
     EAUsersMetaInfo: typeof EAUsersMetaInfoComponent
   }
 }
+
+export default EAUsersMetaInfoComponent;

@@ -6,6 +6,12 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import classNames from "classnames";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import KarmaDisplay from "@/components/common/KarmaDisplay";
+import PostsTitle from "@/components/posts/PostsTitle";
+import UsersName from "@/components/users/UsersName";
+import LWTooltip from "@/components/common/LWTooltip";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -90,12 +96,6 @@ const PostsPageRecommendationItem = ({
     onClickCell,
     disableAnalytics,
   );
-
-  const {
-    PostsItemTooltipWrapper, KarmaDisplay, PostsTitle, UsersName, LWTooltip,
-    PostActionsButton,
-  } = Components;
-
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
@@ -167,3 +167,5 @@ declare global {
     PostsPageRecommendationItem: typeof PostsPageRecommendationItemComponent
   }
 }
+
+export default PostsPageRecommendationItemComponent;

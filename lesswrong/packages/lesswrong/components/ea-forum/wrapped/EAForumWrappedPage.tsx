@@ -7,6 +7,13 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { ForumWrappedProvider, isWrappedYear, useForumWrapped } from "./hooks";
 import moment from "moment";
+import HeadTags from "@/components/common/HeadTags";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import LoginForm from "@/components/users/LoginForm";
+import WrappedApp from "@/components/ea-forum/wrapped/WrappedApp";
+import { Loading } from "@/components/vulcan-core/Loading";
+import WrappedWelcomeMessage from "@/components/ea-forum/wrapped/WrappedWelcomeMessage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,11 +62,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const userCreatedAt = moment(currentUser?.createdAt);
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
-
-  const {
-    HeadTags, WrappedSection, WrappedHeading,LoginForm, WrappedApp, Loading,
-    WrappedWelcomeMessage,
-  } = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
@@ -124,3 +126,5 @@ declare global {
     EAForumWrappedPage: typeof EAForumWrappedPageComponent
   }
 }
+
+export default EAForumWrappedPageComponent;

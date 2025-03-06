@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import Input from "@material-ui/core/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { Typography } from "@/components/common/Typography";
 
 const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 
@@ -61,9 +62,9 @@ const EditLinkpostUrl = ({
 
   return (
     <div className={classes.root}>
-      <Components.Typography variant="body2" className={classes.title}>
+      <Typography variant="body2" className={classes.title}>
         This is a linkpost for
-      </Components.Typography>
+      </Typography>
       <Input
         inputRef={inputRef}
         className={classes.input}
@@ -84,3 +85,5 @@ declare global {
     EditLinkpostUrl: typeof EditLinkpostUrlComponent;
   }
 }
+
+export default EditLinkpostUrlComponent;

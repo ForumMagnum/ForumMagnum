@@ -7,6 +7,12 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Typography } from "@/components/common/Typography";
+import BookmarksTab from "@/components/bookmarks/BookmarksTab";
+import ReadHistoryTab from "@/components/bookmarks/ReadHistoryTab";
+import VoteHistoryTab from "@/components/bookmarks/VoteHistoryTab";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
@@ -57,11 +63,8 @@ const BookmarksPage = ({ classes }: {
 
   const currentUser = useCurrentUser()
   if (!currentUser) {
-    return <Components.ErrorAccessDenied />
+    return <ErrorAccessDenied />
   }
-  
-  const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components
-
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
@@ -94,3 +97,5 @@ declare global {
     BookmarksPage: typeof BookmarksPageComponent
   }
 }
+
+export default BookmarksPageComponent;

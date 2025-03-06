@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dismissButton: {
@@ -13,8 +14,6 @@ const VotingPatternsWarningPopup = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog } = Components;
-  
   return <LWDialog open={true}>
     <DialogTitle>
       Hang on there
@@ -36,3 +35,5 @@ declare global {
     VotingPatternsWarningPopup: typeof VotingPatternsWarningPopupComponent
   }
 }
+
+export default VotingPatternsWarningPopupComponent;

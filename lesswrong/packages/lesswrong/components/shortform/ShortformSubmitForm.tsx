@@ -6,6 +6,8 @@ import type {
   CommentSuccessCallback,
 } from '../comments/CommentsNewForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import QuickTakesEntry from "@/components/quickTakes/QuickTakesEntry";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,8 +59,6 @@ const ShortformSubmitForm = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {QuickTakesEntry, ForumIcon} = Components;
-
   return (
     <div className={className}>
       {!hideCloseButton &&
@@ -87,3 +87,5 @@ declare global {
     ShortformSubmitForm: typeof ShortformSubmitFormComponent
   }
 }
+
+export default ShortformSubmitFormComponent;

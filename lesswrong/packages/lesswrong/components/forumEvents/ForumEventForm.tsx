@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = (_theme: ThemeType) => ({
   root: {},
@@ -13,8 +15,6 @@ export const ForumEventForm = ({documentId, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const title = documentId ? "Edit forum event" : "New forum event";
-  const {SectionTitle, WrappedSmartForm} = Components;
-
   const [remountingForm, setRemountingForm] = useState(false);
 
   useEffect(() => {
@@ -50,3 +50,5 @@ declare global {
     ForumEventForm: typeof ForumEventFormComponent
   }
 }
+
+export default ForumEventFormComponent;

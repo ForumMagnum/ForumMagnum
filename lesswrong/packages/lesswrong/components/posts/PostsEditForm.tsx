@@ -20,6 +20,18 @@ import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import PostSubmit from "@/components/posts/PostSubmit";
+import SubmitToFrontpageCheckbox from "@/components/posts/SubmitToFrontpageCheckbox";
+import HeadTags from "@/components/common/HeadTags";
+import ForeignCrosspostEditForm from "@/components/posts/ForeignCrosspostEditForm";
+import DialogueSubmit from "@/components/posts/dialogues/DialogueSubmit";
+import RateLimitWarning from "@/components/editor/RateLimitWarning";
+import DynamicTableOfContents from "@/components/posts/TableOfContents/DynamicTableOfContents";
+import PostsAcceptTos from "@/components/posts/PostsAcceptTos";
+import Error404 from "@/components/common/Error404";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -35,8 +47,6 @@ const PostsEditForm = ({ documentId, version, classes }: {
   version?: string | null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
-
   const { query, params } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
@@ -83,19 +93,19 @@ const PostsEditForm = ({ documentId, version, classes }: {
   }, [isDraft]);
   
   if (!document && loading) {
-    return <Components.Loading/>
+    return <Loading/>
   }
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
   if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
-    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+    return <PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
   if (!document && !loading && query?.key) {
-    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+    return <PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -103,14 +113,14 @@ const PostsEditForm = ({ documentId, version, classes }: {
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
   if (document?.linkSharingKey && !(query?.key)) {
-    return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+    return <PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
   }
   
   // If we don't have the post and none of the earlier cases applied, we either
   // have an invalid post ID or the post is a draft that we don't have access
   // to.
   if (!document) {
-    return <Components.Error404/>
+    return <Error404/>
   }
 
   if (isNotHostedHere(document)) {
@@ -151,7 +161,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
     <DynamicTableOfContents title={document.title}>
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
-        {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+        {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning
           contentType="post"
           lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
@@ -224,3 +234,5 @@ declare global {
     PostsEditForm: typeof PostsEditFormComponent
   }
 }
+
+export default PostsEditFormComponent;

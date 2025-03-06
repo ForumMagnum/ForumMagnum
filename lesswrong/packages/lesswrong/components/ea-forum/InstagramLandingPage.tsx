@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
+import PostsLoading from "@/components/posts/PostsLoading";
+import EAPostsItem from "@/components/posts/EAPostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -72,11 +74,6 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
     fragmentName: 'PostsListWithVotes',
   });
   const orderedPosts = sortBy(posts, p => postIds.indexOf(p._id))
-
-  const {
-    PostsLoading, EAPostsItem,
-  } = Components;
-
   const postsList = loading ? (
     <PostsLoading placeholderCount={postIds.length} viewType="card" />
   ) : orderedPosts.map((post) => (
@@ -114,3 +111,5 @@ declare global {
     InstagramLandingPage: typeof InstagramLandingPageComponent;
   }
 }
+
+export default InstagramLandingPageComponent;

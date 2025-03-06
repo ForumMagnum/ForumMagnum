@@ -6,6 +6,9 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
+import EAButton from "@/components/ea-forum/EAButton";
+import EALoginPopover from "@/components/ea-forum/auth/EALoginPopover";
+import LoginForm from "@/components/users/LoginForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +37,6 @@ const EAUsersAccountMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {onLogin, onSignup} = useLoginPopoverContext();
-  const {EAButton, EALoginPopover} = Components;
   return (
     <div className={classes.root}>
       <EAButton
@@ -75,8 +77,6 @@ const LWUsersAccountMenu = ({classes}: {
     captureEvent("loginButtonClicked", {open: false});
     setOpen(false);
   }, [captureEvent]);
-
-  const {LoginForm} = Components;
   return (
     <div className={classes.root}>
       <Button onClick={handleClick}>
@@ -107,3 +107,5 @@ declare global {
     UsersAccountMenu: typeof UsersAccountMenuComponent
   }
 }
+
+export default UsersAccountMenuComponent;

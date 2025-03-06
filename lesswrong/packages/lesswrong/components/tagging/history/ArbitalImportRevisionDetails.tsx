@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import DialogContent from '@material-ui/core/DialogContent';
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = defineStyles("ArbitalImportRevisionDetails", (theme) => ({
   title: {
@@ -20,7 +21,6 @@ const ArbitalImportRevisionDetails = ({onClose, revision}: {
   onClose: () => void,
   revision: RevisionHistoryEntry
 }) => {
-  const { LWDialog } = Components;
   const classes = useStyles(styles);
 
   return <LWDialog open={true} onClose={onClose}>
@@ -43,4 +43,6 @@ declare global {
     ArbitalImportRevisionDetails: typeof ArbitalImportRevisionDetailsComponent
   }
 }
+
+export default ArbitalImportRevisionDetailsComponent;
 

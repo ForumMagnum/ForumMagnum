@@ -9,6 +9,11 @@ import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import EAButton from "@/components/ea-forum/EAButton";
+import ForumIcon from "@/components/common/ForumIcon";
+import PopperCard from "@/components/common/PopperCard";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -99,9 +104,6 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [canImport, setCanImport] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const { EAButton, ForumIcon, PopperCard, LWClickAwayListener, Loading } = Components;
-
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   const location = useLocation();
@@ -329,3 +331,5 @@ declare global {
     GoogleDocImportButton: typeof GoogleDocImportButtonComponent;
   }
 }
+
+export default GoogleDocImportButtonComponent;

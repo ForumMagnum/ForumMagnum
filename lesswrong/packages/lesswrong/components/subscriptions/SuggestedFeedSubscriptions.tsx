@@ -14,6 +14,13 @@ import Paper from '@material-ui/core/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';
+import UsersName from "@/components/users/UsersName";
+import UserMetaInfo from "@/components/users/UserMetaInfo";
+import LWPopper from "@/components/common/LWPopper";
+import FollowUserSearch from "@/components/subscriptions/FollowUserSearch";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import ForumIcon from "@/components/common/ForumIcon";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;
@@ -247,8 +254,6 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
   hidden?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, UserMetaInfo } = Components;
-
   const cardRef = useRef<HTMLLIElement>(null);
   const [additionalStyling, setAdditionalStyling] = useState<React.CSSProperties>();
 
@@ -312,8 +317,6 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, FollowUserSearch, LWClickAwayListener, ForumIcon } = Components
-
   if (!currentUser) {
     return null;
   }
@@ -359,8 +362,6 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
   existingSubscriptions?: SubscriptionState[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading } = Components;
-
   const { availableUsers, setAvailableUsers, loadingSuggestedUsers } = useSuggestedUsers();
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
@@ -455,3 +456,5 @@ declare global {
     SuggestedFeedSubscriptions: typeof SuggestedFeedSubscriptionsComponent
   }
 }
+
+export default SuggestedFeedSubscriptionsComponent;

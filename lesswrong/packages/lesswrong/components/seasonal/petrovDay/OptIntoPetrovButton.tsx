@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import LWTooltip from "@/components/common/LWTooltip";
+import LoginPopupButton from "@/components/users/LoginPopupButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -160,9 +162,6 @@ const OptIntoPetrovButton = ({classes }: {
   const currentUserOptedIn = !!petrovDayActions?.length
 
   const optedIn = currentUserOptedIn || displayOptedIn
-  
-  const { LWTooltip, LoginPopupButton } = Components
-
   const updateCurrentUser = useUpdateCurrentUser();
 
   const { create: createPetrovDayAction } = useCreate({
@@ -270,4 +269,6 @@ declare global {
     OptIntoPetrovButton: typeof OptIntoPetrovButtonComponent
   }
 }
+
+export default OptIntoPetrovButtonComponent;
 

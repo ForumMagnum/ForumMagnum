@@ -6,6 +6,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType) => ({
@@ -163,7 +164,7 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
   if (currentUser) {
     return (
       <div className={classes.sequencesForm}>
-        <Components.WrappedSmartForm
+        <WrappedSmartForm
           collectionName="Sequences"
           successCallback={(sequence: any) => {
             navigate({pathname: redirect || '/s/' + sequence._id });
@@ -189,3 +190,5 @@ declare global {
     SequencesNewForm: typeof SequencesNewFormComponent
   }
 }
+
+export default SequencesNewFormComponent;

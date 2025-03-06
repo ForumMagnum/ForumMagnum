@@ -3,6 +3,7 @@ import React from 'react';
 import { NotificationChannelOption } from '../../lib/collections/users/schema';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
+import FormComponentCheckbox from "@/components/form-components/FormComponentCheckbox";
 
 const styles = (theme: ThemeType) => ({})
 
@@ -20,9 +21,6 @@ const SubforumNotifications = (props: FormComponentProps<boolean>) => {
     return channel // backup in case we add a new channel type and forget to update this
   }
   const channelLabel = currentUser ? getChannelLabel(currentUser.notificationSubforumUnread?.channel ?? "none") : "disabled"
-
-  const { FormComponentCheckbox } = Components
-
   return <FormComponentCheckbox {...props} label={`${frequencyLabel} ${channelLabel}`} />
 }
 
@@ -33,4 +31,6 @@ declare global {
     SubforumNotifications: typeof SubforumNotificationsComponent
   }
 }
+
+export default SubforumNotificationsComponent;
 

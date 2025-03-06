@@ -8,6 +8,11 @@ import { slugify } from '@/lib/utils/slugify';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import NewTagInfoBox from "@/components/tagging/NewTagInfoBox";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -26,7 +31,6 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, SectionTitle, WrappedSmartForm, NewTagInfoBox, Loading } = Components;
   const {mutate: updateTag} = useUpdate({
     collectionName: "Tags",
     fragmentName: "TagEditFragment",
@@ -115,3 +119,5 @@ declare global {
     NewTagPage: typeof NewTagPageComponent
   }
 }
+
+export default NewTagPageComponent;

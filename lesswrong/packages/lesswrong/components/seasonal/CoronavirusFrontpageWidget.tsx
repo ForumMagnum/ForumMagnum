@@ -5,12 +5,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import SectionSubtitle from "@/components/common/SectionSubtitle";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import LWTooltip from "@/components/common/LWTooltip";
+import SectionFooter from "@/components/common/SectionFooter";
 
 const CoronavirusFrontpageWidget = ({settings}: {
   settings: RecommendationsAlgorithm & { hideCoronavirus?: boolean }
 }) => {
-  const { SectionSubtitle, RecommendationsList, LWTooltip, SectionFooter } = Components
-
   const currentUser = useCurrentUser();
 
   // if (settings.hideReview) return null
@@ -56,3 +58,5 @@ declare global {
     CoronavirusFrontpageWidget: typeof CoronavirusFrontpageWidgetComponent
   }
 }
+
+export default CoronavirusFrontpageWidgetComponent;

@@ -3,6 +3,8 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { gql, useQuery } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
+import PetrovWorldmapWrapper from "@/components/seasonal/petrovDay/PetrovWorldmapWrapper";
+import PastWarnings from "@/components/seasonal/petrovDay/PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,8 +38,6 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
-  const { PetrovWorldmapWrapper, PastWarnings } = Components;
-
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
@@ -131,3 +131,5 @@ declare global {
     PetrovWarningConsole: typeof PetrovWarningConsoleComponent
   }
 }
+
+export default PetrovWarningConsoleComponent;

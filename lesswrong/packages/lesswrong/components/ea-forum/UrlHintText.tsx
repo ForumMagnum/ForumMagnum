@@ -42,3 +42,5 @@ declare global {
     UrlHintText: typeof UrlHintTextComponent
   }
 }
+
+export default UrlHintTextComponent;

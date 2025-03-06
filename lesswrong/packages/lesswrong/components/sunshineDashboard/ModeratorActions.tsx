@@ -20,6 +20,10 @@ import { getSignature, getSignatureWithNote } from '../../lib/collections/users/
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
+import LWTooltip from "@/components/common/LWTooltip";
+import ModeratorActionItem from "@/components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem";
+import { MenuItem } from "@/components/common/Menus";
+import UserRateLimitItem from "@/components/sunshineDashboard/UserRateLimitItem";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -89,7 +93,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const { openDialog } = useDialog();
 
@@ -409,4 +412,6 @@ declare global {
     ModeratorActions: typeof ModeratorActionsComponent
   }
 }
+
+export default ModeratorActionsComponent;
 

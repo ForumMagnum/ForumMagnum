@@ -12,6 +12,11 @@ import classNames from 'classnames';
 import { communityPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import AddToCalendarButton from "@/components/posts/AddToCalendar/AddToCalendarButton";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import VirtualProgramCard from "@/components/events/modules/VirtualProgramCard";
+import PrettyEventDateTime from "@/components/events/modules/PrettyEventDateTime";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -133,9 +138,6 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
-  
-  const { AddToCalendarButton, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard, PrettyEventDateTime } = Components
-  
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
     return numDefaultCards ? <>
@@ -217,3 +219,5 @@ declare global {
     EventCards: typeof EventCardsComponent
   }
 }
+
+export default EventCardsComponent;

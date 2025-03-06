@@ -1,5 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import PeopleDirectorySkeletonTextCell from "@/components/peopleDirectory/PeopleDirectorySkeletonTextCell";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +21,6 @@ const styles = (theme: ThemeType) => ({
 const PeopleDirectorySkeletonUserCell = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {PeopleDirectorySkeletonTextCell} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.image} />
@@ -40,3 +40,5 @@ declare global {
     PeopleDirectorySkeletonUserCell: typeof PeopleDirectorySkeletonUserCellComponent
   }
 }
+
+export default PeopleDirectorySkeletonUserCellComponent;

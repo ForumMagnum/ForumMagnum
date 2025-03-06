@@ -2,9 +2,10 @@ import React, { useEffect, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
+import { Loading } from "@/components/vulcan-core/Loading";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const EmailTokenPage = () => {
-  const { Loading, SingleColumnSection } = Components
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
   const { mutate: emailTokenMutation, loading: emailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
@@ -29,3 +30,5 @@ declare global {
     EmailTokenPage: typeof EmailTokenPageComponent
   }
 }
+
+export default EmailTokenPageComponent;

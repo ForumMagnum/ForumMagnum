@@ -6,6 +6,9 @@ import classNames from 'classnames';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { ContentStyles } from "@/components/common/ContentStyles";
+import TagsTooltip from "@/components/tagging/TagsTooltip";
+import { SideItemsSidebar } from "@/components/contents/SideItems";
 
 const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
   rightColumn: {
@@ -165,7 +168,7 @@ const LWTagPageRightColumn = ({tag, selectedLens}: {
 
   return <div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      <Components.SideItemsSidebar/>
+      <SideItemsSidebar/>
     </div>
   </div>
 }
@@ -175,8 +178,6 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
   selectedLens?: TagLens,
   arbitalLinkedPages?: ArbitalLinkedPagesFragment,
 }) => {
-  const { ContentStyles } = Components;
-  
   const classes = useStyles(styles);
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
 
@@ -244,7 +245,6 @@ const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
 }
 
 const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPage, className?: string}) => {
-  const { TagsTooltip } = Components;
   const classes = useStyles(styles);
   return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
     <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
@@ -263,8 +263,6 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLens, tag}
   if (!arbitalLinkedPages) {
     return null;
   }
-
-  const { TagsTooltip, ContentStyles } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   
@@ -309,9 +307,6 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
   const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
   const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
-
-  const { ContentStyles } = Components;
-
   if (parents.length === 0 && children.length === 0) return null;
 
   return (
@@ -366,5 +361,12 @@ declare global {
     ArbitalRelationshipsSmallScreen: typeof ArbitalRelationshipsSmallScreenComponent
     ParentsAndChildrenSmallScreen: typeof ParentsAndChildrenSmallScreenComponent
   }
+}
+
+export {
+  LWTagPageRightColumnComponent as LWTagPageRightColumn,
+  ArbitalLinkedPagesRightSidebarComponent as ArbitalLinkedPagesRightSidebar,
+  ArbitalRelationshipsSmallScreenComponent as ArbitalRelationshipsSmallScreen,
+  ParentsAndChildrenSmallScreenComponent as ParentsAndChildrenSmallScreen
 }
 

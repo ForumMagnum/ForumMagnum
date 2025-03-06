@@ -5,6 +5,7 @@ import without from 'lodash/without';
 import uniq from 'lodash/uniq';
 import intersection from 'lodash/intersection';
 import * as _ from 'underscore';
+import FormItem from "@/components/vulcan-ui-bootstrap/forms/FormItem";
 
 // note: treat checkbox group the same as a nested component, using `path`
 const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, updateCurrentValues, inputProperties, itemProperties }: AnyBecauseTodo) => {
@@ -23,7 +24,7 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
   }
   
   return (
-    <Components.FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
+    <FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
       <div>
         {options.map((option: AnyBecauseTodo, i: number) => (
           <Form.Check
@@ -44,7 +45,7 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
           />
         ))}
       </div>
-    </Components.FormItem>
+    </FormItem>
   );
 };
 
@@ -55,4 +56,6 @@ declare global {
     FormComponentCheckboxGroup: typeof FormComponentCheckboxGroupComponent
   }
 }
+
+export default FormComponentCheckboxGroupComponent;
 

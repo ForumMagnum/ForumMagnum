@@ -9,6 +9,11 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
+import NewConversationButton from "@/components/messaging/NewConversationButton";
+import { SearchResultsMap } from "@/components/community/modules/SearchResultsMap";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ForumIcon from "@/components/common/ForumIcon";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   filters: {
@@ -192,9 +197,6 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
 }) => {
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)
-
-  const { NewConversationButton, SearchResultsMap, ContentStyles, ForumIcon } = Components
-  
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
@@ -247,7 +249,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
     return <div className={classes.person}>
       <div className={classes.content}>
         <div className={classes.photoRow}>
-          {hit.profileImageId && <Components.CloudinaryImage2
+          {hit.profileImageId && <CloudinaryImage2
             height={50}
             width={50}
             imgProps={{q: '100'}}
@@ -314,4 +316,6 @@ declare global {
     CommunityMembers: typeof CommunityMembersComponent
   }
 }
+
+export default CommunityMembersComponent;
 

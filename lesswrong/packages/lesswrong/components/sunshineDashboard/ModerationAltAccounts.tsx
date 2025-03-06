@@ -7,6 +7,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useQuery, gql } from '@apollo/client';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { MenuItem } from "@/components/common/Menus";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { Loading } from "@/components/vulcan-core/Loading";
+import FormatDate from "@/components/common/FormatDate";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   selectUser: {
@@ -50,7 +57,6 @@ const accountIdentifierTypes = [
 const ModerationAltAccounts = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, SectionTitle, MenuItem, ContentStyles } = Components;
   const currentUser = useCurrentUser();
   
   const { query } = useLocation();
@@ -133,9 +139,6 @@ const AltAccountsNodeUserBySlug = ({slug, classes}: {
     skip: !slug,
   });
   const user = results?.[0];
-  
-  const { ContentStyles, Loading } = Components;
-  
   if (!slug) {
     return <ContentStyles contentType="comment"><i>Select a user to continue</i></ContentStyles>
   }
@@ -160,8 +163,6 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
     collectionName: "Users",
     fragmentName: "UserAltAccountsFragment",
   });
-  const { Loading } = Components;
-  
   if (loading) return <Loading/>;
   if (!user) return <>{`Couldn't find user with ID ${userId}`}</>
   return <AltAccountsNodeUser user={user} classes={classes}/>
@@ -213,7 +214,6 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
   clientId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, FormatDate } = Components;
   const [expanded,setExpanded] = useState(false);
   
   const { results, loading } = useMulti({
@@ -257,7 +257,6 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   ipAddress: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading } = Components;
   const [expanded,setExpanded] = useState(false);
   const {data, loading} = useQuery(gql`
     query ModeratorIPAddressInfo($ipAddress: String!) {
@@ -306,7 +305,6 @@ const CensoredUserName = ({user, classes}: {
   user: UserAltAccountsFragment,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay } = Components;
   const [revealName,setRevealName] = useState(false);
   
   if (revealName) {
@@ -323,5 +321,7 @@ declare global {
     ModerationAltAccounts: typeof ModerationAltAccountsComponent
   }
 }
+
+export default ModerationAltAccountsComponent;
 
 

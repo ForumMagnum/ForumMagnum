@@ -7,6 +7,10 @@ import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import LWTooltip from "@/components/common/LWTooltip";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -132,7 +136,6 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   forceTooltip?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
-  const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
   const { captureEvent } = useTracking();
   const [open, setOpen] = useState(false);
 
@@ -206,3 +209,5 @@ declare global {
     JargonTooltip: typeof JargonTooltipComponent
   }
 }
+
+export default JargonTooltipComponent;

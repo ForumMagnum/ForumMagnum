@@ -28,3 +28,5 @@ declare global {
     LWPlaceholderPostsItem: typeof LWPlaceholderPostsItemComponent
   }
 }
+
+export default LWPlaceholderPostsItemComponent;

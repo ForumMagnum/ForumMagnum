@@ -1,8 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import MuiTextField from "@/components/form-components/MuiTextField";
 
 const FormComponentDefault = (props: FormComponentProps<string>) => {
-  return <Components.MuiTextField {...props} />
+  return <MuiTextField {...props} />
 }
 
 const FormComponentDefaultComponent = registerComponent("FormComponentDefault", FormComponentDefault);
@@ -12,3 +13,5 @@ declare global {
     FormComponentDefault: typeof FormComponentDefaultComponent
   }
 }
+
+export default FormComponentDefaultComponent;

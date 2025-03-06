@@ -17,6 +17,18 @@ import { getTagStructuredData } from '../TagPageRouter';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { Loading } from "@/components/vulcan-core/Loading";
+import Error404 from "@/components/common/Error404";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import HeadTags from "@/components/common/HeadTags";
+import TagFlagItem from "@/components/tagging/TagFlagItem";
+import SubforumLayout from "@/components/tagging/subforums/SubforumLayout";
+import WriteNewButton from "@/components/tagging/WriteNewButton";
+import SubscribeButton from "@/components/tagging/SubscribeButton";
+import TagTableOfContents from "@/components/tagging/TagTableOfContents";
+import SidebarSubtagsBox from "@/components/tagging/subforums/SidebarSubtagsBox";
+import SubforumWikiTab from "@/components/tagging/subforums/SubforumWikiTab";
+import SubforumSubforumTab from "@/components/tagging/subforums/SubforumSubforumTab";
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {
@@ -113,21 +125,6 @@ const defaultTab: SubforumTab = "posts"
 const TagSubforumPage2 = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {
-    Loading,
-    Error404,
-    PermanentRedirect,
-    HeadTags,
-    TagFlagItem,
-    SubforumLayout,
-    WriteNewButton,
-    SubscribeButton,
-    TagTableOfContents,
-    SidebarSubtagsBox,
-    SubforumWikiTab,
-    SubforumSubforumTab,
-  } = Components;
-
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const navigate = useNavigate();
@@ -363,3 +360,5 @@ declare global {
     TagSubforumPage2: typeof TagSubforumPage2Component
   }
 }
+
+export default TagSubforumPage2Component;

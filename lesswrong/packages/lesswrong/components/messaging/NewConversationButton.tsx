@@ -91,3 +91,5 @@ declare global {
     NewConversationButton: typeof NewConversationButtonComponent
   }
 }
+
+export default NewConversationButtonComponent;

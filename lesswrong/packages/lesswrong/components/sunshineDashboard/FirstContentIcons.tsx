@@ -36,3 +36,5 @@ declare global {
   }
 }
 
+export default FirstContentIconsComponent;
+

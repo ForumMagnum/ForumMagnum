@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +35,7 @@ const WarningBanner = ({message, classes}: {
 }) => {
   
   return <div className={classes.root}>
-    <Components.ForumIcon icon="Warning" className={classes.icon} />
+    <ForumIcon icon="Warning" className={classes.icon} />
     <div className={classes.message} dangerouslySetInnerHTML={{__html: message}} />
   </div>
 }
@@ -46,3 +47,5 @@ declare global {
     WarningBanner: typeof WarningBannerComponent
   }
 }
+
+export default WarningBannerComponent;

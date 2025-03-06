@@ -10,6 +10,10 @@ import Badge from '@material-ui/core/Badge';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import ForumIcon from "@/components/common/ForumIcon";
+import LWPopper from "@/components/common/LWPopper";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import NotificationsPopover from "@/components/notifications/NotificationsPopover";
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -113,7 +117,6 @@ const BookNotificationsMenuButton = ({
   classes,
 }: NotificationsMenuButtonProps) => {
   const {unreadNotifications} = useUnreadNotifications();
-  const {ForumIcon} = Components;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
@@ -194,10 +197,6 @@ const FriendlyNotificationsMenuButton = ({
     setOpen((open) => !open);
     toggle();
   }, [toggle]);
-
-  const {
-    LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
-  } = Components;
   return (
     <div ref={anchorEl}>
       <Badge
@@ -280,3 +279,5 @@ declare global {
     NotificationsMenuButton: typeof NotificationsMenuButtonComponent
   }
 }
+
+export default NotificationsMenuButtonComponent;

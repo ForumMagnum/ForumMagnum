@@ -4,6 +4,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
+import MetaInfo from "@/components/common/MetaInfo";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,8 +26,6 @@ const NewFeedButton = ({classes, user, closeModal}: {
   closeModal?: any
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, MetaInfo } = Components
-
   const { results: feeds, loading } = useMulti({
     terms: {view: "usersFeed", userId: user._id},
     collectionName: "RSSFeeds",
@@ -39,7 +40,7 @@ const NewFeedButton = ({classes, user, closeModal}: {
           <MetaInfo>Existing Feed:</MetaInfo>
           <div><a href={feed.url}>{feed.nickname}</a></div>
         </div>)}
-        <Components.WrappedSmartForm
+        <WrappedSmartForm
           collectionName="RSSFeeds"
           mutationFragment={getFragment('newRSSFeedFragment')}
           prefilledProps={{userId: user._id}}
@@ -52,7 +53,7 @@ const NewFeedButton = ({classes, user, closeModal}: {
       </div>
     )
   } else {
-    return <div> <Components.Loading /> </div>
+    return <div> <Loading /> </div>
   }
 }
 
@@ -63,3 +64,5 @@ declare global {
     NewFeedButton: typeof NewFeedButtonComponent
   }
 }
+
+export default NewFeedButtonComponent;

@@ -8,6 +8,11 @@ import { useDialog } from '@/components/common/withDialog';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import SectionButton from "@/components/common/SectionButton";
+import LWPopper from "@/components/common/LWPopper";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
@@ -38,7 +43,6 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   className?: string
 }) => {
   const classes = useStyles(styles);
-  const { SectionButton, LWPopper, DropdownMenu, DropdownItem, DropdownDivider } = Components;
   const { eventHandlers, hover, forceUnHover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -114,4 +118,8 @@ declare global {
   interface ComponentTypes {
     NewWikiTagButton: typeof NewWikiTagButtonComponent;
   }
+}
+
+export {
+  NewWikiTagButtonComponent as NewWikiTagButton
 } 

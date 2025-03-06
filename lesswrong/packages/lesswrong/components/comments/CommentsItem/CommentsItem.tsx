@@ -17,6 +17,22 @@ import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
+import CommentDiscussionIcon from "@/components/comments/CommentsItem/CommentDiscussionIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import ReviewVotingWidget from "@/components/review/ReviewVotingWidget";
+import LWHelpIcon from "@/components/common/LWHelpIcon";
+import CoreTagIcon from "@/components/tagging/CoreTagIcon";
+import CommentsItemMeta from "@/components/comments/CommentsItem/CommentsItemMeta";
+import RejectedReasonDisplay from "@/components/sunshineDashboard/RejectedReasonDisplay";
+import HoveredReactionContextProvider from "@/components/votes/lwReactions/HoveredReactionContextProvider";
+import CommentBottom from "@/components/comments/CommentsItem/CommentBottom";
+import ForumIcon from "@/components/common/ForumIcon";
+import ParentCommentSingle from "@/components/comments/ParentCommentSingle";
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
+import CommentExcerpt from "@/components/common/excerpts/CommentExcerpt";
+import CommentsEditForm from "@/components/comments/CommentsEditForm";
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -247,19 +263,19 @@ export const CommentsItem = ({
 
   const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
-      return <Components.CommentsEditForm
+      return <CommentsEditForm
         comment={comment}
         successCallback={editSuccessCallback}
         cancelCallback={editCancelCallback}
       />
     } else if (excerptLines) {
-      return <Components.CommentExcerpt
+      return <CommentExcerpt
         comment={comment}
         lines={excerptLines}
         className={classes.excerpt}
       />
     } else {
-      return <Components.CommentBody
+      return <CommentBody
         commentBodyRef={commentBodyRef}
         truncated={truncated}
         collapsed={collapsed}
@@ -276,7 +292,7 @@ export const CommentsItem = ({
 
     return (
       <div className={classNames(classes.replyForm, levelClass, isMinimalist && classes.replyFormMinimalist)}>
-        <Components.CommentsNewForm
+        <CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
           successCallback={replySuccessCallback}
@@ -291,13 +307,6 @@ export const CommentsItem = ({
       </div>
     )
   }
-
-  const {
-    CommentDiscussionIcon, LWTooltip, PostsTooltip, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay,
-    HoveredReactionContextProvider, CommentBottom,
-  } = Components;
-
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
 
@@ -325,7 +334,7 @@ export const CommentsItem = ({
       )}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>
-            <Components.ParentCommentSingle
+            <ParentCommentSingle
               post={post} tag={tag}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
@@ -340,7 +349,7 @@ export const CommentsItem = ({
         
         <div className={classes.postTitleRow}>
           {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
-            <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
+            <ForumIcon icon="Pin" className={classes.pinnedIcon} />
           </div>}
           {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
           {showPostTitle && !isChild && hasPostField(comment) && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
@@ -441,3 +450,5 @@ declare global {
     CommentsItem: typeof CommentsItemComponent,
   }
 }
+
+export default CommentsItemComponent;

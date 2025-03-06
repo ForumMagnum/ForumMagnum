@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMulti } from '@/lib/crud/withMulti';
+import PetrovWorldmapWrapper from "@/components/seasonal/petrovDay/PetrovWorldmapWrapper";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import Row from "@/components/common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,8 +33,6 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
   currentUser: UsersCurrent
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { PetrovWorldmapWrapper, WrappedSmartForm, Row } = Components;
-
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
@@ -68,3 +69,5 @@ declare global {
     PetrovAdminConsole: typeof PetrovAdminConsoleComponent
   }
 }
+
+export default PetrovAdminConsoleComponent;

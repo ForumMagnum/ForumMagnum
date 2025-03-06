@@ -7,6 +7,7 @@ import moment from "moment";
 import DeferRender from "../common/DeferRender";
 import { Link } from "@/lib/reactRouterWrapper";
 import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "@/lib/cookies/cookies";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,8 +93,6 @@ const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   if (cookies[HIDE_EA_FORUM_SURVEY_BANNER_COOKIE] === "true") {
     return null;
   }
-
-  const {ForumIcon} = Components;
   return (
     <DeferRender ssr={!!currentUser}>
       <div className={classes.root}>
@@ -128,3 +127,5 @@ declare global {
     EASurveyBanner: typeof EASurveyBannerComponent
   }
 }
+
+export default EASurveyBannerComponent;

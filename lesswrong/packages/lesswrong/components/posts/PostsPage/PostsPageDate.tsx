@@ -4,6 +4,9 @@ import { ExpandedDate } from '../../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import FormatDate from "@/components/common/FormatDate";
+import PostsRevisionSelector from "@/components/posts/PostsPage/PostsRevisionSelector";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   date: {
@@ -24,8 +27,6 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const now = moment(useCurrentTime())
-  const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
-  
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
     
@@ -65,3 +66,5 @@ declare global {
     PostsPageDate: typeof PostsPageDateComponent
   }
 }
+
+export default PostsPageDateComponent;

@@ -5,6 +5,7 @@ import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
 import { useSingle } from '@/lib/crud/withSingle';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import SpotlightItem from "@/components/spotlights/SpotlightItem";
 
 const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
   const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)
@@ -23,7 +24,6 @@ const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, categ
 };
 
 export const RotatingReviewWinnerSpotlight = () => {
-  const { SpotlightItem } = Components
   const category = "ai safety"
   const { data } = useQuery(
     gql`
@@ -59,3 +59,5 @@ declare global {
     RotatingReviewWinnerSpotlight: typeof RotatingReviewWinnerSpotlightComponent
   }
 }
+
+export default RotatingReviewWinnerSpotlightComponent;

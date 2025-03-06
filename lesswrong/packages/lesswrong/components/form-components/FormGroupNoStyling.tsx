@@ -15,3 +15,5 @@ declare global {
     FormGroupNoStyling: typeof FormGroupNoStylingComponent
   }
 }
+
+export default FormGroupNoStylingComponent;

@@ -7,6 +7,10 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import Paper from '@material-ui/core/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import LWPopper from "@/components/common/LWPopper";
+import ForumIcon from "@/components/common/ForumIcon";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,9 +92,6 @@ const WriteNewButton = ({
   const { openDialog } = useDialog();
   const [open, setOpen] = useState(false);
   const anchorEl = useRef(null);
-
-  const { LWClickAwayListener, LWPopper, ForumIcon, MenuItem } = Components;
-
   return (
     <div className={classNames(className, classes.root)}>
       <Button
@@ -148,3 +149,5 @@ declare global {
     WriteNewButton: typeof WriteNewButtonComponent
   }
 }
+
+export default WriteNewButtonComponent;

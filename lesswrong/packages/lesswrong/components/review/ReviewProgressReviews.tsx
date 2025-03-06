@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import range from 'lodash/range';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,9 +43,6 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
   const TARGET_NUM = 3
 
   const currentUser = useCurrentUser()
-
-  const { LWTooltip } = Components
-
   const { results: reviewsResults, totalCount } = useMulti({
     terms: {
       view: "reviews",
@@ -87,4 +85,6 @@ declare global {
     ReviewProgressReviews: typeof ReviewProgressReviewsComponent
   }
 }
+
+export default ReviewProgressReviewsComponent;
 

@@ -7,6 +7,10 @@ import { useMessages } from '../../common/withMessages';
 import Paper from '@material-ui/core/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
+import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
 
 const styles = (_theme: ThemeType) => ({
   icon: {
@@ -20,7 +24,6 @@ const SharePostActions = ({post, onClick, classes}: {
   onClick?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   
@@ -90,3 +93,5 @@ declare global {
     SharePostActions: typeof SharePostActionsComponent
   }
 }
+
+export default SharePostActionsComponent;

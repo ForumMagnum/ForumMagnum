@@ -6,6 +6,8 @@ import {
   emptyTextCellStyles,
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +37,6 @@ const PeopleDirectoryCareerStageCell = ({user, classes}: {
   const stage = user.careerStage?.[0]
     ? CAREER_STAGES.find(({value}) => value === user.careerStage?.[0])
     : null;
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip title={stage?.label}>
       <div className={classes.root}>
@@ -68,3 +69,5 @@ declare global {
     PeopleDirectoryCareerStageCell: typeof PeopleDirectoryCareerStageCellComponent
   }
 }
+
+export default PeopleDirectoryCareerStageCellComponent;

@@ -4,6 +4,7 @@ import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
 import { captureException } from "@sentry/core";
+import ForumIcon from "@/components/common/ForumIcon";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
@@ -71,8 +72,6 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
       link.click();
     }
   }, [name, screenshotRef, onRendered]);
-
-  const {ForumIcon} = Components;
   return (
     <button className={classNames(classes.root, className)} onClick={onClick}>
       <ForumIcon icon="Share" className={classes.icon} /> Share
@@ -91,3 +90,5 @@ declare global {
     WrappedShareButton: typeof WrappedShareButtonComponent
   }
 }
+
+export default WrappedShareButtonComponent;

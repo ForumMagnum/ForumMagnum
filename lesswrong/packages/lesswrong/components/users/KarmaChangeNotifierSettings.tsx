@@ -13,6 +13,8 @@ import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { Typography } from "@/components/common/Typography";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -131,7 +133,6 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   
   render() {
     const { timezone, classes } = this.props;
-    const { Typography, MenuItem } = Components;
     const settings = this.props.value || {}
 
     if (!settings.timeOfDayGMT || !settings.dayOfWeekGMT) {
@@ -245,3 +246,5 @@ declare global {
     KarmaChangeNotifierSettings: typeof KarmaChangeNotifierSettingsComponent
   }
 }
+
+export default KarmaChangeNotifierSettingsComponent;

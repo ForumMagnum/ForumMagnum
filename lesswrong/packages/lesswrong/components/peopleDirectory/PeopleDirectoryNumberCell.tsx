@@ -34,3 +34,5 @@ declare global {
     PeopleDirectoryNumberCell: typeof PeopleDirectoryNumberCellComponent
   }
 }
+
+export default PeopleDirectoryNumberCellComponent;

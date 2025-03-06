@@ -3,7 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,7 +45,6 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   onHoverUser?: (userId: string|null) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay, Loading, LWTooltip } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
@@ -111,3 +112,5 @@ declare global {
     TagContributorsList: typeof TagContributorsListComponent
   }
 }
+
+export default TagContributorsListComponent;

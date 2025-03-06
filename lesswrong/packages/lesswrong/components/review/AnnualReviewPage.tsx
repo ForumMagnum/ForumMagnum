@@ -9,6 +9,14 @@ import qs from 'qs'
 import classNames from 'classnames';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { allPostsParams } from './NominationsPage';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import FrontpageReviewWidget from "@/components/review/FrontpageReviewWidget";
+import ReviewVotingPage from "@/components/review/ReviewVotingPage";
+import NominationsPage from "@/components/review/NominationsPage";
+import ReviewVotingExpandedPost from "@/components/review/ReviewVotingExpandedPost";
+import ReviewsPage from "@/components/review/ReviewsPage";
+import ReviewPhaseInformation from "@/components/review/ReviewPhaseInformation";
+import QuickReviewPage from "@/components/review/QuickReviewPage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -125,7 +133,6 @@ const styles = (theme: ThemeType) => ({
 export const AnnualReviewPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, FrontpageReviewWidget, ReviewVotingPage, NominationsPage, ReviewVotingExpandedPost, ReviewsPage, ReviewPhaseInformation, QuickReviewPage } = Components
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const { params, query, location } = useLocation()
@@ -232,3 +239,5 @@ declare global {
     AnnualReviewPage: typeof AnnualReviewPageComponent
   }
 }
+
+export default AnnualReviewPageComponent;

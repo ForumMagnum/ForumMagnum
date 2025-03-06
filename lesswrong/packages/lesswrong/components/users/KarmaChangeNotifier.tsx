@@ -19,6 +19,14 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
+import { MenuItemLink } from "@/components/common/Menus";
+import { Typography } from "@/components/common/Typography";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import LWPopper from "@/components/common/LWPopper";
+import ForumIcon from "@/components/common/ForumIcon";
+import ReactionIcon from "@/components/votes/ReactionIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,7 +128,6 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   handleClose: (ev: React.MouseEvent) => any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
-  const { MenuItemLink, Typography } = Components;
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
     (posts && (posts.length > 0))
@@ -262,9 +269,6 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
-
-    const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
-
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classNames(classes.root, className)}>
         <div ref={anchorEl}>
@@ -304,8 +308,6 @@ const NewReactions = ({reactionChanges, classes}: {
   reactionChanges: ReactionChange[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionIcon, LWTooltip } = Components;
-
   const distinctReactionTypes = new Set<string>();
   for (let reactionChange of reactionChanges)
     distinctReactionTypes.add(reactionChange.reactionType);
@@ -331,7 +333,7 @@ const NewReactions = ({reactionChanges, classes}: {
             reactionChanges.filter(r=>r.reactionType===reactionType)
               .map((r,i) => <>
                 {i>0 && <>{", "}</>}
-                <Components.UsersName documentId={r.userId}/>
+                <UsersName documentId={r.userId}/>
               </>)
           }
           disabled={disableTooltip}
@@ -354,3 +356,5 @@ declare global {
     KarmaChangeNotifier: typeof KarmaChangeNotifierComponent
   }
 }
+
+export default KarmaChangeNotifierComponent;

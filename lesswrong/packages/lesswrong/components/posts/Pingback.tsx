@@ -1,6 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { KARMA_WIDTH } from './LWPostsItem';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import KarmaDisplay from "@/components/common/KarmaDisplay";
+import PostsTitle from "@/components/posts/PostsTitle";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -17,7 +21,6 @@ const Pingback = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
-  const {PostsTooltip, PostsItem2MetaInfo, KarmaDisplay, PostsTitle} = Components;
   return (
     <div className={classes.root}>
       <PostsItem2MetaInfo className={classes.karma}>
@@ -37,4 +40,6 @@ declare global {
     Pingback: typeof PingbackComponent
   }
 }
+
+export default PingbackComponent;
 

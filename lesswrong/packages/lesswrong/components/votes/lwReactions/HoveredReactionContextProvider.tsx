@@ -66,3 +66,5 @@ declare global {
   }
 }
 
+export default HoveredReactionContextProviderComponent;
+

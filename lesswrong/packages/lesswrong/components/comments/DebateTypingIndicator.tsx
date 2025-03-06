@@ -80,3 +80,5 @@ declare global {
     DebateTypingIndicator: typeof DebateTypingIndicatorComponent
   }
 }
+
+export default DebateTypingIndicatorComponent;

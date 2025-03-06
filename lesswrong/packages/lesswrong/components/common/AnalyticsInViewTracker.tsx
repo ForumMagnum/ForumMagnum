@@ -39,3 +39,5 @@ declare global {
     AnalyticsInViewTracker: typeof AnalyticsInViewTrackerComponent
   }
 }
+
+export default AnalyticsInViewTrackerComponent;

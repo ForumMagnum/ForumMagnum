@@ -2,6 +2,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
+import PostsItem from "@/components/posts/PostsItem";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,8 +34,6 @@ const RelatedQuestionsList = ({ post, classes }: {
   post: PostsDetails,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsItem, SectionTitle } = Components
-  
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
   const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
@@ -100,4 +100,6 @@ declare global {
     RelatedQuestionsList: typeof RelatedQuestionsListComponent
   }
 }
+
+export default RelatedQuestionsListComponent;
 

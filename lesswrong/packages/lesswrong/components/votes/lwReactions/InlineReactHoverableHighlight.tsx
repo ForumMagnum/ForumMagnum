@@ -8,6 +8,11 @@ import { useHover, UseHoverEventHandlers } from '@/components/common/withHover';
 import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
 import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import InlineReactHoverInfo from "@/components/votes/lwReactions/InlineReactHoverInfo";
+import { SideItem } from "@/components/contents/SideItems";
+import LWTooltip from "@/components/common/LWTooltip";
+import SideItemLine from "@/components/contents/SideItemLine";
+import ReactionIcon from "@/components/votes/ReactionIcon";
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -40,8 +45,6 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { InlineReactHoverInfo, SideItem, LWTooltip } = Components;
-
   const hoveredReactions = useContext(HoveredReactionListContext);
   const voteProps = useContext(InlineReactVoteContext);
 
@@ -113,7 +116,6 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, cla
   hoverEventHandlers: UseHoverEventHandlers,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItemLine, LWTooltip, InlineReactHoverInfo } = Components;
   const currentUser = useCurrentUser();
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
@@ -136,7 +138,7 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, cla
           inlineBlock={false}
           clickable={true}
         >
-          <Components.ReactionIcon react={r}/>
+          <ReactionIcon react={r}/>
         </LWTooltip>
       </span>)}
     </span>
@@ -165,4 +167,6 @@ declare global {
     InlineReactHoverableHighlight: typeof InlineReactHoverableHighlightComponent
   }
 }
+
+export default InlineReactHoverableHighlightComponent;
 

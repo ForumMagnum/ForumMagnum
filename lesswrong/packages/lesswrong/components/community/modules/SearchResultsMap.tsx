@@ -9,6 +9,8 @@ import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import StyledMapPopup from "@/components/localGroups/StyledMapPopup";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -113,9 +115,6 @@ const SearchResultsMap = ({
   }, [hits])
 
   const mapStyle = useMapStyle();
-
-  const { StyledMapPopup } = Components
-  
   return <div className={classNames(classes.root, className)}>
     <Helmet>
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -145,7 +144,7 @@ const SearchResultsMap = ({
             lng={markerLocations[hit._id].lng}
             link={`/users/${hit.slug}?from=${from}`}
             title={<div className={classes.popupTitle}>
-              {hit.profileImageId && <Components.CloudinaryImage2
+              {hit.profileImageId && <CloudinaryImage2
                 height={50}
                 width={50}
                 imgProps={{q: '100'}}
@@ -186,4 +185,9 @@ declare global {
     SearchResultsMap: typeof SearchResultsMapComponent
     RawSearchResultsMap: typeof RawSearchResultsMapComponent
   }
+}
+
+export {
+  SearchResultsMapComponent as SearchResultsMap,
+  RawSearchResultsMapComponent as RawSearchResultsMap
 }

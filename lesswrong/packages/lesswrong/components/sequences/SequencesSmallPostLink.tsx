@@ -6,6 +6,8 @@ import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import PostReadCheckbox from "@/components/posts/PostReadCheckbox";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -44,7 +46,6 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   large?: boolean,
   placement?: PopperPlacementType,
 }) => {
-  const {PostsTooltip, PostReadCheckbox} = Components;
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
       <PostReadCheckbox
@@ -73,3 +74,5 @@ declare global {
     SequencesSmallPostLink: typeof SequencesSmallPostLinkComponent
   }
 }
+
+export default SequencesSmallPostLinkComponent;

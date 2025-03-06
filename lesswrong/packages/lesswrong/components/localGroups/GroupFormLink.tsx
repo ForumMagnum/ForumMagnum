@@ -4,15 +4,13 @@ import AddLocationIcon from '@material-ui/icons/AddLocation';
 import { useDialog } from '../common/withDialog'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
-
+import SectionButton from "@/components/common/SectionButton";
 
 const GroupFormLink = ({documentId, isOnline}: {
   documentId?: string
   isOnline?: boolean
 }) => {
   const { openDialog } = useDialog();
-  const { SectionButton } = Components
-
   const handleOpenGroupForm = () => {
     openDialog({
       componentName: "GroupFormDialog",
@@ -39,3 +37,5 @@ declare global {
     GroupFormLink: typeof GroupFormLinkComponent
   }
 }
+
+export default GroupFormLinkComponent;

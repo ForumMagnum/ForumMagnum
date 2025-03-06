@@ -5,6 +5,10 @@ import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
 import InputLabel from '@material-ui/core/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
+import LWTooltip from "@/components/common/LWTooltip";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
+import SingleUsersItem from "@/components/form-components/SingleUsersItem";
 
 const coauthorsListEditorStyles = (theme: ThemeType) => ({
   root: {
@@ -43,7 +47,7 @@ type CoauthorListItem = {
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -77,12 +81,12 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
   return (
     <>
       <div className={classes.root}>
-        <Components.ErrorBoundary>
-          <Components.UsersSearchAutoComplete 
+        <ErrorBoundary>
+          <UsersSearchAutoComplete 
             clickAction={addUserId} 
             label={document.collabEditorDialogue ? "Add participant" : label} 
             />
-        </Components.ErrorBoundary>
+        </ErrorBoundary>
         <SortableList
           axis="xy"
           value={value.map(v=>v.userId)}
@@ -101,7 +105,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
         />
       </div>
       {isEAForum && <div className={classes.checkboxContainer}>
-        <Components.LWTooltip
+        <LWTooltip
           title='If this box is left unchecked then these users will be asked if they want to be co-authors. If you click Publish with pending co-authors, publishing will be delayed for up to 24 hours to allow for co-authors to give permission.'
           placement='left'
         >
@@ -109,7 +113,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
             <Checkbox className={classes.checkbox} checked={hasPermission} onChange={toggleHasPermission} />
             These users have agreed to co-author this post
           </InputLabel>
-        </Components.LWTooltip>
+        </LWTooltip>
       </div>}
     </>
   );
@@ -124,3 +128,5 @@ declare global {
     CoauthorsListEditor: typeof CoauthorsListEditorComponent
   }
 }
+
+export default CoauthorsListEditorComponent;

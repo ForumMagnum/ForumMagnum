@@ -11,6 +11,13 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SortButton from "@/components/icons/SortButton";
+import SettingsButton from "@/components/icons/SettingsButton";
+import PostsListSettings from "@/components/posts/PostsListSettings";
+import HeadTags from "@/components/common/HeadTags";
+import AllPostsList from "@/components/posts/AllPostsList";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -68,12 +75,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
     currentUser?.allPostsShowLowKarma || false;
   const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
   const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
-
-  const {
-    SingleColumnSection, SectionTitle, SortButton, SettingsButton, PostsListSettings, HeadTags,
-    AllPostsList,
-  } = Components;
-
   return (
     <>
       <HeadTags description={description} />
@@ -134,4 +135,6 @@ declare global {
     AllPostsPage: typeof AllPostsPageComponent
   }
 }
+
+export default AllPostsPageComponent;
 

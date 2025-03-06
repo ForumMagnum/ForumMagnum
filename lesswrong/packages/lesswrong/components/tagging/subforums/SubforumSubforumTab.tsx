@@ -10,6 +10,15 @@ import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/sche
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { ObservableQuery } from '@apollo/client';
+import CommentPermalink from "@/components/comments/CommentPermalink";
+import RecentDiscussionThread from "@/components/recentDiscussion/RecentDiscussionThread";
+import CommentWithReplies from "@/components/comments/CommentWithReplies";
+import PostsList2 from "@/components/posts/PostsList2";
+import CommentsListCondensed from "@/components/common/CommentsListCondensed";
+import ShortformSubmitForm from "@/components/shortform/ShortformSubmitForm";
+import LoginForm from "@/components/users/LoginForm";
+import PostsListSortDropdown from "@/components/posts/PostsListSortDropdown";
+import PostsLayoutDropdown from "@/components/posts/PostsLayoutDropdown";
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -70,19 +79,6 @@ const SubforumSubforumTab = ({
   setNewShortformOpen: (open: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    CommentPermalink,
-    MixedTypeFeed,
-    RecentDiscussionThread,
-    CommentWithReplies,
-    PostsList2,
-    CommentsListCondensed,
-    ShortformSubmitForm,
-    LoginForm,
-    PostsListSortDropdown,
-    PostsLayoutDropdown,
-  } = Components;
-
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
@@ -289,3 +285,5 @@ declare global {
     SubforumSubforumTab: typeof SubforumSubforumTabComponent
   }
 }
+
+export default SubforumSubforumTabComponent;

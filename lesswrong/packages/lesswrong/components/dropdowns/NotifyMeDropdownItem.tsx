@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 type NotifyMeDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -32,8 +33,6 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemInternalProps> = ({
   }
 
   const message = isSubscribed ? unsubscribeMessage : subscribeMessage;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={message}
@@ -62,3 +61,5 @@ declare global {
     NotifyMeDropdownItem: typeof NotifyMeDropdownItemComponent
   }
 }
+
+export default NotifyMeDropdownItemComponent;

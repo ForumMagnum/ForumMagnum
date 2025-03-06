@@ -9,6 +9,7 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
 import Confetti from 'react-confetti';
+import LWTooltip from "@/components/common/LWTooltip";
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -356,9 +357,6 @@ const FundraisingThermometer: React.FC<
   const timeRemainingText = remainingHours <= 72 
     ? `${remainingHours} hours remaining`
     : `${remainingDays} days remaining`;
-
-  const { LWTooltip } = Components;
-
   // State for final push countdown and—for after the fundraiser—confetti
   const [showCountdown, setShowCountdown] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -515,4 +513,8 @@ declare global {
   interface ComponentTypes {
     FundraisingThermometer: typeof FundraisingThermometerComponent;
   }
+}
+
+export {
+  FundraisingThermometerComponent as FundraisingThermometer
 }

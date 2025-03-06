@@ -7,6 +7,8 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import TagDiscussion from "@/components/tagging/TagDiscussion";
+import PopperCard from "@/components/common/PopperCard";
 
 const styles = (theme: ThemeType) => ({
   discussionButton: {
@@ -53,8 +55,6 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
   hideLabelOnMobile?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  
-  const { TagDiscussion, PopperCard } = Components
   const { hover, anchorEl, eventHandlers } = useHover()
   const { totalCount, loading } = useMulti({
     terms: {
@@ -96,3 +96,5 @@ declare global {
     TagDiscussionButton: typeof TagDiscussionButtonComponent
   }
 }
+
+export default TagDiscussionButtonComponent;

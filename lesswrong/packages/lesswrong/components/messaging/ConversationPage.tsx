@@ -5,6 +5,12 @@ import { conversationGetTitle } from '../../lib/collections/conversations/helper
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ConversationContents from "@/components/messaging/ConversationContents";
+import Error404 from "@/components/common/Error404";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
+import ConversationDetails from "@/components/messaging/ConversationDetails";
 
 const styles = (theme: ThemeType) => ({
   conversationSection: {
@@ -42,9 +48,6 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
     collectionName: "Conversations",
     fragmentName: 'ConversationsList',
   });
-
-  const { SingleColumnSection, ConversationContents, Error404, Loading, Typography, ConversationDetails } = Components
-
   if (loading) return <Loading />
   if (!conversation) return <Error404 />
 
@@ -82,4 +85,6 @@ declare global {
     ConversationPage: typeof ConversationPageComponent
   }
 }
+
+export default ConversationPageComponent;
 

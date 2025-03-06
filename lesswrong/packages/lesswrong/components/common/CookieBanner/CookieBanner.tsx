@@ -5,6 +5,7 @@ import classNames from "classnames";
 import { useDialog } from "../withDialog";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   bannerContainer: {
@@ -80,8 +81,6 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const handleReject = () => {
     updateCookiePreferences(ONLY_NECESSARY_COOKIES);
   }
-
-  const { Typography } = Components;
   return (
     <div className={classNames(classes.bannerContainer)}>
       <Typography variant="body2" className={classes.text}>
@@ -117,3 +116,5 @@ declare global {
     CookieBanner: typeof CookieBannerComponent;
   }
 }
+
+export default CookieBannerComponent;

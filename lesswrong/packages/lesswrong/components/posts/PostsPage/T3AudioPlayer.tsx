@@ -67,3 +67,5 @@ declare global {
     T3AudioPlayer: typeof T3AudioPlayerComponent
   }
 }
+
+export default T3AudioPlayerComponent;

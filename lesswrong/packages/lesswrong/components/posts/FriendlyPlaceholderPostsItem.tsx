@@ -145,3 +145,5 @@ declare global {
     FriendlyPlaceholderPostsItem: typeof FriendlyPlaceholderPostsItemComponent
   }
 }
+
+export default FriendlyPlaceholderPostsItemComponent;

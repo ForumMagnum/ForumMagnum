@@ -69,3 +69,5 @@ declare global {
     PetrovWorldmapWrapper: typeof PetrovWorldmapWrapperComponent
   }
 }
+
+export default PetrovWorldmapWrapperComponent;

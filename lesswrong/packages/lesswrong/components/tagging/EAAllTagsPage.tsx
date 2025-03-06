@@ -10,6 +10,14 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import AllTagsAlphabetical from "@/components/tagging/AllTagsAlphabetical";
+import SectionButton from "@/components/common/SectionButton";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { Loading } from "@/components/vulcan-core/Loading";
+import CoreTagsSection from "@/components/tagging/CoreTagsSection";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -58,9 +66,6 @@ const EAAllTagsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
-
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, Loading, CoreTagsSection, SingleColumnSection } = Components;
-
   const portalTitle = `EA Forum ${`${taggingNamePluralCapitalSetting.get()} `}Wiki`
   
   const htmlWithAnchors = tag?.tableOfContents?.html || tag?.description?.html || "";
@@ -121,3 +126,5 @@ declare global {
     EAAllTagsPage: typeof EAAllTagsPageComponent
   }
 }
+
+export default EAAllTagsPageComponent;

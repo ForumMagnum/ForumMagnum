@@ -10,6 +10,14 @@ import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
 import { MAIN_TAB_ID } from "@/lib/arbital/useTagLenses";
+import { Loading } from "@/components/vulcan-core/Loading";
+import TagHoverPreview from "@/components/tagging/TagHoverPreview";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import HoverOver from "@/components/common/HoverOver";
+import TagRelCard from "@/components/tagging/TagRelCard";
+import { TagPreview } from "@/components/tagging/TagPreview";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
@@ -105,8 +113,6 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
 );
 
 const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
-  const { Loading, TagHoverPreview } = Components;
-
   const { selectedLens } = useTagPageContext() ?? {};
 
   // We don't want to show pingbacks from the lens that the redlink is in
@@ -159,7 +165,6 @@ const RedLinkTooltip = ({ tag, slug }: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { Typography, ContentStyles } = Components;
   const title = inferRedLinkTitle(tag, slug ?? null);
 
   if (!tag) {
@@ -226,8 +231,6 @@ const TagsTooltip = ({
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered)
   );
-
-  const { HoverOver, Loading, TagRelCard, TagPreview, LWClickAwayListener } = Components;
   return (
     <HoverOver
       title={
@@ -275,3 +278,5 @@ declare global {
     TagsTooltip: typeof TagsTooltipComponent
   }
 }
+
+export default TagsTooltipComponent;

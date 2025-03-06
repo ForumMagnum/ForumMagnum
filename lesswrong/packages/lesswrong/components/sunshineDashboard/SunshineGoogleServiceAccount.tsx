@@ -60,3 +60,5 @@ declare global {
     SunshineGoogleServiceAccount: typeof SunshineGoogleServiceAccountComponent
   }
 }
+
+export default SunshineGoogleServiceAccountComponent;

@@ -4,6 +4,7 @@ import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   showChildren: {
@@ -52,9 +53,6 @@ const CommentWithReplies = ({
     noDOMId: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
-
-  const { CommentsNode } = Components;
-
   const renderedChildren = comment.latestChildren.slice(0, maxChildren);
   const extraChildrenCount = Math.max(0, comment.latestChildren.length - renderedChildren.length);
 
@@ -101,3 +99,5 @@ declare global {
     CommentWithReplies: typeof CommentWithRepliesComponent;
   }
 }
+
+export default CommentWithRepliesComponent;

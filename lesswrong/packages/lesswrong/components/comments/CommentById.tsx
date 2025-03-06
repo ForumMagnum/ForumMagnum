@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import { useSingle } from '../../lib/crud/withSingle';
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
   commentId: string,
@@ -14,7 +15,6 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
-  const { CommentsNode } = Components;
   if (!comment) return null;
   return <CommentsNode
     comment={comment}
@@ -32,3 +32,5 @@ declare global {
     CommentById: typeof CommentByIdComponent
   }
 }
+
+export default CommentByIdComponent;

@@ -5,6 +5,10 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
+import { TagPreview } from "@/components/tagging/TagPreview";
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import TagRelevanceButton from "@/components/tagging/TagRelevanceButton";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   relevance: {
@@ -76,9 +80,6 @@ const TagRelCard = ({tagRel, classes}: {
       {children}
     </LWTooltip>
   )
-
-  const { TagPreview, OverallVoteButton, TagRelevanceButton, LWTooltip } = Components;
-  
   return <div>
     <div className={classes.relevance}>
       <LWTooltip title="How relevant is this tag to this post?" placement="top">
@@ -137,3 +138,5 @@ declare global {
     TagRelCard: typeof TagRelCardComponent
   }
 }
+
+export default TagRelCardComponent;

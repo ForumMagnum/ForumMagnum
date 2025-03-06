@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import LWDialog from "@/components/common/LWDialog";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,9 +45,6 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
     })
     onClose?.()
   }
-  
-  const { LWDialog, EAButton } = Components
-
   return (
     <LWDialog open onClose={onClose} dialogClasses={{paper: classes.root}}>
       <DialogContent className={classes.text}>
@@ -76,3 +75,5 @@ declare global {
     ConfirmPublishDialog: typeof ConfirmPublishDialogComponent
   }
 }
+
+export default ConfirmPublishDialogComponent;

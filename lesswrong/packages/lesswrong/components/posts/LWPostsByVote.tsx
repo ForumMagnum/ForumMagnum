@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "@/components/posts/PostsItem";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
+import LoadMore from "@/components/common/LoadMore";
+import SectionFooterCheckbox from "@/components/form-components/SectionFooterCheckbox";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   checkboxRow: {
@@ -19,7 +26,6 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore, SectionFooterCheckbox, LWTooltip } = Components
   const [requiredUnnominated, setRequiredUnnominated] = useState(true)
   const [requiredFrontpage, setRequiredFrontpage] = useState(true)
 
@@ -71,3 +77,5 @@ declare global {
     LWPostsByVote: typeof LWPostsByVoteComponent
   }
 }
+
+export default LWPostsByVoteComponent;

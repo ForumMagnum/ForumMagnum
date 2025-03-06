@@ -7,6 +7,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useMulti } from '@/lib/crud/withMulti';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import CompareRevisions from "@/components/revisions/CompareRevisions";
+import RevisionComparisonNotice from "@/components/revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "@/components/common/LoadingOrErrorPage";
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
@@ -25,9 +29,6 @@ const TagCompareRevisions = () => {
   const { slug } = params;
   const versionBefore = query.before;
   const versionAfter = query.after;
-  
-  const { SingleColumnSection, CompareRevisions, RevisionComparisonNotice, LoadingOrErrorPage } = Components;
-  
   const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");
   
   // Load the after- revision
@@ -79,3 +80,5 @@ declare global {
     TagCompareRevisions: typeof TagCompareRevisionsComponent
   }
 }
+
+export default TagCompareRevisionsComponent;

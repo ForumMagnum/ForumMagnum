@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { CommunityMap } from "@/components/localGroups/CommunityMap";
 
 const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, mapOptions, terms, keywordSearch, showHideMap, hideLegend, showUsersByDefault, showGroupsByDefault=true, petrovButton}: {
   className?: string,
@@ -15,7 +16,6 @@ const CommunityMapWrapper = ({className, groupQueryTerms, currentUserLocation, m
   showGroupsByDefault?: boolean,
   petrovButton?: any,
 }) => {
-  const { CommunityMap } = Components;
   return (
     <CommunityMap
       className={className}
@@ -42,4 +42,6 @@ declare global {
     CommunityMapWrapper: typeof CommunityMapWrapperComponent
   }
 }
+
+export default CommunityMapWrapperComponent;
 

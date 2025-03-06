@@ -15,6 +15,12 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import LWTooltip from "@/components/common/LWTooltip";
+import TagDiscussionButton from "@/components/tagging/TagDiscussionButton";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import ForumIcon from "@/components/common/ForumIcon";
+import { TagOrLensLikeButton } from "@/components/tagging/lenses/LensTab";
+import { TagPageActionsMenuButton } from "@/components/tagging/TagPageActionsMenu";
 
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
@@ -122,7 +128,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton, TagPageActionsMenuButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const { captureEvent } = useTracking();
@@ -264,3 +269,5 @@ declare global {
     TagPageButtonRow: typeof TagPageButtonRowComponent
   }
 }
+
+export default TagPageButtonRowComponent;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil'
+import PostsEditForm from "@/components/posts/PostsEditForm";
 
 const PostsEditPage = () => {
   const { query } = useLocation();
@@ -8,7 +9,7 @@ const PostsEditPage = () => {
   const version = query.version;
   
   return <div>
-    <Components.PostsEditForm documentId={postId} version={version} />
+    <PostsEditForm documentId={postId} version={version} />
   </div>
 }
 
@@ -19,4 +20,6 @@ declare global {
     PostsEditPage: typeof PostsEditPageComponent
   }
 }
+
+export default PostsEditPageComponent;
 

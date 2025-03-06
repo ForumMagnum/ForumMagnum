@@ -4,6 +4,7 @@ import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/hel
 import { useCurrentUser } from "../../common/withUser";
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
 import { isLWorAF } from "../../../lib/instanceSettings";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -29,8 +30,6 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   ) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   return post.af
     ? (
       <DropdownItem
@@ -56,3 +55,5 @@ declare global {
     MoveToAlignmentPostDropdownItem: typeof MoveToAlignmentPostDropdownItemComponent
   }
 }
+
+export default MoveToAlignmentPostDropdownItemComponent;

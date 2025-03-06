@@ -5,6 +5,8 @@ import uniq from 'lodash/uniq'
 import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
+import DebateResponseBlock from "@/components/comments/DebateResponseBlock";
+import DebateTypingIndicator from "@/components/comments/DebateTypingIndicator";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,7 +19,6 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
 
   return (<DeferRender ssr={false}>
@@ -73,3 +74,5 @@ declare global {
     DebateBody: typeof DebateBodyComponent
   }
 }
+
+export default DebateBodyComponent;

@@ -10,6 +10,15 @@ import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
+import SidebarActionMenu from "@/components/sunshineDashboard/SidebarActionMenu";
+import TagSmallPostLink from "@/components/tagging/TagSmallPostLink";
+import SidebarAction from "@/components/sunshineDashboard/SidebarAction";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import SidebarInfo from "@/components/sunshineDashboard/SidebarInfo";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   tagInfo: {
@@ -65,9 +74,6 @@ const SunshineNewTagsItem = ({tag, classes}: {
       },
     })
   }
-
-  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, Loading, ContentStyles } = Components
-
   const { results, loading } = useMulti({
     skip: !(tag._id),
     terms: {
@@ -133,3 +139,5 @@ declare global {
     SunshineNewTagsItem: typeof SunshineNewTagsItemComponent
   }
 }
+
+export default SunshineNewTagsItemComponent;

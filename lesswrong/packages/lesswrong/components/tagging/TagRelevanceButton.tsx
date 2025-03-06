@@ -67,3 +67,5 @@ declare global {
   }
 }
 
+export default TagRelevanceButtonComponent;
+

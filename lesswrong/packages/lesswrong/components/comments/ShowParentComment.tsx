@@ -3,6 +3,7 @@ import React from 'react';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,13 +51,13 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   if (!comment) return null;
   
   return (
-    <Components.LWTooltip title={`${active ? "Hide" : "Show"} previous comment`}>
+    <LWTooltip title={`${active ? "Hide" : "Show"} previous comment`}>
       <span className={classNames(classes.root, {[classes.active]: active})} onClick={onClick}>
         <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}>
           subdirectory_arrow_left
         </SubdirectoryArrowLeft>
       </span>
-    </Components.LWTooltip>
+    </LWTooltip>
   )
 };
 
@@ -67,4 +68,6 @@ declare global {
     ShowParentComment: typeof ShowParentCommentComponent,
   }
 }
+
+export default ShowParentCommentComponent;
 

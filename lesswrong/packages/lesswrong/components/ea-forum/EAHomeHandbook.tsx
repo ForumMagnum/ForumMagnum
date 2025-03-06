@@ -9,6 +9,10 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
 
 const bannerHeight = 250
 
@@ -117,7 +121,6 @@ const EAHomeHandbook = ({ classes, documentId }: {
   classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
-  const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",
@@ -186,3 +189,5 @@ declare global {
     EAHomeHandbook: typeof EAHomeHandbookComponent
   }
 }
+
+export default EAHomeHandbookComponent;

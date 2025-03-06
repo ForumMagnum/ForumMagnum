@@ -50,3 +50,5 @@ declare global {
     FormError: typeof FormErrorComponent
   }
 }
+
+export default FormErrorComponent;

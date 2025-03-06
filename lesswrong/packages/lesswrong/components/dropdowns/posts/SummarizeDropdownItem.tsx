@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const SummarizeDropdownItem = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
@@ -21,8 +22,6 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
       componentProps: {post},
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Summarize"
@@ -41,3 +40,5 @@ declare global {
     SummarizeDropdownItem: typeof SummarizeDropdownItemComponent
   }
 }
+
+export default SummarizeDropdownItemComponent;

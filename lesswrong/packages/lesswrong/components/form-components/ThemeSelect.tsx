@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { themeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
+import FormComponentSelect from "@/components/form-components/FormComponentSelect";
 
 const getValue = (props: any) => {
   if (props.value?.name) {
@@ -27,7 +28,7 @@ const ThemeSelect = (props: any) => {
   }
 
   return (
-    <Components.FormComponentSelect
+    <FormComponentSelect
       {...props}
       defaultValue={undefined}
       value={getValue(props)}
@@ -44,3 +45,5 @@ declare global {
     ThemeSelect: typeof ThemeSelectComponent
   }
 }
+
+export default ThemeSelectComponent;

@@ -8,6 +8,10 @@ import UnarchiveIcon from '@material-ui/icons/Unarchive';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import UsersName from "@/components/users/UsersName";
+import FormatDate from "@/components/common/FormatDate";
+import ConversationPreview from "@/components/messaging/ConversationPreview";
 
 const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
@@ -43,7 +47,6 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   classes: ClassesType<typeof styles>,
   expanded?: boolean
 }) => {
-  const { PostsItem2MetaInfo, UsersName, FormatDate, ConversationPreview } = Components
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
   if (!conversation) return null
 
@@ -91,4 +94,6 @@ declare global {
     ConversationItem: typeof ConversationItemComponent
   }
 }
+
+export default ConversationItemComponent;
 

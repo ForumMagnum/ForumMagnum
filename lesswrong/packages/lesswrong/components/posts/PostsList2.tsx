@@ -5,6 +5,11 @@ import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
+import LoadMore from "@/components/common/LoadMore";
+import PostsNoResults from "@/components/posts/PostsNoResults";
+import SectionFooter from "@/components/common/SectionFooter";
+import PostsItem from "@/components/posts/PostsItem";
+import PostsLoading from "@/components/posts/PostsLoading";
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -58,9 +63,6 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     showPlacement,
     header,
   } = usePostsList(props);
-
-  const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
-
   if (!orderedResults && loading) {
     return (
       <PostsLoading
@@ -133,3 +135,5 @@ declare global {
     PostsList2: typeof PostsList2Component
   }
 }
+
+export default PostsList2Component;

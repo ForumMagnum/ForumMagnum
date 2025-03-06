@@ -8,6 +8,15 @@ import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/s
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import EAOnboardingInput from "@/components/ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "@/components/ea-forum/EAButton";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumDropdown from "@/components/common/ForumDropdown";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import Error404 from "@/components/common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -178,11 +187,6 @@ const SurveyForm = ({survey, refetch, classes}: {
     }
     setSaving(false);
   }, [updateSurvey, refetch, survey._id, name, questions]);
-
-  const {
-    EAOnboardingInput, EAButton, ForumIcon, LWTooltip, ForumDropdown,
-    SectionTitle, Loading,
-  } = Components;
   return (
     <div className={classes.form}>
       <EAOnboardingInput
@@ -266,8 +270,6 @@ const SurveyEditor = ({classes}: {
     fragmentName: "SurveyMinimumInfo",
     documentId: id,
   });
-
-  const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
@@ -295,7 +297,7 @@ const SurveyEditPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
 const SurveyEditPageComponent = registerComponent(
@@ -309,3 +311,5 @@ declare global {
     SurveyEditPage: typeof SurveyEditPageComponent
   }
 }
+
+export default SurveyEditPageComponent;

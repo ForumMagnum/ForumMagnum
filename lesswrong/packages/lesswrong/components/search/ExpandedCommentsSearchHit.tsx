@@ -8,6 +8,8 @@ import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import FormatDate from "@/components/common/FormatDate";
+import UserNameDeleted from "@/components/users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,7 +73,6 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const comment: SearchComment = hit
   
   let url = "";
@@ -120,4 +121,6 @@ declare global {
     ExpandedCommentsSearchHit: typeof ExpandedCommentsSearchHitComponent
   }
 }
+
+export default ExpandedCommentsSearchHitComponent;
 

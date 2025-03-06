@@ -4,6 +4,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import PostsTitle from "@/components/posts/PostsTitle";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,7 +36,6 @@ const PostsListEditorSearchHit = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const post = hit as SearchPost;
-  const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;
   return (
     <PostsTooltip postId={post._id} postsList placement="left">
       <div className={classes.root}>
@@ -65,3 +68,5 @@ declare global {
     PostsListEditorSearchHit: typeof PostsListEditorSearchHitComponent
   }
 }
+
+export default PostsListEditorSearchHitComponent;

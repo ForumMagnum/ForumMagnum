@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const eventBannerMobileImageSetting = new DatabasePublicSetting<string | null>('eventBannerMobileImage', null)
 const eventBannerDesktopImageSetting = new DatabasePublicSetting<string | null>('eventBannerDesktopImage', null)
@@ -32,8 +33,6 @@ const styles = (theme: ThemeType) => ({
 const EventBanner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection } = Components
-
   const mobileImageId = eventBannerMobileImageSetting.get()
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()
@@ -61,3 +60,5 @@ declare global {
     EventBanner: typeof EventBannerComponent
   }
 }
+
+export default EventBannerComponent;

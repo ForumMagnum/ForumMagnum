@@ -2,6 +2,7 @@ import React, { ChangeEvent, MutableRefObject, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,7 +50,6 @@ const PeopleDirectoryInput = ({
   const onChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setValue?.(ev.target?.value ?? "");
   }, [setValue]);
-  const {ForumIcon} = Components;
   return (
     <div className={classNames(classes.root, {[classes.border]: !noBorder})}>
       {icon && <ForumIcon icon={icon} className={classes.icon} />}
@@ -75,3 +75,5 @@ declare global {
     PeopleDirectoryInput: typeof PeopleDirectoryInputComponent
   }
 }
+
+export default PeopleDirectoryInputComponent;

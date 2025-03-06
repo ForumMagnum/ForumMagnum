@@ -30,3 +30,5 @@ declare global {
     AnalyticsTracker: typeof AnalyticsTrackerComponent
   }
 }
+
+export default AnalyticsTrackerComponent;

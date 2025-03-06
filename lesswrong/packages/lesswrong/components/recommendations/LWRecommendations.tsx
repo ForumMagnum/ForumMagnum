@@ -8,6 +8,18 @@ import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
+import RecommendationsAlgorithmPicker from "@/components/recommendations/RecommendationsAlgorithmPicker";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SettingsButton from "@/components/icons/SettingsButton";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import LWTooltip from "@/components/common/LWTooltip";
+import CuratedPostsList from "@/components/recommendations/CuratedPostsList";
+import Book2020FrontpageWidget from "@/components/books/Book2020FrontpageWidget";
+import SectionSubtitle from "@/components/common/SectionSubtitle";
+import ContinueReadingList from "@/components/recommendations/ContinueReadingList";
+import BookmarksList from "@/components/bookmarks/BookmarksList";
 
 export const curatedUrl = "/recommendations"
 
@@ -114,10 +126,6 @@ const LWRecommendations = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle,
-      ContinueReadingList, BookmarksList } = Components;
-
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
@@ -252,3 +260,5 @@ declare global {
     LWRecommendations: typeof LWRecommendationsComponent
   }
 }
+
+export default LWRecommendationsComponent;

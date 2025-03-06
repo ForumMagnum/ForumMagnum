@@ -3,6 +3,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { Link } from '../../lib/reactRouterWrapper';
+import SunshineListCount from "@/components/sunshineDashboard/SunshineListCount";
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import SunshineNewUsersItem from "@/components/sunshineDashboard/SunshineNewUsersItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -25,8 +29,6 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
     enableTotal: true,
     itemsPerPage: 60
   });
-  const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components
-
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div>
@@ -56,4 +58,6 @@ declare global {
     SunshineNewUsersList: typeof SunshineNewUsersListComponent
   }
 }
+
+export default SunshineNewUsersListComponent;
 

@@ -10,6 +10,19 @@ import { getReasonForReview } from '../../lib/collections/moderatorActions/helpe
 import { UserKarmaInfo } from '../../lib/rateLimits/types';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
+import MetaInfo from "@/components/common/MetaInfo";
+import UserReviewMetadata from "@/components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata";
+import LWTooltip from "@/components/common/LWTooltip";
+import UserReviewStatus from "@/components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus";
+import SunshineNewUserPostsList from "@/components/sunshineDashboard/SunshineNewUserPostsList";
+import ContentSummaryRows from "@/components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows";
+import SunshineNewUserCommentsList from "@/components/sunshineDashboard/SunshineNewUserCommentsList";
+import ModeratorActions from "@/components/sunshineDashboard/ModeratorActions";
+import UsersName from "@/components/users/UsersName";
+import NewUserDMSummary from "@/components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary";
+import SunshineUserMessages from "@/components/sunshineDashboard/SunshineUserMessages";
+import FirstContentIcons from "@/components/sunshineDashboard/FirstContentIcons";
+import UserAutoRateLimitsDisplay from "@/components/sunshineDashboard/ModeratorUserInfo/UserAutoRateLimitsDisplay";
 
 export const CONTENT_LIMIT = 20
 
@@ -197,12 +210,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   refetch: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
-    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
-  } = Components
-
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
@@ -308,3 +315,5 @@ declare global {
     UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
   }
 }
+
+export default UsersReviewInfoCardComponent;

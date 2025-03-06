@@ -5,6 +5,7 @@ import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments, userHasSubscribeTabFeed } from "../../../lib/betas";
 import { isAdmin } from "../../../lib/vulcan-users/permissions";
+import CombinedSubscriptionsDropdownItem from "@/components/dropdowns/CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -73,11 +74,6 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   const notifyMeItems = useMemo(() => {
     return getNotifyMeItems({comment, post, currentUser, enableSubscribeToCommentUser});
   }, [comment, post, currentUser, enableSubscribeToCommentUser]);
-
-  const {
-    CombinedSubscriptionsDropdownItem
-  } = Components;
-
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
@@ -91,3 +87,5 @@ declare global {
     CommentSubscriptionsDropdownItem: typeof CommentSubscriptionsDropdownItemComponent
   }
 }
+
+export default CommentSubscriptionsDropdownItemComponent;

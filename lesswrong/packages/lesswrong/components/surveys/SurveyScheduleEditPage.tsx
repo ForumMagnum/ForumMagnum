@@ -3,6 +3,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import Error404 from "@/components/common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,8 +28,6 @@ const SurveyScheduleEditor = ({classes}: {
   const onCreate = useCallback(() => {
     navigate("/admin/surveys");
   }, [navigate]);
-
-  const {SingleColumnSection, SectionTitle, WrappedSmartForm} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
@@ -49,7 +51,7 @@ const SurveyScheduleEditPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <SurveyScheduleEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
 const SurveyScheduleEditPageComponent = registerComponent(
@@ -63,3 +65,5 @@ declare global {
     SurveyScheduleEditPage: typeof SurveyScheduleEditPageComponent
   }
 }
+
+export default SurveyScheduleEditPageComponent;

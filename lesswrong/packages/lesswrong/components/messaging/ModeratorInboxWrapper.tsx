@@ -4,13 +4,12 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import InboxNavigation from "@/components/messaging/InboxNavigation";
+import FriendlyInbox from "@/components/messaging/FriendlyInbox";
 
 const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
-
-  const { InboxNavigation, FriendlyInbox } = Components
-
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
@@ -42,3 +41,5 @@ declare global {
     ModeratorInboxWrapper: typeof ModeratorInboxWrapperComponent
   }
 }
+
+export default ModeratorInboxWrapperComponent;

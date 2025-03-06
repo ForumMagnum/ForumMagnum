@@ -664,3 +664,5 @@ declare global {
     ForumIcon: typeof ForumIconComponent
   }
 }
+
+export default ForumIconComponent;

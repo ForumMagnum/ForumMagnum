@@ -43,6 +43,46 @@ import { useCommentLinkState } from '@/components/comments/CommentsItem/useComme
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
+import HeadTags from "@/components/common/HeadTags";
+import CitationTags from "@/components/common/CitationTags";
+import PostsPagePostHeader from "@/components/posts/PostsPage/PostsPagePostHeader";
+import LWPostsPageHeader from "@/components/posts/PostsPage/LWPostsPageHeader";
+import PostsPagePostFooter from "@/components/posts/PostsPage/PostsPagePostFooter";
+import PostBodyPrefix from "@/components/posts/PostsPage/PostBodyPrefix";
+import PostCoauthorRequest from "@/components/posts/PostsPage/PostCoauthorRequest";
+import CommentPermalink from "@/components/comments/CommentPermalink";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import WelcomeBox from "@/components/posts/PostsPage/WelcomeBox";
+import TableOfContents from "@/components/posts/TableOfContents/TableOfContents";
+import { RSVPs } from "@/components/posts/PostsPage/RSVPs";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import PostBody from "@/components/posts/PostsPage/PostBody";
+import { CommentOnSelectionContentWrapper } from "@/components/comments/CommentOnSelection";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import DebateBody from "@/components/comments/DebateBody";
+import PostsPageRecommendationsList from "@/components/recommendations/PostsPageRecommendationsList";
+import PostSideRecommendations from "@/components/recommendations/PostSideRecommendations";
+import PostBottomRecommendations from "@/components/recommendations/PostBottomRecommendations";
+import NotifyMeDropdownItem from "@/components/dropdowns/NotifyMeDropdownItem";
+import Row from "@/components/common/Row";
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import PostsPageQuestionContent from "@/components/questions/PostsPageQuestionContent";
+import AFUnreviewedCommentCount from "@/components/alignment-forum/AFUnreviewedCommentCount";
+import CommentsListSection from "@/components/comments/CommentsListSection";
+import CommentsTableOfContents from "@/components/comments/CommentsTableOfContents";
+import StickyDigestAd from "@/components/ea-forum/digestAd/StickyDigestAd";
+import PostsPageSplashHeader from "@/components/posts/PostsPage/PostsPageSplashHeader";
+import PostsAudioPlayerWrapper from "@/components/posts/PostsPage/PostsAudioPlayerWrapper";
+import AttributionInViewTracker from "@/components/common/AttributionInViewTracker";
+import ForumEventPostPagePollSection from "@/components/forumEvents/ForumEventPostPagePollSection";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsPageDate from "@/components/posts/PostsPage/PostsPageDate";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { FundraisingThermometer } from "@/components/common/FundraisingThermometer";
+import PostPageReviewButton from "@/components/posts/PostsPage/PostPageReviewButton";
+import { SideItemsContainer, SideItemsSidebar } from "@/components/contents/SideItems";
+import MultiToCLayout from "@/components/posts/TableOfContents/MultiToCLayout";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -584,18 +624,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     fetchPolicy: 'cache-and-network',
     skip: !post.debate || !fullPost
   });
-
-const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
-    PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
-    PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton
-  } = Components
-
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
     const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
@@ -828,7 +856,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
-      <Components.SideItemsSidebar/>
+      <SideItemsSidebar/>
     </>}
   </>;
 
@@ -992,7 +1020,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
-    <Components.SideItemsContainer>
+    <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -1004,7 +1032,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       toggleEmbeddedPlayer={toggleEmbeddedPlayer}
     />}
     {commentsTableOfContentsEnabled
-      ? <Components.MultiToCLayout
+      ? <MultiToCLayout
           segments={[
             {
               toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
@@ -1043,7 +1071,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </AnalyticsInViewTracker>}
     </SideItemVisibilityContextProvider>
     </ImageProvider>
-    </Components.SideItemsContainer>
+    </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>
@@ -1065,3 +1093,5 @@ declare global {
     PostsPage: typeof PostsPageComponent
   }
 }
+
+export default PostsPageComponent;

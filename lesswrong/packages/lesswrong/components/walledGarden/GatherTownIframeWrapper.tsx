@@ -32,3 +32,5 @@ declare global {
     GatherTownIframeWrapper: typeof GatherTownIframeWrapperComponent
   }
 }
+
+export default GatherTownIframeWrapperComponent;

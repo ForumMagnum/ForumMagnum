@@ -17,6 +17,9 @@ import {
 import { captureException } from "@sentry/core";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { NotifPopoverLink } from "../useNotificationsPopoverContext";
+import NotificationsPageItem from "@/components/notifications/NotificationsPage/NotificationsPageItem";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const logAndCaptureError = (error: Error) => {
   // eslint-disable-next-line no-console
@@ -137,8 +140,6 @@ export const NotificationsPageKarmaChange = ({
   let karmaChange: number;
   let reactions: AddedReactions[] = [];
   let display: ReactNode;
-
-  const {NotificationsPageItem, PostsTooltip, LWTooltip} = Components;
   if (postKarmaChange) {
     const postUrl = postGetPageUrl({_id: postKarmaChange.postId, slug: postKarmaChange.slug})
     karmaChange = postKarmaChange.scoreChange;
@@ -264,3 +265,5 @@ declare global {
     NotificationsPageKarmaChange: typeof NotificationsPageKarmaChangeComponent
   }
 }
+
+export default NotificationsPageKarmaChangeComponent;

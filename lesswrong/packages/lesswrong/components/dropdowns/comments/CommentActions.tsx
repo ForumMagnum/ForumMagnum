@@ -2,6 +2,23 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
+import EditCommentDropdownItem from "@/components/dropdowns/comments/EditCommentDropdownItem";
+import ReportCommentDropdownItem from "@/components/dropdowns/comments/ReportCommentDropdownItem";
+import DeleteCommentDropdownItem from "@/components/dropdowns/comments/DeleteCommentDropdownItem";
+import RetractCommentDropdownItem from "@/components/dropdowns/comments/RetractCommentDropdownItem";
+import BanUserFromAllPostsDropdownItem from "@/components/dropdowns/comments/BanUserFromAllPostsDropdownItem";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
+import MoveToAlignmentCommentDropdownItem from "@/components/dropdowns/comments/MoveToAlignmentCommentDropdownItem";
+import SuggestAlignmentCommentDropdownItem from "@/components/dropdowns/comments/SuggestAlignmentCommentDropdownItem";
+import BanUserFromAllPersonalPostsDropdownItem from "@/components/dropdowns/comments/BanUserFromAllPersonalPostsDropdownItem";
+import MoveToAnswersDropdownItem from "@/components/dropdowns/comments/MoveToAnswersDropdownItem";
+import ToggleIsModeratorCommentDropdownItem from "@/components/dropdowns/comments/ToggleIsModeratorCommentDropdownItem";
+import PinToProfileDropdownItem from "@/components/dropdowns/comments/PinToProfileDropdownItem";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import ShortformFrontpageDropdownItem from "@/components/dropdowns/comments/ShortformFrontpageDropdownItem";
+import CommentSubscriptionsDropdownItem from "@/components/dropdowns/comments/CommentSubscriptionsDropdownItem";
+import BanUserFromPostDropdownItem from "@/components/dropdowns/comments/BanUserFromPostDropdownItem";
+import LockThreadDropdownItem from "@/components/dropdowns/comments/LockThreadDropdownItem";
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
@@ -10,16 +27,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: () => void,
 }) => {
-  const {
-    EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
-    RetractCommentDropdownItem, BanUserFromAllPostsDropdownItem, DropdownDivider,
-    MoveToAlignmentCommentDropdownItem, SuggestAlignmentCommentDropdownItem,
-    BanUserFromAllPersonalPostsDropdownItem, MoveToAnswersDropdownItem,
-    ToggleIsModeratorCommentDropdownItem, PinToProfileDropdownItem,
-    DropdownMenu, ShortformFrontpageDropdownItem, CommentSubscriptionsDropdownItem,
-    BanUserFromPostDropdownItem, LockThreadDropdownItem,
-  } = Components;
-
   const {document: postDetails} = useSingle({
     skip: !post,
     documentId: post?._id,
@@ -73,3 +80,5 @@ declare global {
     CommentActions: typeof CommentActionsComponent,
   }
 }
+
+export default CommentActionsComponent;

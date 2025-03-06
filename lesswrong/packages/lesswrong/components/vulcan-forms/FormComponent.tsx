@@ -5,6 +5,8 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
+import LWTooltip from "@/components/common/LWTooltip";
+import { FormNestedArray } from "@/components/vulcan-forms/FormNestedArray";
 
 interface FormComponentState {
   charsRemaining?: number
@@ -275,7 +277,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
           if (this.props.input && (FormComponents as AnyBecauseTodo)[this.props.input]) {
             return (FormComponents as AnyBecauseTodo)[this.props.input];
           } else if (this.isArrayField()) {
-            return Components.FormNestedArray;
+            return FormNestedArray;
           } else if (this.isObjectField()) {
             return FormComponents.FormNestedObject;
           } else {
@@ -342,9 +344,9 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
 
     if (this.props.tooltip) {
       return <div>
-        <Components.LWTooltip inlineBlock={false} title={this.props.tooltip} placement="left-start">
+        <LWTooltip inlineBlock={false} title={this.props.tooltip} placement="left-start">
           <div>{ formComponent }</div>
-        </Components.LWTooltip>
+        </LWTooltip>
       </div>
     } else {
       return formComponent;
@@ -363,3 +365,5 @@ declare global {
     FormComponent: typeof FormComponentComponent
   }
 }
+
+export default FormComponentComponent;

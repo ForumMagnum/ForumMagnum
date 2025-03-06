@@ -92,3 +92,5 @@ declare global {
     UsersEmailVerification: typeof UsersEmailVerificationComponent
   }
 }
+
+export default UsersEmailVerificationComponent;

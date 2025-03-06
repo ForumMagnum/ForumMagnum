@@ -16,6 +16,14 @@ import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
+import { MultiSelect } from "@/components/form-components/FormComponentMultiSelect";
+import EditorFormComponent from "@/components/editor/EditorFormComponent";
+import SelectLocalgroup from "@/components/form-components/SelectLocalgroup";
+import { LocationPicker } from "@/components/form-components/LocationFormComponent";
+import PrefixedInput from "@/components/form-components/PrefixedInput";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -206,7 +214,6 @@ type EditorFormComponentRefType = {
 // edit bio, howICanHelpOthers.
 const EAGApplicationImportFormWrapper = () => {
   const currentUser = useCurrentUser()
-  const { Loading, EAGApplicationImportForm } = Components;
   const { document: currentUserEdit, loading } = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -486,10 +493,6 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       setSubmitLoading(false)
     })
   }
-  
-  const { Typography, MultiSelect, EditorFormComponent, SelectLocalgroup, LocationPicker,
-    PrefixedInput, ContentStyles, Loading } = Components
-
   if (!currentUser) {
     return (
       <AnalyticsContext pageContext="eagApplicationImportForm">
@@ -756,4 +759,9 @@ declare global {
     EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapperComponent
     EAGApplicationImportForm: typeof EAGApplicationImportFormComponent
   }
+}
+
+export {
+  EAGApplicationImportFormWrapperComponent as EAGApplicationImportFormWrapper,
+  EAGApplicationImportFormComponent as EAGApplicationImportForm
 }

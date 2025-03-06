@@ -1,6 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import React from 'react';
+import UserNameDeleted from "@/components/users/UserNameDeleted";
+import UsersNameWrapper from "@/components/users/UsersNameWrapper";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 /**
  * A user name, with styling, tooltip, etc. Takes either a user object or a
@@ -35,11 +38,11 @@ const UsersName = ({
   className?: string,
 }) => {
   if (user) {
-    return <Components.UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} nowrap={nowrap} className={className} {...otherProps}/>
+    return <UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} nowrap={nowrap} className={className} {...otherProps}/>
   } else if (documentId) {
-    return <Components.UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} nowrap={nowrap} className={className}  {...otherProps}/>
+    return <UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} nowrap={nowrap} className={className}  {...otherProps}/>
   } else {
-    return <Components.UserNameDeleted />
+    return <UserNameDeleted />
   }
 }
 
@@ -50,3 +53,5 @@ declare global {
     UsersName: typeof UsersNameComponent
   }
 }
+
+export default UsersNameComponent;

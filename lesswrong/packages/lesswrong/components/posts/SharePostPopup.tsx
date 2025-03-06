@@ -12,6 +12,9 @@ import { siteImageSetting } from "../vulcan-core/App";
 import classNames from "classnames";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { Typography } from "@/components/common/Typography";
+import ForumIcon from "@/components/common/ForumIcon";
+import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
 
 const ANIMATION_DURATION = 300;
 
@@ -209,9 +212,6 @@ const SharePostPopup = ({
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
-
-  const { Typography, ForumIcon, SocialMediaIcon } = Components;
-
   const urlHostname = new URL(getSiteUrl()).hostname;
 
   // Force rerender because the element we are anchoring to is created after the first render
@@ -340,4 +340,8 @@ declare global {
   interface ComponentTypes {
     SharePostPopup: typeof SharePostPopupComponent;
   }
+}
+
+export {
+  SharePostPopupComponent as SharePostPopup
 }

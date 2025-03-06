@@ -9,6 +9,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import LWTooltip from "@/components/common/LWTooltip";
 
 export const styles = (theme: ThemeType) => ({
   formButton: {
@@ -71,9 +72,6 @@ const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
-
-  const { LWTooltip } = Components;
-
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
@@ -178,3 +176,5 @@ declare global {
     PostSubmit: typeof PostSubmitComponent
   }
 }
+
+export default PostSubmitComponent;

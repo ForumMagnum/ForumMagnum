@@ -3,12 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
+import { Loading } from "@/components/vulcan-core/Loading";
+import LWDialog from "@/components/common/LWDialog";
 
 const PostSummaryDialog = ({post, onClose}: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void,
 }) => {
-  const { Loading, LWDialog } = Components;
   const { document: postWithSummary, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: "PostWithGeneratedSummary",
@@ -34,3 +35,5 @@ declare global {
     PostSummaryDialog: typeof PostSummaryDialogComponent
   }
 }
+
+export default PostSummaryDialogComponent;

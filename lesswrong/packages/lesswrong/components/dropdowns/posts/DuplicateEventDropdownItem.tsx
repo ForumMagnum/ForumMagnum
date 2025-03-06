@@ -5,6 +5,7 @@ import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers"
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -14,8 +15,6 @@ const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const linkUrl = `/newPost?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase("Duplicate Event")}
@@ -35,3 +34,5 @@ declare global {
     DuplicateEventDropdownItem: typeof DuplicateEventDropdownItemComponent
   }
 }
+
+export default DuplicateEventDropdownItemComponent;

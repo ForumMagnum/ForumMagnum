@@ -9,6 +9,9 @@ import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import ExpandableSection from "@/components/common/ExpandableSection";
+import PostsList2 from "@/components/posts/PostsList2";
+import SectionFooter from "@/components/common/SectionFooter";
 
 const styles = (theme: ThemeType) => ({
   readMoreLinkMobile: {
@@ -50,8 +53,6 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
     after: dateCutoff,
     limit: 5,
   } as const;
-
-  const {ExpandableSection, PostsList2, SectionFooter} = Components;
   return (
     <ExpandableSection
       pageSectionContext="communityPosts"
@@ -82,3 +83,5 @@ declare global {
     EAHomeCommunityPosts: typeof EAHomeCommunityPostsComponent
   }
 }
+
+export default EAHomeCommunityPostsComponent;

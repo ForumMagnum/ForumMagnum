@@ -4,6 +4,9 @@ import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useSingle } from "@/lib/crud/withSingle";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   error: {
@@ -16,8 +19,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const MessageUserInner = ({ user, classes }: { user: UsersMinimumInfo; classes: ClassesType<typeof styles> }) => {
-  const { Loading, PermanentRedirect, SingleColumnSection } = Components;
-
   const { conversation, conversationLoading } = useInitiateConversation({
     userIds: [user._id],
   });
@@ -37,8 +38,6 @@ const MessageUserInner = ({ user, classes }: { user: UsersMinimumInfo; classes: 
 const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const { params } = useLocation();
-  const { Loading, SingleColumnSection } = Components;
-
   const { document: user, loading } = useSingle({
     slug: params.slug,
     collectionName: "Users",
@@ -78,3 +77,5 @@ declare global {
     MessageUser: typeof MessageUserComponent;
   }
 }
+
+export default MessageUserComponent;

@@ -30,3 +30,5 @@ declare global {
     SmallSideVote: typeof SmallSideVoteComponent
   }
 }
+
+export default SmallSideVoteComponent;

@@ -19,6 +19,19 @@ import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
+import SearchBar from "@/components/common/SearchBar";
+import UsersMenu from "@/components/users/UsersMenu";
+import UsersAccountMenu from "@/components/users/UsersAccountMenu";
+import NotificationsMenuButton from "@/components/notifications/NotificationsMenuButton";
+import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
+import NotificationsMenu from "@/components/notifications/NotificationsMenu";
+import KarmaChangeNotifier from "@/components/users/KarmaChangeNotifier";
+import HeaderSubtitle from "@/components/common/HeaderSubtitle";
+import { Typography } from "@/components/common/Typography";
+import ForumIcon from "@/components/common/ForumIcon";
+import ActiveDialogues from "@/components/dialogues/ActiveDialogues";
+import SiteLogo from "@/components/ea-forum/SiteLogo";
+import MessagesMenuButton from "@/components/messaging/MessagesMenuButton";
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -300,13 +313,6 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
-
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton,
-  } = Components;
-
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
     // the page (unless the hash is set) but Headroom doesn't run this callback
@@ -560,3 +566,5 @@ declare global {
     Header: typeof HeaderComponent
   }
 }
+
+export default HeaderComponent;

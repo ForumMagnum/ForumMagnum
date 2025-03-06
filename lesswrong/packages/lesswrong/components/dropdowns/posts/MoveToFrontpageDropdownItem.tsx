@@ -5,6 +5,7 @@ import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -46,9 +47,6 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
       },
     });
   }
-
-  const {DropdownItem} = Components;
-
   if (!post.frontpageDate) {
     return (
       <DropdownItem
@@ -81,3 +79,5 @@ declare global {
     MoveToFrontpageDropdownItem: typeof MoveToFrontpageDropdownItemComponent
   }
 }
+
+export default MoveToFrontpageDropdownItemComponent;

@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import TagsTooltip from "@/components/tagging/TagsTooltip";
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -54,8 +55,6 @@ const TagHoverPreview = ({
 
   const isRead = tag?.isRead;
   const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
-
-  const {TagsTooltip} = Components;
   return (
     <TagsTooltip
       tagSlug={previewSlug}
@@ -89,3 +88,5 @@ declare global {
     TagHoverPreview: typeof TagHoverPreviewComponent
   }
 }
+
+export default TagHoverPreviewComponent;

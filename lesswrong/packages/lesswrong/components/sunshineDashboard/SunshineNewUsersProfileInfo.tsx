@@ -5,6 +5,8 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
+import SunshineNewUsersInfo from "@/components/sunshineDashboard/SunshineNewUsersInfo";
+import SectionButton from "@/components/common/SectionButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,9 +20,6 @@ const styles = (theme: ThemeType) => ({
 const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType<typeof styles>}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
-
-  const { SunshineNewUsersInfo, SectionButton } = Components
-
   const { document: user, refetch } = useSingle({
     documentId:userId,
     collectionName: "Users",
@@ -51,3 +50,5 @@ declare global {
     SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfoComponent
   }
 }
+
+export default SunshineNewUsersProfileInfoComponent;

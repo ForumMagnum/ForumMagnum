@@ -54,3 +54,5 @@ declare global {
   }
 }
 
+export default EmailPreviewComponent;
+

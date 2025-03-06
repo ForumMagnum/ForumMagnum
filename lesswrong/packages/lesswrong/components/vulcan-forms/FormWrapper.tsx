@@ -16,6 +16,7 @@ import * as _ from 'underscore';
 import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const intlSuffix = '_intl';
 
@@ -196,7 +197,7 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
   });
 
   if (!prefetchedDocument && loading) {
-    return <Components.Loading/>
+    return <Loading/>
   }
 
   return <Form
@@ -220,3 +221,5 @@ declare global {
     FormWrapper: typeof FormWrapperComponent
   }
 }
+
+export default FormWrapperComponent;

@@ -4,6 +4,11 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import moment from 'moment';
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
+import { Loading } from "@/components/vulcan-core/Loading";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsItem from "@/components/posts/PostsItem";
+import CommentsNode from "@/components/comments/CommentsNode";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -68,9 +73,6 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
     }
     return null
   }
-  
-  const {Loading, SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
-
   if (loading && !votes) {
     return <Loading />
   }
@@ -110,3 +112,5 @@ declare global {
     VoteHistoryTab: typeof VoteHistoryTabComponent
   }
 }
+
+export default VoteHistoryTabComponent;

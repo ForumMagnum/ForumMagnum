@@ -4,6 +4,9 @@ import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import Row from "@/components/common/Row";
+import SectionFooter from "@/components/common/SectionFooter";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   actionButton: {
@@ -41,7 +44,6 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
   showAdvancedDashboard?: boolean,
   showQuickReview?: boolean
 }) => {
-  const { Row, SectionFooter, LWTooltip } = Components 
   const currentUser = useCurrentUser()
 
   return <div>
@@ -99,4 +101,6 @@ declare global {
     ReviewDashboardButtons: typeof ReviewDashboardButtonsComponent
   }
 }
+
+export default ReviewDashboardButtonsComponent;
 

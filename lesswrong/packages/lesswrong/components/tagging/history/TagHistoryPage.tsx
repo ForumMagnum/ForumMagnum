@@ -13,6 +13,22 @@ import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
 import DeferRender from '@/components/common/DeferRender';
+import UsersName from "@/components/users/UsersName";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import TagRevisionItem from "@/components/tagging/TagRevisionItem";
+import LensRevisionItem from "@/components/tagging/history/LensRevisionItem";
+import SummaryRevisionItem from "@/components/tagging/history/SummaryRevisionItem";
+import FormatDate from "@/components/common/FormatDate";
+import CommentsNode from "@/components/comments/CommentsNode";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LinkToPost from "@/components/linkPreview/LinkToPost";
+import SingleLineFeedEvent from "@/components/common/SingleLineFeedEvent";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ForumIcon from "@/components/common/ForumIcon";
+import { MenuItem } from "@/components/common/Menus";
+import SettingsButton from "@/components/icons/SettingsButton";
+import Error404 from "@/components/common/Error404";
+import ErrorPage from "@/components/common/ErrorPage";
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
@@ -79,7 +95,6 @@ const TagHistoryPage = () => {
   const { tag, loading: loadingTag, error } = useTagBySlug(slug, "TagHistoryFragment");
   const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);
   const lensesById = keyBy(lenses, l=>l._id);
-  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, SummaryRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent, SectionTitle, ForumIcon } = Components;
   const [settings, setSettings] = useState(defaultTagHistorySettings);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const collapseAll = settings.displayFormat === "dense" || !!focusedUser;
@@ -90,16 +105,16 @@ const TagHistoryPage = () => {
         <Loading/>
       </SingleColumnSection>
     } else if (error) {
-      return <Components.ErrorPage error={error}/>
+      return <ErrorPage error={error}/>
     } else {
-      return <Components.Error404/>
+      return <Error404/>
     }
   }
   
   return <SingleColumnSection><DeferRender ssr={false}>
     <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
-        <Components.SettingsButton label="Settings" />
+        <SettingsButton label="Settings" />
       </div>
     </SectionTitle>
     
@@ -246,7 +261,6 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   setSettings: (newSettings: TagHistorySettings) => void
   lenses: TagLens[]
 }) => {
-  const { MenuItem } = Components;
   const classes = useStyles(tagHistoryStyles);
   if (!expanded) return null;
 
@@ -330,3 +344,5 @@ declare global {
     TagHistoryPage: typeof TagHistoryPageComponent
   }
 }
+
+export default TagHistoryPageComponent;

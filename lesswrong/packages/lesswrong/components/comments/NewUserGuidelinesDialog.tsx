@@ -8,6 +8,10 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
+import LWDialog from "@/components/common/LWDialog";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
@@ -28,7 +32,6 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
-  const { LWDialog, ContentItemBody, ContentStyles, Loading } = Components;
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 
@@ -88,3 +91,5 @@ declare global {
     NewUserGuidelinesDialog: typeof NewUserGuidelinesDialogComponent
   }
 }
+
+export default NewUserGuidelinesDialogComponent;

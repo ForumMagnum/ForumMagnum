@@ -4,6 +4,9 @@ import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
+import LWPopper from "@/components/common/LWPopper";
+import CommentsNode from "@/components/comments/CommentsNode";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,8 +48,6 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   reviewedAt: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, CommentsNode, FormatDate } = Components
-
   if (!comment) return null 
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
@@ -80,4 +81,6 @@ declare global {
     CommentKarmaWithPreview: typeof CommentKarmaWithPreviewComponent
   }
 }
+
+export default CommentKarmaWithPreviewComponent;
 

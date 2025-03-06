@@ -154,3 +154,5 @@ declare global {
   }
 }
 
+export default FormSubmitComponent;
+

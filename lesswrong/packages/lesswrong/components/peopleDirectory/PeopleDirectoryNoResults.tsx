@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +27,6 @@ const PeopleDirectoryNoResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {clearSearch} = usePeopleDirectory();
-  const {EAButton} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.heading}>No people found</div>
@@ -49,3 +49,5 @@ declare global {
     PeopleDirectoryNoResults: typeof PeopleDirectoryNoResultsComponent
   }
 }
+
+export default PeopleDirectoryNoResultsComponent;

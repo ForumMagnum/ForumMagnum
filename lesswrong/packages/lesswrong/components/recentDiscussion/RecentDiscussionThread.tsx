@@ -14,6 +14,11 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import PostsGroupDetails from "@/components/posts/PostsGroupDetails";
+import PostsItemMeta from "@/components/posts/PostsItemMeta";
+import CommentsNode from "@/components/comments/CommentsNode";
+import PostsHighlight from "@/components/posts/PostsHighlight";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -192,11 +197,6 @@ const RecentDiscussionThread = ({
     // TODO verify whether/how this should be interacting with afCommentCount
     [classes.noComments]: post.commentCount === null
   });
-
-  const {
-    PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight,
-    PostActionsButton,
-  } = Components;
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
       <div className={classNames(
@@ -275,3 +275,5 @@ declare global {
     RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
   }
 }
+
+export default RecentDiscussionThreadComponent;

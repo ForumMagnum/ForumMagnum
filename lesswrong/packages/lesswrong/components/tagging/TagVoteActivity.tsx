@@ -5,6 +5,14 @@ import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
+import FormatDate from "@/components/common/FormatDate";
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import FooterTag from "@/components/tagging/FooterTag";
+import UsersName from "@/components/users/UsersName";
+import TagSmallPostLink from "@/components/tagging/TagSmallPostLink";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LoadMore from "@/components/common/LoadMore";
+import NewTagsList from "@/components/tagging/NewTagsList";
 
 const styles = (theme: ThemeType) => ({
   voteRow: {
@@ -53,7 +61,6 @@ const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,
   classes: ClassesType<typeof styles>
 }) => {
-  const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
   const currentUser = useCurrentUser();
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
@@ -103,7 +110,6 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   limit?: number,
   itemsPerPage?: number
 }) => {
-  const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collectionName: "Votes",
@@ -142,3 +148,5 @@ declare global {
     TagVoteActivity: typeof TagVoteActivityComponent
   }
 }
+
+export default TagVoteActivityComponent;

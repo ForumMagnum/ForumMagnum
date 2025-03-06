@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -51,9 +52,6 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   textShadow?: boolean,
   labelClassName?: string,
 }) => {
-
-  const { ForumIcon } = Components
-
   const iconType = !!useArrow ? "ThickChevronDown" : "Settings"
 
   if (label) {
@@ -75,3 +73,5 @@ declare global {
     SettingsButton: typeof SettingsButtonComponent
   }
 }
+
+export default SettingsButtonComponent;

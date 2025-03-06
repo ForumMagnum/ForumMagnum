@@ -39,9 +39,9 @@ const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
     <span className="form-section-heading-toggle">
       {collapsed ? (
-        <Components.IconRight height={16} width={16} />
+        <IconRight height={16} width={16} />
       ) : (
-        <Components.IconDown height={16} width={16} />
+        <IconDown height={16} width={16} />
       )}
     </span>
   </div>
@@ -223,4 +223,11 @@ declare global {
     IconRight: typeof IconRightComponent
     IconDown: typeof IconDownComponent
   }
+}
+
+export {
+  FormGroupHeaderComponent as FormGroupHeader,
+  FormGroupComponent as FormGroup,
+  IconRightComponent as IconRight,
+  IconDownComponent as IconDown
 }

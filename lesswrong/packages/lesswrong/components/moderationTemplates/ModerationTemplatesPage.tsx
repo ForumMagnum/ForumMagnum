@@ -6,6 +6,15 @@ import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moder
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ModerationTemplateItem from "@/components/moderationTemplates/ModerationTemplateItem";
+import BasicFormStyles from "@/components/form-components/BasicFormStyles";
+import { Loading } from "@/components/vulcan-core/Loading";
+import Row from "@/components/common/Row";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import TableOfContents from "@/components/posts/TableOfContents/TableOfContents";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -32,8 +41,6 @@ const styles = (theme: ThemeType) => ({
 export const ModerationTemplatesPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
-  
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
   const [filter, setFilter] = useState<TemplateType|null>(null);
@@ -126,4 +133,6 @@ declare global {
     ModerationTemplatesPage: typeof ModerationTemplatesPageComponent
   }
 }
+
+export default ModerationTemplatesPageComponent;
 

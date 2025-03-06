@@ -8,6 +8,10 @@ import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../li
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsItemDate from "@/components/posts/PostsItemDate";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -145,7 +149,6 @@ const styles = (theme: ThemeType) => ({
  * Given a post with a currentUserVote, return the icon representing that vote.
  */
 const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
-  const { OverallVoteButton } = Components
   switch (post.currentUserVote) {
     case 'smallUpvote':
     case 'bigUpvote':
@@ -226,9 +229,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     )
     flash({messageString: "Post copied"})
   }
-  
-  const { ForumIcon, LWTooltip, PostsItemDate } = Components
-  
   const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
@@ -294,3 +294,5 @@ declare global {
     EditDigestTableRow: typeof EditDigestTableRowComponent
   }
 }
+
+export default EditDigestTableRowComponent;

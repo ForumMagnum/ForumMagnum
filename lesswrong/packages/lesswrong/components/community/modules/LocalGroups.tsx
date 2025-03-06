@@ -6,6 +6,8 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommunityMapWrapper from "@/components/localGroups/CommunityMapWrapper";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -171,8 +173,6 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommunityMapWrapper, CloudinaryImage2 } = Components
-
   let groupsListTerms: LocalgroupsViewTerms = {}
   groupsListTerms = userLocation.known ? {
     view: 'nearby',
@@ -277,3 +277,5 @@ declare global {
     LocalGroups: typeof LocalGroupsComponent
   }
 }
+
+export default LocalGroupsComponent;

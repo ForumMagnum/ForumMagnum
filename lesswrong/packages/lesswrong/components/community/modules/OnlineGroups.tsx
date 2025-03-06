@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -149,8 +150,6 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CloudinaryImage2 } = Components
-  
   const { results, loading } = useMulti({
     terms: {view: 'online', includeInactive},
     collectionName: "Localgroups",
@@ -233,3 +232,5 @@ declare global {
     OnlineGroups: typeof OnlineGroupsComponent
   }
 }
+
+export default OnlineGroupsComponent;

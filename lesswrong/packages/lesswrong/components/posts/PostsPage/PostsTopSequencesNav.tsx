@@ -7,6 +7,8 @@ import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
+import SequencesTooltip from "@/components/sequences/SequencesTooltip";
+import SequencesNavigationLink from "@/components/sequences/SequencesNavigationLink";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,7 +31,6 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -93,3 +94,5 @@ declare global {
     PostsTopSequencesNav: typeof PostsTopSequencesNavComponent
   }
 }
+
+export default PostsTopSequencesNavComponent;

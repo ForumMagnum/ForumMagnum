@@ -4,6 +4,7 @@ import { socialMediaSiteNameToHref } from "../../lib/collections/users/helpers";
 import { objectKeys } from "../../lib/utils/typeGuardUtils";
 import { useTracking } from "../../lib/analyticsEvents";
 import { EMPTY_TEXT_PLACEHOLDER, emptyTextCellStyles } from "./PeopleDirectoryTextCell";
+import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,8 +40,6 @@ const PeopleDirectorySocialMediaCell = ({user, classes}: {
 
   const urls = user.socialMediaUrls ?? {};
   const keys = objectKeys(urls);
-
-  const {SocialMediaIcon} = Components;
   return (
     <div className={classes.root}>
       {keys.length < 1 &&
@@ -85,3 +84,5 @@ declare global {
     PeopleDirectorySocialMediaCell: typeof PeopleDirectorySocialMediaCellComponent
   }
 }
+
+export default PeopleDirectorySocialMediaCellComponent;

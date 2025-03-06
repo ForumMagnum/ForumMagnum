@@ -7,6 +7,8 @@ import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
+import UserTooltip from "@/components/users/UserTooltip";
+import UserNameDeleted from "@/components/users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -81,10 +83,8 @@ const UsersNameDisplay = ({
   const nameHidden = noKibitz && !hover;
 
   if (!user || user.deleted) {
-    return <Components.UserNameDeleted userShownToAdmins={user}/>
+    return <UserNameDeleted userShownToAdmins={user}/>
   }
-  const { UserTooltip } = Components
-
   const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const colorClass = color?classes.color:classes.noColor;
 
@@ -140,3 +140,5 @@ declare global {
     UsersNameDisplay: typeof UsersNameDisplayComponent
   }
 }
+
+export default UsersNameDisplayComponent;

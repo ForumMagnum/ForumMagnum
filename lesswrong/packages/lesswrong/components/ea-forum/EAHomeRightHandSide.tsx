@@ -12,6 +12,13 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
 import DeferRender from '../common/DeferRender';
+import LWTooltip from "@/components/common/LWTooltip";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import FormatDate from "@/components/common/FormatDate";
+import PostsItemDate from "@/components/posts/PostsItemDate";
+import ForumIcon from "@/components/common/ForumIcon";
+import SidebarDigestAd from "@/components/ea-forum/digestAd/SidebarDigestAd";
 
 /**
  * The max screen width where the Home RHS is visible
@@ -133,9 +140,6 @@ const UpcomingEventsSection = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   })
-
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
-  
   if (!upcomingEvents?.length) return null
 
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
@@ -208,11 +212,6 @@ export const EAHomeRightHandSide = ({classes}: {
   }
 
   if (!userHasEAHomeRHS(currentUser)) return null
-  
-  const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd, FormatDate
-  } = Components
-  
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
     <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
       <ForumIcon icon={isHidden ? 'ThickChevronLeft' : 'ThickChevronRight'} className={classes.sidebarToggleIcon} />
@@ -318,3 +317,5 @@ declare global {
     EAHomeRightHandSide: typeof EAHomeRightHandSideComponent
   }
 }
+
+export default EAHomeRightHandSideComponent;

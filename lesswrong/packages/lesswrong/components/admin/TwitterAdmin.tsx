@@ -8,6 +8,14 @@ import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
+import Error404 from "@/components/common/Error404";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import FormatDate from "@/components/common/FormatDate";
+import TruncatedAuthorsList from "@/components/posts/TruncatedAuthorsList";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,17 +102,6 @@ const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(
 const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
-  const {
-    Error404,
-    SectionTitle,
-    Loading,
-    FormatDate,
-    TruncatedAuthorsList,
-    ForumIcon,
-    LWTooltip,
-    LoadMore
-  } = Components;
-
   const { flash } = useMessages();
 
   const { results, loading, error, loadMoreProps } = usePaginatedResolver({
@@ -281,3 +278,5 @@ declare global {
     TwitterAdmin: typeof TwitterAdminComponent;
   }
 }
+
+export default TwitterAdminComponent;

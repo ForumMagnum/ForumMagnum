@@ -10,6 +10,8 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import classNames from 'classnames';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +50,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
-  const { MetaInfo, FormatDate } = Components
   const user = hit as SearchUser
   
   const isSubscribed = existingSubscriptionIds?.includes(user._id);
@@ -170,3 +171,5 @@ declare global {
     FollowUserSearch: typeof FollowUserSearchComponent
   }
 }
+
+export default FollowUserSearchComponent;

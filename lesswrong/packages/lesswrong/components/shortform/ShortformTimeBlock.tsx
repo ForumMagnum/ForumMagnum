@@ -2,6 +2,10 @@ import React, { FC, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import LoadMore from "@/components/common/LoadMore";
+import ContentType from "@/components/posts/PostsPage/ContentType";
+import CommentsNode from "@/components/comments/CommentsNode";
+import QuickTakesListItem from "@/components/quickTakes/QuickTakesListItem";
 
 const styles = (_: ThemeType) => ({
   shortformGroup: {
@@ -22,11 +26,11 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   }
   if (isFriendlyUI) {
     return (
-      <Components.QuickTakesListItem quickTake={comment} />
+      <QuickTakesListItem quickTake={comment} />
     );
   }
   return (
-    <Components.CommentsNode
+    <CommentsNode
       treeOptions={{
         post: comment.post || undefined,
         forceSingleLine: true
@@ -44,8 +48,6 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {LoadMore, ContentType} = Components;
-
   const {totalCount, loadMore, loading, results: comments} = useMulti({
     terms: {
       ...terms,
@@ -98,4 +100,6 @@ declare global {
     ShortformTimeBlock: typeof ShortformTimeBlockComponent
   }
 }
+
+export default ShortformTimeBlockComponent;
 

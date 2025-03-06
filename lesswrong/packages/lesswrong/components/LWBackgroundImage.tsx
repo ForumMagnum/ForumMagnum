@@ -4,6 +4,8 @@ import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
+import ReviewVotingCanvas from "@/components/review/ReviewVotingCanvas";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -189,7 +191,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { ReviewVotingCanvas, CloudinaryImage2 } = Components
   const { currentRoute } = useLocation();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
@@ -234,3 +235,5 @@ declare global {
     LWBackgroundImage: typeof LWBackgroundImageComponent
   }
 }
+
+export default LWBackgroundImageComponent;

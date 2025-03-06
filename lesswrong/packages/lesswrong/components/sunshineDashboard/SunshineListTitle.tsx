@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,9 +17,9 @@ const SunshineListTitle = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  return <Components.Typography variant="body2" className={classes.root}>
+  return <Typography variant="body2" className={classes.root}>
     { children }
-  </Components.Typography>
+  </Typography>
 };
 
 const SunshineListTitleComponent = registerComponent('SunshineListTitle', SunshineListTitle, {styles});
@@ -28,4 +29,6 @@ declare global {
     SunshineListTitle: typeof SunshineListTitleComponent
   }
 }
+
+export default SunshineListTitleComponent;
 

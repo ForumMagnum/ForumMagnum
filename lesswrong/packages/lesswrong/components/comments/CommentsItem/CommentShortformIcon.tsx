@@ -4,6 +4,8 @@ import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/help
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: isFriendlyUI ? {
@@ -32,8 +34,6 @@ const CommentShortformIcon = ({comment, post, classes, simple}: {
   classes: ClassesType<typeof styles>,
   simple?: boolean,
 }) => {
-
-  const { LWTooltip, ForumIcon } = Components
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
   if (!comment.shortform || comment.topLevelCommentId || isEAForum) return null
   
@@ -57,4 +57,6 @@ declare global {
     CommentShortformIcon: typeof CommentShortformIconComponent,
   }
 }
+
+export default CommentShortformIconComponent;
 

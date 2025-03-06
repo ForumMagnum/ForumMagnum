@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import FrontpageGcalEventItem from "@/components/walledGarden/FrontpageGcalEventItem";
+import PortalBarGcalEventItem from "@/components/walledGarden/PortalBarGcalEventItem";
 
 // this component is no longer used. 
 // TODO: after making sure that we want to retire the google-calendar based event system, remove this component from the codebase.
 
 const WalledGardenEvents = ({frontpage=true}) => {
-  const { FrontpageGcalEventItem, PortalBarGcalEventItem } = Components
-
   const [ events, setEvents ] = useState<any>([])
   useEffect(() => {
     // const eventsCallback = (events) => {
@@ -39,3 +39,5 @@ declare global {
     WalledGardenEvents: typeof WalledGardenEventsComponent
   }
 }
+
+export default WalledGardenEventsComponent;

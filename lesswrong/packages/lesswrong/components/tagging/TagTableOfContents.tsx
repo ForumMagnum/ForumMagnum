@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagUrlBaseSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
+import TableOfContents from "@/components/posts/TableOfContents/TableOfContents";
+import TableOfContentsRow from "@/components/posts/TableOfContents/TableOfContentsRow";
+import TagContributorsList from "@/components/tagging/TagContributorsList";
 
 export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
@@ -31,8 +34,6 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
-  
   if (!tag.tableOfContents) {
     return null;
   }
@@ -64,3 +65,5 @@ declare global {
     TagTableOfContents: typeof TagTableOfContentsComponent
   }
 }
+
+export default TagTableOfContentsComponent;

@@ -6,6 +6,8 @@ import { ArrowSVG } from './Icons';
 import RoomIcon from '@material-ui/icons/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import GroupLinks from "@/components/localGroups/GroupLinks";
+import StyledMapPopup from "@/components/localGroups/StyledMapPopup";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -35,8 +37,6 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}
-  const { GroupLinks, StyledMapPopup } = Components
-  
   const htmlBody = {__html: htmlHighlight};
 
   // FIXME: Unstable component will lose state on rerender
@@ -79,4 +79,6 @@ declare global {
     LocalEventMarker: typeof LocalEventMarkerComponent
   }
 }
+
+export default LocalEventMarkerComponent;
 

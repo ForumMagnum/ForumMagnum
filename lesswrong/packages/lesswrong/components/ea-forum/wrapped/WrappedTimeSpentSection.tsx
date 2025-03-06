@@ -4,6 +4,8 @@ import { useForumWrappedContext } from "./hooks";
 import { formatPercentile } from "./wrappedHelpers";
 import { HumanIcon, PathIcon } from "./wrappedIcons";
 import range from "lodash/range";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chartContainer: {
@@ -42,7 +44,6 @@ const WrappedTimeSpentSection = ({classes}: {
   const {data} = useForumWrappedContext();
   const formattedPercentile = formatPercentile(data.engagementPercentile);
   const engagementHours = (data.totalSeconds / 3600).toFixed(1);
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="engagementPercentile">
       <WrappedHeading>
@@ -82,3 +83,5 @@ declare global {
     WrappedTimeSpentSection: typeof WrappedTimeSpentSectionComponent
   }
 }
+
+export default WrappedTimeSpentSectionComponent;

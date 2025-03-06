@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
+import TabNavigationMenu from "@/components/common/TabNavigationMenu/TabNavigationMenu";
+import TabNavigationMenuCompressed from "@/components/common/TabNavigationMenu/TabNavigationMenuCompressed";
+import TableOfContentsList from "@/components/posts/TableOfContents/TableOfContentsList";
 
 const styles = (theme: ThemeType) => ({
   paperWithoutToC: {
@@ -58,7 +61,6 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
   toc: ToCData|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
   const showToc = toc && toc.sections
 
   return <SwipeableDrawer
@@ -78,7 +80,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
         <TabNavigationMenuCompressed onClickSection={handleClose}/>
       </div>
       <div className={classes.tableOfContents}>
-        <Components.TableOfContentsList
+        <TableOfContentsList
           tocSections={toc.sections}
           title={null}
           onClickSection={() => handleClose()}
@@ -97,3 +99,5 @@ declare global {
     NavigationDrawer: typeof NavigationDrawerComponent
   }
 }
+
+export default NavigationDrawerComponent;

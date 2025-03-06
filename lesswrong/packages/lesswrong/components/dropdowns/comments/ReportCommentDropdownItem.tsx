@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ReportCommentDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -30,8 +31,6 @@ const ReportCommentDropdownItem = ({comment, post}: {
       }
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Report"
@@ -48,3 +47,5 @@ declare global {
     ReportCommentDropdownItem: typeof ReportCommentDropdownItemComponent
   }
 }
+
+export default ReportCommentDropdownItemComponent;

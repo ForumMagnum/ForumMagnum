@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -29,8 +29,6 @@ const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   if (!currentUser || comment.userId !== currentUser._id) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   if (comment.retracted) {
     return (
       <DropdownItem
@@ -59,3 +57,5 @@ declare global {
     RetractCommentDropdownItem: typeof RetractCommentDropdownItemComponent
   }
 }
+
+export default RetractCommentDropdownItemComponent;

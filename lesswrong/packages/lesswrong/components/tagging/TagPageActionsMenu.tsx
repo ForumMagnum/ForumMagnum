@@ -9,6 +9,11 @@ import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
+import ForumIcon from "@/components/common/ForumIcon";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import { MenuItem } from "@/components/common/Menus";
+import LWTooltip from "@/components/common/LWTooltip";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {},
@@ -29,8 +34,6 @@ const TagPageActionsMenuButton = ({tagOrLens, createLens}: {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const [everOpened, setEverOpened] = useState(false);
   const { captureEvent } = useTracking({eventType: "tagPageMenuClicked", eventProps: {tagOrLensId: tagOrLens?._id, itemType: "tag"}});
-  const { ForumIcon } = Components;
-  
   if (!tagOrLens) {
     return null;
   }
@@ -66,7 +69,6 @@ const TagPageActionsMenu = ({tagOrLens, createLens}: {
   tagOrLens: TagLens
   createLens: (() => void)|null,
 }) => {
-  const { DropdownMenu, MenuItem, ForumIcon, LWTooltip, AnalyticsTracker } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const apolloClient = useApolloClient();
@@ -121,5 +123,10 @@ declare global {
     TagPageActionsMenu: typeof TagPageActionsMenuComponent
     TagPageActionsMenuButton: typeof TagPageActionsMenuButtonComponent
   }
+}
+
+export {
+  TagPageActionsMenuButtonComponent as TagPageActionsMenuButton,
+  TagPageActionsMenuComponent as TagPageActionsMenu
 }
 

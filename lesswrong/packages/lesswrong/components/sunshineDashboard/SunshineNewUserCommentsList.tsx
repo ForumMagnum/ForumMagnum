@@ -2,6 +2,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import _filter from 'lodash/filter';
 import { isLWorAF } from '../../lib/instanceSettings';
+import CommentsNode from "@/components/comments/CommentsNode";
+import RejectContentButton from "@/components/sunshineDashboard/RejectContentButton";
+import RejectedReasonDisplay from "@/components/sunshineDashboard/RejectedReasonDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,8 +33,6 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { CommentsNode, RejectContentButton, RejectedReasonDisplay } = Components
-
   if (!comments) return null 
 
   const newComments = user.reviewedAt ? _filter(comments, comment => comment.postedAt > user.reviewedAt) : comments
@@ -65,3 +66,5 @@ declare global {
     SunshineNewUserCommentsList: typeof SunshineNewUserCommentsListComponent
   }
 }
+
+export default SunshineNewUserCommentsListComponent;

@@ -4,6 +4,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@material-ui/icons/Person';
 import React from 'react';
 import type { SearchHitComponentProps } from './types';
+import LWTooltip from "@/components/common/LWTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +29,6 @@ export const isLeftClick = (event: React.MouseEvent): boolean => {
 }
 
 const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
-  const { LWTooltip, MetaInfo, FormatDate } = Components
   const user = hit as SearchUser
 
   return <div className={classes.root}>
@@ -54,3 +56,5 @@ declare global {
     UsersSearchHit: typeof UsersSearchHitComponent
   }
 }
+
+export default UsersSearchHitComponent;

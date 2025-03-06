@@ -5,6 +5,9 @@ import classNames from 'classnames';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import LoadMore from "@/components/common/LoadMore";
+import { ConceptItem } from "@/components/tagging/ConceptItem";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 // TODO: single source for here and ConceptItem, must be kept in sync
 const CONCEPT_ITEM_WIDTH = 280;
@@ -128,11 +131,6 @@ const WikiTagGroup = ({
     })
     setLimit(newLimit);
   };
-
-
-  const { LoadMore, ConceptItem, Loading } = Components;
-
-
   if (searchTagIds && pages.length === 0) {
     return null;
   }
@@ -193,4 +191,8 @@ declare global {
   }
 }
 export default WikiTagGroupComponent;
+
+export {
+  WikiTagGroupComponent as WikiTagGroup
+}
 

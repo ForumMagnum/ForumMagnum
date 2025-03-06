@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { FormGroupHeader } from "@/components/vulcan-forms/FormGroup";
 
 const styles = (theme: ThemeType) => ({
   formSection: {
@@ -39,7 +40,6 @@ const DummyFormGroup = ({
   children,
   classes
 }: DummyFormGroupProps & { classes: ClassesType<typeof styles> }) => {
-  const { FormGroupHeader } = Components;
   const [collapsed, setCollapsed] = useState(startCollapsed)
 
   return (
@@ -63,3 +63,5 @@ declare global {
     DummyFormGroup: typeof DummyFormGroupComponent
   }
 }
+
+export default DummyFormGroupComponent;

@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,9 +13,9 @@ const styles = (theme: ThemeType) => ({
 const PostsNoResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) =>
-  <Components.Typography variant="body2" className={classes.root}>
+  <Typography variant="body2" className={classes.root}>
     No posts to display.
-  </Components.Typography>;
+  </Typography>;
 
 const PostsNoResultsComponent = registerComponent('PostsNoResults', PostsNoResults, {styles});
 
@@ -23,4 +24,6 @@ declare global {
     PostsNoResults: typeof PostsNoResultsComponent
   }
 }
+
+export default PostsNoResultsComponent;
 

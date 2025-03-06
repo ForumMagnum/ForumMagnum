@@ -3,6 +3,11 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { DateWithoutTime } from "../posts/PostsItemMeta";
 import classNames from "classnames";
+import TruncatedAuthorsList from "@/components/posts/TruncatedAuthorsList";
+import PostsItemDate from "@/components/posts/PostsItemDate";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import EventTime from "@/components/localGroups/EventTime";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,11 +58,6 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
   classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
-
-  const {
-    TruncatedAuthorsList, PostsItemDate, ForumIcon, LWTooltip, EventTime,
-  } = Components;
-
   if (useEventStyles && post.isEvent) {
     return (
       <div className={classNames(classes.root, className)} ref={authorExpandContainer}>
@@ -117,3 +117,5 @@ declare global {
     EAPostMeta: typeof EAPostMetaComponent,
   }
 }
+
+export default EAPostMetaComponent;

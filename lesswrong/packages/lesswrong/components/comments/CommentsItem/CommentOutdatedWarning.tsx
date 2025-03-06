@@ -3,6 +3,7 @@ import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   outdatedWarning: {
@@ -47,9 +48,6 @@ const CommentOutdatedWarning = ({comment, post, classes}: {
 }) => {
   if (!postHadMajorRevision(comment, post))
     return null;
-
-  const { LWTooltip } = Components
-
   return <span className={classes.outdatedWarning}>
     <LWTooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
       <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
@@ -66,4 +64,6 @@ declare global {
     CommentOutdatedWarning: typeof CommentOutdatedWarningComponent,
   }
 }
+
+export default CommentOutdatedWarningComponent;
 

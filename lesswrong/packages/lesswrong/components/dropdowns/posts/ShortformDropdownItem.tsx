@@ -5,6 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -27,8 +28,6 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const contentType = preferredHeadingCase("Quick Takes");
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(`Set as user's ${contentType} Post`)}
@@ -47,3 +46,5 @@ declare global {
     ShortformDropdownItem: typeof ShortformDropdownItemComponent
   }
 }
+
+export default ShortformDropdownItemComponent;

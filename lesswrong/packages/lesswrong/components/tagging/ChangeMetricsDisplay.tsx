@@ -45,3 +45,5 @@ declare global {
     ChangeMetricsDisplay: typeof ChangeMetricsDisplayComponent
   }
 }
+
+export default ChangeMetricsDisplayComponent;

@@ -1,6 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
+import { MenuItem } from "@/components/common/Menus";
+import MuiTextField from "@/components/form-components/MuiTextField";
+import { FormComponentMultiSelect } from "@/components/form-components/FormComponentMultiSelect";
 
 type SelectLocalgroupProps = {
   useDocumentAsUser?: boolean,
@@ -17,8 +20,6 @@ type SelectLocalgroupProps = {
  * or all groups if the user is an admin.
  */
 const SelectLocalgroup = (props: SelectLocalgroupProps) => {
-  const { MenuItem } = Components;
-
   // Default to currentUser, but use props.document if necessary
   // (ex. you want to be able to select groups for another user).
   const user = props.useDocumentAsUser ? props.document : props.currentUser
@@ -38,7 +39,7 @@ const SelectLocalgroup = (props: SelectLocalgroupProps) => {
     const options = groups?.map(group => {
       return {value: group._id, label: group.name}
     })
-    return <Components.FormComponentMultiSelect {...props} options={options || []} />
+    return <FormComponentMultiSelect {...props} options={options || []} />
   }
 
   const selectOptions = groups?.map(group => {
@@ -47,13 +48,13 @@ const SelectLocalgroup = (props: SelectLocalgroupProps) => {
     </MenuItem>
   })
   const {variant, separator, ...textFieldProps} = props;
-  return <Components.MuiTextField
+  return <MuiTextField
     select
     {...textFieldProps}
     {...!selectOptions?.length ? {disabled: true} : {}}
   >
     {selectOptions || []}
-  </Components.MuiTextField>
+  </MuiTextField>
 }
 
 const SelectLocalgroupComponent = registerComponent("SelectLocalgroup", SelectLocalgroup);
@@ -63,3 +64,5 @@ declare global {
     SelectLocalgroup: typeof SelectLocalgroupComponent
   }
 }
+
+export default SelectLocalgroupComponent;

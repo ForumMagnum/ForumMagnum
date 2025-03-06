@@ -125,3 +125,5 @@ declare global {
   }
 }
 
+export default SearchAutoCompleteComponent;
+

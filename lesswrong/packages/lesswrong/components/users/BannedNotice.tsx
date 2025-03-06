@@ -2,6 +2,8 @@ import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,8 +19,6 @@ const styles = (theme: ThemeType) => ({
 const BannedNotice = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {SingleColumnSection, Typography } = Components;
-  
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant='body2' gutterBottom>
@@ -47,3 +47,5 @@ declare global {
     BannedNotice: typeof BannedNoticeComponent
   }
 }
+
+export default BannedNoticeComponent;

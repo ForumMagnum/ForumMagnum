@@ -9,6 +9,9 @@ import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import LWTooltip from "@/components/common/LWTooltip";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   overallSection: {
@@ -86,10 +89,6 @@ const OverallVoteAxis = ({
   className?: string,
 }) => {
   const currentUser = useCurrentUser();
-
-
-  const { OverallVoteButton, LWTooltip } = Components
-
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
@@ -118,7 +117,7 @@ const OverallVoteAxis = ({
 
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
-      <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
+      <span>Moved to AF by <UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
     </div>
   )
 
@@ -243,3 +242,5 @@ declare global {
     OverallVoteAxis: typeof OverallVoteAxisComponent
   }
 }
+
+export default OverallVoteAxisComponent;

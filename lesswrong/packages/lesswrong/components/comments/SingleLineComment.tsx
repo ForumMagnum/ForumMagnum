@@ -9,6 +9,15 @@ import { CommentTreeOptions } from './commentTree';
 import { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ShowParentComment from "@/components/comments/ShowParentComment";
+import CommentUserName from "@/components/comments/CommentsItem/CommentUserName";
+import CommentShortformIcon from "@/components/comments/CommentsItem/CommentShortformIcon";
+import PostsItemComments from "@/components/posts/PostsItemComments";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LWPopper from "@/components/common/LWPopper";
+import CommentsNode from "@/components/comments/CommentsNode";
+import CoreTagIcon from "@/components/tagging/CoreTagIcon";
+import FormatDate from "@/components/common/FormatDate";
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -167,8 +176,6 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
-  const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
-
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
@@ -207,7 +214,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           className={classes.username}
         />
         {!hideSingleLineMeta && <span className={classes.date}>
-          <Components.FormatDate date={comment.postedAt} tooltip={false}/>
+          <FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
         {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
@@ -262,3 +269,5 @@ declare global {
     SingleLineComment: typeof SingleLineCommentComponent,
   }
 }
+
+export default SingleLineCommentComponent;

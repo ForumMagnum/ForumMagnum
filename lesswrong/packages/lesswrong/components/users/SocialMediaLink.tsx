@@ -5,13 +5,13 @@ import {
   profileFieldToSocialMediaHref,
 } from "../../lib/collections/users/helpers";
 import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
+import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
 
 const SocialMediaLink = ({user, field, className}: {
   user: UsersProfile,
   field: SocialMediaProfileField,
   className?: string,
 }) => {
-  const { SocialMediaIcon } = Components;
   const url = user[field];
   if (!url) {
     return null;
@@ -38,3 +38,5 @@ declare global {
     SocialMediaLink: typeof SocialMediaLinkComponent
   }
 }
+
+export default SocialMediaLinkComponent;

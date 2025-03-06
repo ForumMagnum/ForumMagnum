@@ -8,6 +8,10 @@ import { useCurrentUser } from '../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
+import ContentItemBody from "@/components/common/ContentItemBody";
+import LWTooltip from "@/components/common/LWTooltip";
+import NewConversationButton from "@/components/messaging/NewConversationButton";
+import { MenuItem } from "@/components/common/Menus";
 
 const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
@@ -51,8 +55,6 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
-
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
@@ -120,3 +122,5 @@ declare global {
     SunshineSendMessageWithDefaults: typeof SunshineSendMessageWithDefaultsComponent
   }
 }
+
+export default SunshineSendMessageWithDefaultsComponent;

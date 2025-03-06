@@ -1,10 +1,12 @@
 import React from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components'
+import EAOnboardingUserStage from "@/components/ea-forum/onboarding/EAOnboardingUserStage";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 
-const BasicOnboardingFlow = ({viewAsAdmin}: { viewAsAdmin?: boolean }) => <Components.OnboardingFlow
+const BasicOnboardingFlow = ({viewAsAdmin}: { viewAsAdmin?: boolean }) => <OnboardingFlow
   viewAsAdmin={viewAsAdmin}
   stages={{
-    user: <Components.EAOnboardingUserStage icon={null}/>,
+    user: <EAOnboardingUserStage icon={null}/>,
   }}/>
 
 const BasicOnboardingFlowComponent = registerComponent(
@@ -17,3 +19,5 @@ declare global {
     BasicOnboardingFlow: typeof BasicOnboardingFlowComponent
   }
 }
+
+export default BasicOnboardingFlowComponent;

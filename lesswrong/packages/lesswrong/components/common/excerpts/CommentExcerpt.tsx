@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import type { CommonExcerptProps } from "./ContentExcerpt";
+import ContentExcerpt from "@/components/common/excerpts/ContentExcerpt";
 
 const CommentExcerpt = ({
   comment,
@@ -13,8 +14,6 @@ const CommentExcerpt = ({
   if (!contentHtml) {
     return null;
   }
-
-  const {ContentExcerpt} = Components;
   return (
     <ContentExcerpt
       contentHtml={contentHtml}
@@ -40,3 +39,5 @@ declare global {
     CommentExcerpt: typeof CommentExcerptComponent,
   }
 }
+
+export default CommentExcerptComponent;

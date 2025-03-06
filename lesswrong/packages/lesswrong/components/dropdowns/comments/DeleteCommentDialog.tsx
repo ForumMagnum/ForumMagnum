@@ -8,6 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -60,7 +61,6 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   }
 
   const render = () => {
-    const { LWDialog } = Components;
     return (
       <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
@@ -109,3 +109,5 @@ declare global {
     DeleteCommentDialog: typeof DeleteCommentDialogComponent
   }
 }
+
+export default DeleteCommentDialogComponent;

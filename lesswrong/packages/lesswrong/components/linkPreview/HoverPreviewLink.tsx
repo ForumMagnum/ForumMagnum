@@ -10,6 +10,8 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../posts/PostsPage/CollapsedFootnotes';
 import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { DefaultPreview, ViewpointsPreview, EstimakerPreview, ArbitalPreview, OWIDPreview, MetaforecastPreview, NeuronpediaPreview, FatebookPreview, ManifoldPreview, MetaculusPreview, MozillaHubPreview } from "@/components/linkPreview/PostLinkPreview";
+import FootnotePreview from "@/components/linkPreview/FootnotePreview";
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -70,9 +72,9 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
   // Within-page relative link?
   if (href.startsWith("#")) {
     if (locationHashIsFootnote(href)){
-      return <Components.FootnotePreview href={href} id={id} rel={rel}>
+      return <FootnotePreview href={href} id={id} rel={rel}>
         {children}
-      </Components.FootnotePreview>
+      </FootnotePreview>
     } else if (locationHashIsFootnoteBackreference(href)) {
       return <a href={href} id={id} rel={rel}>
         {children}
@@ -100,66 +102,66 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
             </PreviewComponent>
           </AnalyticsContext>
         } else {
-          return <Components.DefaultPreview href={href} id={id} rel={rel}>
+          return <DefaultPreview href={href} id={id} rel={rel}>
             {children}
-          </Components.DefaultPreview>
+          </DefaultPreview>
         }
       }
     } else {
       if (linkTargetAbsolute.host === "hubs.mozilla.com") {
-        return <Components.MozillaHubPreview href={href} id={id}>
+        return <MozillaHubPreview href={href} id={id}>
           {children}
-        </Components.MozillaHubPreview>
+        </MozillaHubPreview>
       }
       if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
-        return <Components.MetaculusPreview href={href} id={id}>
+        return <MetaculusPreview href={href} id={id}>
           {children}
-        </Components.MetaculusPreview>
+        </MetaculusPreview>
       }
       if (linkTargetAbsolute.host === "manifold.markets" || linkTargetAbsolute.host === "www.manifold.markets") {
-        return <Components.ManifoldPreview href={href} id={id}>
+        return <ManifoldPreview href={href} id={id}>
           {children}
-        </Components.ManifoldPreview>
+        </ManifoldPreview>
       }
 
       if (linkTargetAbsolute.host === "fatebook.io" || linkTargetAbsolute.host === "www.fatebook.io") {
-        return <Components.FatebookPreview href={href} id={id}>
+        return <FatebookPreview href={href} id={id}>
           {children}
-        </Components.FatebookPreview>
+        </FatebookPreview>
       }
       if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
-        return <Components.NeuronpediaPreview href={href} id={id}>
+        return <NeuronpediaPreview href={href} id={id}>
           {children}
-        </Components.NeuronpediaPreview>
+        </NeuronpediaPreview>
       }
       if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
-        return <Components.MetaforecastPreview href={href} id={id}>
+        return <MetaforecastPreview href={href} id={id}>
           {children}
-        </Components.MetaforecastPreview>
+        </MetaforecastPreview>
       }
       if (linkTargetAbsolute.host === "ourworldindata.org") {
-        return <Components.OWIDPreview href={href} id={id}>
+        return <OWIDPreview href={href} id={id}>
           {children}
-        </Components.OWIDPreview>
+        </OWIDPreview>
       }
       if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
-        return <Components.ArbitalPreview href={href} id={id}>
+        return <ArbitalPreview href={href} id={id}>
           {children}
-        </Components.ArbitalPreview>
+        </ArbitalPreview>
       }
       if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
-        return <Components.EstimakerPreview href={href} id={id}>
+        return <EstimakerPreview href={href} id={id}>
           {children}
-        </Components.EstimakerPreview>
+        </EstimakerPreview>
       }
       if (linkTargetAbsolute.host === "viewpoints.xyz" || linkTargetAbsolute.host === "www.viewpoints.xyz") {
-        return <Components.ViewpointsPreview href={href} id={id}>
+        return <ViewpointsPreview href={href} id={id}>
           {children}
-        </Components.ViewpointsPreview>
+        </ViewpointsPreview>
       }
-      return <Components.DefaultPreview href={href} id={id} rel={rel}>
+      return <DefaultPreview href={href} id={id} rel={rel}>
         {children}
-      </Components.DefaultPreview>
+      </DefaultPreview>
     }
     return <a href={href} id={id} rel={rel}>
       {children}
@@ -181,3 +183,5 @@ declare global {
     HoverPreviewLink: typeof HoverPreviewLinkComponent
   }
 }
+
+export default HoverPreviewLinkComponent;

@@ -9,6 +9,11 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import moment from "moment";
 import classNames from "classnames";
+import TruncatedAuthorsList from "@/components/posts/TruncatedAuthorsList";
+import ForumIcon from "@/components/common/ForumIcon";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import { Loading } from "@/components/vulcan-core/Loading";
+import TimeTag from "@/components/common/TimeTag";
 
 const styles = (theme: ThemeType) => ({
   postListItem: {
@@ -141,8 +146,6 @@ const EALargePostsItem = ({
 
   const description = postContents?.plaintextDescription ??
     post?.contents?.plaintextDescription;
-
-  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading, TimeTag} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div
@@ -216,3 +219,5 @@ declare global {
     EALargePostsItem: typeof EALargePostsItemComponent;
   }
 }
+
+export default EALargePostsItemComponent;

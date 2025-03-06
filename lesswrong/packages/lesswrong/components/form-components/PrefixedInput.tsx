@@ -2,6 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
+import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
+import FormComponentFriendlyTextInput from "@/components/form-components/FormComponentFriendlyTextInput";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,8 +48,6 @@ const PrefixedInput = ({
   heading?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SocialMediaIcon, FormComponentFriendlyTextInput} = Components;
-
   const icon = (path in iconNameByUserFieldName) ? (
     <SocialMediaIcon
       className={classes.icon}
@@ -78,3 +78,5 @@ declare global {
     PrefixedInput: typeof PrefixedInputComponent
   }
 }
+
+export default PrefixedInputComponent;

@@ -2,6 +2,8 @@ import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import LWDialog from "@/components/common/LWDialog";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   userId: string,
@@ -20,13 +22,13 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   }
   
   return (
-    <Components.LWDialog
+    <LWDialog
       title={title}
       open={true}
       onClose={onClose}
     >
       <DialogContent>
-        <Components.WrappedSmartForm
+        <WrappedSmartForm
           collectionName="Reports"
           mutationFragment={getFragment('UnclaimedReportsList')}
           prefilledProps={{
@@ -39,7 +41,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
           successCallback={handleSubmit}
         />
       </DialogContent>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 
@@ -50,4 +52,6 @@ declare global {
     ReportForm: typeof ReportFormComponent
   }
 }
+
+export default ReportFormComponent;
 

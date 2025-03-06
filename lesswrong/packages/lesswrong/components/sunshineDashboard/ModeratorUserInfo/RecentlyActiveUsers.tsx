@@ -11,6 +11,15 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { useLocation } from '../../../lib/routeUtil';
+import UsersReviewInfoCard from "@/components/sunshineDashboard/UsersReviewInfoCard";
+import LoadMore from "@/components/common/LoadMore";
+import LWTooltip from "@/components/common/LWTooltip";
+import UsersName from "@/components/users/UsersName";
+import FormatDate from "@/components/common/FormatDate";
+import MetaInfo from "@/components/common/MetaInfo";
+import UserAutoRateLimitsDisplay from "@/components/sunshineDashboard/ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import SectionFooterCheckbox from "@/components/form-components/SectionFooterCheckbox";
+import Row from "@/components/common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -116,8 +125,6 @@ type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay, SectionFooterCheckbox, Row } = Components;
-
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
@@ -338,3 +345,5 @@ declare global {
     RecentlyActiveUsers: typeof RecentlyActiveUsersComponent
   }
 }
+
+export default RecentlyActiveUsersComponent;

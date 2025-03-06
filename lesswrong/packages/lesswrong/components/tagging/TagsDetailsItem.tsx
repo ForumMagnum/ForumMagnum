@@ -7,6 +7,11 @@ import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
+import LinkCard from "@/components/common/LinkCard";
+import TagPreviewDescription from "@/components/tagging/TagPreviewDescription";
+import TagSmallPostLink from "@/components/tagging/TagSmallPostLink";
+import { Loading } from "@/components/vulcan-core/Loading";
+import TagFlagItem from "@/components/tagging/TagFlagItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -82,7 +87,6 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
   flagId?: string,
   collapse?: boolean
 }) => {
-  const { LinkCard, TagPreviewDescription, TagSmallPostLink, Loading, TagFlagItem } = Components;
   const currentUser = useCurrentUser();
   const [ editing, setEditing ] = useState(false)
   const { query } = useLocation();
@@ -155,3 +159,5 @@ declare global {
     TagsDetailsItem: typeof TagsDetailsItemComponent
   }
 }
+
+export default TagsDetailsItemComponent;

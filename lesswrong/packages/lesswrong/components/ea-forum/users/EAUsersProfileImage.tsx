@@ -5,6 +5,8 @@ import { useCurrentUser } from "../../common/withUser";
 import { useImageUpload } from "../../hooks/useImageUpload";
 import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import ForumIcon from "@/components/common/ForumIcon";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
 
 const SIZE = 96;
 
@@ -52,8 +54,6 @@ const EAUsersProfileImage = ({user, classes}: {
       flash(error.message);
     },
   });
-  const {ForumIcon, UsersProfileImage} = Components;
-
   if (!userCanEditUser(currentUser, user)) {
     return (
       <UsersProfileImage user={user} size={SIZE} className={classes.root} />
@@ -82,3 +82,5 @@ declare global {
     EAUsersProfileImage: typeof EAUsersProfileImageComponent
   }
 }
+
+export default EAUsersProfileImageComponent;

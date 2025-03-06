@@ -8,6 +8,8 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import OmegaIcon from "@/components/icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -75,8 +77,6 @@ const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   if (!post?.af || !userCanDo(currentUser, 'comments.alignment.move.all')) {
     return null;
   }
-
-  const {DropdownItem, OmegaIcon} = Components
   if (!comment.af) {
     return (
       <DropdownItem
@@ -114,3 +114,5 @@ declare global {
     MoveToAlignmentCommentDropdownItem: typeof MoveToAlignmentCommentDropdownItemComponent
   }
 }
+
+export default MoveToAlignmentCommentDropdownItemComponent;

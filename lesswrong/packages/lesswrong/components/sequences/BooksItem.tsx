@@ -2,6 +2,15 @@ import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import BooksProgressBar from "@/components/sequences/BooksProgressBar";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SectionButton from "@/components/common/SectionButton";
+import LargeSequencesItem from "@/components/sequences/LargeSequencesItem";
+import SequencesPostsList from "@/components/sequences/SequencesPostsList";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SequencesGrid from "@/components/sequences/SequencesGrid";
+import BooksEditForm from "@/components/sequences/BooksEditForm";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -36,9 +45,6 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
-  
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
@@ -47,7 +53,7 @@ const BooksItem = ({ book, canEdit, classes }: {
   }, []);
 
   if (edit) {
-    return <Components.BooksEditForm
+    return <BooksEditForm
       documentId={book._id}
       successCallback={showBook}
       cancelCallback={showBook}
@@ -89,4 +95,6 @@ declare global {
     BooksItem: typeof BooksItemComponent
   }
 }
+
+export default BooksItemComponent;
 

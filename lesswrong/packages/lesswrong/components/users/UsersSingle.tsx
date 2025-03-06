@@ -4,6 +4,9 @@ import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { slugify } from '@/lib/utils/slugify';
+import UsersProfile from "@/components/users/UsersProfile";
+import FriendlyUsersProfile from "@/components/users/FriendlyUsersProfile";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
 
 /**
  * Build structured data for a user to help with SEO.
@@ -54,11 +57,11 @@ const UsersSingle = () => {
     // A Javascript redirect, which replaces the history entry (so you don't
     // have a redirector interfering with the back button). Does not cause a
     // pageload.
-    return <Components.PermanentRedirect url={canonicalUrl} />;
+    return <PermanentRedirect url={canonicalUrl} />;
   } else {
     return isFriendlyUI ?
-      <Components.FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
-      <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+      <FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
+      <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
 };
 
@@ -69,3 +72,5 @@ declare global {
     UsersSingle: typeof UsersSingleComponent
   }
 }
+
+export default UsersSingleComponent;

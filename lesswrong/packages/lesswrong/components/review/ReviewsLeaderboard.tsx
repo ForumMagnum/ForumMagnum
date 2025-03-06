@@ -6,6 +6,11 @@ import Card from '@material-ui/core/Card';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import Row from "@/components/common/Row";
+import MetaInfo from "@/components/common/MetaInfo";
+import LWTooltip from "@/components/common/LWTooltip";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,8 +63,6 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
 }) => {
   const currentUser = useCurrentUser()
   const [truncated, setTruncated] = useState<boolean>(true)
-  const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
-
   // TODO find the place in the code where this is normally set
   const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
     if (user?.karma && user?.karma >= 1000) {
@@ -141,4 +144,6 @@ declare global {
     ReviewsLeaderboard: typeof ReviewsLeaderboardComponent
   }
 }
+
+export default ReviewsLeaderboardComponent;
 

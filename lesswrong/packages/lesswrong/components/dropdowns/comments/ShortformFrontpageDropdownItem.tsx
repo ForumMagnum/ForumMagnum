@@ -5,6 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -34,8 +35,6 @@ const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   const title = comment.shortformFrontpage
     ? "Remove from Frontpage"
     : "Allow on Frontpage";
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(title)}
@@ -53,3 +52,5 @@ declare global {
     ShortformFrontpageDropdownItem: typeof ShortformFrontpageDropdownItemComponent;
   }
 }
+
+export default ShortformFrontpageDropdownItemComponent;

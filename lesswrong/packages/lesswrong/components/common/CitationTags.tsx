@@ -45,3 +45,5 @@ declare global {
     CitationTags: typeof CitationTagsComponent
   }
 }
+
+export default CitationTagsComponent;

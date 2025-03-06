@@ -4,6 +4,10 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useSingle } from "../../../lib/crud/withSingle";
 import type { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import CommentsNode from "@/components/comments/CommentsNode";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const ICON_WIDTH = 24;
 
@@ -128,8 +132,6 @@ export const NotificationsPageItem = ({
     collectionName: "Comments",
     fragmentName: "CommentsListWithParentMetadata",
   });
-
-  const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -204,3 +206,5 @@ declare global {
     NotificationsPageItem: typeof NotificationsPageItemComponent
   }
 }
+
+export default NotificationsPageItemComponent;

@@ -10,6 +10,11 @@ import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
+import { Typography } from "@/components/common/Typography";
+import LinkCard from "@/components/common/LinkCard";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -99,10 +104,6 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   showCloseIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip
-  } = Components;
-
   const { firstPost } = collection;
 
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
@@ -163,4 +164,6 @@ declare global {
     CollectionsItem: typeof CollectionsItemComponent
   }
 }
+
+export default CollectionsItemComponent;
 

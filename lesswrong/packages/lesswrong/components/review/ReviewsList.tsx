@@ -5,6 +5,12 @@ import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
 import sortBy from 'lodash/sortBy';
+import CommentsNode from "@/components/comments/CommentsNode";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ReviewsLeaderboard from "@/components/review/ReviewsLeaderboard";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { MenuItem } from "@/components/common/Menus";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +30,6 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear
 }) => {
-  const { CommentsNode, SectionTitle, ReviewsLeaderboard, Loading, MenuItem } = Components
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
   const { loading, results: reviews } = useMulti({
@@ -55,9 +60,9 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
           </Select>
         </SectionTitle>
         {reviews && <ReviewsLeaderboard reviews={reviews} reviewYear={reviewYear} />}
-      {!loading && reviews && !reviews.length && <Components.Typography variant="body2">   
+      {!loading && reviews && !reviews.length && <Typography variant="body2">   
         No Reviews Found
-      </Components.Typography>}
+      </Typography>}
       {(loading) && <Loading />}
       {sortedReviews.map(comment =>
         <div key={comment._id} id={comment._id}>
@@ -84,3 +89,5 @@ declare global {
     ReviewsList: typeof ReviewsListComponent
   }
 }
+
+export default ReviewsListComponent;

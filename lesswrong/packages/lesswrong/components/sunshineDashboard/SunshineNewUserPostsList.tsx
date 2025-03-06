@@ -4,6 +4,15 @@ import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import PostsTitle from "@/components/posts/PostsTitle";
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LinkPostMessage from "@/components/posts/LinkPostMessage";
+import RejectContentButton from "@/components/sunshineDashboard/RejectContentButton";
+import RejectedReasonDisplay from "@/components/sunshineDashboard/RejectedReasonDisplay";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -40,9 +49,6 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components
-
- 
   if (!posts) return null
 
   const newPosts = user.reviewedAt ? _filter(posts, post => post.postedAt > user.reviewedAt) : posts
@@ -98,3 +104,5 @@ declare global {
     SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
   }
 }
+
+export default SunshineNewUserPostsListComponent;

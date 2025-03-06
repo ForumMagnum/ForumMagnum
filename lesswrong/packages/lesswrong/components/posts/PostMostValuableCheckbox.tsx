@@ -4,6 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,7 +80,7 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   
   if (!currentUser || loading || !results) return null
   
-  return <Components.ForumIcon
+  return <ForumIcon
     onClick={toggleChecked}
     icon={checked ? "Heart" : "HeartOutline"}
     className={classes.root}
@@ -93,4 +94,6 @@ declare global {
     PostMostValuableCheckbox: typeof PostMostValuableCheckboxComponent
   }
 }
+
+export default PostMostValuableCheckboxComponent;
 

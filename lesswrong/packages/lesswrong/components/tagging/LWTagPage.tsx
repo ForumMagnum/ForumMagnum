@@ -36,6 +36,36 @@ import type { ContentItemBody } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { useDisplayedContributors } from "./ContributorsList";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsListSortDropdown from "@/components/posts/PostsListSortDropdown";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import PostsList2 from "@/components/posts/PostsList2";
+import { Loading } from "@/components/vulcan-core/Loading";
+import AddPostsToTag from "@/components/tagging/AddPostsToTag";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import HeadTags from "@/components/common/HeadTags";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import TagFlagItem from "@/components/tagging/TagFlagItem";
+import CommentsListCondensed from "@/components/common/CommentsListCondensed";
+import TagPageButtonRow from "@/components/tagging/TagPageButtonRow";
+import SubscribeButton from "@/components/tagging/SubscribeButton";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import TagIntroSequence from "@/components/tagging/TagIntroSequence";
+import MultiToCLayout from "@/components/posts/TableOfContents/MultiToCLayout";
+import TableOfContents from "@/components/posts/TableOfContents/TableOfContents";
+import FormatDate from "@/components/common/FormatDate";
+import { LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen, ArbitalLinkedPagesRightSidebar } from "@/components/tagging/ArbitalLinkedPagesRightSidebar";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import InlineReactSelectionWrapper from "@/components/votes/lwReactions/InlineReactSelectionWrapper";
+import HoveredReactionContextProvider from "@/components/votes/lwReactions/HoveredReactionContextProvider";
+import PathInfo from "@/components/tagging/PathInfo";
+import { SideItemsContainer, SideItem } from "@/components/contents/SideItems";
+import { HeadingContributorsList, ToCContributorsList } from "@/components/tagging/ContributorsList";
+import { LensTabBar } from "@/components/tagging/lenses/LensTab";
+import RedlinkTagPage from "@/components/tagging/RedlinkTagPage";
+import ErrorPage from "@/components/common/ErrorPage";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -272,7 +302,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
     return (
       <>
@@ -300,7 +329,6 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
   changeCallback: () => void,
   cancelCallback: () => void,
 }) => {
-  const { WrappedSmartForm } = Components;
   const [mountKey, setMountKey] = useState(0);
 
   return <WrappedSmartForm
@@ -483,13 +511,6 @@ function getTagQueryOptions(
 }
 
 const LWTagPage = () => {
-  const {
-    PostsList2, Loading, AddPostsToTag, Typography, ContentStyles,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, CommentsListCondensed,
-    TagPageButtonRow, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    MultiToCLayout, TableOfContents, FormatDate, LWTagPageRightColumn,
-    ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
-  } = Components;
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
@@ -624,7 +645,7 @@ const LWTagPage = () => {
   if (loadingTag && !tag) {
     return <Loading/>
   } else if (tagError) {
-    return <Components.ErrorPage error={tagError}/>
+    return <ErrorPage error={tagError}/>
   } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
@@ -640,7 +661,7 @@ const LWTagPage = () => {
     }
   }
   if (!tag || tag.isPlaceholderPage) {
-    return <Components.RedlinkTagPage tag={tag} slug={slug} />
+    return <RedlinkTagPage tag={tag} slug={slug} />
   }
 
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
@@ -733,9 +754,9 @@ const LWTagPage = () => {
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
-        <Components.SideItem>
-          <Components.ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
-        </Components.SideItem>
+        <SideItem>
+          <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+        </SideItem>
         { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
@@ -807,7 +828,7 @@ const LWTagPage = () => {
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={<Components.ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
+      heading={<ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover
@@ -834,7 +855,7 @@ const LWTagPage = () => {
         You are viewing version {revision} of this page.
         Click here to view the latest version.
       </Link>}
-      {(lenses.length > 1) && <Components.LensTabBar
+      {(lenses.length > 1) && <LensTabBar
         lenses={lenses}
         selectedLens={selectedLens}
         switchLens={switchLens}
@@ -865,7 +886,7 @@ const LWTagPage = () => {
         }
       </div>
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
-        <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
+        <HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
         {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
@@ -932,9 +953,9 @@ const LWTagPage = () => {
           refetchTag={refetchTag}
           updateSelectedLens={updateSelectedLens}
         />
-        <Components.SideItemsContainer>
+        <SideItemsContainer>
           {multiColumnToc}
-        </Components.SideItemsContainer>
+        </SideItemsContainer>
       </div>
     </TagPageContext.Provider>
   </AnalyticsContext>
@@ -945,7 +966,6 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   selectedLens: TagLens|undefined,
   description: string,
 }) => {
-  const { ContentItemBody, InlineReactSelectionWrapper, HoveredReactionContextProvider, PathInfo } = Components;
   const classes = useStyles(styles);
 
   const contentRef = useRef<ContentItemBody>(null);
@@ -990,4 +1010,8 @@ declare global {
   interface ComponentTypes {
     LWTagPage: typeof LWTagPageComponent
   }
+}
+
+export {
+  LWTagPageComponent as LWTagPage
 }

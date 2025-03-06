@@ -1,6 +1,7 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
 import { Components, registerComponent } from "../../lib/vulcan-lib/components"
+import TagRevisionItem from "@/components/tagging/TagRevisionItem";
 
 // Pablo, Leo, Lizka
 const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM', 'SuPnfB9qqKWsucNzm']
@@ -23,8 +24,6 @@ function RecentDiscussionTagRevisionItem({
   revision: RevisionHistoryEntry,
   documentId: string,
 }) {
-  const { TagRevisionItem } = Components
-  
   if (tag.adminOnly) {
     return null
   }
@@ -59,3 +58,5 @@ declare global {
     RecentDiscussionTagRevisionItem: typeof RecentDiscussionTagRevisionItemComponent,
   }
 }
+
+export default RecentDiscussionTagRevisionItemComponent;

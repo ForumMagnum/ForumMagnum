@@ -8,6 +8,9 @@ import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import AddTagButton from "@/components/tagging/AddTagButton";
+import FilterMode from "@/components/tagging/FilterMode";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -72,7 +75,6 @@ const TagFilterSettings = ({
   flexWrapEndGrow?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AddTagButton, FilterMode, LWTooltip } = Components
   const currentUser = useCurrentUser()
 
   const {
@@ -135,3 +137,5 @@ declare global {
     TagFilterSettings: typeof TagFilterSettingsComponent
   }
 }
+
+export default TagFilterSettingsComponent;

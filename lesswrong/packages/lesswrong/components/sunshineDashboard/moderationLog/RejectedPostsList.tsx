@@ -3,6 +3,14 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { usePostsList } from '../../posts/usePostsList';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SectionFooter from "@/components/common/SectionFooter";
+import LoadMore from "@/components/common/LoadMore";
+import PostsHighlight from "@/components/posts/PostsHighlight";
+import RejectedReasonDisplay from "@/components/sunshineDashboard/RejectedReasonDisplay";
+import FormatDate from "@/components/common/FormatDate";
+import MetaInfo from "@/components/common/MetaInfo";
+import Row from "@/components/common/Row";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -31,9 +39,6 @@ export const RejectedPostsList = ({classes}: {
     loadMoreProps,
     itemProps,
   } = usePostsList({terms:{view:'rejected'}, enableTotal: true});
-
-  const { SingleColumnSection, SectionFooter, LoadMore, PostsHighlight, RejectedReasonDisplay, FormatDate, MetaInfo, Row } = Components
-
   return <SingleColumnSection>
     {itemProps?.map(({post}) => <div key={post._id} className={classes.rejectedPost}>
       <Row justifyContent="space-between">
@@ -67,4 +72,6 @@ declare global {
     RejectedPostsList: typeof RejectedPostsListComponent
   }
 }
+
+export default RejectedPostsListComponent;
 

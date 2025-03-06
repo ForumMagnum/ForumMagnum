@@ -5,6 +5,9 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
+import CommentsNode from "@/components/comments/CommentsNode";
+import QuickTakesCollapsedListItem from "@/components/quickTakes/QuickTakesCollapsedListItem";
+import LWQuickTakesCollapsedListItem from "@/components/quickTakes/LWQuickTakesCollapsedListItem";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
@@ -34,9 +37,6 @@ const QuickTakesListItem = ({quickTake, classes}: {
     setExpanded(value);
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
   }, [captureEvent, setExpanded]);
-
-  const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
-
   const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
   // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take
@@ -83,3 +83,5 @@ declare global {
     QuickTakesListItem: typeof QuickTakesListItemComponent
   }
 }
+
+export default QuickTakesListItemComponent;

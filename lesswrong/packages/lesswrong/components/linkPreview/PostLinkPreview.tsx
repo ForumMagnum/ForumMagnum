@@ -14,6 +14,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import SequencesTooltip from "@/components/sequences/SequencesTooltip";
+import LWPopper from "@/components/common/LWPopper";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -58,14 +63,14 @@ const PostLinkPreview = ({href, targetLocation, id, children}: {
     logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
   }
 
-  return <Components.PostLinkPreviewVariantCheck
+  return <PostLinkPreviewVariantCheck
     post={post||null}
     targetLocation={targetLocation}
     error={error}
     href={href} id={id}
   >
     {children}
-  </Components.PostLinkPreviewVariantCheck>
+  </PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -89,9 +94,9 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}: {
     logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
   }
 
-  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} id={id}>
+  return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} id={id}>
     {children}
-  </Components.PostLinkPreviewVariantCheck>
+  </PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
@@ -104,9 +109,9 @@ const PostLinkPreviewSlug = ({href, targetLocation, id, children}: {
   const slug = targetLocation.params.slug;
   const { post, error } = usePostBySlug({ slug });
 
-  return <Components.PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
+  return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
     {children}
-  </Components.PostLinkPreviewVariantCheck>
+  </PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewSlugComponent = registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
 
@@ -119,9 +124,9 @@ const PostLinkPreviewLegacy = ({href, targetLocation, id, children}: {
   const legacyId = targetLocation.params.id;
   const { post, error } = usePostByLegacyId({ legacyId });
 
-  return <Components.PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
+  return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
     {children}
-  </Components.PostLinkPreviewVariantCheck>
+  </PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewLegacyComponent = registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
@@ -139,13 +144,13 @@ const CommentLinkPreviewLegacy = ({href, targetLocation, id, children}: {
   const error = postError || commentError;
 
   if (comment) {
-    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
+    return <CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
       {children}
-    </Components.CommentLinkPreviewWithComment>
+    </CommentLinkPreviewWithComment>
   }
-  return <Components.PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
+  return <PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
     {children}
-  </Components.PostLinkPreviewWithPost>
+  </PostLinkPreviewWithPost>
 }
 const CommentLinkPreviewLegacyComponent = registerComponent('CommentLinkPreviewLegacy', CommentLinkPreviewLegacy);
 
@@ -170,9 +175,9 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, children}
   if (!loading && !post) {
     logMissingLinkPreview(`Link preview: No post found with ID ${postId}`);
   }
-  return <Components.PostLinkCommentPreview href={href} commentId={commentId} post={post||null} id={id}>
+  return <PostLinkCommentPreview href={href} commentId={commentId} post={post||null} id={id}>
     {children}
-  </Components.PostLinkCommentPreview>
+  </PostLinkCommentPreview>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
@@ -201,14 +206,14 @@ const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, comm
   }
 
   if (commentId) {
-    return <Components.PostLinkCommentPreview commentId={commentId} post={post} href={href} id={id}>
+    return <PostLinkCommentPreview commentId={commentId} post={post} href={href} id={id}>
       {children}
-    </Components.PostLinkCommentPreview>
+    </PostLinkCommentPreview>
   }
 
-  return <Components.PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
+  return <PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
     {children}
-  </Components.PostLinkPreviewWithPost>
+  </PostLinkPreviewWithPost>
 }
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
@@ -301,13 +306,13 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
     logMissingLinkPreview(`Link preview: No comment found with ID ${commentId}`);
   }
   if (comment) {
-    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
+    return <CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
       {children}
-    </Components.CommentLinkPreviewWithComment>
+    </CommentLinkPreviewWithComment>
   }
-  return <Components.PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
+  return <PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
     {children}
-  </Components.PostLinkPreviewWithPost>
+  </PostLinkPreviewWithPost>
 }
 const PostLinkCommentPreviewComponent = registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
@@ -328,7 +333,6 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
   }
 
   const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
-  const {PostsTooltip} = Components;
   const visited = post?.isRead;
   return (
     <PostsTooltip
@@ -364,8 +368,6 @@ const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, childr
       </Link>
     </span>
   }
-
-  const {PostsTooltip} = Components;
   return (
     <PostsTooltip
       post={post}
@@ -390,7 +392,6 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
   href: string,
   children: ReactNode,
 }) => {
-  const {SequencesTooltip} = Components;
   const sequenceId = targetLocation.params._id;
 
   const { document: sequence, loading } = useSingle({
@@ -446,7 +447,6 @@ const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
   rel?: string
   children: ReactNode,
 }) => {
-  const { LWPopper } = Components
   const { eventHandlers, hover, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
@@ -467,11 +467,11 @@ const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
 
       {onsite
         ? <Link to={href} id={id} rel={rel}>{children}</Link>
-        : <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
+        : <AnalyticsTracker eventType="link" eventProps={{to: href}}>
             <a href={href} id={id} rel={rel}>
               {children}
             </a>
-          </Components.AnalyticsTracker>}
+          </AnalyticsTracker>}
     </span>
   );
 }
@@ -543,7 +543,6 @@ const MozillaHubPreview = ({classes, href, id, children}: {
   });
   
   const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   if (loading || !data) return <a href={href}>
     <span>{children}</span>
@@ -599,7 +598,6 @@ const OWIDPreview = ({classes, href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
 
@@ -647,7 +645,6 @@ const MetaculusPreview = ({classes, href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
 
@@ -695,7 +692,6 @@ const FatebookPreview = ({classes, href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const isEmbed = /^https?:\/\/fatebook\.io\/embed\/q\/[\w-]+$/.test(href);
@@ -745,7 +741,6 @@ const ManifoldPreview = ({classes, href, id, children}: {
   id?: string;
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://manifold.markets/embed/[...]
@@ -799,7 +794,6 @@ const NeuronpediaPreview = ({classes, href, id, children}: {
   id?: string;
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if it's already an embed url https://[www.]neuronpedia.org/[model]/[layer]/[index]?embed=true[...]
@@ -852,7 +846,6 @@ const MetaforecastPreview = ({classes, href, id, children}: {
   id?: string;
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://metaforecast.org/questions/embed/[...]
@@ -925,7 +918,6 @@ const ArbitalPreview = ({classes, href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
@@ -942,9 +934,9 @@ const ArbitalPreview = ({classes, href, id, children}: {
   });
 
   if (!arbitalSlug || loading) {
-    return <Components.DefaultPreview href={href} id={id}>
+    return <DefaultPreview href={href} id={id}>
       {children}
-    </Components.DefaultPreview>
+    </DefaultPreview>
   }
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
@@ -988,7 +980,6 @@ const EstimakerPreview = ({classes, href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://estimaker.app/_/$user/$slug
@@ -1035,7 +1026,6 @@ const ViewpointsPreview = ({classes, href, id, children}: {
   id?: string,
   children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://viewpoints.xyz/embed/polls/$slug
@@ -1095,4 +1085,29 @@ declare global {
     EstimakerPreview: typeof EstimakerPreviewComponent,
     ViewpointsPreview: typeof ViewpointsPreviewComponent,
   }
+}
+
+export {
+  PostLinkPreviewComponent as PostLinkPreview,
+  PostLinkPreviewSequencePostComponent as PostLinkPreviewSequencePost,
+  PostLinkPreviewSlugComponent as PostLinkPreviewSlug,
+  PostLinkPreviewLegacyComponent as PostLinkPreviewLegacy,
+  CommentLinkPreviewLegacyComponent as CommentLinkPreviewLegacy,
+  PostCommentLinkPreviewGreaterWrongComponent as PostCommentLinkPreviewGreaterWrong,
+  PostLinkPreviewVariantCheckComponent as PostLinkPreviewVariantCheck,
+  PostLinkCommentPreviewComponent as PostLinkCommentPreview,
+  PostLinkPreviewWithPostComponent as PostLinkPreviewWithPost,
+  CommentLinkPreviewWithCommentComponent as CommentLinkPreviewWithComment,
+  SequencePreviewComponent as SequencePreview,
+  DefaultPreviewComponent as DefaultPreview,
+  MozillaHubPreviewComponent as MozillaHubPreview,
+  OWIDPreviewComponent as OWIDPreview,
+  MetaculusPreviewComponent as MetaculusPreview,
+  FatebookPreviewComponent as FatebookPreview,
+  ManifoldPreviewComponent as ManifoldPreview,
+  NeuronpediaPreviewComponent as NeuronpediaPreview,
+  MetaforecastPreviewComponent as MetaforecastPreview,
+  ArbitalPreviewComponent as ArbitalPreview,
+  EstimakerPreviewComponent as EstimakerPreview,
+  ViewpointsPreviewComponent as ViewpointsPreview
 }

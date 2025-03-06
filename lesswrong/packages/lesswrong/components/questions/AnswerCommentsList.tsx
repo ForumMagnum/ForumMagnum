@@ -4,6 +4,7 @@ import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import CommentsList from "@/components/comments/CommentsList";
 
 const styles = (theme: ThemeType) => ({
   commentsList: {
@@ -47,9 +48,6 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, class
 }) => {
   const totalCount = parentAnswer.descendentCount;
   const now = useCurrentTime();
-  
-  const { CommentsList, } = Components
-  
   const treeOptionsWithHighlight = useMemo(() => ({
     ...treeOptions,
     highlightDate: post?.lastVisitedAt ? new Date(post.lastVisitedAt) : now,
@@ -75,4 +73,6 @@ declare global {
     AnswerCommentsList: typeof AnswerCommentsListComponent
   }
 }
+
+export default AnswerCommentsListComponent;
 

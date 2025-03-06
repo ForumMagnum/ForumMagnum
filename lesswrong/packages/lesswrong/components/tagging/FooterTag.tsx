@@ -10,6 +10,9 @@ import { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import TagsTooltip from "@/components/tagging/TagsTooltip";
+import CoreTagIcon from "@/components/tagging/CoreTagIcon";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -171,8 +174,6 @@ const FooterTag = ({
   const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name
     : tag.name;
-
-  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
@@ -218,3 +219,5 @@ declare global {
     FooterTag: typeof FooterTagComponent
   }
 }
+
+export default FooterTagComponent;

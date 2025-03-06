@@ -3,6 +3,8 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +41,6 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   displayTitle: boolean,
   reviewedAt: Date
 }) => {
-  const {PostsTooltip, FormatDate} = Components;
   return (
     <PostsTooltip
       post={post}
@@ -77,3 +78,5 @@ declare global {
     PostKarmaWithPreview: typeof PostKarmaWithPreviewComponent
   }
 }
+
+export default PostKarmaWithPreviewComponent;

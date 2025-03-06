@@ -142,3 +142,5 @@ declare global {
     LWPopper: typeof LWPopperComponent
   }
 }
+
+export default LWPopperComponent;

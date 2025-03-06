@@ -7,6 +7,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { MenuItem } from "@/components/common/Menus";
+import { Loading } from "@/components/vulcan-core/Loading";
+import MetaInfo from "@/components/common/MetaInfo";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -124,7 +129,6 @@ export const UserRateLimitItem = ({userId, classes}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, MenuItem, Loading, MetaInfo, LWTooltip } = Components;
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
@@ -234,4 +238,6 @@ declare global {
     UserRateLimitItem: typeof UserRateLimitItemComponent
   }
 }
+
+export default UserRateLimitItemComponent;
 

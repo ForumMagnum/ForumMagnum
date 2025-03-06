@@ -5,6 +5,11 @@ import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWPopper from "@/components/common/LWPopper";
+import CommentsNode from "@/components/comments/CommentsNode";
+import CommentsItemMeta from "@/components/comments/CommentsItem/CommentsItemMeta";
+import CommentBottomCaveats from "@/components/comments/CommentsItem/CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,8 +67,6 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta, CommentBottomCaveats } = Components;
-
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",
@@ -198,3 +201,5 @@ declare global {
     LWQuickTakesCollapsedListItem: typeof LWQuickTakesCollapsedListItemComponent
   }
 }
+
+export default LWQuickTakesCollapsedListItemComponent;

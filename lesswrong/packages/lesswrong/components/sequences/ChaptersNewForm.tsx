@@ -3,6 +3,7 @@ import { styles } from './CollectionsEditForm';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
@@ -15,7 +16,7 @@ const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps, class
   return (
     <div className={classNames(classes.newOrEditForm,classes.newForm)}>
       <h3>Add Chapter</h3>
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collectionName="Chapters"
         successCallback={successCallback}
         cancelCallback={cancelCallback}
@@ -35,4 +36,6 @@ declare global {
     ChaptersNewForm: typeof ChaptersNewFormComponent
   }
 }
+
+export default ChaptersNewFormComponent;
 

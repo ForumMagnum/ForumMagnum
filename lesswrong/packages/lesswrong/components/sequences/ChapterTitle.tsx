@@ -26,3 +26,5 @@ declare global {
     ChapterTitle: typeof ChapterTitleComponent
   }
 }
+
+export default ChapterTitleComponent;

@@ -5,6 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -31,8 +32,6 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
       },
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase("Approve New User")}
@@ -51,3 +50,5 @@ declare global {
     ApproveNewUserDropdownItem: typeof ApproveNewUserDropdownItemComponent
   }
 }
+
+export default ApproveNewUserDropdownItemComponent;

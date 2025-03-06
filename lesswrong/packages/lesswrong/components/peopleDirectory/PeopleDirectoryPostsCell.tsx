@@ -84,3 +84,5 @@ declare global {
     PeopleDirectoryPostsCell: typeof PeopleDirectoryPostsCellComponent
   }
 }
+
+export default PeopleDirectoryPostsCellComponent;

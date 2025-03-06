@@ -3,6 +3,11 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";
+import HorizScrollBlock from "@/components/common/HorizScrollBlock";
+import PeopleDirectoryHeading from "@/components/peopleDirectory/PeopleDirectoryHeading";
+import PeopleDirectoryResultRow from "@/components/peopleDirectory/PeopleDirectoryResultRow";
+import PeopleDirectoryNoResults from "@/components/peopleDirectory/PeopleDirectoryNoResults";
+import PeopleDirectoryCard from "@/components/peopleDirectory/PeopleDirectoryCard";
 
 const HORIZ_PADDING = 24;
 
@@ -71,11 +76,6 @@ const PeopleDirectoryResultsList = ({classes}: {
       gridTemplateColumns += ` ${column.columnWidth ?? " 1fr"}`;
     }
   }
-
-  const {
-    HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow,
-    PeopleDirectoryNoResults, PeopleDirectoryCard,
-  } = Components;
   if (results.length < 1 && !resultsLoading) {
     return <PeopleDirectoryNoResults />
   }
@@ -132,3 +132,5 @@ declare global {
     PeopleDirectoryResultsList: typeof PeopleDirectoryResultsListComponent
   }
 }
+
+export default PeopleDirectoryResultsListComponent;

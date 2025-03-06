@@ -106,3 +106,5 @@ declare global {
   }
 }
 
+export default ReactOrAntireactVoteComponent;
+

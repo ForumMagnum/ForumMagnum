@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const selectedTextToolbarStyles = (theme: ThemeType) => ({
   toolbarWrapper: {
@@ -58,7 +59,6 @@ type SelectedTextToolbarState =
 const CommentOnSelectionPageWrapper = ({children}: {
   children: React.ReactNode
 }) => {
-  const { SelectedTextToolbar } = Components;
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
   
   const closeToolbar = useCallback(() => {
@@ -157,7 +157,6 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
   x: number, y: number,
   classes: ClassesType<typeof selectedTextToolbarStyles>,
 }) => {
-  const { LWTooltip } = Components;
   const { captureEvent } = useTracking()
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
@@ -276,4 +275,10 @@ declare global {
     SelectedTextToolbar: typeof SelectedTextToolbarComponent
     CommentOnSelectionContentWrapper: typeof CommentOnSelectionContentWrapperComponent,
   }
+}
+
+export {
+  CommentOnSelectionPageWrapperComponent as CommentOnSelectionPageWrapper,
+  SelectedTextToolbarComponent as SelectedTextToolbar,
+  CommentOnSelectionContentWrapperComponent as CommentOnSelectionContentWrapper
 }

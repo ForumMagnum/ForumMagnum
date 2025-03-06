@@ -35,3 +35,5 @@ declare global {
     PeopleDirectoryClearAll: typeof PeopleDirectoryClearAllComponent
   }
 }
+
+export default PeopleDirectoryClearAllComponent;

@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import React from 'react';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import classNames from 'classnames';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -25,7 +26,6 @@ const CommentDiscussionIcon = ({comment, small = false, classes}: {
   small?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components
   if (comment.tagCommentType !== "SUBFORUM" || comment.topLevelCommentId) return null
 
   return (
@@ -44,4 +44,6 @@ declare global {
     CommentDiscussionIcon: typeof CommentDiscussionIconComponent,
   }
 }
+
+export default CommentDiscussionIconComponent;
 

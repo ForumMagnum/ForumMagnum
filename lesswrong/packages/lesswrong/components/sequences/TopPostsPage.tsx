@@ -32,6 +32,8 @@ import '@/lib/collections/revisions/fragments'
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import SpotlightItem from "@/components/spotlights/SpotlightItem";
+import LWTooltip from "@/components/common/LWTooltip";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -795,8 +797,6 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo>,
   reviewWinnersWithPosts: PostsTopItemInfo[]
 }) {
-  const { SpotlightItem, LWTooltip } = Components;
-
   const location = useLocation();
   const { query: { year: yearQuery, category: categoryQuery } } = location;
 
@@ -1223,3 +1223,7 @@ declare global {
 }
 
 export default TopPostsPageComponent;
+
+export {
+  TopPostsPageComponent as TopPostsPage
+}

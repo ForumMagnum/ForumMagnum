@@ -7,6 +7,10 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { PopperPlacementType } from '@material-ui/core/Popper';
+import LWPopper from "@/components/common/LWPopper";
+import AddTagOrWikiPage from "@/components/tagging/AddTagOrWikiPage";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   addTagButton: {
@@ -33,8 +37,6 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTagOrWikiPage, LWClickAwayListener, LWTooltip } = Components
-
   if (!userCanUseTags(currentUser)) {
     return null;
   }
@@ -90,3 +92,5 @@ declare global {
     AddTagButton: typeof AddTagButtonComponent
   }
 }
+
+export default AddTagButtonComponent;

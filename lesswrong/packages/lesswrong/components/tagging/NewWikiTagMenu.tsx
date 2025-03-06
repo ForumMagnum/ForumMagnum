@@ -3,12 +3,14 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { tagCreateUrl } from "../../lib/collections/tags/helpers";
 import Paper from "@material-ui/core/Paper";
+import LWPopper from "@/components/common/LWPopper";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
 
 const NewWikiTagMenu = ({ children }: { children: React.ReactNode }) => {
   const subMenuHover = useHover();
   const { eventHandlers: subMenuHandlers, hover: subMenuIsOpen, anchorEl: subMenuAnchor, forceUnHover: closeSubMenu } = subMenuHover;
-  const { LWPopper, DropdownMenu, DropdownItem, DropdownDivider } = Components;
-
   return (
     <span {...subMenuHandlers}>
       {children}
@@ -45,4 +47,8 @@ declare global {
   interface ComponentTypes {
     NewWikiTagMenu: typeof NewWikiTagMenuComponent;
   }
+}
+
+export {
+  NewWikiTagMenuComponent as NewWikiTagMenu
 } 

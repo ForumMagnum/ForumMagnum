@@ -2,6 +2,8 @@ import React from 'react';
 import { gardenForm } from './GardenCodeWidget';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +17,6 @@ export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, succ
   successCallback?: any,
   cancelCallback?: any,
 }) => {
-  const { WrappedSmartForm, ContentStyles } = Components
   return <ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     <WrappedSmartForm
       layout="elementOnly"
@@ -38,3 +39,5 @@ declare global {
     GardenCodesEditForm: typeof GardenCodesEditFormComponent
   }
 }
+
+export default GardenCodesEditFormComponent;

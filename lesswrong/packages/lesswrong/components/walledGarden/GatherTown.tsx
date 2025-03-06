@@ -11,6 +11,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import LWTooltip from "@/components/common/LWTooltip";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
+import GardenCodesList from "@/components/walledGarden/GardenCodesList";
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 export const gatherTownUserTrackingIsBroken = new DatabasePublicSetting<boolean>('gatherTownUserTrackingIsBroken', false)
@@ -123,9 +126,6 @@ const GatherTown = ({classes}: {
   const { flash } = useMessages();
 
   const updateCurrentUser = useUpdateCurrentUser();
-
-  const { LWTooltip, AnalyticsTracker, GardenCodesList } = Components
-
   if (!currentUser) return null
   if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
   if (gardenOpenToPublic.get() && currentUser.karma < 100) return null
@@ -191,3 +191,5 @@ declare global {
     GatherTown: typeof GatherTownComponent
   }
 }
+
+export default GatherTownComponent;

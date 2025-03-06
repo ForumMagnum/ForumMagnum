@@ -463,3 +463,5 @@ declare global {
     ImageCropPreview: typeof ImageCropPreviewComponent
   }
 }
+
+export default ImageCropPreviewComponent;

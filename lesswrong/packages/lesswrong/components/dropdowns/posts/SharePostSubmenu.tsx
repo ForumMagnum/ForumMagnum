@@ -4,6 +4,9 @@ import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isMobile } from '@/lib/utils/isMobile';
+import SharePostActions from "@/components/dropdowns/posts/SharePostActions";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
 })
@@ -13,7 +16,6 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
   closeMenu?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SharePostActions, DropdownItem, LWTooltip } = Components;
   const { hover, eventHandlers } = useHover();
   
   function shareClicked() {
@@ -62,3 +64,5 @@ declare global {
     SharePostSubmenu: typeof SharePostSubmenuComponent
   }
 }
+
+export default SharePostSubmenuComponent;

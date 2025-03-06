@@ -4,6 +4,7 @@ import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers"
 import { useCurrentUser } from "../../common/withUser";
 import { isEAForum } from "../../../lib/instanceSettings";
 import qs from "qs";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -13,8 +14,6 @@ const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const link = `/postAnalytics?${qs.stringify({postId: post._id})}`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Analytics"
@@ -34,3 +33,5 @@ declare global {
     PostAnalyticsDropdownItem: typeof PostAnalyticsDropdownItemComponent
   }
 }
+
+export default PostAnalyticsDropdownItemComponent;

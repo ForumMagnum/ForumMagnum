@@ -6,6 +6,9 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import TagDiscussionSection from "@/components/tagging/TagDiscussionSection";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -26,8 +29,6 @@ const TagDiscussionPage = ({classes}: {
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug, "TagFragment");
-  const {SingleColumnSection, TagDiscussionSection, ContentStyles} = Components;
-  
   return (
     <SingleColumnSection>
       { tag && <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
@@ -50,3 +51,5 @@ declare global {
     TagDiscussionPage: typeof TagDiscussionPageComponent
   }
 }
+
+export default TagDiscussionPageComponent;

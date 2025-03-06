@@ -4,6 +4,11 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import * as _ from 'underscore'
 import MessageIcon from '@material-ui/icons/Message'
 import DescriptionIcon from '@material-ui/icons/Description'
+import LWTooltip from "@/components/common/LWTooltip";
+import PostKarmaWithPreview from "@/components/sunshineDashboard/PostKarmaWithPreview";
+import CommentKarmaWithPreview from "@/components/sunshineDashboard/CommentKarmaWithPreview";
+import { Loading } from "@/components/vulcan-core/Loading";
+import Row from "@/components/common/Row";
 
 const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
@@ -49,7 +54,6 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   user: SunshineUsersList,
   loading: boolean
 }) => {
-  const { LWTooltip, PostKarmaWithPreview, CommentKarmaWithPreview, Loading, Row } = Components 
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 
@@ -136,3 +140,5 @@ declare global {
     ContentSummaryRows: typeof ContentSummaryRowsComponent
   }
 }
+
+export default ContentSummaryRowsComponent;

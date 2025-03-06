@@ -57,3 +57,5 @@ declare global {
     WrappedStrawPoll: typeof WrappedStrawPollComponent
   }
 }
+
+export default WrappedStrawPollComponent;

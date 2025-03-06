@@ -5,6 +5,12 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Typography } from "@/components/common/Typography";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import UsersName from "@/components/users/UsersName";
+import ProfilePhoto from "@/components/messaging/ProfilePhoto";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,28 +97,28 @@ const MessageItem = ({message, classes}: {
 
   let profilePhoto: React.ReactNode|null = null;
   if (!isCurrentUser && isFriendlyUI) {
-    profilePhoto = <Components.ProfilePhoto user={message.user} className={classes.profileImg} />
+    profilePhoto = <ProfilePhoto user={message.user} className={classes.profileImg} />
   }
   
   return (
     <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI, [classes.rootCurrentUserWithImages]: isFriendlyUI && isCurrentUser})}>
       {profilePhoto}
-      <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+      <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>
           {message.user && <span className={classes.username}>
-            <span className={colorClassName}><Components.UsersName user={message.user}/></span>
+            <span className={colorClassName}><UsersName user={message.user}/></span>
           </span>}
           <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
-          {message.createdAt && <Components.MetaInfo>
-            <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
-          </Components.MetaInfo>}
+          {message.createdAt && <MetaInfo>
+            <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
+          </MetaInfo>}
         </div>
-        <Components.ContentItemBody
+        <ContentItemBody
           dangerouslySetInnerHTML={htmlBody}
           className={classes.messageBody}
           description={`message ${message._id}`}
         />
-      </Components.Typography>
+      </Typography>
     </div>
   )
 }
@@ -127,4 +133,6 @@ declare global {
     MessageItem: typeof MessageItemComponent
   }
 }
+
+export default MessageItemComponent;
 

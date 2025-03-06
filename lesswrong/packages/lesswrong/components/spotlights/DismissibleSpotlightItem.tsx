@@ -5,6 +5,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
+import SpotlightItem from "@/components/spotlights/SpotlightItem";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 export const DismissibleSpotlightItem = ({
   current,
@@ -17,7 +19,6 @@ export const DismissibleSpotlightItem = ({
   standaloneSection?: boolean
   className?: string,
 }) => {
-  const { SpotlightItem, SingleColumnSection } = Components
   const { captureEvent } = useTracking()
 
   const currentSpotlight = useCurrentFrontpageSpotlight({
@@ -73,3 +74,5 @@ declare global {
     DismissibleSpotlightItem: typeof DismissibleSpotlightItemComponent
   }
 }
+
+export default DismissibleSpotlightItemComponent;

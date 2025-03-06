@@ -22,6 +22,10 @@ import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import ReviewVoteTableRow from "@/components/review/ReviewVoteTableRow";
+import ReviewVotingPageMenu from "@/components/review/ReviewVotingPageMenu";
+import PostsTagsList from "@/components/tagging/PostsTagsList";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -104,13 +108,6 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   expandedPost: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const {
-    ReviewVoteTableRow,
-    ReviewVotingPageMenu,
-    PostsTagsList,
-    LWTooltip
-  } = Components
-
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { query } = useLocation()
@@ -451,3 +448,5 @@ declare global {
     ReviewVotingPage: typeof ReviewVotingPageComponent
   }
 }
+
+export default ReviewVotingPageComponent;

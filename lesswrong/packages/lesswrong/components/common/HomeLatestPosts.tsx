@@ -19,6 +19,16 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import PostsList2 from "@/components/posts/PostsList2";
+import TagFilterSettings from "@/components/tagging/TagFilterSettings";
+import LWTooltip from "@/components/common/LWTooltip";
+import SettingsButton from "@/components/icons/SettingsButton";
+import CuratedPostsList from "@/components/recommendations/CuratedPostsList";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import StickiedPosts from "@/components/ea-forum/StickiedPosts";
+import PostsListViewToggle from "@/components/posts/PostsListViewToggle";
+import SurveyPostsItem from "@/components/surveys/SurveyPostsItem";
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -122,11 +132,6 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     captureOnMount: true,
   })
   const { query } = location;
-  const {
-    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts, PostsListViewToggle,
-    SurveyPostsItem,
-  } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
@@ -242,3 +247,5 @@ declare global {
     HomeLatestPosts: typeof HomeLatestPostsComponent
   }
 }
+
+export default HomeLatestPostsComponent;

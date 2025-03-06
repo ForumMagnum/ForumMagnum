@@ -32,3 +32,5 @@ declare global {
   }
 }
 
+export default SidebarActionMenuComponent;
+

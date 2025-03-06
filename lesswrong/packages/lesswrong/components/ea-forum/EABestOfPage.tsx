@@ -8,6 +8,13 @@ import { useMulti } from "../../lib/crud/withMulti";
 import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
+import HeadTags from "@/components/common/HeadTags";
+import EASequenceCard from "@/components/ea-forum/EASequenceCard";
+import EACollectionCard from "@/components/ea-forum/EACollectionCard";
+import EAPostsItem from "@/components/posts/EAPostsItem";
+import PostsAudioCard from "@/components/posts/PostsAudioCard";
+import PostsVideoCard from "@/components/posts/PostsVideoCard";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -178,7 +185,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
 
   if (loading || sequencesLoading || collectionsLoading || monthlyHighlightsLoading) {
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
@@ -187,11 +194,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
-
-  const {
-    HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
-    PostsVideoCard,
-  } = Components;
   return (
     <>
       <HeadTags title="Best of the Forum" />
@@ -315,3 +317,5 @@ declare global {
     EABestOfPage: typeof EABestOfPageComponent;
   }
 }
+
+export default EABestOfPageComponent;

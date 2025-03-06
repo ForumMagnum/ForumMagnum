@@ -6,6 +6,10 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import CommentsList from "@/components/comments/CommentsList";
+import PostsPageCrosspostComments from "@/components/posts/PostsPage/PostsPageCrosspostComments";
+import CantCommentExplanation from "@/components/comments/CantCommentExplanation";
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -67,9 +71,6 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-  
-  const { CommentsList, PostsPageCrosspostComments } = Components
-
   const highlightDate = post?.lastVisitedAt && new Date(post.lastVisitedAt);
 
   const postAuthor = post.user;
@@ -89,7 +90,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
         && (
         <div id={`posts-debate-thread-new-comment`} className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
-          <Components.CommentsNewForm
+          <CommentsNewForm
             post={post}
             type="comment"
             {...newFormProps}
@@ -97,7 +98,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
         </div>
       )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
-        <Components.CantCommentExplanation post={post}/>
+        <CantCommentExplanation post={post}/>
       }
       <div className={classes.debateCommentsList}>
         <CommentsList
@@ -125,4 +126,6 @@ declare global {
     DebateCommentsListSection: typeof DebateCommentsListSectionComponent,
   }
 }
+
+export default DebateCommentsListSectionComponent;
 

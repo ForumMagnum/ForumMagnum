@@ -14,6 +14,7 @@ import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   body: {
@@ -109,7 +110,6 @@ const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ResponseIcon, ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -220,4 +220,9 @@ declare global {
     RSVPs: typeof RSVPsComponent
     ResponseIcon: typeof ResponseIconComponent
   }
+}
+
+export {
+  RSVPsComponent as RSVPs,
+  ResponseIconComponent as ResponseIcon
 }

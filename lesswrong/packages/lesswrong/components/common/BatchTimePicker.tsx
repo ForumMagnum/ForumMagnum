@@ -6,6 +6,7 @@ import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
+import { MenuItem } from "@/components/common/Menus";
 
 type TimeChange = {
   timeOfDay: number;
@@ -28,8 +29,6 @@ const BatchTimePicker = ({ mode, value, onChange}: {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;
-  const { MenuItem } = Components;
-  
   const applyChange = (change: TimeChange) => {
     const newTimeLocal = { ...valueLocal, ...change };
     const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocal.timeOfDay, newTimeLocal.dayOfWeek, timezone, "GMT");
@@ -78,3 +77,5 @@ declare global {
     BatchTimePicker: typeof BatchTimePickerComponent
   }
 }
+
+export default BatchTimePickerComponent;

@@ -3,6 +3,9 @@ import React from 'react';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { forumAllPostsNumDaysSetting } from '../../lib/publicSettings';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsTimeframeList from "@/components/posts/PostsTimeframeList";
 
 const styles = (theme: ThemeType) => ({
   daily: {
@@ -13,7 +16,6 @@ const EventsPast = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
-  const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = forumAllPostsNumDaysSetting.get();
   const terms: PostsViewTerms = {
     view: 'eventsInTimeRange',
@@ -49,4 +51,6 @@ declare global {
     EventsPast: typeof EventsPastComponent
   }
 }
+
+export default EventsPastComponent;
 

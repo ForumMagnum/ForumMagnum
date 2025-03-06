@@ -11,6 +11,15 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LoginPopupButton from "@/components/users/LoginPopupButton";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
+import WalledGardenMessage from "@/components/walledGarden/WalledGardenMessage";
+import GatherTownIframeWrapper from "@/components/walledGarden/GatherTownIframeWrapper";
+import WalledGardenPortalBar from "@/components/walledGarden/WalledGardenPortalBar";
+import GardenEventDetails from "@/components/walledGarden/GardenEventDetails";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const toggleEventsOffset = "330px"
 
@@ -75,9 +84,6 @@ const styles = (theme: ThemeType) => ({
 
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody, ContentStyles } = Components
-  
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
   const isOpenToPublic = gardenOpenToPublic.get()
@@ -247,3 +253,5 @@ declare global {
     WalledGardenPortal: typeof WalledGardenPortalComponent
   }
 }
+
+export default WalledGardenPortalComponent;

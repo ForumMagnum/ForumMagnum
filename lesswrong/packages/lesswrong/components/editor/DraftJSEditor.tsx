@@ -199,3 +199,5 @@ declare global {
     DraftJSEditor: typeof DraftJSEditorComponent
   }
 }
+
+export default DraftJSEditorComponent;

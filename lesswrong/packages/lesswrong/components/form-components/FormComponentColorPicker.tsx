@@ -56,3 +56,5 @@ declare global {
     FormComponentColorPicker: typeof FormComponentColorPickerComponent
   }
 }
+
+export default FormComponentColorPickerComponent;

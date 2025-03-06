@@ -4,6 +4,9 @@ import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
 import type { EagerPostComments } from "./PostsPage";
+import Error404 from "@/components/common/Error404";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsPage from "@/components/posts/PostsPage/PostsPage";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -45,8 +48,6 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
     foreignPost,
     combinedPost,
   } = useForeignCrosspost(post, fetchProps);
-
-  const { Error404, Loading, PostsPage } = Components;
   // If we get a error fetching the foreign xpost data, that should not stop us
   // from rendering the post if we have it locally
   if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
@@ -83,3 +84,5 @@ declare global {
     PostsPageCrosspostWrapper: typeof PostsPageCrosspostWrapperComponent
   }
 }
+
+export default PostsPageCrosspostWrapperComponent;

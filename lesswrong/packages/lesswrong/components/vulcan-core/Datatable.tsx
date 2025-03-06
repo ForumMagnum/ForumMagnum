@@ -7,6 +7,8 @@ import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import LoadMore from "@/components/common/LoadMore";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -117,10 +119,8 @@ const DatatableContents = (props: {
   emptyState?: JSX.Element;
 }) => {
   const { title, collection, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
-  const { LoadMore } = Components;
-
   if (loading) {
-    return <div className="datatable-list datatable-list-loading"><Components.Loading /></div>;
+    return <div className="datatable-list datatable-list-loading"><Loading /></div>;
   } else if (!results || !results.length) {
     return emptyState || null;
   }
@@ -143,7 +143,7 @@ const DatatableContents = (props: {
       {hasMore &&
         <DatatableContentsMoreLayout>
           {loadingMore
-            ? <Components.Loading />
+            ? <Loading />
             : <LoadMore count={count} totalCount={totalCount} loadMore={loadMore} />
           }
         </DatatableContentsMoreLayout>
@@ -269,3 +269,5 @@ declare global {
     Datatable: typeof DatatableComponent,
   }
 }
+
+export default DatatableComponent;

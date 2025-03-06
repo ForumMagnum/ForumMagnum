@@ -10,6 +10,7 @@ import { POLL_MAX_WIDTH, getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
+import ForumEventPoll from "@/components/forumEvents/ForumEventPoll";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,9 +101,6 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
     })}), ${darkColor}`
     pollAreaStyle.background = background
   }
-
-  const {ForumEventPoll} = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
       <div className={classes.root} style={
@@ -138,3 +136,5 @@ declare global {
     ForumEventPostPagePollSection: typeof ForumEventPostPagePollSectionComponent
   }
 }
+
+export default ForumEventPostPagePollSectionComponent;

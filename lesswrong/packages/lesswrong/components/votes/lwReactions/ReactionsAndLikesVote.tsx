@@ -9,6 +9,9 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
 import { isMobile } from '@/lib/utils/isMobile';
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import { NamesAttachedReactionsCommentBottom } from "@/components/votes/lwReactions/NamesAttachedReactionsVoteOnComment";
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
@@ -80,7 +83,6 @@ const ReactionsAndLikesVote  = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip, ForumIcon } = Components;
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
@@ -147,7 +149,7 @@ const ReactionsAndLikesVote  = ({
 const ReactionsAndLikesCommentBottom = ({
   document, hideKarma=false, commentBodyRef, voteProps, post, collectionName, votingSystem
 }: NamesAttachedReactionsCommentBottomProps) => {
-  return <Components.NamesAttachedReactionsCommentBottom
+  return <NamesAttachedReactionsCommentBottom
     document={document} hideKarma={hideKarma} commentBodyRef={commentBodyRef}
     voteProps={voteProps} post={post}
     collectionName={collectionName} votingSystem={votingSystem}
@@ -164,5 +166,11 @@ declare global {
     ReactionsAndLikesVoteOnComment: typeof ReactionsAndLikesVoteOnCommentComponent
     ReactionsAndLikesCommentBottom: typeof ReactionsAndLikesCommentBottomComponent
   }
+}
+
+export {
+  ReactionsAndLikesVoteComponent as ReactionsAndLikesVote,
+  ReactionsAndLikesVoteOnCommentComponent as ReactionsAndLikesVoteOnComment,
+  ReactionsAndLikesCommentBottomComponent as ReactionsAndLikesCommentBottom
 }
 

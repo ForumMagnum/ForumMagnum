@@ -3,6 +3,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import SunshineListCount from "@/components/sunshineDashboard/SunshineListCount";
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import SunshineNewPostsItem from "@/components/sunshineDashboard/SunshineNewPostsItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,8 +28,6 @@ const SunshineNewPostsList = ({ terms, classes }: {
     enableTotal: true,
   });
   const currentUser = useCurrentUser();
-  
-  const { SunshineListCount, SunshineListTitle, SunshineNewPostsItem, LoadMore } = Components
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div className={classes.root}>
@@ -55,4 +57,6 @@ declare global {
     SunshineNewPostsList: typeof SunshineNewPostsListComponent
   }
 }
+
+export default SunshineNewPostsListComponent;
 

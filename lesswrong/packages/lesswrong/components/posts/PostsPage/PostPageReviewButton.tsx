@@ -4,6 +4,9 @@ import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUti
 import { useCurrentUser } from "@/components/common/withUser";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import ReviewVotingWidget from "@/components/review/ReviewVotingWidget";
+import ReviewPostButton from "@/components/review/ReviewPostButton";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
@@ -31,9 +34,6 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   const currentUser = useCurrentUser();
 
   if (!postEligibleForReview(post)) return null;
-
-  const { ReviewVotingWidget, ReviewPostButton, LWTooltip } = Components;
-
   return (
     <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
@@ -51,3 +51,5 @@ declare global {
     PostPageReviewButton: typeof PostPageReviewButtonComponent
   }
 }
+
+export default PostPageReviewButtonComponent;

@@ -20,6 +20,9 @@ import {
 } from "../../lib/publicSettings";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import PostsTimeframeList from "@/components/posts/PostsTimeframeList";
+import PostsTimeframeListExponential from "@/components/posts/PostsTimeframeListExponential";
+import PostsList2 from "@/components/posts/PostsList2";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -66,9 +69,6 @@ const AllPostsList = ({
     after: query.after,
     before: query.before,
   };
-
-  const {PostsTimeframeList, PostsTimeframeListExponential, PostsList2} = Components;
-
   if (currentTimeframe === "allTime") {
     return (
       <AnalyticsContext
@@ -169,3 +169,5 @@ declare global {
     AllPostsList: typeof AllPostsListComponent
   }
 }
+
+export default AllPostsListComponent;

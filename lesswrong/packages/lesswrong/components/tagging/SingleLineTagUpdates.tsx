@@ -9,6 +9,14 @@ import moment from 'moment';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import type { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
+import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
+import PostsItemComments from "@/components/posts/PostsItemComments";
+import AllPostsPageTagRevisionItem from "@/components/tagging/AllPostsPageTagRevisionItem";
+import CommentById from "@/components/comments/CommentById";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import UsersName from "@/components/users/UsersName";
+import AllPostsPageTagDocDeletionItem from "@/components/tagging/AllPostsPageTagDocDeletionItem";
 
 export const POSTED_AT_WIDTH = 38
 
@@ -116,8 +124,6 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName, AllPostsPageTagDocDeletionItem } = Components;
-  
   documentDeletions ??= [];
 
   return <div className={classes.root} >
@@ -213,3 +219,5 @@ declare global {
     SingleLineTagUpdates: typeof SingleLineTagUpdatesComponent
   }
 }
+
+export default SingleLineTagUpdatesComponent;

@@ -5,6 +5,10 @@ import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsItem from "@/components/posts/PostsItem";
+import LoadMore from "@/components/common/LoadMore";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -67,9 +71,6 @@ const PostsListUserCommentedOn = ({classes, filter, sort}: {
     filter,
     sort,
   })
-
-  const {Loading, PostsItem, LoadMore, Typography} = Components
-
   const posts = data?.PostsUserCommentedOn?.posts
 
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
@@ -113,3 +114,5 @@ declare global {
     PostsListUserCommentedOn: typeof PostsListUserCommentedOnComponent
   }
 }
+
+export default PostsListUserCommentedOnComponent;

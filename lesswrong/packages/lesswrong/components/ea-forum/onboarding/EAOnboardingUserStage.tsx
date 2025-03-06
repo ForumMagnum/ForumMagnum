@@ -7,6 +7,9 @@ import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
 import {useCurrentUser} from '../../common/withUser'
+import EAOnboardingStage from "@/components/ea-forum/onboarding/EAOnboardingStage";
+import EAOnboardingInput from "@/components/ea-forum/onboarding/EAOnboardingInput";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -147,8 +150,6 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   }, []);
 
   const canContinue = !!name && !nameTaken && acceptedTos;
-
-  const {EAOnboardingStage, EAOnboardingInput, ForumIcon} = Components;
   return (
     <EAOnboardingStage
       stageName="user"
@@ -213,3 +214,5 @@ declare global {
     EAOnboardingUserStage: typeof EAOnboardingUserStageComponent
   }
 }
+
+export default EAOnboardingUserStageComponent;

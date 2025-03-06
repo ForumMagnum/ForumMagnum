@@ -5,6 +5,10 @@ import classNames from 'classnames';
 
 // Share styles with SequencesGrid
 import { styles } from './SequencesGrid';
+import { Typography } from "@/components/common/Typography";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LoadMore from "@/components/common/LoadMore";
+import SequencesGrid from "@/components/sequences/SequencesGrid";
 
 const SequencesGridWrapper = ({
   terms,
@@ -31,19 +35,19 @@ const SequencesGridWrapper = ({
   
   if (results && results.length) {
     return (<div className={className}>
-      <Components.SequencesGrid sequences={results} showAuthor={showAuthor} />
-      {showLoadMore && <Components.LoadMore {...loadMoreProps} />}
+      <SequencesGrid sequences={results} showAuthor={showAuthor} />
+      {showLoadMore && <LoadMore {...loadMoreProps} />}
     </div>);
   } else if (loading) {
     return (<div className={classNames(className, classes.grid)}>
-      <Components.Loading/>
+      <Loading/>
     </div>);
   } else {
     return (<div className={classNames(className, classes.grid)}>
       <div className={classes.gridContent}>
-        <Components.Typography variant="body2" className={classes.noResults}>
+        <Typography variant="body2" className={classes.noResults}>
           No sequences to display.
-        </Components.Typography>
+        </Typography>
       </div>
     </div>);
   }
@@ -61,4 +65,6 @@ declare global {
     SequencesGridWrapper: typeof SequencesGridWrapperComponent
   }
 }
+
+export default SequencesGridWrapperComponent;
 

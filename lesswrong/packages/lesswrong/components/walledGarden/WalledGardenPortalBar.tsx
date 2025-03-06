@@ -2,6 +2,11 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { gatherTownURL } from "./GatherTownIframeWrapper";
+import GardenCodeWidget from "@/components/walledGarden/GardenCodeWidget";
+import GardenCodesList from "@/components/walledGarden/GardenCodesList";
+import PomodoroWidget from "@/components/walledGarden/PomodoroWidget";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const widgetStyling = {
   marginLeft: 30,
@@ -71,8 +76,6 @@ const styles = (theme: ThemeType) => ({
 
 
 export const WalledGardenPortalBar = ({iframeRef, classes}: {iframeRef: React.RefObject<HTMLIFrameElement|null>, classes: ClassesType<typeof styles>}) => {
-  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, Typography, ContentStyles } = Components
-
   const currentUser =  useCurrentUser()
 
   const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
@@ -116,3 +119,5 @@ declare global {
     WalledGardenPortalBar: typeof WalledGardenPortalBarComponent
   }
 }
+
+export default WalledGardenPortalBarComponent;

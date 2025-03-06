@@ -7,6 +7,8 @@ import CloseIcon from "@material-ui/icons/Close";
 import { useCurrentUser } from "../common/withUser";
 import { isBookUI } from "../../themes/forumTheme";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import LWTooltip from "@/components/common/LWTooltip";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
 
 export const MENU_WIDTH = 18;
 
@@ -65,9 +67,9 @@ export const DismissButton = ({ onDismiss }: {
   onDismiss: () => void
 }) => {
   const classes = useStyles(styles);
-  return <Components.LWTooltip title={dismissRecommendationTooltip} placement="right">
+  return <LWTooltip title={dismissRecommendationTooltip} placement="right">
     <CloseIcon className={classes.dismissButton} onClick={onDismiss} />
-  </Components.LWTooltip>
+  </LWTooltip>
 };
 
 const PostsItemTrailingButtons = ({
@@ -85,9 +87,6 @@ const PostsItemTrailingButtons = ({
   if (!showTrailingButtons || showMostValuableCheckbox) {
     return null;
   }
-
-  const {LWTooltip, PostActionsButton} = Components;
-
   return (
     <>
       {(showDismissButton || resumeReading || isBookUI) && <div className={classes.actions}>
@@ -115,3 +114,5 @@ declare global {
     PostsItemTrailingButtons: typeof PostsItemTrailingButtonsComponent
   }
 }
+
+export default PostsItemTrailingButtonsComponent;

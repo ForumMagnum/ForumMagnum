@@ -6,6 +6,10 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { isPostWithForeignId } from "@/components/hooks/useForeignCrosspost";
 import { SoftUpArrowIcon } from "@/components/icons/softUpArrowIcon";
 import type { WrappedTopPost } from "./hooks";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import TruncatedAuthorsList from "@/components/posts/TruncatedAuthorsList";
+import PostMostValuableCheckbox from "@/components/posts/PostMostValuableCheckbox";
+import BookmarkButton from "@/components/posts/BookmarkButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,11 +96,6 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
   const readTimeText = (!isRecommendedPost || isPostWithForeignId(post))
     ? ""
     : `, ${post.readTimeMinutes ?? 1} min read`;
-
-  const {
-    PostsItemTooltipWrapper, TruncatedAuthorsList, PostMostValuableCheckbox,
-    BookmarkButton,
-  } = Components;
   return (
     <article className={classes.root} ref={authorExpandContainer} onClick={onClick}>
       <div className={classes.score}>
@@ -156,3 +155,5 @@ declare global {
     WrappedPost: typeof WrappedPostComponent
   }
 }
+
+export default WrappedPostComponent;

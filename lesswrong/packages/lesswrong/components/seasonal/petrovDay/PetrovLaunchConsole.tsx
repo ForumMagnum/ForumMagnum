@@ -6,6 +6,8 @@ import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
 import { PetrovDayActionType } from '@/lib/collections/petrovDayActions/schema';
+import PetrovWorldmapWrapper from "@/components/seasonal/petrovDay/PetrovWorldmapWrapper";
+import PastWarnings from "@/components/seasonal/petrovDay/PastWarnings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -70,7 +72,6 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   currentUser: UsersCurrent
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { PetrovWorldmapWrapper, PastWarnings } = Components;
   const [launched, setLaunched] = useState(false)
   const [openCodes, setOpenCodes] = useState(false)
   const [launchCode, setLaunchCode] = useState('')
@@ -151,3 +152,5 @@ declare global {
     PetrovLaunchConsole: typeof PetrovLaunchConsoleComponent
   }
 }
+
+export default PetrovLaunchConsoleComponent;

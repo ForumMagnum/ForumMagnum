@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, mergeWithComponents, registerComponent } from '../../lib/vulcan-lib/components';
+import Button from "@/components/vulcan-ui-bootstrap/ui/Button";
+import { IconRemove } from "@/components/vulcan-forms/FormNestedArray";
 
 const FormNestedItemLayout = ({ content, removeButton }: {
   content: React.ReactNode
@@ -50,7 +52,7 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
       removeButton={
         isArray && !hideRemove && [
           <div key="remove-button" className="form-nested-item-remove">
-            <Components.Button
+            <Button
               className="form-nested-button"
               variant="danger"
               size="small"
@@ -60,8 +62,8 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
                 removeItem(name);
               }}
             >
-              <Components.IconRemove height={12} width={12} />
-            </Components.Button>
+              <IconRemove height={12} width={12} />
+            </Button>
           </div>,
           <div
             key="remove-button-overlay"
@@ -84,4 +86,9 @@ declare global {
     FormNestedItemLayout: typeof FormNestedItemLayoutComponent
     FormNestedItem: typeof FormNestedItemComponent
   }
+}
+
+export {
+  FormNestedItemLayoutComponent as FormNestedItemLayout,
+  FormNestedItemComponent as FormNestedItem
 }

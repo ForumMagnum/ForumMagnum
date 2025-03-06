@@ -17,6 +17,18 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import SpotlightEditorStyles from "@/components/spotlights/SpotlightEditorStyles";
+import SpotlightStartOrContinueReading from "@/components/spotlights/SpotlightStartOrContinueReading";
+import { Typography } from "@/components/common/Typography";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const TEXT_WIDTH = 350;
 
@@ -483,13 +495,6 @@ export const SpotlightItem = ({
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
-
-  const {
-    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
-    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
-    Typography, LWTooltip, ForumIcon, CommentsNode
-  } = Components
-
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
@@ -637,3 +642,5 @@ declare global {
     SpotlightItem: typeof SpotlightItemComponent
   }
 }
+
+export default SpotlightItemComponent;

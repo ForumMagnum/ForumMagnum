@@ -8,6 +8,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import SeparatorBullet from "@/components/common/SeparatorBullet";
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -77,8 +80,6 @@ const styles = (theme: ThemeType) => ({
 const TagProgressBar = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();
@@ -160,4 +161,6 @@ declare global {
     TagProgressBar: typeof TagProgressBarComponent
   }
 }
+
+export default TagProgressBarComponent;
 

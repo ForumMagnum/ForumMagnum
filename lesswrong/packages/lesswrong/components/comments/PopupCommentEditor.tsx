@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import type { CommentsNewFormProps } from './CommentsNewForm';
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,8 +70,6 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNewForm } = Components;
-
   return <Paper className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>
@@ -101,3 +100,5 @@ declare global {
     PopupCommentEditor: typeof PopupCommentEditorComponent
   }
 }
+
+export default PopupCommentEditorComponent;

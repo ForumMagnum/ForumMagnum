@@ -1,8 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import CollectionsPage from "@/components/sequences/CollectionsPage";
 
 const Codex = () => {
-  return <Components.CollectionsPage documentId={'2izXHCrmJ684AnZ5X'} />
+  return <CollectionsPage documentId={'2izXHCrmJ684AnZ5X'} />
 };
 
 const CodexComponent = registerComponent('Codex', Codex);
@@ -12,4 +13,6 @@ declare global {
     Codex: typeof CodexComponent
   }
 }
+
+export default CodexComponent;
 

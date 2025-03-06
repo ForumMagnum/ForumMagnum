@@ -22,3 +22,5 @@ declare global {
     Footer: typeof FooterComponent
   }
 }
+
+export default FooterComponent;

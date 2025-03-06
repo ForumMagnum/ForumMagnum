@@ -28,6 +28,15 @@ import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import ExpandedUsersSearchHit from "@/components/search/ExpandedUsersSearchHit";
+import ExpandedPostsSearchHit from "@/components/search/ExpandedPostsSearchHit";
+import ExpandedCommentsSearchHit from "@/components/search/ExpandedCommentsSearchHit";
+import ExpandedTagsSearchHit from "@/components/search/ExpandedTagsSearchHit";
+import ExpandedSequencesSearchHit from "@/components/search/ExpandedSequencesSearchHit";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import SearchFilters from "@/components/search/SearchFilters";
 
 const hitsPerPage = 10
 
@@ -277,12 +286,6 @@ const SearchPageTabbed = ({classes}: {
       }),
     }, {replace: true});
   }
-
-  const {
-    ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon
-  } = Components;
-
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     navigate({
@@ -361,7 +364,7 @@ const SearchPageTabbed = ({classes}: {
     >
 
       <div className={classes.filtersColumnWrapper}>
-        <Components.SearchFilters
+        <SearchFilters
           tab={tab}
           tagsFilter={tagsFilter}
           handleUpdateTagsFilter={handleUpdateTagsFilter}
@@ -405,7 +408,7 @@ const SearchPageTabbed = ({classes}: {
           keepMounted
         >
           <div className={classes.filtersModalContent}>
-            <Components.SearchFilters
+            <SearchFilters
               tab={tab}
               tagsFilter={tagsFilter}
               handleUpdateTagsFilter={handleUpdateTagsFilter}
@@ -461,3 +464,5 @@ declare global {
     SearchPageTabbed: typeof SearchPageTabbedComponent
   }
 }
+
+export default SearchPageTabbedComponent;

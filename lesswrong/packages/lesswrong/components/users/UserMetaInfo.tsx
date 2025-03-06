@@ -5,7 +5,8 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import classNames from 'classnames';
-
+import ForumIcon from "@/components/common/ForumIcon";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,9 +54,6 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
   infoClassName?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { ForumIcon, FormatDate } = Components
-
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
 
   const infoClasses = classNames(infoClassName, classes.info);
@@ -94,4 +92,6 @@ declare global {
     UserMetaInfo: typeof UserMetaInfoComponent
   }
 }
+
+export default UserMetaInfoComponent;
 

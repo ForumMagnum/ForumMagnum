@@ -50,3 +50,5 @@ declare global {
     RecaptchaWarning: typeof RecaptchaWarningComponent
   }
 }
+
+export default RecaptchaWarningComponent;

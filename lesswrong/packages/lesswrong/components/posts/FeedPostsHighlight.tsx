@@ -11,6 +11,9 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,8 +108,8 @@ const FeedPostHighlightBody = ({
 
   const {truncatedHtml, wasTruncated, wordsLeft} =  truncateWithGrace(html, maxLengthWords, 20, rawWordCount, suffix);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classes.root}>
-    <Components.ContentItemBody
+  return <ContentStyles contentType="postHighlight" className={classes.root}>
+    <ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
@@ -116,8 +119,8 @@ const FeedPostHighlightBody = ({
       post={post}
       wordsLeft={wordsLeft}
     />}
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const FeedPostsHighlight = ({post, ...rest}: {
@@ -148,7 +151,7 @@ const FeedPostsHighlight = ({post, ...rest}: {
   });
 
   return loading
-    ? <Components.Loading />
+    ? <Loading />
     : <FeedPostHighlightBody {...{
         post,
         expanded,
@@ -166,4 +169,6 @@ declare global {
     FeedPostsHighlight: typeof FeedPostsHighlightComponent
   }
 }
+
+export default FeedPostsHighlightComponent;
 

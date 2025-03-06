@@ -1,12 +1,13 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "@/components/posts/PostsItem";
 
 const SequencesPostsList = ({posts, chapter}: {
   posts: Array<PostsListWithVotes>,
   chapter?: ChaptersFragment,
 }) => {
   return <div>
-    {posts.map((post) => <Components.PostsItem key={post._id} post={post} chapter={chapter} />)}
+    {posts.map((post) => <PostsItem key={post._id} post={post} chapter={chapter} />)}
   </div>
 }
 
@@ -17,3 +18,5 @@ declare global {
     SequencesPostsList: typeof SequencesPostsListComponent
   }
 }
+
+export default SequencesPostsListComponent;

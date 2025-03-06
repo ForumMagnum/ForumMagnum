@@ -123,3 +123,5 @@ declare global {
     CKCommentEditor: typeof CKCommentEditorComponent
   }
 }
+
+export default CKCommentEditorComponent;

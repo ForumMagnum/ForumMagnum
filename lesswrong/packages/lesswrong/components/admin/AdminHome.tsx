@@ -6,6 +6,9 @@ import { useCurrentUser } from '../common/withUser';
 import { hasDigests, hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import AdminMetadata from "@/components/admin/AdminMetadata";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 // Also used in ModerationLog
 export const styles = (theme: ThemeType) => ({
@@ -38,7 +41,6 @@ export const styles = (theme: ThemeType) => ({
 const AdminHome = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {SingleColumnSection, AdminMetadata, Loading} = Components;
   const currentUser = useCurrentUser();
   const {refreshDbSettings, isRefreshingDbSettings} = useRefreshDbSettings();
   
@@ -108,3 +110,5 @@ declare global {
     AdminHome: typeof AdminHomeComponent
   }
 }
+
+export default AdminHomeComponent;

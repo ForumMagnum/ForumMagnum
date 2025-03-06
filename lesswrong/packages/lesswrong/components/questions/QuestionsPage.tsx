@@ -5,14 +5,17 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
+import SectionButton from "@/components/common/SectionButton";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const includeRelatedQuestionsParam = new TupleSet(['true', 'false'] as const);
 
 const QuestionsPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
-  const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
-
   const includeRelatedQuestions = includeRelatedQuestionsParam.has(query.includeRelatedQuestions)
     ? query.includeRelatedQuestions
     : 'false';
@@ -64,4 +67,6 @@ declare global {
     QuestionsPage: typeof QuestionsPageComponent
   }
 }
+
+export default QuestionsPageComponent;
 

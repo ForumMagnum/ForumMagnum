@@ -4,6 +4,7 @@ import { SerializedEditorContents, deserializeEditorContents, EditorContents, no
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -122,7 +123,7 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
     </div>
     <div className={classes.restoreBody}> {displayedRestore} </div>
 
-    <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
+    <ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }
 
@@ -133,3 +134,5 @@ declare global {
     LocalStorageCheck: typeof LocalStorageCheckComponent
   }
 }
+
+export default LocalStorageCheckComponent;

@@ -3,6 +3,8 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
+import LWTooltip from "@/components/common/LWTooltip";
+import { MenuItemLink } from "@/components/common/Menus";
 
 const compressedIconSize = 23
 
@@ -38,8 +40,6 @@ type TabNavigationCompressedItemProps = {
 }
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
-  const { LWTooltip, MenuItemLink } = Components
-  
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemLink
       onClick={onClick}
@@ -65,3 +65,5 @@ declare global {
     TabNavigationCompressedItem: typeof TabNavigationCompressedItemComponent
   }
 }
+
+export default TabNavigationCompressedItemComponent;

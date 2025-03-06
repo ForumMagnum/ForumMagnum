@@ -10,6 +10,10 @@ import moment from 'moment';
 import { Link } from '../../lib/reactRouterWrapper';
 import { CareerStageValue } from '../../lib/collections/users/schema';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -321,9 +325,6 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
 }) => {
   const adData = JOB_AD_DATA[jobName]
   const now = useCurrentTime();
-  
-  const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
-  
   if (!adData) {
     return null
   }
@@ -432,3 +433,5 @@ declare global {
     TargetedJobAd: typeof TargetedJobAdComponent
   }
 }
+
+export default TargetedJobAdComponent;

@@ -5,6 +5,9 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import LoginToTrack from "@/components/sequences/LoginToTrack";
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -61,8 +64,6 @@ const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWTooltip, PostsTooltip, LoginToTrack } = Components;
-
   const { postsRead: clientPostsRead } = useItemsRead();
 
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
@@ -108,4 +109,6 @@ declare global {
     BooksProgressBar: typeof BooksProgressBarComponent
   }
 }
+
+export default BooksProgressBarComponent;
 

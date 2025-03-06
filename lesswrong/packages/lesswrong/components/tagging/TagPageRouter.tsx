@@ -5,6 +5,9 @@ import { useOverrideLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import EATagPage from "@/components/tagging/EATagPage";
+import { LWTagPage } from "@/components/tagging/LWTagPage";
+import TagSubforumPage2 from "@/components/tagging/subforums/TagSubforumPage2";
 
 /**
  * Build structured data for a tag to help with SEO.
@@ -34,7 +37,6 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
 const TagPageRouter = () => {
-  const { EATagPage, LWTagPage, TagSubforumPage2 } = Components;
   const TagPage = isFriendlyUI ? EATagPage : LWTagPage;
   const { query, params: { slug } } = useLocation();
   const [overridenLayoutOptions, setOverridenLayoutOptions] = useOverrideLayoutOptions();
@@ -98,3 +100,5 @@ declare global {
     TagPageRouter: typeof TagPageRouterComponent
   }
 }
+
+export default TagPageRouterComponent;

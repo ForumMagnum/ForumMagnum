@@ -7,6 +7,24 @@ import { parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import { PostsPageTitle } from "@/components/posts/PostsPage/PostsPageTitle";
+import PostsAuthors from "@/components/posts/PostsPage/PostsAuthors";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsPageDate from "@/components/posts/PostsPage/PostsPageDate";
+import CrosspostHeaderIcon from "@/components/posts/PostsPage/CrosspostHeaderIcon";
+import PostsGroupDetails from "@/components/posts/PostsGroupDetails";
+import PostsTopSequencesNav from "@/components/posts/PostsPage/PostsTopSequencesNav";
+import PostsPageEventData from "@/components/posts/PostsPage/PostsPageEventData";
+import AddToCalendarButton from "@/components/posts/AddToCalendar/AddToCalendarButton";
+import GroupLinks from "@/components/localGroups/GroupLinks";
+import LWPostsPageHeaderTopRight from "@/components/posts/PostsPage/LWPostsPageHeaderTopRight";
+import PostsAudioPlayerWrapper from "@/components/posts/PostsPage/PostsAudioPlayerWrapper";
+import PostsVote from "@/components/votes/PostsVote";
+import AudioToggle from "@/components/posts/PostsPage/AudioToggle";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import AlignmentCrosspostLink from "@/components/posts/AlignmentCrosspostLink";
+import ReadTime from "@/components/posts/PostsPage/ReadTime";
+import LWCommentCount from "@/components/posts/TableOfContents/LWCommentCount";
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -140,8 +158,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   answerCount?: number,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
-
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
   let feedLink;
@@ -237,4 +253,6 @@ declare global {
     LWPostsPageHeader: typeof LWPostsPageHeaderComponent,
   }
 }
+
+export default LWPostsPageHeaderComponent;
 

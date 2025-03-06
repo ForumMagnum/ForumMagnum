@@ -229,3 +229,5 @@ declare global {
     CommentFrame: typeof CommentFrameComponent,
   }
 }
+
+export default CommentFrameComponent;

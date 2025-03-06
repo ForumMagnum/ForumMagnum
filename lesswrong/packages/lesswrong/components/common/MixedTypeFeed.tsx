@@ -5,6 +5,7 @@ import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const loadMoreDistance = 500;
 
@@ -141,9 +142,6 @@ const MixedTypeFeed = (args: {
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
-  
-  const {Loading} = Components;
-  
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
   const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {
@@ -264,3 +262,5 @@ declare global {
     MixedTypeFeed: typeof MixedTypeInfiniteComponent,
   }
 }
+
+export default MixedTypeInfiniteComponent;

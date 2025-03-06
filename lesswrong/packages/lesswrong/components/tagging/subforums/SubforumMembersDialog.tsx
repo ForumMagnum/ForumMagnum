@@ -2,6 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import DialogContent from '@material-ui/core/DialogContent';
+import LWDialog from "@/components/common/LWDialog";
+import SubforumSubscribeSection from "@/components/tagging/subforums/SubforumSubscribeSection";
+import SubforumMember from "@/components/tagging/subforums/SubforumMember";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   titleRow: {
@@ -51,9 +55,6 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
       otherMembers.push(member)
     }
   })
-  
-  const { LWDialog, SubforumSubscribeSection, SubforumMember, Loading } = Components
-  
   return (
     <LWDialog open={true} onClose={onClose}>
       <h2 className={classes.titleRow}>
@@ -84,3 +85,5 @@ declare global {
     SubforumMembersDialog: typeof SubforumMembersDialogComponent
   }
 }
+
+export default SubforumMembersDialogComponent;

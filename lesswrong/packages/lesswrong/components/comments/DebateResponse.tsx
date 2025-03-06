@@ -6,6 +6,13 @@ import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/votingSystems';
 import type { ContentItemBody } from '../common/ContentItemBody';
+import CommentUserName from "@/components/comments/CommentsItem/CommentUserName";
+import CommentsItemDate from "@/components/comments/CommentsItem/CommentsItemDate";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
+import CommentsEditForm from "@/components/comments/CommentsEditForm";
+import CommentsMenu from "@/components/dropdowns/comments/CommentsMenu";
+import DebateCommentsListSection from "@/components/comments/DebateCommentsListSection";
+import HoveredReactionContextProvider from "@/components/votes/lwReactions/HoveredReactionContextProvider";
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -92,8 +99,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, HoveredReactionContextProvider } = Components;
-
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     
@@ -200,3 +205,5 @@ declare global {
     DebateResponse: typeof DebateResponseComponent
   }
 }
+
+export default DebateResponseComponent;

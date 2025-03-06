@@ -10,6 +10,11 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "@/components/users/UsersName";
+import LWTooltip from "@/components/common/LWTooltip";
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,7 +100,6 @@ const PopularCommentTitle: FC<{
   classes: ClassesType<typeof styles>,
 }> = ({comment, post, classes}) => {
   const {isRead} = useRecordPostView(post);
-  const {PostsTooltip} = Components;
   return (
     <div className={classes.row}>
       <InteractionWrapper className={classes.postWrapper}>
@@ -134,8 +138,6 @@ const FriendlyPopularComment = ({comment, classes}: {
     onClick: onClickCallback,
     ignoreLinks: true,
   });
-
-  const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
     <AnalyticsContext
       pageElementContext="popularComment"
@@ -194,3 +196,5 @@ declare global {
     FriendlyPopularComment: typeof FriendlyPopularCommentComponent
   }
 }
+
+export default FriendlyPopularCommentComponent;

@@ -77,3 +77,5 @@ declare global {
     DistanceUnitToggle: typeof DistanceUnitToggleComponent
   }
 }
+
+export default DistanceUnitToggleComponent;

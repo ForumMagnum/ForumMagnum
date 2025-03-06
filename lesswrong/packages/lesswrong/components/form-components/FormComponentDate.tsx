@@ -1,8 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import MuiTextField from "@/components/form-components/MuiTextField";
 
 const FormComponentDate = (props: FormComponentProps<string>) => {
-  return <Components.MuiTextField
+  return <MuiTextField
     {...props}
     InputLabelProps={{
       shrink: true,
@@ -18,3 +19,5 @@ declare global {
     FormComponentDate: typeof FormComponentDateComponent
   }
 }
+
+export default FormComponentDateComponent;

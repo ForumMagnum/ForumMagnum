@@ -15,6 +15,11 @@ import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import ForumEventCommentForm from "@/components/forumEvents/ForumEventCommentForm";
+import ForumEventResultIcon from "@/components/forumEvents/ForumEventResultIcon";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -396,8 +401,6 @@ const PollQuestion = ({
   event: ForumEventsDisplay;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { LWTooltip } = Components;
-
   return (
     <div className={classes.question}>
       “It would be better to spend an extra $100m
@@ -645,9 +648,6 @@ export const ForumEventPoll = ({
     hasVoted,
   ]);
   useEventListener("pointerup", saveVotePos);
-
-  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon } = Components;
-
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
   const tickPositions = useRef<number[]>([]);
@@ -843,3 +843,5 @@ declare global {
     ForumEventPoll: typeof ForumEventPollComponent
   }
 }
+
+export default ForumEventPollComponent;

@@ -4,6 +4,8 @@ import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { drawnArrow } from "@/components/icons/drawnArrow";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -56,8 +58,6 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   }).slice(0, 4);
 
   const relativeTopicsChartHeight = 200 * (relativeMostReadTopics.length / 4);
-
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="relativeMostReadTopics">
       <WrappedHeading>
@@ -116,3 +116,5 @@ declare global {
     WrappedRelativeMostReadTopicsSection: typeof WrappedRelativeMostReadTopicsSectionComponent
   }
 }
+
+export default WrappedRelativeMostReadTopicsSectionComponent;

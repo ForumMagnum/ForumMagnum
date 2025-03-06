@@ -8,6 +8,12 @@ import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { POLL_MAX_WIDTH } from "./ForumEventPoll";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import ForumIcon from "@/components/common/ForumIcon";
+import ForumEventPoll from "@/components/forumEvents/ForumEventPoll";
+import ForumEventStickers from "@/components/forumEvents/ForumEventStickers";
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -248,8 +254,6 @@ const Description = ({forumEvent, classes}: {
   forumEvent: ForumEventsDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, ContentItemBody } = Components;
-
   const { frontpageDescription, frontpageDescriptionMobile } = forumEvent;
 
   return (
@@ -294,9 +298,6 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
 
   const {title, bannerImageId} = currentForumEvent;
   const date = formatDate(currentForumEvent);
-  
-  const {CloudinaryImage2, ForumIcon} = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
       <div className={classNames(classes.root, classes.rootWithGradient)}>
@@ -341,11 +342,6 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile} = currentForumEvent;
   const date = formatDate(currentForumEvent);
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
-
-  const {
-    CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
@@ -390,9 +386,6 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   }
 
   const {title, bannerImageId} = currentForumEvent;
-  
-  const { CloudinaryImage2, ForumEventStickers } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
       <div className={classes.root}>
@@ -451,3 +444,5 @@ declare global {
     ForumEventFrontpageBanner: typeof ForumEventFrontpageBannerComponent
   }
 }
+
+export default ForumEventFrontpageBannerComponent;

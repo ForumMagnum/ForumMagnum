@@ -55,3 +55,5 @@ declare global {
   }
 }
 
+export default FormComponentRadioGroupComponent;
+

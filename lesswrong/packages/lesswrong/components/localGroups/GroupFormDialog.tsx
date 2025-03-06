@@ -5,6 +5,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import LWDialog from "@/components/common/LWDialog";
+import GroupFormSubmit from "@/components/localGroups/GroupFormSubmit";
 
 const styles = (theme: ThemeType) => ({
   localGroupForm: {
@@ -41,7 +44,6 @@ const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
   documentId?: string,
   isOnline?: boolean
 }) => {
-  const {WrappedSmartForm, LWDialog, GroupFormSubmit} = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
@@ -80,4 +82,6 @@ declare global {
     GroupFormDialog: typeof GroupFormDialogComponent
   }
 }
+
+export default GroupFormDialogComponent;
 

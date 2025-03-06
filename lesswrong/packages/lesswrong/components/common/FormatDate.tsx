@@ -4,9 +4,10 @@ import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
+import LWTooltip from "@/components/common/LWTooltip";
+import TimeTag from "@/components/common/TimeTag";
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
-  const { FormatDate } = Components
   return <FormatDate date={date} format={"LLL z"} />
 };
 
@@ -31,8 +32,6 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   const { cacheFriendly=false } = useContext(EnvironmentOverrideContext);
   const dateToRender = date||now;
   const dateTimeAttr = granularity === "datetime" ? dateToRender : moment(dateToRender).tz(timezone).format("YYYY-MM-DD")
-  const { LWTooltip, TimeTag } = Components
-
   let displayFormat = format;
   if (cacheFriendly && !format) {
     displayFormat = "MMM D YYYY"
@@ -68,3 +67,5 @@ declare global {
     FormatDate: typeof FormatDateComponent
   }
 }
+
+export default FormatDateComponent;

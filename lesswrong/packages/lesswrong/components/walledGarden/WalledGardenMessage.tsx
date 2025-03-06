@@ -1,5 +1,7 @@
 import React from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   messageStyling: {
@@ -13,7 +15,6 @@ const WalledGardenMessage = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, ContentStyles } = Components
   return <SingleColumnSection className={classes.messageStyling}>
     <ContentStyles contentType="post">
       {children}
@@ -28,3 +29,5 @@ declare global {
     WalledGardenMessage: typeof WalledGardenMessageComponent
   }
 }
+
+export default WalledGardenMessageComponent;

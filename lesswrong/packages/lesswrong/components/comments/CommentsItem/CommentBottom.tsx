@@ -11,6 +11,7 @@ import type { VotingSystem } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentBottomCaveats from "@/components/comments/CommentsItem/CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   bottom: {
@@ -40,7 +41,6 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const isMinimalist = treeOptions.formStyle === "minimalist"
@@ -91,4 +91,6 @@ declare global {
     CommentBottom: typeof CommentBottomComponent
   }
 }
+
+export default CommentBottomComponent;
 

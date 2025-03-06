@@ -15,6 +15,14 @@ import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { Coordinates } from './ImageCropPreview';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
+import UsersName from "@/components/users/UsersName";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
+import LWPopper from "@/components/common/LWPopper";
+import ImageCropPreview from "@/components/posts/PostsPage/ImageCropPreview";
+import SplashHeaderImageOptions from "@/components/posts/PostsPage/SplashHeaderImageOptions";
+import PostsAudioPlayerWrapper from "@/components/posts/PostsPage/PostsAudioPlayerWrapper";
+import LWPostsPageHeaderTopRight from "@/components/posts/PostsPage/LWPostsPageHeaderTopRight";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -365,8 +373,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight, FormatDate } = Components;
-  
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
   const currentUser = useCurrentUser();
@@ -572,3 +578,5 @@ declare global {
     PostsPageSplashHeader: typeof PostsPageSplashHeaderComponent,
   }
 }
+
+export default PostsPageSplashHeaderComponent;

@@ -80,3 +80,5 @@ declare global {
     NewTagInfoBox: typeof NewTagInfoBoxComponent
   }
 }
+
+export default NewTagInfoBoxComponent;

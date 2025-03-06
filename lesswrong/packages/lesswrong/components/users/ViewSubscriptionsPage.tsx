@@ -13,6 +13,9 @@ import {
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SubscriptionsList from "@/components/users/SubscriptionsList";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   noSubscriptions: {
@@ -55,7 +58,6 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SingleColumnSection, SubscriptionsList, UsersNameDisplay} = Components;
   return (
     <SingleColumnSection>
       {userHasSubscribeTabFeed(currentUser) &&
@@ -176,7 +178,6 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
 const ViewSubscriptionsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SingleColumnSection} = Components;
   const currentUser = useCurrentUser();
 
   if (!currentUser) {
@@ -203,3 +204,5 @@ declare global {
     ViewSubscriptionsPage: typeof ViewSubscriptionsPageComponent,
   }
 }
+
+export default ViewSubscriptionsPageComponent;

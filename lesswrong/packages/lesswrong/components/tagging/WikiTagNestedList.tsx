@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { ConceptItem } from "@/components/tagging/ConceptItem";
 
 const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
@@ -43,7 +44,6 @@ const WikiTagNestedList = ({
   totalChildrenCount,
   showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
-  const { ConceptItem } = Components;
   const classes = useStyles(styles);
 
   return (
@@ -74,4 +74,8 @@ declare global {
   interface ComponentTypes {
     WikiTagNestedList: typeof WikiTagNestedListComponent
   }
+}
+
+export {
+  WikiTagNestedListComponent as WikiTagNestedList
 }

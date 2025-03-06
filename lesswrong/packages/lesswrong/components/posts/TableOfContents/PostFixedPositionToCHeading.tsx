@@ -25,3 +25,5 @@ declare global {
   }
 }
 
+export default FixedPositionToCHeadingComponent;
+

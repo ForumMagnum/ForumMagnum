@@ -10,6 +10,11 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import ConversationPreview from "@/components/messaging/ConversationPreview";
+import PostNominatedNotification from "@/components/review/PostNominatedNotification";
+import TagRelNotificationItem from "@/components/notifications/TagRelNotificationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,7 +76,6 @@ const TooltipWrapper: FC<{
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({title, children, classes}) => {
-  const {LWTooltip} = Components;
   return (
     <LWTooltip
       {...tooltipProps}
@@ -110,10 +114,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   );
 
   const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
-    const {
-      PostsTooltip, ConversationPreview, PostNominatedNotification,
-    } = Components;
-
     if (notificationType.onsiteHoverView) {
       return (
         <TooltipWrapper
@@ -199,7 +199,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   }, [classes, currentUser, notification, notificationLink, notificationType]);
 
   const renderMessage = () => {
-    const { TagRelNotificationItem } = Components
     switch (notification.documentType) {
       // TODO: add case for tagRel
       case 'tagRel': 
@@ -269,3 +268,5 @@ declare global {
     NotificationsItem: typeof NotificationsItemComponent
   }
 }
+
+export default NotificationsItemComponent;

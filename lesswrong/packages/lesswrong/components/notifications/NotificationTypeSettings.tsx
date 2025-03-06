@@ -7,6 +7,9 @@ import { defaultNotificationTypeSettings, NotificationChannelOption } from '../.
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import BatchTimePicker from "@/components/common/BatchTimePicker";
+import { Typography } from "@/components/common/Typography";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,7 +34,6 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
   label: string;
   classes: ClassesType<typeof styles>;
 }, context: any) => {
-  const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };
   const notificationType = getNotificationTypeByUserSetting(path);
   
@@ -98,3 +100,5 @@ declare global {
     NotificationTypeSettings: typeof NotificationTypeSettingsComponent
   }
 }
+
+export default NotificationTypeSettingsComponent;

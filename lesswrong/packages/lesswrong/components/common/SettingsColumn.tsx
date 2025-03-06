@@ -6,6 +6,7 @@ import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import MetaInfo from "@/components/common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   selectionList: {
@@ -60,8 +61,6 @@ interface Props {
 }
 
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
-  const { MetaInfo } = Components
-
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
       {title}
@@ -99,3 +98,5 @@ declare global {
     SettingsColumn: typeof SettingsColumnComponent
   }
 }
+
+export default SettingsColumnComponent;

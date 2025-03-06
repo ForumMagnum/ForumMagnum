@@ -6,6 +6,11 @@ import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
+import JargonTooltip from "@/components/jargon/JargonTooltip";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import LWTooltip from "@/components/common/LWTooltip";
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -171,8 +176,6 @@ const submitStyles = (theme: ThemeType) => ({
 // Jargon submit button
 
 const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonProps & { classes: ClassesType<typeof submitStyles> }) => {
-  const { Loading } = Components;
-
   const [loading, setLoading] = useState(false);
 
   const wrappedSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -234,8 +237,6 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
       }
     })
   }
-  const { JargonTooltip, WrappedSmartForm, ContentItemBody, LWTooltip } = Components;
-
   const jargonDefinition = jargonTerm?.contents?.html ?? '';
 
   return <div className={classes.root}>
@@ -250,7 +251,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
             queryFragment={getFragment('JargonTerms')}
             successCallback={() => setEdit(false)}
             cancelCallback={() => setEdit(false)}
-            formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+            formComponents={{ FormSubmit: JargonSubmitButton }}
             prefetchedDocument={jargonTerm}
           />
         </div>
@@ -292,4 +293,9 @@ declare global {
     JargonSubmitButton: typeof JargonSubmitButtonComponent,
     JargonEditorRow: typeof JargonEditorRowComponent
   }
+}
+
+export {
+  JargonSubmitButtonComponent as JargonSubmitButton,
+  JargonEditorRowComponent as JargonEditorRow
 }

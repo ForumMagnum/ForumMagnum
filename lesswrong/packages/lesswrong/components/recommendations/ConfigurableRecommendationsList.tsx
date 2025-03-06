@@ -5,6 +5,12 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isLW } from '../../lib/instanceSettings';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import RecommendationsAlgorithmPicker from "@/components/recommendations/RecommendationsAlgorithmPicker";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import SettingsButton from "@/components/icons/SettingsButton";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const ConfigurableRecommendationsList = ({configName}: {
   configName: string
@@ -20,9 +26,6 @@ const ConfigurableRecommendationsList = ({configName}: {
   const changeSettings = (newSettings: Partial<DefaultRecommendationsAlgorithm>) => {
     setSettings(newSettings);
   }
-
-  const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-    RecommendationsList, SettingsButton, LWTooltip } = Components;
   const settingsOrDefault = getRecommendationSettings({settings, currentUser, configName})
 
   return <SingleColumnSection>
@@ -56,3 +59,5 @@ declare global {
     ConfigurableRecommendationsList: typeof ConfigurableRecommendationsListComponent
   }
 }
+
+export default ConfigurableRecommendationsListComponent;

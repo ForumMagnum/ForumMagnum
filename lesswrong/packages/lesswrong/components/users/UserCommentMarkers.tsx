@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   iconWrapper: {
@@ -42,8 +44,6 @@ const UserCommentMarkers = ({
   if (!showAuthorIcon && !showNewUserIcon) {
     return null;
   }
-
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <span className={className}>
       {showAuthorIcon &&
@@ -79,3 +79,5 @@ declare global {
     UserCommentMarkers: typeof UserCommentMarkersComponent
   }
 }
+
+export default UserCommentMarkersComponent;

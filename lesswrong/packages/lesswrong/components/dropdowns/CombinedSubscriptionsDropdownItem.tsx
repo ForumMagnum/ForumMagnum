@@ -4,6 +4,11 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import Card from "@material-ui/core/Card";
 import { NotifyMeDropdownItemProps } from "./NotifyMeDropdownItem";
 import { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdownItem";
+import LWTooltip from "@/components/common/LWTooltip";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import NotifyMeDropdownItem from "@/components/dropdowns/NotifyMeDropdownItem";
+import NotifyMeToggleDropdownItem from "@/components/dropdowns/NotifyMeToggleDropdownItem";
 
 const styles = (_theme: ThemeType) => ({
   dropdownWrapper: {
@@ -20,11 +25,6 @@ export const CombinedSubscriptionsDropdownItem = ({notifyMeItems, classes}: {
   notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemPropsExternal>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    LWTooltip, DropdownMenu, DropdownItem, NotifyMeDropdownItem,
-    NotifyMeToggleDropdownItem,
-  } = Components;
-
   return isFriendlyUI
     ? (
       <LWTooltip
@@ -74,3 +74,5 @@ declare global {
     CombinedSubscriptionsDropdownItem: typeof CombinedSubscriptionsDropdownItemComponent
   }
 }
+
+export default CombinedSubscriptionsDropdownItemComponent;

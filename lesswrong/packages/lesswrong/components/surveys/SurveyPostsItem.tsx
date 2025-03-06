@@ -15,6 +15,15 @@ import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
 } from "@/lib/collections/surveyQuestions/schema";
+import EAButton from "@/components/ea-forum/EAButton";
+import EAOnboardingInput from "@/components/ea-forum/onboarding/EAOnboardingInput";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import PopperCard from "@/components/common/PopperCard";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -98,8 +107,6 @@ const QuestionReponse = ({format, onRespond, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [value, setValue] = useState("");
-  const {EAButton, EAOnboardingInput} = Components;
-
   useEffect(() => {
     if (!surveyQuestionFormats[format]) {
       captureException(new Error(`Invalid survey question format: ${format}`));
@@ -288,11 +295,6 @@ const SurveyPostsItemInternal = ({
   if (hideSurveyScheduleIds?.includes(surveyScheduleId)) {
     return null;
   }
-
-  const {
-    LWTooltip, ForumIcon, LWClickAwayListener, DropdownMenu, DropdownItem,
-    PopperCard, Loading,
-  } = Components;
   return (
     <div className={classes.root}>
       <LWTooltip
@@ -410,3 +412,5 @@ declare global {
     SurveyPostsItem: typeof SurveyPostsItemComponent
   }
 }
+
+export default SurveyPostsItemComponent;

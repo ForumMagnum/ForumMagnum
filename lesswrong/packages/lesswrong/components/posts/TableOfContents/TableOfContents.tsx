@@ -5,6 +5,7 @@ import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
 import type { ToCDisplayOptions } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import TableOfContentsList from "@/components/posts/TableOfContents/TableOfContentsList";
 
 const styles = (theme: ThemeType) => ({
 });
@@ -51,7 +52,7 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
 
   return (
     <AnalyticsContext pageSectionContext="tableOfContents" componentName="TableOfContentsList">
-      <Components.TableOfContentsList
+      <TableOfContentsList
         tocSections={sectionData.sections}
         title={title}
         onClickSection={onClickSection}
@@ -73,3 +74,5 @@ declare global {
     TableOfContents: typeof TableOfContentsComponent
   }
 }
+
+export default TableOfContentsComponent;

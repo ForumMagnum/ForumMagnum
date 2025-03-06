@@ -6,6 +6,16 @@ import { useLocation } from '../../lib/routeUtil';
 import { getSpotlightDisplayTitle } from './SpotlightItem';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SpotlightItem from "@/components/spotlights/SpotlightItem";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import SpotlightEditorStyles from "@/components/spotlights/SpotlightEditorStyles";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import TableOfContents from "@/components/posts/TableOfContents/TableOfContents";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -19,8 +29,6 @@ const styles = (theme: ThemeType) => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
-
   const currentUser = useCurrentUser();
 
   const { query } = useLocation();
@@ -127,4 +135,6 @@ declare global {
     SpotlightsPage: typeof SpotlightsPageComponent
   }
 }
+
+export default SpotlightsPageComponent;
 

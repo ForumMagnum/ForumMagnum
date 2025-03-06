@@ -9,6 +9,9 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import FormGroupNoStyling from "@/components/form-components/FormGroupNoStyling";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 export const gardenForm = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -92,7 +95,7 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType<typeof s
 
   const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type", "afOnly"]
 
-  return <Components.ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
+  return <ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
@@ -124,19 +127,19 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType<typeof s
           </div>
       : <div>
           <p>Invite codes are valid for 12 hours from start time.</p>
-          <Components.WrappedSmartForm
+          <WrappedSmartForm
             collectionName="GardenCodes"
             fields={fields}
             mutationFragment={getFragment("GardenCodeFragment")}
             queryFragment={getFragment("GardenCodeFragment")}
             formComponents={{
               FormSubmit: SubmitComponent,
-              FormGroupLayout: Components.FormGroupNoStyling
+              FormGroupLayout: FormGroupNoStyling
             }}
             successCallback={(code: GardenCodeFragment) => setCurrentCode(code)}/>
       </div>
     }
-  </Components.ContentStyles>
+  </ContentStyles>
 }
 
 const GardenCodeWidgetComponent = registerComponent('GardenCodeWidget', GardenCodeWidget, {styles});
@@ -146,4 +149,6 @@ declare global {
     GardenCodeWidget: typeof GardenCodeWidgetComponent
   }
 }
+
+export default GardenCodeWidgetComponent;
 

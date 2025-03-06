@@ -10,6 +10,16 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import CurationNoticesItem from "@/components/admin/CurationNoticesItem";
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import { Typography } from "@/components/common/Typography";
+import PostsHighlight from "@/components/posts/PostsHighlight";
+import SidebarInfo from "@/components/sunshineDashboard/SidebarInfo";
+import SidebarAction from "@/components/sunshineDashboard/SidebarAction";
+import SidebarActionMenu from "@/components/sunshineDashboard/SidebarActionMenu";
+import ForumIcon from "@/components/common/ForumIcon";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   audioIcon: {
@@ -37,8 +47,6 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
   setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {
   const currentUser = useCurrentUser();
-  const { CurationNoticesItem, SunshineListItem, SidebarHoverOver, Typography, PostsHighlight, SidebarInfo, SidebarAction, SidebarActionMenu, ForumIcon, FormatDate } = Components
-
   const { hover, anchorEl, eventHandlers } = useHover();
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
@@ -163,3 +171,5 @@ declare global {
     SunshineCuratedSuggestionsItem: typeof SunshineCuratedSuggestionsItemComponent
   }
 }
+
+export default SunshineCuratedSuggestionsItemComponent;

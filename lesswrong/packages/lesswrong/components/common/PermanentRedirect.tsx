@@ -53,3 +53,5 @@ declare global {
     PermanentRedirect: typeof PermanentRedirectComponent
   }
 }
+
+export default PermanentRedirectComponent;

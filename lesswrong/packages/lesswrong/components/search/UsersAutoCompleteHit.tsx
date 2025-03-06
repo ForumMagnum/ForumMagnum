@@ -1,5 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { Loading } from "@/components/vulcan-core/Loading";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,18 +16,18 @@ const UsersAutoCompleteHit = ({document, classes}: {
 }) => {
   if (document) {
     return <div className={classes.root}>
-      <Components.MetaInfo>
+      <MetaInfo>
         {document.displayName}
-      </Components.MetaInfo>
-      <Components.MetaInfo>
+      </MetaInfo>
+      <MetaInfo>
         {document.karma} karma
-      </Components.MetaInfo>
-      <Components.MetaInfo>
-        <Components.FormatDate date={document.createdAt}/>
-      </Components.MetaInfo>
+      </MetaInfo>
+      <MetaInfo>
+        <FormatDate date={document.createdAt}/>
+      </MetaInfo>
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
@@ -35,4 +38,6 @@ declare global {
     UsersAutoCompleteHit: typeof UsersAutoCompleteHitComponent
   }
 }
+
+export default UsersAutoCompleteHitComponent;
 

@@ -4,6 +4,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import UsersName from "@/components/users/UsersName";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SequencesSmallPostLink from "@/components/sequences/SequencesSmallPostLink";
+import ContentItemTruncated from "@/components/common/ContentItemTruncated";
+import LWTooltip from "@/components/common/LWTooltip";
+import ChapterTitle from "@/components/sequences/ChapterTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -148,8 +154,6 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   showChapters?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
-
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -236,4 +240,6 @@ declare global {
     LargeSequencesItem: typeof LargeSequencesItemComponent
   }
 }
+
+export default LargeSequencesItemComponent;
 

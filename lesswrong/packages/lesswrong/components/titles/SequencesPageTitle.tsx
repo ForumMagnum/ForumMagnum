@@ -49,4 +49,6 @@ declare global {
   }
 }
 
+export default SequencesPageTitleComponent;
+
 

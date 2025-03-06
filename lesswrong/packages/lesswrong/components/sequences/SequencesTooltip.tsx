@@ -2,6 +2,8 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
+import HoverOver from "@/components/common/HoverOver";
+import SequencesSummary from "@/components/sequences/SequencesSummary";
 
 export const SequencesTooltip = ({
   sequence,
@@ -16,7 +18,6 @@ export const SequencesTooltip = ({
   placement?: PopperPlacementType,
   children?: ReactNode,
 }) => {
-  const {HoverOver, SequencesSummary} = Components;
   return (
     <HoverOver
       title={
@@ -47,3 +48,5 @@ declare global {
     SequencesTooltip: typeof SequencesTooltipComponent
   }
 }
+
+export default SequencesTooltipComponent;

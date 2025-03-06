@@ -1,6 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { CoreReadingCollection } from './LWCoreReading';
+import CollectionsCardContainer from "@/components/collections/CollectionsCardContainer";
+import CollectionsCard from "@/components/collections/CollectionsCard";
+import BigCollectionsCard from "@/components/collections/BigCollectionsCard";
 
 const styles = (theme: ThemeType) => ({
   razLargeVersion: {
@@ -53,17 +56,17 @@ const EACoreReading = ({minimal=false, classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => (
-  <Components.CollectionsCardContainer>
+  <CollectionsCardContainer>
     <div className={classes.razLargeVersion}>
-      <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
+      <BigCollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
     </div>
     <div className={classes.razSmallVersion}>
-      <Components.CollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
+      <CollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
     </div>
 
-    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>}
-    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={false} />}
-  </Components.CollectionsCardContainer>
+    {!minimal && <CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>}
+    {!minimal && <CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={false} />}
+  </CollectionsCardContainer>
 );
 
 const EACoreReadingComponent = registerComponent("EACoreReading", EACoreReading, {styles});
@@ -73,3 +76,5 @@ declare global {
     EACoreReading: typeof EACoreReadingComponent
   }
 }
+
+export default EACoreReadingComponent;

@@ -7,6 +7,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import { useDialog } from '../common/withDialog';
+import LWDialog from "@/components/common/LWDialog";
+import SequenceDraftsList from "@/components/sequences/SequenceDraftsList";
 
 const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   documentId: string,
@@ -33,9 +35,6 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
       data: {postIds: [...dialogPostIds, newPostId]}
     })
   }, [documentId, updatePostIds, dialogPostIds, flash])
-
-  const { LWDialog, SequenceDraftsList } = Components;
-
   return (
     <LWDialog open={true} onClose={onClose}>
       <DialogTitle>
@@ -62,3 +61,5 @@ declare global {
     AddDraftPostDialog: typeof AddDraftPostDialogComponent
   }
 }
+
+export default AddDraftPostDialogComponent;

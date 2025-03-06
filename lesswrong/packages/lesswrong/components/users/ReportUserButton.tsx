@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   reportUserSection: {
@@ -45,9 +46,6 @@ const ReportUserButton = ({user, classes}: {
       }
     })
   }
-  
-  const { SingleColumnSection } = Components
-
   if (currentUser && (currentUser._id !== user._id)) {
     return <SingleColumnSection className={classes.reportUserSection}>
       <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
@@ -64,3 +62,5 @@ declare global {
     ReportUserButton: typeof ReportUserButtonComponent
   }
 }
+
+export default ReportUserButtonComponent;

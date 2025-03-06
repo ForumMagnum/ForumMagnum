@@ -4,6 +4,10 @@ import { gql, useQuery, useMutation } from "@apollo/client";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import Error404 from "@/components/common/Error404";
 
 const searchSynonymsQuery = gql`
   query SearchSynonyms {
@@ -68,8 +72,6 @@ const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes
   }, [synonyms, updateSearchSynonyms]);
 
   const isLoading = loading || updateLoading?.loading;
-
-  const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <SectionTitle title="Search synonyms" />
@@ -109,7 +111,7 @@ const AdminSynonymsPage = ({classes}: {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
     ? <AdminSynonymsEditor classes={classes} />
-    : <Components.Error404 />;
+    : <Error404 />;
 }
 
 const AdminSynonymsPageComponent = registerComponent(
@@ -123,3 +125,5 @@ declare global {
     AdminSynonymsPage: typeof AdminSynonymsPageComponent
   }
 }
+
+export default AdminSynonymsPageComponent;

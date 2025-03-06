@@ -5,6 +5,11 @@ import { TagLens } from '@/lib/arbital/useTagLenses';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { tagHistoryStyles } from './TagHistoryPage';
+import CompareRevisions from "@/components/revisions/CompareRevisions";
+import TagRevisionItemShortMetadata from "@/components/tagging/TagRevisionItemShortMetadata";
+import ForumIcon from "@/components/common/ForumIcon";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SingleLineFeedEvent from "@/components/common/SingleLineFeedEvent";
 
 const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   contentStyle: {
@@ -22,7 +27,6 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, TagRevisionItemShortMetadata, ForumIcon, ContentStyles } = Components
   const documentId = lens._id;
 
   const [expanded, setExpanded] = useState(false);
@@ -53,7 +57,7 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
 
   return (noContainer
     ? contents
-    : <Components.SingleLineFeedEvent
+    : <SingleLineFeedEvent
         icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
         tooltip={!(expanded || !collapsed) && diffBody}
@@ -61,7 +65,7 @@ const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}:
         <div className={classes.container}>
           {contents}
         </div>
-      </Components.SingleLineFeedEvent>
+      </SingleLineFeedEvent>
   );
 }
 
@@ -74,4 +78,6 @@ declare global {
     LensRevisionItem: typeof LensRevisionItemComponent
   }
 }
+
+export default LensRevisionItemComponent;
 

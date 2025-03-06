@@ -49,3 +49,5 @@ declare global {
   }
 }
 
+export default ShowBlockVisibilityConditionComponent;
+

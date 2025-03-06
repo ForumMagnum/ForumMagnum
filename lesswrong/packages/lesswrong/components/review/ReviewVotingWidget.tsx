@@ -7,6 +7,9 @@ import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import ReviewVotingButtons from "@/components/review/ReviewVotingButtons";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,9 +25,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
-
-  const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
-  
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
@@ -72,3 +72,5 @@ declare global {
     ReviewVotingWidget: typeof ReviewVotingWidgetComponent
   }
 }
+
+export default ReviewVotingWidgetComponent;

@@ -5,6 +5,10 @@ import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
 import AddIcon from '@material-ui/icons/Add';
 import classNames from 'classnames';
+import PostsTitle from "@/components/posts/PostsTitle";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import PostsUserAndCoauthors from "@/components/posts/PostsUserAndCoauthors";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,7 +70,6 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
   simpleAuthor?: boolean,
   draggable?: boolean
 }) => {
-  const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
@@ -92,7 +95,7 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
       {removeItem && <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />}
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
@@ -103,4 +106,6 @@ declare global {
     PostsItemWrapper: typeof PostsItemWrapperComponent
   }
 }
+
+export default PostsItemWrapperComponent;
 

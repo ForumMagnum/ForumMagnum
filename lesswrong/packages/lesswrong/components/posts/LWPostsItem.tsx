@@ -15,7 +15,29 @@ import DebateIcon from '@material-ui/icons/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
 import { isLW } from '@/lib/instanceSettings';
-
+import PostsItemComments from "@/components/posts/PostsItemComments";
+import KarmaDisplay from "@/components/common/KarmaDisplay";
+import PostsTitle from "@/components/posts/PostsTitle";
+import PostsUserAndCoauthors from "@/components/posts/PostsUserAndCoauthors";
+import LWTooltip from "@/components/common/LWTooltip";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import { PostsItemIcons } from "@/components/posts/PostsItemIcons";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import BookmarkButton from "@/components/posts/BookmarkButton";
+import PostsItemDate from "@/components/posts/PostsItemDate";
+import PostsItemNewCommentsWrapper from "@/components/posts/PostsItemNewCommentsWrapper";
+import PostsItemNewDialogueResponses from "@/components/posts/PostsItemNewDialogueResponses";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
+import AddToCalendarButton from "@/components/posts/AddToCalendar/AddToCalendarButton";
+import PostsItemReviewVote from "@/components/review/PostsItemReviewVote";
+import ReviewPostButton from "@/components/review/ReviewPostButton";
+import PostReadCheckbox from "@/components/posts/PostReadCheckbox";
+import PostMostValuableCheckbox from "@/components/posts/PostMostValuableCheckbox";
+import PostsItemTrailingButtons from "@/components/posts/PostsItemTrailingButtons";
+import { ResponseIcon } from "@/components/posts/PostsPage/RSVPs";
+import EventVicinity from "@/components/localGroups/EventVicinity";
+import PostsItemTagRelevance from "@/components/tagging/PostsItemTagRelevance";
 
 export const KARMA_WIDTH = 32;
 
@@ -430,16 +452,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   if (isRepeated) {
     return null;
   }
-
-  const {
-    PostsItemComments, KarmaDisplay, PostsTitle, PostsUserAndCoauthors, LWTooltip,
-    PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
-    AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
-    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons, ResponseIcon,
-  } = Components;
-
-
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";
@@ -475,7 +487,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 }
               )}
             >
-              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
+              {tagRel && <PostsItemTagRelevance tagRel={tagRel} />}
               {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
                   [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
@@ -522,7 +534,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               }
 
               {post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
-                <Components.EventVicinity post={post} />
+                <EventVicinity post={post} />
               </PostsItem2MetaInfo>}
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
@@ -660,3 +672,5 @@ declare global {
     LWPostsItem: typeof LWPostsItemComponent
   }
 }
+
+export default LWPostsItemComponent;

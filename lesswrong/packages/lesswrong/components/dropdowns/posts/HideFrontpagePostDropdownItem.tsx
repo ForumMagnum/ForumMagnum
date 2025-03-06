@@ -8,6 +8,7 @@ import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -50,8 +51,6 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   // Named to be consistent with bookmark / un-bookmark
   const title = hidden ? "Un-hide from frontpage" : "Hide from frontpage";
   const icon = hidden ? "EyeOutline" : "Eye";
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -75,3 +74,5 @@ declare global {
     HideFrontpagePostDropdownItem: typeof HideFrontPageButtonComponent
   }
 }
+
+export default HideFrontPageButtonComponent;

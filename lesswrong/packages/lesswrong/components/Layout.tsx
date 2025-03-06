@@ -36,6 +36,32 @@ import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 import { usePathname } from 'next/navigation';
+import NavigationStandalone from "@/components/common/TabNavigationMenu/NavigationStandalone";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import Footer from "@/components/common/Footer";
+import Header from "@/components/common/Header";
+import FlashMessages from "@/components/common/FlashMessages";
+import AnalyticsClient from "@/components/common/AnalyticsClient";
+import AnalyticsPageInitializer from "@/components/common/AnalyticsPageInitializer";
+import NavigationEventSender from "@/components/hooks/useOnNavigate";
+import EAOnboardingFlow from "@/components/ea-forum/onboarding/EAOnboardingFlow";
+import BasicOnboardingFlow from "@/components/onboarding/BasicOnboardingFlow";
+import { CommentOnSelectionPageWrapper } from "@/components/comments/CommentOnSelection";
+import SidebarsWrapper from "@/components/common/SidebarsWrapper";
+import { HomepageCommunityMap } from "@/components/seasonal/HomepageMap/HomepageCommunityMap";
+import AdminToggle from "@/components/admin/AdminToggle";
+import SunshineSidebar from "@/components/sunshineDashboard/SunshineSidebar";
+import EAHomeRightHandSide from "@/components/ea-forum/EAHomeRightHandSide";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import ForumEventBanner from "@/components/forumEvents/ForumEventBanner";
+import GlobalHotkeys from "@/components/common/GlobalHotkeys";
+import LanguageModelLauncherButton from "@/components/languageModels/LanguageModelLauncherButton";
+import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
+import TabNavigationMenuFooter from "@/components/common/TabNavigationMenu/TabNavigationMenuFooter";
+import ReviewVotingCanvas from "@/components/review/ReviewVotingCanvas";
+import LWBackgroundImage from "@/components/LWBackgroundImage";
+import IntercomWrapper from "@/components/common/IntercomWrapper";
+import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -315,33 +341,6 @@ const Layout = ({currentUser, children, classes}: {
   }
 
   const render = () => {
-    const {
-      NavigationStandalone,
-      ErrorBoundary,
-      Footer,
-      Header,
-      FlashMessages,
-      AnalyticsClient,
-      AnalyticsPageInitializer,
-      NavigationEventSender,
-      EAOnboardingFlow,
-      BasicOnboardingFlow,
-      CommentOnSelectionPageWrapper,
-      SidebarsWrapper,
-      HomepageCommunityMap,
-      AdminToggle,
-      SunshineSidebar,
-      EAHomeRightHandSide,
-      CloudinaryImage2,
-      ForumEventBanner,
-      GlobalHotkeys,
-      LanguageModelLauncherButton,
-      LlmChatWrapper,
-      TabNavigationMenuFooter,
-      ReviewVotingCanvas,
-      LWBackgroundImage
-    } = Components;
-
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
       // navigation on the side. If there is no current route (ie, a 404 page),
@@ -509,7 +508,6 @@ const Layout = ({currentUser, children, classes}: {
 }
 
 function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
-  const { IntercomWrapper, CookieBanner } = Components;
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
@@ -530,4 +528,8 @@ declare global {
   interface ComponentTypes {
     Layout: typeof LayoutComponent
   }
+}
+
+export {
+  LayoutComponent as Layout
 }

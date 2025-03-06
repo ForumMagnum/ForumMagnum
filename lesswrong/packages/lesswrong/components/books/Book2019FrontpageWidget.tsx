@@ -4,6 +4,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import BookCheckout from "@/components/review/BookCheckout";
+import Book2019Animation from "@/components/books/Book2019Animation";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -118,7 +121,6 @@ const styles = (theme: ThemeType) => ({
 const Book2019FrontpageWidget = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { BookCheckout, Book2019Animation, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -212,3 +214,5 @@ declare global {
     Book2019FrontpageWidget: typeof Book2019FrontpageWidgetComponent
   }
 }
+
+export default Book2019FrontpageWidgetComponent;

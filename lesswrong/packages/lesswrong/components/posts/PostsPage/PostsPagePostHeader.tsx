@@ -9,6 +9,24 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { PostsPageTitle } from "@/components/posts/PostsPage/PostsPageTitle";
+import PostsAuthors from "@/components/posts/PostsPage/PostsAuthors";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsPageDate from "@/components/posts/PostsPage/PostsPageDate";
+import CrosspostHeaderIcon from "@/components/posts/PostsPage/CrosspostHeaderIcon";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import PostsVote from "@/components/votes/PostsVote";
+import PostsGroupDetails from "@/components/posts/PostsGroupDetails";
+import PostsTopSequencesNav from "@/components/posts/PostsPage/PostsTopSequencesNav";
+import PostsPageEventData from "@/components/posts/PostsPage/PostsPageEventData";
+import FooterTagList from "@/components/tagging/FooterTagList";
+import AddToCalendarButton from "@/components/posts/AddToCalendar/AddToCalendarButton";
+import BookmarkButton from "@/components/posts/BookmarkButton";
+import ForumIcon from "@/components/common/ForumIcon";
+import GroupLinks from "@/components/localGroups/GroupLinks";
+import SharePostButton from "@/components/posts/SharePostButton";
+import AudioToggle from "@/components/posts/PostsPage/AudioToggle";
+import ReadTime from "@/components/posts/PostsPage/ReadTime";
 
 const SECONDARY_SPACING = 20;
 
@@ -224,11 +242,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
-    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
-
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
@@ -346,3 +359,5 @@ declare global {
     PostsPagePostHeader: typeof PostsPagePostHeaderComponent,
   }
 }
+
+export default PostsPagePostHeaderComponent;

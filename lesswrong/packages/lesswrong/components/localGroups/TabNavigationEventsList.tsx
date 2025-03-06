@@ -8,6 +8,12 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { twoLineEventsSidebarABTest } from '../../lib/abTests';
 import { useABTest } from '../../lib/abTestImpl';
 import classNames from 'classnames';
+import LWTooltip from "@/components/common/LWTooltip";
+import TabNavigationSubItem from "@/components/common/TabNavigationMenu/TabNavigationSubItem";
+import { MenuItemLink } from "@/components/common/Menus";
+import TimeTag from "@/components/common/TimeTag";
+import FormatDate from "@/components/common/FormatDate";
+import EventTime from "@/components/localGroups/EventTime";
 
 const YESTERDAY_STRING = "[Yesterday]"
 const TODAY_STRING = "[Today]"
@@ -109,8 +115,6 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
   const abTestGroup = useABTest(twoLineEventsSidebarABTest);
   const EventComponent = (abTestGroup === "expanded") ? TabNavigationEventTwoLines : TabNavigationEventSingleLine;
-  const {LWTooltip} = Components;
-
   if (!results) return null
   
   return <div>
@@ -135,8 +139,6 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
-  const { TabNavigationSubItem, MenuItemLink, TimeTag } = Components
-  
   const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
   const displayTime = startTime ? startTime.calendar(undefined, {
@@ -169,8 +171,6 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   onClick: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TabNavigationSubItem, MenuItemLink, FormatDate } = Components
-  
   const cityName = event.onlineEvent ? "Online" : getCityName(event)
   
   return <MenuItemLink
@@ -213,8 +213,6 @@ const EventSidebarTooltip = ({event, classes}: {
 }) => {
   const { htmlHighlight = "" } = event.contents || {}
   const highlight = truncate(htmlHighlight, HIGHLIGHT_LENGTH)
-  const { EventTime } = Components;
-
   return <div>
     {event.group && <div className={classes.tooltipGroup}>{event.group.name}</div>}
     <div className={classes.tooltipTitle}>{event.title}</div>
@@ -243,3 +241,5 @@ declare global {
     TabNavigationEventsList: typeof TabNavigationEventsListComponent
   }
 }
+
+export default TabNavigationEventsListComponent;

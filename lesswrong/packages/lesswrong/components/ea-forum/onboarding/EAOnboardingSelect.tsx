@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { styles as inputStyles } from "./EAOnboardingInput";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,7 +33,6 @@ export const EAOnboardingSelect = ({
   const onChange = useCallback((ev: ChangeEvent<HTMLSelectElement>) => {
     setValue(ev.target.value ?? "");
   }, [setValue]);
-  const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <select
@@ -63,3 +63,5 @@ declare global {
     EAOnboardingSelect: typeof EAOnboardingSelectComponent
   }
 }
+
+export default EAOnboardingSelectComponent;

@@ -16,6 +16,10 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@material-ui/core/TextField';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LoginForm from "@/components/users/LoginForm";
+import SignupSubscribeToCurated from "@/components/users/SignupSubscribeToCurated";
+import { Loading } from "@/components/vulcan-core/Loading";
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
@@ -129,7 +133,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const emailAddressInput = useRef<HTMLInputElement|null>(null);
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
-  const {LoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
   
@@ -436,3 +439,5 @@ declare global {
     RecentDiscussionSubscribeReminder: typeof RecentDiscussionSubscribeReminderComponent,
   }
 }
+
+export default RecentDiscussionSubscribeReminderComponent;

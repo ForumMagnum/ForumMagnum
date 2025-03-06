@@ -6,11 +6,10 @@ import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
 import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -84,3 +83,5 @@ declare global {
     SuggestCuratedDropdownItem: typeof SuggestCuratedDropdownItemComponent
   }
 }
+
+export default SuggestCuratedDropdownItemComponent;

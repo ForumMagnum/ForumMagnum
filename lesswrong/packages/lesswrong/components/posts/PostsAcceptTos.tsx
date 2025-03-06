@@ -5,6 +5,8 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@material-ui/core/Checkbox';
+import { Typography } from "@/components/common/Typography";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
@@ -73,11 +75,11 @@ const PostsAcceptTos = ({currentUser, classes}: {
         disableRipple
       />
       {loading
-        ? <Components.Loading className={classes.spinner} />
-        : <Components.Typography variant="body2" className={classes.label}>
+        ? <Loading className={classes.spinner} />
+        : <Typography variant="body2" className={classes.label}>
           Before you can publish this post you must agree to the <TosLink /> including
           your content being available under a <LicenseLink /> license
-        </Components.Typography>
+        </Typography>
       }
     </div>
   );
@@ -90,3 +92,5 @@ declare global {
     PostsAcceptTos: typeof PostsAcceptTosComponent
   }
 }
+
+export default PostsAcceptTosComponent;

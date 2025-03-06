@@ -6,6 +6,9 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import type { SearchHitComponentProps } from './types';
+import LWTooltip from "@/components/common/LWTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,8 +38,6 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 
 const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const comment = (hit as SearchComment);
-  const { LWTooltip } = Components
-
   let url = "";
   if (comment.postId && comment.postSlug) {
     url = `${postGetPageUrl({
@@ -55,11 +56,11 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHi
     </LWTooltip>}
     <Link to={url} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
-        <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>
-        <Components.MetaInfo>
-          <Components.FormatDate date={comment.postedAt}/>
-        </Components.MetaInfo>
+        <MetaInfo>{comment.authorDisplayName}</MetaInfo>
+        <MetaInfo>{comment.baseScore} karma </MetaInfo>
+        <MetaInfo>
+          <FormatDate date={comment.postedAt}/>
+        </MetaInfo>
       </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
@@ -75,4 +76,6 @@ declare global {
     CommentsSearchHit: typeof CommentsSearchHitComponent
   }
 }
+
+export default CommentsSearchHitComponent;
 

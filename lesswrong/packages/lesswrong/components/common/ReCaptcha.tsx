@@ -118,3 +118,5 @@ declare global {
   }
 }
 
+export default ReCaptchaComponent;
+

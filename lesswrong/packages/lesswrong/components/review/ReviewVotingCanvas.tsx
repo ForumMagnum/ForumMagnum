@@ -11,6 +11,9 @@ import { REVIEW_YEAR, eligibleToNominate, reviewElectionName } from "../../lib/r
 import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -296,7 +299,6 @@ const Heart: FC<{
       void removeHeart();
     }
   }, [isCurrentUser, removeHeart]);
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <div
       style={{
@@ -331,7 +333,6 @@ const ReviewVotingCanvas = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const { pathname, currentRoute } = useLocation();
-  const { CloudinaryImage2 } = Components;
   const currentUser = useCurrentUser();
   const showHearts = currentRoute?.path === "/";
 
@@ -505,3 +506,5 @@ declare global {
     ReviewVotingCanvas: typeof ReviewVotingCanvasComponent
   }
 }
+
+export default ReviewVotingCanvasComponent;

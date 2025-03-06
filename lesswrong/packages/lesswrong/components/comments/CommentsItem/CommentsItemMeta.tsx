@@ -11,6 +11,18 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import CommentShortformIcon from "@/components/comments/CommentsItem/CommentShortformIcon";
+import CommentDiscussionIcon from "@/components/comments/CommentsItem/CommentDiscussionIcon";
+import ShowParentComment from "@/components/comments/ShowParentComment";
+import CommentUserName from "@/components/comments/CommentsItem/CommentUserName";
+import CommentsItemDate from "@/components/comments/CommentsItem/CommentsItemDate";
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import CommentOutdatedWarning from "@/components/comments/CommentsItem/CommentOutdatedWarning";
+import FooterTag from "@/components/tagging/FooterTag";
+import LoadMore from "@/components/common/LoadMore";
+import ForumIcon from "@/components/common/ForumIcon";
+import CommentsMenu from "@/components/dropdowns/comments/CommentsMenu";
+import UserCommentMarkers from "@/components/users/UserCommentMarkers";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -224,15 +236,6 @@ export const CommentsItemMeta = ({
     shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked;
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
-
-
-
-  const {
-    CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
-    CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
-  } = Components;
-
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
   const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
 
@@ -369,3 +372,5 @@ declare global {
     CommentsItemMeta: typeof CommentsItemMetaComponent,
   }
 }
+
+export default CommentsItemMetaComponent;

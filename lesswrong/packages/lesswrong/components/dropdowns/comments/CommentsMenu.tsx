@@ -5,6 +5,7 @@ import Menu from '@material-ui/core/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentActions from "@/components/dropdowns/comments/CommentActions";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -61,7 +62,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
         anchorEl={anchorEl}
         className={classes.root}
       >
-        {everOpened && <Components.CommentActions
+        {everOpened && <CommentActions
           currentUser={currentUser}
           comment={comment}
           post={post}
@@ -80,4 +81,6 @@ declare global {
     CommentsMenu: typeof CommentsMenuComponent,
   }
 }
+
+export default CommentsMenuComponent;
 

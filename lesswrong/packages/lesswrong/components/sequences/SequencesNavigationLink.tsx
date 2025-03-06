@@ -68,3 +68,5 @@ declare global {
   }
 }
 
+export default SequencesNavigationLinkComponent;
+

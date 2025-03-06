@@ -5,6 +5,10 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';
+import LWDialog from "@/components/common/LWDialog";
+import EAButton from "@/components/ea-forum/EAButton";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   dialogPaper: {
@@ -46,7 +50,6 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
   confirmAction: () => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {LWDialog, EAButton, Loading, Typography} = Components;
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
 
@@ -110,3 +113,5 @@ declare global {
     DeleteAccountConfirmationModal: typeof DeleteAccountConfirmationModalComponent
   }
 }
+
+export default DeleteAccountConfirmationModalComponent;

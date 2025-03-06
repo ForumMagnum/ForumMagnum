@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
+import TableOfContentsDivider from "@/components/posts/TableOfContents/TableOfContentsDivider";
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
@@ -140,7 +141,7 @@ const TableOfContentsRow = ({
   const scaleStyling = scale !== undefined ? { flex: scale } : undefined;
 
   if (divider) {
-    return <Components.TableOfContentsDivider scaleStyling={scaleStyling} />
+    return <TableOfContentsDivider scaleStyling={scaleStyling} />
   }
   
   return <div
@@ -169,3 +170,5 @@ declare global {
     TableOfContentsRow: typeof TableOfContentsRowComponent
   }
 }
+
+export default TableOfContentsRowComponent;

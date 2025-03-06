@@ -98,3 +98,5 @@ declare global {
     EditSequenceTitle: typeof EditSequenceTitleComponent
   }
 }
+
+export default EditSequenceTitleComponent;

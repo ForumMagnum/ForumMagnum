@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { CookieSignature, CookieType, CookiesTable } from "../../../lib/cookies/utils";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -61,8 +62,6 @@ const CookieTable = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Typography } = Components;
-
   const filteredCookies = Object.values(CookiesTable).filter(
     (cookie: CookieSignature) => cookie.type === type && cookie.thirdPartyName === thirdPartyName
   );
@@ -101,3 +100,5 @@ declare global {
     CookieTable: typeof CookieTableComponent;
   }
 }
+
+export default CookieTableComponent;

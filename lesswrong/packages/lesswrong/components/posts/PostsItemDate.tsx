@@ -6,6 +6,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '@/lib/utils/timeFormat';
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import LWTooltip from "@/components/common/LWTooltip";
+import TimeTag from "@/components/common/TimeTag";
+import EventTime from "@/components/localGroups/EventTime";
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -74,14 +79,12 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   }
 
   const now = useCurrentTime();
-  const { PostsItem2MetaInfo, FormatDate, LWTooltip, TimeTag } = Components;
-
   if (post.isEvent && post.startTime) {
     return <LWTooltip
       placement="right"
       title={<span>
         <div className={classes.tooltipSmallText}>Event starts at</div>
-        <Components.EventTime post={post} />
+        <EventTime post={post} />
       </span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
@@ -152,4 +155,6 @@ declare global {
     PostsItemDate: typeof PostsItemDateComponent
   }
 }
+
+export default PostsItemDateComponent;
 

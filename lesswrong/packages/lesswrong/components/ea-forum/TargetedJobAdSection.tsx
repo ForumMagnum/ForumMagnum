@@ -16,6 +16,7 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from '../../lib/collections/users/schema';
+import TargetedJobAd from "@/components/ea-forum/TargetedJobAd";
 
 type UserCoreTagReads = {
   tagId: string,
@@ -240,9 +241,6 @@ const TargetedJobAdSection = () => {
     }
     flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
   }, [currentUser, userJobAds, activeJob, updateUserJobAd, flash])
-  
-  const { TargetedJobAd } = Components
-  
   // Only show this section if we have a matching job for this user
   if (
     !currentUser ||
@@ -270,3 +268,5 @@ declare global {
     TargetedJobAdSection: typeof TargetedJobAdSectionComponent
   }
 }
+
+export default TargetedJobAdSectionComponent;

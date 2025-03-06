@@ -83,3 +83,5 @@ declare global {
     CommunityBanner: typeof CommunityBannerComponent
   }
 }
+
+export default CommunityBannerComponent;

@@ -65,3 +65,5 @@ declare global {
     SplashHeaderImageOptions: typeof SplashHeaderImageOptionsComponent
   }
 }
+
+export default SplashHeaderImageOptionsComponent;

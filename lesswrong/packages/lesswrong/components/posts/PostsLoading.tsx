@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';
+import LWPlaceholderPostsItem from "@/components/posts/LWPlaceholderPostsItem";
+import FriendlyPlaceholderPostsItem from "@/components/posts/FriendlyPlaceholderPostsItem";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const PostsLoading = ({
   placeholderCount,
@@ -14,13 +17,13 @@ const PostsLoading = ({
   viewType?: PostsListViewType,
 }) => {
   if (!placeholderCount) {
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   if (isFriendlyUI) {
     return <>
       {range(0, placeholderCount)
-        .map(i => <Components.FriendlyPlaceholderPostsItem
+        .map(i => <FriendlyPlaceholderPostsItem
           key={i}
           viewType={viewType}
         />)}
@@ -28,7 +31,7 @@ const PostsLoading = ({
   } else {
     return <>
       {range(0, placeholderCount)
-        .map(i => <Components.LWPlaceholderPostsItem
+        .map(i => <LWPlaceholderPostsItem
           key={i}
           showBottomBorder={showFinalBottomBorder || i+1<placeholderCount}
         />)}
@@ -43,3 +46,5 @@ declare global {
     PostsLoading: typeof PostsLoadingComponent
   }
 }
+
+export default PostsLoadingComponent;

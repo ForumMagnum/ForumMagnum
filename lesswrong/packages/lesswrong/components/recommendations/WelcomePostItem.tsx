@@ -6,6 +6,7 @@ import moment from "moment";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
+import PostsItem from "@/components/posts/PostsItem";
 
 const WelcomePostItem = () => {
   const currentUser = useCurrentUser();
@@ -36,7 +37,7 @@ const WelcomePostItem = () => {
     return null;
   }
 
-  return <Components.PostsItem post={post} />
+  return <PostsItem post={post} />
 }
 
 const WelcomePostItemComponent = registerComponent("WelcomePostItem", WelcomePostItem, {});
@@ -46,3 +47,5 @@ declare global {
     WelcomePostItem: typeof WelcomePostItemComponent
   }
 }
+
+export default WelcomePostItemComponent;

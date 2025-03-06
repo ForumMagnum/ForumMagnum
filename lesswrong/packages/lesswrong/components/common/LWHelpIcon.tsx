@@ -23,3 +23,5 @@ declare global {
     LWHelpIcon: typeof LWHelpIconComponent
   }
 }
+
+export default LWHelpIconComponent;

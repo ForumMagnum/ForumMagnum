@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 import { PopperPlacementType } from '@material-ui/core/Popper'
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,7 +50,6 @@ const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, toolt
   tooltip?: any,
   tooltipPlacement?: PopperPlacementType
 }) => {
-  const { LWTooltip } = Components
   const checkbox = <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled ? onClick : undefined}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
     <span className={classes.label}>{ label }</span>
@@ -71,3 +71,5 @@ declare global {
     SectionFooterCheckbox: typeof SectionFooterCheckboxComponent
   }
 }
+
+export default SectionFooterCheckboxComponent;

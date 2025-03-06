@@ -5,6 +5,11 @@ import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isMobile } from '@/lib/utils/isMobile';
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import PopperCard from "@/components/common/PopperCard";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import SharePostActions from "@/components/dropdowns/posts/SharePostActions";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,9 +54,6 @@ const SharePostButton = ({
     }
     setIsOpen(!isOpen)
   }
-
-  const {LWTooltip, ForumIcon, PopperCard, LWClickAwayListener, SharePostActions} = Components
-
   return <div className={classes.root}>
     <div ref={anchorEl}>
       <LWTooltip title="Share post" placement="bottom-start" disabled={isOpen}>
@@ -85,3 +87,5 @@ declare global {
     SharePostButton: typeof SharePostButtonComponent
   }
 }
+
+export default SharePostButtonComponent;

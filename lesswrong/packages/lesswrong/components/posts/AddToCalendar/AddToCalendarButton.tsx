@@ -6,6 +6,8 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import LWPopper from "@/components/common/LWPopper";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -82,9 +84,6 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     }
     setOpen(!open)
   }
-  
-  const { LWPopper } = Components
-  
   // we use the Facebook link as the default event details text
   let eventDetails = post.facebookLink;
   // we try to use plaintextDescription instead if possible
@@ -151,9 +150,9 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   }
   
   return (
-    <Components.LWTooltip title="Add to calendar" placement="left">
+    <LWTooltip title="Add to calendar" placement="left">
       {calendarIconNode}
-    </Components.LWTooltip>
+    </LWTooltip>
   )
 };
 
@@ -164,3 +163,5 @@ declare global {
     AddToCalendarButton: typeof AddToCalendarButtonComponent,
   }
 }
+
+export default AddToCalendarButtonComponent;

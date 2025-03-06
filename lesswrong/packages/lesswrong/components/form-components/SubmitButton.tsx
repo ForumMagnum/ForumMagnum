@@ -28,3 +28,5 @@ declare global {
     SubmitButton: typeof SubmitButtonComponent
   }
 }
+
+export default SubmitButtonComponent;

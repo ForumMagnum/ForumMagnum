@@ -76,3 +76,5 @@ declare global {
     HeaderEventSubtitle: typeof HeaderEventSubtitleComponent
   }
 }
+
+export default HeaderEventSubtitleComponent;

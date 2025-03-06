@@ -4,11 +4,15 @@ import { useLocation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { styles } from './PostsPage/PostsPage';
 import { useMulti } from '@/lib/crud/withMulti';
+import CompareRevisions from "@/components/revisions/CompareRevisions";
+import PostsPagePostHeader from "@/components/posts/PostsPage/PostsPagePostHeader";
+import RevisionComparisonNotice from "@/components/revisions/RevisionComparisonNotice";
+import LoadingOrErrorPage from "@/components/common/LoadingOrErrorPage";
+import ErrorPage from "@/components/common/ErrorPage";
 
 const PostsCompareRevisions = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, LoadingOrErrorPage, ErrorPage } = Components;
   const { params, query } = useLocation();
   const postId = params._id;
   const versionBefore = query.before;
@@ -71,3 +75,5 @@ declare global {
     PostsCompareRevisions: typeof PostsCompareRevisionsComponent
   }
 }
+
+export default PostsCompareRevisionsComponent;

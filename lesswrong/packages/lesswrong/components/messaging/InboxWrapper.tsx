@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import InboxNavigation from "@/components/messaging/InboxNavigation";
+import FriendlyInbox from "@/components/messaging/FriendlyInbox";
 
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
@@ -14,9 +16,6 @@ export type InboxComponentProps = {
 const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
-
-  const { InboxNavigation, FriendlyInbox } = Components
-
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
@@ -45,3 +44,5 @@ declare global {
     InboxWrapper: typeof InboxWrapperComponent
   }
 }
+
+export default InboxWrapperComponent;

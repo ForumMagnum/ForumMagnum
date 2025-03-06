@@ -8,6 +8,10 @@ import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import TagsListItem from "@/components/tagging/TagsListItem";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SectionButton from "@/components/common/SectionButton";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +40,6 @@ const AllTagsAlphabetical = ({classes}: {
     fragmentName: "TagPreviewFragment",
     limit: 750,
   });
-  const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;
   const currentUser = useCurrentUser()
 
   const alphabetical = _sortBy(results, tag=>tag.name)
@@ -71,3 +74,5 @@ declare global {
     AllTagsAlphabetical: typeof AllTagsAlphabeticalComponent
   }
 }
+
+export default AllTagsAlphabeticalComponent;

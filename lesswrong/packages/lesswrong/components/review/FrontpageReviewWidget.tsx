@@ -11,6 +11,13 @@ import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SettingsButton from "@/components/icons/SettingsButton";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsList2 from "@/components/posts/PostsList2";
+import ReviewProgressReviews from "@/components/review/ReviewProgressReviews";
+import ReviewProgressVoting from "@/components/review/ReviewProgressVoting";
+import ReviewProgressNominations from "@/components/review/ReviewProgressNominations";
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -226,7 +233,6 @@ export function ReviewOverviewTooltip() {
 }
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations } = Components
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)
@@ -463,3 +469,5 @@ declare global {
     FrontpageReviewWidget: typeof FrontpageReviewWidgetComponent
   }
 }
+
+export default FrontpageReviewWidgetComponent;

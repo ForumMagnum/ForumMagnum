@@ -5,6 +5,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import TabNavigationFooterItem from "@/components/common/TabNavigationMenu/TabNavigationFooterItem";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
@@ -32,8 +33,6 @@ const styles = (theme: ThemeType) => ({
 const TabNavigationMenuFooter = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { TabNavigationFooterItem } = Components
-
   return (
     <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
@@ -63,3 +62,5 @@ declare global {
     TabNavigationMenuFooter: typeof TabNavigationMenuFooterComponent
   }
 }
+
+export default TabNavigationMenuFooterComponent;

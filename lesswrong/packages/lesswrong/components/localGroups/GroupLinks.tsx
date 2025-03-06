@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme'
-
+import ForumIcon from "@/components/common/ForumIcon";
 
 // just the "f", used for the FB Group link
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -145,8 +145,6 @@ const GroupLinks = ({ document, noMargin, classes }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
-  const {ForumIcon} = Components;
-
   const groupLinkProps = {
     className: classes.groupLink,
     target: "_blank",
@@ -218,3 +216,5 @@ declare global {
     GroupLinks: typeof GroupLinksComponent
   }
 }
+
+export default GroupLinksComponent;

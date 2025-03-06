@@ -5,6 +5,12 @@ import { useInitiateConversation } from "@/components/hooks/useInitiateConversat
 import { getTopAuthor, getUserProfileLink } from "./wrappedHelpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import MessagesNewForm from "@/components/messaging/MessagesNewForm";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -101,11 +107,6 @@ const WrappedThankAuthorSection = ({classes}: {
   }, [captureEvent, conversation, currentUser, year]);
 
   const {displayName, slug} = topAuthorByEngagementPercentile;
-
-  const {
-    WrappedSection, WrappedHeading, UsersProfileImage, MessagesNewForm, Loading, ForumIcon,
-  } = Components;
-  
   const messageNode = conversation ? (
     <div className={classes.newMessageForm}>
       <MessagesNewForm
@@ -158,3 +159,5 @@ declare global {
     WrappedThankAuthorSection: typeof WrappedThankAuthorSectionComponent
   }
 }
+
+export default WrappedThankAuthorSectionComponent;

@@ -5,6 +5,14 @@ import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SectionButton from "@/components/common/SectionButton";
+import ShortformSubmitForm from "@/components/shortform/ShortformSubmitForm";
+import { Loading } from "@/components/vulcan-core/Loading";
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import LoadMore from "@/components/common/LoadMore";
+import RecentDiscussionThread from "@/components/recentDiscussion/RecentDiscussionThread";
 
 const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
@@ -51,11 +59,6 @@ const RecentDiscussionThreadsList = ({
     },
     [setShowShortformFeed, showShortformFeed]
   );
-  
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, AnalyticsInViewTracker } = Components
-
-  const { LoadMore } = Components
-
   if (!loading && results && !results.length) {
     return null
   }
@@ -76,7 +79,7 @@ const RecentDiscussionThreadsList = ({
       <div>
         {results && <div>
           {results.map((post, i) =>
-            <Components.RecentDiscussionThread
+            <RecentDiscussionThread
               key={post._id}
               post={post}
               refetch={refetch}
@@ -105,3 +108,5 @@ declare global {
     RecentDiscussionThreadsList: typeof RecentDiscussionThreadsListComponent,
   }
 }
+
+export default RecentDiscussionThreadsListComponent;

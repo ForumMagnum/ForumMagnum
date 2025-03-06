@@ -1,10 +1,11 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import PeopleDirectoryResultsList from "@/components/peopleDirectory/PeopleDirectoryResultsList";
+import PeopleDirectoryResultsMap from "@/components/peopleDirectory/PeopleDirectoryResultsMap";
 
 const PeopleDirectoryResults = () => {
   const {view} = usePeopleDirectory();
-  const {PeopleDirectoryResultsList, PeopleDirectoryResultsMap} = Components;
   return view === "list"
     ? <PeopleDirectoryResultsList />
     : <PeopleDirectoryResultsMap />;
@@ -20,3 +21,5 @@ declare global {
     PeopleDirectoryResults: typeof PeopleDirectoryResultsComponent
   }
 }
+
+export default PeopleDirectoryResultsComponent;

@@ -10,6 +10,7 @@ import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -50,8 +51,6 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
 
   const title = 'Dismiss recommendation'
   const icon = 'NotInterested'
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -75,3 +74,5 @@ declare global {
     DislikeRecommendationDropdownItem: typeof DislikeRecommendationDropdownItemComponent
   }
 }
+
+export default DislikeRecommendationDropdownItemComponent;

@@ -51,3 +51,5 @@ declare global {
     GlobalHotkeys: typeof GlobalHotkeysComponent
   }
 }
+
+export default GlobalHotkeysComponent;

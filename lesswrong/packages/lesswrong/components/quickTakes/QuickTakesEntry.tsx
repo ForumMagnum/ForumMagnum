@@ -10,6 +10,7 @@ import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -154,8 +155,6 @@ const QuickTakesEntry = ({
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
-
-  const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
@@ -195,3 +194,5 @@ declare global {
     QuickTakesEntry: typeof QuickTakesEntryComponent
   }
 }
+
+export default QuickTakesEntryComponent;

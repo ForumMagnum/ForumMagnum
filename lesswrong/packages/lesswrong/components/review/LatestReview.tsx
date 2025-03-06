@@ -5,6 +5,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,8 +50,6 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
     commentId: comment._id,
     postSlug: comment.post.slug,
   });
-
-  const {ErrorBoundary, PostsTooltip} = Components;
   return (
     <ErrorBoundary>
       <AnalyticsContext pageSubsectionContext="latestReview">
@@ -81,3 +81,5 @@ declare global {
     LatestReview: typeof LatestReviewComponent
   }
 }
+
+export default LatestReviewComponent;

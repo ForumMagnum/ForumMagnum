@@ -6,6 +6,13 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import UsersName from "@/components/users/UsersName";
+import SequencesSmallPostLink from "@/components/sequences/SequencesSmallPostLink";
+import ChapterTitle from "@/components/sequences/ChapterTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemTruncated from "@/components/common/ContentItemTruncated";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +68,6 @@ const SequenceMeta: FC<{
   wordCountNode: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({user, postCount, wordCountNode, classes}) => {
-  const {UsersName} = Components;
   return isFriendlyUI
     ? (
       <div className={classes.author}>
@@ -88,7 +94,6 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
 }) => {
   let postsRendered = 0;
   const nodes: ReactNode[] = [];
-  const {SequencesSmallPostLink, ChapterTitle} = Components;
   for (let i = 0; i < chapters.length && postsRendered < maxPosts; i++) {
     const chapter = chapters[i];
     const posts = chapter.posts.slice(0, maxPosts - postsRendered);
@@ -131,9 +136,6 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
   });
-
-  const {Loading, ContentStyles, ContentItemTruncated, LWTooltip} = Components;
-
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
 
@@ -194,3 +196,5 @@ declare global {
     SequencesSummary: typeof SequencesSummaryComponent
   }
 }
+
+export default SequencesSummaryComponent;

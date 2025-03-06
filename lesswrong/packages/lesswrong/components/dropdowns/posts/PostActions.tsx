@@ -3,6 +3,29 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useCurrentUser } from '../../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
+import MoveToDraftDropdownItem from "@/components/dropdowns/posts/MoveToDraftDropdownItem";
+import BookmarkDropdownItem from "@/components/dropdowns/posts/BookmarkDropdownItem";
+import SuggestCuratedDropdownItem from "@/components/dropdowns/posts/SuggestCuratedDropdownItem";
+import SuggestAlignmentPostDropdownItem from "@/components/dropdowns/posts/SuggestAlignmentPostDropdownItem";
+import ReportPostDropdownItem from "@/components/dropdowns/posts/ReportPostDropdownItem";
+import DeleteDraftDropdownItem from "@/components/dropdowns/posts/DeleteDraftDropdownItem";
+import SetSideItemVisibility from "@/components/dropdowns/posts/SetSideItemVisibility";
+import { ResyncRssDropdownItem } from "@/components/dropdowns/posts/ResyncRssDropdownItem";
+import MarkAsReadDropdownItem from "@/components/dropdowns/posts/MarkAsReadDropdownItem";
+import SummarizeDropdownItem from "@/components/dropdowns/posts/SummarizeDropdownItem";
+import MoveToFrontpageDropdownItem from "@/components/dropdowns/posts/MoveToFrontpageDropdownItem";
+import MoveToAlignmentPostDropdownItem from "@/components/dropdowns/posts/MoveToAlignmentPostDropdownItem";
+import ShortformDropdownItem from "@/components/dropdowns/posts/ShortformDropdownItem";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import EditTagsDropdownItem from "@/components/dropdowns/posts/EditTagsDropdownItem";
+import EditPostDropdownItem from "@/components/dropdowns/posts/EditPostDropdownItem";
+import DuplicateEventDropdownItem from "@/components/dropdowns/posts/DuplicateEventDropdownItem";
+import PostAnalyticsDropdownItem from "@/components/dropdowns/posts/PostAnalyticsDropdownItem";
+import ExcludeFromRecommendationsDropdownItem from "@/components/dropdowns/posts/ExcludeFromRecommendationsDropdownItem";
+import ApproveNewUserDropdownItem from "@/components/dropdowns/posts/ApproveNewUserDropdownItem";
+import SharePostSubmenu from "@/components/dropdowns/posts/SharePostSubmenu";
+import PostSubscriptionsDropdownItem from "@/components/dropdowns/posts/PostSubscriptionsDropdownItem";
+import DislikeRecommendationDropdownItem from "@/components/dropdowns/posts/DislikeRecommendationDropdownItem";
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -25,19 +48,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-
-  const {
-    MoveToDraftDropdownItem, BookmarkDropdownItem, SuggestCuratedDropdownItem,
-    SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
-    HideFrontpagePostDropdownItem, SetSideItemVisibility, ResyncRssDropdownItem,
-    MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
-    MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
-    EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
-    PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
-    ApproveNewUserDropdownItem, SharePostSubmenu, PostSubscriptionsDropdownItem,
-    DislikeRecommendationDropdownItem
-  } = Components;
-
   if (!post) return null;
 
   // WARNING: Clickable items in this menu must be full-width, and
@@ -86,3 +96,5 @@ declare global {
     PostActions: typeof PostActionsComponent
   }
 }
+
+export default PostActionsComponent;

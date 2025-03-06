@@ -2,6 +2,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useEffect, useState} from 'react';
 import { useQuery, gql } from '@apollo/client';
 import moment from '../../lib/moment-timezone';
+import PetrovDayButton from "@/components/seasonal/PetrovDayButton";
+import PetrovDayLossScreen from "@/components/seasonal/PetrovDayLossScreen";
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -22,9 +24,9 @@ const PetrovDayWrapper = () => {
   
   
   if (internalData?.PetrovDayCheckIfIncoming.launched) {
-    return <Components.PetrovDayLossScreen/>
+    return <PetrovDayLossScreen/>
   } else {
-    return <Components.PetrovDayButton
+    return <PetrovDayButton
       alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched}
     />
   }
@@ -37,3 +39,5 @@ declare global {
     PetrovDayWrapper: typeof PetrovDayWrapperComponent
   }
 }
+
+export default PetrovDayWrapperComponent;

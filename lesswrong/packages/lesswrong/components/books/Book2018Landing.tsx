@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import {captureEvent, useTracking} from "../../lib/analyticsEvents";
+import BookAnimation from "@/components/books/BookAnimation";
+import BookCheckout from "@/components/review/BookCheckout";
+import HeadTags from "@/components/common/HeadTags";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -359,8 +362,6 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
 const Book2018Landing = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {BookAnimation, BookCheckout, HeadTags} = Components;
-
   return (
     <div>
       <HeadTags 
@@ -539,3 +540,5 @@ declare global {
     Book2018Landing: typeof Book2018LandingComponent
   }
 }
+
+export default Book2018LandingComponent;

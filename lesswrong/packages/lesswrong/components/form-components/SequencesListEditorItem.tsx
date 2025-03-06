@@ -3,6 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   box: {
@@ -77,7 +78,7 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
       </div>
     </div>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
@@ -88,3 +89,5 @@ declare global {
     SequencesListEditorItem: typeof SequencesListEditorItemComponent
   }
 }
+
+export default SequencesListEditorItemComponent;

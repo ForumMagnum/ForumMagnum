@@ -15,3 +15,5 @@ declare global {
     FormNestedHead: typeof FormNestedHeadComponent
   }
 }
+
+export default FormNestedHeadComponent;

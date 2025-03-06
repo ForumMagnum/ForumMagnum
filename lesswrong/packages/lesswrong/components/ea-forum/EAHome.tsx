@@ -7,6 +7,19 @@ import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
+import RecentDiscussionFeed from "@/components/recentDiscussion/RecentDiscussionFeed";
+import QuickTakesSection from "@/components/quickTakes/QuickTakesSection";
+import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
+import HomeLatestPosts from "@/components/common/HomeLatestPosts";
+import EAHomeCommunityPosts from "@/components/ea-forum/EAHomeCommunityPosts";
+import EAPopularCommentsSection from "@/components/ea-forum/EAPopularCommentsSection";
+import EAHomeMainContent from "@/components/ea-forum/EAHomeMainContent";
+import SmallpoxBanner from "@/components/ea-forum/SmallpoxBanner";
+import EventBanner from "@/components/ea-forum/EventBanner";
+import MaintenanceBanner from "@/components/common/MaintenanceBanner";
+import HeadTags from "@/components/common/HeadTags";
+import BotSiteBanner from "@/components/common/BotSiteBanner";
+import EAGBanner from "@/components/ea-forum/EAGBanner";
 
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
@@ -49,11 +62,6 @@ const styles = (_theme: ThemeType) => ({
 const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
-  const {
-    RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
-    HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
-  } = Components
-
   return (
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
@@ -91,11 +99,6 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
     () => <FrontpageNode classes={classes} />,
     [classes],
   );
-
-  const {
-    EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
-    HeadTags, BotSiteBanner, EAGBanner,
-  } = Components
   return (
     <AnalyticsContext pageContext="homePage">
       <HeadTags structuredData={getStructuredData()}/>
@@ -116,3 +119,5 @@ declare global {
     EAHome: typeof EAHomeComponent
   }
 }
+
+export default EAHomeComponent;

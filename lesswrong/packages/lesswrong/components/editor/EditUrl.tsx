@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,9 +95,9 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       }
       setFooterContent(
         <div className={classes.footer}>
-          <Components.Typography variant='body2' className={classes.hintText}>
+          <Typography variant='body2' className={classes.hintText}>
             {HintTextComponent ? <HintTextComponent /> : hintText}
-          </Components.Typography>
+          </Typography>
         </div>
       );
     } else {
@@ -152,3 +153,5 @@ declare global {
     EditUrl: typeof EditUrlComponent
   }
 }
+
+export default EditUrlComponent;

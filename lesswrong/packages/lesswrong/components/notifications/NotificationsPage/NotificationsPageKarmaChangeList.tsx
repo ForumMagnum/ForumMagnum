@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import type { KarmaChangesSimple } from "../../../lib/collections/users/karmaChangesGraphQL";
+import NotificationsPageKarmaChange from "@/components/notifications/NotificationsPage/NotificationsPageKarmaChange";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {
@@ -27,9 +28,6 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
       (karmaChanges?.posts.length ?? 0) + (karmaChanges?.comments.length ?? 0) + (karmaChanges?.tagRevisions.length ?? 0) > truncateAt
     )
   )
-  
-  const {NotificationsPageKarmaChange} = Components;
-  
   let posts = karmaChanges?.posts
   let comments = karmaChanges?.comments
   let tagRevisions = karmaChanges?.tagRevisions
@@ -111,3 +109,5 @@ declare global {
     NotificationsPageKarmaChangeList: typeof NotificationsPageKarmaChangeListComponent
   }
 }
+
+export default NotificationsPageKarmaChangeListComponent;

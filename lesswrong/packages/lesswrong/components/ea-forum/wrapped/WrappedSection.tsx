@@ -101,3 +101,5 @@ declare global {
     WrappedSection: typeof WrappedSectionComponent
   }
 }
+
+export default WrappedSectionComponent;

@@ -7,6 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   modalTextField: {
@@ -38,7 +39,6 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 
   render() {
     const { onClose, classes } = this.props
-    const { LWDialog } = Components;
     return (
       <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
@@ -92,3 +92,5 @@ declare global {
     AFApplicationForm: typeof AFApplicationFormComponent
   }
 }
+
+export default AFApplicationFormComponent;

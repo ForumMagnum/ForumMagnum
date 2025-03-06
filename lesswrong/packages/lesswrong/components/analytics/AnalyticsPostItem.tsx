@@ -102,3 +102,5 @@ declare global {
     AnalyticsPostItem: typeof AnalyticsPostItemComponent
   }
 }
+
+export default AnalyticsPostItemComponent;

@@ -19,6 +19,11 @@ import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
 import { onUserChanged } from '@/client/logging';
+import { Layout } from "@/components/Layout";
+import ScrollToTop from "@/components/vulcan-core/ScrollToTop";
+import HeadTags from "@/components/common/HeadTags";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
@@ -57,7 +62,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
   
   if (location.redirected) {
     return (
-      <Components.PermanentRedirect url={location.url} />
+      <PermanentRedirect url={location.url} />
     );
   }
 
@@ -94,7 +99,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
   // and logged-out views.)
   if (currentUserLoading && !currentUser) {
     return (
-      <Components.Loading />
+      <Loading />
     );
   }
 
@@ -105,11 +110,11 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
     <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
       <MessageContextProvider>
-        <Components.HeadTags image={siteImageSetting.get()} />
-        <Components.ScrollToTop />
-        <Components.Layout currentUser={currentUser}>
+        <HeadTags image={siteImageSetting.get()} />
+        <ScrollToTop />
+        <Layout currentUser={currentUser}>
           <location.RouteComponent />
-        </Components.Layout>
+        </Layout>
       </MessageContextProvider>
     </RefetchCurrentUserContext.Provider>
     </ServerRequestStatusContext.Provider>
@@ -130,3 +135,7 @@ declare global {
 }
 
 export default App;
+
+export {
+  AppComponent as App
+}

@@ -2,15 +2,16 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import startCase from "lodash/startCase";
+import LoginPopupButton from "@/components/users/LoginPopupButton";
 
 const LoginToTrack = ({className, children = "Log in to save where you left off"}: {
   className?: string,
   children?: ReactNode,
 }) => {
   return (
-    <Components.LoginPopupButton title={`${startCase(siteNameWithArticleSetting.get())} keeps track of what posts logged in users have read, so you can keep reading wherever you've left off`} className={className}>
+    <LoginPopupButton title={`${startCase(siteNameWithArticleSetting.get())} keeps track of what posts logged in users have read, so you can keep reading wherever you've left off`} className={className}>
       {children}
-    </Components.LoginPopupButton>
+    </LoginPopupButton>
   );
 }
 
@@ -21,3 +22,5 @@ declare global {
     LoginToTrack: typeof LoginToTrackComponent
   }
 }
+
+export default LoginToTrackComponent;

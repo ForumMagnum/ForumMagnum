@@ -5,6 +5,7 @@ import { getWrappedVideo } from "./videos";
 import { Helmet } from "@/lib/utils/componentsWithChildren";
 import range from "lodash/range";
 import classNames from "classnames";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,8 +105,6 @@ const WrappedApp = ({classes}: {
 
   const thinkingVideo = getWrappedVideo("thinking");
   const personalityVideo = getWrappedVideo(personality);
-
-  const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <Helmet>
@@ -164,3 +163,5 @@ declare global {
     WrappedApp: typeof WrappedAppComponent
   }
 }
+
+export default WrappedAppComponent;

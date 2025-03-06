@@ -5,6 +5,9 @@ import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import PopperCard from "@/components/common/PopperCard";
+import { TagPreview } from "@/components/tagging/TagPreview";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +42,6 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   isVotingContext?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PopperCard, TagPreview, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
     collectionName: "Tags",
@@ -79,4 +81,6 @@ declare global {
     TagSearchHit: typeof TagSearchHitComponent
   }
 }
+
+export default TagSearchHitComponent;
 

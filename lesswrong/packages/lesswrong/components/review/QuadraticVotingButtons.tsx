@@ -44,3 +44,5 @@ declare global {
     QuadraticVotingButtons: typeof QuadraticVotingButtonsComponent
   }
 }
+
+export default QuadraticVotingButtonsComponent;

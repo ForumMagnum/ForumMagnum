@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LoadMore from "@/components/common/LoadMore";
+import CommentsNode from "@/components/comments/CommentsNode";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,12 +25,12 @@ export const AllReactedCommentsPage = ({classes}: {
   })
   
   return (
-    <Components.SingleColumnSection>
-      <Components.SectionTitle title="All Reacted Comments"/>
+    <SingleColumnSection>
+      <SectionTitle title="All Reacted Comments"/>
       <div className={classes.root}>
         {results && results.map((comment: CommentsListWithParentMetadata) =>
           <div key={comment._id}>
-            <Components.CommentsNode
+            <CommentsNode
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
@@ -38,9 +42,9 @@ export const AllReactedCommentsPage = ({classes}: {
             />
           </div>
         )}
-        <Components.LoadMore {...loadMoreProps}/>
+        <LoadMore {...loadMoreProps}/>
       </div>
-    </Components.SingleColumnSection>
+    </SingleColumnSection>
   )
 }
 
@@ -51,3 +55,5 @@ declare global {
     AllReactedCommentsPage: typeof AllReactedCommentsPageComponent
   }
 }
+
+export default AllReactedCommentsPageComponent;

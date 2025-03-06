@@ -7,6 +7,10 @@ import { gql, useMutation } from "@apollo/client";
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
+import LoginForm from "@/components/users/LoginForm";
+import SiteLogo from "@/components/ea-forum/SiteLogo";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,9 +67,6 @@ const CrosspostLoginPage = ({classes}: {
       setError("Failed to connect accounts");
     }
   }
-
-  const {LoginForm, SiteLogo, Loading, Typography} = Components;
-
   return (
     <div className={classes.root}>
       <div className={classes.heading}>
@@ -110,3 +111,5 @@ declare global {
     CrosspostLoginPage: typeof CrosspostLoginPageComponent,
   }
 }
+
+export default CrosspostLoginPageComponent;

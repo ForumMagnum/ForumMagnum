@@ -9,6 +9,12 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
+import TagsSearchAutoComplete from "@/components/search/TagsSearchAutoComplete";
+import { Typography } from "@/components/common/Typography";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Loading } from "@/components/vulcan-core/Loading";
+import EAButton from "@/components/ea-forum/EAButton";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,8 +65,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { TagsSearchAutoComplete, Typography, SingleColumnSection, Loading, EAButton, LWTooltip } = Components;
-
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 
@@ -233,3 +237,5 @@ declare global {
     TagMergePage: typeof TagMergePageComponent;
   }
 }
+
+export default TagMergePageComponent;

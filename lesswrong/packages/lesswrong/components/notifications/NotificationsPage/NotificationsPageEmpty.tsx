@@ -75,3 +75,5 @@ declare global {
     NotificationsPageEmpty: typeof NotificationsPageEmptyComponent,
   }
 }
+
+export default NotificationsPageEmptyComponent;

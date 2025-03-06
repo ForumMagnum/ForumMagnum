@@ -43,3 +43,5 @@ declare global {
   }
 }
 
+export default SunshineListItemComponent;
+

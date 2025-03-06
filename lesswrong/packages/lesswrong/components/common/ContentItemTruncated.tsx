@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
+import ContentItemBody from "@/components/common/ContentItemBody";
 
 const TRUNCATION_MAX_HEIGHT = 600;
 
@@ -35,7 +36,6 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   description?: string,
   nofollow?: boolean
 }) => {
-  const {ContentItemBody} = Components;
   const contentsRef = useRef<HTMLDivElement>(null);
   const [hasHeightLimit, setHasHeightLimit] = useState(false);
   
@@ -84,3 +84,5 @@ declare global {
     ContentItemTruncated: typeof ContentItemTruncatedComponent
   }
 }
+
+export default ContentItemTruncatedComponent;

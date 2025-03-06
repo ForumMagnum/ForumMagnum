@@ -45,3 +45,5 @@ declare global {
     PeopleDirectoryCommentCountCell: typeof PeopleDirectoryCommentCountCellComponent
   }
 }
+
+export default PeopleDirectoryCommentCountCellComponent;

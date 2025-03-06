@@ -3,6 +3,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
+import ShortformSubmitForm from "@/components/shortform/ShortformSubmitForm";
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (_theme: ThemeType) => ({
   content: {
@@ -23,7 +25,6 @@ const NewShortformDialog = ({onClose, classes}: {
 }) => {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
-  const {ShortformSubmitForm, LWDialog} = Components;
   return (
     <LWDialog
       open={open}
@@ -63,3 +64,5 @@ declare global {
     NewShortformDialog: typeof NewShortformDialogComponent
   }
 }
+
+export default NewShortformDialogComponent;

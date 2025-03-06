@@ -11,6 +11,11 @@ import { distance } from "../community/modules/LocalGroups";
 import { getCachedUserCountryCode } from "../common/CookieBanner/geolocation";
 import { lightbulbIcon } from "../icons/lightbulbIcon";
 import DeferRender from "../common/DeferRender";
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LWTooltip from "@/components/common/LWTooltip";
+import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -135,9 +140,6 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   ) {
     return null;
   }
-
-  const {AnalyticsInViewTracker, SingleColumnSection, LWTooltip, HoverPreviewLink, ForumIcon} = Components;
-  
   const inViewEventProps = {
     inViewType: `${eagName}Banner`,
     reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
@@ -201,3 +203,5 @@ declare global {
     EAGBanner: typeof EAGBannerComponent
   }
 }
+
+export default EAGBannerComponent;

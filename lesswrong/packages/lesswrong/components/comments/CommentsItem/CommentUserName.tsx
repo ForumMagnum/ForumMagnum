@@ -6,6 +6,10 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import UserNameDeleted from "@/components/users/UserNameDeleted";
+import UsersName from "@/components/users/UsersName";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import UserTooltip from "@/components/users/UserTooltip";
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -72,7 +76,6 @@ const CommentUserName = ({
   className?: string
 }) => {
   const currentUser = useCurrentUser();
-  const {UserNameDeleted, UsersName, UsersProfileImage, UserTooltip} = Components
   const author = comment.user;
 
   if (comment.deleted) {
@@ -147,3 +150,5 @@ declare global {
     CommentUserName: typeof CommentUserNameComponent
   }
 }
+
+export default CommentUserNameComponent;

@@ -3,6 +3,8 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { FieldsNotNull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/arbital/useTagLenses';
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
@@ -56,7 +58,6 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   onHoverContributor: (userId: string|null) => void,
   endWithComma: boolean
 }) => {
-  const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
@@ -69,7 +70,6 @@ const ToCContributorsList = ({topContributors, onHoverContributor}: {
   topContributors: NonnullDocumentContributorWithStats[]
   onHoverContributor: (userId: string|null) => void
 }) => {
-  const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
   return <div className={classes.tocContributors}>
@@ -87,8 +87,6 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
   onHoverContributor: (userId: string|null) => void
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip } = Components;
-
   return <div className={classes.contributorNameWrapper}>
     <span>Written by </span>
     <ContributorsList
@@ -116,5 +114,11 @@ declare global {
     ToCContributorsList: typeof ToCContributorsListComponent
     HeadingContributorsList: typeof HeadingContributorsListComponent
   }
+}
+
+export {
+  ContributorsListComponent as ContributorsList,
+  ToCContributorsListComponent as ToCContributorsList,
+  HeadingContributorsListComponent as HeadingContributorsList
 }
 

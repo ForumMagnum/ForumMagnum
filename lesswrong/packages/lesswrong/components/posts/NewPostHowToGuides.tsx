@@ -5,6 +5,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";
 import { useDismissable } from "../hooks/useDismissable";
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
+import ForumIcon from "@/components/common/ForumIcon";
 
 /**
  * Styles are shared with `NewTagInfoBox`
@@ -83,8 +84,6 @@ export const NewPostHowToGuides = ({classes}: {
   if (dismissed) {
     return null;
   }
-
-  const {ForumIcon} = Components;
   return (
     <AnalyticsContext pageElementContext="newPostHowToGuides">
       <div className={classes.root}>
@@ -117,3 +116,5 @@ declare global {
     NewPostHowToGuides: typeof NewPostHowToGuidesComponent
   }
 }
+
+export default NewPostHowToGuidesComponent;

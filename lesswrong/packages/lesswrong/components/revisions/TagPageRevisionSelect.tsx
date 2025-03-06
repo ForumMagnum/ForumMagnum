@@ -6,6 +6,11 @@ import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helper
 import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Loading } from "@/components/vulcan-core/Loading";
+import RevisionSelect from "@/components/revisions/RevisionSelect";
+import TagRevisionItem from "@/components/tagging/TagRevisionItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
 });
@@ -17,9 +22,6 @@ const TagPageRevisionSelect = ({ classes }: {
   const { slug } = params;
   const focusedUser = query.user;
   const navigate = useNavigate();
-
-  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
-  
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
   const { results: revisions, loadMoreProps, count, totalCount } = useMulti({
     skip: !tag,
@@ -79,3 +81,5 @@ declare global {
     TagPageRevisionSelect: typeof TagPageRevisionSelectComponent
   }
 }
+
+export default TagPageRevisionSelectComponent;

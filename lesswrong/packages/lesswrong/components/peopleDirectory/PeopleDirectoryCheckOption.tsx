@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +35,6 @@ const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
   onSelect?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {ForumIcon} = Components;
   return (
     <div onClick={onSelect} className={classes.root}>
       <div className={classes.label}>{label}</div>
@@ -57,3 +57,5 @@ declare global {
     PeopleDirectoryCheckOption: typeof PeopleDirectoryCheckOptionComponent
   }
 }
+
+export default PeopleDirectoryCheckOptionComponent;

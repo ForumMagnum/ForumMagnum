@@ -14,6 +14,12 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import EAButton from "@/components/ea-forum/EAButton";
+import EditableUsersList from "@/components/editor/EditableUsersList";
+import LWDialog from "@/components/common/LWDialog";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   linkSharingPreview: {
@@ -80,7 +86,6 @@ const PostSharingIcon: FC<{
   className?: string,
   onClick?: () => void,
 }> = (props) => {
-  const {ForumIcon} = Components;
   return isFriendlyUI
     ? (
       <ForumIcon icon="Share" {...props} />
@@ -167,9 +172,6 @@ const PostSharingSettings = ({document, formType, value, classes}: {
       },
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
-
-  const {LWTooltip, EAButton} = Components;
-
   const canUseSharing = userCanUseSharing(currentUser)
 
   return <LWTooltip title={canUseSharing ? undefined : noSharePermissionTooltip}>
@@ -202,7 +204,6 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
   classes: ClassesType<typeof styles>
 }) => {
-  const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);
@@ -321,4 +322,9 @@ declare global {
     PostSharingSettings: typeof PostSharingSettingsComponent,
     PostSharingSettingsDialog: typeof PostSharingSettingsDialogComponent
   }
+}
+
+export {
+  PostSharingSettingsComponent as PostSharingSettings,
+  PostSharingSettingsDialogComponent as PostSharingSettingsDialog
 }

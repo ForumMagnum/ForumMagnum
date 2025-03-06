@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 export const styles = (theme: ThemeType) => ({
   newOrEditForm: {
@@ -51,7 +52,7 @@ const CollectionsEditForm = ({documentId, successCallback, cancelCallback, class
 }) => {
   return (
     <div className={classNames(classes.newOrEditForm,classes.editForm)}>
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collectionName="Collections"
         documentId={documentId}
         successCallback={successCallback}
@@ -71,4 +72,6 @@ declare global {
     CollectionsEditForm: typeof CollectionsEditFormComponent
   }
 }
+
+export default CollectionsEditFormComponent;
 

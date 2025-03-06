@@ -5,7 +5,7 @@ import { useMutation, gql } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -38,8 +38,6 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
     // hard-refresh the page
     window.location.reload();
   }
-
-  const {DropdownItem} = Components;
   if (comment.repliesBlockedUntil) {
     return (
       <DropdownItem
@@ -66,3 +64,5 @@ declare global {
     LockThreadDropdownItem: typeof LockThreadDropdownItemComponent
   }
 }
+
+export default LockThreadDropdownItemComponent;

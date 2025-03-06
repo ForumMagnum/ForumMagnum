@@ -3,6 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
+import UsersName from "@/components/users/UsersName";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,7 +19,6 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
   classes: ClassesType<typeof styles>
 }) => {
-  const { UsersName, Loading } = Components;
   const postId = notification.documentId;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
@@ -51,3 +52,5 @@ declare global {
     CommentOnYourDraftNotificationHover: typeof CommentOnYourDraftNotificationHoverComponent
   }
 }
+
+export default CommentOnYourDraftNotificationHoverComponent;

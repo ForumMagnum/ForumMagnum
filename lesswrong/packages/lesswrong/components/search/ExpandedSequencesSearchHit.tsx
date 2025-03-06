@@ -7,6 +7,8 @@ import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { requireCssVar } from '../../themes/cssVars';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import FormatDate from "@/components/common/FormatDate";
+import UserNameDeleted from "@/components/users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -74,7 +76,6 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const sequence: SearchSequence = hit
   
   const handleClick = () => {
@@ -112,4 +113,6 @@ declare global {
     ExpandedSequencesSearchHit: typeof ExpandedSequencesSearchHitComponent
   }
 }
+
+export default ExpandedSequencesSearchHitComponent;
 

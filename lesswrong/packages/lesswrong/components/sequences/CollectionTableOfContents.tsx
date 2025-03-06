@@ -3,6 +3,7 @@ import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import TableOfContents from "@/components/posts/TableOfContents/TableOfContents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,8 +28,6 @@ export const CollectionTableOfContents = ({classes, collection}: {
   classes: ClassesType<typeof styles>,
   collection: CollectionsPageFragment
 }) => {
-  const { TableOfContents } = Components 
-
   const sections: ToCSection[] = [] 
 
   collection.books.forEach(book => {
@@ -68,4 +67,6 @@ declare global {
     CollectionTableOfContents: typeof CollectionTableOfContentsComponent
   }
 }
+
+export default CollectionTableOfContentsComponent;
 

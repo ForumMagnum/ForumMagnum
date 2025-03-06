@@ -7,6 +7,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Check from '@material-ui/icons/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
+import LWTooltip from "@/components/common/LWTooltip";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   check: {
@@ -67,8 +69,6 @@ const SetSideItemVisibility = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const sideItemVisibility = useContext(SideItemVisibilityContext);
-  const { LWTooltip, MenuItem } = Components;
-  
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
   // hide it.
@@ -182,3 +182,5 @@ declare global {
     SetSideItemVisibility: typeof SetSideItemVisibilityComponent
   }
 }
+
+export default SetSideItemVisibilityComponent;

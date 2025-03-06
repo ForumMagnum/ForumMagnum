@@ -77,3 +77,8 @@ declare global {
     FormNestedObject: typeof FormNestedObjectComponent
   }
 }
+
+export {
+  FormNestedObjectLayoutComponent as FormNestedObjectLayout,
+  FormNestedObjectComponent as FormNestedObject
+}

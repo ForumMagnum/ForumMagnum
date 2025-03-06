@@ -11,6 +11,10 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { SideCommentIcon } from "@/components/comments/SideCommentIcon";
+import InlineReactSelectionWrapper from "@/components/votes/lwReactions/InlineReactSelectionWrapper";
+import GlossarySidebar from "@/components/jargon/GlossarySidebar";
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -77,8 +81,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  
-  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
   const contentRef = useRef<ContentItemBody>(null);
   let content: React.ReactNode
@@ -142,3 +144,5 @@ declare global {
     PostBody: typeof PostBodyComponent
   }
 }
+
+export default PostBodyComponent;

@@ -103,3 +103,5 @@ declare global {
   }
 }
 
+export default AFSuggestUsersItemComponent;
+

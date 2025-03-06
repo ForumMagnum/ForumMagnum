@@ -4,6 +4,7 @@ import { useDialog } from "../../common/withDialog";
 
 import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const EditTagsDropdownItem = ({post, closeMenu}: {
   post: PostsList | SunshinePostsList,
@@ -18,8 +19,6 @@ const EditTagsDropdownItem = ({post, closeMenu}: {
       componentProps: {post},
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(`Edit ${taggingNamePluralCapitalSetting.get()}`)}
@@ -39,3 +38,5 @@ declare global {
     EditTagsDropdownItem: typeof EditTagsDropdownItemComponent
   }
 }
+
+export default EditTagsDropdownItemComponent;

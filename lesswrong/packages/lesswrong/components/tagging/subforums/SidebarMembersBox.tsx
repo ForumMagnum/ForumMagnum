@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
+import SubforumSubscribeSection from "@/components/tagging/subforums/SubforumSubscribeSection";
+import SubforumMember from "@/components/tagging/subforums/SubforumMember";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,9 +82,6 @@ const SidebarMembersBox = ({tag, className, classes}: {
       otherMembers.push(member)
     }
   })
-  
-  const { SubforumSubscribeSection, SubforumMember, Loading } = Components
-  
   return (
     <div className={classNames(className, classes.root)}>
       <h2 className={classes.titleRow}>
@@ -116,3 +116,5 @@ declare global {
     SidebarMembersBox: typeof SidebarMembersBoxComponent
   }
 }
+
+export default SidebarMembersBoxComponent;

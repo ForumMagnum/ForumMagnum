@@ -3,6 +3,8 @@ import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
 
 const styles = (_theme: ThemeType) => ({
   chart: {
@@ -29,8 +31,6 @@ const WrappedMostReadTopicsSection = ({classes}: {
       fill: i === 0 ? wrappedHighlightColor : "#fff",
     }
   });
-
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="mostReadTopics">
       <WrappedHeading>
@@ -76,3 +76,5 @@ declare global {
     WrappedMostReadTopicsSection: typeof WrappedMostReadTopicsSectionComponent
   }
 }
+
+export default WrappedMostReadTopicsSectionComponent;

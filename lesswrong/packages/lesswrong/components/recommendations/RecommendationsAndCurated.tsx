@@ -10,6 +10,18 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
+import RecommendationsAlgorithmPicker from "@/components/recommendations/RecommendationsAlgorithmPicker";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SettingsButton from "@/components/icons/SettingsButton";
+import ContinueReadingList from "@/components/recommendations/ContinueReadingList";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SectionSubtitle from "@/components/common/SectionSubtitle";
+import BookmarksList from "@/components/bookmarks/BookmarksList";
+import LWTooltip from "@/components/common/LWTooltip";
+import CuratedPostsList from "@/components/recommendations/CuratedPostsList";
+import ForumIcon from "@/components/common/ForumIcon";
 
 export const curatedUrl = "/recommendations"
 
@@ -142,9 +154,6 @@ const RecommendationsAndCurated = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
-      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
-
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
@@ -322,3 +331,5 @@ declare global {
     RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
   }
 }
+
+export default RecommendationsAndCuratedComponent;

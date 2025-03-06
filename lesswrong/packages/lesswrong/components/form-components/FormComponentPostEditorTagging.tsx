@@ -5,6 +5,10 @@ import mapValues from 'lodash/mapValues';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
+import TagsChecklist from "@/components/tagging/TagsChecklist";
+import TagMultiselect from "@/components/form-components/TagMultiselect";
+import FooterTagList from "@/components/tagging/FooterTagList";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -168,9 +172,6 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       void onTagRemoved(tagValue, selectedTagIds);
     }
   }, [document.postCategory, onTagRemoved, onTagSelected, postTypeTags, selectedTagIds]);
-
-  const {TagsChecklist, TagMultiselect, FooterTagList, Loading} = Components;
-
   if (loading) {
     return <Loading/>;
   }
@@ -235,3 +236,5 @@ declare global {
     FormComponentPostEditorTagging: typeof FormComponentPostEditorTaggingComponent
   }
 }
+
+export default FormComponentPostEditorTaggingComponent;

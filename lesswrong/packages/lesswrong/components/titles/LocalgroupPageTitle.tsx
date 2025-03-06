@@ -33,3 +33,5 @@ declare global {
   }
 }
 
+export default LocalgroupPageTitleComponent;
+

@@ -8,6 +8,13 @@ import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LoadMore from "@/components/common/LoadMore";
+import UserTooltip from "@/components/users/UserTooltip";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -47,9 +54,6 @@ const styles = (theme: ThemeType) => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore,
-    UserTooltip, ErrorAccessDenied, ForumIcon } = Components
-
   const { results, loading, loadMoreProps } = useMulti({
     terms: {view: "usersWithPaymentInfo", limit: 500},
     collectionName: "Users",
@@ -129,4 +133,6 @@ declare global {
     AdminPaymentsPage: typeof AdminPaymentsPageComponent
   }
 }
+
+export default AdminPaymentsPageComponent;
 

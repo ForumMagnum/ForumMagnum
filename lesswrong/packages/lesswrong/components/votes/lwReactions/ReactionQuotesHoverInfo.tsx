@@ -7,6 +7,8 @@ import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import { ContentItemBody } from '../../common/ContentItemBody';
+import ReactOrAntireactVote from "@/components/votes/lwReactions/ReactOrAntireactVote";
+import UsersWhoReacted from "@/components/votes/lwReactions/UsersWhoReacted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,7 +70,6 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ReactOrAntireactVote, UsersWhoReacted } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
 
   const reactionsOfType: UserReactInfo[] = normalizedReactions?.reacts?.[react] ?? [];
@@ -120,4 +121,6 @@ declare global {
     ReactionQuotesHoverInfo: typeof ReactionQuotesHoverInfoComponent
   }
 }
+
+export default ReactionQuotesHoverInfoComponent;
 

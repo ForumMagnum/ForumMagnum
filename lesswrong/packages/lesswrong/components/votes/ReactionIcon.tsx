@@ -61,3 +61,5 @@ declare global {
   }
 }
 
+export default ReactionIconComponent;
+

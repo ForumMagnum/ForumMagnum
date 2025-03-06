@@ -413,3 +413,5 @@ declare global {
     CommunityMapFilter: typeof CommunityMapFilterComponent
   }
 }
+
+export default CommunityMapFilterComponent;

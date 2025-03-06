@@ -6,6 +6,7 @@ import {
   userGetDisplayName,
   userGetProfileUrl,
 } from '../../lib/collections/users/helpers';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   userName: {
@@ -24,7 +25,6 @@ const UsersNamePending = ({ user, classes }: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWTooltip } = Components;
   const name = userGetDisplayName(user)
   const tooltip = <p>
     <span className={classes.tooltipUserName}>{name}</span> has been requested
@@ -49,3 +49,5 @@ declare global {
     UsersNamePending: typeof UsersNamePendingComponent
   }
 }
+
+export default UsersNamePendingComponent;

@@ -13,6 +13,9 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
 import startCase from 'lodash/startCase';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import TagPreviewDescription from "@/components/tagging/TagPreviewDescription";
+import TagSmallPostLink from "@/components/tagging/TagSmallPostLink";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -236,8 +239,6 @@ const TagPreview = ({
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
   const hasMultipleSummaries = summaryTabs.length > 1;
-
-  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
@@ -360,4 +361,8 @@ declare global {
   interface ComponentTypes {
     TagPreview: typeof TagPreviewComponent
   }
+}
+
+export {
+  TagPreviewComponent as TagPreview
 }

@@ -8,8 +8,13 @@ import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
-
-
+import PostsVote from "@/components/votes/PostsVote";
+import BookmarkButton from "@/components/posts/BookmarkButton";
+import SharePostButton from "@/components/posts/SharePostButton";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import BottomNavigation from "@/components/sequences/BottomNavigation";
+import PingbacksList from "@/components/posts/PingbacksList";
+import FooterTagList from "@/components/tagging/FooterTagList";
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -84,7 +89,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const currentUser = useCurrentUser();
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  const { PostsVote, BookmarkButton, SharePostButton, PostActionsButton, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
   const PostBottomSecondaryVotingComponent = votingSystem?.getPostBottomSecondaryVotingComponent?.();
   const isEAEmojis = votingSystemName === "eaEmojis";
@@ -143,3 +147,5 @@ declare global {
     PostsPagePostFooter: typeof PostsPagePostFooterComponent
   }
 }
+
+export default PostsPagePostFooterComponent;

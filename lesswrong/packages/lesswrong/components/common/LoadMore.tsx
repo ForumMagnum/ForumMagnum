@@ -7,6 +7,7 @@ import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,8 +97,6 @@ const LoadMore = ({
   // Don't show the loading animation on the initial render
   const isFirstRender = useIsFirstRender();
   loading = loading && !isFirstRender;
-
-  const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     void loadMore();
@@ -132,3 +131,5 @@ declare global {
     LoadMore: typeof LoadMoreComponent
   }
 }
+
+export default LoadMoreComponent;

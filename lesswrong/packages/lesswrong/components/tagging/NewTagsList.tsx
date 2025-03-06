@@ -2,6 +2,11 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import LoadMore from "@/components/common/LoadMore";
+import TagsListItem from "@/components/tagging/TagsListItem";
+import FormatDate from "@/components/common/FormatDate";
+import MetaInfo from "@/components/common/MetaInfo";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,8 +37,6 @@ const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
-  const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
-
   const { results, loadMoreProps } = useMulti({
     terms: {view:"newTags", limit: 4 },
     collectionName: "Tags",
@@ -76,4 +79,6 @@ declare global {
     NewTagsList: typeof NewTagsListComponent
   }
 }
+
+export default NewTagsListComponent;
 

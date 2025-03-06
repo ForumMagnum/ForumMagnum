@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const BooksEditForm = ({documentId, successCallback, cancelCallback, prefilledProps}: {
   documentId: string,
@@ -10,7 +11,7 @@ const BooksEditForm = ({documentId, successCallback, cancelCallback, prefilledPr
 }) => {
   return (
     <div className="books-edit-form">
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collectionName="Books"
         documentId={documentId}
         successCallback={successCallback}
@@ -31,4 +32,6 @@ declare global {
     BooksEditForm: typeof BooksEditFormComponent
   }
 }
+
+export default BooksEditFormComponent;
 

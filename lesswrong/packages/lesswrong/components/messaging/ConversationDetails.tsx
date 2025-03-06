@@ -3,6 +3,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { Loading } from "@/components/vulcan-core/Loading";
+import MetaInfo from "@/components/common/MetaInfo";
+import UsersName from "@/components/users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,7 +24,6 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
-  const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />
 
   const openConversationOptions = () => {
@@ -57,3 +59,5 @@ declare global {
     ConversationDetails: typeof ConversationDetailsComponent
   }
 }
+
+export default ConversationDetailsComponent;

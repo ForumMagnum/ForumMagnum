@@ -33,3 +33,5 @@ declare global {
     OmegaIcon: typeof OmegaIconComponent
   }
 }
+
+export default OmegaIconComponent;

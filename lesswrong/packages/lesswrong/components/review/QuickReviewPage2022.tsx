@@ -4,7 +4,14 @@ import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import PostsItem from "@/components/posts/PostsItem";
+import ReviewVotingExpandedPost from "@/components/review/ReviewVotingExpandedPost";
+import FrontpageReviewWidget from "@/components/review/FrontpageReviewWidget";
+import SectionFooter from "@/components/common/SectionFooter";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ReviewPhaseInformation from "@/components/review/ReviewPhaseInformation";
+import ReviewDashboardButtons from "@/components/review/ReviewDashboardButtons";
+import PostInteractionStripe from "@/components/review/PostInteractionStripe";
 
 const styles = (theme: ThemeType) => ({
   grid: {
@@ -108,9 +115,6 @@ export const QuickReviewPage2022 = ({classes}: {
     itemsPerPage: 1000,
     skip: !reviewYear
   });
-
-  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, PostInteractionStripe } = Components
-
   const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
   }) : []
@@ -176,3 +180,5 @@ declare global {
     QuickReviewPage2022: typeof QuickReviewPage2022Component
   }
 }
+
+export default QuickReviewPage2022Component;

@@ -113,3 +113,5 @@ declare global {
     BookCheckout: typeof BookCheckoutComponent
   }
 }
+
+export default BookCheckoutComponent;

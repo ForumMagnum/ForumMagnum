@@ -4,6 +4,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isEAForum } from '../../lib/instanceSettings';
+import { Loading } from "@/components/vulcan-core/Loading";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ShortformListItem from "@/components/shortform/ShortformListItem";
+import LoadMore from "@/components/common/LoadMore";
+import SectionButton from "@/components/common/SectionButton";
+import ShortformSubmitForm from "@/components/shortform/ShortformSubmitForm";
 
 const styles = (_: ThemeType) => ({
   subheader: {
@@ -31,8 +37,6 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   const toggleShortformFeed = useCallback(() => {
     setShowShortformFeed(!showShortformFeed);
   }, [setShowShortformFeed, showShortformFeed]);
-
-  const { Loading, SectionTitle, ShortformListItem, LoadMore, SectionButton, ShortformSubmitForm } = Components;
   const { results, loading, count, totalCount, loadMoreProps, refetch } = useMulti({
     terms: terms,
     limit: initialLimit,
@@ -86,3 +90,5 @@ declare global {
     CommentsListCondensed: typeof CommentsListCondensedComponent
   }
 }
+
+export default CommentsListCondensedComponent;

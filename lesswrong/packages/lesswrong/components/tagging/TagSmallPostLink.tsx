@@ -4,6 +4,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "@/components/users/UsersName";
+import MetaInfo from "@/components/common/MetaInfo";
+import KarmaDisplay from "@/components/common/KarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,7 +70,6 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   widerSpacing?: boolean
   disableHoverPreview?: boolean
 }) => {
-  const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
   return (
     <PostsTooltip post={post} clickable={false} placement="bottom-start" disabled={disableHoverPreview}>
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
@@ -100,3 +103,5 @@ declare global {
     TagSmallPostLink: typeof TagSmallPostLinkComponent
   }
 }
+
+export default TagSmallPostLinkComponent;

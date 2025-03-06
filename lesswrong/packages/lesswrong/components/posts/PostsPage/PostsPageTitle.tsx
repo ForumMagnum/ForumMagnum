@@ -4,6 +4,9 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Typography } from "@/components/common/Typography";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -79,7 +82,6 @@ const PostsPageTitle = ({post}: {
   const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
-  const { Typography, ForumIcon, LWTooltip } = Components;
   const showLinkIcon = post.url && isFriendlyUI;
   const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI;
 
@@ -129,4 +131,8 @@ declare global {
   interface ComponentTypes {
     PostsPageTitle: typeof PostsPageTitleComponent
   }
+}
+
+export {
+  PostsPageTitleComponent as PostsPageTitle
 }

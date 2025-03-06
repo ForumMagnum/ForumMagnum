@@ -4,6 +4,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '../vulcan-core/App';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import SubscribeButton from "@/components/tagging/SubscribeButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,8 +61,6 @@ const CoreTagCard = ({tag, classes}: {
   tag: TagDetailsFragment
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CloudinaryImage2, SubscribeButton } = Components;
-
   const imageId = tag.squareImageId || tag.bannerImageId
 
   return (
@@ -96,3 +96,5 @@ declare global {
     CoreTagCard: typeof CoreTagCardComponent
   }
 }
+
+export default CoreTagCardComponent;

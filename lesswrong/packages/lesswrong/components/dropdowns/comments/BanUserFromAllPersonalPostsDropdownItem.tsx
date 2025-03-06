@@ -6,6 +6,7 @@ import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -38,8 +39,6 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your personal blog posts`}))
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban from all your personal blog posts"
@@ -57,4 +56,6 @@ declare global {
     BanUserFromAllPersonalPostsDropdownItem: typeof BanUserFromAllPersonalPostsDropdownItemComponent,
   }
 }
+
+export default BanUserFromAllPersonalPostsDropdownItemComponent;
 

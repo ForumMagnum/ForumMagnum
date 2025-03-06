@@ -4,6 +4,9 @@ import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import AxisVoteButton from "@/components/votes/AxisVoteButton";
+import LWTooltip from "@/components/common/LWTooltip";
+import VoteAgreementIcon from "@/components/votes/VoteAgreementIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +39,6 @@ const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AxisVoteButton, LWTooltip } = Components;
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
   const currentUser = useCurrentUser();
@@ -86,7 +88,7 @@ const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
         placement={tooltipPlacement}
       >
         <AxisVoteButton
-          VoteIconComponent={Components.VoteAgreementIcon}
+          VoteIconComponent={VoteAgreementIcon}
           axis="agreement"
           orientation="left" color="error" upOrDown="Downvote"
           enabled={canVote}
@@ -110,7 +112,7 @@ const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
         placement={tooltipPlacement}
       >
         <AxisVoteButton
-          VoteIconComponent={Components.VoteAgreementIcon}
+          VoteIconComponent={VoteAgreementIcon}
           axis="agreement"
           orientation="right" color="secondary" upOrDown="Upvote"
           enabled={canVote}
@@ -129,3 +131,5 @@ declare global {
     AgreementVoteAxis: typeof AgreementVoteAxisComponent
   }
 }
+
+export default AgreementVoteAxisComponent;

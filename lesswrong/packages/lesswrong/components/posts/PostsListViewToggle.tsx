@@ -5,6 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
 import moment from "moment";
+import ForumDropdown from "@/components/common/ForumDropdown";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,8 +116,6 @@ const PostsListViewToggle = ({classes}: {
       captureEvent("postsListViewToggle", {value});
     }
   }, [setView, captureEvent]);
-
-  const {ForumDropdown} = Components;
   return (
     <div className={classes.root} onClick={onClick}>
       <ForumDropdown
@@ -148,3 +147,5 @@ declare global {
     PostsListViewToggle: typeof PostsListViewToggleComponent
   }
 }
+
+export default PostsListViewToggleComponent;

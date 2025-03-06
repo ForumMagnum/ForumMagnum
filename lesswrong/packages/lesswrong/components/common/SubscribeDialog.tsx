@@ -23,7 +23,8 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
-
+import LWDialog from "@/components/common/LWDialog";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   thresholdSelector: {
@@ -233,8 +234,6 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   render() {
     const { classes, fullScreen, onClose, open, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
-    const { LWDialog, MenuItem } = Components;
-
     const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
       <Select
@@ -368,3 +367,5 @@ declare global {
     SubscribeDialog: typeof SubscribeDialogComponent
   }
 }
+
+export default SubscribeDialogComponent;

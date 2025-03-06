@@ -13,6 +13,14 @@ import type { CollaborativeEditingAccessLevel } from '../../lib/collections/post
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
+import { MenuItem } from "@/components/common/Menus";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Typography } from "@/components/common/Typography";
+import CKPostEditor from "@/components/editor/CKPostEditor";
+import WarningBanner from "@/components/common/WarningBanner";
+import CKCommentEditor from "@/components/editor/CKCommentEditor";
 
 const postEditorHeight = isEAForum ? 250 : 400;
 const questionEditorHeight = isEAForum ? 150 : 400;
@@ -479,7 +487,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderUpdateTypeSelect = () => {
     const { currentUser, formType, _classes: classes, hideControls } = this.props
-    const { MenuItem } = Components;
     if (hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
@@ -535,9 +542,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const {className, contentType} = this.getBodyStyles();
 
     if (showPlaceholder) {
-      return <Components.ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
+      return <ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
         { placeholder }
-      </Components.ContentStyles>
+      </ContentStyles>
     }
   }
 
@@ -557,8 +564,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       document,
       _classes: classes,
     } = this.props;
-    const { Loading } = Components
-    const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
+    const CKEditor = commentEditor ? CKCommentEditor : CKPostEditor;
     if (!CKEditor) {
       return <Loading />
     } else {
@@ -600,9 +606,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         )}
         onClick={this.interceptDetailsBlockClick.bind(this)}
       >
-        {editorWarning && <Components.WarningBanner message={editorWarning} />}
+        {editorWarning && <WarningBanner message={editorWarning} />}
         {isCollaborative
-          ? <Components.CKPostEditor key="ck-collaborate"
+          ? <CKPostEditor key="ck-collaborate"
               {...editorProps}
               isCollaborative={true}
               accessLevel={this.props.accessLevel}
@@ -686,7 +692,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <Components.ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
+      <ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}
@@ -700,12 +706,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           fullWidth={true}
           disableUnderline={true}
         />
-      </Components.ContentStyles>
-      {markdownImgErrs && contents.type === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
+      </ContentStyles>
+      {markdownImgErrs && contents.type === 'markdown' && <Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
         Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
         connection. You should update all links to images so that they are served over a{' '}
         secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-      </Components.Typography>}
+      </Typography>}
     </div>
   }
 
@@ -787,7 +793,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   render() {
     const { loading } = this.state
     const {label, formVariant, _classes: classes} = this.props;
-    const {Loading, ContentStyles, SectionTitle} = Components;
     const {className, contentType} = this.getBodyStyles();
 
     const isGrey = formVariant === "grey";
@@ -823,3 +828,5 @@ declare global {
     Editor: typeof EditorComponent
   }
 }
+
+export default EditorComponent;

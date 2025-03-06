@@ -13,6 +13,15 @@ import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import { Loading } from "@/components/vulcan-core/Loading";
+import EditDigestHeader from "@/components/ea-forum/digest/EditDigestHeader";
+import ForumDropdown from "@/components/common/ForumDropdown";
+import ForumDropdownMultiselect from "@/components/common/ForumDropdownMultiselect";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import EditDigestActionButtons from "@/components/ea-forum/digest/EditDigestActionButtons";
+import EditDigestTableRow from "@/components/ea-forum/digest/EditDigestTableRow";
+import Error404 from "@/components/common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -355,11 +364,6 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     )
     flash({messageString: "Email digest post list copied"})
   }
-
-
-  const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
-    EditDigestActionButtons, EditDigestTableRow, Error404 } = Components
-  
   // list of the most common tags in the overall posts list
   const tagCounts = useMemo(() => {
     return posts?.reduce((tagsList: TagUsage[], post) => {
@@ -565,3 +569,5 @@ declare global {
     EditDigest: typeof EditDigestComponent
   }
 }
+
+export default EditDigestComponent;

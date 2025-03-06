@@ -4,6 +4,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import LWDialog from "@/components/common/LWDialog";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 /**
  * Form for editing the title of a private messages conversation and also for
@@ -13,10 +15,10 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
   onClose?: () => void,
   documentId: string,
 }) =>{
-  return <Components.LWDialog open onClose={onClose}>
+  return <LWDialog open onClose={onClose}>
       <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
       <DialogContent>
-        <Components.WrappedSmartForm
+        <WrappedSmartForm
           collectionName="Conversations"
           documentId={documentId}
           fragment={getFragment('ConversationsList')}
@@ -28,7 +30,7 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
           }}
         />
       </DialogContent>
-    </Components.LWDialog>
+    </LWDialog>
 }
 
 const ConversationTitleEditFormComponent = registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
@@ -38,3 +40,5 @@ declare global {
     ConversationTitleEditForm: typeof ConversationTitleEditFormComponent
   }
 }
+
+export default ConversationTitleEditFormComponent;

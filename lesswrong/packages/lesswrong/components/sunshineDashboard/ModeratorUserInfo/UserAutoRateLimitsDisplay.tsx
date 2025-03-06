@@ -7,6 +7,8 @@ import { getDownvoteRatio } from '../UsersReviewInfoCard';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import MetaInfo from "@/components/common/MetaInfo";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   padding: {
@@ -62,8 +64,6 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
 }) => {
-  const { MetaInfo, LWTooltip } = Components
-
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
@@ -115,3 +115,5 @@ declare global {
     UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplayComponent
   }
 }
+
+export default UserAutoRateLimitsDisplayComponent;

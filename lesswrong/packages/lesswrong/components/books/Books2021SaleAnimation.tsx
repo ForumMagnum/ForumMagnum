@@ -439,3 +439,5 @@ declare global {
     Books2021SaleAnimation: typeof Books2021SaleAnimationComponent
   }
 }
+
+export default Books2021SaleAnimationComponent;

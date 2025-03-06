@@ -7,6 +7,9 @@ import DoneIcon from '@material-ui/icons/Done';
 import LinkIcon from '@material-ui/icons/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/schema';
+import CommentWithReplies from "@/components/comments/CommentWithReplies";
+import LWTooltip from "@/components/common/LWTooltip";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -118,7 +121,6 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   commentModeratorAction: CommentWithModeratorActions,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentWithReplies, LWTooltip, Loading } = Components;
   const { comment, actions } = commentModeratorAction;
   const commentVotes = getVoteDistribution(comment);
   const [commentTreeNode] = unflattenComments([comment]);
@@ -215,4 +217,6 @@ declare global {
     CommentsReviewInfoCard: typeof CommentsReviewInfoCardComponent
   }
 }
+
+export default CommentsReviewInfoCardComponent;
 

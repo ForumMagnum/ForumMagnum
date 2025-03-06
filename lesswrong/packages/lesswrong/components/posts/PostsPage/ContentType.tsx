@@ -13,6 +13,9 @@ import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -310,13 +313,13 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
 }) =>
   isFriendlyUI
     ? <>{children}</>
-    : <Components.Typography
+    : <Typography
       variant="body1"
       component="span"
       className={classNames(classes.root, className)}
     >
         {children}
-    </Components.Typography>;
+    </Typography>;
 
 const ContentType = ({classes, className, type, label}: {
   classes: ClassesType<typeof styles>,
@@ -327,8 +330,6 @@ const ContentType = ({classes, className, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const { LWTooltip, SectionTitle } = Components
-
   const contentData = forumSelect(contentTypes)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
@@ -365,3 +366,5 @@ declare global {
     ContentType: typeof ContentTypeComponent
   }
 }
+
+export default ContentTypeComponent;

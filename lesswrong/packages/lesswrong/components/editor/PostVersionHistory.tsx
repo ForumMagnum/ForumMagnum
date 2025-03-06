@@ -15,6 +15,14 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import EAButton from "@/components/ea-forum/EAButton";
+import LWDialog from "@/components/common/LWDialog";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import FormatDate from "@/components/common/FormatDate";
+import LoadMore from "@/components/common/LoadMore";
+import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -103,9 +111,6 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
-
-  const { EAButton } = Components;
-
   return <EAButton
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
@@ -131,8 +136,6 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay, EAButton, LWTooltip } = Components;
-
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const location = useLocation();
@@ -299,4 +302,9 @@ declare global {
     PostVersionHistoryButton: typeof PostVersionHistoryEAButton
     PostVersionHistory: typeof PostVersionHistoryComponent
   }
+}
+
+export {
+  PostVersionHistoryEAButton as PostVersionHistoryButton,
+  PostVersionHistoryComponent as PostVersionHistory
 }

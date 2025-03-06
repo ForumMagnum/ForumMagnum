@@ -12,6 +12,16 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
+import GroupFormLink from "@/components/localGroups/GroupFormLink";
+import SectionFooter from "@/components/common/SectionFooter";
+import { Typography } from "@/components/common/Typography";
+import SectionButton from "@/components/common/SectionButton";
+import LocalGroupsList from "@/components/localGroups/LocalGroupsList";
+import { Loading } from "@/components/vulcan-core/Loading";
+import CommunityMapWrapper from "@/components/localGroups/CommunityMapWrapper";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -112,8 +122,6 @@ const CommunityHome = ({classes}: {
 
   const render = () => {
     const filters = query?.filters || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography, SectionButton } = Components
-
     const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,
@@ -171,7 +179,7 @@ const CommunityHome = ({classes}: {
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
-          <Components.CommunityMapWrapper
+          <CommunityMapWrapper
             terms={mapEventTerms}
             mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
             showUsersByDefault
@@ -222,7 +230,7 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
-                <Components.LocalGroupsList terms={onlineGroupsListTerms}/>
+                <LocalGroupsList terms={onlineGroupsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
@@ -230,10 +238,10 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
-                ? <Components.Loading />
-                : <Components.LocalGroupsList terms={groupsListTerms}>
+                ? <Loading />
+                : <LocalGroupsList terms={groupsListTerms}>
                       <Link to={"/allGroups"}>View All Groups</Link>
-                  </Components.LocalGroupsList>
+                  </LocalGroupsList>
               }
             </SingleColumnSection>
             {!isEAForum && <SingleColumnSection>
@@ -256,3 +264,5 @@ declare global {
     CommunityHome: typeof CommunityHomeComponent
   }
 }
+
+export default CommunityHomeComponent;

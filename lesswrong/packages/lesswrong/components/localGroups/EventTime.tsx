@@ -3,6 +3,7 @@ import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import TimeTag from "@/components/common/TimeTag";
 
 function getDateFormat(dense: boolean, isThisYear: boolean): string {
   if (dense) {
@@ -26,8 +27,6 @@ const EventTime = ({post, dense=false}: {
 }) => {
   const now = moment(useCurrentTime())
   const { timezone } = useTimezone();
-  const { TimeTag } = Components;
-
   const start = post.startTime ? moment(post.startTime).tz(timezone) : undefined;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : undefined;
 
@@ -89,4 +88,6 @@ declare global {
     EventTime: typeof EventTimeComponent
   }
 }
+
+export default EventTimeComponent;
 

@@ -7,6 +7,11 @@ import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
 import { isFriendlyUI } from '../../themes/forumTheme'
 import { PostsListViewProvider } from '../hooks/usePostsListView'
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
+import HomeTagBar from "@/components/common/HomeTagBar";
+import PostsListViewToggle from "@/components/posts/PostsListViewToggle";
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
@@ -87,11 +92,6 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
     sortedBy: 'magic',
     limit: 30
   }
-
-  const {
-    SingleColumnSection, SectionTitle, PostsList2, HomeTagBar,
-    PostsListViewToggle,
-  } = Components;
   return (
     <PostsListViewProvider>
       <HomeTagBar onTagSelectionUpdated={setActiveTab} sortTopics={sortTopics} frontpageTab={frontpageTab}/>
@@ -129,3 +129,5 @@ declare global {
     EAHomeMainContent: typeof EAHomeMainContentComponent
   }
 }
+
+export default EAHomeMainContentComponent;

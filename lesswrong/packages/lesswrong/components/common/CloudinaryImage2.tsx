@@ -153,3 +153,5 @@ declare global {
     CloudinaryImage2: typeof CloudinaryImage2Component
   }
 }
+
+export default CloudinaryImage2Component;

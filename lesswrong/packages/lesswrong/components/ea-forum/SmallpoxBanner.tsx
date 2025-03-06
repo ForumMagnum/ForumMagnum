@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const bannerHeight = 250
 const mobileImageId = 'Banner/Smallpox_Eradication_Day-17.png'
@@ -28,8 +29,6 @@ const styles = (_theme: ThemeType) => ({
 const SmallpoxBanner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection } = Components
-  
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>
       <picture>
@@ -50,3 +49,5 @@ declare global {
     SmallpoxBanner: typeof SmallpoxBannerComponent
   }
 }
+
+export default SmallpoxBannerComponent;

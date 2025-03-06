@@ -8,6 +8,20 @@ import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import BooksItem from "@/components/sequences/BooksItem";
+import BooksNewForm from "@/components/sequences/BooksNewForm";
+import SectionFooter from "@/components/common/SectionFooter";
+import SectionButton from "@/components/common/SectionButton";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import CollectionTableOfContents from "@/components/sequences/CollectionTableOfContents";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import HeadTags from "@/components/common/HeadTags";
+import CollectionsEditForm from "@/components/sequences/CollectionsEditForm";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -81,12 +95,10 @@ const CollectionsPage = ({ documentId, classes }: {
   const showCollection = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
   if (loading || !document) {
-    return <Components.Loading />;
+    return <Loading />;
   } else if (edit) {
-    return <Components.CollectionsEditForm
+    return <CollectionsEditForm
       documentId={document._id}
       successCallback={showCollection}
       cancelCallback={showCollection}
@@ -175,4 +187,6 @@ declare global {
     CollectionsPage: typeof CollectionsPageComponent
   }
 }
+
+export default CollectionsPageComponent;
 

@@ -74,3 +74,5 @@ declare global {
     EAOnboardingInput: typeof EAOnboardingInputComponent
   }
 }
+
+export default EAOnboardingInputComponent;

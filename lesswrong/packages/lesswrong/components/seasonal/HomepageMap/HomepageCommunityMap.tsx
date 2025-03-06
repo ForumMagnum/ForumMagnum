@@ -13,6 +13,9 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
+import StyledMapPopup from "@/components/localGroups/StyledMapPopup";
+import GroupLinks from "@/components/localGroups/GroupLinks";
+import HomepageMapFilter from "@/components/seasonal/HomepageMap/HomepageMapFilter";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -53,7 +56,6 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
-  const { StyledMapPopup, GroupLinks } = Components
   const { document, loading } = useSingle({
     documentId: localEvent._id,
     collectionName: "Posts",
@@ -104,7 +106,6 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
-  const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
     (id: string) => { setOpenWindows([id]) }
@@ -150,8 +151,6 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
-
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
@@ -199,5 +198,11 @@ declare global {
     LocalEventMapMarkerWrappers: typeof LocalEventMapMarkerWrappersComponent
     LocalEventWrapperPopUp: typeof LocalEventWrapperPopUpComponent
   }
+}
+
+export {
+  LocalEventWrapperPopUpComponent as LocalEventWrapperPopUp,
+  LocalEventMapMarkerWrappersComponent as LocalEventMapMarkerWrappers,
+  HomepageCommunityMapComponent as HomepageCommunityMap
 }
 

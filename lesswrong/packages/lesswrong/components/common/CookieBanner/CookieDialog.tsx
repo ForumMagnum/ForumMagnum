@@ -7,6 +7,10 @@ import classNames from "classnames";
 import Button from "@material-ui/core/Button";
 import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
+import { Typography } from "@/components/common/Typography";
+import ForumIcon from "@/components/common/ForumIcon";
+import CookieTable from "@/components/common/CookieBanner/CookieTable";
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -97,7 +101,6 @@ const CookieCategory = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Typography, ForumIcon, CookieTable } = Components;
   const [open, setOpen] = useState(false);
 
   const checked = useMemo(() => allowedCookies.includes(cookieType), [allowedCookies, cookieType]);
@@ -164,8 +167,6 @@ const CookieCategory = ({
 };
 
 const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
-  const { LWDialog, Typography } = Components;
-
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(cookiePreferences);
 
@@ -238,3 +239,5 @@ declare global {
     CookieDialog: typeof CookieDialogComponent;
   }
 }
+
+export default CookieDialogComponent;

@@ -6,6 +6,14 @@ import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
+import EARecentDiscussionItem from "@/components/recentDiscussion/EARecentDiscussionItem";
+import EAPostMeta from "@/components/ea-forum/EAPostMeta";
+import ForumIcon from "@/components/common/ForumIcon";
+import CommentsNode from "@/components/comments/CommentsNode";
+import PostExcerpt from "@/components/common/excerpts/PostExcerpt";
+import LinkPostMessage from "@/components/posts/LinkPostMessage";
+import EAKarmaDisplay from "@/components/common/EAKarmaDisplay";
+import PostsTitle from "@/components/posts/PostsTitle";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -117,11 +125,6 @@ const EARecentDiscussionThread = ({
   if (isSkippable) {
     return null;
   }
-
-  const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
-    PostExcerpt, LinkPostMessage, EAKarmaDisplay, PostsTitle,
-  } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
       <div className={classes.header}>
@@ -183,3 +186,5 @@ declare global {
     EARecentDiscussionThread: typeof EARecentDiscussionThreadComponent,
   }
 }
+
+export default EARecentDiscussionThreadComponent;

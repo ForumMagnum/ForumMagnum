@@ -10,6 +10,18 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
+import PostsTitle from "@/components/posts/PostsTitle";
+import ForumIcon from "@/components/common/ForumIcon";
+import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import EAKarmaDisplay from "@/components/common/EAKarmaDisplay";
+import EAPostMeta from "@/components/ea-forum/EAPostMeta";
+import PostsItemTagRelevance from "@/components/tagging/PostsItemTagRelevance";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import PostsVote from "@/components/votes/PostsVote";
+import PostsItemTrailingButtons from "@/components/posts/PostsItemTrailingButtons";
+import PostReadCheckbox from "@/components/posts/PostReadCheckbox";
+import PostsItemNewCommentsWrapper from "@/components/posts/PostsItemNewCommentsWrapper";
+import PostMostValuableCheckbox from "@/components/posts/PostMostValuableCheckbox";
 
 const KARMA_WIDTH = 50;
 const CARD_IMG_HEIGHT = 80;
@@ -312,14 +324,6 @@ const EAPostsItem = ({
     fragmentName: "PostsList",
     skip: !cardView,
   });
-
-  const {
-    PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
-    PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
-    PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
-    PostMostValuableCheckbox,
-  } = Components;
-
   const SecondaryInfo = useCallback(() => {
     if (secondaryInfoNode) {
       return <InteractionWrapper className={classes.interactionWrapper}>
@@ -546,3 +550,5 @@ declare global {
     EAPostsItem: typeof EAPostsItemComponent
   }
 }
+
+export default EAPostsItemComponent;

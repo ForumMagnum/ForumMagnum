@@ -18,7 +18,9 @@ import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@material-ui/core/InputLabel';
-
+import { Loading } from "@/components/vulcan-core/Loading";
+import { Typography } from "@/components/common/Typography";
+import LWDialog from "@/components/common/LWDialog";
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -100,7 +102,6 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps()
@@ -219,4 +220,6 @@ declare global {
     EventNotificationsDialog: typeof EventNotificationsDialogComponent
   }
 }
+
+export default EventNotificationsDialogComponent;
 

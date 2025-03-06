@@ -4,6 +4,8 @@ import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../hooks/useOptimisticToggle";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
 import Checkbox from "@material-ui/core/Checkbox";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -46,9 +48,6 @@ export const NotifyMeToggleDropdownItemInternal = ({
     isSubscribed ?? false,
     onSubscribe ?? (() => {}),
   );
-
-  const {DropdownItem, ToggleSwitch} = Components;
-
   const afterIcon = useCallback(
     () => {
       if (useCheckboxIcon) {
@@ -95,3 +94,5 @@ declare global {
     NotifyMeToggleDropdownItem: typeof NotifyMeToggleDropdownItemComponent
   }
 }
+
+export default NotifyMeToggleDropdownItemComponent;

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../../lib/vulcan-lib/compon
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 import { useCheckMeritsCollapse } from '../../../common/useCheckMeritsCollapse';
-
+import { Typography } from "@/components/common/Typography";
 
 const COLLAPSED_SECTION_HEIGHT = 200
 
@@ -115,9 +115,6 @@ const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
     height: COLLAPSED_SECTION_HEIGHT,
     deps: [activeTab]
   })
-
-  const { Typography } = Components
-  
   if (!activeTab) return null
   
   let tabBody = activeTab.body
@@ -174,3 +171,5 @@ declare global {
     EAUsersProfileTabbedSection: typeof EAUsersProfileTabbedSectionComponent
   }
 }
+
+export default EAUsersProfileTabbedSectionComponent;

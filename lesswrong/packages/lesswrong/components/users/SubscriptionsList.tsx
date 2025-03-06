@@ -4,6 +4,10 @@ import { commentBodyStyles } from "@/themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useCountItemsContext } from "../hooks/CountItemsContext";
+import SubscribedItem from "@/components/users/SubscribedItem";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +39,6 @@ const SubscriptionsList = ({
   subscriptionTypeDescription?: String
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SubscribedItem, SectionTitle, Loading, LoadMore} = Components;
   const currentUser = useCurrentUser();
   const countItemsContext = useCountItemsContext();
 
@@ -101,3 +104,5 @@ declare global {
     SubscriptionsList: typeof SubscriptionsListComponent
   }
 }
+
+export default SubscriptionsListComponent;

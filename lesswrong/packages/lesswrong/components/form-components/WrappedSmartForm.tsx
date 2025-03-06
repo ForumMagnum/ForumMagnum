@@ -7,6 +7,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
 import * as _ from 'underscore';
+import FormWrapper from "@/components/vulcan-forms/FormWrapper";
 
 /**
  * This is a wrapper around FormWrapper which adds a submit callback that filters
@@ -19,7 +20,7 @@ function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFor
   const { collectionName } = props
 
   if (editableCollections.has(collectionName)) {
-    return <Components.FormWrapper
+    return <FormWrapper
       {...props}
       submitCallback={(data: AnyBecauseTodo) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
@@ -42,7 +43,7 @@ function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFor
       }}
     />  
   } else {
-    return <Components.FormWrapper {...props}/>
+    return <FormWrapper {...props}/>
   }
 }
 
@@ -53,3 +54,5 @@ declare global {
     WrappedSmartForm: typeof WrappedSmartForm
   }
 }
+
+export default WrappedSmartFormComponent;

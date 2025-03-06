@@ -109,3 +109,5 @@ declare global {
     ReactionsButton: typeof ReactionsButtonComponent
   }
 }
+
+export default ReactionsButtonComponent;

@@ -4,6 +4,11 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 import classNames from 'classnames';
+import FormatDate from "@/components/common/FormatDate";
+import UsersName from "@/components/users/UsersName";
+import LoadMore from "@/components/common/LoadMore";
+import LWTooltip from "@/components/common/LWTooltip";
+import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
 
 const styles = (theme: ThemeType) => ({
   revisionRow: {
@@ -54,8 +59,6 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   count?: number,
   totalCount?: number
 }) => {
-  const { FormatDate, UsersName, LoadMore, LWTooltip, ChangeMetricsDisplay } = Components;
-  
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
   
@@ -138,3 +141,5 @@ declare global {
    RevisionSelect: typeof RevisionSelectComponent
   }
 }
+
+export default RevisionSelectComponent;

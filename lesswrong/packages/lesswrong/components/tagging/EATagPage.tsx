@@ -23,6 +23,28 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsListSortDropdown from "@/components/posts/PostsListSortDropdown";
+import PostsList2 from "@/components/posts/PostsList2";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { Loading } from "@/components/vulcan-core/Loading";
+import AddPostsToTag from "@/components/tagging/AddPostsToTag";
+import Error404 from "@/components/common/Error404";
+import { Typography } from "@/components/common/Typography";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import HeadTags from "@/components/common/HeadTags";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import TagFlagItem from "@/components/tagging/TagFlagItem";
+import TagDiscussionSection from "@/components/tagging/TagDiscussionSection";
+import TagPageButtonRow from "@/components/tagging/TagPageButtonRow";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import SubscribeButton from "@/components/tagging/SubscribeButton";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import TagIntroSequence from "@/components/tagging/TagIntroSequence";
+import TagTableOfContents from "@/components/tagging/TagTableOfContents";
+import { TagVersionHistoryButton } from "@/components/editor/TagVersionHistory";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import CommentsListCondensed from "@/components/common/CommentsListCondensed";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -165,7 +187,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
   classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
-  const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
     return (
       <>
@@ -190,12 +211,6 @@ const PostsListHeading: FC<{
 const EATagPage = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const {
-    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-  } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   
@@ -472,3 +487,5 @@ declare global {
     EATagPage: typeof EATagPageComponent
   }
 }
+
+export default EATagPageComponent;

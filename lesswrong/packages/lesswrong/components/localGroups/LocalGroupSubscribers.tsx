@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useMulti } from '@/lib/crud/withMulti';
+import { Typography } from "@/components/common/Typography";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -17,8 +20,6 @@ const LocalGroupSubscribers = ({groupId, classes}: {
   groupId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Typography, UsersNameDisplay, LoadMore } = Components;
-  
   const {results, totalCount, loading, loadMoreProps} = useMulti({
     collectionName: "Subscriptions",
     fragmentName: "MembersOfGroupFragment",
@@ -55,4 +56,6 @@ declare global {
     LocalGroupSubscribers: typeof LocalGroupSubscribersComponent
   }
 }
+
+export default LocalGroupSubscribersComponent;
 

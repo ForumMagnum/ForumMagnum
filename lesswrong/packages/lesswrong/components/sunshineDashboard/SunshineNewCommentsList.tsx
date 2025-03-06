@@ -1,6 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import SunshineListCount from "@/components/sunshineDashboard/SunshineListCount";
+import SunshineNewCommentsItem from "@/components/sunshineDashboard/SunshineNewCommentsItem";
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,8 +21,6 @@ const SunshineNewCommentsList = ({ terms, classes }: {
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: true,
   });
-  const { SunshineListCount, SunshineNewCommentsItem, SunshineListTitle } = Components
-  
   if (results && results.length) {
     return (
       <div className={classes.root}>
@@ -45,4 +46,6 @@ declare global {
     SunshineNewCommentsList: typeof SunshineNewCommentsListComponent
   }
 }
+
+export default SunshineNewCommentsListComponent;
 

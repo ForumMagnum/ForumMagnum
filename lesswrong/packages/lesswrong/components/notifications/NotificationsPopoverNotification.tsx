@@ -9,6 +9,8 @@ import classNames from "classnames";
 import moment from "moment";
 import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
 import { useUpdate } from "@/lib/crud/withUpdate";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import NotificationsPageItem from "@/components/notifications/NotificationsPage/NotificationsPageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -131,7 +133,6 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
   }
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
-  const {PostsTooltip, NotificationsPageItem} = Components;
   return (
     <PostsTooltip
       postId={post?._id ?? comment?.post?._id}
@@ -182,3 +183,5 @@ declare global {
     NotificationsPopoverNotification: typeof NotificationsPopoverNotificationComponent
   }
 }
+
+export default NotificationsPopoverNotificationComponent;

@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import Chip from '@material-ui/core/Chip';
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   chip: {
@@ -36,7 +37,7 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
       />
     </span>
   } else {
-    return <Components.Loading />
+    return <Loading />
   }
 };
 
@@ -47,3 +48,5 @@ declare global {
     SingleUsersItem: typeof SingleUsersItemComponent
   }
 }
+
+export default SingleUsersItemComponent;

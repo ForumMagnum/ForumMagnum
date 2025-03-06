@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { WrappedYear } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -39,7 +40,6 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {WrappedSection} = Components;
   return (
     <WrappedSection pageSectionContext="top" align="left">
       <div className={classes.container}>
@@ -68,3 +68,5 @@ declare global {
     WrappedWelcomeMessage: typeof WrappedWelcomeMessageComponent
   }
 }
+
+export default WrappedWelcomeMessageComponent;

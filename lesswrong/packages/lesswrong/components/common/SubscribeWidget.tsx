@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { withTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import TabNavigationSubItem from "@/components/common/TabNavigationMenu/TabNavigationSubItem";
+import SubscribeDialog from "@/components/common/SubscribeDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,7 +33,6 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
   }
 
   render() {
-    const { TabNavigationSubItem, SubscribeDialog } = Components;
     const { dialogOpen, method } = this.state;
 
     return (
@@ -59,3 +60,5 @@ declare global {
     SubscribeWidget: typeof SubscribeWidgetComponent
   }
 }
+
+export default SubscribeWidgetComponent;

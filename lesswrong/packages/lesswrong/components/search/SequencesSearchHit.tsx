@@ -6,6 +6,9 @@ import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,8 +56,6 @@ const styles = (theme: ThemeType) => ({
 
 const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const sequence: SearchSequence = hit;
-  const { LWTooltip, MetaInfo } = Components
-  
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
@@ -69,7 +70,7 @@ const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchH
           <div className={classes.meta}>
             <MetaInfo>{sequence.authorDisplayName}</MetaInfo>
             <MetaInfo className="sequences-item-created-date">
-              <Components.FormatDate date={sequence.createdAt}/>
+              <FormatDate date={sequence.createdAt}/>
             </MetaInfo>
           </div>
         </div>
@@ -87,4 +88,6 @@ declare global {
     SequencesSearchHit: typeof SequencesSearchHitComponent
   }
 }
+
+export default SequencesSearchHitComponent;
 

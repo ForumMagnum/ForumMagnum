@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
+import { Loading } from "@/components/vulcan-core/Loading";
+import MessageItem from "@/components/messaging/MessageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,8 +28,6 @@ const ConversationPreview = ({conversationId, currentUser, classes, showTitle=tr
   showTitle?: boolean,
   count?: number
 }) => {
-  const { Loading, MessageItem } = Components
-
   const { document: conversation, loading: conversationLoading } = useSingle({
     collectionName: "Conversations",
     fragmentName: 'ConversationsList',
@@ -65,3 +65,5 @@ declare global {
     ConversationPreview: typeof ConversationPreviewComponent
   }
 }
+
+export default ConversationPreviewComponent;

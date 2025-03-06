@@ -5,6 +5,10 @@ import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import { Typography } from "@/components/common/Typography";
+import UsersAccountManagement from "@/components/users/account/UsersAccountManagement";
+import UsersEditForm from "@/components/users/account/UsersEditForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,9 +35,6 @@ const styles = (theme: ThemeType) => ({
 const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
-
-  const { ErrorAccessDenied, Typography } = Components;
-
   const terms = { slug: params.slug ?? currentUser?.slug };
 
   if (!terms.slug || !userCanEditUser(currentUser, terms)) {
@@ -45,13 +46,13 @@ const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <Typography variant="display2" className={classes.header}>
         {preferredHeadingCase("Account Settings")}
       </Typography>
-      <Components.UsersEditForm terms={terms} />
+      <UsersEditForm terms={terms} />
       {hasAccountDeletionFlow && (
         <>
           <Typography variant="display2" className={classes.header}>
             {preferredHeadingCase("Manage Account")}
           </Typography>
-          <Components.UsersAccountManagement terms={terms} />
+          <UsersAccountManagement terms={terms} />
         </>
       )}
     </div>
@@ -65,5 +66,7 @@ declare global {
     UsersAccount: typeof UsersAccountComponent
   }
 }
+
+export default UsersAccountComponent;
 
 

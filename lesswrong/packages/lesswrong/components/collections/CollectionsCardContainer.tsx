@@ -32,3 +32,5 @@ declare global {
     CollectionsCardContainer: typeof CollectionsCardContainerComponent
   }
 }
+
+export default CollectionsCardContainerComponent;

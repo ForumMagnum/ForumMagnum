@@ -4,6 +4,8 @@ import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { Loading } from "@/components/vulcan-core/Loading";
+import NotificationsItem from "@/components/notifications/NotificationsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +50,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     return (
       <List className={classes.root}>
         {results.map(notification =>
-          <Components.NotificationsItem
+          <NotificationsItem
             notification={notification}
             lastNotificationsCheck={lastNotificationsCheck}
             currentUser={currentUser}
@@ -68,7 +70,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       </List>
     )
   } else if (loading) {
-    return <Components.Loading/>
+    return <Loading/>
   } else {
     const modifier =
         (terms.type === undefined) ? (<></>)
@@ -87,3 +89,5 @@ declare global {
     NotificationsList: typeof NotificationsListComponent
   }
 }
+
+export default NotificationsListComponent;

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
+import FormNestedFoot from "@/components/vulcan-forms/FormNestedFoot";
 
 // Replaceable layout
 const FormNestedArrayLayout = ({ hasErrors, label, content }: {
@@ -100,7 +101,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
               )
           ),
           (!maxCount || arrayLength < maxCount) && (
-            <Components.FormNestedFoot
+            <FormNestedFoot
               key="add-button"
               addItem={this.addItem}
               label={this.props.label}
@@ -170,4 +171,11 @@ declare global {
     IconAdd: typeof IconAddComponent
     IconRemove: typeof IconRemoveComponent
   }
+}
+
+export {
+  FormNestedArrayLayoutComponent as FormNestedArrayLayout,
+  FormNestedArrayComponent as FormNestedArray,
+  IconAddComponent as IconAdd,
+  IconRemoveComponent as IconRemove
 }

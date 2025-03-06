@@ -48,3 +48,5 @@ declare global {
     TabNavigationSubItem: typeof TabNavigationSubItemComponent
   }
 }
+
+export default TabNavigationSubItemComponent;

@@ -4,6 +4,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
+import EAButton from "@/components/ea-forum/EAButton";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -151,8 +153,6 @@ export const EAOnboardingStage = ({
   if (currentStage !== stageName) {
     return null;
   }
-
-  const {EAButton, Loading} = Components;
   return (
     <AnalyticsContext
       pageElementContext="onboardingFlow"
@@ -218,3 +218,5 @@ declare global {
     EAOnboardingStage: typeof EAOnboardingStageComponent
   }
 }
+
+export default EAOnboardingStageComponent;

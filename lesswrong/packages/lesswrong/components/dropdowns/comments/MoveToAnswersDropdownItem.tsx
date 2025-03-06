@@ -6,7 +6,7 @@ import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const MoveToAnswersDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -50,8 +50,6 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
     flash("Answer moved to the Comments section.")
     await client.resetStore()
   }
-
-  const {DropdownItem} = Components;
   if (comment.answer) {
     return (
       <DropdownItem
@@ -78,3 +76,5 @@ declare global {
     MoveToAnswersDropdownItem: typeof MoveToAnswersDropdownItemComponent
   }
 }
+
+export default MoveToAnswersDropdownItemComponent;

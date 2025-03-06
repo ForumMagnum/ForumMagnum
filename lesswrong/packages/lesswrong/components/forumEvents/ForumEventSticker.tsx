@@ -5,6 +5,10 @@ import { ForumIconName } from "../common/ForumIcon";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useHover } from "../common/withHover";
 import { InteractionWrapper } from "../common/useClickableCell";
+import ForumIcon from "@/components/common/ForumIcon";
+import ForumEventResultPopper from "@/components/forumEvents/ForumEventResultPopper";
+import LWTooltip from "@/components/common/LWTooltip";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   sticker: {
@@ -75,8 +79,6 @@ const ForumEventSticker = React.forwardRef<
   HTMLDivElement,
   ForumEventStickerProps & { classes: ClassesType<typeof styles> }
 >(({ x, y, theta, user, comment, emoji, icon = "AddEmoji", tooltipDisabled, onClear, saveDraftSticker, classes }, ref) => {
-  const { ForumIcon, ForumEventResultPopper, LWTooltip, UsersNameDisplay } = Components;
-
   const isHoverSticker = !!saveDraftSticker;
 
   const { captureEvent } = useTracking();
@@ -137,3 +139,5 @@ declare global {
     ForumEventSticker: typeof ForumEventStickerComponent;
   }
 }
+
+export default ForumEventStickerComponent;

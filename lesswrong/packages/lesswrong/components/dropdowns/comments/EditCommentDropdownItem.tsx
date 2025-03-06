@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { userOwns, userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const EditCommentDropdownItem = ({comment, showEdit}: {
   comment: CommentsList,
@@ -15,8 +16,6 @@ const EditCommentDropdownItem = ({comment, showEdit}: {
   ) {
     return null;
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Edit"
@@ -39,3 +38,5 @@ declare global {
     EditCommentDropdownItem: typeof EditCommentDropdownItemComponent
   }
 }
+
+export default EditCommentDropdownItemComponent;

@@ -10,6 +10,8 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +43,6 @@ const UsersEditForm = ({terms, classes}: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const { ErrorAccessDenied } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
@@ -74,7 +75,7 @@ const UsersEditForm = ({terms, classes}: {
         {preferredHeadingCase("Reset Password")}
       </Button>}
 
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collectionName="Users"
         {...terms}
         removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
@@ -108,3 +109,5 @@ declare global {
     UsersEditForm: typeof UsersEditFormComponent
   }
 }
+
+export default UsersEditFormComponent;

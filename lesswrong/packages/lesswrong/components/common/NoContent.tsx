@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,9 +13,9 @@ const NoContent = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  return <Components.Typography variant='body2' className={classes.root}>
+  return <Typography variant='body2' className={classes.root}>
     {children}
-  </Components.Typography>
+  </Typography>
 }
 
 const NoContentComponent = registerComponent('NoContent', NoContent, {styles});
@@ -24,3 +25,5 @@ declare global {
     NoContent: typeof NoContentComponent
   }
 }
+
+export default NoContentComponent;

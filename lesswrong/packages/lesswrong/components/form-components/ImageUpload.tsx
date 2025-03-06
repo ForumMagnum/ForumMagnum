@@ -11,6 +11,8 @@ import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CloudinaryPropsType } from '../common/CloudinaryImage2';
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -135,7 +137,7 @@ const FormProfileImage: FC<{
     documentId: document._id,
   });
   return (
-    <Components.UsersProfileImage
+    <UsersProfileImage
       user={user ? {...user, profileImageId} : undefined}
       size={size}
     />
@@ -260,7 +262,7 @@ const ImageUpload = ({
           />
         }
         {imageId && !showUserProfileImage &&
-          <Components.CloudinaryImage2
+          <CloudinaryImage2
             publicId={imageId}
             {...formPreviewSize}
           />
@@ -324,3 +326,5 @@ declare global {
     ImageUpload: typeof ImageUploadComponent
   }
 }
+
+export default ImageUploadComponent;

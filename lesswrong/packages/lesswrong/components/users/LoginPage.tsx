@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
+import LoginForm from "@/components/users/LoginForm";
 
 const LoginPage = () => {
   const currentUser = useCurrentUser();
@@ -20,7 +21,7 @@ const LoginPage = () => {
     // `componentWillMount`.
     return <div />;
   } else {
-    return <Components.LoginForm />;
+    return <LoginForm />;
   }
 }
 
@@ -31,3 +32,5 @@ declare global {
     LoginPage: typeof LoginPageComponent
   }
 }
+
+export default LoginPageComponent;

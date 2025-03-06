@@ -5,6 +5,14 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import PostsItem from "@/components/posts/PostsItem";
+import JargonTooltip from "@/components/jargon/JargonTooltip";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LoadMore from "@/components/common/LoadMore";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +54,6 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
   jargonTerms: JargonTerms[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsItem, JargonTooltip } = Components;
   return <div className={classes.post}>
     <PostsItem post={post}/>
     <div className={classes.jargonTerms}>
@@ -64,8 +71,6 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
 export const PostsWithApprovedJargonPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, ContentStyles, LoadMore, Loading, ErrorAccessDenied } = Components;
-
   const [limit, setLimit] = useState(15);
   const pageSize = 20;
 
@@ -164,3 +169,5 @@ declare global {
     PostsWithApprovedJargonPage: typeof PostsWithApprovedJargonPageComponent
   }
 }
+
+export default PostsWithApprovedJargonPageComponent;

@@ -4,6 +4,11 @@ import RejectedIcon from "@material-ui/icons/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 import ReplayIcon from '@material-ui/icons/Replay';
+import LWPopper from "@/components/common/LWPopper";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import RejectContentDialog from "@/components/sunshineDashboard/RejectContentDialog";
+import LWTooltip from "@/components/common/LWTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,7 +37,6 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const { LWPopper, LWClickAwayListener, RejectContentDialog, LWTooltip, MetaInfo } = Components;
   const { content } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
@@ -70,4 +74,6 @@ declare global {
     RejectContentButton: typeof RejectContentButtonComponent
   }
 }
+
+export default RejectContentButtonComponent;
 

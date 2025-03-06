@@ -8,6 +8,8 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
 import classNames from 'classnames';
+import { Loading } from "@/components/vulcan-core/Loading";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({
@@ -202,9 +204,6 @@ const LocationPicker = ({
       })
     }
   }, [updateCurrentValues, locationFieldName, path]);
-
-  const {Loading, SectionTitle} = Components;
-
   if (!document || !mapsLoaded) {
     return <Loading />;
   }
@@ -232,7 +231,7 @@ const LocationPicker = ({
 const LocationFormComponent = (props: FormComponentProps<AnyBecauseTodo> & {
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
-}) => <Components.LocationPicker {...props}/>
+}) => <LocationPicker {...props}/>
 
 const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
@@ -242,4 +241,9 @@ declare global {
     LocationPicker: typeof LocationPickerComponent
     LocationFormComponent: typeof LocationFormComponentComponent
   }
+}
+
+export {
+  LocationPickerComponent as LocationPicker,
+  LocationFormComponentComponent as LocationFormComponent
 }

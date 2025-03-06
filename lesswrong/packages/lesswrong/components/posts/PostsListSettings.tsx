@@ -15,6 +15,8 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
+import MetaInfo from "@/components/common/MetaInfo";
+import SettingsColumn from "@/components/common/SettingsColumn";
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -157,7 +159,6 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   showTimeframe?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -259,3 +260,5 @@ declare global {
     PostsListSettings: typeof PostsListSettingsComponent
   }
 }
+
+export default PostsListSettingsComponent;

@@ -25,3 +25,5 @@ declare global {
     TemplateComponent: typeof TemplateComponentComponent
   }
 }
+
+export default TemplateComponentComponent;

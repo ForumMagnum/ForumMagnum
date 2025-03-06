@@ -44,3 +44,5 @@ declare global {
     WrappedHeading: typeof WrappedHeadingComponent
   }
 }
+
+export default WrappedHeadingComponent;

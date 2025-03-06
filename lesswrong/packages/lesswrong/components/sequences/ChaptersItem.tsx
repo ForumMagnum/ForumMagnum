@@ -1,6 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import ChaptersEditForm from "@/components/sequences/ChaptersEditForm";
+import ChapterTitle from "@/components/sequences/ChapterTitle";
+import SectionFooter from "@/components/common/SectionFooter";
+import SectionButton from "@/components/common/SectionButton";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import PostsItem from "@/components/posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -37,9 +44,6 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   const showChapter = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { ChaptersEditForm, ChapterTitle, SectionFooter,
-    SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
 
   if (edit) return (
@@ -87,3 +91,5 @@ declare global {
     ChaptersItem: typeof ChaptersItemComponent
   }
 }
+
+export default ChaptersItemComponent;

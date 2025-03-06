@@ -8,6 +8,9 @@ import classNames from 'classnames';
 import { useDigestAd } from './useDigestAd';
 import { DIGEST_AD_BODY_TEXT, DIGEST_AD_HEADLINE_TEXT } from './SidebarDigestAd';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import ForumIcon from "@/components/common/ForumIcon";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   '@keyframes digest-fade-in': {
@@ -138,9 +141,6 @@ const StickyDigestAd = ({className, classes}: {
   const postReadCount = parseInt(ls?.getItem('postReadCount') ?? '0')
   // We only show this after the client has viewed a few posts.
   if (!showDigestAd || postReadCount < 10) return null
-  
-  const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
-  
   const buttonProps = loading ? {disabled: true} : {}
   const noThanksBtn = (
     <EAButton
@@ -211,3 +211,5 @@ declare global {
     StickyDigestAd: typeof StickyDigestAdComponent
   }
 }
+
+export default StickyDigestAdComponent;

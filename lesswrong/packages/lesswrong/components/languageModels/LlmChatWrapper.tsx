@@ -575,3 +575,5 @@ declare global {
     LlmChatWrapper: typeof LlmChatWrapperComponent
   }
 }
+
+export default LlmChatWrapperComponent;

@@ -9,6 +9,12 @@ import IconButton from "@material-ui/core/IconButton";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
+import ForumIcon from "@/components/common/ForumIcon";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsItem from "@/components/posts/PostsItem";
+import LoadMore from "@/components/common/LoadMore";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -140,7 +146,6 @@ const SelectableList = ({
   ItemComponent,
   classes,
 }: SelectableListProps<PostsList | CommentsList>) => {
-  const { ForumIcon } = Components
   return (
     <div className={classes.list}>
       {items.map((item, i) => (
@@ -231,7 +236,6 @@ const AuthorSection = ({
   onSelectAll,
   classes,
 }: AuthorSectionProps) => {
-  const { ForumIcon } = Components
   const [expanded, setExpanded] = useState(false);
 
   const postsTokens = useMemo(
@@ -303,7 +307,7 @@ const AuthorSection = ({
             selectedItems={selectedItems}
             onToggle={onToggle}
             onSelectAll={onSelectAll}
-            ItemComponent={({ item }) => <Components.PostsItem post={item as PostsListWithVotes} />}
+            ItemComponent={({ item }) => <PostsItem post={item as PostsListWithVotes} />}
             classes={classes}
           />
           <SelectableList
@@ -312,7 +316,7 @@ const AuthorSection = ({
             onToggle={onToggle}
             onSelectAll={onSelectAll}
             ItemComponent={({ item }) => (
-              <Components.CommentsNode
+              <CommentsNode
                 treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                 comment={item as CommentsList}
               />
@@ -350,7 +354,6 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
 }, 200);
 
 const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SingleColumnSection, Loading, PostsItem, LoadMore, CommentsNode } = Components;
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
     const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
@@ -500,3 +503,5 @@ declare global {
     AutocompleteModelSettings: typeof AutocompleteModelSettingsComponent;
   }
 }
+
+export default AutocompleteModelSettingsComponent;

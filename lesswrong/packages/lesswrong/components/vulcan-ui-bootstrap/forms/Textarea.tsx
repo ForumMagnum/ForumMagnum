@@ -1,11 +1,12 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import FormItem from "@/components/vulcan-ui-bootstrap/forms/FormItem";
 
 const TextareaComponent = ({ refFunction, inputProperties, itemProperties }: AnyBecauseTodo) => (
-  <Components.FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
+  <FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
     <Form.Control as="textarea" ref={refFunction} {...inputProperties} />
-  </Components.FormItem>
+  </FormItem>
 );
 
 const FormComponentTextareaComponent = registerComponent('FormComponentTextarea', TextareaComponent);
@@ -15,4 +16,6 @@ declare global {
     FormComponentTextarea: typeof FormComponentTextareaComponent
   }
 }
+
+export default FormComponentTextareaComponent;
 

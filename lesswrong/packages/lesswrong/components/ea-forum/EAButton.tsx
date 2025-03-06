@@ -101,3 +101,5 @@ declare global {
     EAButton: typeof EAButtonComponent
   }
 }
+
+export default EAButtonComponent;

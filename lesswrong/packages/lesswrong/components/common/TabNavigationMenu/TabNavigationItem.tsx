@@ -8,6 +8,9 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
+import TabNavigationSubItem from "@/components/common/TabNavigationMenu/TabNavigationSubItem";
+import LWTooltip from "@/components/common/LWTooltip";
+import { MenuItemLink } from "@/components/common/Menus";
 
 export const iconWidth = 30
 
@@ -203,8 +206,6 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   const IconComponent = isSelected
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
-
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}
@@ -254,3 +255,5 @@ declare global {
     TabNavigationItem: typeof TabNavigationItemComponent
   }
 }
+
+export default TabNavigationItemComponent;

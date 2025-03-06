@@ -9,6 +9,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Card from '@material-ui/core/Card'
 import EditIcon from '@material-ui/icons/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
+import LWTooltip from "@/components/common/LWTooltip";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {
@@ -62,8 +66,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
   classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
-  const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;
-
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
@@ -155,3 +157,5 @@ declare global {
     RejectContentDialog: typeof RejectContentDialogComponent
   }
 }
+
+export default RejectContentDialogComponent;

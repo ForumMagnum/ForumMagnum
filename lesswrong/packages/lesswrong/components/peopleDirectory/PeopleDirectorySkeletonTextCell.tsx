@@ -41,3 +41,5 @@ declare global {
     PeopleDirectorySkeletonTextCell: typeof PeopleDirectorySkeletonTextCellComponent
   }
 }
+
+export default PeopleDirectorySkeletonTextCellComponent;

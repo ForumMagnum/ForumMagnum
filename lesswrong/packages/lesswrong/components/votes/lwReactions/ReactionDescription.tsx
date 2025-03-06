@@ -26,3 +26,5 @@ declare global {
   }
 }
 
+export default ReactionDescriptionComponent;
+

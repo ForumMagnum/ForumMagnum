@@ -13,6 +13,22 @@ import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
+import SequencesEditForm from "@/components/sequences/SequencesEditForm";
+import HeadTags from "@/components/common/HeadTags";
+import CloudinaryImage from "@/components/common/CloudinaryImage";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SectionSubtitle from "@/components/common/SectionSubtitle";
+import ChaptersList from "@/components/sequences/ChaptersList";
+import ChaptersNewForm from "@/components/sequences/ChaptersNewForm";
+import FormatDate from "@/components/common/FormatDate";
+import { Loading } from "@/components/vulcan-core/Loading";
+import SectionFooter from "@/components/common/SectionFooter";
+import UsersName from "@/components/users/UsersName";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { Typography } from "@/components/common/Typography";
+import SectionButton from "@/components/common/SectionButton";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import Error404 from "@/components/common/Error404";
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -144,12 +160,6 @@ const SequencesPage = ({ documentId, classes }: {
   const showSequence = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
-  } = Components
-  
   if (document?.isDeleted) {
     return <SingleColumnSection>
       <Typography variant="body2" className={classes.deletedText}>
@@ -160,7 +170,7 @@ const SequencesPage = ({ documentId, classes }: {
   if (loading) return <Loading />
   
   if (!document) {
-    return <Components.Error404/>
+    return <Error404/>
   }
   if (edit) return (
     <SequencesEditForm
@@ -279,3 +289,5 @@ declare global {
     SequencesPage: typeof SequencesPageComponent
   }
 }
+
+export default SequencesPageComponent;

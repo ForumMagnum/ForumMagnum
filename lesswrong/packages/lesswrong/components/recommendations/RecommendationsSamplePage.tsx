@@ -19,6 +19,14 @@ import moment from "moment";
 import qs from "qs";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsItem from "@/components/posts/PostsItem";
+import PostsPageRecommendationsList from "@/components/recommendations/PostsPageRecommendationsList";
+import LoadMore from "@/components/common/LoadMore";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { MenuItem } from "@/components/common/Menus";
+import Error404 from "@/components/common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -114,7 +122,7 @@ const RecommendationsSamplePage = ({classes}: {
 
   if (!currentUser?.isAdmin) {
     return (
-      <Components.Error404 />
+      <Error404 />
     );
   }
 
@@ -169,12 +177,6 @@ const RecommendationsSamplePage = ({classes}: {
 
   const showBias = strategy === "tagWeightedCollabFilter";
   const showFeatures = strategy === "feature";
-
-  const {
-    SingleColumnSection, SectionTitle, PostsItem, PostsPageRecommendationsList,
-    LoadMore, Loading, MenuItem,
-  } = Components;
-
   return (
     <div className={classes.root}>
       <SingleColumnSection>
@@ -255,3 +257,5 @@ declare global {
     RecommendationsSamplePage: typeof RecommendationsSamplePageComponent,
   }
 }
+
+export default RecommendationsSamplePageComponent;

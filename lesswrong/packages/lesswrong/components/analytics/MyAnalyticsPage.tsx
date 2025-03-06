@@ -2,9 +2,11 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userGetAnalyticsUrl } from '../../lib/collections/users/helpers';
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LoginForm from "@/components/users/LoginForm";
 
 const MyAnalyticsPage = () => {
-  const {PermanentRedirect, SingleColumnSection, LoginForm} = Components;
   const currentUser = useCurrentUser();
 
   if (!currentUser) {
@@ -25,3 +27,5 @@ declare global {
     MyAnalyticsPage: typeof MyAnalyticsPageComponent
   }
 }
+
+export default MyAnalyticsPageComponent;

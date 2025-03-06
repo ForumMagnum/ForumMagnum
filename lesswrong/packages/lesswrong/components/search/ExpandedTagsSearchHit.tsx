@@ -95,3 +95,5 @@ declare global {
   }
 }
 
+export default ExpandedTagsSearchHitComponent;
+

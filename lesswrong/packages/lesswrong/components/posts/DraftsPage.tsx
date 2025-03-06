@@ -4,6 +4,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import {useLocation} from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import DraftsList from "@/components/posts/DraftsList";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 
 const styles = (theme: ThemeType) => ({
   checkbox: {
@@ -23,13 +26,11 @@ const styles = (theme: ThemeType) => ({
 const DraftsPage = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const {SingleColumnSection, DraftsList } = Components
-  
   const currentUser = useCurrentUser()
   const { query } = useLocation();
   
   if (!currentUser) {
-    return <Components.ErrorAccessDenied />
+    return <ErrorAccessDenied />
   }
   
   return <SingleColumnSection>
@@ -49,3 +50,5 @@ declare global {
     DraftsPage: typeof DraftsPageComponent
   }
 }
+
+export default DraftsPageComponent;

@@ -326,7 +326,7 @@ const FormComponentDateTime = (
 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
 
-  return <Components.DatePicker
+  return <DatePicker
     label={label}
     name={name}
     value={date}
@@ -347,5 +347,10 @@ declare global {
     DatePicker: typeof DatePickerComponent
     FormComponentDateTime: typeof FormComponentDateTimeComponent
   }
+}
+
+export {
+  DatePickerComponent as DatePicker,
+  FormComponentDateTimeComponent as FormComponentDateTime
 }
 

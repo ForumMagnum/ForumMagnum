@@ -8,6 +8,11 @@ import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
+import { Loading } from "@/components/vulcan-core/Loading";
+import Divider from "@/components/common/Divider";
+import CommentOnPostWithReplies from "@/components/comments/CommentOnPostWithReplies";
+import HeadTags from "@/components/common/HeadTags";
+import CommentWithReplies from "@/components/comments/CommentWithReplies";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -65,8 +70,6 @@ const CommentPermalink = ({
     skip: isNotRandomId(documentId)
   });
   const refetch = data?.refetch;
-  const { Loading, Divider, CommentOnPostWithReplies, HeadTags, CommentWithReplies } = Components;
-
   if (silentLoading && !comment) return null;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -152,3 +155,5 @@ declare global {
     CommentPermalink: typeof CommentPermalinkComponent,
   }
 }
+
+export default CommentPermalinkComponent;

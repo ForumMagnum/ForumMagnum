@@ -1,6 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import OmegaIcon from "@/components/icons/OmegaIcon";
+import AFSuggestCommentsItem from "@/components/sunshineDashboard/AFSuggestCommentsItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -19,8 +23,6 @@ const AFSuggestCommentsList = ({ classes }: {
     fragmentName: 'SuggestAlignmentComment',
     fetchPolicy: 'cache-and-network',
   });
-  const { SunshineListTitle, OmegaIcon, AFSuggestCommentsItem, LoadMore } = Components;
-  
   if (results && results.length) {
     return <div>
       <SunshineListTitle>
@@ -45,4 +47,6 @@ declare global {
     AFSuggestCommentsList: typeof AFSuggestCommentsListComponent
   }
 }
+
+export default AFSuggestCommentsListComponent;
 

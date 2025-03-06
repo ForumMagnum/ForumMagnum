@@ -32,3 +32,5 @@ declare global {
     AlignmentCrosspostMessage: typeof AlignmentCrosspostMessageComponent
   }
 }
+
+export default AlignmentCrosspostMessageComponent;

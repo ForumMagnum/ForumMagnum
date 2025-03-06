@@ -8,6 +8,15 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import TagsDetailsItem from "@/components/tagging/TagsDetailsItem";
+import SectionButton from "@/components/common/SectionButton";
+import TagFlagItem from "@/components/tagging/TagFlagItem";
+import NewTagsList from "@/components/tagging/NewTagsList";
+import LoadMore from "@/components/common/LoadMore";
+import TagActivityFeed from "@/components/tagging/TagActivityFeed";
+import TagVoteActivity from "@/components/tagging/TagVoteActivity";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const SECTION_WIDTH = 960
 
@@ -75,7 +84,6 @@ const styles = (theme: ThemeType) => ({
 const TaggingDashboard = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
@@ -197,3 +205,5 @@ declare global {
     TaggingDashboard: typeof TaggingDashboardComponent
   }
 }
+
+export default TaggingDashboardComponent;

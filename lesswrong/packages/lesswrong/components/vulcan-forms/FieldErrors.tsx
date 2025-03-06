@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import FormError from "@/components/vulcan-forms/FormError";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +16,7 @@ const FieldErrors = ({ errors, classes }: {
   <ul className={classNames(classes.root, "form-input-errors")}>
     {errors.map((error, index) => (
       <li key={index}>
-        <Components.FormError error={error} errorContext="field" />
+        <FormError error={error} errorContext="field" />
       </li>
     ))}
   </ul>
@@ -28,3 +29,5 @@ declare global {
     FieldErrors: typeof FieldErrorsComponent
   }
 }
+
+export default FieldErrorsComponent;

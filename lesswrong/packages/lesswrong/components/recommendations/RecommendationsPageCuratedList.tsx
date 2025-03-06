@@ -3,6 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import PostsList2 from "@/components/posts/PostsList2";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SunshineCuratedSuggestionsList from "@/components/sunshineDashboard/SunshineCuratedSuggestionsList";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -19,8 +23,6 @@ const styles = (theme: ThemeType) => ({
 const RecommendationsPageCuratedList = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
-
   const currentUser = useCurrentUser()
 
   return (
@@ -52,3 +54,5 @@ declare global {
     RecommendationsPageCuratedList: typeof RecommendationsPageCuratedListComponent
   }
 }
+
+export default RecommendationsPageCuratedListComponent;

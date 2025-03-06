@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
 import { isEAReactableDocument } from "./EAReactsSection";
+import OverallVoteAxis from "@/components/votes/OverallVoteAxis";
+import EAReactsSection from "@/components/votes/EAReactsSection";
 
 const styles = (_theme: ThemeType) => ({
   overallAxis: {
@@ -35,7 +37,6 @@ const EAEmojisVoteOnComment = ({
     collectionName,
     votingSystem,
   );
-  const {OverallVoteAxis, EAReactsSection} = Components;
   return (
     <>
       <OverallVoteAxis
@@ -66,3 +67,5 @@ declare global {
     EAEmojisVoteOnComment: typeof EAEmojisVoteOnCommentComponent
   }
 }
+
+export default EAEmojisVoteOnCommentComponent;

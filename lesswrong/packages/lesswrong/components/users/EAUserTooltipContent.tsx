@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,7 +104,6 @@ const EAUserTooltipContent = ({user, classes}: {
   } = user;
   const role = formatRole(jobTitle, organization);
   const textBio = useMemo(() => formatBio(htmlBio), [htmlBio]);
-  const {UsersProfileImage} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -156,3 +156,5 @@ declare global {
     EAUserTooltipContent: typeof EAUserTooltipContentComponent
   }
 }
+
+export default EAUserTooltipContentComponent;

@@ -6,6 +6,16 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
+import SunshineNewUsersList from "@/components/sunshineDashboard/SunshineNewUsersList";
+import SunshineNewCommentsList from "@/components/sunshineDashboard/SunshineNewCommentsList";
+import SunshineNewTagsList from "@/components/sunshineDashboard/SunshineNewTagsList";
+import SunshineNewPostsList from "@/components/sunshineDashboard/SunshineNewPostsList";
+import SunshineReportedContentList from "@/components/sunshineDashboard/SunshineReportedContentList";
+import SunshineCuratedSuggestionsList from "@/components/sunshineDashboard/SunshineCuratedSuggestionsList";
+import AFSuggestUsersList from "@/components/sunshineDashboard/AFSuggestUsersList";
+import AFSuggestPostsList from "@/components/sunshineDashboard/AFSuggestPostsList";
+import AFSuggestCommentsList from "@/components/sunshineDashboard/AFSuggestCommentsList";
+import SunshineGoogleServiceAccount from "@/components/sunshineDashboard/SunshineGoogleServiceAccount";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,20 +54,6 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
-
-  const {
-    SunshineNewUsersList,
-    SunshineNewCommentsList,
-    SunshineNewTagsList,
-    SunshineNewPostsList,
-    SunshineReportedContentList,
-    SunshineCuratedSuggestionsList,
-    AFSuggestUsersList,
-    AFSuggestPostsList,
-    AFSuggestCommentsList,
-    SunshineGoogleServiceAccount,
-  } = Components;
-
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
@@ -134,3 +130,5 @@ declare global {
     SunshineSidebar: typeof SunshineSidebarComponent
   }
 }
+
+export default SunshineSidebarComponent;

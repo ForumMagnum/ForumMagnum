@@ -8,6 +8,12 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import KarmaDisplay from "@/components/common/KarmaDisplay";
+import PostsTitle from "@/components/posts/PostsTitle";
+import PostsUserAndCoauthors from "@/components/posts/PostsUserAndCoauthors";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
@@ -150,12 +156,6 @@ const PostsItemIntroSequence = ({
   withImage?: boolean,
 }) => {
   const { isRead } = useRecordPostView(post);
-
-  const {
-    KarmaDisplay, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo,
-    PostsItemTooltipWrapper, AnalyticsTracker,
-  } = Components;
-
   const postLink = postGetPageUrl(post, false, sequence?._id);
 
   return (
@@ -224,3 +224,5 @@ declare global {
     PostsItemIntroSequence: typeof PostsItemIntroSequenceComponent
   }
 }
+
+export default PostsItemIntroSequenceComponent;

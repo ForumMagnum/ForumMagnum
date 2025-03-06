@@ -10,6 +10,10 @@ import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { useHover } from '../common/withHover';
+import { SideItem } from "@/components/contents/SideItems";
+import JargonTooltip from "@/components/jargon/JargonTooltip";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const lowOpacity = .4;
 const highOpacity = .85;
@@ -188,8 +192,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
   unapprovedTermsCount: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
-
   const { captureEvent } = useTracking();
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
 
@@ -340,3 +342,5 @@ declare global {
     GlossarySidebar: typeof GlossarySidebarComponent
   }
 }
+
+export default GlossarySidebarComponent;

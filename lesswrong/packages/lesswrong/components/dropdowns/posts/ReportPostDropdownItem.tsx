@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -25,8 +26,6 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
       },
     });
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Report"
@@ -46,3 +45,5 @@ declare global {
     ReportPostDropdownItem: typeof ReportPostDropdownItemComponent
   }
 }
+
+export default ReportPostDropdownItemComponent;

@@ -58,3 +58,5 @@ declare global {
     Divider: typeof DividerComponent
   }
 }
+
+export default DividerComponent;

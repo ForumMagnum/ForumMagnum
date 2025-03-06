@@ -12,6 +12,12 @@ import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
 import { useNotificationDisplays } from "./useNotificationDisplays";
+import NotificationsPageNotification from "@/components/notifications/NotificationsPage/NotificationsPageNotification";
+import NotificationsPageKarmaChangeList from "@/components/notifications/NotificationsPage/NotificationsPageKarmaChangeList";
+import NotificationsPageEmpty from "@/components/notifications/NotificationsPage/NotificationsPageEmpty";
+import LoadMore from "@/components/common/LoadMore";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 
@@ -123,11 +129,6 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
       setTab(tabName);
     }
   }, [setTab]);
-
-  const {
-    NotificationsPageNotification, NotificationsPageKarmaChangeList,
-    NotificationsPageEmpty, LoadMore, Loading, SectionTitle,
-  } = Components;
   return (
     <div className={classes.root}>
       <Tabs
@@ -194,3 +195,5 @@ declare global {
     NotificationsPageFeed: typeof NotificationsPageFeedComponent
   }
 }
+
+export default NotificationsPageFeedComponent;

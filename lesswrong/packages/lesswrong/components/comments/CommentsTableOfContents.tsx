@@ -9,6 +9,9 @@ import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import TableOfContentsRow from "@/components/posts/TableOfContents/TableOfContentsRow";
+import TableOfContentsDivider from "@/components/posts/TableOfContents/TableOfContentsDivider";
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
@@ -135,7 +138,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
         highlightedCommentId={highlightedLandmarkName}
         highlightDate={highlightDate}
       />
-      <Components.TableOfContentsDivider/>
+      <TableOfContentsDivider/>
     </>)}
     {commentTree && commentTree.map(comment => <ToCCommentBlock
       key={comment.item._id}
@@ -155,7 +158,6 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   highlightDate: Date|undefined,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -243,3 +245,5 @@ declare global {
     CommentsTableOfContents: typeof CommentsTableOfContentsComponent
   }
 }
+
+export default CommentsTableOfContentsComponent;

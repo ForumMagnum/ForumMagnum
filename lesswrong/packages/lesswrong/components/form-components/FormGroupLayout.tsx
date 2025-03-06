@@ -101,3 +101,5 @@ declare global {
     FormGroupLayout: typeof FormGroupLayoutComponent
   }
 }
+
+export default FormGroupLayoutComponent;

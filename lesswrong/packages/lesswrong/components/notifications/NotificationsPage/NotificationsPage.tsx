@@ -6,6 +6,8 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import LoginForm from "@/components/users/LoginForm";
+import NotificationsPageFeed from "@/components/notifications/NotificationsPage/NotificationsPageFeed";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,13 +59,10 @@ export const NotificationsPage = ({classes}: {
   }, [fetchedKarmaChanges, updateCurrentUser]);
 
   if (!currentUser) {
-    const {LoginForm} = Components;
     return (
       <LoginForm />
     );
   }
-
-  const {NotificationsPageFeed} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -85,3 +84,5 @@ declare global {
     NotificationsPage: typeof NotificationsPageComponent
   }
 }
+
+export default NotificationsPageComponent;

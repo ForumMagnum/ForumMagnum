@@ -2,6 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { formatPercentile } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import WrappedComment from "@/components/ea-forum/wrapped/WrappedComment";
 
 const styles = (_theme: ThemeType) => ({
   topComment: {
@@ -23,7 +26,6 @@ const WrappedTopCommentSection = ({classes}: {
 }) => {
   const {year, data} = useForumWrappedContext();
   const percentile = formatPercentile(data.commenterPercentile);
-  const {WrappedSection, WrappedHeading, WrappedComment} = Components;
   return (
     <WrappedSection pageSectionContext="topComment">
       <WrappedHeading>
@@ -54,3 +56,5 @@ declare global {
     WrappedTopCommentSection: typeof WrappedTopCommentSectionComponent
   }
 }
+
+export default WrappedTopCommentSectionComponent;

@@ -7,6 +7,8 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ExpandedDate } from '@/components/common/FormatDate';
+import FormatDate from "@/components/common/FormatDate";
+import LWTooltip from "@/components/common/LWTooltip";
 
 // The amount of time during which you can edit a comment, without it causing
 // the comment to be marked as edited.
@@ -68,7 +70,6 @@ type CommentsItemDateProps = UseCommentLinkProps & {
 };
 
 const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsItemDateProps) => {
-  const { FormatDate, LWTooltip } = Components
   const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
@@ -136,4 +137,6 @@ declare global {
     CommentsItemDate: typeof CommentsItemDateComponent,
   }
 }
+
+export default CommentsItemDateComponent;
 

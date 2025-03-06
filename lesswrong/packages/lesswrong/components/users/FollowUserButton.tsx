@@ -6,6 +6,7 @@ import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { gql, useMutation } from '@apollo/client';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,8 +23,6 @@ export const FollowUserButton = ({user, classes}: {
   user: UsersMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-
-  const { LWTooltip } = Components;
   const { captureEvent } = useTracking();
 
   const { isSubscribed, onSubscribe, disabled } = useNotifyMe({
@@ -77,3 +76,5 @@ declare global {
     FollowUserButton: typeof FollowUserButtonComponent
   }
 }
+
+export default FollowUserButtonComponent;

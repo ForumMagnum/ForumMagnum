@@ -6,6 +6,9 @@ import { useMessages } from '../common/withMessages';
 import { gql, useMutation } from '@apollo/client';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,8 +27,6 @@ const AdminGoogleServiceAccount = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, ErrorAccessDenied, EAButton } = Components;
-
   const { results: serviceAccounts } = useMulti({
     terms: {},
     collectionName: "GoogleServiceAccountSessions",
@@ -97,3 +98,5 @@ declare global {
     AdminGoogleServiceAccount: typeof AdminGoogleServiceAccountComponent
   }
 }
+
+export default AdminGoogleServiceAccountComponent;

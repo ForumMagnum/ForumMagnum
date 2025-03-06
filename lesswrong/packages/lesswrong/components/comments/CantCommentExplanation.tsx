@@ -48,3 +48,5 @@ declare global {
     CantCommentExplanation: typeof CantCommentExplanationComponent,
   }
 }
+
+export default CantCommentExplanationComponent;

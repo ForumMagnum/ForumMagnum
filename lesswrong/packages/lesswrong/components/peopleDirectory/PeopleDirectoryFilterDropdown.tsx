@@ -3,6 +3,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useEventListener } from "../hooks/useEventListener";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
+import LWPopper from "@/components/common/LWPopper";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import ForumIcon from "@/components/common/ForumIcon";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -122,8 +125,6 @@ const PeopleDirectoryFilterDropdown = ({
   }, [onOpen, onClose]);
 
   useEventListener("resize", () => setOpen(false));
-
-  const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
     <div ref={anchorRef} className={classes.root}>
       <div
@@ -178,3 +179,5 @@ declare global {
     PeopleDirectoryFilterDropdown: typeof PeopleDirectoryFilterDropdownComponent
   }
 }
+
+export default PeopleDirectoryFilterDropdownComponent;

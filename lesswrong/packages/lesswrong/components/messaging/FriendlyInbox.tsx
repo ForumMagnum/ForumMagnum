@@ -10,6 +10,11 @@ import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import FriendlyInboxNavigation from "@/components/messaging/FriendlyInboxNavigation";
+import ConversationContents from "@/components/messaging/ConversationContents";
+import ForumIcon from "@/components/common/ForumIcon";
+import ConversationDetails from "@/components/messaging/ConversationDetails";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const MAX_WIDTH = 1100;
 
@@ -208,9 +213,6 @@ const FriendlyInbox = ({
       },
     });
   }, [isModInbox, openDialog]);
-
-  const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
-
   const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
     terms,
     collectionName: "Conversations",
@@ -341,3 +343,5 @@ declare global {
     FriendlyInbox: typeof FriendlyInboxComponent;
   }
 }
+
+export default FriendlyInboxComponent;

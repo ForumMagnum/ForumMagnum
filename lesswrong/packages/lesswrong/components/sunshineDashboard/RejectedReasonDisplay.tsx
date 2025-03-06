@@ -2,6 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Card from '@material-ui/core/Card';
 import { htmlToText } from 'html-to-text';
+import LWTooltip from "@/components/common/LWTooltip";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import MetaInfo from "@/components/common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,8 +30,6 @@ export const RejectedReasonDisplay = ({classes, reason}: {
   classes: ClassesType<typeof styles>,
   reason: string|null
 }) => {
-  const { LWTooltip, ContentStyles, ContentItemBody, MetaInfo } = Components
-
   function getShortRejectedReason (reason: string|null|undefined) {
     const reasonSnippet = htmlToText(reason || "").split(".")[0]
     const bulletStrippedSnippet = reasonSnippet.includes(" * ") ? reasonSnippet.split(" * ")[1] : reasonSnippet
@@ -57,4 +59,6 @@ declare global {
     RejectedReasonDisplay: typeof RejectedReasonDisplayComponent
   }
 }
+
+export default RejectedReasonDisplayComponent;
 

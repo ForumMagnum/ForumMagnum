@@ -4,6 +4,9 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import RevisionSelect from "@/components/revisions/RevisionSelect";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   revisionList: {
@@ -13,7 +16,6 @@ const styles = (theme: ThemeType) => ({
 const PostsRevisionSelect = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();
   const navigate = useNavigate();
   const postId = params._id;
@@ -65,3 +67,5 @@ declare global {
     PostsRevisionSelect: typeof PostsRevisionSelectComponent
   }
 }
+
+export default PostsRevisionSelectComponent;

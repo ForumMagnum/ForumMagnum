@@ -7,6 +7,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { defaultSequenceBannerIdSetting } from './SequencesPage';
 import { isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
+import LinkCard from "@/components/common/LinkCard";
+import SequencesSummary from "@/components/sequences/SequencesSummary";
+import UsersName from "@/components/users/UsersName";
+import CloudinaryImage from "@/components/common/CloudinaryImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -129,8 +133,6 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) => {
-  const { LinkCard, SequencesSummary } = Components;
-
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20
@@ -151,7 +153,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
     }>
       <div className={classes.image}>
         <DeferRender ssr={false}>
-          {imageId && <Components.CloudinaryImage
+          {imageId && <CloudinaryImage
             publicId={imageId}
             height={124}
             width={315}
@@ -165,7 +167,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
         </div>
         { showAuthor && sequence.user &&
           <div className={classes.author}>
-            by <Components.UsersName user={sequence.user} />
+            by <UsersName user={sequence.user} />
           </div>}
       </div>
     </LinkCard>
@@ -179,4 +181,6 @@ declare global {
     SequencesGridItem: typeof SequencesGridItemComponent
   }
 }
+
+export default SequencesGridItemComponent;
 

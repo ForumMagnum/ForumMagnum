@@ -1,6 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import Divider from "@/components/common/Divider";
+import SequencesNewButton from "@/components/sequences/SequencesNewButton";
+import SequencesGridWrapper from "@/components/sequences/SequencesGridWrapper";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   pageTitle: {
@@ -18,8 +24,6 @@ const styles = (theme: ThemeType) => ({
 export const AFLibraryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, SequencesGridWrapper, Typography } = Components
-
   return <div>
     <AnalyticsContext pageContext="sequencesHome">
       <SingleColumnSection>
@@ -61,4 +65,6 @@ declare global {
     AFLibraryPage: typeof AFLibraryPageComponent
   }
 }
+
+export default AFLibraryPageComponent;
 

@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useVote } from "./withVote";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
 import classNames from "classnames";
+import PostsVoteDefault from "@/components/votes/PostsVoteDefault";
+import EAReactsSection from "@/components/votes/EAReactsSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,8 +47,6 @@ const EAEmojisVoteOnPost = ({
   classes,
 }: EAEmojisVoteOnPostProps) => {
   const voteProps = useVote(document, "Posts", votingSystem);
-
-  const {PostsVoteDefault, EAReactsSection} = Components;
   if (!isFooter) {
     return (
       <PostsVoteDefault
@@ -86,3 +86,5 @@ declare global {
     EAEmojisVoteOnPost: typeof EAEmojisVoteOnPostComponent
   }
 }
+
+export default EAEmojisVoteOnPostComponent;

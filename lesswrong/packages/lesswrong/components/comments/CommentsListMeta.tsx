@@ -31,3 +31,5 @@ declare global {
     CommentsListMeta: typeof CommentsListMetaComponent,
   }
 }
+
+export default CommentsListMetaComponent;

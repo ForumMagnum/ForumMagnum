@@ -1,5 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import SingleUsersItem from "@/components/form-components/SingleUsersItem";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,15 +23,15 @@ const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: Fo
 }) => {
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.UsersSearchAutoComplete
+      <ErrorBoundary>
+        <UsersSearchAutoComplete
           clickAction={(userId: string) => {
             void updateCurrentValues({ [path]: userId });
           }}
           label={label}
         />
-      </Components.ErrorBoundary>
-      {value && <Components.SingleUsersItem userId={value} removeItem={() => updateCurrentValues({ [path]: undefined}) } />}
+      </ErrorBoundary>
+      {value && <SingleUsersItem userId={value} removeItem={() => updateCurrentValues({ [path]: undefined}) } />}
     </div>
   )
 };
@@ -40,3 +43,5 @@ declare global {
     SearchSingleUser: typeof SearchSingleUserComponent
   }
 }
+
+export default SearchSingleUserComponent;

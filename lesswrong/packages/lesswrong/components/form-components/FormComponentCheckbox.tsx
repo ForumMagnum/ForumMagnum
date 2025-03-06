@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@material-ui/core/Checkbox';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +36,7 @@ const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: 
       disabled={disabled}
       disableRipple
     />
-    <Components.Typography className={classes.inline} variant="body2" component="label">{label}</Components.Typography>
+    <Typography className={classes.inline} variant="body2" component="label">{label}</Typography>
   </div>
 }
 
@@ -51,4 +52,6 @@ declare global {
     FormComponentCheckbox: typeof FormComponentCheckboxComponent
   }
 }
+
+export default FormComponentCheckboxComponent;
 

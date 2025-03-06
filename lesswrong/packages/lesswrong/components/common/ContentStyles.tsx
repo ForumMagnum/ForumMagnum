@@ -129,3 +129,7 @@ declare global {
 }
 
 export default ContentStylesComponent;
+
+export {
+  ContentStylesComponent as ContentStyles
+}

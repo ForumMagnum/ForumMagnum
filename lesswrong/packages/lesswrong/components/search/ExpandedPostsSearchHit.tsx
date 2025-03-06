@@ -6,6 +6,8 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import FormatDate from "@/components/common/FormatDate";
+import UserNameDeleted from "@/components/users/UserNameDeleted";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +64,6 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { FormatDate, UserNameDeleted } = Components
   const post: SearchPost = hit
   
   const handleClick = () => {
@@ -95,4 +96,6 @@ declare global {
     ExpandedPostsSearchHit: typeof ExpandedPostsSearchHitComponent
   }
 }
+
+export default ExpandedPostsSearchHitComponent;
 

@@ -6,6 +6,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
+import { UserSelect } from "@/components/form-components/UserSelect";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   adminOverrides: {
@@ -39,8 +41,6 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   updateSettings: (settings: RecombeeConfiguration) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UserSelect, LWTooltip } = Components;
-
   const [userIdOverride, setUserIdOverride] = useState<string | null>(settings.userId ?? null);
   const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings.booster);
   const [rotationRateOverride, setRotationRateOverride] = useState<number|undefined>(settings.rotationRate);
@@ -135,3 +135,5 @@ declare global {
     RecombeePostsListSettings: typeof RecombeePostsListSettingsComponent
   }
 }
+
+export default RecombeePostsListSettingsComponent;

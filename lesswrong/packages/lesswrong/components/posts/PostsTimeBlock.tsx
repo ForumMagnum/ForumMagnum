@@ -8,6 +8,15 @@ import type { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsItem from "@/components/posts/PostsItem";
+import LoadMore from "@/components/common/LoadMore";
+import ShortformTimeBlock from "@/components/shortform/ShortformTimeBlock";
+import TagEditsTimeBlock from "@/components/tagging/TagEditsTimeBlock";
+import ContentType from "@/components/posts/PostsPage/ContentType";
+import Divider from "@/components/common/Divider";
+import { Typography } from "@/components/common/Typography";
+import PostsTagsList from "@/components/tagging/PostsTagsList";
+import PostsLoading from "@/components/posts/PostsLoading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -155,12 +164,6 @@ const PostsTimeBlock = ({
   const reportEmptyTags = useCallback(() => {
     setNoTags(true);
   }, []);
-
-  const {
-    PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
-    Divider, Typography, PostsTagsList, PostsLoading,
-  } = Components;
-
   const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0));
   // The most recent timeBlock is hidden if there are no posts or shortforms
   // on it, to avoid having an awkward empty partial timeBlock when it's close
@@ -269,3 +272,5 @@ declare global {
     PostsTimeBlock: typeof PostsTimeBlockComponent
   }
 }
+
+export default PostsTimeBlockComponent;

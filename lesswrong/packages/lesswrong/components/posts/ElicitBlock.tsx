@@ -13,6 +13,8 @@ import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import UsersName from "@/components/users/UsersName";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const elicitDataFragment = `
   _id
@@ -191,7 +193,6 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
-  const { UsersName, ContentStyles } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
@@ -327,3 +328,5 @@ function createNewElicitPrediction(questionId: string, prediction: number, curre
     }
   }
 }
+
+export default ElicitBlockComponent;

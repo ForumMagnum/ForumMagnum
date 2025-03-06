@@ -6,6 +6,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { MenuItem } from "@/components/common/Menus";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,7 +109,6 @@ const DropdownItem = ({
   rawLink,
   classes,
 }: DropdownItemProps & {classes: ClassesType<typeof styles>}) => {
-  const {MenuItem, Loading, ForumIcon, LWTooltip} = Components;
   const LinkWrapper = to ? rawLink ? RawLink : Link : DummyWrapper;
   const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
   return (
@@ -156,3 +159,5 @@ declare global {
     DropdownItem: typeof DropdownItemComponent
   }
 }
+
+export default DropdownItemComponent;

@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import EAButton from "@/components/ea-forum/EAButton";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   blurb: {
@@ -28,8 +30,6 @@ const ActionButtonSection = ({
   onClick,
   classes,
 }: ActionButtonSectionProps) => {
-  const { EAButton, Loading } = Components;
-
   return (
     <div>
       <div className={classes.blurb}>{description}</div>
@@ -49,3 +49,7 @@ declare global {
 }
 
 export default ActionButtonSectionComponent;
+
+export {
+  ActionButtonSectionComponent as ActionButtonSection
+}

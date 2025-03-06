@@ -9,6 +9,9 @@ import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import PopperCard from "@/components/common/PopperCard";
+import PostActions from "@/components/dropdowns/posts/PostActions";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -65,8 +68,6 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   }
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-  const { PopperCard, PostActions, LWClickAwayListener } = Components
-
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
@@ -95,4 +96,8 @@ declare global {
   interface ComponentTypes {
     PostActionsButton: typeof PostActionsButtonComponent
   }
+}
+
+export {
+  PostActionsButtonComponent as PostActionsButton
 }

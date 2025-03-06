@@ -35,3 +35,5 @@ declare global {
   }
 }
 
+export default SocialMediaIconComponent;
+

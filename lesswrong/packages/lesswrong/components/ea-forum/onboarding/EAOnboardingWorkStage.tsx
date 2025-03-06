@@ -2,6 +2,10 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import { useEAOnboarding } from "./useEAOnboarding";
+import EAOnboardingStage from "@/components/ea-forum/onboarding/EAOnboardingStage";
+import EAOnboardingInput from "@/components/ea-forum/onboarding/EAOnboardingInput";
+import EAOnboardingSelect from "@/components/ea-forum/onboarding/EAOnboardingSelect";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -37,9 +41,6 @@ export const EAOnboardingWorkStage = ({classes}: {
   }, [role, organization, careerStage, updateCurrentUser, goToNextStage, goToNextStageAfter, viewAsAdmin]);
 
   const canContinue = !!(role || organization || careerStage);
-  const {
-    EAOnboardingStage, EAOnboardingInput, EAOnboardingSelect, SectionTitle,
-  } = Components;
   return (
     <EAOnboardingStage
       stageName="work"
@@ -92,3 +93,5 @@ declare global {
     EAOnboardingWorkStage: typeof EAOnboardingWorkStageComponent
   }
 }
+
+export default EAOnboardingWorkStageComponent;

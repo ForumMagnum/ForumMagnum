@@ -5,6 +5,11 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsTitle from "@/components/posts/PostsTitle";
+import ReviewPostButton from "@/components/review/ReviewPostButton";
+import LWTooltip from "@/components/common/LWTooltip";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,9 +26,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
-
-  const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
-
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -58,3 +60,5 @@ declare global {
     PostNominatedNotification: typeof PostNominatedNotificationComponent
   }
 }
+
+export default PostNominatedNotificationComponent;

@@ -31,3 +31,5 @@ declare global {
     ManageSubscriptionsLink: typeof ManageSubscriptionsLinkComponent
   }
 }
+
+export default ManageSubscriptionsLinkComponent;

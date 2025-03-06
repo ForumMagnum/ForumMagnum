@@ -4,7 +4,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
@@ -31,8 +31,6 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
       data: {moderatorHat: false},
     });
   }
-
-  const {DropdownItem} = Components;
   if (comment.moderatorHat) {
     return (
       <DropdownItem
@@ -65,3 +63,5 @@ declare global {
     ToggleIsModeratorCommentDropdownItem: typeof ToggleIsModeratorCommentDropdownItemComponent
   }
 }
+
+export default ToggleIsModeratorCommentDropdownItemComponent;

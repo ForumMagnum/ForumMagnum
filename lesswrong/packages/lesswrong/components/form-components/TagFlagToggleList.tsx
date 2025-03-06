@@ -4,6 +4,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';
+import { Loading } from "@/components/vulcan-core/Loading";
+import TagFlagItem from "@/components/tagging/TagFlagItem";
 
 const styles = (theme: ThemeType) => ({
   
@@ -13,8 +15,6 @@ const TagFlagToggleList = ({ value, path }: {
   value: string[];
   path: string;
 }, context: any) => {
-  const { Loading, TagFlagItem } = Components
-
   const handleClick = (option: string) => {    
     if (value.includes(option)) {
       context.updateCurrentValues({
@@ -59,3 +59,5 @@ declare global {
     TagFlagToggleList: typeof TagFlagToggleListComponent
   }
 }
+
+export default TagFlagToggleListComponent;

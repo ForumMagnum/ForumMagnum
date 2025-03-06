@@ -60,3 +60,5 @@ declare global {
   }
 }
 
+export default EditCommentTitleComponent;
+

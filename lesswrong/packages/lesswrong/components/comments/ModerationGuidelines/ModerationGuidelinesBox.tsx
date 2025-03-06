@@ -12,6 +12,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -177,10 +178,10 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
           </Tooltip>
         </span>
       }
-      <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
+      <ContentStyles contentType="comment" className={classes.moderationGuidelines}>
         <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
-      </Components.ContentStyles>
+      </ContentStyles>
     </div>
   )
 }
@@ -201,3 +202,5 @@ declare global {
     ModerationGuidelinesBox: typeof ModerationGuidelinesBoxComponent
   }
 }
+
+export default ModerationGuidelinesBoxComponent;

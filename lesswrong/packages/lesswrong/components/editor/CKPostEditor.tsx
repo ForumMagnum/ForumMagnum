@@ -28,6 +28,10 @@ import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVis
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
+import EditorTopBar from "@/components/editor/EditorTopBar";
+import DialogueEditorGuidelines from "@/components/posts/dialogues/DialogueEditorGuidelines";
+import DialogueEditorFeedback from "@/components/posts/dialogues/DialogueEditorFeedback";
+import EditConditionalVisibility from "@/components/editor/conditionalVisibilityBlock/EditConditionalVisibility";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -417,7 +421,6 @@ const CKPostEditor = ({
   const { openDialog } = useDialog();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
-  const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
   const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
@@ -473,7 +476,7 @@ const CKPostEditor = ({
   const conditionalVisibilityPluginConfiguration: ConditionalVisibilityPluginConfiguration = {
     renderConditionalVisibilitySettingsInto: (element, initialState, setDocumentState) => {
       if (portalContext) {
-        portalContext.createPortal(element, <Components.EditConditionalVisibility
+        portalContext.createPortal(element, <EditConditionalVisibility
           initialState={initialState}
           setDocumentState={setDocumentState}
         />);
@@ -738,3 +741,5 @@ declare global {
     CKPostEditor: typeof CKPostEditorComponent
   }
 }
+
+export default CKPostEditorComponent;

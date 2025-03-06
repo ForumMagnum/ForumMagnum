@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
+import LWTooltip from "@/components/common/LWTooltip";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -193,8 +196,6 @@ const TabPicker = <T extends TabRecord[]>(
     showDescriptionOnHover?: boolean,
   },
 ) => {
-  const { LWTooltip, SingleColumnSection, ForumIcon } = Components;
-
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name);
 
   // we use the widths of the tab list container when calculating how far to scroll left and right
@@ -339,3 +340,5 @@ declare global {
     TabPicker: typeof TabPickerComponent
   }
 }
+
+export default TabPickerComponent;

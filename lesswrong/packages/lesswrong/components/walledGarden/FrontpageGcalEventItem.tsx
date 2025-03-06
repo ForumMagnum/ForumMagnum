@@ -34,3 +34,5 @@ declare global {
     FrontpageGcalEventItem: typeof FrontpageGcalEventItemComponent
   }
 }
+
+export default FrontpageGcalEventItemComponent;

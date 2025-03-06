@@ -127,3 +127,5 @@ declare global {
     AnalyticsPageInitializer: typeof AnalyticsPageInitializerComponent
   }
 }
+
+export default AnalyticsPageInitializerComponent;

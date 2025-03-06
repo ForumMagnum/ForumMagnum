@@ -75,3 +75,5 @@ declare global {
     EAOnboardingPodcast: typeof EAOnboardingPodcastComponent
   }
 }
+
+export default EAOnboardingPodcastComponent;

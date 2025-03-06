@@ -6,6 +6,9 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
+import PresenceList from "@/components/editor/PresenceList";
+import LWTooltip from "@/components/common/LWTooltip";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   editorTopBar: {
@@ -49,7 +52,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   connectedUsers: ConnectedUserInfo[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PresenceList, LWTooltip, MenuItem } = Components
   const currentUser = useCurrentUser();
   
   const isAdmin = !!currentUser && currentUser.isAdmin;
@@ -121,3 +123,5 @@ declare global {
     EditorTopBar: typeof EditorTopBarComponent
   }
 }
+
+export default EditorTopBarComponent;

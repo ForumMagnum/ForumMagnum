@@ -4,7 +4,7 @@ import HistoryIcon from '@material-ui/icons/History';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../../lib/moment-timezone';
-
+import PostsRevisionsList from "@/components/posts/PostsPage/PostsRevisionsList";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -32,8 +32,6 @@ const PostsRevisionSelector = ({ post, format, classes }: {
   const closeMenu = useCallback(() => {
     setAnchorEl(null);
   }, [setAnchorEl]);
-  
-  const { PostsRevisionsList } = Components
   const tooltip = anchorEl ? null : <span>
     This post has major past revisions. Click to view. <br/>
     <em>Originally published: {moment(new Date(post.postedAt)).format("LLL z")}</em>
@@ -65,3 +63,5 @@ declare global {
     PostsRevisionSelector: typeof PostsRevisionSelectorComponent
   }
 }
+
+export default PostsRevisionSelectorComponent;

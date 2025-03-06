@@ -12,6 +12,11 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { useApolloClient } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
+import Error404 from "@/components/common/Error404";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsPageCrosspostWrapper from "@/components/posts/PostsPage/PostsPageCrosspostWrapper";
+import PostsPage from "@/components/posts/PostsPage/PostsPage";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -64,8 +69,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     queryResponse: commentQueryResult,
   }
   // End of performance section
-
-  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading && !postPreloadWithSequence) {
@@ -74,7 +77,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     if (isMissingDocumentError(error)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
-      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
+      return <ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
     } else {
       throw new Error(error.message);
     }
@@ -101,3 +104,5 @@ declare global {
     PostsPageWrapper: typeof PostsPageWrapperComponent
   }
 }
+
+export default PostsPageWrapperComponent;

@@ -6,7 +6,12 @@ import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useLocation } from '../../lib/routeUtil';
-
+import FormatDate from "@/components/common/FormatDate";
+import PostsItemMetaInfo from "@/components/posts/PostsItemMetaInfo";
+import { Loading } from "@/components/vulcan-core/Loading";
+import Error404 from "@/components/common/Error404";
+import { Typography } from "@/components/common/Typography";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +40,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()
   
@@ -174,3 +178,5 @@ declare global {
     ReviewAdminDashboard: typeof ReviewAdminDashboardComponent
   }
 }
+
+export default ReviewAdminDashboardComponent;

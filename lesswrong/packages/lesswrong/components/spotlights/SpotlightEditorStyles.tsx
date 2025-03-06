@@ -49,3 +49,5 @@ declare global {
     SpotlightEditorStyles: typeof SpotlightEditorStylesComponent
   }
 }
+
+export default SpotlightEditorStylesComponent;

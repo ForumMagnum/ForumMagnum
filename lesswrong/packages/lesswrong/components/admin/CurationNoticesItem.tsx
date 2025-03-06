@@ -13,6 +13,10 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import Button from "@/components/vulcan-ui-bootstrap/ui/Button";
+import BasicFormStyles from "@/components/form-components/BasicFormStyles";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,9 +98,6 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
-
-
   const [edit, setEdit] = useState<boolean>(false)
   const [clickedPushing, setClickedPushing] = useState<boolean>(false)
   const { create } = useCreate({
@@ -203,5 +204,7 @@ declare global {
     CurationNoticesItem: typeof CurationNoticesItemComponent
   }
 }
+
+export default CurationNoticesItemComponent;
 
 

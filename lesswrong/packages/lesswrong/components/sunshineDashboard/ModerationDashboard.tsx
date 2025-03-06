@@ -8,6 +8,10 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import UsersReviewInfoCard from "@/components/sunshineDashboard/UsersReviewInfoCard";
+import LoadMore from "@/components/common/LoadMore";
+import { Loading } from "@/components/vulcan-core/Loading";
+import FirstContentIcons from "@/components/sunshineDashboard/FirstContentIcons";
 
 const styles = (theme: ThemeType) => ({
   page: {
@@ -108,8 +112,6 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { UsersReviewInfoCard, LoadMore, Loading, FirstContentIcons } = Components;
-
   const currentUser = useCurrentUser();
 
   const navigate = useNavigate();
@@ -224,3 +226,5 @@ declare global {
     ModerationDashboard: typeof ModerationDashboardComponent
   }
 }
+
+export default ModerationDashboardComponent;

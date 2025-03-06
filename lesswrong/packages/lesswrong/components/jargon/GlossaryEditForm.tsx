@@ -13,6 +13,16 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery, getFragment } from "../../lib/vulcan-lib/fragments";
+import { JargonEditorRow, JargonSubmitButton } from "@/components/jargon/JargonEditorRow";
+import LoadMore from "@/components/common/LoadMore";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LWTooltip from "@/components/common/LWTooltip";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { IconRight, IconDown } from "@/components/vulcan-forms/FormGroup";
+import Row from "@/components/common/Row";
+import MetaInfo from "@/components/common/MetaInfo";
+import EditUserJargonSettings from "@/components/jargon/EditUserJargonSettings";
+import ForumIcon from "@/components/common/ForumIcon";
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -284,8 +294,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: PostsEditQueryFragment,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
-
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsEdit',
@@ -568,7 +576,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         collectionName="JargonTerms"
         mutationFragment={getFragment('JargonTerms')}
         queryFragment={getFragment('JargonTerms')}
-        formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+        formComponents={{ FormSubmit: JargonSubmitButton }}
         prefilledProps={{ postId: document._id }}
         cancelCallback={() => setShowNewJargonTermForm(false)}
         successCallback={() => setShowNewJargonTermForm(false)}
@@ -594,4 +602,6 @@ declare global {
     GlossaryEditForm: typeof GlossaryEditFormComponent
   }
 }
+
+export default GlossaryEditFormComponent;
 

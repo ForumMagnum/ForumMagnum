@@ -5,6 +5,8 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { slugify } from "@/lib/utils/slugify";
+import SequencesTooltip from "@/components/sequences/SequencesTooltip";
+import EASequenceOrCollectionCard from "@/components/ea-forum/EASequenceOrCollectionCard";
 
 const EASequenceCard = ({sequence, className}: {
   sequence: SequencesPageFragment,
@@ -33,15 +35,12 @@ const EASequenceCard = ({sequence, className}: {
   const href = sequenceGetPageUrl(sequence);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
-    const {SequencesTooltip} = Components;
     return (
       <SequencesTooltip sequence={sequence} placement="bottom">
         {children}
       </SequencesTooltip>
     );
   }, [sequence]);
-
-  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={slug}>
       <EASequenceOrCollectionCard
@@ -69,3 +68,5 @@ declare global {
     EASequenceCard: typeof EASequenceCardComponent;
   }
 }
+
+export default EASequenceCardComponent;

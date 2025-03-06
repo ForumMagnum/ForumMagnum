@@ -14,6 +14,16 @@ import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import PostsListSortDropdown from "@/components/posts/PostsListSortDropdown";
+import PostsList2 from "@/components/posts/PostsList2";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import AddPostsToTag from "@/components/tagging/AddPostsToTag";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import TagDiscussionSection from "@/components/tagging/TagDiscussionSection";
+import TagPageButtonRow from "@/components/tagging/TagPageButtonRow";
+import TagIntroSequence from "@/components/tagging/TagIntroSequence";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -44,19 +54,6 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   setTruncated: (truncated: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    PostsListSortDropdown,
-    PostsList2,
-    ContentItemBody,
-    AddPostsToTag,
-    UsersNameDisplay,
-    TagDiscussionSection,
-    TagPageButtonRow,
-    TagIntroSequence,
-    SectionTitle,
-    ContentStyles,
-  } = Components;
-
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const client = useApolloClient()
@@ -152,3 +149,5 @@ declare global {
     SubforumWikiTab: typeof SubforumWikiTabComponent
   }
 }
+
+export default SubforumWikiTabComponent;

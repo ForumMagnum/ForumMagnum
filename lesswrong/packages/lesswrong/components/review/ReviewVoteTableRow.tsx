@@ -10,6 +10,19 @@ import { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { usePostsItem } from '../posts/usePostsItem';
+import PostsTitle from "@/components/posts/PostsTitle";
+import LWTooltip from "@/components/common/LWTooltip";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
+import ReviewVotingButtons from "@/components/review/ReviewVotingButtons";
+import PostsItemComments from "@/components/posts/PostsItemComments";
+import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
+import PostsItemReviewVote from "@/components/review/PostsItemReviewVote";
+import ReviewPostComments from "@/components/review/ReviewPostComments";
+import PostInteractionStripe from "@/components/review/PostInteractionStripe";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import ForumIcon from "@/components/common/ForumIcon";
+import PostsItemNewCommentsWrapper from "@/components/posts/PostsItemNewCommentsWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -218,13 +231,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
-  const {
-    PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
-    PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon,
-    PostsItemNewCommentsWrapper
-  } = Components
-
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
@@ -381,3 +387,5 @@ declare global {
     ReviewVoteTableRow: typeof ReviewVoteTableRowComponent
   }
 }
+
+export default ReviewVoteTableRowComponent;

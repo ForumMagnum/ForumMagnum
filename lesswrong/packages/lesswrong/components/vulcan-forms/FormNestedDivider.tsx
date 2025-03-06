@@ -13,3 +13,5 @@ declare global {
     FormNestedDivider: typeof FormNestedDividerComponent
   }
 }
+
+export default FormNestedDividerComponent;

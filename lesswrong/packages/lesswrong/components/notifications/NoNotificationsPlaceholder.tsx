@@ -3,6 +3,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import ForumIcon from "@/components/common/ForumIcon";
+import EAOnboardingInput from "@/components/ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +51,6 @@ const styles = (theme: ThemeType) => ({
 const SubscribedPlaceholder = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <ForumIcon icon="BellBorder" className={classes.icon} />
@@ -81,8 +83,6 @@ const NotSubscribedPlaceholder = ({classes}: {
   if (!currentUser) {
     return null;
   }
-
-  const {ForumIcon, EAOnboardingInput, EAButton} = Components;
   return (
     <div className={classes.root}>
       <ForumIcon icon="EAEnvelope" className={classes.icon} />
@@ -136,3 +136,5 @@ declare global {
     NoNotificationsPlaceholder: typeof NoNotificationsPlaceholderComponent
   }
 }
+
+export default NoNotificationsPlaceholderComponent;

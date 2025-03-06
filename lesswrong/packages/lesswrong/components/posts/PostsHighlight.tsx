@@ -10,6 +10,10 @@ import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemTruncated from "@/components/common/ContentItemTruncated";
+import LinkPostMessage from "@/components/posts/LinkPostMessage";
 
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
@@ -98,9 +102,9 @@ const HighlightBody = ({
     ev.preventDefault();
   }, [setExpanded]);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
-    <Components.LinkPostMessage post={post} />
-    <Components.ContentItemTruncated
+  return <ContentStyles contentType="postHighlight" className={classNames({[classes.smallerFonts]: smallerFonts})}>
+    <LinkPostMessage post={post} />
+    <ContentItemTruncated
       maxLengthWords={maxLengthWords}
       graceWords={20}
       rawWordCount={wordCount ?? 0}
@@ -119,8 +123,8 @@ const HighlightBody = ({
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
     />
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, loading, classes}: {
@@ -141,7 +145,7 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, sm
   });
 
   return loading
-    ? <Components.Loading />
+    ? <Loading />
     : <HighlightBody {...{
       post,
       maxLengthWords,
@@ -216,3 +220,5 @@ declare global {
     PostsHighlight: typeof PostsHighlightComponent
   }
 }
+
+export default PostsHighlightComponent;

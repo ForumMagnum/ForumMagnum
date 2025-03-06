@@ -5,6 +5,11 @@ import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import moment from 'moment'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsItem from "@/components/posts/PostsItem";
+import LoadMore from "@/components/common/LoadMore";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -79,9 +84,6 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     filter,
     sort,
   })
-
-  const {SectionTitle, Loading, PostsItem, LoadMore, Typography} = Components
-  
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
@@ -142,3 +144,5 @@ declare global {
     ReadHistoryTab: typeof ReadHistoryTabComponent
   }
 }
+
+export default ReadHistoryTabComponent;

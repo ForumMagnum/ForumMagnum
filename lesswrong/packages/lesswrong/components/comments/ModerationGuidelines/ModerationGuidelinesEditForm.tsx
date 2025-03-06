@@ -5,6 +5,10 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
+import LWDialog from "@/components/common/LWDialog";
+import FormGroupNoStyling from "@/components/form-components/FormGroupNoStyling";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   formButton: {
@@ -41,7 +45,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
     </div>
   }
   return (
-    <Components.LWDialog
+    <LWDialog
       open={true}
       onClose={onClose}
     >
@@ -49,10 +53,10 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
         Moderation Guidelines Edit Form
       </DialogTitle>
       <DialogContent>
-        <Components.Typography variant="body2">
+        <Typography variant="body2">
           Edit the moderation guidelines specific to this {commentType}:
-        </Components.Typography>
-        <Components.WrappedSmartForm
+        </Typography>
+        <WrappedSmartForm
           collectionName={isPost ? "Posts" : "Tags"}
           documentId={documentId}
           fields={['moderationGuidelines', ...(isPost ? ['moderationStyle'] : [])]}
@@ -61,7 +65,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
           successCallback={onClose}
           formComponents={{
             FormSubmit: SubmitComponent,
-            FormGroupLayout: Components.FormGroupNoStyling
+            FormGroupLayout: FormGroupNoStyling
           }}
           extraVariables={isPost ? {
             version: 'String'
@@ -71,7 +75,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
           } : {}}
         />
       </DialogContent>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 
@@ -82,3 +86,5 @@ declare global {
     ModerationGuidelinesEditForm: typeof ModerationGuidelinesEditFormComponent
   }
 }
+
+export default ModerationGuidelinesEditFormComponent;

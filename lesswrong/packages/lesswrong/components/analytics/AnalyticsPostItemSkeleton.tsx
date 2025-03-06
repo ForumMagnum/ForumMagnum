@@ -51,3 +51,5 @@ declare global {
     AnalyticsPostItemSkeleton: typeof AnalyticsPostItemSkeletonComponent
   }
 }
+
+export default AnalyticsPostItemSkeletonComponent;

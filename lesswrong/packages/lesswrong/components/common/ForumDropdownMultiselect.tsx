@@ -7,6 +7,8 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { MenuItem } from "@/components/common/Menus";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -129,9 +131,6 @@ const ForumDropdownMultiselect = ({
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-
-  const {MenuItem, ForumIcon} = Components;
-
   const label = useIconLabel
     ? <ForumIcon icon={options[values[0]].icon!} className={classes.iconLabel} />
     : values.reduce((prev, next) => {
@@ -198,3 +197,5 @@ declare global {
     ForumDropdownMultiselect: typeof ForumDropdownMultiselectComponent
   }
 }
+
+export default ForumDropdownMultiselectComponent;

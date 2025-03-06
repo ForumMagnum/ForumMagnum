@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import TabNavigationSubItem from "@/components/common/TabNavigationMenu/TabNavigationSubItem";
 
 const smallIconSize = 23
 
@@ -72,7 +73,6 @@ type TabNavigationFooterItemProps = {
 }
 
 const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {
-  const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
   // React router links don't handle external URLs, so use a
   // normal HTML a tag if the URL is external
@@ -121,3 +121,5 @@ declare global {
     TabNavigationFooterItem: typeof TabNavigationFooterItemComponent
   }
 }
+
+export default TabNavigationFooterItemComponent;

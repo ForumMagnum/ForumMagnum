@@ -6,6 +6,9 @@ import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import TagExcerpt from "@/components/common/excerpts/TagExcerpt";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -56,7 +59,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   }
 
   if (isFriendlyUI) {
-    const {TagExcerpt} = Components;
     return (
       <TagExcerpt
         tag={tag}
@@ -87,9 +89,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
 
   const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
-
-  const { ContentItemBody, ContentStyles } = Components;
-
   let html: string | undefined;
 
   if (activeTab !== undefined && tag.summaries) {
@@ -129,3 +128,5 @@ declare global {
     TagPreviewDescription: typeof TagPreviewDescriptionComponent
   }
 }
+
+export default TagPreviewDescriptionComponent;

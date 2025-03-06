@@ -4,6 +4,10 @@ import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import SunshineListCount from "@/components/sunshineDashboard/SunshineListCount";
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import SunshineNewTagsItem from "@/components/sunshineDashboard/SunshineNewTagsItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,8 +23,6 @@ const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>})
     enableTotal: true, itemsPerPage: 30,
   });
   const currentUser = useCurrentUser();
-  
-  const { SunshineListCount, SunshineListTitle, SunshineNewTagsItem, LoadMore } = Components
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div className={classes.root}>
@@ -47,3 +49,5 @@ declare global {
     SunshineNewTagsList: typeof SunshineNewTagsListComponent
   }
 }
+
+export default SunshineNewTagsListComponent;

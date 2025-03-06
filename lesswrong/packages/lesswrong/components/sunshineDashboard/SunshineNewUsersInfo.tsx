@@ -7,6 +7,19 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
+import MetaInfo from "@/components/common/MetaInfo";
+import SunshineNewUserPostsList from "@/components/sunshineDashboard/SunshineNewUserPostsList";
+import SunshineNewUserCommentsList from "@/components/sunshineDashboard/SunshineNewUserCommentsList";
+import ContentSummaryRows from "@/components/sunshineDashboard/ModeratorUserInfo/ContentSummaryRows";
+import LWTooltip from "@/components/common/LWTooltip";
+import UserAutoRateLimitsDisplay from "@/components/sunshineDashboard/ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import { Typography } from "@/components/common/Typography";
+import SunshineSendMessageWithDefaults from "@/components/sunshineDashboard/SunshineSendMessageWithDefaults";
+import UserReviewStatus from "@/components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus";
+import ModeratorMessageCount from "@/components/sunshineDashboard/ModeratorMessageCount";
+import UserReviewMetadata from "@/components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata";
+import ModeratorActions from "@/components/sunshineDashboard/ModeratorActions";
+import NewUserDMSummary from "@/components/sunshineDashboard/ModeratorUserInfo/NewUserDMSummary";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,12 +114,6 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
     fetchPolicy: 'cache-and-network',
     limit: CONTENT_LIMIT
   });
-
-  const {
-    MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip, UserAutoRateLimitsDisplay,
-    Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, UserReviewMetadata, ModeratorActions, NewUserDMSummary
-  } = Components
-
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
   
@@ -175,3 +182,5 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
+
+export default SunshineNewUsersInfoComponent;

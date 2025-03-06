@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import LWTooltip from "@/components/common/LWTooltip";
 
 export const EMPTY_TEXT_PLACEHOLDER = "–";
 
@@ -35,7 +36,6 @@ const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const text = String(user[fieldName] || "").trim() || EMPTY_TEXT_PLACEHOLDER;
-  const {LWTooltip} = Components;
   return (
     <LWTooltip title={user[fieldName] ? String(user[fieldName]) : undefined}>
       <div className={classNames(classes.root, {
@@ -58,3 +58,5 @@ declare global {
     PeopleDirectoryTextCell: typeof PeopleDirectoryTextCellComponent
   }
 }
+
+export default PeopleDirectoryTextCellComponent;

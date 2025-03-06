@@ -7,6 +7,10 @@ import { useMessages } from '../common/withMessages';
 import Input from '@material-ui/core/Input';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { UserMultiselect } from "@/components/form-components/UserMultiselect";
+import LWDialog from "@/components/common/LWDialog";
+import { Loading } from "@/components/vulcan-core/Loading";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -50,7 +54,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
@@ -144,3 +147,5 @@ declare global {
     NewDialogueDialog: typeof NewDialogueDialogComponent
   }
 }
+
+export default NewDialogueDialogComponent;

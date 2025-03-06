@@ -4,6 +4,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
+import TabNavigationSubItem from "@/components/common/TabNavigationMenu/TabNavigationSubItem";
+import { MenuItem, MenuItemLink } from "@/components/common/Menus";
 
 const styles = ((theme: ThemeType) => ({
   menuItem: {
@@ -59,9 +61,6 @@ const SubforumsList = ({ onClick, classes }: {
   const initialResults = results.slice(0, INITIAL_LIMIT)
   const maybeHiddenResults = results.slice(INITIAL_LIMIT)
   const displayShowMoreOrLess = results.length > INITIAL_LIMIT
-
-  const { TabNavigationSubItem, MenuItem, MenuItemLink } = Components
-  
   const getListItem = (tag: TagSubforumSidebarFragment) => (
     <MenuItemLink
       key={tag._id}
@@ -99,3 +98,5 @@ declare global {
     SubforumsList: typeof SubforumsListComponent;
   }
 }
+
+export default SubforumsListComponent;

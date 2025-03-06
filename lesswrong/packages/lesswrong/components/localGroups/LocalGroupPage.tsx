@@ -16,7 +16,26 @@ import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@material-ui/icons/Person';
-
+import HeadTags from "@/components/common/HeadTags";
+import CommunityMapWrapper from "@/components/localGroups/CommunityMapWrapper";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
+import { Loading } from "@/components/vulcan-core/Loading";
+import SectionButton from "@/components/common/SectionButton";
+import SectionFooter from "@/components/common/SectionFooter";
+import GroupFormLink from "@/components/localGroups/GroupFormLink";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import Error404 from "@/components/common/Error404";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import EventCards from "@/components/events/modules/EventCards";
+import LoadMore from "@/components/common/LoadMore";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { Typography } from "@/components/common/Typography";
+import HoverOver from "@/components/common/HoverOver";
+import LocalGroupSubscribers from "@/components/localGroups/LocalGroupSubscribers";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -233,13 +252,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const {
-    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
-    Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
-    HoverOver, LocalGroupSubscribers, UsersNameDisplay,
-  } = Components
-
   const { document: group, loading: groupLoading } = useSingle({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
@@ -532,7 +544,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   target="_blank" rel="noopener noreferrer"
                   className={classes.externalLinkBtn}
                 >
-                  <Components.ForumIcon icon="Link" className={classes.linkIcon} />
+                  <ForumIcon icon="Link" className={classes.linkIcon} />
                   Explore our website
                 </Button>
               </div>}
@@ -569,3 +581,5 @@ declare global {
     LocalGroupPage: typeof LocalGroupPageComponent
   }
 }
+
+export default LocalGroupPageComponent;

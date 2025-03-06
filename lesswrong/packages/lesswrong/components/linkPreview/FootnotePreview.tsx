@@ -13,6 +13,11 @@ import { useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { SideItem } from "@/components/contents/SideItems";
+import SideItemLine from "@/components/contents/SideItemLine";
+import LWPopper from "@/components/common/LWPopper";
+import ContentItemBody from "@/components/common/ContentItemBody";
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -135,7 +140,6 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   rel?: string,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
@@ -282,7 +286,6 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   footnoteHTML: string,
   classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
@@ -369,3 +372,5 @@ declare global {
     FootnotePreview: typeof FootnotePreviewComponent
   }
 }
+
+export default FootnotePreviewComponent;

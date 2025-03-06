@@ -2,6 +2,7 @@ import React, { useRef, useEffect, RefObject } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import FooterTag from "@/components/tagging/FooterTag";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,8 +68,6 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   if (!tags?.length) {
     return null;
   }
-
-  const {FooterTag} = Components;
   return (
     <div className={classNames(classes.root, className)} ref={ref}>
       <span className={classNames(classes.item, classes.placeholder)} />
@@ -97,3 +96,5 @@ declare global {
     TruncatedTagsList: typeof TruncatedTagsListComponent
   }
 }
+
+export default TruncatedTagsListComponent;

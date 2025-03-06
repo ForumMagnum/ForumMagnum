@@ -6,6 +6,9 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   explanatoryText: {
@@ -32,7 +35,6 @@ const styles = (theme: ThemeType) => ({
 const UsersViewABTests = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();
@@ -103,3 +105,5 @@ declare global {
     UsersViewABTests: typeof UsersViewABTestsComponent
   }
 }
+
+export default UsersViewABTestsComponent;

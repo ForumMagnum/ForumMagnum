@@ -75,3 +75,5 @@ declare global {
     MigrationsDashboardRow: typeof MigrationsDashboardRowComponent
   }
 }
+
+export default MigrationsDashboardRowComponent;

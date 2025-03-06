@@ -11,6 +11,9 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {useMessages} from "../common/withMessages";
 import { FacebookIcon } from "../localGroups/GroupLinks";
 import { truncate } from '../../lib/editor/ellipsize';
+import GardenCodesEditForm from "@/components/walledGarden/GardenCodesEditForm";
+import LWTooltip from "@/components/common/LWTooltip";
+import ContentItemBody from "@/components/common/ContentItemBody";
 
 const iconStyling = {
   marginLeft: 2,
@@ -83,7 +86,6 @@ export const GardenCodesItem = ({classes, gardenCode}: {
   classes: ClassesType<typeof styles>,
   gardenCode: GardenCodeFragment
 }) => {
-  const { GardenCodesEditForm, LWTooltip, ContentItemBody } = Components
   const currentUser = useCurrentUser();
   const [editing, setEditing] = useState(false)
   const { flash } = useMessages();
@@ -145,3 +147,5 @@ declare global {
     GardenCodesItem: typeof GardenCodesItemComponent
   }
 }
+
+export default GardenCodesItemComponent;

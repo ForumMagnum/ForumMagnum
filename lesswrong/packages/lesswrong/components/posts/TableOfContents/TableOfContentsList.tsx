@@ -10,6 +10,8 @@ import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import TableOfContentsRow from "@/components/posts/TableOfContents/TableOfContentsRow";
+import AnswerTocRow from "@/components/posts/TableOfContents/AnswerTocRow";
 
 export interface ToCDisplayOptions {
   /**
@@ -65,9 +67,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       }
     }
   }
-
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
@@ -260,3 +259,5 @@ declare global {
     TableOfContentsList: typeof TableOfContentsListComponent
   }
 }
+
+export default TableOfContentsListComponent;

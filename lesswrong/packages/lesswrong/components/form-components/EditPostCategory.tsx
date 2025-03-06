@@ -85,3 +85,5 @@ declare global {
     EditPostCategory: typeof EditPostCategoryComponent;
   }
 }
+
+export default EditPostCategoryComponent;

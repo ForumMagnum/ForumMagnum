@@ -4,6 +4,10 @@ import { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -62,7 +66,6 @@ const ExpandableSection = ({
   classes,
   ...sectionTitleProps
 }: ExpandableSectionProps & {classes: ClassesType<typeof styles>}) => {
-  const {SingleColumnSection, SectionTitle, LWTooltip, ForumIcon} = Components;
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
       <SingleColumnSection>
@@ -116,3 +119,5 @@ declare global {
     ExpandableSection: typeof ExpandableSectionComponent
   }
 }
+
+export default ExpandableSectionComponent;

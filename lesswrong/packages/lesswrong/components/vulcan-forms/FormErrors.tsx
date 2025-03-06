@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import Alert from "@/components/vulcan-ui-bootstrap/ui/Alert";
+import FormError from "@/components/vulcan-forms/FormError";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,15 +16,15 @@ const FormErrors = ({ errors, classes }: {
 }) => (
   <div className={classNames(classes.root, "form-errors")}>
     {!!errors.length && (
-      <Components.Alert className="flash-message" variant="danger">
+      <Alert className="flash-message" variant="danger">
         <ul>
           {errors.map((error, index) => (
             <li key={index}>
-              <Components.FormError error={error} errorContext="form" />
+              <FormError error={error} errorContext="form" />
             </li>
           ))}
         </ul>
-      </Components.Alert>
+      </Alert>
     )}
   </div>
 );
@@ -33,3 +35,5 @@ declare global {
     FormErrors: typeof FormErrorsComponent
   }
 }
+
+export default FormErrorsComponent;

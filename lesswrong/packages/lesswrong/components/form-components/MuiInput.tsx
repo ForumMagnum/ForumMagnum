@@ -67,3 +67,5 @@ declare global {
     MuiInput: typeof MuiInputComponent
   }
 }
+
+export default MuiInputComponent;

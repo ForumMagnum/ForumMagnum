@@ -23,3 +23,5 @@ declare global {
   }
 }
 
+export default ReviewHeaderTitleComponent;
+

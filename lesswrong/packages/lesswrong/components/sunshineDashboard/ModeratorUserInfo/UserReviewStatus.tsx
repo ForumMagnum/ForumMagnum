@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import FormatDate from "@/components/common/FormatDate";
+import UsersNameWrapper from "@/components/users/UsersNameWrapper";
+import AltAccountInfo from "@/components/sunshineDashboard/ModeratorUserInfo/AltAccountInfo";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -20,8 +23,6 @@ export const UserReviewStatus = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { FormatDate, UsersNameWrapper, AltAccountInfo } = Components
-
   const approvalStatus = user.banned 
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
@@ -58,3 +59,5 @@ declare global {
     UserReviewStatus: typeof UserReviewStatusComponent
   }
 }
+
+export default UserReviewStatusComponent;

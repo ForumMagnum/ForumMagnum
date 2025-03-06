@@ -2,6 +2,10 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
+import EAOnboardingStage from "@/components/ea-forum/onboarding/EAOnboardingStage";
+import EAOnboardingTag from "@/components/ea-forum/onboarding/EAOnboardingTag";
+import EAOnboardingAuthor from "@/components/ea-forum/onboarding/EAOnboardingAuthor";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -52,10 +56,6 @@ export const EAOnboardingSubscribeStage = ({classes}: {
   const {tags, users} = useSuggestedSubscriptions();
 
   const canContinue = !!(subscribedTags.length || subscribedUsers.length);
-
-  const {
-    EAOnboardingStage, EAOnboardingTag, EAOnboardingAuthor, Loading,
-  } = Components;
   return (
     <EAOnboardingStage
       stageName="subscribe"
@@ -109,3 +109,5 @@ declare global {
     EAOnboardingSubscribeStage: typeof EAOnboardingSubscribeStageComponent
   }
 }
+
+export default EAOnboardingSubscribeStageComponent;

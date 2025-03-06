@@ -5,6 +5,7 @@ import { userIsPodcaster } from "../../../lib/vulcan-users/permissions";
 import { userIsSharedOn } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -18,8 +19,6 @@ const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   const link = (isEditor || isPodcaster)
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
     : `/collaborateOnPost?${qs.stringify({postId: post._id})}`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Edit"
@@ -39,3 +38,5 @@ declare global {
     EditPostDropdownItem: typeof EditPostDropdownItemComponent
   }
 }
+
+export default EditPostDropdownItemComponent;

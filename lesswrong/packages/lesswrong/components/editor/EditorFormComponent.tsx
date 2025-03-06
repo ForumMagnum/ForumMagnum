@@ -25,6 +25,12 @@ import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from './CKEditorPortalProvider';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import PostsEditBotTips from "@/components/posts/PostsEditBotTips";
+import { PostVersionHistoryButton } from "@/components/editor/PostVersionHistory";
+import EditorTypeSelect from "@/components/editor/EditorTypeSelect";
+import Editor from "@/components/editor/Editor";
+import LocalStorageCheck from "@/components/editor/LocalStorageCheck";
+import LastEditedInWarning from "@/components/editor/LastEditedInWarning";
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -480,19 +486,19 @@ export const EditorFormComponent = ({
 
   return <div className={classes.root}>
     {showEditorWarning &&
-      <Components.LastEditedInWarning
+      <LastEditedInWarning
         initialType={initialEditorType}
         currentType={contents.type}
         defaultType={defaultEditorType}
         value={contents} setValue={wrappedSetContents}
       />
     }
-    {!isCollabEditor &&<Components.LocalStorageCheck
+    {!isCollabEditor &&<LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
     />}
     <CKEditorPortalProvider>
-    <Components.Editor
+    <Editor
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
@@ -520,16 +526,16 @@ export const EditorFormComponent = ({
     />
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" &&
-      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+      <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
     }
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-      <Components.PostVersionHistoryButton
+      <PostVersionHistoryButton
         post={document}
         postId={document._id}
       />
     }
     <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
-      {(state) => <Components.PostsEditBotTips
+      {(state) => <PostsEditBotTips
         handleDismiss={handleDismissCriticismTips}
         postId={document._id}
         className={classes[`${state}BotTips`]}
@@ -554,3 +560,5 @@ declare global {
     EditorFormComponent: typeof EditorFormComponentComponent
   }
 }
+
+export default EditorFormComponentComponent;

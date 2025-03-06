@@ -86,3 +86,5 @@ declare global {
     ToggleSwitch: typeof ToggleSwitchComponent
   }
 }
+
+export default ToggleSwitchComponent;

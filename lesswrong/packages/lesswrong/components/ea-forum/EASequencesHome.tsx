@@ -1,6 +1,13 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SequencesNewButton from "@/components/sequences/SequencesNewButton";
+import { Typography } from "@/components/common/Typography";
+import EACoreReading from "@/components/sequences/EACoreReading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SequencesGridWrapper from "@/components/sequences/SequencesGridWrapper";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -15,8 +22,6 @@ export const eaSequencesHomeDescription = "Featured readings and collections of 
 const EASequencesHome = ({classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
-
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
       <SectionTitle title="Core Reading" />
@@ -32,7 +37,7 @@ const EASequencesHome = ({classes}: {
         </Typography>
       </ContentStyles>
       <div>
-        <Components.SequencesGridWrapper
+        <SequencesGridWrapper
           terms={{'view': 'communitySequences', limit: 12}}
           showAuthor={true}
           showLoadMore={true}
@@ -49,3 +54,5 @@ declare global {
     EASequencesHome: typeof EASequencesHomeComponent
   }
 }
+
+export default EASequencesHomeComponent;

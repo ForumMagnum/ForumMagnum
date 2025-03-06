@@ -5,6 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@material-ui/icons/CropSquare';
 import range from 'lodash/range';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,9 +39,6 @@ export const ReviewProgressVoting = ({classes, reviewYear}: {
 }) => {
 
   const currentUser = useCurrentUser()
-
-  const { LWTooltip } = Components
-
   const { results: reviewsResults, totalCount } = useMulti({
     terms: {
       view: "reviewVotesFromUser",
@@ -79,4 +77,6 @@ declare global {
     ReviewProgressVoting: typeof ReviewProgressVotingComponent
   }
 }
+
+export default ReviewProgressVotingComponent;
 

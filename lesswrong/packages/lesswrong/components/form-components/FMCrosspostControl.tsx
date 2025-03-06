@@ -14,6 +14,7 @@ import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,9 +65,6 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   });
 
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
-
-  const {Loading} = Components;
-  
   if (!document || loading) {
     return <Loading/>
   }
@@ -90,8 +88,6 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
   onClickUnlink: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Loading} = Components;
-
   if (loading) {
     return (
       <Loading />
@@ -220,3 +216,5 @@ declare global {
     FMCrosspostControl: typeof FMCrosspostControlComponent
   }
 }
+
+export default FMCrosspostControlComponent;

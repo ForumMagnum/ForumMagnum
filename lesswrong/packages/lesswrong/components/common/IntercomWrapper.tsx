@@ -67,3 +67,5 @@ declare global {
     IntercomWrapper: typeof IntercomWrapperComponent
   }
 }
+
+export default IntercomWrapperComponent;

@@ -6,6 +6,8 @@ import classNames from "classnames";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { Loading } from "@/components/vulcan-core/Loading";
+import IntercomFeedbackButton from "@/components/common/IntercomFeedbackButton";
 
 const WIDTH = 250;
 
@@ -94,8 +96,6 @@ const PostSideRecommendations = ({post, className, classes}: {
   if (!loading && items.length < 1) {
     return null;
   }
-
-  const {Loading, IntercomFeedbackButton} = Components;
   return (
     <AnalyticsContext pageSectionContext="postSideRecommendations">
       <div className={classNames(classes.root, className)}>
@@ -126,3 +126,5 @@ declare global {
     PostSideRecommendations: typeof PostSideRecommendationsComponent
   }
 }
+
+export default PostSideRecommendationsComponent;

@@ -28,6 +28,36 @@ import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
+import SunshineNewUsersProfileInfo from "@/components/sunshineDashboard/SunshineNewUsersProfileInfo";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import LWTooltip from "@/components/common/LWTooltip";
+import SortButton from "@/components/icons/SortButton";
+import NewConversationButton from "@/components/messaging/NewConversationButton";
+import TagEditsByUser from "@/components/tagging/TagEditsByUser";
+import LoadMore from "@/components/common/LoadMore";
+import PostsList2 from "@/components/posts/PostsList2";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { Loading } from "@/components/vulcan-core/Loading";
+import Error404 from "@/components/common/Error404";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import HeadTags from "@/components/common/HeadTags";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import EAUsersProfileTabbedSection from "@/components/ea-forum/users/modules/EAUsersProfileTabbedSection";
+import PostsListSettings from "@/components/posts/PostsListSettings";
+import RecentComments from "@/components/comments/RecentComments";
+import SectionButton from "@/components/common/SectionButton";
+import SequencesGridWrapper from "@/components/sequences/SequencesGridWrapper";
+import ReportUserButton from "@/components/users/ReportUserButton";
+import DraftsList from "@/components/posts/DraftsList";
+import ProfileShortform from "@/components/shortform/ProfileShortform";
+import EAUsersProfileImage from "@/components/ea-forum/users/EAUsersProfileImage";
+import EAUsersMetaInfo from "@/components/ea-forum/users/EAUsersMetaInfo";
+import EAUsersProfileLinks from "@/components/ea-forum/users/EAUsersProfileLinks";
+import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
+import FooterTag from "@/components/tagging/FooterTag";
+import DisplayNameWithMarkers from "@/components/ea-forum/users/DisplayNameWithMarkers";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -260,16 +290,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     enableTotal: true,
     skip: !user
   })
-
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
-    SortButton, NewConversationButton, TagEditsByUser, LoadMore,
-    PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-    Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
-    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers, ForumIcon,
-  } = Components
-
   if (loading) {
     return <Loading/>
   }
@@ -294,7 +314,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       // Anyone else gets a 404 here
       // eslint-disable-next-line no-console
       console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
-      return <Components.Error404/>
+      return <Error404/>
     }
   }
 
@@ -575,3 +595,5 @@ declare global {
     FriendlyUsersProfile: typeof FriendlyUsersProfileComponent
   }
 }
+
+export default FriendlyUsersProfileComponent;

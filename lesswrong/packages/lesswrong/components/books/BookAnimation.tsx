@@ -285,3 +285,5 @@ declare global {
     BookAnimation: typeof BookAnimationComponent
   }
 }
+
+export default BookAnimationComponent;

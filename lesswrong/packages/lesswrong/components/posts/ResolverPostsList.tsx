@@ -2,6 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnMountTracking, useTracking } from "../../lib/analyticsEvents";
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsItem from "@/components/posts/PostsItem";
+import LoadMore from "@/components/common/LoadMore";
+import SectionFooter from "@/components/common/SectionFooter";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,8 +21,6 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
   fallbackText?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, PostsItem, LoadMore, SectionFooter } = Components;
-
   const { results, loading, loadMoreProps } = usePaginatedResolver({
     resolverName, 
     fragmentName: "PostsListWithVotes",
@@ -62,4 +64,6 @@ declare global {
     ResolverPostsList: typeof ResolverPostsListComponent
   }
 }
+
+export default ResolverPostsListComponent;
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const readPostStyle = (theme: ThemeType) => ({
   background: theme.palette.grey[405],
@@ -52,7 +53,6 @@ export const PostInteractionStripe = ({classes, post}: {
   classes: ClassesType<typeof styles>,
   post: PostsListWithVotes
 }) => {
-  const {LWTooltip} = Components
   const interaction = post.currentUserVote || (post.lastVisitedAt ? 'readPost' : null)
 
   if (!isInteractionKey(interaction)) return null
@@ -69,4 +69,6 @@ declare global {
     PostInteractionStripe: typeof PostInteractionStripeComponent
   }
 }
+
+export default PostInteractionStripeComponent;
 

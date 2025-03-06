@@ -10,6 +10,12 @@ import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
+import LWDialog from "@/components/common/LWDialog";
+import { SideItem } from "@/components/contents/SideItems";
+import SideItemLine from "@/components/contents/SideItemLine";
+import LWPopper from "@/components/common/LWPopper";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import CommentWithReplies from "@/components/comments/CommentWithReplies";
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
@@ -118,8 +124,6 @@ const SideCommentDialog = ({ commentIds, post, onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof dialogStyles>
 }) => {
-  const { SideCommentHover, LWDialog } = Components;
-
   return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
     <SideCommentHover commentIds={commentIds} post={post} closeDialog={onClose} />
   </LWDialog>;
@@ -130,8 +134,6 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType<typeof styles>
 }) => {
-  const {SideItem, SideItemLine} = Components;
-
   const { openDialog } = useDialog();
 
   const openModal = () => {
@@ -157,7 +159,6 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType<typeof styles>
 }) => {
-  const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -229,8 +230,6 @@ const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
   closeDialog?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideCommentSingle } = Components;
-  
   // If there's only one comment (not counting replies to that comment), don't
   // truncate it with a read more.
   const dontTruncateRoot = (commentIds.length === 1); 
@@ -257,9 +256,6 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
-  
-  const { CommentWithReplies } = Components;
-  
   const { bestResult: comment, fetchedResult: { document: loadedComment } } = useSingleWithPreload({
     collectionName: 'Comments',
     fragmentName: 'CommentWithRepliesFragment',
@@ -349,4 +345,11 @@ declare global {
     SideCommentHover: typeof SideCommentHoverComponent
     SideCommentSingle: typeof SideCommentSingleComponent
   }
+}
+
+export {
+  SideCommentIconComponent as SideCommentIcon,
+  SideCommentDialogComponent as SideCommentDialog,
+  SideCommentHoverComponent as SideCommentHover,
+  SideCommentSingleComponent as SideCommentSingle
 }

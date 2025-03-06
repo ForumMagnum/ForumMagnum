@@ -5,6 +5,8 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import type { TooltipProps } from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -46,7 +48,6 @@ const BookmarkButton = ({
 }) => {
   const {icon, labelText, hoverText, toggleBookmark} = useBookmarkPost(post);
   const Component = withText ? "a" : "span";
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip title={hoverText} placement={withText ? "bottom" : placement}>
       <Component onClick={toggleBookmark} className={classNames({
@@ -73,3 +74,5 @@ declare global {
     BookmarkButton: typeof BookmarkButtonComponent
   }
 }
+
+export default BookmarkButtonComponent;

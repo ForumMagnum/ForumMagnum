@@ -3,6 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
+import SectionFooterCheckbox from "@/components/form-components/SectionFooterCheckbox";
+import RecentComments from "@/components/comments/RecentComments";
+import LWTooltip from "@/components/common/LWTooltip";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -31,9 +38,6 @@ const Reviews2018 = ({classes}: {
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
   const [sortReviews, setSortReviews] = useState<CommentSortingMode>("new")
   const [sortNominations, setSortNominations] = useState<CommentSortingMode>("top")
-
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
-
   const handleSetExpandUnread = () => {
     void updateCurrentUser({
       noExpandUnreadCommentsReview: expandUnread,
@@ -113,4 +117,6 @@ declare global {
     Reviews2018: typeof Reviews2018Component
   }
 }
+
+export default Reviews2018Component;
 

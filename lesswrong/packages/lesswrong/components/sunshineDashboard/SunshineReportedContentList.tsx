@@ -2,6 +2,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import SunshineListTitle from "@/components/sunshineDashboard/SunshineListTitle";
+import SunshineReportedItem from "@/components/sunshineDashboard/SunshineReportedItem";
+import SunshineListCount from "@/components/sunshineDashboard/SunshineListCount";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,8 +17,6 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineListTitle, SunshineReportedItem, SunshineListCount, LoadMore } = Components
-  
   const { results, totalCount, loadMoreProps, refetch } = useMulti({
     terms: {view:"sunshineSidebarReports", limit: 30},
     collectionName: "Reports",
@@ -57,4 +59,6 @@ declare global {
     SunshineReportedContentList: typeof SunshineReportedContentListComponent
   }
 }
+
+export default SunshineReportedContentListComponent;
 

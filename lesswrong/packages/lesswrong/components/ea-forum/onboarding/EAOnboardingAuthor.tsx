@@ -5,6 +5,7 @@ import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -74,8 +75,6 @@ export const EAOnboardingAuthor = ({user, onSubscribed, classes}: {
   useEffect(() => {
     onSubscribed?.(_id, subscribed);
   }, [_id, subscribed, onSubscribed]);
-
-  const {UsersProfileImage} = Components;
   return (
     <div
       onClick={toggleSubscribed}
@@ -112,3 +111,5 @@ declare global {
     EAOnboardingAuthor: typeof EAOnboardingAuthorComponent
   }
 }
+
+export default EAOnboardingAuthorComponent;

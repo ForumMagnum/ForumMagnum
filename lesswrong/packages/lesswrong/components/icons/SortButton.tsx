@@ -47,3 +47,5 @@ declare global {
     SortButton: typeof SortButtonComponent
   }
 }
+
+export default SortButtonComponent;

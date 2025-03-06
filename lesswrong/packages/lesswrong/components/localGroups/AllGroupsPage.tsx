@@ -1,13 +1,14 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import LocalGroupsList from "@/components/localGroups/LocalGroupsList";
 
 const AllGroupsPage = () => {
-  const { SingleColumnSection, SectionTitle } = Components
-
   return (
     <SingleColumnSection>
       <SectionTitle title="All Groups"/>
-      <Components.LocalGroupsList
+      <LocalGroupsList
         terms={{view: "all", limit: 1000}}
       />
     </SingleColumnSection>
@@ -21,4 +22,6 @@ declare global {
     AllGroupsPage: typeof AllGroupsPageComponent
   }
 }
+
+export default AllGroupsPageComponent;
 

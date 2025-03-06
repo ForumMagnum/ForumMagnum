@@ -8,6 +8,8 @@ import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   voteBlock: {
@@ -83,7 +85,6 @@ const PostsVoteDefault = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
 
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -189,3 +190,5 @@ declare global {
     PostsVoteDefault: typeof PostsVoteDefaultComponent
   }
 }
+
+export default PostsVoteDefaultComponent;

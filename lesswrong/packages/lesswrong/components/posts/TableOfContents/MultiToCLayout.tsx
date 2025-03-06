@@ -4,6 +4,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
+import LWCommentCount from "@/components/posts/TableOfContents/LWCommentCount";
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
@@ -176,7 +177,6 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   answerCount?: number,
   commentCount?: number,
 }) => {
-  const { LWCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)
@@ -237,4 +237,6 @@ declare global {
     MultiToCLayout: typeof MultiToCLayoutComponent
   }
 }
+
+export default MultiToCLayoutComponent;
 

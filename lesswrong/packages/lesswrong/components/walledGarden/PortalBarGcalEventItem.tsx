@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import LWTooltip from "@/components/common/LWTooltip";
 
 export const eventRoot = (theme: ThemeType) => ({
   ...theme.typography.commentStyle,
@@ -57,8 +58,6 @@ const styles = (theme: ThemeType) => ({
 
 
 export const getAddToCalendarLink = (gcalEvent: AnyBecauseTodo) => {
-  const { LWTooltip } = Components
-  
   const UrlClass = getUrlClass()
   const url = new UrlClass(gcalEvent.htmlLink)
   const eid = url.searchParams.get("eid")
@@ -100,3 +99,5 @@ declare global {
     PortalBarGcalEventItem: typeof PortalBarGcalEventItemComponent
   }
 }
+
+export default PortalBarGcalEventItemComponent;

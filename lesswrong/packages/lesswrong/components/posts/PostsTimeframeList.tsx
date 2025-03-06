@@ -8,6 +8,8 @@ import { useTimezone } from '../common/withTimezone';
 import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
+import PostsTimeBlock from "@/components/posts/PostsTimeBlock";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   loading: {
@@ -79,9 +81,6 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
       setDim(false);
     }
   }
-
-  const { PostsTimeBlock, Typography } = Components
-
   const timeBlock = timeframeToTimeBlock[timeframe]
   const dates = getDateRange(afterState, beforeState, timeBlock)
   const orderedDates = reverse ? dates.reverse() : dates
@@ -162,3 +161,5 @@ declare global {
     PostsTimeframeList: typeof PostsTimeframeListComponent
   }
 }
+
+export default PostsTimeframeListComponent;

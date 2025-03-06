@@ -1,5 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dialogPaper: {
@@ -25,8 +27,6 @@ const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentStyles, LWDialog } = Components;
-
   return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
     <ContentStyles contentType="postHighlight" className={classes.content}>
       <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
@@ -42,4 +42,6 @@ declare global {
     FootnoteDialog: typeof FootnoteDialogComponent
   }
 }
+
+export default FootnoteDialogComponent;
 

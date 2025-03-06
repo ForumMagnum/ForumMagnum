@@ -71,3 +71,5 @@ declare global {
   }
 }
 
+export default SearchPaginationComponent;
+

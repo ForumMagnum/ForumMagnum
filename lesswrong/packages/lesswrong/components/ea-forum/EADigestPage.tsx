@@ -11,6 +11,14 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import Error404 from "@/components/common/Error404";
+import HeadTags from "@/components/common/HeadTags";
+import PostsLoading from "@/components/posts/PostsLoading";
+import EAPostsItem from "@/components/posts/EAPostsItem";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -221,11 +229,6 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       }
     }
   }
-  
-  const {
-    Error404, HeadTags, PostsLoading, EAPostsItem, CloudinaryImage2, ForumIcon, LWTooltip, EAButton
-  } = Components;
-  
   // TODO: Probably we'll want to check the publishedDate instead of the endDate, but we haven't been using it.
   // If we do start using it, we'll need to backfill the publishedDate values and update this condition.
   const isPublished = digest && digest.endDate
@@ -331,3 +334,5 @@ declare global {
     EADigestPage: typeof EADigestPageComponent;
   }
 }
+
+export default EADigestPageComponent;

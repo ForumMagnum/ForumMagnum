@@ -15,6 +15,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import LWTooltip from "@/components/common/LWTooltip";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -162,8 +166,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsResults: PostsList[]|null,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentStyles, LWTooltip, Loading, MenuItem, } = Components
-
   const accountSettings = preferredHeadingCase("Account Settings");
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
@@ -293,3 +295,5 @@ declare global {
     ReviewVotingPageMenu: typeof ReviewVotingPageMenuComponent
   }
 }
+
+export default ReviewVotingPageMenuComponent;

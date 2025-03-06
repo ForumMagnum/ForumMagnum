@@ -21,3 +21,5 @@ declare global {
     SeparatorBullet: typeof SeparatorBulletComponent
   }
 }
+
+export default SeparatorBulletComponent;

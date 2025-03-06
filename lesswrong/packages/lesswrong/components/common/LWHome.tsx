@@ -10,6 +10,17 @@ import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
+import RecentDiscussionFeed from "@/components/recentDiscussion/RecentDiscussionFeed";
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import FrontpageReviewWidget from "@/components/review/FrontpageReviewWidget";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import FrontpageBestOfLWWidget from "@/components/review/FrontpageBestOfLWWidget";
+import EAPopularCommentsSection from "@/components/ea-forum/EAPopularCommentsSection";
+import { FundraisingThermometer } from "@/components/common/FundraisingThermometer";
+import QuickTakesSection from "@/components/quickTakes/QuickTakesSection";
+import LWHomePosts from "@/components/common/LWHomePosts";
+import HeadTags from "@/components/common/HeadTags";
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -40,11 +51,6 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
-    QuickTakesSection, LWHomePosts, HeadTags
-  } = Components;
-
   const currentUser = useCurrentUser();
 
   return (
@@ -101,3 +107,5 @@ declare global {
     LWHome: typeof LWHomeComponent
   }
 }
+
+export default LWHomeComponent;

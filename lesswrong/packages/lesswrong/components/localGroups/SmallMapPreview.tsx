@@ -5,6 +5,8 @@ import { Helmet, componentWithChildren } from '../../lib/utils/componentsWithChi
 import { useMapStyle } from '../hooks/useMapStyle';
 import BadlyTypedReactMapGL from 'react-map-gl';
 import without from 'lodash/without';
+import LocalGroupMarker from "@/components/localGroups/LocalGroupMarker";
+import LocalEventMarker from "@/components/localGroups/LocalEventMarker";
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 
@@ -63,7 +65,7 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
         onViewportChange={setViewport}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
       >
-        {post && <Components.LocalEventMarker
+        {post && <LocalEventMarker
           key={post._id}
           event={post}
           location={post.googleLocation}
@@ -71,7 +73,7 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
           handleInfoWindowClose={onInfoWindowClose}
           infoOpen={openWindows.includes(post._id)}
         /> }
-        {group && <Components.LocalGroupMarker
+        {group && <LocalGroupMarker
           key={group._id}
           group={group}
           location={group.googleLocation}
@@ -91,3 +93,5 @@ declare global {
     SmallMapPreview: typeof SmallMapPreviewComponent
   }
 }
+
+export default SmallMapPreviewComponent;

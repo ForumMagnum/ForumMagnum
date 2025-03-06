@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "./withUser";
 import classNames from "classnames";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,7 +31,6 @@ const IntercomFeedbackButton = ({
 }) => {
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
-  const {LWTooltip} = Components;
   const onClick = useCallback(() => {
     // eslint-disable-next-line babel/new-cap
     window.Intercom("trackEvent", eventName);
@@ -60,3 +60,5 @@ declare global {
     IntercomFeedbackButton: typeof IntercomFeedbackButtonComponent
   }
 }
+
+export default IntercomFeedbackButtonComponent;

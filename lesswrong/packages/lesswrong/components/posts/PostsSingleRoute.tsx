@@ -1,14 +1,16 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import Error404 from "@/components/common/Error404";
+import PostsPageWrapper from "@/components/posts/PostsPage/PostsPageWrapper";
 
 const PostsSingleRoute = () => {
   const { currentRoute, query } = useLocation();
   const version = query?.revision
   if (currentRoute?._id) {
-    return <Components.PostsPageWrapper documentId={currentRoute._id} sequenceId={null} version={version} />
+    return <PostsPageWrapper documentId={currentRoute._id} sequenceId={null} version={version} />
   } else {
-    return <Components.Error404/>
+    return <Error404/>
   }
 };
 
@@ -19,3 +21,5 @@ declare global {
     PostsSingleRoute: typeof PostsSingleRouteComponent
   }
 }
+
+export default PostsSingleRouteComponent;

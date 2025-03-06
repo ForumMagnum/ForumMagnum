@@ -7,6 +7,7 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,8 +78,6 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const {CommentsNewForm} = Components;
-
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
   }
@@ -132,3 +131,5 @@ declare global {
     NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionFormComponent
   }
 }
+
+export default NewAnswerCommentQuestionFormComponent;

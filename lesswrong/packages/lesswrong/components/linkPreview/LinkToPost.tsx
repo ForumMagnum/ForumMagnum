@@ -4,6 +4,7 @@ import { linkStyle } from './PostLinkPreview';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
@@ -21,8 +22,6 @@ const LinkToPost = ({post, classes}: {
   if (!post) {
     return <span>[Deleted]</span>
   }
-
-  const {PostsTooltip} = Components;
   const visited = post?.isRead;
   return (
     <PostsTooltip post={post} placement="bottom-start" clickable>
@@ -40,3 +39,5 @@ declare global {
     LinkToPost: typeof LinkToPostComponent
   }
 }
+
+export default LinkToPostComponent;

@@ -70,3 +70,5 @@ declare global {
     PostsGroupDetails: typeof PostsGroupDetailsComponent
   }
 }
+
+export default PostsGroupDetailsComponent;

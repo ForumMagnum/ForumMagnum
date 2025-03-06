@@ -57,3 +57,5 @@ declare global {
     SidebarsWrapper: typeof SidebarsWrapperComponent
   }
 }
+
+export default SidebarsWrapperComponent;

@@ -27,3 +27,5 @@ declare global {
   }
 }
 
+export default RowComponent;
+

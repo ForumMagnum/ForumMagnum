@@ -4,6 +4,9 @@ import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
+import UsersName from "@/components/users/UsersName";
+import UserNameDeleted from "@/components/users/UserNameDeleted";
+import UserCommentMarkers from "@/components/users/UserCommentMarkers";
 
 const styles = (theme: ThemeType) => ({
   lengthLimited: {
@@ -58,9 +61,6 @@ const PostsUserAndCoauthors = ({
   showMarkers?: boolean,
 }) => {
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
-
-  const {UsersName, UserNameDeleted, UserCommentMarkers} = Components
-
   if (isAnon)
     return <UserNameDeleted/>;
 
@@ -89,3 +89,5 @@ declare global {
     PostsUserAndCoauthors: typeof PostsUserAndCoauthorsComponent
   }
 }
+
+export default PostsUserAndCoauthorsComponent;

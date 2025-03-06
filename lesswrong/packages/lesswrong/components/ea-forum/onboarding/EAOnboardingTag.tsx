@@ -4,6 +4,8 @@ import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const TAG_SIZE = 103;
 
@@ -95,7 +97,6 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   );
 
   const {name, squareImageId, bannerImageId} = tag;
-  const {CloudinaryImage2, ForumIcon} = Components;
   return (
     <div onClick={toggleSubscribed} className={classes.root}>
       <CloudinaryImage2
@@ -132,3 +133,5 @@ declare global {
     EAOnboardingTag: typeof EAOnboardingTagComponent
   }
 }
+
+export default EAOnboardingTagComponent;

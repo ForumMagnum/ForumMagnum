@@ -6,6 +6,12 @@ import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import UsersName from "@/components/users/UsersName";
+import FormatDate from "@/components/common/FormatDate";
+import PostsList2 from "@/components/posts/PostsList2";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import TagDiscussionButton from "@/components/tagging/TagDiscussionButton";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,7 +45,6 @@ const NewTagItem = ({tag, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const tagUrl = tagGetUrl(tag);
-  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton, ContentStyles} = Components;
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
   
@@ -98,3 +103,5 @@ declare global {
     NewTagItem: typeof NewTagItemComponent
   }
 }
+
+export default NewTagItemComponent;

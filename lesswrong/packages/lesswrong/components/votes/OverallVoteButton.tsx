@@ -6,6 +6,8 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { recombeeApi } from '../../lib/recombee/client';
 import { RecombeeRecommendationsContext } from '../recommendations/RecombeeRecommendationsContextWrapper';
 import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import VoteArrowIcon from "@/components/votes/VoteArrowIcon";
+import VoteButton from "@/components/votes/VoteButton";
 
 export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   vote?: (props: {
@@ -54,8 +56,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     }
   }
 
-  return <Components.VoteButton
-    VoteIconComponent={Components.VoteArrowIcon}
+  return <VoteButton
+    VoteIconComponent={VoteArrowIcon}
     vote={wrappedVote}
     currentStrength={
       (document.currentUserVote === "big"+upOrDown)
@@ -82,3 +84,5 @@ declare global {
     OverallVoteButton: typeof OverallVoteButtonComponent
   }
 }
+
+export default OverallVoteButtonComponent;

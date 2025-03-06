@@ -2,6 +2,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
+import UserNameDeleted from "@/components/users/UserNameDeleted";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.
@@ -24,11 +27,11 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
     fragmentName: 'UsersMinimumInfo',
   });
   if (!document && loading) {
-    return <Components.Loading />
+    return <Loading />
   } else if (document) {
-    return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
+    return <UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
   } else {
-    return <Components.UserNameDeleted/>
+    return <UserNameDeleted/>
   }
 };
 
@@ -39,3 +42,5 @@ declare global {
     UsersNameWrapper: typeof UsersNameWrapperComponent
   }
 }
+
+export default UsersNameWrapperComponent;

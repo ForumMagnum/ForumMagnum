@@ -4,6 +4,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
+import { Loading } from "@/components/vulcan-core/Loading";
+import CommentsList from "@/components/comments/CommentsList";
+import SubSection from "@/components/common/SubSection";
+import CommentOnPostWithReplies from "@/components/comments/CommentOnPostWithReplies";
+import LoadMore from "@/components/common/LoadMore";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -43,9 +49,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
     fetchPolicy: 'cache-and-network',
     limit: 5
   });
-  
-  const { Loading, CommentsList, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
-  
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)
@@ -101,3 +104,5 @@ declare global {
     ReviewPostComments: typeof ReviewPostCommentsComponent
   }
 }
+
+export default ReviewPostCommentsComponent;

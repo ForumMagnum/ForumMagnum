@@ -9,6 +9,12 @@ import { useNavigate } from "../../lib/routeUtil";
 import type { Hit } from "react-instantsearch-core";
 import Chip from "@material-ui/core/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
+import LWDialog from "@/components/common/LWDialog";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import ExpandedUsersConversationSearchHit from "@/components/search/ExpandedUsersConversationSearchHit";
+import ForumIcon from "@/components/common/ForumIcon";
+import { Typography } from "@/components/common/Typography";
+import EAButton from "@/components/ea-forum/EAButton";
 
 const styles = (theme: ThemeType) => ({
   paper: {
@@ -160,14 +166,6 @@ const NewConversationDialog = ({
   classes: ClassesType<typeof styles>
   onClose: () => void;
 }) => {
-  const {
-    LWDialog,
-    ErrorBoundary,
-    ExpandedUsersConversationSearchHit,
-    ForumIcon,
-    Typography,
-    EAButton
-  } = Components;
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();
@@ -287,3 +285,5 @@ declare global {
     NewConversationDialog: typeof NewConversationDialogComponent;
   }
 }
+
+export default NewConversationDialogComponent;

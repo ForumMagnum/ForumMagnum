@@ -11,6 +11,14 @@ import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import AllTagsAlphabetical from "@/components/tagging/AllTagsAlphabetical";
+import SectionButton from "@/components/common/SectionButton";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import TagTableOfContents from "@/components/tagging/TagTableOfContents";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,9 +63,6 @@ const AllTagsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { tag, loading } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
-
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, ToCColumn, TagTableOfContents, Loading } = Components;
-
   let sectionTitle = forumSelect({
     EAForum: 'EA Forum Wiki',
     default: 'Concepts Portal'
@@ -151,3 +156,5 @@ declare global {
     AllTagsPage: typeof AllTagsPageComponent
   }
 }
+
+export default AllTagsPageComponent;

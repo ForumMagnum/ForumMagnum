@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import DebateResponse from "@/components/comments/DebateResponse";
 
 const styles = (theme: ThemeType) => ({
   divider: {
@@ -32,8 +33,6 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   daySeparator?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponse } = Components;
-
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
@@ -58,3 +57,5 @@ declare global {
     DebateResponseBlock: typeof DebateResponseBlockComponent
   }
 }
+
+export default DebateResponseBlockComponent;

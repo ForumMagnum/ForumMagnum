@@ -1,6 +1,9 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
+import SingleUsersItem from "@/components/form-components/SingleUsersItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +23,7 @@ const styles = (theme: ThemeType) => ({
 export const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+      <SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -33,14 +36,14 @@ const UserMultiselect = ({value, setValue, label, classes}: {
 }) => {
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.UsersSearchAutoComplete
+      <ErrorBoundary>
+        <UsersSearchAutoComplete
           clickAction={(userId: string) => {
             setValue([...value, userId]);
           }}
           label={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       <SortableList
         axis="xy"
         value={value}
@@ -62,7 +65,7 @@ const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
     void updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
-  return <Components.UserMultiselect
+  return <UserMultiselect
     value={value}
     setValue={setValue}
     label={label}
@@ -77,4 +80,9 @@ declare global {
     UserMultiselect: typeof UserMultiselectComponent
     FormUserMultiselect: typeof FormUserMultiselectComponent
   }
+}
+
+export {
+  UserMultiselectComponent as UserMultiselect,
+  FormUserMultiselectComponent as FormUserMultiselect
 }

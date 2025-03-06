@@ -8,22 +8,34 @@ import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import RecentDiscussionSubscribeReminder from "@/components/recentDiscussion/RecentDiscussionSubscribeReminder";
+import EARecentDiscussionTagRevision from "@/components/recentDiscussion/EARecentDiscussionTagRevision";
+import EARecentDiscussionTagCommented from "@/components/recentDiscussion/EARecentDiscussionTagCommented";
+import EARecentDiscussionQuickTake from "@/components/recentDiscussion/EARecentDiscussionQuickTake";
+import EARecentDiscussionThread from "@/components/recentDiscussion/EARecentDiscussionThread";
+import RecentDiscussionMeetupsPoke from "@/components/recentDiscussion/RecentDiscussionMeetupsPoke";
+import RecentDiscussionTagRevisionItem from "@/components/recentDiscussion/RecentDiscussionTagRevisionItem";
+import RecentDiscussionTag from "@/components/recentDiscussion/RecentDiscussionTag";
+import RecentDiscussionThread from "@/components/recentDiscussion/RecentDiscussionThread";
 
 const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
-    ThreadComponent: Components.RecentDiscussionThread,
-    ShortformComponent: Components.RecentDiscussionThread,
-    TagCommentedComponent: Components.RecentDiscussionTag,
-    TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
-    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
+    ThreadComponent: RecentDiscussionThread,
+    ShortformComponent: RecentDiscussionThread,
+    TagCommentedComponent: RecentDiscussionTag,
+    TagRevisionComponent: RecentDiscussionTagRevisionItem,
+    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: RecentDiscussionMeetupsPoke,
   },
   default: {
-    ThreadComponent: Components.EARecentDiscussionThread,
-    ShortformComponent: Components.EARecentDiscussionQuickTake,
-    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
-    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
-    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    ThreadComponent: EARecentDiscussionThread,
+    ShortformComponent: EARecentDiscussionQuickTake,
+    TagCommentedComponent: EARecentDiscussionTagCommented,
+    TagRevisionComponent: EARecentDiscussionTagRevision,
+    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
     MeetupsPokeComponent: () => null,
   },
 });
@@ -57,14 +69,6 @@ const RecentDiscussionFeed = ({
     },
     [setShowShortformFeed, showShortformFeed]
   );
-
-  const {
-    SingleColumnSection,
-    SectionTitle,
-    MixedTypeFeed,
-    AnalyticsInViewTracker,
-  } = Components;
-
   const refetch = useCallback(() => {
     if (refetchRef.current)
       void refetchRef.current();
@@ -173,3 +177,5 @@ declare global {
     RecentDiscussionFeed: typeof RecentDiscussionFeedComponent,
   }
 }
+
+export default RecentDiscussionFeedComponent;

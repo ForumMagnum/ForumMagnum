@@ -5,6 +5,7 @@ import {
   eaEmojiPalette,
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,7 +54,6 @@ const PaletteSection: FC<{
   onSelectEmoji: (emojiOption: EmojiOption) => void,
   classes: ClassesType<typeof styles>,
 }> = ({title, options, onSelectEmoji, classes}) => {
-  const {SectionTitle} = Components;
   return (
     <>
       <SectionTitle
@@ -113,3 +113,5 @@ declare global {
     EAEmojiPalette: typeof EAEmojiPaletteComponent
   }
 }
+
+export default EAEmojiPaletteComponent;

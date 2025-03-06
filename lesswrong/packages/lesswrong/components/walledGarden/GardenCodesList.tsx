@@ -2,6 +2,8 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
+import GardenCodesItem from "@/components/walledGarden/GardenCodesItem";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -14,7 +16,6 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   limit?: number,
   personal?: boolean
 }) => {
-  const { GardenCodesItem, LoadMore } = Components
   const currentUser = useCurrentUser()
   
   const terms: GardenCodesViewTerms = personal ?
@@ -48,3 +49,5 @@ declare global {
     GardenCodesList: typeof GardenCodesListComponent
   }
 }
+
+export default GardenCodesListComponent;

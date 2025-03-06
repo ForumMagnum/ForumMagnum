@@ -39,3 +39,5 @@ declare global {
     TagPageTitle: typeof TagPageTitleComponent
   }
 }
+
+export default TagPageTitleComponent;

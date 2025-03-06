@@ -3,6 +3,10 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from "./helpers";
 import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
+import PostExcerpt from "@/components/common/excerpts/PostExcerpt";
+import EAPostMeta from "@/components/ea-forum/EAPostMeta";
+import TruncatedTagsList from "@/components/tagging/TruncatedTagsList";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,8 +73,6 @@ const EAPostsPreviewTooltip = ({
 
   const showSubheaderInfo = !postsList;
   const {imageUrl} = post.socialPreviewData ?? {};
-
-  const {PostExcerpt, EAPostMeta, TruncatedTagsList, CommentsNode} = Components;
   return (
     <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <div className={classes.root}>
@@ -139,3 +141,5 @@ declare global {
     EAPostsPreviewTooltip: typeof EAPostsPreviewTooltipComponent
   }
 }
+
+export default EAPostsPreviewTooltipComponent;

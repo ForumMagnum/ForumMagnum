@@ -5,6 +5,10 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import SectionFooter from "@/components/common/SectionFooter";
 
 export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject',false) // enables UI for 2022 LW April Fools
 
@@ -79,8 +83,6 @@ const styles = (theme: ThemeType) => ({
 export const AprilFools2022 = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
-
   const {results} = useMulti({
       terms: {
         // view: 'usersByGoodHeartTokens'
@@ -143,4 +145,6 @@ declare global {
     AprilFools2022: typeof AprilFools2022Component
   }
 }
+
+export default AprilFools2022Component;
 

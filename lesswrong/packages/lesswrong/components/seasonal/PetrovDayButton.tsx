@@ -16,6 +16,9 @@ import {
 } from "../../lib/petrovHelpers";
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';
+import LWTooltip from "@/components/common/LWTooltip";
+import LoginPopupButton from "@/components/users/LoginPopupButton";
+import { Typography } from "@/components/common/Typography";
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -161,9 +164,6 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   );
   
   const { flash } = useMessages();
-  
-  const { LWTooltip, LoginPopupButton, Typography } = Components
-
   const updateCurrentUser = useUpdateCurrentUser();
   
   const pressButton = () => {
@@ -284,4 +284,6 @@ declare global {
     PetrovDayButton: typeof PetrovDayButtonComponent
   }
 }
+
+export default PetrovDayButtonComponent;
 

@@ -55,3 +55,5 @@ declare global {
     LinkPostMessage: typeof LinkPostMessageComponent
   }
 }
+
+export default LinkPostMessageComponent;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import CoreTagCard from "@/components/tagging/CoreTagCard";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,9 +40,6 @@ const CoreTagsSection = ({classes}: {
 
   const [showAll, setShowAll] = useState(false);
   const resultsToDisplay = showAll ? results : results?.slice(0, INITIAL_LIMIT);
-
-  const { CoreTagCard } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="coreTagsSection">
       <div className={classes.root}>
@@ -67,3 +65,5 @@ declare global {
     CoreTagsSection: typeof CoreTagsSectionComponent
   }
 }
+
+export default CoreTagsSectionComponent;

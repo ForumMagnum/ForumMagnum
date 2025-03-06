@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
+import TagsChecklist from "@/components/tagging/TagsChecklist";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (_theme: ThemeType) => ({
   tagContainer: {
@@ -39,8 +41,6 @@ const FormComponentQuickTakesTags = ({
   useEffect(() => {
     void updateCurrentValues({[path]: selectedTagIds})
   }, [updateCurrentValues, path, selectedTagIds])
-
-  const {TagsChecklist, Loading} = Components;
   return <div className={classes.tagContainer}>
     <span className={classes.tagLabel}>Set topic</span>
     {loading
@@ -76,3 +76,5 @@ declare global {
     FormComponentQuickTakesTags: typeof FormComponentQuickTakesTagsComponent
   }
 }
+
+export default FormComponentQuickTakesTagsComponent;

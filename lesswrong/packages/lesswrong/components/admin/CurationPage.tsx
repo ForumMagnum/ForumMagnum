@@ -7,6 +7,14 @@ import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUt
 import { unflattenComments } from '@/lib/utils/unflatten';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import SunshineCuratedSuggestionsList from "@/components/sunshineDashboard/SunshineCuratedSuggestionsList";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import BasicFormStyles from "@/components/form-components/BasicFormStyles";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import CurationNoticesItem from "@/components/admin/CurationNoticesItem";
+import CommentsList from "@/components/comments/CommentsList";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -24,9 +32,6 @@ export const CurationPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-
-  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
-
   const [post, setPost] = useState<PostsList|null>(null)
 
   const { results: curationNotices = [], loading } = useMulti({
@@ -90,3 +95,5 @@ declare global {
     CurationPage: typeof CurationPageComponent
   }
 }
+
+export default CurationPageComponent;

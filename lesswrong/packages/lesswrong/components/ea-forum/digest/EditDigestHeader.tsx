@@ -5,6 +5,12 @@ import moment from 'moment';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import EAButton from "@/components/ea-forum/EAButton";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { DatePicker } from "@/components/form-components/FormComponentDateTime";
+import ForumIcon from "@/components/common/ForumIcon";
+import FormComponentColorPicker from "@/components/form-components/FormComponentColorPicker";
+import ImageUpload2 from "@/components/form-components/ImageUpload2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -126,9 +132,6 @@ export const EditDigestHeader = ({digest, classes}: {
       data
     });
   }
-
-  const {EAButton, SectionTitle, DatePicker, ForumIcon, FormComponentColorPicker, ImageUpload2} = Components;
-
   const startNode = isEditingStartDate
     ? (
       <div className={classes.datePicker}>
@@ -229,3 +232,5 @@ declare global {
     EditDigestHeader: typeof EditDigestHeaderComponent
   }
 }
+
+export default EditDigestHeaderComponent;

@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,8 +43,6 @@ const PasswordResetPage = ({classes}: {
     const result = await emailTokenMutation({token, args: { password }})
     setUseTokenResult(result?.data?.useEmailToken)
   }
-  const { SingleColumnSection } = Components;
-  
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection className={classes.root}>
     {!useTokenResult && <> 
@@ -61,3 +60,5 @@ declare global {
     PasswordResetPage: typeof PasswordResetPageComponent
   }
 }
+
+export default PasswordResetPageComponent;

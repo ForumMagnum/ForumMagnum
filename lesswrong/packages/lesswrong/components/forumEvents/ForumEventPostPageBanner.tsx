@@ -8,6 +8,9 @@ import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const BANNER_HEIGHT = 60;
 
@@ -78,8 +81,6 @@ export const ForumEventPostPageBanner = ({classes}: {
   }
 
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
-
-  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
       {postPageDescription?.html &&
@@ -111,3 +112,5 @@ declare global {
     ForumEventPostPageBanner: typeof ForumEventPostPageBannerComponent
   }
 }
+
+export default ForumEventPostPageBannerComponent;

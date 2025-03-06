@@ -4,13 +4,12 @@ import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const MoveToDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
-  const {DropdownItem} = Components;
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -45,3 +44,5 @@ declare global {
     MoveToDraftDropdownItem: typeof MoveToDraftDropdownItemComponent
   }
 }
+
+export default MoveToDraftDropdownItemComponent;

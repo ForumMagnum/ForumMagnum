@@ -3,7 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useMessages } from "../common/withMessages";
 import { makeLinkAbsolute } from "./GardenCodesItem";
-
+import ContentItemBody from "@/components/common/ContentItemBody";
+import LWTooltip from "@/components/common/LWTooltip";
+import { Typography } from "@/components/common/Typography";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,7 +35,6 @@ const styles = (theme: ThemeType) => ({
 
 export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCodeFragment, classes: ClassesType<typeof styles>}) => {
   const { flash } = useMessages();
-  const { ContentItemBody, LWTooltip, Typography, FormatDate } = Components
   const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
   
   return <div className={classes.root}>
@@ -67,3 +69,5 @@ declare global {
     GardenEventDetails: typeof GardenEventDetailsComponent
   }
 }
+
+export default GardenEventDetailsComponent;

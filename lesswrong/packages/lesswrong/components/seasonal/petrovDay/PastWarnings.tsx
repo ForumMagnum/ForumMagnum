@@ -59,3 +59,5 @@ declare global {
     PastWarnings: typeof PastWarningsComponent
   }
 }
+
+export default PastWarningsComponent;

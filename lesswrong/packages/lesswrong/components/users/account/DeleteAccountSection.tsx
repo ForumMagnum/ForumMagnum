@@ -5,6 +5,8 @@ import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
+import { ActionButtonSection } from "@/components/users/account/ActionButtonSection";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -24,7 +26,6 @@ const DeleteAccountSection = ({
   user: UsersEdit,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ActionButtonSection, FormatDate } = Components;
   const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
@@ -106,3 +107,7 @@ declare global {
 }
 
 export default DeleteAccountSectionComponent;
+
+export {
+  DeleteAccountSectionComponent as DeleteAccountSection
+}

@@ -88,3 +88,5 @@ declare global {
   }
 }
 
+export default PostsItemCommentsComponent;
+

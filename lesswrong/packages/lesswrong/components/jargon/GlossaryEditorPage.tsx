@@ -4,6 +4,15 @@ import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
+import GlossaryEditForm from "@/components/jargon/GlossaryEditForm";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import PostsTitle from "@/components/posts/PostsTitle";
+import LoadMore from "@/components/common/LoadMore";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import Row from "@/components/common/Row";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,10 +49,6 @@ export const GlossaryEditorPage = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsEditQueryFragment',
   })
-
-  const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles, ErrorAccessDenied, Row, UsersNameDisplay } = Components
-  
-
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }
@@ -81,3 +86,5 @@ declare global {
     GlossaryEditorPage: typeof GlossaryEditorPageComponent
   }
 }
+
+export default GlossaryEditorPageComponent;

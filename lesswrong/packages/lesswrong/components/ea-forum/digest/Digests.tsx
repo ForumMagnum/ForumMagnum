@@ -5,6 +5,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { getDigestInfo } from '../../../lib/collections/digests/helpers';
+import Error404 from "@/components/common/Error404";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,9 +39,6 @@ const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
     limit: 100,
     skip: !userIsAdmin(currentUser)
   })
-  
-  const { Error404, SectionTitle } = Components
-  
   if (!userIsAdmin(currentUser)) {
     return <Error404 />
   }
@@ -79,3 +78,5 @@ declare global {
     Digests: typeof DigestsComponent
   }
 }
+
+export default DigestsComponent;

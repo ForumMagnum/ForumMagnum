@@ -6,6 +6,8 @@ import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
+import OverallVoteButton from "@/components/votes/OverallVoteButton";
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -57,7 +59,6 @@ const LWPostsPageTopHeaderVote = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
 
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
@@ -138,3 +139,5 @@ declare global {
     LWPostsPageTopHeaderVote: typeof PostsSplashPageHeaderVoteComponent
   }
 }
+
+export default PostsSplashPageHeaderVoteComponent;

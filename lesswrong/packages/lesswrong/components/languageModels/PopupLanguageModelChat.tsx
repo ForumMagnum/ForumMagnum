@@ -9,6 +9,9 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
+import { LanguageModelChat } from "@/components/languageModels/LanguageModelChat";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,8 +88,6 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LanguageModelChat, LWTooltip, ForumIcon } = Components;
-
   const { currentConversation } = useLlmChat();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
   const expanded = cookies[LLM_CHAT_EXPANDED] === "true";
@@ -132,3 +133,5 @@ declare global {
     PopupLanguageModelChat: typeof PopupLanguageModelChatComponent
   }
 }
+
+export default PopupLanguageModelChatComponent;

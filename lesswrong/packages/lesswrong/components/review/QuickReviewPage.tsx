@@ -6,7 +6,10 @@ import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';
-
+import PostsItem from "@/components/posts/PostsItem";
+import SectionFooter from "@/components/common/SectionFooter";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostInteractionStripe from "@/components/review/PostInteractionStripe";
 
 const styles = (theme: ThemeType) => ({
   root: { 
@@ -62,8 +65,6 @@ export const QuickReviewPage = ({classes, reviewYear}: {
     itemsPerPage: 1000,
     skip: !reviewYear
   });
-
-  const { PostsItem, SectionFooter, Loading, PostInteractionStripe } = Components
 
   function comparePosts(post1: PostsReviewVotingList, post2: PostsReviewVotingList) {
     const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore ?? 0
@@ -132,3 +133,5 @@ declare global {
     QuickReviewPage: typeof QuickReviewPageComponent
   }
 }
+
+export default QuickReviewPageComponent;

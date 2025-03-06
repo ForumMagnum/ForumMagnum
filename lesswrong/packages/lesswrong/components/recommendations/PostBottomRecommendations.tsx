@@ -7,6 +7,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
+import PostsLoading from "@/components/posts/PostsLoading";
+import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
+import EAPostsItem from "@/components/posts/EAPostsItem";
+import EALargePostsItem from "@/components/posts/EALargePostsItem";
+import UserTooltip from "@/components/users/UserTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,11 +96,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
 
   const hasUserPosts = post.user &&
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
-
-  const {
-    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip
-  } = Components;
-
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
@@ -181,3 +181,5 @@ declare global {
     PostBottomRecommendations: typeof PostBottomRecommendationsComponent
   }
 }
+
+export default PostBottomRecommendationsComponent;

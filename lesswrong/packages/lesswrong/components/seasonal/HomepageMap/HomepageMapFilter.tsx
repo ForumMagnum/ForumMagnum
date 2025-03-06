@@ -13,6 +13,7 @@ import { captureEvent } from '../../../lib/analyticsEvents';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -101,9 +102,6 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
-  const { LWTooltip } = Components
-
   return <Paper>
     <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you." placement="left">
       <div className={classNames(classes.section, classes.title)}>
@@ -139,4 +137,6 @@ declare global {
     HomepageMapFilter: typeof HomepageMapFilterComponent
   }
 }
+
+export default HomepageMapFilterComponent;
 

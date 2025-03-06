@@ -6,6 +6,10 @@ import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
+import { SectionTitle } from "@/components/common/SectionTitle";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import PostsItem from "@/components/posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -68,8 +72,6 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components
-
   const { document: postVoting } = useSingle({
     documentId: "zajNa9fdr8JYJpxrG",
     collectionName: "Posts",
@@ -97,4 +99,6 @@ declare global {
     FrontpageBestOfLWWidget: typeof FrontpageBestOfLWWidgetComponent
   }
 }
+
+export default FrontpageBestOfLWWidgetComponent;
 

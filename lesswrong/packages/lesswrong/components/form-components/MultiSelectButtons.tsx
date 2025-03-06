@@ -87,3 +87,5 @@ declare global {
     MultiSelectButtons: typeof MultiSelectButtonsComponent
   }
 }
+
+export default MultiSelectButtonsComponent;

@@ -9,6 +9,11 @@ import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
+import CommentFrame from "@/components/comments/CommentFrame";
+import SingleLineComment from "@/components/comments/SingleLineComment";
+import CommentsItem from "@/components/comments/CommentsItem/CommentsItem";
+import RepliesToCommentList from "@/components/shortform/RepliesToCommentList";
+import AnalyticsTracker from "@/components/common/AnalyticsTracker";
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -256,9 +261,6 @@ const CommentsNode = ({
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
-
-  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
-
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
@@ -267,7 +269,7 @@ const CommentsNode = ({
   const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
     <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
     {showExtraChildrenButton}
-    {childComments.map(child => <Components.CommentsNode
+    {childComments.map(child => <CommentsNode
       isChild={true}
       treeOptions={treeOptions}
       comment={child.item}
@@ -360,3 +362,5 @@ declare global {
     CommentsNode: typeof CommentsNodeComponent,
   }
 }
+
+export default CommentsNodeComponent;

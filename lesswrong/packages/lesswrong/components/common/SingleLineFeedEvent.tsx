@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import Paper from '@material-ui/core/Paper';
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {
@@ -67,8 +68,7 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
-  const { LWTooltip } = Components;
-  
+
   function handleClick() {
     if (expands) {
       setExpanded?.(true);
@@ -104,3 +104,5 @@ declare global {
     SingleLineFeedEvent: typeof SingleLineFeedEventComponent
   }
 }
+
+export default SingleLineFeedEventComponent;

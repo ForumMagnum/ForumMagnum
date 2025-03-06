@@ -3,6 +3,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { PeopleDirectoryProvider } from "./usePeopleDirectory";
 import { Link } from "../../lib/reactRouterWrapper";
+import PeopleDirectoryMainSearch from "@/components/peopleDirectory/PeopleDirectoryMainSearch";
+import PeopleDirectoryFilters from "@/components/peopleDirectory/PeopleDirectoryFilters";
+import PeopleDirectoryResults from "@/components/peopleDirectory/PeopleDirectoryResults";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,9 +40,6 @@ const styles = (theme: ThemeType) => ({
 const PeopleDirectoryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    PeopleDirectoryMainSearch, PeopleDirectoryFilters, PeopleDirectoryResults,
-  } = Components;
   return (
     <AnalyticsContext pageContext="peopleDirectory">
       <div className={classes.root}>
@@ -77,3 +77,5 @@ declare global {
     PeopleDirectoryPage: typeof PeopleDirectoryPageComponent
   }
 }
+
+export default PeopleDirectoryPageComponent;

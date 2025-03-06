@@ -4,6 +4,9 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Input from '@material-ui/core/Input';
+import LWDialog from "@/components/common/LWDialog";
+import Button from "@/components/vulcan-ui-bootstrap/ui/Button";
+import { Typography } from "@/components/common/Typography";
 
 const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   root: {
@@ -35,7 +38,6 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
     collectionName: "ElicitQuestions",
     fragmentName: "ElicitQuestionFragment",
   });
-  const { LWDialog, Button, Typography } = Components;
 
   function submit() {
     void (async () => {
@@ -87,5 +89,9 @@ declare global {
   interface ComponentTypes {
     CreateClaimDialog: typeof CreateClaimDialogComponent
   }
+}
+
+export {
+  CreateClaimDialogComponent as CreateClaimDialog
 }
 

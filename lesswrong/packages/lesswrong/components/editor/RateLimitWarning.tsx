@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import AlarmIcon from '@material-ui/icons/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import WarningBanner from "@/components/common/WarningBanner";
 
 const styles = (theme: ThemeType) => ({
   lwBanner: {
@@ -29,8 +32,6 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   rateLimitMessage?: string,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentStyles, ContentItemBody } = Components
-
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
     const now = moment()
@@ -60,7 +61,7 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 
   if (isFriendlyUI) {
-    return <Components.WarningBanner message={message}/>
+    return <WarningBanner message={message}/>
   } else {
     return <ContentStyles contentType="comment" className={classes.lwBanner}>
       <AlarmIcon className={classes.icon} />
@@ -76,3 +77,5 @@ declare global {
     RateLimitWarning: typeof RateLimitWarningComponent
   }
 }
+
+export default RateLimitWarningComponent;

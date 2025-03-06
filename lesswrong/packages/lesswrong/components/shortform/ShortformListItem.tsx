@@ -8,6 +8,12 @@ import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
+import LWPopper from "@/components/common/LWPopper";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
+import UsersName from "@/components/users/UsersName";
+import FooterTag from "@/components/tagging/FooterTag";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,11 +110,6 @@ const ShortformListItem = ({comment, hideTag, classes}: {
     showCollapseButtons: true,
     onToggleCollapsed: () => wrappedSetExpanded(!expanded),
   };
-
-  const {
-    LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode
-  } = Components;
-
   if (expanded) {
     return (
       <div className={classes.expandedRoot}>
@@ -207,3 +208,5 @@ declare global {
     ShortformListItem: typeof ShortformListItemComponent,
   }
 }
+
+export default ShortformListItemComponent;

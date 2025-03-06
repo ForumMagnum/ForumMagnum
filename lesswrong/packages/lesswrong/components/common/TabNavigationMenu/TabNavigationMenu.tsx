@@ -9,6 +9,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import TabNavigationItem from "@/components/common/TabNavigationMenu/TabNavigationItem";
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -66,7 +67,6 @@ const TabNavigationMenu = ({
 }) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}
   
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
@@ -118,3 +118,5 @@ declare global {
     TabNavigationMenu: typeof TabNavigationMenuComponent
   }
 }
+
+export default TabNavigationMenuComponent;

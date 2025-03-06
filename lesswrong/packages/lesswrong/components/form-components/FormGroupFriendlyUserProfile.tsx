@@ -58,3 +58,5 @@ declare global {
     FormGroupFriendlyUserProfile: typeof FormGroupFriendlyUserProfileComponent
   }
 }
+
+export default FormGroupFriendlyUserProfileComponent;

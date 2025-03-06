@@ -10,6 +10,12 @@ import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
+import WrappedStrawPoll from "@/components/common/WrappedStrawPoll";
+import ElicitBlock from "@/components/posts/ElicitBlock";
+import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
+import CollapsedFootnotes from "@/components/posts/PostsPage/CollapsedFootnotes";
+import HorizScrollBlock from "@/components/common/HorizScrollBlock";
+import ConditionalVisibilityBlockDisplay from "@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay";
 
 interface ExternalProps {
   /**
@@ -290,9 +296,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       }
 
       const BlockContents = rawExtractElementChildrenToReactComponent(block)
-      this.replaceElement(block, <Components.ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+      this.replaceElement(block, <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
         <BlockContents/>
-      </Components.ConditionalVisibilityBlockDisplay>);
+      </ConditionalVisibilityBlockDisplay>);
     }
   }
   
@@ -300,9 +306,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   // <HorizScrollBlock>.
   addHorizontalScrollIndicators = (block: HTMLElement) => {
     const ScrollableContents = rawExtractElementChildrenToReactComponent(block)
-    this.replaceElement(block, <Components.HorizScrollBlock>
+    this.replaceElement(block, <HorizScrollBlock>
       <ScrollableContents/>
-    </Components.HorizScrollBlock>);
+    </HorizScrollBlock>);
   };
 
   forwardAttributes = (node: HTMLElement|Element) => {
@@ -332,7 +338,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         innerHTML = `<section>${innerHTML}</section>`;
       }
       const collapsedFootnotes = (
-        <Components.CollapsedFootnotes
+        <CollapsedFootnotes
           footnotesHtml={innerHTML}
           attributes={this.forwardAttributes(footnotes)}
         />
@@ -351,7 +357,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
       const id = linkTag.getAttribute("id") ?? undefined;
       const rel = linkTag.getAttribute("rel") ?? undefined;
-      const replacementElement = <Components.HoverPreviewLink
+      const replacementElement = <HoverPreviewLink
         href={href}
         contentSourceDescription={this.props.description}
         id={id}
@@ -359,7 +365,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         noPrefetch={this.props.noHoverPreviewPrefetch}
       >
         <TagLinkContents/>
-      </Components.HoverPreviewLink>
+      </HoverPreviewLink>
       this.replaceElement(linkTag, replacementElement);
     }
   }
@@ -368,7 +374,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     const elicitBlocks = this.getElementsByClassname(element, "elicit-binary-prediction");
     for (const elicitBlock of elicitBlocks) {
       if (elicitBlock.dataset?.elicitId) {
-        const replacementElement = <Components.ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
+        const replacementElement = <ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
         this.replaceElement(elicitBlock, replacementElement)
       }
     }
@@ -395,7 +401,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       const id = strawpollBlock.getAttribute("id");
       const iframe = strawpollBlock.getElementsByTagName("iframe");
       const iframeSrc = iframe[0]?.getAttribute("src") ?? "";
-      const replacementElement = <Components.WrappedStrawPoll id={id} src={iframeSrc} />
+      const replacementElement = <WrappedStrawPoll id={id} src={iframeSrc} />
       this.replaceElement(strawpollBlock, replacementElement)
     }
   }
@@ -641,4 +647,6 @@ declare global {
     ContentItemBody: typeof ContentItemBodyComponent
   }
 }
+
+export default ContentItemBodyComponent;
 

@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import ForumEventFrontpageBanner from "@/components/forumEvents/ForumEventFrontpageBanner";
+import ForumEventPostPageBanner from "@/components/forumEvents/ForumEventPostPageBanner";
 
 type BannerType = "frontpage" | "postpage";
 
@@ -14,7 +16,6 @@ const bannerTypes: Record<string, BannerType> = {
 export const ForumEventBanner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
-  const {ForumEventFrontpageBanner, ForumEventPostPageBanner} = Components;
   const {currentForumEvent} = useCurrentForumEvent();
   
   if (!hasForumEvents) {
@@ -56,3 +57,5 @@ declare global {
     ForumEventBanner: typeof ForumEventBannerComponent
   }
 }
+
+export default ForumEventBannerComponent;

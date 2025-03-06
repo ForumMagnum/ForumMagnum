@@ -63,3 +63,5 @@ declare global {
   }
 }
 
+export default UserPageTitleComponent;
+

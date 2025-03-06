@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import { useHover } from './withHover';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import LWPopper from "@/components/common/LWPopper";
 
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
@@ -115,9 +116,6 @@ const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement
       title,
     },
   });
-
-  const { LWPopper } = Components;
-
   return (
     <span className={classes.container}>
       {everHovered &&
@@ -150,3 +148,5 @@ declare global {
     NewFeatureTooltip: typeof NewFeatureTooltipComponent
   }
 }
+
+export default NewFeatureTooltipComponent;

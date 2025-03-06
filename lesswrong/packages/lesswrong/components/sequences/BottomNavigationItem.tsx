@@ -5,6 +5,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
+import LoginToTrack from "@/components/sequences/LoginToTrack";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,7 +68,6 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
-  const { LoginToTrack } = Components
   const commentCount = postGetCommentCount(post) || "No"
   const url = postGetPageUrl(post, false, sequence?._id);
   
@@ -100,4 +100,6 @@ declare global {
     BottomNavigationItem: typeof BottomNavigationItemComponent
   }
 }
+
+export default BottomNavigationItemComponent;
 

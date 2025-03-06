@@ -3,6 +3,9 @@ import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   authors: {
@@ -39,7 +42,6 @@ const WrappedMostReadAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {mostReadAuthors, postsReadCount}} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="mostReadAuthors">
       <WrappedHeading>
@@ -53,7 +55,7 @@ const WrappedMostReadAuthorSection = ({classes}: {
       <div className={classes.authors}>
         {mostReadAuthors.map((author) => {
           return <article key={author.slug} className={classes.author}>
-            <Components.UsersProfileImage size={40} user={author} />
+            <UsersProfileImage size={40} user={author} />
             <div>
               <h3 className={classes.authorName}>
                 <Link to={getUserProfileLink(author.slug, year)} target="_blank">
@@ -82,3 +84,5 @@ declare global {
     WrappedMostReadAuthorSection: typeof WrappedMostReadAuthorSectionComponent
   }
 }
+
+export default WrappedMostReadAuthorSectionComponent;

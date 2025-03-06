@@ -4,6 +4,9 @@ import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LWTooltip from "@/components/common/LWTooltip";
+import LoadMore from "@/components/common/LoadMore";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,7 +118,6 @@ const TagsChecklist = ({
   smallText?: boolean,
   shortNames?: boolean,
 }) => {
-  const { LWTooltip, LoadMore, ForumIcon } = Components;
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
@@ -215,3 +217,5 @@ declare global {
     TagsChecklist: typeof TagsChecklistComponent
   }
 }
+
+export default TagsChecklistComponent;

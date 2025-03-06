@@ -46,3 +46,5 @@ declare global {
     CalendlyIFrame: typeof CalendlyIFrameComponent
   }
 }
+
+export default CalendlyIFrameComponent;

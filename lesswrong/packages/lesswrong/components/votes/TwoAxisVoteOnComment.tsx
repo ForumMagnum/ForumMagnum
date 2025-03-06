@@ -2,6 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
+import OverallVoteAxis from "@/components/votes/OverallVoteAxis";
+import AgreementVoteAxis from "@/components/votes/AgreementVoteAxis";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,8 +17,6 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
 
 const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem);
-  const { OverallVoteAxis, AgreementVoteAxis } = Components;
-  
   return <span className={classes.root}>
     <OverallVoteAxis
       document={document}
@@ -40,3 +40,5 @@ declare global {
     TwoAxisVoteOnComment: typeof TwoAxisVoteOnCommentComponent
   }
 }
+
+export default TwoAxisVoteOnCommentComponent;

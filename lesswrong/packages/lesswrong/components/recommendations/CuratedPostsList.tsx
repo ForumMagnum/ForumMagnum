@@ -5,6 +5,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isEAForum } from "../../lib/instanceSettings";
 import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import PostsList2 from "@/components/posts/PostsList2";
 
 const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
@@ -14,7 +15,7 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
 
   return (
     <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
-      <Components.PostsList2
+      <PostsList2
         terms={{
           view: "curated",
           limit: overrideLimit ?? currentCuratedPostCount,
@@ -39,3 +40,5 @@ declare global {
     CuratedPostsList: typeof CuratedPostsListComponent
   }
 }
+
+export default CuratedPostsListComponent;

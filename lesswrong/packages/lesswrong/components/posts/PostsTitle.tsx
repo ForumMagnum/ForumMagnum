@@ -12,6 +12,9 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { PostsItemIcons, CuratedIcon } from "@/components/posts/PostsItemIcons";
+import ForumIcon from "@/components/common/ForumIcon";
+import TagsTooltip from "@/components/tagging/TagsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -199,8 +202,6 @@ const PostsTitle = ({
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
   const taggedEvent = useTaggedEvent(showEventTag ?? false, post);
-  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
-
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
@@ -282,3 +283,5 @@ declare global {
     PostsTitle: typeof PostsTitleComponent
   }
 }
+
+export default PostsTitleComponent;

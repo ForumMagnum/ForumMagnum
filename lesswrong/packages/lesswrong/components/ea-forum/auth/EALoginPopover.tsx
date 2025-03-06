@@ -9,6 +9,10 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
 import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
+import BlurredBackgroundModal from "@/components/common/BlurredBackgroundModal";
+import ForumIcon from "@/components/common/ForumIcon";
+import EAButton from "@/components/ea-forum/EAButton";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -355,8 +359,6 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     : "Welcome back";
 
   const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
-
-  const {BlurredBackgroundModal, ForumIcon, EAButton, Loading} = Components;
   return (
     <BlurredBackgroundModal open={open} onClose={onClose} className={classes.root}>
       <AnalyticsContext pageElementContext="loginPopover">
@@ -503,3 +505,5 @@ declare global {
     EALoginPopover: typeof EALoginPopoverComponent
   }
 }
+
+export default EALoginPopoverComponent;

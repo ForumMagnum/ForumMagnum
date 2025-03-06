@@ -21,3 +21,5 @@ declare global {
     TimeTag: typeof TimeTagComponent
   }
 }
+
+export default TimeTagComponent;

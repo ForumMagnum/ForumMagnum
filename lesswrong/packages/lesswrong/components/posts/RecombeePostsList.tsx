@@ -10,6 +10,10 @@ import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import LoadMore from "@/components/common/LoadMore";
+import PostsItem from "@/components/posts/PostsItem";
+import SectionFooter from "@/components/common/SectionFooter";
+import PostsLoading from "@/components/posts/PostsLoading";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -125,8 +129,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
-
   const [loadMoreCount, setLoadMoreCount] = useState(1);
   const currentUser = useCurrentUser();
 
@@ -242,3 +244,5 @@ declare global {
     RecombeePostsList: typeof RecombeePostsListComponent
   }
 }
+
+export default RecombeePostsListComponent;

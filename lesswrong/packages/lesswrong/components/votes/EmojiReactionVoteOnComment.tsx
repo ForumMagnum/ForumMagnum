@@ -7,6 +7,8 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { VotingProps } from './votingProps';
+import PopperCard from "@/components/common/PopperCard";
+import OverallVoteAxis from "@/components/votes/OverallVoteAxis";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,9 +122,6 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover()
-  
-  const { PopperCard } = Components
-  
   // Only show the +reaction icon if there aren't any reactions yet.
   // Icon borrowed from here: https://iconduck.com/icons/67395/emoji-add
   const hasReactions = emojiReactions.some(reaction => voteProps.document?.extendedScore?.[reaction.name])
@@ -154,9 +153,6 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
 
 const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
   const voteProps = useVote(document, collectionName, votingSystem)
-  
-  const { OverallVoteAxis } = Components
-  
   return <span className={classes.root}>
     <OverallVoteAxis
       document={document}
@@ -175,4 +171,6 @@ declare global {
     EmojiReactionVoteOnComment: typeof EmojiReactionVoteOnCommentComponent
   }
 }
+
+export default EmojiReactionVoteOnCommentComponent;
 

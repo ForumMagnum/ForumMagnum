@@ -2,6 +2,9 @@ import React from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib/components"
 import { styles as metaInfoStyles } from "../common/MetaInfo"
 import { isFriendlyUI } from "@/themes/forumTheme";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +38,6 @@ const UserMentionHit = ({hit, classes}: {
   hit: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {MetaInfo, FormatDate, ForumIcon} = Components;
   const icon = isFriendlyUI
     ? <ForumIcon icon="UserOutline" className={classes.icon} />
     : "👤";
@@ -61,3 +63,5 @@ declare global {
     UserMentionHit: typeof UserMentionHitComponent
   }
 }
+
+export default UserMentionHitComponent;

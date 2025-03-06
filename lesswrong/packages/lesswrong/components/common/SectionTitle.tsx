@@ -109,3 +109,7 @@ declare global {
 }
 
 export default SectionTitleComponent;
+
+export {
+  SectionTitleComponent as SectionTitle
+}

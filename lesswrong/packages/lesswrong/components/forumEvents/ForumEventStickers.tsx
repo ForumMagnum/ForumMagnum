@@ -16,6 +16,8 @@ import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
+import ForumEventCommentForm from "@/components/forumEvents/ForumEventCommentForm";
+import ForumEventSticker from "@/components/forumEvents/ForumEventSticker";
 
 const styles = (theme: ThemeType) => ({
   stickersContainer: {
@@ -63,8 +65,6 @@ const removeForumEventStickerQuery = gql`
 const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
-  const { ForumEventCommentForm, ForumEventSticker } = Components;
-
   const { currentForumEvent, refetch } = useCurrentForumEvent();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
@@ -329,3 +329,5 @@ declare global {
     ForumEventStickers: typeof ForumEventStickersComponent;
   }
 }
+
+export default ForumEventStickersComponent;

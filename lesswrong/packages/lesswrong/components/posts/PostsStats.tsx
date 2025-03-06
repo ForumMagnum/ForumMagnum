@@ -36,3 +36,5 @@ declare global {
     PostsStats: typeof PostsStatsComponent
   }
 }
+
+export default PostsStatsComponent;

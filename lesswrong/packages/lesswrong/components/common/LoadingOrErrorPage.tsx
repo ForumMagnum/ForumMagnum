@@ -1,5 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ErrorPage from "@/components/common/ErrorPage";
+import Error404 from "@/components/common/Error404";
 
 /**
  * A component for handling the case where you have a page that loads something
@@ -20,8 +24,6 @@ const LoadingOrErrorPage = ({loading, error}: {
   loading: boolean
   error: any
 }) => {
-  const {SingleColumnSection, Loading, ErrorPage, Error404} = Components;
-
   if (loading) {
     return <SingleColumnSection>
       <Loading/>
@@ -40,4 +42,6 @@ declare global {
     LoadingOrErrorPage: typeof LoadingOrErrorPageComponent
   }
 }
+
+export default LoadingOrErrorPageComponent;
 

@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import SequencesSearchAutoComplete from "@/components/search/SequencesSearchAutoComplete";
+import SequencesListEditorItem from "@/components/form-components/SequencesListEditorItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +18,7 @@ const styles = (theme: ThemeType) => ({
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
+      <SequencesListEditorItem documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
@@ -32,7 +34,7 @@ const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormCo
       }}
       classes={classes}
     />
-    <Components.SequencesSearchAutoComplete
+    <SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {
         void updateCurrentValues({ [path]: [...value, sequenceId] });
       }}
@@ -54,3 +56,5 @@ declare global {
     SequencesListEditor: typeof SequencesListEditorComponent
   }
 }
+
+export default SequencesListEditorComponent;

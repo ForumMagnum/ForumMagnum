@@ -13,3 +13,5 @@ declare global {
   }
 }
 
+export default AlertComponent;
+

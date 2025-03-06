@@ -144,3 +144,5 @@ declare global {
     SubmitToFrontpageCheckbox: typeof SubmitToFrontpageCheckboxComponent
   }
 }
+
+export default SubmitToFrontpageCheckboxComponent;

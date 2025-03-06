@@ -22,6 +22,12 @@ import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import HighlightedEventCard from "@/components/events/modules/HighlightedEventCard";
+import EventCards from "@/components/events/modules/EventCards";
+import { Loading } from "@/components/vulcan-core/Loading";
+import DistanceUnitToggle from "@/components/community/modules/DistanceUnitToggle";
+import { MenuItem } from "@/components/common/Menus";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -314,9 +320,6 @@ const EventsHome = ({classes}: {
     // when changing between miles and km, we convert the distance to the new unit
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
   }
-  
-  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem, ForumIcon } = Components
-  
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
   // hide them on other forums, and when certain filters are set
@@ -502,3 +505,5 @@ declare global {
     EventsHome: typeof EventsHomeComponent
   }
 }
+
+export default EventsHomeComponent;

@@ -3,6 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { captureEvent } from "../../lib/analyticsEvents";
+import Book2019Animation from "@/components/books/Book2019Animation";
+import HeadTags from "@/components/common/HeadTags";
+import LWTooltip from "@/components/common/LWTooltip";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
@@ -261,8 +265,6 @@ const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
 const Book2019Landing = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Book2019Animation, HeadTags, LWTooltip, ContentStyles} = Components;
-
   return (
     <div>
       <HeadTags 
@@ -347,3 +349,5 @@ declare global {
     Book2019Landing: typeof Book2019LandingComponent
   }
 }
+
+export default Book2019LandingComponent;

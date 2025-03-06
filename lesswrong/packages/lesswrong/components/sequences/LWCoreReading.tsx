@@ -1,5 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import CollectionsItem from "@/components/sequences/CollectionsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,8 +103,6 @@ const LWCoreReading = ({classes}: {
   minimal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, CollectionsItem } = Components
-
   return <SingleColumnSection className={classes.root}>
     {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
   </SingleColumnSection>
@@ -115,3 +115,5 @@ declare global {
     LWCoreReading: typeof LWCoreReadingComponent
   }
 }
+
+export default LWCoreReadingComponent;

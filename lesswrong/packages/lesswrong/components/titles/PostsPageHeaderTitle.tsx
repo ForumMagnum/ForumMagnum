@@ -31,3 +31,5 @@ declare global {
     PostsPageHeaderTitle: typeof PostsPageHeaderTitleComponent
   }
 }
+
+export default PostsPageHeaderTitleComponent;

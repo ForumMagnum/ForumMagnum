@@ -6,6 +6,11 @@ import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
+import SunshineSendMessageWithDefaults from "@/components/sunshineDashboard/SunshineSendMessageWithDefaults";
+import MessagesNewForm from "@/components/messaging/MessagesNewForm";
+import UsersName from "@/components/users/UsersName";
+import LWTooltip from "@/components/common/LWTooltip";
+import MetaInfo from "@/components/common/MetaInfo";
 
 const styles = (_theme: ThemeType) => ({
   row: {
@@ -26,7 +31,6 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineSendMessageWithDefaults, MessagesNewForm, UsersName, LWTooltip, MetaInfo } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
 
@@ -91,3 +95,5 @@ declare global {
     SunshineUserMessages: typeof SunshineUserMessagesComponent
   }
 }
+
+export default SunshineUserMessagesComponent;

@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useSingle } from "@/lib/crud/withSingle";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +38,6 @@ const SubscribedItem = ({
   renderDocument: (document: AnyBecauseTodo) => ReactNode,
   classes: ClassesType<typeof styles>
 }) => {
-  const {Loading, NotifyMeButton} = Components;
   const {document, loading} = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
@@ -77,3 +77,5 @@ declare global {
     SubscribedItem: typeof SubscribedItemComponent
   }
 }
+
+export default SubscribedItemComponent;

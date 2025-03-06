@@ -24,3 +24,5 @@ declare global {
     BetaTag: typeof BetaTagComponent
   }
 }
+
+export default BetaTagComponent;

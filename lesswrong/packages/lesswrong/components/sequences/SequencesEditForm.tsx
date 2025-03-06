@@ -2,6 +2,7 @@ import React from 'react';
 import { styles } from './SequencesNewForm';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback, classes }: {
   documentId: string,
@@ -12,7 +13,7 @@ const SequencesEditForm = ({ documentId, successCallback, cancelCallback, remove
 }) => {
   return (
     <div className={classes.sequencesForm}>
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collectionName="Sequences"
         documentId={documentId}
         successCallback={successCallback}
@@ -33,4 +34,6 @@ declare global {
     SequencesEditForm: typeof SequencesEditFormComponent
   }
 }
+
+export default SequencesEditFormComponent;
 

@@ -57,3 +57,5 @@ declare global {
     AnalyticsClient: typeof AnalyticsClientComponent
   }
 }
+
+export default AnalyticsClientComponent;

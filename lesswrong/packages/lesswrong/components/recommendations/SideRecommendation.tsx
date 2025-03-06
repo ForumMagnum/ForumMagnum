@@ -4,6 +4,9 @@ import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
+import ForumIcon from "@/components/common/ForumIcon";
+import KarmaDisplay from "@/components/common/KarmaDisplay";
+import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,7 +61,6 @@ const SideRecommendation = ({post, classes}: {
     onClickLink(e);
     onClickCell(e);
   }, [onClickCell, onClickLink]);
-  const {ForumIcon, KarmaDisplay, PostsItemTooltipWrapper} = Components;
   return (
     <div
       className={classes.root}
@@ -91,3 +93,5 @@ declare global {
     SideRecommendation: typeof SideRecommendationComponent
   }
 }
+
+export default SideRecommendationComponent;

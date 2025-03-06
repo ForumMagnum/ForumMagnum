@@ -11,6 +11,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { Typography } from "@/components/common/Typography";
+import ForumIcon from "@/components/common/ForumIcon";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import FormGroupFriendlyUserProfile from "@/components/form-components/FormGroupFriendlyUserProfile";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -82,11 +86,6 @@ const EditProfileForm = ({classes}: {
   const [cookies, setCookie] = useCookiesWithConsent([
     HIDE_IMPORT_EAG_PROFILE,
   ]);
-
-  const {
-    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile,
-  } = Components;
-
   let terms: {slug?: string, documentId?: string} = {}
   if (params.slug) {
     terms.slug = params.slug
@@ -199,3 +198,5 @@ declare global {
     EditProfileForm: typeof EditProfileFormComponent
   }
 }
+
+export default EditProfileFormComponent;

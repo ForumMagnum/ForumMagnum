@@ -11,6 +11,9 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
+import { Typography } from "@/components/common/Typography";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 export type ExternalPostImportData = {
   alreadyExists: boolean;
@@ -144,7 +147,7 @@ const ImportedPostEditor = ({
 
   return (
     <div className={classes.editorContainer}>
-      <Components.ContentStyles contentType="post">
+      <ContentStyles contentType="post">
         <CKEditor
           isCollaborative={false}
           editor={getCkPostEditor(false)}
@@ -160,7 +163,7 @@ const ImportedPostEditor = ({
             setEditorValue(editor.getData());
           }}
         />
-      </Components.ContentStyles>
+      </ContentStyles>
     </div>
   );
 };
@@ -182,7 +185,7 @@ const CommentEditor = ({
 
   return (
     <div className={classes.commentEditorContainer}>
-      <Components.ContentStyles contentType="comment">
+      <ContentStyles contentType="comment">
         <CKEditor
           isCollaborative={false}
           editor={getCkCommentEditor()}
@@ -215,7 +218,7 @@ const CommentEditor = ({
             Submit Linkpost 
           </Button>
         </div>
-      </Components.ContentStyles>
+      </ContentStyles>
     </div>
   );
 };
@@ -227,9 +230,6 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   const [published, setPublished] = useState<boolean>(false);
   const [alreadyExists, setAlreadyExists] = useState<boolean>(false);
   const [publishingPost, setPublishingPost] = useState<boolean>(false);
-
-  const { Typography, Loading, ContentStyles } = Components;
-
   const { flash } = useMessages();
 
   const currentUser = useCurrentUser();
@@ -421,3 +421,5 @@ declare global {
     ExternalPostImporter: typeof ExternalPostImporterComponent;
   }
 }
+
+export default ExternalPostImporterComponent;

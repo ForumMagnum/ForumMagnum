@@ -4,7 +4,10 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import NewConversationButton from "@/components/messaging/NewConversationButton";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,8 +74,6 @@ const PostAuthorCard = ({author, currentUser, classes}: {
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Typography, ContentStyles, NewConversationButton, NotifyMeButton, CloudinaryImage2 } = Components
-  
     return <AnalyticsContext pageSectionContext="postAuthorCard">
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
@@ -127,3 +128,5 @@ declare global {
     PostAuthorCard: typeof PostAuthorCardComponent
   }
 }
+
+export default PostAuthorCardComponent;

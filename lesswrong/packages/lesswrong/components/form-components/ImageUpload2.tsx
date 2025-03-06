@@ -119,3 +119,5 @@ declare global {
     ImageUpload2: typeof ImageUpload2Component
   }
 }
+
+export default ImageUpload2Component;

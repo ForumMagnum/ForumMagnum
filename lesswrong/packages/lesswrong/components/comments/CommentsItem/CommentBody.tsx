@@ -8,6 +8,10 @@ import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import ContentItemBody from "@/components/common/ContentItemBody";
+import CommentDeletedMetadata from "@/components/comments/CommentsItem/CommentDeletedMetadata";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import InlineReactSelectionWrapper from "@/components/votes/lwReactions/InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
@@ -57,7 +61,6 @@ const CommentBody = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -114,4 +117,6 @@ declare global {
     CommentBody: typeof CommentBodyComponent,
   }
 }
+
+export default CommentBodyComponent;
 

@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 export const PROFILE_IMG_DIAMETER = 36
 export const PROFILE_IMG_DIAMETER_MOBILE = 26
@@ -87,7 +88,7 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   
   if (user.profileImageId) {
     // use the profile photo if possible
-    imgNode = <Components.CloudinaryImage2
+    imgNode = <CloudinaryImage2
       imgProps={{q: '100', h: `${PROFILE_IMG_DIAMETER*2}`, w: `${PROFILE_IMG_DIAMETER*2}`}}
       publicId={user.profileImageId}
       className={classNames(classes.img, classes.profileImg)}
@@ -115,4 +116,6 @@ declare global {
     ProfilePhoto: typeof ProfilePhotoComponent
   }
 }
+
+export default ProfilePhotoComponent;
 

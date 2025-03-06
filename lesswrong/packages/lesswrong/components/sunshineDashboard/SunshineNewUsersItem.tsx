@@ -6,6 +6,12 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag'
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import SunshineNewUsersInfo from "@/components/sunshineDashboard/SunshineNewUsersInfo";
+import MetaInfo from "@/components/common/MetaInfo";
+import FormatDate from "@/components/common/FormatDate";
+import FirstContentIcons from "@/components/sunshineDashboard/FirstContentIcons";
 
 const styles = (theme: ThemeType) => ({
   negativeKarma: {
@@ -33,9 +39,6 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   currentUser: UsersCurrent,
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
-
-  const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate, FirstContentIcons } = Components
-  
   return (
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : undefined}>
       <SunshineListItem hover={hover}>
@@ -77,4 +80,6 @@ declare global {
     SunshineNewUsersItem: typeof SunshineNewUsersItemComponent
   }
 }
+
+export default SunshineNewUsersItemComponent;
 

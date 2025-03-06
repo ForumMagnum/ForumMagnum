@@ -5,6 +5,7 @@ import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import InlineSelect from "@/components/common/InlineSelect";
 
 const sortingNames = {
   'top': isFriendlyUI ? 'Top' : 'top scoring',
@@ -20,9 +21,6 @@ const AnswersSorting = ({ post }: {
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  
-  const {InlineSelect} = Components;
-
   const handleSortingClick = (opt: Option) => {
     const sorting = opt.value;
     const { query } = location;
@@ -49,3 +47,5 @@ declare global {
     AnswersSorting: typeof AnswersSortingComponent,
   }
 }
+
+export default AnswersSortingComponent;

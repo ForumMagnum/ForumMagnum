@@ -10,6 +10,11 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import ReactionIcon from "@/components/votes/ReactionIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import Row from "@/components/common/Row";
+import ReactionDescription from "@/components/votes/lwReactions/ReactionDescription";
+import MetaInfo from "@/components/common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   moreReactions: {
@@ -150,7 +155,6 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   quote: QuoteLocator|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
@@ -374,4 +378,6 @@ declare global {
     ReactionsPalette: typeof ReactionsPaletteComponent
   }
 }
+
+export default ReactionsPaletteComponent;
 

@@ -5,6 +5,10 @@ import { useOnMountTracking } from '../../lib/analyticsEvents';
 import { isServer } from '../../lib/executionEnvironment';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import LoadMore from "@/components/common/LoadMore";
+import PostsItem from "@/components/posts/PostsItem";
+import SectionFooter from "@/components/common/SectionFooter";
+import PostsLoading from "@/components/posts/PostsLoading";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface VertexRecommendedPost {
@@ -57,8 +61,6 @@ export const VertexPostsList = ({ limit = 100, classes }: {
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
-
   const [displayCount, setDisplayCount] = useState(15);
 
   const resolverName = DEFAULT_RESOLVER_NAME;
@@ -121,3 +123,5 @@ declare global {
     VertexPostsList: typeof VertexPostsListComponent
   }
 }
+
+export default VertexPostsListComponent;

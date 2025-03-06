@@ -4,6 +4,8 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -124,8 +126,6 @@ const ContentExcerpt = ({
     "...",
     false,
   );
-
-  const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <ContentStyles
@@ -176,3 +176,5 @@ declare global {
     ContentExcerpt: typeof ContentExcerptComponent,
   }
 }
+
+export default ContentExcerptComponent;

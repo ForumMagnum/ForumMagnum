@@ -11,6 +11,13 @@ import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import SubdirectoryArrowLeft from "@material-ui/icons/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
+import LWPopper from "@/components/common/LWPopper";
+import CommentById from "@/components/comments/CommentById";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import UsersName from "@/components/users/UsersName";
+import CommentsItemDate from "@/components/comments/CommentsItem/CommentsItemDate";
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,8 +103,6 @@ const useParentCommentLinkAndTooltip = ({ comment, classes }: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LWPopper, CommentById } = Components;
-
   const { eventHandlers, hover, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "popularCommentParentTooltip",
@@ -156,7 +161,6 @@ const PopularCommentPostLink = ({ post, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { isRead } = useRecordPostView(post);
-  const { PostsTooltip } = Components;
   return (
     <div className={classes.postTitle}>
       <PostsTooltip postId={post._id}>
@@ -176,8 +180,6 @@ const LWPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentsItemDate, SmallSideVote, CommentBody } = Components;
-  
   const { captureEvent } = useTracking();
 
   const [expanded, setExpanded] = useState(false);
@@ -259,3 +261,5 @@ declare global {
     LWPopularComment: typeof LWPopularCommentComponent
   }
 }
+
+export default LWPopularCommentComponent;

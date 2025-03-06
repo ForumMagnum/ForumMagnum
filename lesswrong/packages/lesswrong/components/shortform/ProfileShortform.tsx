@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "@/components/posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,9 +13,6 @@ export const ProfileShortform = ({classes, user}: {
   classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
-
-  const { PostsItem } = Components
-
   const { document } = useSingle({
     documentId: user.shortformFeedId,
     collectionName: "Posts",
@@ -33,4 +31,6 @@ declare global {
     ProfileShortform: typeof ProfileShortformComponent
   }
 }
+
+export default ProfileShortformComponent;
 

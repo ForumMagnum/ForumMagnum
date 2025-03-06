@@ -37,3 +37,5 @@ declare global {
     DropdownMenu: typeof DropdownMenuComponent
   }
 }
+
+export default DropdownMenuComponent;

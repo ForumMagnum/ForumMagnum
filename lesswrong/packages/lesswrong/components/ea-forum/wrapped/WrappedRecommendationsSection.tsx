@@ -2,6 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useForumWrappedContext } from "./hooks";
 import { drawnArrow } from "@/components/icons/drawnArrow";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
+import WrappedPost from "@/components/ea-forum/wrapped/WrappedPost";
 
 const styles = (theme: ThemeType) => ({
   posts: {
@@ -44,7 +47,6 @@ const WrappedRecommendationsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {recommendations} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading, WrappedPost} = Components;
   return (
     <WrappedSection pageSectionContext="recommendations">
       <WrappedHeading>
@@ -78,3 +80,5 @@ declare global {
     WrappedRecommendationsSection: typeof WrappedRecommendationsSectionComponent
   }
 }
+
+export default WrappedRecommendationsSectionComponent;

@@ -5,6 +5,10 @@ import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import Error404 from "@/components/common/Error404";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +24,6 @@ const styles = (theme: ThemeType) => ({
 export const EditPaymentInfoPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SectionTitle, Error404, ContentStyles } = Components
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
   const navigate = useNavigate();
@@ -32,7 +35,7 @@ export const EditPaymentInfoPage = ({classes}: {
         <p>To be eligible for prizes and donations through LessWrong, you need a <a href="https://paypal.com/">PayPal account</a>, and to enter your associated PayPal email/info here.</p>
         <p>If you receive more than $600 in a year, you'll need to be entered into Center for Applied Rationality's payment system. CFAR will contact you via your LessWrong email address about next steps. (Make sure it's an email that you check regularly)</p>
       </div>
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         layout="elementOnly"
         collectionName="Users"
         documentId={currentUser._id}
@@ -57,4 +60,6 @@ declare global {
     EditPaymentInfoPage: typeof EditPaymentInfoPageComponent
   }
 }
+
+export default EditPaymentInfoPageComponent;
 

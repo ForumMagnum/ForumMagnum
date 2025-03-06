@@ -5,6 +5,14 @@ import classNames from 'classnames';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagHistoryStyles } from './history/TagHistoryPage';
+import CompareRevisions from "@/components/revisions/CompareRevisions";
+import TagRevisionItemFullMetadata from "@/components/tagging/TagRevisionItemFullMetadata";
+import TagRevisionItemShortMetadata from "@/components/tagging/TagRevisionItemShortMetadata";
+import TagDiscussionButton from "@/components/tagging/TagDiscussionButton";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
+import SingleLineFeedEvent from "@/components/common/SingleLineFeedEvent";
 
 const styles = defineStyles("TagRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -37,7 +45,6 @@ const TagRevisionItem = ({
 }) => {
   const classes = useStyles(styles);
   const tagHistoryClasses = useStyles(tagHistoryStyles);
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles, ForumIcon, LWTooltip } = Components
   const [expanded, setExpanded] = useState(false);
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
@@ -69,7 +76,7 @@ const TagRevisionItem = ({
       </>
   return noContainer
     ? contents
-    : <Components.SingleLineFeedEvent
+    : <SingleLineFeedEvent
         icon={<ForumIcon className={tagHistoryClasses.feedIcon} icon="Edit"/>}
         frame expands expanded={expanded || !collapsed} setExpanded={setExpanded}
         tooltip={!(expanded || !collapsed) && diffBody}
@@ -77,7 +84,7 @@ const TagRevisionItem = ({
         <div className={classes.container}>
           {contents}
         </div>
-      </Components.SingleLineFeedEvent>
+      </SingleLineFeedEvent>
 }
 
 const TagRevisionItemComponent = registerComponent("TagRevisionItem", TagRevisionItem, {hocs: [withErrorBoundary]});
@@ -87,3 +94,5 @@ declare global {
     TagRevisionItem: typeof TagRevisionItemComponent
   }
 }
+
+export default TagRevisionItemComponent;

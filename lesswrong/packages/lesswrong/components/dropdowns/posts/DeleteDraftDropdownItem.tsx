@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const DeleteDraftDropdownItem = ({ post }: {
   post: PostsBase
@@ -14,8 +14,6 @@ const DeleteDraftDropdownItem = ({ post }: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const {DropdownItem} = Components;
-
   const handleDelete = useCallback(() => {
     if (confirm("Are you sure you want to delete this post?")) {
       void updatePost({
@@ -47,3 +45,5 @@ declare global {
     DeleteDraftDropdownItem: typeof DeleteDraftDropdownItemComponent
   }
 }
+
+export default DeleteDraftDropdownItemComponent;

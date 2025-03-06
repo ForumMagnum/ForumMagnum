@@ -5,6 +5,11 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { getReviewAlgorithm } from "./FrontpageReviewWidget";
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import SectionSubtitle from "@/components/common/SectionSubtitle";
+import SectionFooter from "@/components/common/SectionFooter";
+import RecommendationsList from "@/components/recommendations/RecommendationsList";
+import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   timeRemaining: {
@@ -33,8 +38,6 @@ const FrontpageVotingPhase = ({settings, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components
-
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
     <ul>
@@ -91,3 +94,5 @@ declare global {
     FrontpageVotingPhase: typeof FrontpageVotingPhaseComponent
   }
 }
+
+export default FrontpageVotingPhaseComponent;

@@ -77,3 +77,7 @@ declare global {
 }
 
 export default TypographyComponent;
+
+export {
+  TypographyComponent as Typography
+}

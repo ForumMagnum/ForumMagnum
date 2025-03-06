@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,14 +23,14 @@ const SectionButton = ({children, classes, className, onClick}: {
   className?: string,
   onClick?: (event: React.MouseEvent) => void,
 }) => {
-  return <Components.Typography
+  return <Typography
     component='span'
     variant='body2'
     className={classNames(classes.root, className)}
     onClick={onClick}
   >
     {children}
-  </Components.Typography>
+  </Typography>
 }
 
 const SectionButtonComponent = registerComponent('SectionButton', SectionButton, {styles})
@@ -39,3 +40,5 @@ declare global {
     SectionButton: typeof SectionButtonComponent
   }
 }
+
+export default SectionButtonComponent;

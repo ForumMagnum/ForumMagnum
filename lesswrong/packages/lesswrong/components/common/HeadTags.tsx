@@ -94,3 +94,5 @@ declare global {
     HeadTags: typeof HeadTagsComponent
   }
 }
+
+export default HeadTagsComponent;

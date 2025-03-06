@@ -5,6 +5,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
+import CommentsList from "@/components/comments/CommentsList";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,8 +31,6 @@ const TagDiscussion = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
-  const { CommentsList, Loading } = Components;
-  
   const { results, loading, totalCount } = useMulti({
     skip: !tag?._id,
     terms: {
@@ -78,3 +78,5 @@ declare global {
     TagDiscussion: typeof TagDiscussionComponent
   }
 }
+
+export default TagDiscussionComponent;

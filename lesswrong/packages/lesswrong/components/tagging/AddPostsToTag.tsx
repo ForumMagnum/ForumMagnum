@@ -16,6 +16,8 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import SearchPagination from "@/components/search/SearchPagination";
+import PostsListEditorSearchHit from "@/components/search/PostsListEditorSearchHit";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -138,8 +140,6 @@ const AddPostsToTag = ({classes, tag}: {
     setIsAwaiting(false)
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
-
-  const { SearchPagination, PostsListEditorSearchHit } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
     {!searchOpen && !isAwaiting && <span 
       onClick={() => setSearchOpen(true)}
@@ -181,3 +181,5 @@ declare global {
     AddPostsToTag: typeof AddPostsToTagComponent
   }
 }
+
+export default AddPostsToTagComponent;

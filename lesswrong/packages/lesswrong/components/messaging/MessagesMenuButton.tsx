@@ -6,6 +6,8 @@ import Badge from "@material-ui/core/Badge";
 import IconButton from "@material-ui/core/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const MessagesMenuButton = ({className, classes}: {
   className?: string,
@@ -19,7 +21,6 @@ const MessagesMenuButton = ({className, classes}: {
   }, [navigate]);
   const hasBadge = unreadPrivateMessages > 0;
   const badgeText = hasBadge ? String(unreadPrivateMessages) : "";
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip
       title="Messages"
@@ -62,3 +63,5 @@ declare global {
     MessagesMenuButton: typeof MessagesMenuButtonComponent
   }
 }
+
+export default MessagesMenuButtonComponent;

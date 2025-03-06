@@ -9,6 +9,15 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
+import PostsUserAndCoauthors from "@/components/posts/PostsUserAndCoauthors";
+import PostsTitle from "@/components/posts/PostsTitle";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import CommentsNode from "@/components/comments/CommentsNode";
+import BookmarkButton from "@/components/posts/BookmarkButton";
+import FormatDate from "@/components/common/FormatDate";
+import { Loading } from "@/components/vulcan-core/Loading";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import EventTime from "@/components/localGroups/EventTime";
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -142,8 +151,6 @@ const LWPostsPreviewTooltip = ({
   dialogueMessageInfo,
   classes,
 }: LWPostsPreviewTooltipProps) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
-    Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
   const foreignApolloClient = useForeignApolloClient();
@@ -269,3 +276,5 @@ declare global {
     LWPostsPreviewTooltip: typeof LWPostsPreviewTooltipComponent
   }
 }
+
+export default LWPostsPreviewTooltipComponent;

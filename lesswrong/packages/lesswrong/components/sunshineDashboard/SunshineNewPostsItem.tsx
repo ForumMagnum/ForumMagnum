@@ -15,6 +15,18 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import MetaInfo from "@/components/common/MetaInfo";
+import LinkPostMessage from "@/components/posts/LinkPostMessage";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import SidebarInfo from "@/components/sunshineDashboard/SidebarInfo";
+import FormatDate from "@/components/common/FormatDate";
+import FooterTagList from "@/components/tagging/FooterTagList";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -116,21 +128,6 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     // The backend state only gets changed in a moderator action callback, so apollo doesn't handle it for us by updating the cache
     refetch();
   }
-
-  const {
-    MetaInfo,
-    LinkPostMessage,
-    ContentItemBody,
-    SunshineListItem,
-    SidebarHoverOver,
-    SidebarInfo,
-    FormatDate,
-    FooterTagList,
-    Typography,
-    ContentStyles,
-    SmallSideVote,
-    ForumIcon
-  } = Components;
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -221,3 +218,5 @@ declare global {
     SunshineNewPostsItem: typeof SunshineNewPostsItemComponent
   }
 }
+
+export default SunshineNewPostsItemComponent;

@@ -44,3 +44,5 @@ declare global {
     KarmaIcon: typeof KarmaIconComponent
   }
 }
+
+export default KarmaIconComponent;

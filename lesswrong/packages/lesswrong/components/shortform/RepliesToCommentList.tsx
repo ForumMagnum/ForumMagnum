@@ -2,14 +2,14 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
-
+import CommentsList from "@/components/comments/CommentsList";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: {
   post: PostsBase,
   parentCommentId: string,
   directReplies?: boolean
 }) => {
-  const { CommentsList, Loading } = Components;
   const terms: CommentsViewTerms = directReplies ? {
     view: "commentReplies",
     parentCommentId,
@@ -49,4 +49,6 @@ declare global {
     RepliesToCommentList: typeof RepliesToCommentListComponent
   }
 }
+
+export default RepliesToCommentListComponent;
 

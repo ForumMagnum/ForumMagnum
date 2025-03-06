@@ -7,6 +7,7 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   boxesRoot: {
@@ -64,8 +65,6 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
     EAForum: preferredHeadingCase("Start with: "),
     default: preferredHeadingCase("First Post: ")
   });
-
-  const {PostsTooltip} = Components;
   if (firstPost) {
     return <div className={classNames(classes.firstPost, className)}>
       {prefix}<PostsTooltip post={firstPost}>
@@ -101,3 +100,5 @@ declare global {
     SpotlightStartOrContinueReading: typeof SpotlightStartOrContinueReadingComponent
   }
 }
+
+export default SpotlightStartOrContinueReadingComponent;

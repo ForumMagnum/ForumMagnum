@@ -3,6 +3,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import NewConversationButton from "@/components/messaging/NewConversationButton";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,9 +34,6 @@ const PeopleDirectoryUserCell = ({user, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const isCurrentUser = user._id === currentUser?._id;
-  const {
-    UsersProfileImage, NewConversationButton, ForumIcon, LWTooltip,
-  } = Components;
   return (
     <div className={classes.root}>
       <UsersProfileImage user={user} size={32} />
@@ -66,3 +67,5 @@ declare global {
     PeopleDirectoryUserCell: typeof PeopleDirectoryUserCellComponent
   }
 }
+
+export default PeopleDirectoryUserCellComponent;

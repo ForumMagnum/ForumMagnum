@@ -3,6 +3,10 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import LinkCard from "@/components/common/LinkCard";
+import UsersName from "@/components/users/UsersName";
+import { Typography } from "@/components/common/Typography";
+import CloudinaryImage from "@/components/common/CloudinaryImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,13 +77,12 @@ const BigCollectionsCard = ({ collection, url, classes }: {
   url: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LinkCard, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
       {collection.imageId && <div className={classes.media}>
-        <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
+        <CloudinaryImage publicId={collection.imageId} width={326} height={280} />
       </div>}
       <div className={classes.content} style={cardContentStyle}>
         <Typography variant="title">
@@ -105,3 +108,5 @@ declare global {
     BigCollectionsCard: typeof BigCollectionsCardComponent
   }
 }
+
+export default BigCollectionsCardComponent;

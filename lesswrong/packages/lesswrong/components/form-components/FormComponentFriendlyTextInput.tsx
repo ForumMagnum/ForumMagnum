@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@material-ui/core/TextField";
 import classNames from "classnames";
+import { SectionTitle } from "@/components/common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   label: {
@@ -49,8 +50,6 @@ export const FormComponentFriendlyTextInput = ({
       [path]: event.target.value,
     });
   }, [updateCurrentValues, path]);
-
-  const {SectionTitle} = Components;
   return (
     <div className={classNames(
       className,
@@ -86,3 +85,5 @@ declare global {
     FormComponentFriendlyTextInput: typeof FormComponentFriendlyTextInputComponent
   }
 }
+
+export default FormComponentFriendlyTextInputComponent;

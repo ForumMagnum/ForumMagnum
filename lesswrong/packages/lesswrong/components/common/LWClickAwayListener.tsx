@@ -31,3 +31,5 @@ declare global {
     LWClickAwayListener: typeof LWClickAwayListenerComponent
   }
 }
+
+export default LWClickAwayListenerComponent;

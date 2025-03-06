@@ -170,3 +170,5 @@ declare global {
     FormComponentInner: typeof FormComponentInnerComponent
   }
 }
+
+export default FormComponentInnerComponent;

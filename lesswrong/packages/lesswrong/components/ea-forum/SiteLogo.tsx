@@ -53,3 +53,5 @@ declare global {
     SiteLogo: typeof SiteLogoComponent
   }
 }
+
+export default SiteLogoComponent;

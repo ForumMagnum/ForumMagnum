@@ -1,5 +1,8 @@
 import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import SingleUsersItem from "@/components/form-components/SingleUsersItem";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,15 +23,15 @@ const UserSelect = ({ value, setValue, label, classes }: {
 }) => {
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.UsersSearchAutoComplete
+      <ErrorBoundary>
+        <UsersSearchAutoComplete
           clickAction={(userId: string, result: SearchUser) => setValue(userId, result)}
           label={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       {value && (
         <div className={classes.item}>
-          <Components.SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
+          <SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
         </div>
       )}
     </div>
@@ -45,7 +48,7 @@ const FormUserSelect = ({value, path, label, updateCurrentValues}: {
     void updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
-  return <Components.UserSelect
+  return <UserSelect
     value={value}
     setValue={setValue}
     label={label}
@@ -60,4 +63,9 @@ declare global {
     UserSelect: typeof UserSelectComponent
     FormUserSelect: typeof FormUserSelectComponent
   }
+}
+
+export {
+  UserSelectComponent as UserSelect,
+  FormUserSelectComponent as FormUserSelect
 }

@@ -9,6 +9,14 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { InboxComponentProps } from './InboxWrapper';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ConversationItem from "@/components/messaging/ConversationItem";
+import { Loading } from "@/components/vulcan-core/Loading";
+import SectionFooter from "@/components/common/SectionFooter";
+import SectionFooterCheckbox from "@/components/form-components/SectionFooterCheckbox";
+import { Typography } from "@/components/common/Typography";
+import LoadMore from "@/components/common/LoadMore";
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({
@@ -32,9 +40,6 @@ const InboxNavigation = ({
     collectionName: "Conversations",
     fragmentName: 'ConversationsList',
   });
-  
-  const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox, Typography, LoadMore } = Components
-  
   const showArchive = query?.showArchive === "true"
   const expanded = query?.expanded === "true"
 
@@ -84,3 +89,5 @@ declare global {
     InboxNavigation: typeof InboxNavigationComponent
   }
 }
+
+export default InboxNavigationComponent;

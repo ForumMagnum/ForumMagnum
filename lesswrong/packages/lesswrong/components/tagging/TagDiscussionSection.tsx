@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
+import CommentsListSection from "@/components/comments/CommentsListSection";
 
 const styles = (theme: ThemeType) => ({
 });
@@ -9,7 +10,6 @@ const TagDiscussionSection = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagBasicInfo
 }) => {
-  const {CommentsListSection } = Components;
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(undefined);
   
   const { results, loadMore, loadingMore, totalCount } = useMulti({
@@ -51,3 +51,5 @@ declare global {
     TagDiscussionSection: typeof TagDiscussionSectionComponent
   }
 }
+
+export default TagDiscussionSectionComponent;

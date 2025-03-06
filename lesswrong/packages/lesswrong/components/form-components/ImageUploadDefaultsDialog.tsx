@@ -2,7 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
+import LWDialog from "@/components/common/LWDialog";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   images: {
@@ -27,9 +28,6 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   classes: ClassesType<typeof styles>,
   type?: 'Event' | 'Profile'
 }) => {
-
-  const { LWDialog, CloudinaryImage2 } = Components
-  
   const selectImg = (img: string) => {
     onSelect(img)
     if (onClose)
@@ -149,3 +147,5 @@ declare global {
     ImageUploadDefaultsDialog: typeof ImageUploadDefaultsDialogComponent
   }
 }
+
+export default ImageUploadDefaultsDialogComponent;

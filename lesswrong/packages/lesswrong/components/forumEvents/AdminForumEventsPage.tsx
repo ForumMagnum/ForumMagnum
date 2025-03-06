@@ -1,6 +1,10 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
+import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ForumEventsList from "@/components/forumEvents/ForumEventsList";
+import ForumEventForm from "@/components/forumEvents/ForumEventForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,11 +19,6 @@ export const AdminForumEventsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-
-  const {
-    ErrorAccessDenied, SingleColumnSection, ForumEventsList, ForumEventForm,
-  } = Components;
-
   if (!currentUser?.isAdmin) {
     return (
       <ErrorAccessDenied />
@@ -52,3 +51,5 @@ declare global {
     AdminForumEventsPage: typeof AdminForumEventsPageComponent
   }
 }
+
+export default AdminForumEventsPageComponent;

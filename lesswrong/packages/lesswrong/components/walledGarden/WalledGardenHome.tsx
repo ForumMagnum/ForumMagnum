@@ -3,6 +3,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { moderationEmail } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import Error404 from "@/components/common/Error404";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   users: {
@@ -35,7 +39,6 @@ const styles = (theme: ThemeType) => ({
 })
 
 const WalledGardenHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const { SingleColumnSection, Error404, Typography, ContentStyles } = Components
   const currentUser = useCurrentUser()
   const { results: users, totalCount } = useMulti({
     terms: {
@@ -104,4 +107,6 @@ declare global {
     WalledGardenHome: typeof WalledGardenHomeComponent
   }
 }
+
+export default WalledGardenHomeComponent;
 

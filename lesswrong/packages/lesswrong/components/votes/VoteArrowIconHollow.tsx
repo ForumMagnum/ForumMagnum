@@ -123,3 +123,5 @@ declare global {
     VoteArrowIconHollow: typeof VoteArrowIconHollowComponent;
   }
 }
+
+export default VoteArrowIconHollowComponent;

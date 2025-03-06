@@ -6,6 +6,14 @@ import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import FrontpageReviewWidget from "@/components/review/FrontpageReviewWidget";
+import PostsList2 from "@/components/posts/PostsList2";
+import SectionButton from "@/components/common/SectionButton";
+import RecentDiscussionThreadsList from "@/components/recentDiscussion/RecentDiscussionThreadsList";
+import EAPopularCommentsSection from "@/components/ea-forum/EAPopularCommentsSection";
+import RotatingReviewWinnerSpotlight from "@/components/review/RotatingReviewWinnerSpotlight";
 
 const styles = (theme: ThemeType) => ({
   frontpageSequencesGridList: {
@@ -18,7 +26,6 @@ const styles = (theme: ThemeType) => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
@@ -67,3 +74,5 @@ declare global {
     AlignmentForumHome: typeof AlignmentForumHomeComponent
   }
 }
+
+export default AlignmentForumHomeComponent;

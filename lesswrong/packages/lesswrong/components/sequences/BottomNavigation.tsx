@@ -4,6 +4,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import BottomNavigationItem from "@/components/sequences/BottomNavigationItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,14 +87,14 @@ const BottomNavigation = ({post, classes}: {
   return <div className={classes.root}>
     {prevPost &&
       <div className={classnames(classes.post, classes.prevPost)}>
-      <Components.BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
+      <BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
       </div>}
     
     <div className={classes.divider}></div>
     
     {nextPost &&
       <div className={classnames(classes.post, classes.nextPost)}>
-        <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
+        <BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
       </div>}
     
     <div className={classes.clear}></div>
@@ -111,4 +112,6 @@ declare global {
     BottomNavigation: typeof BottomNavigationComponent
   }
 }
+
+export default BottomNavigationComponent;
 

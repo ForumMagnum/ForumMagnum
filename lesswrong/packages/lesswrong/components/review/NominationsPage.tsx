@@ -10,6 +10,15 @@ import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
 import { eligibleToNominate, getReviewPeriodEnd, getReviewPeriodStart, REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import PostsByVoteWrapper from "@/components/posts/PostsByVoteWrapper";
+import ReadHistoryTab from "@/components/bookmarks/ReadHistoryTab";
+import PostsListUserCommentedOn from "@/components/review/PostsListUserCommentedOn";
+import { Typography } from "@/components/common/Typography";
+import LWTooltip from "@/components/common/LWTooltip";
+import AllPostsPage from "@/components/posts/AllPostsPage";
+import ExternalPostImporter from "@/components/posts/ExternalPostImporter";
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -80,19 +89,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {location, query} = useLocation()
-  
-  const {
-    SectionTitle,
-    SingleColumnSection,
-    PostsByVoteWrapper,
-    ReadHistoryTab,
-    PostsListUserCommentedOn,
-    Typography,
-    LWTooltip,
-    AllPostsPage,
-    ExternalPostImporter,
-  } = Components
-
   if (!eligibleToNominate(currentUser)) {
     return <SingleColumnSection>
       <Typography variant="body2">
@@ -193,3 +189,5 @@ declare global {
     NominationsPage: typeof NominationsPageComponent
   }
 }
+
+export default NominationsPageComponent;

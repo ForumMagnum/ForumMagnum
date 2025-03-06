@@ -19,6 +19,13 @@ import Chip from '@material-ui/core/Chip';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import CommunityBanner from "@/components/community/modules/CommunityBanner";
+import LocalGroups from "@/components/community/modules/LocalGroups";
+import OnlineGroups from "@/components/community/modules/OnlineGroups";
+import CommunityMembers from "@/components/community/modules/CommunityMembers";
+import GroupFormLink from "@/components/localGroups/GroupFormLink";
+import DistanceUnitToggle from "@/components/community/modules/DistanceUnitToggle";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -337,10 +344,6 @@ const Community = ({classes}: {
       componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
     });
   }
-  
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
-          DistanceUnitToggle, ForumIcon } = Components
-  
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
@@ -530,3 +533,5 @@ declare global {
     Community: typeof CommunityComponent
   }
 }
+
+export default CommunityComponent;

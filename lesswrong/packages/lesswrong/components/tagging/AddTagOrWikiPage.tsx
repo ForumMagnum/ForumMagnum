@@ -10,6 +10,8 @@ import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../.
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '../../lib/routes';
 import type { SearchState } from 'react-instantsearch-core';
+import TagSearchHit from "@/components/tagging/TagSearchHit";
+import DropdownDivider from "@/components/dropdowns/DropdownDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,7 +46,6 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   showAllTagsAndCreateTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
@@ -145,3 +146,5 @@ declare global {
     AddTagOrWikiPage: typeof AddTagOrWikiPageComponent
   }
 }
+
+export default AddTagOrWikiPageComponent;

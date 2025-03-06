@@ -11,6 +11,7 @@ import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
+import { Typography } from "@/components/common/Typography";
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -90,8 +91,6 @@ const FeaturedResourceBanner = ({terms, classes}: {
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
-  const { Typography } = Components
-
   useEffect(() => {
     if (loading || !results?.length) {
       return;
@@ -142,3 +141,5 @@ declare global {
     FeaturedResourceBanner: typeof FeaturedResourceBannerComponent
   }
 }
+
+export default FeaturedResourceBannerComponent;

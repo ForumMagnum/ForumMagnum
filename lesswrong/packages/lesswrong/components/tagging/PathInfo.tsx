@@ -8,7 +8,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { useTagOrLens } from '../hooks/useTagOrLens';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = defineStyles("PathInfo", (theme) => ({
   pathInfo: {
@@ -93,8 +93,6 @@ const PathInfo = ({tag, lens}: {
   lens: TagLens|null
 }) => {
   const classes = useStyles(styles);
-  const { ForumIcon } = Components;
-  
   const pathInfo = usePathInfo(tag, lens);
 
   const { tag: guideTag, lens: guideLens } = useTagOrLens(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
@@ -140,4 +138,6 @@ declare global {
     PathInfo: typeof PathInfoComponent
   }
 }
+
+export default PathInfoComponent;
 

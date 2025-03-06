@@ -15,7 +15,12 @@ import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import LWDialog from "@/components/common/LWDialog";
+import { Loading } from "@/components/vulcan-core/Loading";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import FormatDate from "@/components/common/FormatDate";
+import LoadMore from "@/components/common/LoadMore";
+import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -86,7 +91,6 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
   const currentUser = useCurrentUser();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
@@ -188,4 +192,9 @@ declare global {
     TagVersionHistoryButton: typeof TagVersionHistoryButtonComponent
     TagVersionHistory: typeof TagVersionHistoryComponent
   }
+}
+
+export {
+  TagVersionHistoryButtonComponent as TagVersionHistoryButton,
+  TagVersionHistoryComponent as TagVersionHistory
 }

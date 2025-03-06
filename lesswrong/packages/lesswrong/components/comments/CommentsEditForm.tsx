@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
@@ -13,7 +14,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
 }) => {
   return (
     <div className={classNames("comments-edit-form", className)}>
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         layout="elementOnly"
         collectionName="Comments"
         documentId={comment._id}
@@ -37,4 +38,6 @@ declare global {
     CommentsEditForm: typeof CommentsEditFormComponent,
   }
 }
+
+export default CommentsEditFormComponent;
 

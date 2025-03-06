@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import Menu from "@material-ui/core/Menu";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,8 +29,6 @@ function InlineSelect({
   classes: ClassesType<typeof styles>;
 }) {
   const [anchorEl, setAnchorEl] = useState<any>(null);
-  const { MenuItem } = Components;
-
   const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);
   };
@@ -69,3 +68,5 @@ declare global {
     InlineSelect: typeof InlineSelectComponent;
   }
 }
+
+export default InlineSelectComponent;

@@ -15,6 +15,23 @@ import { useRecommendations } from "@/components/recommendations/withRecommendat
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/collection";
 import { LoadMoreProps, useMulti } from "@/lib/crud/withMulti";
+import WrappedThankYouSection from "@/components/ea-forum/wrapped/WrappedThankYouSection";
+import WrappedMostValuablePostsSection from "@/components/ea-forum/wrapped/WrappedMostValuablePostsSection";
+import WrappedRecommendationsSection from "@/components/ea-forum/wrapped/WrappedRecommendationsSection";
+import WrappedSummarySection from "@/components/ea-forum/wrapped/WrappedSummarySection";
+import WrappedReceivedReactsSection from "@/components/ea-forum/wrapped/WrappedReceivedReactsSection";
+import WrappedKarmaChangeSection from "@/components/ea-forum/wrapped/WrappedKarmaChangeSection";
+import WrappedTopQuickTakeSection from "@/components/ea-forum/wrapped/WrappedTopQuickTakeSection";
+import WrappedTopCommentSection from "@/components/ea-forum/wrapped/WrappedTopCommentSection";
+import WrappedTopPostSection from "@/components/ea-forum/wrapped/WrappedTopPostSection";
+import WrappedPersonalitySection from "@/components/ea-forum/wrapped/WrappedPersonalitySection";
+import WrappedThankAuthorSection from "@/components/ea-forum/wrapped/WrappedThankAuthorSection";
+import WrappedMostReadAuthorSection from "@/components/ea-forum/wrapped/WrappedMostReadAuthorSection";
+import WrappedRelativeMostReadTopicsSection from "@/components/ea-forum/wrapped/WrappedRelativeMostReadTopicsSection";
+import WrappedMostReadTopicsSection from "@/components/ea-forum/wrapped/WrappedMostReadTopicsSection";
+import WrappedDaysVisitedSection from "@/components/ea-forum/wrapped/WrappedDaysVisitedSection";
+import WrappedTimeSpentSection from "@/components/ea-forum/wrapped/WrappedTimeSpentSection";
+import WrappedWelcomeSection from "@/components/ea-forum/wrapped/WrappedWelcomeSection";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
@@ -210,29 +227,29 @@ type WrappedSection = {
 };
 
 const allSections: WrappedSection[] = [
-  {component: Components.WrappedWelcomeSection},
+  {component: WrappedWelcomeSection},
   {
-    component: Components.WrappedTimeSpentSection,
+    component: WrappedTimeSpentSection,
     predicate: (data) => data.totalSeconds > 300,
   },
   {
-    component: Components.WrappedDaysVisitedSection,
+    component: WrappedDaysVisitedSection,
     predicate: (data) => data.daysVisited.length > 0,
   },
   {
-    component: Components.WrappedMostReadTopicsSection,
+    component: WrappedMostReadTopicsSection,
     predicate: (data) => data.mostReadTopics.length > 0,
   },
   {
-    component: Components.WrappedRelativeMostReadTopicsSection,
+    component: WrappedRelativeMostReadTopicsSection,
     predicate: (data) => data.relativeMostReadCoreTopics.length > 0,
   },
   {
-    component: Components.WrappedMostReadAuthorSection,
+    component: WrappedMostReadAuthorSection,
     predicate: (data) => data.postsReadCount > 0 && data.mostReadAuthors.length > 0,
   },
   {
-    component: Components.WrappedThankAuthorSection,
+    component: WrappedThankAuthorSection,
     predicate: (data, currentUser) => {
       const {
         topAuthorByEngagementPercentile,
@@ -243,38 +260,38 @@ const allSections: WrappedSection[] = [
         userCanStartConversations(currentUser);
     },
   },
-  {component: Components.WrappedPersonalitySection},
+  {component: WrappedPersonalitySection},
   {
-    component: Components.WrappedTopPostSection,
+    component: WrappedTopPostSection,
     predicate: (data) =>
       !!data.topPosts &&
       data.topPosts.length > 0 &&
       data.topPosts[0].baseScore >= 10,
   },
   {
-    component: Components.WrappedTopCommentSection,
+    component: WrappedTopCommentSection,
     predicate: (data) =>
       !!data.topComment &&
       data.topComment.baseScore > 0,
   },
   {
-    component: Components.WrappedTopQuickTakeSection,
+    component: WrappedTopQuickTakeSection,
     predicate: (data) =>
       !!data.topShortform &&
       data.topShortform.baseScore > 0,
   },
   {
-    component: Components.WrappedKarmaChangeSection,
+    component: WrappedKarmaChangeSection,
     predicate: (data) => !!data.karmaChange,
   },
   {
-    component: Components.WrappedReceivedReactsSection,
+    component: WrappedReceivedReactsSection,
     predicate: (data) => getTotalReactsReceived(data) > 5,
   },
-  {component: Components.WrappedSummarySection},
-  {component: Components.WrappedRecommendationsSection},
-  {component: Components.WrappedMostValuablePostsSection},
-  {component: Components.WrappedThankYouSection},
+  {component: WrappedSummarySection},
+  {component: WrappedRecommendationsSection},
+  {component: WrappedMostValuablePostsSection},
+  {component: WrappedThankYouSection},
 ];
 
 type ForumWrappedContext = {

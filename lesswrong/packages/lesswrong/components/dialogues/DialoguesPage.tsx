@@ -6,10 +6,14 @@ import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
+import PostsItem from "@/components/posts/PostsItem";
+import LWTooltip from "@/components/common/LWTooltip";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SectionFooter from "@/components/common/SectionFooter";
+import LoadMore from "@/components/common/LoadMore";
 
 const DialoguesPage = () => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionFooter, LoadMore } = Components
-
   const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
     fragmentName: "PostsPage",
     resolverName: "RecentlyActiveDialogues",
@@ -91,3 +95,5 @@ declare global {
     DialoguesPage: typeof DialoguesPageComponent
   }
 }
+
+export default DialoguesPageComponent;

@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
+import FormComponentFriendlyTextInput from "@/components/form-components/FormComponentFriendlyTextInput";
 
 const styles = (theme: ThemeType) => ({
   inputRow: {
@@ -44,8 +45,6 @@ export const FormComponentFriendlyDisplayNameInput = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 } & FormComponentProps<string>) => {
-  const { FormComponentFriendlyTextInput } = Components;
-
   const blurbContent = (
     <span>
       If you have taken the {tenPercentPledgeDiamond}10% Pledge or {trialPledgeDiamond}Trial Pledge, consider adding a
@@ -82,3 +81,5 @@ declare global {
     FormComponentFriendlyDisplayNameInput: typeof FormComponentFriendlyDisplayNameInputComponent;
   }
 }
+
+export default FormComponentFriendlyDisplayNameInputComponent;

@@ -9,6 +9,8 @@ import DoneIcon from '@material-ui/icons/Done'
 import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
+import MetaInfo from "@/components/common/MetaInfo";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,9 +59,6 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined
 }) => {
-
-  const { MetaInfo, LWTooltip } = Components
-
   const endedAtDate = moment(moderatorAction.endedAt)
   const today = moment(new Date())
   const existingEndedAtDays = endedAtDate.diff(today, "days")
@@ -155,4 +154,6 @@ declare global {
     ModeratorActionItem: typeof ModeratorActionItemComponent
   }
 }
+
+export default ModeratorActionItemComponent;
 

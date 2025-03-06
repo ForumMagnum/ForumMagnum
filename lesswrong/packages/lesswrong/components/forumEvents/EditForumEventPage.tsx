@@ -2,6 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ForumEventForm from "@/components/forumEvents/ForumEventForm";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,8 +16,6 @@ export const EditForumEventPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params: {documentId}} = useLocation();
-
-  const {SingleColumnSection, ForumEventForm, PermanentRedirect} = Components;
   if (documentId?.length !== 17) {
     return <PermanentRedirect status={307} url="/adminForumEvents" />
   }
@@ -40,3 +41,5 @@ declare global {
     EditForumEventPage: typeof EditForumEventPageComponent
   }
 }
+
+export default EditForumEventPageComponent;

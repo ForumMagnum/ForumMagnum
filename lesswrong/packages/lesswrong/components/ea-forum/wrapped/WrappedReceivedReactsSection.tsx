@@ -5,6 +5,8 @@ import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import { getTotalReactsReceived } from "./wrappedHelpers";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
 
 type ReceivedReact = {
   top: string,
@@ -98,8 +100,6 @@ const WrappedReceivedReactsSection = ({classes}: {
     [mostReceivedReacts],
   );
   const totalReactsReceived = getTotalReactsReceived(data);
-
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="reactsReceived" fullHeight>
       {allReactsReceived?.map(({top, left, transform, Component}, i) => (
@@ -148,3 +148,5 @@ declare global {
     WrappedReceivedReactsSection: typeof WrappedReceivedReactsSectionComponent
   }
 }
+
+export default WrappedReceivedReactsSectionComponent;

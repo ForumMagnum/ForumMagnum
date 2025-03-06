@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import {petrovPostIdSetting} from "./PetrovDayButton";
+import { Typography } from "@/components/common/Typography";
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -37,9 +38,9 @@ const PetrovDayLossScreen = ({classes}: {
 }) => {
   return (
     <div className={classes.root}>
-      <Components.Typography variant="display3" className={classes.title}>
+      <Typography variant="display3" className={classes.title}>
         <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
-      </Components.Typography>
+      </Typography>
       <Link className={classes.link} to={"/posts/" + petrovPostIdSetting.get()}>What happened?</Link>
     </div>
   )
@@ -56,4 +57,6 @@ declare global {
     PetrovDayLossScreen: typeof PetrovDayLossScreenComponent
   }
 }
+
+export default PetrovDayLossScreenComponent;
 

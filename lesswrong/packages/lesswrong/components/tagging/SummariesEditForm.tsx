@@ -8,6 +8,12 @@ import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
+import { Loading } from "@/components/vulcan-core/Loading";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import LWTooltip from "@/components/common/LWTooltip";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -174,7 +180,6 @@ const SUMMARIES_TEXT = "You can edit summaries by clicking on them, reorder them
 const MAX_SUMMARIES_TEXT = "You can edit these summaries by clicking on them and reorder them by dragging.  Pages can have up to 3 summaries.";
 
 const SummarySubmitButtons = ({ submitForm, cancelCallback }: FormButtonProps) => {
-  const { Loading } = Components;
   const classes = useStyles(styles);
 
   const [loading, setLoading] = useState(false);
@@ -196,7 +201,6 @@ const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
   refetch: () => Promise<void>,
 }) => {
-  const { WrappedSmartForm, LWTooltip, ContentItemBody, ContentStyles, ForumIcon } = Components;
   const classes = useStyles(styles);
 
   const [edit, setEdit] = useState(false);
@@ -244,7 +248,6 @@ const NewSummaryEditor = ({ parentDocument, refetchSummaries, setNewSummaryEdito
   refetchSummaries: () => Promise<void>,
   setNewSummaryEditorOpen: (open: boolean) => void,
 }) => {
-  const { WrappedSmartForm } = Components;
   const classes = useStyles(styles);
 
   const collectionName: DbMultiDocument['collectionName'] = 'title' in parentDocument ? 'MultiDocuments' : 'Tags';
@@ -277,7 +280,6 @@ const NewSummaryEditor = ({ parentDocument, refetchSummaries, setNewSummaryEdito
 }
 
 const SortableRowHandle = sortableHandle(() => {
-  const { ForumIcon, LWTooltip } = Components;
   const classes = useStyles(styles);
   return <span className={classes.dragHandle}>
     <LWTooltip title="Drag to reorder" placement='left'>
@@ -299,8 +301,6 @@ function getSummariesHelpText(results: MultiDocumentContentDisplay[]) {
 const SummariesEditForm = ({ document }: {
   document: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
 }) => {
-  const { Loading, ForumIcon, LWTooltip } = Components;
-
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
@@ -395,3 +395,7 @@ declare global {
 }
 
 export default SummariesEditFormComponent;
+
+export {
+  SummariesEditFormComponent as SummariesEditForm
+}

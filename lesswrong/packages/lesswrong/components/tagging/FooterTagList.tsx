@@ -18,6 +18,13 @@ import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/p
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import HoverOver from "@/components/common/HoverOver";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import { Loading } from "@/components/vulcan-core/Loading";
+import FooterTag from "@/components/tagging/FooterTag";
+import AddTagButton from "@/components/tagging/AddTagButton";
+import CoreTagsChecklist from "@/components/tagging/CoreTagsChecklist";
+import PostsAnnualReviewMarketTag from "@/components/posts/PostsAnnualReviewMarketTag";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -274,7 +281,6 @@ const FooterTagList = ({
     label: string,
     neverCoreStyling?: boolean
   }) => {
-    const {HoverOver, ContentStyles} = Components;
     return (
       <HoverOver
         title={
@@ -323,9 +329,6 @@ const FooterTagList = ({
   const sortedTagInfo = results
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
     : post.tags.map((tag) => ({ tag, tagRel: undefined }));
-
-  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
-
   const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
   const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>
@@ -386,3 +389,5 @@ declare global {
     FooterTagList: typeof FooterTagListComponent
   }
 }
+
+export default FooterTagListComponent;

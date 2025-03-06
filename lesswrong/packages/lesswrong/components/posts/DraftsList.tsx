@@ -9,6 +9,13 @@ import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ListIcon from '@material-ui/icons/List';
+import PostsItem from "@/components/posts/PostsItem";
+import { Loading } from "@/components/vulcan-core/Loading";
+import LoadMore from "@/components/common/LoadMore";
+import DraftsListSettings from "@/components/posts/DraftsListSettings";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import SettingsButton from "@/components/icons/SettingsButton";
+import SectionButton from "@/components/common/SectionButton";
 
 const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {
@@ -38,8 +45,6 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem, Loading } = Components
-  
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
   
@@ -77,28 +82,28 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   if (!currentUser) return null
   
   return <>
-    {!hideHeaderRow && <Components.SectionTitle title={title}>
+    {!hideHeaderRow && <SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
           {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
-            <Components.SectionButton>
+            <SectionButton>
               <DescriptionIcon /> New Post
-            </Components.SectionButton>
+            </SectionButton>
           </Link>}
         </div>
         {showAllDraftsLink && <div className={classes.draftsPageButton}>
           <Link to={"/drafts"}>
-            <Components.SectionButton>
+            <SectionButton>
               <ListIcon /> All Drafts
-            </Components.SectionButton>
+            </SectionButton>
           </Link>
         </div>}
         <div onClick={() => setShowSettings(!showSettings)}>
-          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+          <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>
-    </Components.SectionTitle>}
-    {showSettings && <Components.DraftsListSettings
+    </SectionTitle>}
+    {showSettings && <DraftsListSettings
       hidden={false}
       persistentSettings={true}
       currentSorting={currentSorting}
@@ -120,7 +125,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
         />
       )}
     </>}
-    <Components.LoadMore { ...loadMoreProps }/>
+    <LoadMore { ...loadMoreProps }/>
   </>
 }
 
@@ -133,4 +138,6 @@ declare global {
     DraftsList: typeof DraftsListComponent
   }
 }
+
+export default DraftsListComponent;
 

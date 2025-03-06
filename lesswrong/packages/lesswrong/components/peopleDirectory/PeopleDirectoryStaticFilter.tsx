@@ -1,6 +1,9 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { MultiSelectResult } from "../hooks/useMultiSelect";
+import PeopleDirectorySelectOption from "@/components/peopleDirectory/PeopleDirectorySelectOption";
+import PeopleDirectoryClearAll from "@/components/peopleDirectory/PeopleDirectoryClearAll";
+import PeopleDirectoryFilterDropdown from "@/components/peopleDirectory/PeopleDirectoryFilterDropdown";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -29,17 +32,15 @@ const PeopleDirectoryStaticFilter = ({
       );
     }
     return (
-      <Components.PeopleDirectoryFilterDropdown
+      <PeopleDirectoryFilterDropdown
         title={summary}
         active={selectedValues.length > 0}
         className={classes.root}
       >
         {children}
-      </Components.PeopleDirectoryFilterDropdown>
+      </PeopleDirectoryFilterDropdown>
     );
   }, [justContent, summary, selectedValues.length, classes]);
-
-  const {PeopleDirectorySelectOption, PeopleDirectoryClearAll} = Components;
   return (
     <Wrapper>
       {state.map((item) => (
@@ -65,3 +66,5 @@ declare global {
     PeopleDirectoryStaticFilter: typeof PeopleDirectoryStaticFilterComponent
   }
 }
+
+export default PeopleDirectoryStaticFilterComponent;

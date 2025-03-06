@@ -4,12 +4,13 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import LWDialog from "@/components/common/LWDialog";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 
 const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
   tagFlagId?: string,
   onClose?: () => void,
 }) => {
-  const { LWDialog } = Components;
   return (
     <LWDialog
       open={true}
@@ -21,7 +22,7 @@ const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
           `Create ${taggingNameCapitalSetting.get()} Flag`}
       </DialogTitle>
       <DialogContent>
-        <Components.WrappedSmartForm
+        <WrappedSmartForm
           collectionName="TagFlags"
           documentId={tagFlagId}
           queryFragment={getFragment("TagFlagEditFragment")}
@@ -40,3 +41,5 @@ declare global {
     TagFlagEditAndNewForm: typeof TagFlagEditAndNewFormComponent
   }
 }
+
+export default TagFlagEditAndNewFormComponent;

@@ -1,11 +1,12 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import FormItem from "@/components/vulcan-ui-bootstrap/forms/FormItem";
 
 const EmailComponent = ({ refFunction, inputProperties, itemProperties }: AnyBecauseTodo) => (
-  <Components.FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
+  <FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
     <Form.Control {...inputProperties} ref={refFunction} type="email" />
-  </Components.FormItem>
+  </FormItem>
 );
 
 const FormComponentEmailComponent = registerComponent('FormComponentEmail', EmailComponent);
@@ -15,4 +16,6 @@ declare global {
     FormComponentEmail: typeof FormComponentEmailComponent
   }
 }
+
+export default FormComponentEmailComponent;
 

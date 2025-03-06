@@ -3,6 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useDialog } from '../common/withDialog';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
+import FormatDate from "@/components/common/FormatDate";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import MetaInfo from "@/components/common/MetaInfo";
+import LWTooltip from "@/components/common/LWTooltip";
+import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   username: {
@@ -35,7 +42,6 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
   revision: RevisionHistoryEntry,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote, ForumIcon } = Components
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -100,3 +106,5 @@ declare global {
     TagRevisionItemShortMetadata: typeof TagRevisionItemShortMetadataComponent
   }
 }
+
+export default TagRevisionItemShortMetadataComponent;

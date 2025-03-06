@@ -20,6 +20,20 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import LWTooltip from "@/components/common/LWTooltip";
+import NewPostHowToGuides from "@/components/posts/NewPostHowToGuides";
+import PostSubmit from "@/components/posts/PostSubmit";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import LoginForm from "@/components/users/LoginForm";
+import SubmitToFrontpageCheckbox from "@/components/posts/SubmitToFrontpageCheckbox";
+import RecaptchaWarning from "@/components/common/RecaptchaWarning";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Typography } from "@/components/common/Typography";
+import { Loading } from "@/components/vulcan-core/Loading";
+import PostsAcceptTos from "@/components/posts/PostsAcceptTos";
+import NewPostModerationWarning from "@/components/sunshineDashboard/NewPostModerationWarning";
+import RateLimitWarning from "@/components/editor/RateLimitWarning";
+import DynamicTableOfContents from "@/components/posts/TableOfContents/DynamicTableOfContents";
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType) => ({
@@ -172,7 +186,6 @@ const prefillFromTemplate = (template: PostsEdit) => {
 }
 
 export const getPostEditorGuide = (classes: ClassesType<typeof styles>) => {
-  const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (
       <div className={classes.editorGuideOffset}>
@@ -242,12 +255,6 @@ function usePrefetchForAutosaveRedirect() {
 const PostsNewForm = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
-    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
-  } = Components;
-
   const { query } = useLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
@@ -430,3 +437,5 @@ declare global {
     PostsNewForm: typeof PostsNewFormComponent
   }
 }
+
+export default PostsNewFormComponent;

@@ -71,3 +71,5 @@ declare global {
     CoreTagIcon: typeof CoreTagIconComponent
   }
 }
+
+export default CoreTagIconComponent;

@@ -8,6 +8,9 @@ import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 import range from 'lodash/range'
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import ForumIcon from "@/components/common/ForumIcon";
+import LWTooltip from "@/components/common/LWTooltip";
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -327,9 +330,6 @@ const HomeTagBar = (
     }, {replace: true})
     captureEvent('topicsBarTabClicked', {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
-
-  const {SingleColumnSection, ForumIcon, LWTooltip} = Components
-
   return (
     <>
       <AnalyticsContext pageSectionContext="topicsBar">
@@ -393,3 +393,5 @@ declare global {
     HomeTagBar: typeof HomeTagBarComponent
   }
 }
+
+export default HomeTagBarComponent;

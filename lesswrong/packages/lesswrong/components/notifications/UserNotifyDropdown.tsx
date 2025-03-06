@@ -5,6 +5,12 @@ import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import EAButton from "@/components/ea-forum/EAButton";
+import ForumIcon from "@/components/common/ForumIcon";
+import PopperCard from "@/components/common/PopperCard";
+import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import DropdownMenu from "@/components/dropdowns/DropdownMenu";
+import NotifyMeToggleDropdownItem from "@/components/dropdowns/NotifyMeToggleDropdownItem";
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -51,12 +57,6 @@ const UserNotifyDropdown = ({
     captureEvent("subscribeClick", {open, itemType: "user", userId: user._id});
     setIsOpen(open);
   }, [user._id, captureEvent]);
-
-  const {
-    EAButton, ForumIcon, PopperCard, LWClickAwayListener, DropdownMenu,
-    NotifyMeToggleDropdownItem,
-  } = Components;
-
   const ButtonComponent = isFriendlyUI 
     ?  <EAButton
           style="grey"
@@ -123,3 +123,5 @@ declare global {
     UserNotifyDropdown: typeof UserNotifyDropdownComponent
   }
 }
+
+export default UserNotifyDropdownComponent;

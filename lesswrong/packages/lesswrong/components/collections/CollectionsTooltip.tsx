@@ -4,6 +4,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import Card from "@material-ui/core/Card";
 import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
+import HoverOver from "@/components/common/HoverOver";
+import UsersName from "@/components/users/UsersName";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemTruncated from "@/components/common/ContentItemTruncated";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +41,6 @@ const CollectionsTooltip = ({collection, children, classes}: {
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {HoverOver, UsersName, ContentStyles, ContentItemTruncated} = Components;
   return (
     <HoverOver
       title={
@@ -85,3 +88,5 @@ declare global {
     CollectionsTooltip: typeof CollectionsTooltipComponent;
   }
 }
+
+export default CollectionsTooltipComponent;

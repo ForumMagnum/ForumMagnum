@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsLoading from "@/components/posts/PostsLoading";
+import { Typography } from "@/components/common/Typography";
+import PostsItem from "@/components/posts/PostsItem";
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
@@ -18,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 const RecommendationsList = ({
   algorithm,
   translucentBackground,
-  ListItem = Components.PostsItem,
+  ListItem = PostsItem,
   loadingFallback,
   className,
   classes,
@@ -30,7 +33,6 @@ const RecommendationsList = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });
 
   if (recommendationsLoading || !recommendations)
@@ -63,3 +65,5 @@ declare global {
     RecommendationsList: typeof RecommendationsListComponent
   }
 }
+
+export default RecommendationsListComponent;

@@ -71,3 +71,5 @@ declare global {
     SignupSubscribeToCurated: typeof SignupSubscribeToCuratedComponent
   }
 }
+
+export default SignupSubscribeToCuratedComponent;

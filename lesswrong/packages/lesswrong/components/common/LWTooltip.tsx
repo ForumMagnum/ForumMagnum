@@ -4,6 +4,7 @@ import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
+import LWPopper from "@/components/common/LWPopper";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -64,7 +65,6 @@ const LWTooltip = ({
   forceOpen,
   classes,
 }: LWTooltipProps) => {
-  const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -151,3 +151,5 @@ declare global {
     LWTooltip: typeof LWTooltipComponent
   }
 }
+
+export default LWTooltipComponent;

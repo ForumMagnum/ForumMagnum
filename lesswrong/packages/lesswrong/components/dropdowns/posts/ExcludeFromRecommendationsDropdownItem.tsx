@@ -4,7 +4,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const ExcludeFromRecommendationsDropdownItem = ({post}: {
   post: PostsList|SunshinePostsList,
@@ -31,8 +31,6 @@ const ExcludeFromRecommendationsDropdownItem = ({post}: {
   const label = post.disableRecommendation
     ? "Include in Recommendations"
     : "Exclude from Recommendations"
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase(label)}
@@ -51,3 +49,5 @@ declare global {
     ExcludeFromRecommendationsDropdownItem: typeof ExcludeFromRecommendationsDropdownItemComponent
   }
 }
+
+export default ExcludeFromRecommendationsDropdownItemComponent;

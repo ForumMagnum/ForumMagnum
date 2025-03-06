@@ -4,6 +4,11 @@ import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import MetaInfo from "@/components/common/MetaInfo";
+import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import BasicFormStyles from "@/components/form-components/BasicFormStyles";
+import Row from "@/components/common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +31,6 @@ export const ModerationTemplateItem = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
-  const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
 
   const {hash} = useLocation()
@@ -65,4 +69,6 @@ declare global {
     ModerationTemplateItem: typeof ModerationTemplateItemComponent
   }
 }
+
+export default ModerationTemplateItemComponent;
 

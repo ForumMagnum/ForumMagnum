@@ -4,7 +4,8 @@ import { REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import range from 'lodash/range';
-
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,9 +40,6 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
   }) => {
 
     const currentUser = useCurrentUser()
-
-    const { LWTooltip, ForumIcon } = Components
-
     const { results: reviewsResults, totalCount: reviewsTotalCount } = useMulti({
       terms: {
         view: "reviews",
@@ -83,3 +81,5 @@ declare global {
     ReviewProgressNominations: typeof ReviewProgressNominationsComponent
   }
 }
+
+export default ReviewProgressNominationsComponent;

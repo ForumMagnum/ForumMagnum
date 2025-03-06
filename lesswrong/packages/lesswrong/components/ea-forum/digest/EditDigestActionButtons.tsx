@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
+import EAButton from "@/components/ea-forum/EAButton";
+import LWTooltip from "@/components/common/LWTooltip";
+import ForumIcon from "@/components/common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   questionMark: {
@@ -61,9 +64,6 @@ const EditDigestActionButtons = ({digest, classes}: {
       })
     }
   }
-  
-  const { EAButton, LWTooltip, ForumIcon } = Components
-
   return <>
     {!digest.endDate && <LWTooltip title="This sets the cut-off date for this digest and automatically sets up the next digest.">
       <EAButton variant='outlined' onClick={handleStartNewWeek}>
@@ -106,3 +106,5 @@ declare global {
     EditDigestActionButtons: typeof EditDigestActionButtonsComponent
   }
 }
+
+export default EditDigestActionButtonsComponent;

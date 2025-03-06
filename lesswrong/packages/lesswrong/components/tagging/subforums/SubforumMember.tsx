@@ -9,6 +9,11 @@ import {
 } from '../../../lib/collections/users/helpers';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import ProfilePhoto from "@/components/messaging/ProfilePhoto";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { Typography } from "@/components/common/Typography";
+import SocialMediaLink from "@/components/users/SocialMediaLink";
 
 const COLLAPSED_SECTION_HEIGHT = 70
 
@@ -146,11 +151,6 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   })
   // this tracks whether the bio section is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
-
-  const {
-    ProfilePhoto, ContentStyles, ContentItemBody, Typography, SocialMediaLink,
-  } = Components;
-
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const userKarma = user.karma || 0
@@ -233,3 +233,5 @@ declare global {
     SubforumMember: typeof SubforumMemberComponent
   }
 }
+
+export default SubforumMemberComponent;

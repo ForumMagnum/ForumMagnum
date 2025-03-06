@@ -76,3 +76,5 @@ declare global {
     AttributionInViewTracker: typeof AttributionInViewTrackerComponent
   }
 }
+
+export default AttributionInViewTrackerComponent;

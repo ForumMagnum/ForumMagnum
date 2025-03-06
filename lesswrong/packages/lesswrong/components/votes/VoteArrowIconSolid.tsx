@@ -177,3 +177,7 @@ declare global {
   }
 }
 
+export {
+  VoteArrowIconSolidComponent as VoteArrowIconSolid
+}
+

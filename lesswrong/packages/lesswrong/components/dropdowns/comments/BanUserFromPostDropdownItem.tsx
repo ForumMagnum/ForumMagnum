@@ -5,6 +5,7 @@ import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const BanUserFromPostDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -38,8 +39,6 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
       );
     }
   }
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title="Ban user from this post"
@@ -57,4 +56,6 @@ declare global {
     BanUserFromPostDropdownItem: typeof BanUserFromPostDropdownItemComponent,
   }
 }
+
+export default BanUserFromPostDropdownItemComponent;
 

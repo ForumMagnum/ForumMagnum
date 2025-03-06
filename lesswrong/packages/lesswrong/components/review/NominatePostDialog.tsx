@@ -3,6 +3,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
+import { Typography } from "@/components/common/Typography";
+import LWDialog from "@/components/common/LWDialog";
 
 const styles = (theme: ThemeType) => ({
   nominating: {
@@ -38,8 +41,6 @@ const NominatePostDialog = ({classes, post, onClose}: {
   post: PostsBase,
   onClose?: () => void,
 }) => {
-  const { CommentsNewForm, Typography, LWDialog } = Components;
-
   const hintText = <div className={classes.hintText}>
     <p>How has this post been useful to you over the past year or two?</p> 
     <p>Has it influenced your overall thinking, or been useful for particular projects or decisions?</p>
@@ -92,4 +93,6 @@ declare global {
     NominatePostDialog: typeof NominatePostDialogComponent
   }
 }
+
+export default NominatePostDialogComponent;
 

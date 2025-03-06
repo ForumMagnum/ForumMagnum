@@ -8,6 +8,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../PostsEditForm';
 import { useNavigate } from '../../../lib/routeUtil';
+import Row from "@/components/common/Row";
 
 export const styles = (theme: ThemeType) => ({
   formButton: {
@@ -86,8 +87,6 @@ const DialogueSubmit = ({
   const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
-
-  const {Row} = Components;
   return (
     <Row justifyContent="flex-end">
       <Button type="submit"
@@ -143,3 +142,5 @@ declare global {
     DialogueSubmit: typeof DialogueSubmitComponent
   }
 }
+
+export default DialogueSubmitComponent;

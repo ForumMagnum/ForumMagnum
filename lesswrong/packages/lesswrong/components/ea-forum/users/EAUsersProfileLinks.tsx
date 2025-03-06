@@ -8,6 +8,10 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { separatorBulletStyles } from "../../common/SectionFooter";
 import CopyToClipboard from "react-copy-to-clipboard";
 import CopyIcon from "@material-ui/icons/FileCopy";
+import { Typography } from "@/components/common/Typography";
+import LWTooltip from "@/components/common/LWTooltip";
+import DialogGroup from "@/components/common/DialogGroup";
+import NewFeedButton from "@/components/rss/NewFeedButton";
 
 const styles = (theme: ThemeType) => ({
   links: {
@@ -43,8 +47,6 @@ const EAUsersProfileLinks = ({user, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
-  const {Typography, LWTooltip, DialogGroup} = Components;
-
   const hasLinks = currentUser?.isAdmin || userCanEditUser(currentUser, user);
   if (!hasLinks) {
     return null;
@@ -74,7 +76,7 @@ const EAUsersProfileLinks = ({user, classes}: {
             actions={[]}
             trigger={<a>Register RSS</a>}
           >
-            <div><Components.NewFeedButton user={user} /></div>
+            <div><NewFeedButton user={user} /></div>
           </DialogGroup>
         </div>
       }
@@ -103,3 +105,5 @@ declare global {
     EAUsersProfileLinks: typeof EAUsersProfileLinksComponent
   }
 }
+
+export default EAUsersProfileLinksComponent;

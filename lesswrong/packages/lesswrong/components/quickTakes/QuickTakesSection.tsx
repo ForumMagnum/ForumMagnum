@@ -13,6 +13,13 @@ import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
 import { useMulti } from "@/lib/crud/withMulti";
+import ExpandableSection from "@/components/common/ExpandableSection";
+import LWTooltip from "@/components/common/LWTooltip";
+import QuickTakesEntry from "@/components/quickTakes/QuickTakesEntry";
+import QuickTakesListItem from "@/components/quickTakes/QuickTakesListItem";
+import { Loading } from "@/components/vulcan-core/Loading";
+import SectionFooter from "@/components/common/SectionFooter";
+import LoadMore from "@/components/common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -46,10 +53,6 @@ const styles = (theme: ThemeType) => ({
 const QuickTakesSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesListItem, Loading, SectionFooter, LoadMore
-  } = Components;
-
   const currentUser = useCurrentUser();
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -161,3 +164,5 @@ declare global {
     QuickTakesSection: typeof QuickTakesSectionComponent
   }
 }
+
+export default QuickTakesSectionComponent;

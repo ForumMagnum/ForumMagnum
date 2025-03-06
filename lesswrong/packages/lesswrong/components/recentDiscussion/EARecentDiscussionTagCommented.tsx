@@ -6,6 +6,9 @@ import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { taggingNameCapitalSetting } from "../../lib/instanceSettings";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import type { CommentTreeOptions } from "../comments/commentTree";
+import EARecentDiscussionItem from "@/components/recentDiscussion/EARecentDiscussionItem";
+import TagExcerpt from "@/components/common/excerpts/TagExcerpt";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -60,8 +63,6 @@ const EARecentDiscussionTagCommented = ({
   const metadata = tag.wikiOnly
     ? "Wiki page"
     : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
-
-  const {EARecentDiscussionItem, TagExcerpt, CommentsNode} = Components;
   return (
     <EARecentDiscussionItem
       icon="CommentFilled"
@@ -106,3 +107,5 @@ declare global {
     EARecentDiscussionTagCommented: typeof EARecentDiscussionTagCommentedComponent,
   }
 }
+
+export default EARecentDiscussionTagCommentedComponent;

@@ -8,6 +8,10 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import FooterTag from "@/components/tagging/FooterTag";
+import AddTagButton from "@/components/tagging/AddTagButton";
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,8 +42,6 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
-
   const [isAwaiting, setIsAwaiting] = useState(false)
   const [showAllSubtags, setShowAllSubtags] = useState(false)
   const currentUser = useCurrentUser();
@@ -157,3 +159,5 @@ declare global {
     SidebarSubtagsBox: typeof SidebarSubtagsBoxComponent;
   }
 }
+
+export default SidebarSubtagsBoxComponent;

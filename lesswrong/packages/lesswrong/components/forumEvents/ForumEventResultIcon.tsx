@@ -5,6 +5,9 @@ import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { POLL_MAX_WIDTH } from './ForumEventPoll';
+import LWTooltip from "@/components/common/LWTooltip";
+import UsersProfileImage from "@/components/users/UsersProfileImage";
+import ForumEventResultPopper from "@/components/forumEvents/ForumEventResultPopper";
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
@@ -61,8 +64,6 @@ const ForumEventResultIcon = ({
   tooltipDisabled: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { LWTooltip, UsersProfileImage, ForumEventResultPopper } = Components;
-
   const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
 
   const { captureEvent } = useTracking();
@@ -130,3 +131,5 @@ declare global {
     ForumEventResultIcon: typeof ForumEventResultIconComponent;
   }
 }
+
+export default ForumEventResultIconComponent;

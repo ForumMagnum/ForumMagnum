@@ -13,6 +13,18 @@ import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import SmallSideVote from "@/components/votes/SmallSideVote";
+import AnswerCommentsList from "@/components/questions/AnswerCommentsList";
+import CommentsMenu from "@/components/dropdowns/comments/CommentsMenu";
+import ForumIcon from "@/components/common/ForumIcon";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
+import CommentsItemDate from "@/components/comments/CommentsItem/CommentsItemDate";
+import UsersName from "@/components/users/UsersName";
+import { Typography } from "@/components/common/Typography";
+import CommentBottom from "@/components/comments/CommentsItem/CommentBottom";
+import CommentsNewForm from "@/components/comments/CommentsNewForm";
+import HoveredReactionContextProvider from "@/components/votes/lwReactions/HoveredReactionContextProvider";
+import CommentsEditForm from "@/components/comments/CommentsEditForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -160,13 +172,6 @@ const Answer = ({ comment, post, childComments, classes }: {
   }, []);
 
   const CommentLinkWrapper = useCommentLink({comment, post});
-
-  const {
-    SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon, CommentBody,
-    CommentsItemDate, UsersName, Typography, CommentBottom, CommentsNewForm,
-    HoveredReactionContextProvider,
-  } = Components;
-
   const menuIcon = isFriendlyUI
     ? undefined
     : <MoreHorizIcon />;
@@ -233,7 +238,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 Pinned by {comment.promotedByUser.displayName}
               </div>}
               { showEdit
-                ? <Components.CommentsEditForm
+                ? <CommentsEditForm
                     comment={comment}
                     successCallback={hideEdit}
                     cancelCallback={hideEdit}
@@ -298,3 +303,5 @@ declare global {
     Answer: typeof AnswerComponent
   }
 }
+
+export default AnswerComponent;

@@ -6,6 +6,8 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
+import OmegaIcon from "@/components/icons/OmegaIcon";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {
@@ -52,8 +54,6 @@ const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
 
   const userHasSuggested = comment.suggestForAlignmentUserIds &&
     comment.suggestForAlignmentUserIds.includes(currentUser!._id);
-
-  const {DropdownItem, OmegaIcon} = Components
   if (!userHasSuggested) {
     return (
       <DropdownItem
@@ -96,3 +96,5 @@ declare global {
     SuggestAlignmentCommentDropdownItem: typeof SuggestAlignmentCommentDropdownItemComponent
   }
 }
+
+export default SuggestAlignmentCommentDropdownItemComponent;

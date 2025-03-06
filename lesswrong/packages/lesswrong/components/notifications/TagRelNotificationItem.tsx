@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Loading } from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   meta: {
@@ -18,8 +19,6 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
-  const { Loading } = Components
-
   const { document: tagRel, loading } = useSingle({
     documentId: tagRelId,
     collectionName: "TagRels",
@@ -42,4 +41,6 @@ declare global {
     TagRelNotificationItem: typeof TagRelNotificationItemComponent
   }
 }
+
+export default TagRelNotificationItemComponent;
 

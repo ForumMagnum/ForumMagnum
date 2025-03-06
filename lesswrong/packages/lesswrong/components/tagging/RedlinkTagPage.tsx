@@ -8,6 +8,10 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { ApolloError } from '@apollo/client';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Typography } from "@/components/common/Typography";
+import { ContentStyles } from "@/components/common/ContentStyles";
+import Error404 from "@/components/common/Error404";
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -104,7 +108,6 @@ const RedlinkTagPage = ({tag, slug}: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { SingleColumnSection, Typography, ContentStyles, Error404 } = Components;
   const { results: pingbacks, loading: pingbacksLoading, error: pingbacksError } = useRedLinkPingbacks(tag?._id);
   const navigate = useNavigate();
   const title = capitalizeFirstLetter(inferRedLinkTitle(tag, slug??null) ?? "Unnamed");
@@ -158,4 +161,6 @@ declare global {
     RedlinkTagPage: typeof RedlinkTagPageComponent
   }
 }
+
+export default RedlinkTagPageComponent;
 

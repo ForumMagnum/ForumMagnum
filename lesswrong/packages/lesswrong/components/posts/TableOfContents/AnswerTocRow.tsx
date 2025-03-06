@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
+import LWTooltip from "@/components/common/LWTooltip";
+import FormatDate from "@/components/common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,8 +42,6 @@ const AnswerTocRow = ({classes, answer}: {
   classes: ClassesType<typeof styles>,
   answer: ToCAnswer,
 }) => {
-  const { LWTooltip, FormatDate } = Components
-
   const tooltip = <div>
     <div className={classes.tooltipKarma}>
       <div>
@@ -78,3 +78,5 @@ declare global {
     AnswerTocRow: typeof AnswerTocRowComponent
   }
 }
+
+export default AnswerTocRowComponent;

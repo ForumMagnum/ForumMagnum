@@ -7,6 +7,10 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PeopleDirectoryFilterDropdown from "@/components/peopleDirectory/PeopleDirectoryFilterDropdown";
+import PeopleDirectorySelectOption from "@/components/peopleDirectory/PeopleDirectorySelectOption";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   greyDropdownRoot: {
@@ -116,9 +120,6 @@ const MultiSelect = ({
   }, [value, setValue]);
 
   if (isGrey) {
-    const {
-      SectionTitle, PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
-    } = Components;
     return (
       <div>
         {label && <SectionTitle title={label} titleClassName={classes.sectionTitle} />}
@@ -142,8 +143,6 @@ const MultiSelect = ({
       </div>
     );
   }
-
-  const {MenuItem} = Components;
   return <FormControl>
     {label && <FormLabel className={classes.formLabel}>{label}</FormLabel>}
     <Select
@@ -189,7 +188,7 @@ const FormComponentMultiSelect = ({
   variant?: "default" | "grey",
   classes: ClassesType<typeof styles>
 }) => {
-  return <Components.MultiSelect
+  return <MultiSelect
     label={label}
     placeholder={placeholder}
     separator={separator}
@@ -212,4 +211,9 @@ declare global {
     MultiSelect: typeof MultiSelectComponent
     FormComponentMultiSelect: typeof FormComponentMultiSelectComponent
   }
+}
+
+export {
+  MultiSelectComponent as MultiSelect,
+  FormComponentMultiSelectComponent as FormComponentMultiSelect
 }

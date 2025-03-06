@@ -3,6 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@material-ui/core/Select';
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { SectionTitle } from "@/components/common/SectionTitle";
+import PostsList2 from "@/components/posts/PostsList2";
+import SectionFooterCheckbox from "@/components/form-components/SectionFooterCheckbox";
+import RecentComments from "@/components/comments/RecentComments";
+import LWTooltip from "@/components/common/LWTooltip";
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -35,8 +42,6 @@ const Reviews2019 = ({classes}: {
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip, MenuItem } = Components
-
   const handleSetExpandUnread = () => {
     if (currentUser) {
       void updateUser({
@@ -121,4 +126,6 @@ declare global {
     Reviews2019: typeof Reviews2019Component
   }
 }
+
+export default Reviews2019Component;
 

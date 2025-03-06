@@ -2,6 +2,8 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useForumWrappedContext } from "./hooks";
 import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
+import WrappedSection from "@/components/ea-forum/wrapped/WrappedSection";
+import WrappedHeading from "@/components/ea-forum/wrapped/WrappedHeading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -26,7 +28,6 @@ const WrappedThankYouSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentUser} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="thankYou">
       <div className={classes.root}>
@@ -52,3 +53,5 @@ declare global {
     WrappedThankYouSection: typeof WrappedThankYouSectionComponent
   }
 }
+
+export default WrappedThankYouSectionComponent;

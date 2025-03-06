@@ -28,6 +28,21 @@ import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
+import SettingsButton from "@/components/icons/SettingsButton";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import PostsList2 from "@/components/posts/PostsList2";
+import TagFilterSettings from "@/components/tagging/TagFilterSettings";
+import RecombeePostsList from "@/components/posts/RecombeePostsList";
+import CuratedPostsList from "@/components/recommendations/CuratedPostsList";
+import RecombeePostsListSettings from "@/components/posts/RecombeePostsListSettings";
+import TabPicker from "@/components/common/TabPicker";
+import BookmarksList from "@/components/bookmarks/BookmarksList";
+import ContinueReadingList from "@/components/recommendations/ContinueReadingList";
+import VertexPostsList from "@/components/posts/VertexPostsList";
+import WelcomePostItem from "@/components/recommendations/WelcomePostItem";
+import SuggestedFeedSubscriptions from "@/components/subscriptions/SuggestedFeedSubscriptions";
+import PostsItem from "@/components/posts/PostsItem";
+import FeedPostCommentsCard from "@/components/recentDiscussion/FeedPostCommentsCard";
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -340,8 +355,6 @@ const FrontpageSettingsButton = ({
   labelClassName?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SettingsButton } = Components;
-
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
@@ -403,10 +416,6 @@ const LWHomePosts = ({ children, classes }: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
-  const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, TabPicker, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
-
   const { captureEvent } = useTracking();
 
   const currentUser = useCurrentUser();
@@ -479,7 +488,7 @@ const LWHomePosts = ({ children, classes }: {
         render: (postCommented: SubscribedPostAndCommentsFeed) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
           const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ documentId }) => documentId)) : undefined;
-          return <Components.FeedPostCommentsCard
+          return <FeedPostCommentsCard
             key={postCommented.post._id}
             post={postCommented.post}
             comments={postCommented.comments}
@@ -717,3 +726,5 @@ declare global {
     LWHomePosts: typeof LWHomePostsComponent
   }
 }
+
+export default LWHomePostsComponent;

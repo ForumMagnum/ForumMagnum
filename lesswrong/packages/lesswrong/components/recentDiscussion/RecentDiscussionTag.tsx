@@ -10,6 +10,9 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import CommentsNode from "@/components/comments/CommentsNode";
+import ContentItemBody from "@/components/common/ContentItemBody";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,8 +70,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   tagCommentType?: TagCommentType,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
-
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   
@@ -149,3 +150,5 @@ declare global {
     RecentDiscussionTag: typeof RecentDiscussionTagComponent,
   }
 }
+
+export default RecentDiscussionTagComponent;

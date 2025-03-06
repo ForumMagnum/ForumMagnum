@@ -80,3 +80,5 @@ declare global {
     GroupFormSubmit: typeof GroupFormSubmitComponent
   }
 }
+
+export default GroupFormSubmitComponent;

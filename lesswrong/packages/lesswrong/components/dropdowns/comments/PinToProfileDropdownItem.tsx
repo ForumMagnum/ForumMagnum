@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import DropdownItem from "@/components/dropdowns/DropdownItem";
 
 const styles = (_: ThemeType) => ({
   icon: isFriendlyUI
@@ -42,8 +43,6 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   const title = comment.isPinnedOnProfile
     ? `Unpin from ${username} profile`
     : `Pin to ${username} profile`;
-
-  const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
@@ -65,3 +64,5 @@ declare global {
     PinToProfileDropdownItem: typeof PinToProfileDropdownItemComponent
   }
 }
+
+export default PinToProfileDropdownItemComponent;

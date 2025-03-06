@@ -3,13 +3,12 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib/component
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
+import TabNavigationEventsList from "@/components/localGroups/TabNavigationEventsList";
 
 const EventsList = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
   onClick: () => void
 }) => {
-  const { TabNavigationEventsList } = Components
-  
   const {lat, lng, known} = useUserLocation(currentUser, true)
   
   if (lat && lng && known) {
@@ -50,3 +49,5 @@ declare global {
     EventsList: typeof EventsListComponent
   }
 }
+
+export default EventsListComponent;

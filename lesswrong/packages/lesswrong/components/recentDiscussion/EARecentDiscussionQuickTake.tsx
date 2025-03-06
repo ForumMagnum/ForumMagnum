@@ -5,6 +5,9 @@ import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
+import EARecentDiscussionItem from "@/components/recentDiscussion/EARecentDiscussionItem";
+import CommentsItem from "@/components/comments/CommentsItem/CommentsItem";
+import CommentsNode from "@/components/comments/CommentsNode";
 
 const styles = (_theme: ThemeType) => ({
   quickTakeBody: {
@@ -104,8 +107,6 @@ const EARecentDiscussionQuickTake = ({
   }
 
   const splitComments = splitByTopLevelComment(nestedComments);
-
-  const {EARecentDiscussionItem, CommentsItem, CommentsNode} = Components;
   return (
     <>
       {splitComments.map((comments) => {
@@ -167,3 +168,5 @@ declare global {
     EARecentDiscussionQuickTake: typeof EARecentDiscussionQuickTakeComponent,
   }
 }
+
+export default EARecentDiscussionQuickTakeComponent;

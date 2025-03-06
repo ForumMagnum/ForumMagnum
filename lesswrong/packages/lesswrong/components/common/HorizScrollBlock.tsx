@@ -142,3 +142,5 @@ declare global {
   }
 }
 
+export default HorizScrollBlockComponent;
+

@@ -32,3 +32,5 @@ declare global {
     PostsListPlaceholder: typeof PostsListPlaceholderComponent
   }
 }
+
+export default PostsListPlaceholderComponent;

@@ -11,7 +11,17 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
-
+import SunshineListItem from "@/components/sunshineDashboard/SunshineListItem";
+import SidebarActionMenu from "@/components/sunshineDashboard/SidebarActionMenu";
+import SidebarAction from "@/components/sunshineDashboard/SidebarAction";
+import OmegaIcon from "@/components/icons/OmegaIcon";
+import SidebarInfo from "@/components/sunshineDashboard/SidebarInfo";
+import SunshineCommentsItemOverview from "@/components/sunshineDashboard/SunshineCommentsItemOverview";
+import SidebarHoverOver from "@/components/sunshineDashboard/SidebarHoverOver";
+import { Typography } from "@/components/common/Typography";
+import CommentBody from "@/components/comments/CommentsItem/CommentBody";
+import SunshineSendMessageWithDefaults from "@/components/sunshineDashboard/SunshineSendMessageWithDefaults";
+import { ContentStyles } from "@/components/common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   afSubmissionHeader: {
@@ -61,43 +71,43 @@ const AFSuggestCommentsItem = ({comment, classes}: {
 
   return (
     <span {...eventHandlers}>
-      <Components.SunshineListItem hover={hover}>
-        <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Components.Typography variant="body2">
+      <SunshineListItem hover={hover}>
+        <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+          <Typography variant="body2">
             { userHasSelfSuggested && <div>
-              <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
+              <ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
                 AF Submission
-              </Components.ContentStyles>
-              <Components.SunshineSendMessageWithDefaults user={comment.user} />
+              </ContentStyles>
+              <SunshineSendMessageWithDefaults user={comment.user} />
             </div>}
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
-            <Components.CommentBody comment={comment}/>
-          </Components.Typography>
-        </Components.SidebarHoverOver>
-        <Components.SunshineCommentsItemOverview comment={comment}/>
-        <Components.SidebarInfo>
+            <CommentBody comment={comment}/>
+          </Typography>
+        </SidebarHoverOver>
+        <SunshineCommentsItemOverview comment={comment}/>
+        <SidebarInfo>
           Endorsed by { comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user.displayName).join(", ") }
-        </Components.SidebarInfo>
-        { hover && <Components.SidebarActionMenu>
+        </SidebarInfo>
+        { hover && <SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>commentUnSuggestForAlignment({currentUser, comment, updateComment})}>
+            <SidebarAction title="Unendorse for Alignment" onClick={()=>commentUnSuggestForAlignment({currentUser, comment, updateComment})}>
               <UndoIcon/>
-            </Components.SidebarAction>
+            </SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>commentSuggestForAlignment({currentUser, comment, updateComment})}>
+            <SidebarAction title="Endorse for Alignment" onClick={()=>commentSuggestForAlignment({currentUser, comment, updateComment})}>
               <PlusOneIcon/>
-            </Components.SidebarAction>
+            </SidebarAction>
           }
-          <Components.SidebarAction title="Move to Alignment" onClick={handleMoveToAlignment}>
-            <Components.OmegaIcon/>
-          </Components.SidebarAction>
-          <Components.SidebarAction title="Remove from Alignment Suggestions" onClick={handleDisregardForAlignment}>
+          <SidebarAction title="Move to Alignment" onClick={handleMoveToAlignment}>
+            <OmegaIcon/>
+          </SidebarAction>
+          <SidebarAction title="Remove from Alignment Suggestions" onClick={handleDisregardForAlignment}>
             <ClearIcon/>
-          </Components.SidebarAction>
-        </Components.SidebarActionMenu>}
-      </Components.SunshineListItem>
+          </SidebarAction>
+        </SidebarActionMenu>}
+      </SunshineListItem>
     </span>
   );
 }
@@ -112,4 +122,6 @@ declare global {
     AFSuggestCommentsItem: typeof AFSuggestCommentsItemComponent
   }
 }
+
+export default AFSuggestCommentsItemComponent;
 
