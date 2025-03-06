@@ -254,7 +254,6 @@ export function useMulti<
   };
   
   let results = data?.[resolverName]?.results;
-  console.log({results, limit})
   if (results && results.length > limit) {
     results = _.take(results, limit);
   }

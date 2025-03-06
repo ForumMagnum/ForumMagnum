@@ -28,6 +28,7 @@ import { setPublicSettings } from '@/lib/settingsCache';
 import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { getDefaultThemeOptions } from '@/themes/themeNames';
+import SidebarsWrapper from '@/components/common/SidebarsWrapper';
 
 export default function Providers({
   children,
@@ -82,9 +83,11 @@ export default function Providers({
                 <MessageContextProvider>
                   <ThemeContextProvider options={getDefaultThemeOptions()}>
                     <FMJssProvider>
-                      {/* <Suspense fallback={<div>Loading...</div>}> */}
-                        {children}
-                      {/* </Suspense> */}
+                      <SidebarsWrapper>
+                        {/* <Suspense fallback={<div>Loading...</div>}> */}
+                          {children}
+                        {/* </Suspense> */}
+                      </SidebarsWrapper>
                     </FMJssProvider>
                   </ThemeContextProvider>
                 </MessageContextProvider>

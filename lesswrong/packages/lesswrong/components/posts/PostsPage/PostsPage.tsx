@@ -84,6 +84,7 @@ import PostPageReviewButton from "@/components/posts/PostsPage/PostPageReviewBut
 import { SideItemsContainer, SideItemsSidebar } from "@/components/contents/SideItems";
 import MultiToCLayout from "@/components/posts/TableOfContents/MultiToCLayout";
 import { POST_DESCRIPTION_EXCLUSIONS, CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, MAX_ANSWERS_AND_REPLIES_QUERIED, RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM, HIDE_TOC_WORDCOUNT_LIMIT } from './POST_DESCRIPTION_EXCLUSIONS';
+import PostFixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
 
 const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 

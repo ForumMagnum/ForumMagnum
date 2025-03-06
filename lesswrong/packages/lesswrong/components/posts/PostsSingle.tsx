@@ -1,9 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import '@/lib/vulcan-lib/allFragments'
+import '@/lib/collections/lwevents/collection'
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
 import PostsPageWrapper from "@/components/posts/PostsPage/PostsPageWrapper";
 import PermanentRedirect from "@/components/common/PermanentRedirect";
+
 
 const PostsSingle = () => {
   const { params, query } = useLocation();

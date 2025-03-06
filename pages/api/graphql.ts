@@ -1,4 +1,5 @@
 import './reactFactoryShim';
+import '@/lib/collections/lwevents/collection'
 import '@/server.ts';
 import { getGraphQLSchema } from '@/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';

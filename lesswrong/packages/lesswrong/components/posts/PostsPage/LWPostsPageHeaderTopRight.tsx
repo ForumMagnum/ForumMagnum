@@ -8,6 +8,7 @@ import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import FooterTagList from "@/components/tagging/FooterTagList";
 import AudioToggle from "@/components/posts/PostsPage/AudioToggle";
 import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import LWPostsPageTopHeaderVote from '@/components/votes/LWPostsPageTopHeaderVote';
 
 const styles = (theme: ThemeType) => ({
   root: {

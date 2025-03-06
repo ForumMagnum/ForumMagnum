@@ -2,11 +2,12 @@ import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
-import type { Route, RouterLocation } from './vulcan-lib/routes';
+import type { Route, RouterLocation, SegmentedUrl } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 // import { getUrlClass } from '@/server/utils/getUrlClass';
 // import { getCommandLineArguments } from '@/server/commandLine';
 
@@ -62,6 +63,26 @@ export type RouterLocation = {
   redirected?: boolean,
 };
 export const useSubscribedLocation = (): RouterLocation => {
+  const params = useParams()
+  const query = useSearchParams()
+  const pathname = usePathname()
+
+  return {
+    currentRoute: null,
+    RouteComponent: null,
+    location: {
+      pathname: pathname,
+      search: query.toString(),
+      hash: '',
+    },
+    pathname: pathname,
+    url: '',
+    hash: '',
+    params: params as Record<string,string>,
+    query: Object.fromEntries(query.entries()) as Record<string,string>,
+  }
+
+
   return {
     currentRoute: null,
     RouteComponent: null,
@@ -108,16 +129,20 @@ export const useNavigate = () => {
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
 export const withLocation = (WrappedComponent: any) => {
-  return (props: AnyBecauseTodo) => (
-    <LocationContext.Consumer>
-      {location =>
+  
+  return (props: AnyBecauseTodo) => {
+    const location = useSubscribedLocation()
+    return (
+      <LocationContext.Consumer>
+      {_location =>
         <WrappedComponent
           {...props}
-          location={useSubscribedLocation()}
+          location={location}
         />
       }
-    </LocationContext.Consumer>
-  );
+      </LocationContext.Consumer>
+    );
+  }
 }
 
 // Given a URL which might or might not have query parameters, return a URL in
