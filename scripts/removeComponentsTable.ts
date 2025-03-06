@@ -1,4 +1,4 @@
-import { ImportDeclaration, Project, SourceFile, SyntaxKind } from "ts-morph";
+import { ImportDeclaration, ImportSpecifier, Node, Project, SourceFile, SyntaxKind } from "ts-morph";
 import path from "path";
 import filter from 'lodash/filter';
 
@@ -30,10 +30,10 @@ export async function main() {
   }
   for (const componentFile of componentFiles) {
     replaceDestructuringWithImport(componentFile, getPathForImport(componentFile), componentFile.getFilePath(), importsDict);
+    removeUnusedImportsOf(componentFile, ["Components"]);
   }
   
-  // Find destructurings of Components, and replace them with normal imports.
-
+  
   project.saveSync();
 }
 
@@ -275,4 +275,90 @@ function stripExtension(path: string): string {
 
 function sleep(delayMs: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, delayMs));
+}
+
+/**
+ * Removes imports of specified identifiers if they are unused in the source file.
+ * Only handles named imports (e.g., `import { x } from "y"`) without renaming.
+ * 
+ * @param sourceFile The ts-morph source file to analyze and modify
+ * @param identifiers Array of identifier names to check for unused imports
+ */
+function removeUnusedImportsOf(sourceFile: SourceFile, identifiers: string[]): void {
+  // Create a set for faster lookup
+  const identifiersSet = new Set(identifiers);
+  
+  // For each identifier, check if it's used anywhere except in its import declaration
+  identifiersSet.forEach(identifierName => {
+    // Find all references to this identifier
+    const references = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
+      .filter(identifier => identifier.getText() === identifierName);
+    
+    // Skip if no references found
+    if (references.length === 0) return;
+    
+    // Find the import specifier for this identifier, if it exists
+    const importSpecifier = findImportSpecifier(sourceFile, identifierName);
+    if (!importSpecifier) return;
+    
+    // Count non-import references
+    const nonImportReferences = references.filter(ref => 
+      !isPartOfImportDeclaration(ref)
+    );
+    
+    // If no non-import references, remove the import
+    if (nonImportReferences.length === 0) {
+      removeImportSpecifier(importSpecifier);
+    }
+  });
+}
+
+/**
+ * Finds the import specifier for a given identifier name
+ */
+function findImportSpecifier(sourceFile: SourceFile, identifierName: string): ImportSpecifier | undefined {
+  const importDeclarations = sourceFile.getImportDeclarations();
+  
+  for (const importDeclaration of importDeclarations) {
+    const namedImports = importDeclaration.getNamedImports();
+    
+    for (const namedImport of namedImports) {
+      if (namedImport.getName() === identifierName) {
+        return namedImport;
+      }
+    }
+  }
+  
+  return undefined;
+}
+
+/**
+ * Checks if a node is part of an import declaration
+ */
+function isPartOfImportDeclaration(node: Node): boolean {
+  let current: Node | undefined = node;
+  
+  while (current) {
+    if (current.getKind() === SyntaxKind.ImportDeclaration) {
+      return true;
+    }
+    current = current.getParent();
+  }
+  
+  return false;
+}
+
+/**
+ * Removes an import specifier, cleaning up the import declaration if needed
+ */
+function removeImportSpecifier(importSpecifier: ImportSpecifier): void {
+  const importDeclaration = importSpecifier.getImportDeclaration();
+  
+  // Remove the named import
+  importSpecifier.remove();
+  
+  // If no more named imports, remove the entire import declaration
+  if (importDeclaration.getNamedImports().length === 0) {
+    importDeclaration.remove();
+  }
 }
