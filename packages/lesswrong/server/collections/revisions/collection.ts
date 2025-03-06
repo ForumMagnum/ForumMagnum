@@ -35,7 +35,7 @@ export const Revisions: RevisionsCollection = createCollection({
 // and the revision itself differ (e.g. because an admin has made the edit, or a coauthor), then
 // we will hide those revisions unless they are marked as post-1.0.0 releases. This is not ideal, but
 // seems acceptable
-Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context: ResolverContext|null): Promise<boolean> => {
+Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context: ResolverContext): Promise<boolean> => {
   if (!revision) return false
   if ((user && user._id) === revision.userId) return true
   if (userCanDo(user, 'posts.view.all')) return true

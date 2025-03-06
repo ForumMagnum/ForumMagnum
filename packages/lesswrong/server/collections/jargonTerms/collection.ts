@@ -57,7 +57,7 @@ export const JargonTerms: JargonTermsCollection = createCollection({
   logChanges: true,
 });
 
-JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext | null) => {
+JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext) => {
   const post = context
     ? await context.loaders.Posts.load(jargonTerm.postId)
     : await Posts.findOne(jargonTerm.postId);

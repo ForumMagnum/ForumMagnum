@@ -35,7 +35,7 @@ interface ServerNotificationType {
   from?: string,
   canCombineEmails?: boolean,
   skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
-  loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
+  loadData?: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<any>,
   emailSubject: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<string>,
   emailBody: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<React.ReactNode>,
 }
@@ -199,10 +199,10 @@ export const NewCommentNotification = serverRegisterNotificationType({
       return `${author.displayName} commented on a post you subscribed to`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -222,10 +222,10 @@ export const NewUserCommentNotification = serverRegisterNotificationType({
       return `${author.displayName} left a new comment.`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -234,17 +234,17 @@ export const NewUserCommentNotification = serverRegisterNotificationType({
 export const NewSubforumCommentNotification = serverRegisterNotificationType({
   name: "newSubforumComment",
   canCombineEmails: true,
-  skip: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  skip: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
 
     return comments.length === 0;
   },
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
 
     const commentCount = comments.length
     const subforumIds = uniq(comments.map(c => c.tagId))
@@ -256,10 +256,10 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
       return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} topics you are subscribed to`
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -343,10 +343,10 @@ export const NewDebateCommentNotification = serverRegisterNotificationType({
       return `${author.displayName} replied in a dialogue you subscribed to`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -366,10 +366,10 @@ export const NewDebateReplyNotification = serverRegisterNotificationType({
       return `${author.displayName} replied in a dialogue you're participanting in`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -389,10 +389,10 @@ export const NewReplyNotification = serverRegisterNotificationType({
       return `${userGetDisplayName(author)} replied to a comment you're subscribed to`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -412,10 +412,10 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
       return `${userGetDisplayName(author)} replied to your comment`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -439,36 +439,36 @@ const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
 export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",
   from: forumNewMessageEmail, // passing in undefined will lead to default behavior
-  loadData: async function({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) {
+  loadData: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);
     const messagesRaw = await Messages.find({ _id: {$in: messageIds} }).fetch();
-    const messages = await accessFilterMultiple(user, Messages, messagesRaw, null);
+    const messages = await accessFilterMultiple(user, Messages, messagesRaw, context);
     
     // Load conversations
     const messagesByConversationId = keyBy(messages, message=>message.conversationId);
     const conversationIds = _.keys(messagesByConversationId);
     const conversationsRaw = await Conversations.find({ _id: {$in: conversationIds} }).fetch();
-    const conversations = await accessFilterMultiple(user, Conversations, conversationsRaw, null);
+    const conversations = await accessFilterMultiple(user, Conversations, conversationsRaw, context);
     
     // Load participant users
     const participantIds = _.uniq(_.flatten(conversations.map(conversation => conversation.participantIds), true));
     const participantsRaw = await Users.find({ _id: {$in: participantIds} }).fetch();
-    const participants = await accessFilterMultiple(user, Users, participantsRaw, null);
+    const participants = await accessFilterMultiple(user, Users, participantsRaw, context);
     const participantsById = keyBy(participants, u=>u._id);
     const otherParticipants = _.filter(participants, participant=>participant._id!==user._id);
     
     return { conversations, messages, participantsById, otherParticipants };
   },
-  emailSubject: async function({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) {
-    const { conversations, otherParticipants } = await this.loadData!({ user, notifications });
+  emailSubject: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
+    const { conversations, otherParticipants } = await this.loadData!({ user, notifications, context });
     
     const otherParticipantNames = otherParticipants.map((u: DbUser)=>userGetDisplayName(u)).join(', ');
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },
-  emailBody: async function({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) {
-    const { conversations, messages, participantsById } = await this.loadData!({ user, notifications });
+  emailBody: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
+    const { conversations, messages, participantsById } = await this.loadData!({ user, notifications, context });
     
     return <Components.PrivateMessagesEmail
       conversations={conversations}

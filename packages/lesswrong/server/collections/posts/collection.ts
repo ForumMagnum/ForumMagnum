@@ -18,7 +18,7 @@ const options: MutationOptions<DbPost> = {
     return userCanPost(user)
   },
 
-  editCheck: async (user: DbUser|null, document: DbPost|null) => {
+  editCheck: async (user: DbUser|null, document: DbPost|null, context: ResolverContext) => {
     if (!user || !document) return false;
     if (userCanDo(user, 'posts.alignment.move.all') ||
         userCanDo(user, 'posts.alignment.suggest') ||
@@ -26,7 +26,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
 
-    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document, null)
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document, context)
     // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
   },
 

@@ -42,7 +42,7 @@ export const MultiDocuments = createCollection({
   },
 });
 
-MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {
+MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext, outReasonDenied) => {
   if (userIsAdmin(user)) {
     return true;
   }
@@ -52,10 +52,11 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
     return false;
   }
 
-  const { document, collection } = rootDocumentInfo;
+  const { document, parentCollectionName } = rootDocumentInfo;
+  const parentCollection = context[parentCollectionName] as CollectionBase<CollectionNameString>;
 
-  if ('checkAccess' in collection && collection.checkAccess) {
-    const canAccessParent = await collection.checkAccess(user, document, context, outReasonDenied);
+  if ('checkAccess' in parentCollection && parentCollection.checkAccess) {
+    const canAccessParent = await parentCollection.checkAccess(user, document, context, outReasonDenied);
     if (!canAccessParent) {
       return false;
     }

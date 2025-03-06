@@ -25,7 +25,7 @@ declare global {
 type CheckAccessFunction<T extends DbObject> = (
   user: DbUser|null,
   obj: T,
-  context: ResolverContext|null,
+  context: ResolverContext,
   outReasonDenied?: {reason?: string},
 ) => Promise<boolean>;
 

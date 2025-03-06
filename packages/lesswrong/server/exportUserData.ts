@@ -38,6 +38,7 @@ import TypingIndicators from "@/server/collections/typingIndicators/collection";
 import UserEAGDetails from "@/server/collections/userEAGDetails/collection";
 import UserJobAds from "@/server/collections/userJobAds/collection";
 import { UserRateLimits } from "@/server/collections/userRateLimits/collection.ts";
+import { createAnonymousContext } from "./vulcan-lib/query";
 
 type Entry<N extends CollectionNameString> = [
   CollectionBase<N>,
@@ -105,8 +106,11 @@ export const exportUserData = async (
     [Votes, Votes.find({userId})],
   ];
 
+  const context = createAnonymousContext();
+  context.currentUser = user;
+
   const values = await Promise.all(entries.map(async ([collection, {fetch}]) =>
-    accessFilterMultiple(user, collection, await fetch(), null),
+    accessFilterMultiple(user, collection, await fetch(), context),
   ));
   const result = Object.fromEntries(entries
     .map(([collection, _], i) => [collection.collectionName, values[i]])

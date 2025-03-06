@@ -4,12 +4,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-
-export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
-  if (user.deleted) return false
-  if (user.conversationsDisabled) return false;
-  return true
-}
+import { userCanStartConversations } from '@/lib/collections/conversations/helpers';
 
 const options: MutationOptions<DbConversation> = {
   newCheck: (user: DbUser|null, document: DbConversation|null) => {

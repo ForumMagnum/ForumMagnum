@@ -67,7 +67,7 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
   document: DocType|null,
-  context: ResolverContext|null,
+  context: ResolverContext,
 ): Promise<Partial<DocType|null>> => {
   const { checkAccess } = collection
   if (!document) return null;
@@ -85,7 +85,7 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
   unfilteredDocs: Array<DocType|null>,
-  context: ResolverContext|null,
+  context: ResolverContext,
 ): Promise<Partial<DocType>[]> => {
   const { checkAccess } = collection
   

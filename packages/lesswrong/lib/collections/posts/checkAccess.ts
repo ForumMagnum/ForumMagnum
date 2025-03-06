@@ -6,7 +6,7 @@ import { constantTimeCompare } from "@/lib/helpers";
 import { postStatusLabels } from "./constants";
 import _ from "underscore";
 
-export const postCheckAccess: CheckAccessFunction<DbPost> = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null, outReasonDenied: {reason?: string}): Promise<boolean> => {
+export const postCheckAccess: CheckAccessFunction<DbPost> = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext, outReasonDenied: {reason?: string}): Promise<boolean> => {
   const canonicalLinkSharingKey = post.linkSharingKey;
   const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
 

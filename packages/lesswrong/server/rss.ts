@@ -106,11 +106,11 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
   let parameters = viewTermsToQuery("Comments", terms);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null) as DbComment[];
+  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, context) as DbComment[];
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
     const url = await commentGetPageUrlFromDB(comment, context, true);
-    const parentTitle = await getCommentParentTitle(comment)
+    const parentTitle = await getCommentParentTitle(comment, context)
     feed.item({
      title: 'Comment on ' + parentTitle,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${url}'>Discuss</a>`,
