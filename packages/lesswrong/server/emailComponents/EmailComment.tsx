@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: "normal",
     fontFamily: theme.typography.headerStyle.fontFamily,
     ...(isFriendlyUI ? {
-      fontSize: "2.4rem",
+      fontSize: "2.0rem",
       lineHeight: '1.25em'
     } : {}),
   },
@@ -42,12 +42,12 @@ const EmailCommentBatch = ({comments, classes}: {
   const commentsOnSubforums = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "SUBFORUM")
   const commentsBySubforumTagId = groupBy(commentsOnSubforums, (comment: DbComment)=>comment.tagId);
   
-  const commentsListComponent = (comments: Partial<DbComment>[]) => {
+  const commentsListComponent = (comments: Partial<DbComment>[], hideTitle?: boolean) => {
     return (
       <>
         {comments?.map((comment, idx) => (
           <div key={comment._id}>
-            <EmailComment commentId={comment._id ?? ""} />
+            <EmailComment commentId={comment._id ?? ""} hideTitle={hideTitle} />
             {idx !== comments.length - 1 && <hr className={classes.commentHr} />}
           </div>
         ))}
@@ -56,10 +56,17 @@ const EmailCommentBatch = ({comments, classes}: {
   };
 
   return <div>
-    {Object.keys(commentsByPostId).map(postId => <div key={postId}>
-      <EmailCommentsOnPostHeader postId={postId} classes={classes}/>
-      {commentsListComponent(commentsByPostId[postId])}
-    </div>)}
+    {Object.keys(commentsByPostId).map(postId => {
+      const comments = commentsByPostId[postId];
+      const allShortform = comments.every(comment => comment.shortform === true && comment.topLevelCommentId === null);
+
+      return (
+        <div key={postId}>
+          <EmailCommentsOnPostHeader postId={postId} classes={classes} allShortform={allShortform} />
+          {commentsListComponent(comments, true)}
+        </div>
+      );
+    })}
     {Object.keys(commentsByTagId).map(tagId => <div key={tagId}>
       <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false}  classes={classes}/>
       {commentsListComponent(commentsByTagId[tagId])}
@@ -83,16 +90,17 @@ const HeadingLink = ({ text, href, classes }: { text: string; href: string; clas
   );
 };
 
-const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: ClassesType<typeof styles>}) => {
+const EmailCommentsOnPostHeader = ({postId, classes, allShortform}: {postId: string, classes: ClassesType<typeof styles>, allShortform: boolean}) => {
   const { document: post } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsList",
   });
-  if (!post)
-    return null;
-  
-  return <HeadingLink text={`New comments on ${post.title}`} href={postGetPageUrl(post, true)} classes={classes}/>
+  if (!post) return null;
+
+  const title = allShortform ? post.title : `New comments on ${post.title}`
+
+  return <HeadingLink text={title} href={postGetPageUrl(post, true)} classes={classes}/>
 }
 
 const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, isSubforum: boolean, classes: ClassesType<typeof styles>}) => {
@@ -110,8 +118,9 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, 
   return <HeadingLink {...props} classes={classes}/>
 }
 
-const EmailComment = ({commentId}: {
+const EmailComment = ({commentId, hideTitle}: {
   commentId: string,
+  hideTitle?: boolean,
 }) => {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
@@ -135,7 +144,7 @@ const EmailComment = ({commentId}: {
       {" by "}
       <EmailUsername user={comment.user}/>
       {" "}
-      {comment.post && <a href={postGetPageUrl(comment.post, true)}>
+      {!hideTitle && comment.post && <a href={postGetPageUrl(comment.post, true)}>
         {comment.post.title}
       </a>}
     </div>

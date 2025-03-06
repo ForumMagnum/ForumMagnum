@@ -148,7 +148,11 @@ export const NewShortformNotification = serverRegisterNotificationType({
       const post = comment?.postId && await Posts.findOne(comment.postId);
 
       if (!post) throw Error(`Can't find post to generate subject-line for: ${comment}`);
-      return 'New comment on "' + post.title + '"';
+
+      const author = await Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for comment: ${comment}`);
+
+      return `New quick take by ${author.displayName}`;
     }
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
