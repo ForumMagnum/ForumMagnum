@@ -43,6 +43,7 @@ import WelcomePostItem from "@/components/recommendations/WelcomePostItem";
 import SuggestedFeedSubscriptions from "@/components/subscriptions/SuggestedFeedSubscriptions";
 import PostsItem from "@/components/posts/PostsItem";
 import FeedPostCommentsCard from "@/components/recentDiscussion/FeedPostCommentsCard";
+import MixedTypeFeed from './MixedTypeFeed';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];

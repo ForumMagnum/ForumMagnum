@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
+// import Checkbox from '@material-ui/core/Checkbox';
 import Info from '@material-ui/icons/Info';
-import Tooltip from '@material-ui/core/Tooltip';
+// import Tooltip from '@material-ui/core/Tooltip';
 import { isLWorAF } from '../../lib/instanceSettings';
-import InputLabel from '@material-ui/core/InputLabel';
+// import InputLabel from '@material-ui/core/InputLabel';
 import { forumHeaderTitleSetting } from '../common/Header';
 
 const styles = (theme: ThemeType) => ({
@@ -45,22 +45,23 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
     'Curated posts' : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
 
   return <div>
-    <InputLabel className={classes.checkboxLabel}>
-      <Checkbox
+    <label className={classes.checkboxLabel}>
+      <input
+        type="checkbox"
         checked={checked}
         className={classes.checkbox}
-        onChange={(_ev, newChecked) => {
-          setChecked(newChecked)
-          onChange(newChecked)
+        onChange={(ev) => {
+          setChecked(ev.target.checked)
+          onChange(ev.target.checked)
         }}
       />
       Subscribe to {emailType}
       {isLWorAF && (
-        <Tooltip title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
+        <span title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
           <Info className={classes.infoIcon}/>
-        </Tooltip>
+        </span>
       )}
-    </InputLabel>
+    </label>
   </div>
 }
 

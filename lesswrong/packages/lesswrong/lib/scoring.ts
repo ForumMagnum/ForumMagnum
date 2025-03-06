@@ -162,6 +162,7 @@ export const timeDecayExpr = () => {
 }
 
 export const postScoreModifiers = () => {
+  console.log("postScoreModifiers", FRONTPAGE_BONUS.get(), CURATED_BONUS.get())
   return [
     {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS.get(), else: 0}},
     {$cond: {if: "$curatedDate", then: CURATED_BONUS.get(), else: 0}}

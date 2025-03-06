@@ -1,5 +1,5 @@
 import React from 'react';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
+// import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
@@ -77,6 +77,12 @@ type MenuTabCustomComponent = {
 }
 
 type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
+
+const getAllTagsPath = () => {
+  return '/tags';
+}
+
+const communityPath = '/community';
 
 export type MenuTabRegular = {
   id: string

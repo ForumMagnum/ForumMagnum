@@ -47,7 +47,6 @@ export const defineStyles = <T extends string>(
     nameProxy: null,
   };
   topLevelStyleDefinitions[name] = definition;
-  console.log("definition", definition)
   
   if (isClient && _clientMountedStyles) {
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
@@ -101,8 +100,6 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
 export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
 
-  console.log({stylesContext, bundleIsServer})
-
   if (bundleIsServer) {
     stylesContext?.addStyle(styles);
   } else {
@@ -132,7 +129,6 @@ export const withAddClasses = (
     return function AddClassesHoc(props: AnyBecauseHard) {
       const {children, ...otherProps} = props;
       const classes = useStyles(styleDefinition);
-      console.log("classes", classes)
       return <Component {...otherProps} classes={classes}>
         {children}
       </Component>

@@ -55,9 +55,10 @@ export const DialogManager = ({children}: {
 }
 
 export const useDialog = (): OpenDialogContextType => {
-  const result = React.useContext(OpenDialogContext);
-  if (!result) throw new Error("useDialog called but not a descendent of DialogManagerComponent");
-  return result;
+  return {
+    openDialog: () => {},
+    closeDialog: () => {},
+  }
 }
 export const withDialog = hookToHoc(useDialog);
 export default withDialog;

@@ -5,7 +5,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { useTagBySlug } from '../useTag';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";

@@ -1,4 +1,4 @@
-import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy, useSuspenseQuery } from '@apollo/client';
 import * as _ from 'underscore';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
@@ -140,7 +140,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const resolverName = getResolverNameFromOptions(collectionName)
   const skipQuery = skip || (!documentId && !slug);
   // TODO: Properly type this generic query
-  const { data, error, loading, ...rest } = useQuery(query, {
+  const { data, error, ...rest } = useSuspenseQuery<any>(query, {
     variables: {
       input: {
         selector: { documentId, slug },
@@ -149,10 +149,10 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
       },
       ...extraVariablesValues,
     },
-    fetchPolicy,
-    nextFetchPolicy,
-    notifyOnNetworkStatusChange,
-    ssr: apolloSSRFlag(ssr),
+    // fetchPolicy,
+    // nextFetchPolicy,
+    // notifyOnNetworkStatusChange,
+    // ssr: apolloSSRFlag(ssr),
     skip: skipQuery,
     client: apolloClient,
   })
@@ -167,7 +167,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)
   return {
     document, data, error,
-    loading: loading && !skipQuery,
+    loading: false,
     ...rest
   } as TReturn<FragmentTypeName>
 }

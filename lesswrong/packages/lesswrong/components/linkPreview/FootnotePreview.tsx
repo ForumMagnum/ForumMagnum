@@ -7,7 +7,7 @@ import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
-import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';

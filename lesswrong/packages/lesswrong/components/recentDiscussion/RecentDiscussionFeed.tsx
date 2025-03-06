@@ -20,6 +20,7 @@ import RecentDiscussionMeetupsPoke from "@/components/recentDiscussion/RecentDis
 import RecentDiscussionTagRevisionItem from "@/components/recentDiscussion/RecentDiscussionTagRevisionItem";
 import RecentDiscussionTag from "@/components/recentDiscussion/RecentDiscussionTag";
 import RecentDiscussionThread from "@/components/recentDiscussion/RecentDiscussionThread";
+import MixedTypeFeed from '../common/MixedTypeFeed';
 
 const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {

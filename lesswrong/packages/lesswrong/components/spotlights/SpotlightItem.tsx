@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import PublishIcon from '@material-ui/icons/Publish';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -580,9 +580,9 @@ export const SpotlightItem = ({
             : (
               <div className={classes.closeButtonWrapper}>
                 <LWTooltip title="Hide this spotlight" placement="right">
-                  <Button className={classes.closeButton} onClick={hideBanner}>
+                  <button className={classes.closeButton} onClick={hideBanner}>
                     <ForumIcon icon="Close" />
-                  </Button>
+                  </button>
                 </LWTooltip>
               </div>
             )

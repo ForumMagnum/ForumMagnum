@@ -33,9 +33,10 @@ export const LoginPopoverContextProvider: FC<{
 }
 
 export const useLoginPopoverContext = () => {
-  const value = useContext(loginPopoverContext);
-  if (!value) {
-    throw new Error("No login popover context provider");
+  return {
+    loginAction: null,
+    setLoginAction: () => {},
+    onLogin: () => {},
+    onSignup: () => {},
   }
-  return value;
 }

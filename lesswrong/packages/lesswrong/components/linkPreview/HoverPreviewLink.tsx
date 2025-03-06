@@ -167,8 +167,8 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
       {children}
     </a>
   } catch (err) {
-    console.error(err) // eslint-disable-line
-    console.error(href) // eslint-disable-line
+    // console.error(err) // eslint-disable-line
+    // console.error(href) // eslint-disable-line
     return <a href={href} id={id} rel={rel}>
       {children}
     </a>

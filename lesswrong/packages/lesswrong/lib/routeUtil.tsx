@@ -2,7 +2,7 @@ import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
-import type { RouterLocation } from './vulcan-lib/routes';
+import type { Route, RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
@@ -36,7 +36,7 @@ import {siteUrlSetting} from './instanceSettings'
 // Does not trigger rerenders on navigation events. If you want your component
 // to rerender on navigations, use useSubscribedLocation instead.
 export const useLocation = (): RouterLocation => {
-  return useContext(LocationContext)!;
+  return useSubscribedLocation();
 }
 
 // React Hook which returns the server-side server request status, used to set 404s or redirects
@@ -48,8 +48,34 @@ export const useServerRequestStatus = (): ServerRequestStatusContextType|null =>
 
 // React Hook which returns the page location, formatted as in useLocation, and
 // triggers a rerender whenever navigation occurs.
+
+export type RouterLocation = {
+  // Null in 404
+  currentRoute: Route|null,
+  RouteComponent: any,
+  location: SegmentedUrl,
+  pathname: string,
+  url: string,
+  hash: string,
+  params: Record<string,string>,
+  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
+  redirected?: boolean,
+};
 export const useSubscribedLocation = (): RouterLocation => {
-  return useContext(SubscribeLocationContext)!;
+  return {
+    currentRoute: null,
+    RouteComponent: null,
+    location: {
+      pathname: '',
+      search: '',
+      hash: '',
+    },
+    pathname: '',
+    url: '',
+    hash: '',
+    params: {},
+    query: {},
+  }
 }
 
 export type NavigateFunction = ReturnType<typeof useNavigate>
@@ -87,7 +113,7 @@ export const withLocation = (WrappedComponent: any) => {
       {location =>
         <WrappedComponent
           {...props}
-          location={location}
+          location={useSubscribedLocation()}
         />
       }
     </LocationContext.Consumer>

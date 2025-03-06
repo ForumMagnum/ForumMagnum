@@ -8,14 +8,17 @@ import TagIcon from '@material-ui/icons/LocalOffer';
 import EventIcon from '@material-ui/icons/Event';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
-import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
+import { curatedUrl } from '@/components/recommendations/curatedUrl';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { getAllTagsPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import LWTooltip from "@/components/common/LWTooltip";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { Typography } from "@/components/common/Typography";
+
+const getAllTagsPath = () => {
+  return '/tags';
+}
 
 const styles = (theme: ThemeType) => ({
   root: {

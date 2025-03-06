@@ -11,7 +11,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { QuestionIcon } from '../icons/questionIcon';
 import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';

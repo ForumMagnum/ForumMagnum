@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
-import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
+import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';

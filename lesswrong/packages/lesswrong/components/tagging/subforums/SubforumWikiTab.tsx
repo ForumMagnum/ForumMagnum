@@ -10,7 +10,7 @@ import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPageUtils';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';

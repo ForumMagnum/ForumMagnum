@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '../PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isClient } from '../../../lib/executionEnvironment';

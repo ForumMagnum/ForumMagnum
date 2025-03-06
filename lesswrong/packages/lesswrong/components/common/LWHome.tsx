@@ -1,4 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
+import '@/lib/vulcan-lib/allFragments'
+import '@/lib/collections/spotlights/collection'
+import '@/lib/collections/lwevents/collection'
+
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
@@ -75,12 +79,13 @@ const LWHome = () => {
               <QuickTakesSection />
     
               <EAPopularCommentsSection />
-    
-              <RecentDiscussionFeed
-                af={false}
-                commentsLimit={4}
-                maxAgeHours={18}
-              />
+              <Suspense fallback={<div>Loading...</div>}>
+                <RecentDiscussionFeed
+                  af={false}
+                  commentsLimit={4}
+                  maxAgeHours={18}
+                />
+              </Suspense>
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>

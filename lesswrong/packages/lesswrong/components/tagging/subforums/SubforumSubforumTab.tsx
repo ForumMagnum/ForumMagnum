@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
@@ -19,6 +19,7 @@ import ShortformSubmitForm from "@/components/shortform/ShortformSubmitForm";
 import LoginForm from "@/components/users/LoginForm";
 import PostsListSortDropdown from "@/components/posts/PostsListSortDropdown";
 import PostsLayoutDropdown from "@/components/posts/PostsLayoutDropdown";
+import MixedTypeFeed from '@/components/common/MixedTypeFeed';
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {

@@ -23,8 +23,6 @@ import LWTooltip from "@/components/common/LWTooltip";
 import CuratedPostsList from "@/components/recommendations/CuratedPostsList";
 import ForumIcon from "@/components/common/ForumIcon";
 
-export const curatedUrl = "/recommendations"
-
 const styles = (theme: ThemeType) => ({
   section: isFriendlyUI ? {} : {
     marginTop: -12,

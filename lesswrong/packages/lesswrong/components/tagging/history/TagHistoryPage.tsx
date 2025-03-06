@@ -29,6 +29,7 @@ import { MenuItem } from "@/components/common/Menus";
 import SettingsButton from "@/components/icons/SettingsButton";
 import Error404 from "@/components/common/Error404";
 import ErrorPage from "@/components/common/ErrorPage";
+import MixedTypeFeed from '@/components/common/MixedTypeFeed';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {

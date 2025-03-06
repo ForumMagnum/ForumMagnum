@@ -1,7 +1,10 @@
 import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { styles } from './LWPostsItem';
+
+const styles = (theme: ThemeType) => ({
+  
+} as any)
 
 const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
   showBottomBorder?: boolean,

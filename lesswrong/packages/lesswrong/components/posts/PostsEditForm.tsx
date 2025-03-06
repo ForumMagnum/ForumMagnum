@@ -10,7 +10,7 @@ import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFN
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { preferredHeadingCase } from '../../themes/forumTheme';

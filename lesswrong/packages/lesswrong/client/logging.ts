@@ -59,23 +59,23 @@ export function onUserChanged(user: UsersCurrent) {
   addUserIdToGoogleAnalytics(user);
 }
 
-window.addEventListener('load', ev => {
-  const urlParams = new URLSearchParams(document.location?.search)
+// window.addEventListener('load', ev => {
+//   const urlParams = new URLSearchParams(document.location?.search)
 
-  captureEvent("pageLoadFinished", {
-    url: document.location?.href,
-    referrer: document.referrer,
-    utmSource: urlParams.get('utm_source'),
-    utmMedium: urlParams.get('utm_medium'),
-    utmCampaign: urlParams.get('utm_campaign'),
-    utmContent: urlParams.get('utm_content'),
-    utmTerm: urlParams.get('utm_term'),
-    browserProps: browserProperties(),
-    prefersDarkMode: devicePrefersDarkMode(),
-    performance: {
-      memory: (window as any).performance?.memory?.usedJSHeapSize,
-      timeOrigin: window.performance?.timeOrigin,
-      timing: window.performance?.timing?.toJSON?.(),
-    },
-  });
-});
+//   captureEvent("pageLoadFinished", {
+//     url: document.location?.href,
+//     referrer: document.referrer,
+//     utmSource: urlParams.get('utm_source'),
+//     utmMedium: urlParams.get('utm_medium'),
+//     utmCampaign: urlParams.get('utm_campaign'),
+//     utmContent: urlParams.get('utm_content'),
+//     utmTerm: urlParams.get('utm_term'),
+//     browserProps: browserProperties(),
+//     prefersDarkMode: devicePrefersDarkMode(),
+//     performance: {
+//       memory: (window as any).performance?.memory?.usedJSHeapSize,
+//       timeOrigin: window.performance?.timeOrigin,
+//       timing: window.performance?.timing?.toJSON?.(),
+//     },
+//   });
+// });

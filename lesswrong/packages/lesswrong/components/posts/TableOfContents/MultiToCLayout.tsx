@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '../PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
 import LWCommentCount from "@/components/posts/TableOfContents/LWCommentCount";

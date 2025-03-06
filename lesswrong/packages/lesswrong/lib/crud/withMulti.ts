@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient, useSuspenseQuery } from '@apollo/client';
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
@@ -186,7 +186,7 @@ export function useMulti<
   const useQueryArgument = {
     variables: graphQLVariables,
     pollInterval, 
-    fetchPolicy,
+    // fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
@@ -194,7 +194,7 @@ export function useMulti<
     skip,
     notifyOnNetworkStatusChange: true
   }
-  const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
+  const {data, error, refetch, fetchMore, networkStatus} = useSuspenseQuery<any>(query, useQueryArgument);
 
   const client = useApolloClient();
   const invalidateCache = useCallback(() => invalidateQuery({
@@ -249,17 +249,18 @@ export function useMulti<
   // A bundle of props that you can pass to Components.LoadMore, to make
   // everything just work.
   const loadMoreProps = {
-    loadMore, count, totalCount, loading,
+    loadMore, count, totalCount, loading: false,
     hidden: !showLoadMore,
   };
   
   let results = data?.[resolverName]?.results;
+  console.log({results, limit})
   if (results && results.length > limit) {
     results = _.take(results, limit);
   }
   
   return {
-    loading: (loading || networkStatus === NetworkStatus.fetchMore) && !skip,
+    loading: (false || networkStatus === NetworkStatus.fetchMore) && !skip,
     loadingInitial: networkStatus === NetworkStatus.loading,
     loadingMore: networkStatus === NetworkStatus.fetchMore,
     results,

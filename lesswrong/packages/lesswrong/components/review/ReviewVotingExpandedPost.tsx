@@ -6,7 +6,7 @@ import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import PostPageReviewButton from "@/components/posts/PostsPage/PostPageReviewButton";
 import ReviewPostComments from "@/components/review/ReviewPostComments";
 import PostsHighlight from "@/components/posts/PostsHighlight";

@@ -44,5 +44,3 @@ declare global {
     ScrollToTop: typeof ScrollToTopComponent
   }
 }
-
-export default ScrollToTopComponent;

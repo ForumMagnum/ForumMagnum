@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useMessages} from "../common/withMessages";
 import { useMutation, gql } from '@apollo/client';

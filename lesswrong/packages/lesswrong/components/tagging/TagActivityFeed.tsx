@@ -6,6 +6,7 @@ import TagRevisionItem from "@/components/tagging/TagRevisionItem";
 import CommentsNode from "@/components/comments/CommentsNode";
 import NewTagItem from "@/components/tagging/NewTagItem";
 import { SectionTitle } from "@/components/common/SectionTitle";
+import MixedTypeFeed from '../common/MixedTypeFeed';
 
 const TagActivityFeed = ({pageSize = 50}: {
   pageSize?: number

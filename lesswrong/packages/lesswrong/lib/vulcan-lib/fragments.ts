@@ -3,7 +3,6 @@ import gql from 'graphql-tag';
 import * as _ from 'underscore';
 // This has a stub for the client bundle
 import SqlFragment from '@/server/sql/SqlFragment';
-
 interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
@@ -62,7 +61,7 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
   const gqlArguments: [string | readonly string[], ...any[]] = subFragments ? [literals, ...subFragments.map(subFragmentName => {
     // return subfragment's gql fragment
     if (!Fragments[subFragmentName]) {
-      throw new Error(`Subfragment “${subFragmentName}” of fragment “${extractFragmentName(fragmentText)}” has not been defined.`);
+      throw new Error(`Subfragment "${subFragmentName}" of fragment "${extractFragmentName(fragmentText)}" has not been defined.`);
     }
     
     return getFragment(subFragmentName);

@@ -21,7 +21,7 @@ import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
-import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";

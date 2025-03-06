@@ -1018,70 +1018,71 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   // --------------------------------------------------------------------- //
 
   render() {
-    const FormComponents = mergeWithComponents(this.props.formComponents);
+    return <div>Form</div>
+    // const FormComponents = mergeWithComponents(this.props.formComponents);
 
-    return (
-      <form
-        className={classNames(
-          'vulcan-form',
-          `document-${this.getFormType()}`,
-          this.props?.formProps?.formClassName,
-        )}
-        id={this.props.id}
-        onSubmit={this.submitForm}
-        ref={this.formRef}
-      >
-        <FormComponents.FormErrors
-          errors={this.state.errors}
-        />
+    // return (
+    //   <form
+    //     className={classNames(
+    //       'vulcan-form',
+    //       `document-${this.getFormType()}`,
+    //       this.props?.formProps?.formClassName,
+    //     )}
+    //     id={this.props.id}
+    //     onSubmit={this.submitForm}
+    //     ref={this.formRef}
+    //   >
+    //     <FormComponents.FormErrors
+    //       errors={this.state.errors}
+    //     />
 
-        {this.getFieldGroups().map((group, i) => (
-          <FormComponents.FormGroup
-            {...group}
-            fields={group.fields as FormField<any>[]}
-            errors={this.state.errors}
-            throwError={this.throwError}
-            currentValues={this.state.currentValues}
-            updateCurrentValues={this.updateCurrentValues}
-            deletedValues={this.state.deletedValues}
-            addToDeletedValues={this.addToDeletedValues}
-            clearFieldErrors={this.clearFieldErrors}
-            formType={this.getFormType()}
-            currentUser={this.props.currentUser}
-            disabled={this.state.disabled}
-            formComponents={mergeWithComponents(this.props.formComponents)}
-            formProps={this.props.formProps}
-            key={`${i}-${group.name}`}
-          />
-        ))}
+    //     {this.getFieldGroups().map((group, i) => (
+    //       <FormComponents.FormGroup
+    //         {...group}
+    //         fields={group.fields as FormField<any>[]}
+    //         errors={this.state.errors}
+    //         throwError={this.throwError}
+    //         currentValues={this.state.currentValues}
+    //         updateCurrentValues={this.updateCurrentValues}
+    //         deletedValues={this.state.deletedValues}
+    //         addToDeletedValues={this.addToDeletedValues}
+    //         clearFieldErrors={this.clearFieldErrors}
+    //         formType={this.getFormType()}
+    //         currentUser={this.props.currentUser}
+    //         disabled={this.state.disabled}
+    //         formComponents={mergeWithComponents(this.props.formComponents)}
+    //         formProps={this.props.formProps}
+    //         key={`${i}-${group.name}`}
+    //       />
+    //     ))}
 
-        {this.props.repeatErrors && <FormComponents.FormErrors
-          errors={this.state.errors}
-        />}
+    //     {this.props.repeatErrors && <FormComponents.FormErrors
+    //       errors={this.state.errors}
+    //     />}
 
-        {!this.props.autoSubmit && <FormComponents.FormSubmit
-          submitLabel={this.props.submitLabel}
-          cancelLabel={this.props.cancelLabel}
-          revertLabel={this.props.revertLabel}
-          cancelCallback={this.props.cancelCallback}
-          revertCallback={this.props.revertCallback}
-          submitForm={this.submitForm}
-          updateCurrentValues={this.updateCurrentValues}
-          formType={this.getFormType()}
-          document={this.getDocument()}
-          deleteDocument={
-            (this.getFormType() === 'edit' &&
-              this.props.showRemove &&
-              this.deleteDocument) ||
-            null
-          }
-          collectionName={this.props.collectionName}
-          currentValues={this.state.currentValues}
-          deletedValues={this.state.deletedValues}
-          errors={this.state.errors}
-        />}
-      </form>
-    );
+    //     {!this.props.autoSubmit && <FormComponents.FormSubmit
+    //       submitLabel={this.props.submitLabel}
+    //       cancelLabel={this.props.cancelLabel}
+    //       revertLabel={this.props.revertLabel}
+    //       cancelCallback={this.props.cancelCallback}
+    //       revertCallback={this.props.revertCallback}
+    //       submitForm={this.submitForm}
+    //       updateCurrentValues={this.updateCurrentValues}
+    //       formType={this.getFormType()}
+    //       document={this.getDocument()}
+    //       deleteDocument={
+    //         (this.getFormType() === 'edit' &&
+    //           this.props.showRemove &&
+    //           this.deleteDocument) ||
+    //         null
+    //       }
+    //       collectionName={this.props.collectionName}
+    //       currentValues={this.state.currentValues}
+    //       deletedValues={this.state.deletedValues}
+    //       errors={this.state.errors}
+    //     />}
+    //   </form>
+    // );
   }
 }
 

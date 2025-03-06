@@ -12,7 +12,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';

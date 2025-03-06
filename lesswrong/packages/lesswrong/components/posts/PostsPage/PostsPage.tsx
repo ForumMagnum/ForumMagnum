@@ -83,29 +83,7 @@ import { FundraisingThermometer } from "@/components/common/FundraisingThermomet
 import PostPageReviewButton from "@/components/posts/PostsPage/PostPageReviewButton";
 import { SideItemsContainer, SideItemsSidebar } from "@/components/contents/SideItems";
 import MultiToCLayout from "@/components/posts/TableOfContents/MultiToCLayout";
-
-const HIDE_TOC_WORDCOUNT_LIMIT = 300
-export const MAX_COLUMN_WIDTH = 720
-export const CENTRAL_COLUMN_WIDTH = 682
-
-export const RIGHT_COLUMN_WIDTH_WITH_SIDENOTES = 300;
-export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
-export const RIGHT_COLUMN_WIDTH_XS = 5;
-export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
-  theme.breakpoints.down('md')
-
-
-export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
-export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
-export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
-
-const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
-
-const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
-  /cross-? ?posted/i,
-  /epistemic status/i,
-  /acknowledgements/i
-];
+import { POST_DESCRIPTION_EXCLUSIONS, CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, MAX_ANSWERS_AND_REPLIES_QUERIED, RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM, HIDE_TOC_WORDCOUNT_LIMIT } from './POST_DESCRIPTION_EXCLUSIONS';
 
 const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 

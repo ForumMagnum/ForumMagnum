@@ -16,9 +16,12 @@ export type ItemsReadContextType = {
 };
 const ItemsReadContext = React.createContext<ItemsReadContextType|null>(null);
 export const useItemsRead = (): ItemsReadContextType => {
-  const context = useContext(ItemsReadContext);
-  if (!context) throw new Error("useItemsRead called but not a descedent of Layout");
-  return context;
+  return {
+    postsRead: {},
+    setPostRead: () => {},
+    tagsRead: {},
+    setTagRead: () => {},
+  }
 }
 export const withItemsRead = hookToHoc(useItemsRead);
 

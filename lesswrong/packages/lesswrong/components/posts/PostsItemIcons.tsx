@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
+import { curatedUrl } from '../recommendations/curatedUrl';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CuratedIcon = ({hasColor, classes}: {
+const CuratedIcon = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -98,7 +98,7 @@ export const CuratedIcon = ({hasColor, classes}: {
     </span>
 }
 
-const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
+export const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
 
 
 const RecommendedPostIcon = ({post, hover, classes}: {
@@ -143,9 +143,9 @@ const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
-    {post.curatedDate && !hideCuratedIcon && <CuratedIcon/>}
+    {post.curatedDate && !hideCuratedIcon && <CuratedIconComponent/>}
     
-    {post.question && <span className={classes.postIcon}>
+    {post.question && <span className={classes.postIcon}> 
       <LWTooltip title={<div>Question <div><em>(click to view all questions)</em></div></div>} placement="right">
         <Link to={"/questions"}><span className={classes.question}>Q</span></Link>
       </LWTooltip>

@@ -40,11 +40,15 @@ export class DatabasePublicSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (typeof window !== 'undefined') {
-      console.log("getPublicSettings", window.publicSettings)
-    }
+    // if (typeof window !== 'undefined') {
+    //   console.log("getPublicSettings", window.publicSettings)
+    // }
     if (!getPublicSettingsLoaded() && !(typeof window !== 'undefined' && window.publicSettings)) console.warn(`Tried to access public setting ${this.settingName} before it was initialized`)
-    const cacheValue = getNestedProperty(getPublicSettings(), this.settingName) || (typeof window !== 'undefined' && getNestedProperty(window.publicSettings, this.settingName))
+    const publicSettings = getPublicSettings() ?? (typeof window !== 'undefined' && window.publicSettings)
+    const cacheValue = getNestedProperty(publicSettings, this.settingName)
+    if(this.settingName === "curatedScoreBonus") {
+      console.log("cacheValue", cacheValue)
+    }
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
   }
