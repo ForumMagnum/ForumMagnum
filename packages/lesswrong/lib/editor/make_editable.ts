@@ -5,7 +5,7 @@ import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { getAllCollections } from '../vulcan-lib/getCollection';
+import { getAllCollections } from '../../server/vulcan-lib/getCollection';
 import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
 
 export const RevisionStorageType = new SimpleSchema({

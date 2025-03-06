@@ -1,25 +1,7 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { addUniversalFields } from "../../collectionUtils";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-
-const schema: SchemaType<"ArbitalCaches"> = {
-  pageAlias: {
-    type: String,
-    nullable: false,
-  },
-  title: {
-    type: String,
-    nullable: false,
-  },
-  fetchedAt: {
-    type: Date,
-    nullable: false,
-  },
-  sanitizedHtml: {
-    type: String,
-    nullable: false,
-  },
-};
+import schema from './schema';
 
 /**
  * Cache for link-previews of Arbital links.

@@ -1,4 +1,4 @@
-import { registerCollection } from './getCollection';
+import { registerCollection } from '../../server/vulcan-lib/getCollection';
 import { pluralize } from './pluralize';
 import Collection from "@/server/sql/PgCollection"
 

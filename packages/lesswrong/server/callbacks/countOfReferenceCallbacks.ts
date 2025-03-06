@@ -1,8 +1,9 @@
 import { getSchema } from "@/lib/utils/getSchema";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { collectionNameToTypeName, getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection";
+import { getAllCollections, getCollection } from "@/server/vulcan-lib/getCollection";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import type { AfterCreateCallbackProperties, DeleteCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 
 interface InvertedCountOfReferenceOptions {
   sourceCollectionName: CollectionNameString,
@@ -220,7 +221,7 @@ function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString
 
   const denormalizedLogger = loggerConstructor(`callbacks-${targetCollectionName.toLowerCase()}-denormalized-${referenceFieldName}`)
   
-  const targetTypeName = collectionNameToTypeName(targetCollectionName);
+  const targetTypeName = collectionNameToTypeName[targetCollectionName];
   const filter = filterFn ?? ((doc: AnyBecauseHard) => true);
 
   return { denormalizedLogger, targetTypeName, targetKeyFieldName, filter, sourceCollectionName, referenceFieldName, resync };

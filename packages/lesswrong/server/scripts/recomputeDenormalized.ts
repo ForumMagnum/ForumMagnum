@@ -4,7 +4,7 @@ import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
+import { Collections, getCollection } from "../vulcan-lib/getCollection";
 
 export const recomputeAllDenormalizedValues = async () => {
   for(let collection of Collections) {

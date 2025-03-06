@@ -1,27 +1,7 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { addUniversalFields } from '../../collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-
-const schema: SchemaType<"Images"> = {
-  /** @deprecated Use identifier + identifierType = 'originalUrl' */
-  originalUrl: {
-    type: String,
-    nullable: true,
-  },
-  identifier: {
-    type: String,
-    nullable: false,
-  },
-  identifierType: {
-    type: String,
-    allowedValues: ['sha256Hash', 'originalUrl'],
-    nullable: false,
-  },
-  cdnHostedUrl: {
-    type: String,
-    nullable: false,
-  },
-};
+import schema from './schema';
 
 /// Images collection. Used for keeping track of images that we've re-hosted by downloading them and re-uploading them to Cloudinary. Used to avoid duplicate uploads, and maybe keeping track of some extra metadata.
 export const Images: ImagesCollection = createCollection({

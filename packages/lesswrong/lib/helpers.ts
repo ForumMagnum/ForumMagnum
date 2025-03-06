@@ -1,4 +1,4 @@
-import { getCollection } from '@/lib/vulcan-lib/getCollection.ts';
+import { getCollection } from '@/server/vulcan-lib/getCollection';
 import moment from 'moment';
 import { randomLowercaseId } from '@/lib/random';
 import { isServer } from '@/lib/executionEnvironment';

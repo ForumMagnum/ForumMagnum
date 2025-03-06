@@ -2,7 +2,7 @@ import { getEditableCollectionNames, getEditableFieldNamesForCollection, editabl
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import * as _ from 'underscore';
-import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import { getCollection } from "../vulcan-lib/getCollection";
 
 // Check that the denormalized contents field of objects with make_editable match
 // the newest revision in the revisions table. This is important because we're

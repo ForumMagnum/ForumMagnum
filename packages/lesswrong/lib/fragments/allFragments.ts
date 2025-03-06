@@ -68,7 +68,7 @@ import * as userTagRelsFragments from '../collections/userTagRels/fragments';
 import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
-import { getAllCollections } from '../vulcan-lib/getCollection';
+import { getAllCollections } from '../../server/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import SqlFragment from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';

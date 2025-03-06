@@ -1,4 +1,4 @@
-import { getAllCollections } from "../../lib/vulcan-lib/getCollection";
+import { getAllCollections } from "../vulcan-lib/getCollection";
 import { getAllIndexes } from "../databaseIndexes/allIndexes";
 import TableIndex from "../sql/TableIndex";
 import { createIndex, dropIndex } from "./meta/utils";

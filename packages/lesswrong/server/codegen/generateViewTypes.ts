@@ -1,5 +1,5 @@
 import { allViews } from '@/lib/views/allViews';
-import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
+import { getAllCollections } from '../vulcan-lib/getCollection';
 import orderBy from 'lodash/orderBy';
 
 // NOT AN ESCAPING FUNCTION FOR UNTRUSTED INPUT

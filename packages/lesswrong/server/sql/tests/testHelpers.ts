@@ -1,4 +1,4 @@
-import { registerCollection } from "@/lib/vulcan-lib/getCollection";
+import { registerCollection } from "@/server/vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
 import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";

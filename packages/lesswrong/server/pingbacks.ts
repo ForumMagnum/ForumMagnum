@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
 import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
-import { getCollection } from '@/lib/vulcan-lib/getCollection';
+import { getCollection } from '@/server/vulcan-lib/getCollection';
 import { getLatestRev } from './editor/utils';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>

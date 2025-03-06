@@ -26,7 +26,7 @@ import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
-import { getCollection } from '@/lib/vulcan-lib/getCollection';
+import { getCollection } from '@/server/vulcan-lib/getCollection';
 import Users from '@/lib/collections/users/collection';
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { getVoteableCollections } from '@/lib/make_voteable';

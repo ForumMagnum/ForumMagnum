@@ -1,6 +1,6 @@
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
-import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
+import { Collections, getCollection } from "../vulcan-lib/getCollection";
 
 type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string) => void) => Promise<void>;
 type CollectionCustomValidator<T extends DbObject> = {

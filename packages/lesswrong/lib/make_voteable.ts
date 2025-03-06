@@ -2,7 +2,7 @@ import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, sch
 import { getWithLoader } from './loaders'
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
-import { getAllCollections } from './vulcan-lib/getCollection';
+import { getAllCollections } from '../server/vulcan-lib/getCollection';
 
 export type PermissionResult = {
   fail: false,

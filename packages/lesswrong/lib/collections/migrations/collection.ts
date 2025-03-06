@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import { addUniversalFields } from '../../collectionUtils'
-import { schemaDefaultValue } from '../../utils/schemaUtils';
+import schema from './schema';
 
 /*
  * NOTE: This collection only tracks the use of migrations located in
@@ -13,25 +13,6 @@ import { schemaDefaultValue } from '../../utils/schemaUtils';
 // A collection which records whenever a migration is run, when it started and
 // finished, and whether it succeeded. This can be cross-checked against the
 // set of available migrations to find ones that need running.
-
-const schema: SchemaType<"Migrations"> = {
-  name: {
-    type: String,
-    nullable: false,
-  },
-  started: {
-    type: Date,
-    nullable: false,
-  },
-  finished: {
-    type: Boolean,
-    ...schemaDefaultValue(false),
-  },
-  succeeded: {
-    type: Boolean,
-    ...schemaDefaultValue(false),
-  },
-};
 
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",

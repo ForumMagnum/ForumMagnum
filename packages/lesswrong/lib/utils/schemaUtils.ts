@@ -1,4 +1,4 @@
-import { getCollection } from '../vulcan-lib/getCollection';
+import { getCollection } from '../../server/vulcan-lib/getCollection';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";

@@ -1,7 +1,7 @@
 import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
 import { DefaultValueType, IdType, NotNullType, Type, UnknownType } from "./Type";
-import { getCollectionByTableName } from "@/lib/vulcan-lib/getCollection";
+import { getCollectionByTableName } from "@/server/vulcan-lib/getCollection";
 import { inspect } from "util";
 import { getCollationType } from "./collation";
 

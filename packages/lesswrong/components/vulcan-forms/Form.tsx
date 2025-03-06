@@ -36,7 +36,7 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
-  'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
+  'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   // `prefilledProps` is handled slightly differently - all the other props
   // trigger a full reset of the form, but changed to `prefilledProps` are
@@ -62,10 +62,9 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
 };
 
 const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
-  const collection = nextProps.collection;
-  const schema = nextProps.schema
-    ? new SimpleSchema(nextProps.schema)
-    : getSimpleSchema(collection);
+  // TODO: figure out why it doesn't like the type assignment
+  // In practice, it was working fine before I fixed the type of the schema field in the props
+  const schema = new SimpleSchema({ ...nextProps.schema });
   const convertedSchema = convertSchema(schema as any)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document

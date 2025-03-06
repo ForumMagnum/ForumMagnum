@@ -4,6 +4,7 @@ import { generateViewTypes } from './generateViewTypes';
 import { generateSQLSchema } from '../scripts/generateSQLSchema';
 import fs from 'fs';
 import path from 'path';
+import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -106,6 +107,7 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
+    writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
   } catch(e) {

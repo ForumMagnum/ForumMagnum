@@ -1,4 +1,4 @@
-import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
+import { getAllCollections } from '../vulcan-lib/getCollection';
 import { generatedFileHeader, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/collectionUtils';
 import { getSchema } from '../../lib/utils/getSchema';

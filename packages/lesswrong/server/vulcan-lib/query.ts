@@ -8,11 +8,12 @@ import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { generateDataLoaders } from './apollo-server/context';
 import { getAllRepos } from '../repos';
-import { collectionNameToTypeName, getCollectionsByName } from '../../lib/vulcan-lib/getCollection';
+import { getCollectionsByName } from './getCollection';
 import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
 import { getMultiResolverName } from '@/lib/crud/utils';
 import { PrimitiveGraphQLType } from '@/lib/crud/types';
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from '@/lib/crud/withSingle';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -87,7 +88,7 @@ export const runFragmentMultiQuery = async <
   extraVariablesValues?: Record<string, unknown>,
   context?: ResolverContext,
 }) => {
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getMultiResolverName(typeName);
 
   const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });

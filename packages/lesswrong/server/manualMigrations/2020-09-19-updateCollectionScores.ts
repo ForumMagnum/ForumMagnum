@@ -3,7 +3,7 @@
 import { registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes/collection';
 import Users from '../../lib/collections/users/collection';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { getCollection } from '../vulcan-lib/getCollection';
 
 
 export default registerMigration({

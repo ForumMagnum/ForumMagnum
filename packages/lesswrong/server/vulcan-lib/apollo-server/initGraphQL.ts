@@ -36,7 +36,7 @@ import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
-import { getAllCollections, getCollectionByTypeName } from "../../../lib/vulcan-lib/getCollection";
+import { getAllCollections, getCollectionByTypeName } from "../getCollection";
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {

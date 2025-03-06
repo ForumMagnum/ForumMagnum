@@ -1,53 +1,11 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { schemaDefaultValue, slugFields } from '../../utils/schemaUtils';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { editableFields } from '../../editor/make_editable';
 import './fragments'
 import { userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-
-const schema: SchemaType<"TagFlags"> = {
-  ...editableFields("TagFlags", {
-    order: 30,
-    getLocalStorageId: (tagFlag, name) => {
-      if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
-      return {id: `tagFlag: ${name}`, verify: false}
-    },
-  }),
-  ...slugFields("TagFlags", {
-    getTitle: (tf) => tf.name,
-    includesOldSlugs: false,
-  }),
-  name: {
-    type: String,
-    nullable: false,
-    canRead: ['guests'],
-    canUpdate: ['members', 'admins', 'sunshineRegiment'],
-    canCreate: ['members', 'admins', 'sunshineRegiment'],
-    order: 1
-  },
-  deleted: {
-    optional: true,
-    nullable: false,
-    type: Boolean,
-    canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'], 
-    order: 2,
-    ...schemaDefaultValue(false),
-  },
-  order: {
-    type: Number,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'], 
-  },
-};
-
+import schema from './schema';
 
 const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {

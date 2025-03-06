@@ -14,7 +14,7 @@ import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
 import { updateMutator } from "../vulcan-lib/mutators";
-import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import { getCollection } from "../vulcan-lib/getCollection";
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string

@@ -1,5 +1,5 @@
 import SqlFragment, { getResolverCollection } from "@/server/sql/SqlFragment";
-import { registerCollection } from "@/lib/vulcan-lib/getCollection";
+import { registerCollection } from "@/server/vulcan-lib/getCollection";
 import JargonTerms from "@/lib/collections/jargonTerms/collection";
 import GraphQLJSON from "graphql-type-json";
 import type { GraphQLScalarType } from "graphql";

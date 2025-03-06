@@ -1,6 +1,6 @@
 export const acceptsSchemaHash = "afb5555a6e3a18714877036b68c63786";
 
-import { Collections } from "../../lib/vulcan-lib/getCollection"
+import { Collections } from "../vulcan-lib/getCollection"
 import { updateDefaultValue, dropDefaultValue } from "./meta/utils"
 
 /*

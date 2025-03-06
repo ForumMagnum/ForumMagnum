@@ -11,7 +11,7 @@ import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql"
 import { captureException } from "@sentry/core";
 import isEqual from "lodash/isEqual";
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
-import { getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection.ts";
+import { getAllCollections, getCollection } from "@/server/vulcan-lib/getCollection";
 import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
 import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
 

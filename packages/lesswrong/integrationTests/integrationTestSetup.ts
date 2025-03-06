@@ -7,7 +7,7 @@ import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
-import { Collections } from '../lib/vulcan-lib/getCollection';
+import { Collections } from '../server/vulcan-lib/getCollection';
 import PgCollection from '../server/sql/PgCollection';
 import { waitUntilCallbacksFinished } from './utils';
 import "@/lib"

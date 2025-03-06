@@ -2,7 +2,7 @@ import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../manualMigrations/migrationUtils'
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
-import { Collections } from "../../lib/vulcan-lib/getCollection";
+import { Collections } from "../vulcan-lib/getCollection";
 
 registerMigration({
   name: "fillMissingValues",

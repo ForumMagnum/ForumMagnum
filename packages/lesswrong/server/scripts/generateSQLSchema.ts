@@ -1,5 +1,5 @@
 import { format as sqlFormatter } from 'sql-formatter';
-import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
+import { getAllCollections, isValidCollectionName } from "../vulcan-lib/getCollection";
 import Table from "@/server/sql/Table";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
 import { writeFileSync } from 'node:fs'
