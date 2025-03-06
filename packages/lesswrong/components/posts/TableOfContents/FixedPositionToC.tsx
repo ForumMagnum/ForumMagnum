@@ -22,7 +22,27 @@ function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
   containerPosition?: {top: number, bottom: number},
 }): ToCSectionWithOffsetAndScale[] {
-  return sections.map((section,idx) => {
+  // If we have no sections, just return empty array
+  if (sections.length === 0) return [];
+  
+  // Calculate the gap between container top and first section for proper spacing
+  // See longer comment below for more details of normalization of vertical scale
+  const firstSectionOffset = sections[0].offset || 0;
+  const containerTop = containerPosition?.top || 0;
+  const gapToFirstSection = firstSectionOffset - containerTop;
+  
+  // Create a virtual spacer for the gap at the top if needed
+  const titleGapSpacer = {
+    title: "",
+    anchor: "spacer",
+    level: 0,
+    offset: containerTop,
+    scale: gapToFirstSection > 0 ? gapToFirstSection : 0,
+    spacer: true
+  };
+  
+  // Map the sections with their scales
+  const normalizedSections = sections.map((section,idx) => {
     // The vertical scale (flex-grow amount) of a ToC element is proportional
     // to the offset of the next positioned element minus its own offset.
     // However, not every element necessarily has an offset; if an element
@@ -37,14 +57,18 @@ function normalizeToCScale({containerPosition, sections}: {
     const nextSectionOffset = (nextPositionedIdx>=sections.length)
       ? containerPosition?.bottom ?? 0
       : sections[nextPositionedIdx].offset ?? 0;
+      
+    const scale = section.divider ? 1 : nextSectionOffset - (section.offset ?? 0);
+      
     return {
       ...section,
       offset: section.offset ?? 0,
-      scale: section.divider
-        ? 1
-        : nextSectionOffset - (section.offset ?? 0)
+      scale
     };
   });
+  
+  // Return with spacer if there's a significant gap
+  return gapToFirstSection > 50 ? [titleGapSpacer, ...normalizedSections] : normalizedSections;
 };
 
 function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[]): ToCSectionWithOffsetAndScale[] {
@@ -267,11 +291,13 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   }
   
   const { landmarkName: currentSection } = useScrollHighlight([
-    ...filteredSections.map((section): ScrollHighlightLandmark => ({
-      landmarkName: section.anchor,
-      elementId: section.anchor,
-      position: "centerOfElement",
-    })),
+    ...filteredSections
+      .filter(section => !section.spacer)
+      .map((section): ScrollHighlightLandmark => ({
+        landmarkName: section.anchor,
+        elementId: section.anchor,
+        position: "centerOfElement",
+      })),
     {
       landmarkName: "comments",
       elementId: "postBody",
@@ -321,10 +347,10 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
             highlighted={currentSection === "above"}
             onClick={ev => {
               if (isRegularClick(ev)) {
-              void handleClick(ev, () => {
-                navigate("#");
-                jumpToY(0)
-              });
+                void handleClick(ev, () => {
+                  navigate("#");
+                  jumpToY(0)
+                });
               }
             }}
           >
@@ -337,10 +363,19 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     </div>
   );
   
-  const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
+  const renderedSections = normalizedSections.filter(row => (!row.divider && row.anchor !== "comments") || row.spacer);
 
   const rows = renderedSections.map((section, index) => {
     const scaleStyling = section.scale !== undefined ? { flex: section.scale } : undefined;
+
+    // If this is just a spacer, render only the space without a dot or label
+    if (section.spacer) {
+      return (
+        <div className={classes.rowWrapper} style={scaleStyling} key={section.anchor}>
+          {/* Empty div for spacing */}
+        </div>
+      );
+    }
 
     const tocRow = (
       <TableOfContentsRow
