@@ -104,6 +104,12 @@ describe("UpdateQuery", () => {
       expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
       expectedArgs: ['"test"', "abc"],
     },
+    {
+      name: "can correctly cast and add a type hint for arrays of primitive values (i.e. text[]) in a JSONB field",
+      getQuery: () => new UpdateQuery<DbTestObject5>(testTable5, {_id: "abc"}, {$set: {jsonField: ["test", "test2"]}}),
+      expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
+      expectedArgs: ['["test","test2"]', "abc"],
+    },
   ]);
 });
 

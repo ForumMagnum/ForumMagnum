@@ -119,10 +119,34 @@ describe("InsertQuery", () => {
       expectedError: "Cannot use conflictStrategy 'upsert' when inserting multiple rows",
     },
     {
-      name: "can correctly cast and add a type hint for primitive (non-array and non-object) values in a JSONB field",
+      name: "can correctly cast and add a type hint for primitive string values in a JSONB field",
       getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: "test", schemaVersion: 1}),
       expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
       expectedArgs: ["abc", '"test"', 1],
+    },
+    {
+      name: "can correctly cast and add a type hint for primitive number values in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: 123, schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
+      expectedArgs: ["abc", '123', 1],
+    },
+    {
+      name: "can correctly cast and add a type hint for primitive boolean values in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: true, schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
+      expectedArgs: ["abc", 'true', 1],
+    },
+    {
+      name: "can correctly cast and add a type hint for null values in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: null, schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
+      expectedArgs: ["abc", 'null', 1],
+    },
+    {
+      name: "can correctly cast and add a type hint for arrays of prmitive values (i.e. text[]) in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: ["test", "test2"], schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
+      expectedArgs: ["abc", '["test","test2"]', 1],
     },
   ]);
 });
