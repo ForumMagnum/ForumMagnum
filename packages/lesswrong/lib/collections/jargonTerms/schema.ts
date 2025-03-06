@@ -1,7 +1,9 @@
 import { editableFields } from '@/lib/editor/make_editable';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"JargonTerms"> = {
+  ...universalFields({}),
   ...editableFields("JargonTerms", {
     commentEditor: true,
     commentStyles: true,

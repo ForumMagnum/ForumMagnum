@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection } from "../../vulcan-lib/collections";
-import { addUniversalFields } from '../../collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const ManifoldProbabilitiesCaches = createCollection({
@@ -15,7 +14,5 @@ export const ManifoldProbabilitiesCaches = createCollection({
   logChanges: false,
   writeAheadLogged: false,
 });
-
-addUniversalFields({collection: ManifoldProbabilitiesCaches});
 
 export default ManifoldProbabilitiesCaches;

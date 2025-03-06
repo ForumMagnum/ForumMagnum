@@ -3,8 +3,13 @@ import * as _ from 'underscore';
 import { isLWorAF } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Conversations"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['members']},
+  }),
+  
   title: {
     type: String,
     canRead: ['members'],

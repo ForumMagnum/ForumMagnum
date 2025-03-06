@@ -1,5 +1,4 @@
 import { createCollection } from "../../vulcan-lib/collections";
-import { addUniversalFields } from "../../collectionUtils"
 import schema from "./schema";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -17,7 +16,5 @@ export const SideCommentCaches: SideCommentCachesCollection = createCollection({
   mutations: {},
   logChanges: false,
 });
-
-addUniversalFields({collection: SideCommentCaches});
 
 export default SideCommentCaches;

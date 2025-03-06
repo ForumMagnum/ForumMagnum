@@ -1,9 +1,8 @@
-import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import Conversations from '../conversations/collection'
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -46,10 +45,6 @@ export const Messages: MessagesCollection = createCollection({
   logChanges: false,
 });
 
-addUniversalFields({
-  collection: Messages,
-  createdAtOptions: {canRead: ['members']},
-});
 
 Messages.checkAccess = async (user: DbUser|null, document: DbMessage, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

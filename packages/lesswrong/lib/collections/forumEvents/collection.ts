@@ -1,7 +1,6 @@
 import schema from "./schema";
 import { createCollection } from "../../vulcan-lib/collections";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -18,7 +17,5 @@ export const ForumEvents: ForumEventsCollection = createCollection({
   mutations: getDefaultMutations("ForumEvents"),
   logChanges: true,
 });
-
-addUniversalFields({collection: ForumEvents});
 
 export default ForumEvents;

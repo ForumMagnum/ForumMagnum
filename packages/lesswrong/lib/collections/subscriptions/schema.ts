@@ -1,5 +1,5 @@
-import { userOwns } from '../../vulcan-users/permissions';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
+import { universalFields } from '@/lib/collectionUtils';
 
 export const subscriptionTypes = {
   newComments: 'newComments',
@@ -20,6 +20,8 @@ export const subscriptionTypes = {
 export type SubscriptionType = typeof subscriptionTypes[keyof typeof subscriptionTypes];
 
 const schema: SchemaType<"Subscriptions"> = {
+  ...universalFields({}),
+
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

@@ -19,6 +19,7 @@ import uniqBy from 'lodash/uniqBy';
 import { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
+import { universalFields } from "../../collectionUtils";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -60,6 +61,14 @@ async function getTagMultiDocuments(
 }
 
 const schema: SchemaType<"Tags"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
+    }
+  }),
+  
   ...editableFields("Tags", {
     fieldName: "description",
     commentStyles: true,

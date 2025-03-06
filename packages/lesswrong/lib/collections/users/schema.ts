@@ -18,6 +18,7 @@ import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesE
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { universalFields } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
 import { getNestedProperty } from "../../vulcan-lib/utils";
@@ -335,6 +336,7 @@ addGraphQLSchema(`
  * @type {Object}
  */
 const schema: SchemaType<"Users"> = {
+  ...universalFields({}),
   ...editableFields("Users", {
     fieldName: "moderationGuidelines",
     commentEditor: true,
