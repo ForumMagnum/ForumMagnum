@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import schema from '@/lib/collections/chapters/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
-import Sequences from '@/lib/collections/sequences/collection';
+import Sequences from '@/server/collections/sequences/collection';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";

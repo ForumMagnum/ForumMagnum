@@ -1,6 +1,6 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { isValidCollectionName } from '../vulcan-lib/getCollection';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 import { getEditableCollectionNames, getEditableFieldNamesForCollection, } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from './htmlDiff';

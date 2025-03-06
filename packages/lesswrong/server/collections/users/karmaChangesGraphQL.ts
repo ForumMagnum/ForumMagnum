@@ -1,9 +1,9 @@
 import Users from "../users/collection";
-import { userOwns } from '../../vulcan-users/permissions';
-import { addFieldsDict } from '../../utils/schemaUtils';
-import { addGraphQLResolvers, addGraphQLSchema } from '../../vulcan-lib/graphql';
-import type { TagCommentType } from "../../collections/comments/types";
-import type { KarmaChangeUpdateFrequency } from "./schema";
+import { userOwns } from '../../../lib/vulcan-users/permissions';
+import { addFieldsDict } from '../../../lib/utils/schemaUtils';
+import { addGraphQLResolvers, addGraphQLSchema } from '../../../lib/vulcan-lib/graphql';
+import type { TagCommentType } from "../../../lib/collections/comments/types";
+import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
 
 // When adding fields here, you almost certainly want to update the
 // `UserKarmaChanges` fragment too

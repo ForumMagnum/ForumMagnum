@@ -1,6 +1,6 @@
 import { wrapVulcanAsyncScript } from './utils'
 import { userIPBanAndResetLoginTokens, userDeleteContent } from '../users/moderationUtils'
-import Users from '../../lib/collections/users/collection'
+import Users from '../../server/collections/users/collection'
 import moment from 'moment'
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {

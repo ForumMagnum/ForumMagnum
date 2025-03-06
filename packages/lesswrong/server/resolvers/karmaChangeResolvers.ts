@@ -1,4 +1,4 @@
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { isAF } from "../../lib/instanceSettings";
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";

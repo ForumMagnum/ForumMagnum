@@ -1,5 +1,5 @@
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Images } from '../../lib/collections/images/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { Images } from '../../server/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
@@ -11,7 +11,7 @@ import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { getCollection } from '../vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { getAtPath, setAtPath } from '../../lib/helpers';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
@@ -19,7 +19,7 @@ import crypto from 'crypto';
 import Papa from 'papaparse';
 import fs from "node:fs";
 import { sleep } from '@/lib/utils/asyncUtils';
-import SideCommentCaches from '@/lib/collections/sideCommentCaches/collection';
+import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");

@@ -1,8 +1,8 @@
 import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
-import { LWEvents } from '../../lib/collections/lwevents/collection';
+import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
-import { Comments } from '../../lib/collections/comments/collection';
+import { Comments } from '../../server/collections/comments/collection';
 import { updateMutator } from '../vulcan-lib/mutators';
 import moment from 'moment';
 import uniq from 'lodash/uniq';

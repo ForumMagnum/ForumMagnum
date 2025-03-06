@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
-import { Posts } from '../lib/collections/posts/collection';
-import { Sequences } from '../lib/collections/sequences/collection';
-import { Collections } from '../lib/collections/collections/collection';
+import { Posts } from '../server/collections/posts/collection';
+import { Sequences } from '../server/collections/sequences/collection';
+import { Collections } from '../server/collections/collections/collection';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../lib/vulcan-lib/graphql';

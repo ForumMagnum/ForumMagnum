@@ -1,4 +1,4 @@
-import { LWEvents } from '../lib/collections/lwevents/collection';
+import { LWEvents } from '../server/collections/lwevents/collection';
 import { getSchema } from '../lib/utils/getSchema';
 import { createMutator } from './vulcan-lib/mutators';
 

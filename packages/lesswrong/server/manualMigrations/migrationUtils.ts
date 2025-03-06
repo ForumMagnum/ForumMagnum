@@ -1,4 +1,4 @@
-import Migrations from '../../lib/collections/migrations/collection';
+import Migrations from '../../server/collections/migrations/collection';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep, timedFunc } from '../../lib/helpers';

@@ -21,7 +21,7 @@ import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
-import UserActivities from '../../../lib/collections/useractivities/collection';
+import UserActivities from '../../../server/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';

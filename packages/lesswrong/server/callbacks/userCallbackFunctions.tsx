@@ -1,8 +1,8 @@
 import React from "react";
 import { hasDigests } from "@/lib/betas";
-import Conversations from "@/lib/collections/conversations/collection";
-import Messages from "@/lib/collections/messages/collection";
-import Users from "@/lib/collections/users/collection";
+import Conversations from "@/server/collections/conversations/collection";
+import Messages from "@/server/collections/messages/collection";
+import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";

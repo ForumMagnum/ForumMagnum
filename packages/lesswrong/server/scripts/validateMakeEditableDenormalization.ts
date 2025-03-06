@@ -1,5 +1,5 @@
 import { getEditableCollectionNames, getEditableFieldNamesForCollection, editableFieldIsNormalized } from '../../lib/editor/make_editable'
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import * as _ from 'underscore';
 import { getCollection } from "../vulcan-lib/getCollection";

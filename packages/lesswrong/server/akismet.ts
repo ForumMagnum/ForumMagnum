@@ -1,8 +1,8 @@
-import LWEvents from '../lib/collections/lwevents/collection'
-import { Posts } from '../lib/collections/posts/collection'
+import LWEvents from '../server/collections/lwevents/collection'
+import { Posts } from '../server/collections/posts/collection'
 import { postGetPageUrl } from '../lib/collections/posts/helpers'
-import { Comments } from '../lib/collections/comments/collection'
-import Users from '../lib/collections/users/collection';
+import { Comments } from '../server/collections/comments/collection'
+import Users from '../server/collections/users/collection';
 import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
 import { akismetKeySetting, akismetURLSetting } from './databaseSettings';

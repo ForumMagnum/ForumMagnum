@@ -1,5 +1,5 @@
-import Users from '../../lib/collections/users/collection';
-import { Votes } from '../../lib/collections/votes/collection';
+import Users from '../../server/collections/users/collection';
+import { Votes } from '../../server/collections/votes/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import { getCollection } from "../vulcan-lib/getCollection";
 

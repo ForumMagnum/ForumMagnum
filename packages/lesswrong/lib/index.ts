@@ -199,7 +199,7 @@ import './collections/revisions/views'
 import './collections/users/helpers';
 import './collections/users/schema';
 import './collections/users/recommendationSettings';
-import './collections/users/karmaChangesGraphQL';
+import '../server/collections/users/karmaChangesGraphQL';
 import './collections/users/views';
 import './collections/users/fragments';
 

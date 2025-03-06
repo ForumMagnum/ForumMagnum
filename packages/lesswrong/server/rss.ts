@@ -1,7 +1,7 @@
 import RSS from 'rss';
-import { Comments } from '../lib/collections/comments/collection';
+import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';

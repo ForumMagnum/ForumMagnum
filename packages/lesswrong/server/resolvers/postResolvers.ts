@@ -1,6 +1,6 @@
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
-import { Comments } from '../../lib/collections/comments/collection';
+import { Comments } from '../../server/collections/comments/collection';
 import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
@@ -21,10 +21,10 @@ import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarket
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
-import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
+import SideCommentCaches from '../../server/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
-import Revisions from '../../lib/collections/revisions/collection';
+import Revisions from '../../server/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';

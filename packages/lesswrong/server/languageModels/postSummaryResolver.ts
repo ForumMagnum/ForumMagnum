@@ -1,4 +1,4 @@
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';

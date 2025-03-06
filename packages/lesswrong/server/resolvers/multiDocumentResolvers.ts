@@ -1,4 +1,4 @@
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { GraphQLJSON } from "graphql-type-json";
 import { accessFilterMultiple, augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { getToCforMultiDocument } from "../tableOfContents";

@@ -1,4 +1,4 @@
-import LlmConversations from "@/lib/collections/llmConversations/collection";
+import LlmConversations from "@/server/collections/llmConversations/collection";
 import { augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { markdownToHtml } from "../editor/conversionUtils";
 import { userVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";

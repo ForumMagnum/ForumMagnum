@@ -19,7 +19,7 @@ import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
-import Revisions from "@/lib/collections/revisions/collection";
+import Revisions from "@/server/collections/revisions/collection";
 import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";

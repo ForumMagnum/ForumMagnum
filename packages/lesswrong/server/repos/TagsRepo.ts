@@ -1,8 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
-import Tags from "../../lib/collections/tags/collection";
+import Tags from "../../server/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewableTagsSelector } from "./helpers";
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import sortBy from "lodash/sortBy";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 

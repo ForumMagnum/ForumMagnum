@@ -1,4 +1,4 @@
-import ReviewWinners from "../../lib/collections/reviewWinners/collection";
+import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";

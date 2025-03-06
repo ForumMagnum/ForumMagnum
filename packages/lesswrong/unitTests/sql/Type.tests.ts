@@ -12,7 +12,7 @@ import {
   UnknownType,
   VectorType,
 } from "@/server/sql/Type";
-import { Posts } from "../../lib/collections/posts/collection";
+import { Posts } from "../../server/collections/posts/collection";
 
 describe("SQL Type", () => {
   describe("StringType", () => {

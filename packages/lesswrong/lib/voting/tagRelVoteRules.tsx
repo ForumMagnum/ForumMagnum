@@ -1,5 +1,4 @@
 import { PermissionableUser, userGetGroups } from '../vulcan-users/permissions';
-import Tags from '../collections/tags/collection';
 import { PermissionResult } from '../make_voteable';
 import { CoauthoredPost, userIsPostCoauthor } from '../collections/posts/helpers';
 import { taggingNameSetting } from '../instanceSettings';
@@ -11,8 +10,8 @@ let tagVotingGroups: Record<string, string[]> = {};
 let lastFetched = 0;
 let refetchTagVotingGroupsPromise: Promise<void>|null = null;
 
-async function refetchTagVotingGroups() {
-  const results = await Tags.find({canVoteOnRels: {$exists: true}}).fetch();
+async function refetchTagVotingGroups(context: ResolverContext) {
+  const results = await context.Tags.find({canVoteOnRels: {$exists: true}}).fetch();
   tagVotingGroups = results.reduce((groups: AnyBecauseTodo, {_id, canVoteOnRels}) => {
     groups[_id] = canVoteOnRels;
     return groups;
@@ -20,13 +19,13 @@ async function refetchTagVotingGroups() {
   lastFetched = Date.now();
 }
 
-const getTagVotingGroups = async (tagId: string) => {
+const getTagVotingGroups = async (tagId: string, context: ResolverContext) => {
   if (lastFetched + FETCH_INTERVAL_MS < Date.now()) {
     // If it's been too long since we refreshed tagVotingGroups, do so. Share
     // the promise so that when this expires (and during startup), we only fetch
     // it once rather than setting off a thundering herd.
     if (!refetchTagVotingGroupsPromise) {
-      refetchTagVotingGroupsPromise = refetchTagVotingGroups();
+      refetchTagVotingGroupsPromise = refetchTagVotingGroups(context);
     }
     await refetchTagVotingGroupsPromise;
     refetchTagVotingGroupsPromise = null;
@@ -76,10 +75,10 @@ export const canVoteOnTagAsync = async (
   user: DbUser,
   tagId: string,
   postId: string,
-  context: {Posts: PostsCollection},
+  context: ResolverContext,
   voteType: string,
 ): Promise<PermissionResult> => {
-  const tagGroups = await getTagVotingGroups(tagId);
+  const tagGroups = await getTagVotingGroups(tagId, context);
   if (!tagGroups) {
     return {fail: false};
   }

@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import { getEditableFieldsByCollection } from '../../lib/editor/make_editable';
 import { getCollection } from '../vulcan-lib/getCollection';
 import { htmlToPingbacks } from '../pingbacks';
-import Revisions from '@/lib/collections/revisions/collection';
+import Revisions from '@/server/collections/revisions/collection';
 
 export default registerMigration({
   name: "generatePingbacksAgain",

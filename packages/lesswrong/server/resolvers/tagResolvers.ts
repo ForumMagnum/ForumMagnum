@@ -1,11 +1,11 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Users } from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Users } from '../../server/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
@@ -39,7 +39,7 @@ import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
 import { updateMutator } from "../vulcan-lib/mutators";
 

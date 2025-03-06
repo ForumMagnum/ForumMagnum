@@ -2,10 +2,10 @@ const { extract } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 
-import Posts from '../../lib/collections/posts/collection'
+import Posts from '../../server/collections/posts/collection'
 import { fetchFragmentSingle } from '../fetchFragment'
 import { defineMutation } from '@/server/utils/serverGraphqlUtil.ts'
-import Users from '@/lib/collections/users/collection'
+import Users from '@/server/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 import { eligibleToNominate } from '@/lib/reviewUtils';
 import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";

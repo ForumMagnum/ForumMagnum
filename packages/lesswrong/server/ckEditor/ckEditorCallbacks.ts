@@ -1,8 +1,8 @@
 import * as _ from 'underscore';
 import { isCollaborative } from '../../components/editor/EditorFormComponent';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
 import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';

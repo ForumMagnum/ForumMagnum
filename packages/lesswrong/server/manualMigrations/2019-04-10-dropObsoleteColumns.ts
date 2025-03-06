@@ -1,7 +1,7 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Comments } from '../../lib/collections/comments/collection';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import Users from '../../server/collections/users/collection';
 
 export default registerMigration({
   name: "dropObsoleteColumns",

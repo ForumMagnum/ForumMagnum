@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import JargonTerms from "@/lib/collections/jargonTerms/collection";
+import JargonTerms from "@/server/collections/jargonTerms/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 class JargonTermsRepo extends AbstractRepo<"JargonTerms"> {
   constructor() {

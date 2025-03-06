@@ -1,4 +1,4 @@
-import { Votes } from '../lib/collections/votes/collection';
+import { Votes } from '../server/collections/votes/collection';
 import { getVoteableCollections } from '../lib/make_voteable';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { silentlyReverseVote } from './voteServer';

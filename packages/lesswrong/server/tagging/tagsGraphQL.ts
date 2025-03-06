@@ -1,6 +1,6 @@
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { createMutator } from "../vulcan-lib/mutators";
 import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";

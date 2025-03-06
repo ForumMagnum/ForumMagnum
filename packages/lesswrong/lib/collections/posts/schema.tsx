@@ -1,11 +1,9 @@
 import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils'
-import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { TagRels } from "../tagRels/collection";
 import { loadByIds, getWithLoader, getWithCustomLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
@@ -32,7 +30,6 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-import SideCommentCaches from '../sideCommentCaches/collection';
 import { hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
@@ -687,8 +684,9 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       if (!post.question) return [];
 
+      const { currentUser, PostRelations } = context;
       const result = await PostRelations.find({targetPostId: post._id}).fetch()
-      return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
+      return await accessFilterMultiple(currentUser, PostRelations, result, context);
     }
   }),
   'sourcePostRelations.$': {
@@ -703,7 +701,7 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       if (!post.question) return [];
 
-      const {currentUser, repos} = context;
+      const {currentUser, repos, PostRelations} = context;
       const postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
       if (!postRelations || postRelations.length < 1) return []
       return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
@@ -1040,7 +1038,7 @@ const schema: SchemaType<"Posts"> = {
     graphqlArguments: 'tagId: String',
     resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
       const { tagId } = args;
-      const { currentUser } = context;
+      const { currentUser, TagRels } = context;
       const tagRels = await getWithLoader(context, TagRels,
         "tagRelByDocument",
         {
@@ -2655,7 +2653,8 @@ const schema: SchemaType<"Posts"> = {
     type: "SideCommentCache",
     graphQLtype: "SideCommentCache",
     canRead: ["guests"],
-    resolver: ({_id}: DbPost) => {
+    resolver: ({_id}: DbPost, _, context: ResolverContext) => {
+      const { SideCommentCaches } = context;
       if (!hasSideComments) {
         return null;
       }

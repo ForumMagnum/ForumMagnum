@@ -1,6 +1,6 @@
-import { Comments } from '../lib/collections/comments/collection';
+import { Comments } from '../server/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
-import { Revisions } from '../lib/collections/revisions/collection';
+import { Revisions } from '../server/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 

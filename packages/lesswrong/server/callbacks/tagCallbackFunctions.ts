@@ -190,7 +190,7 @@ export async function validateTagRelCreate(newDocument: DbInsertion<DbTagRel>, {
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }
 
-  const canVoteOnTag = await canVoteOnTagAsync(currentUser, tagId, postId, {Posts}, newDocument.baseScore >= 0 ? "smallUpvote" : "smallDownvote");
+  const canVoteOnTag = await canVoteOnTagAsync(currentUser, tagId, postId, context, newDocument.baseScore >= 0 ? "smallUpvote" : "smallDownvote");
   if (canVoteOnTag.fail) {
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }

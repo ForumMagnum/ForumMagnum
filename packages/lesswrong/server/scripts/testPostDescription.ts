@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
-import { Posts } from "../../lib/collections/posts/collection";
-import Revisions from "../../lib/collections/revisions/collection";
+import { Posts } from "../../server/collections/posts/collection";
+import Revisions from "../../server/collections/revisions/collection";
 
 
 /** For visually inspecting that our descriptions match the post content well */

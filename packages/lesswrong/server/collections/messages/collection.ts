@@ -1,7 +1,7 @@
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/messages/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import Conversations from '@/lib/collections/conversations/collection'
+import Conversations from '@/server/collections/conversations/collection'
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";

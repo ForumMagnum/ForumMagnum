@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
-import { userCanPost } from '../../lib/collections/posts/collection';
+import { userCanPost } from '../../server/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";

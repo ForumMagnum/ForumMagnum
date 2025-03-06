@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import SideCommentCaches from "../../lib/collections/sideCommentCaches/collection";
+import SideCommentCaches from "../../server/collections/sideCommentCaches/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { sideCommentCacheVersion } from "../../lib/collections/posts/schema";
 import { randomId } from "../../lib/random";

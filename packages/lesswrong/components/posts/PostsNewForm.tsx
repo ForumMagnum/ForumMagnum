@@ -1,5 +1,5 @@
 import { useMessages } from '../common/withMessages';
-import { userCanPost } from '../../lib/collections/posts/collection';
+import { userCanPost } from '../../server/collections/posts/collection';
 import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';

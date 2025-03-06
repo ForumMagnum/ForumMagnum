@@ -1,4 +1,4 @@
-import { Revisions } from '@/lib/collections/revisions/collection';
+import { Revisions } from '@/server/collections/revisions/collection';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import { computeAttributions } from '../attributeEdits';

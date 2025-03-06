@@ -1,5 +1,5 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';

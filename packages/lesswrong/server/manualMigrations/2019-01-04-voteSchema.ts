@@ -1,4 +1,4 @@
-import { Votes } from '../../lib/collections/votes/collection';
+import { Votes } from '../../server/collections/votes/collection';
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
 import { getCollection } from '../vulcan-lib/getCollection';
 import * as _ from 'underscore';

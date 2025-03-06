@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import Users from '../lib/collections/users/collection';
+import Users from '../server/collections/users/collection';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import { updateMutator } from './vulcan-lib/mutators';
 import * as _ from 'underscore';

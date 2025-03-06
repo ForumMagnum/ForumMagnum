@@ -1,4 +1,4 @@
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { createNotification } from './notificationCallbacksHelpers';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import sortBy from 'lodash/sortBy';

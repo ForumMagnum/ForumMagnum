@@ -1,4 +1,4 @@
-import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
+import { DatabaseMetadata } from '../server/collections/databaseMetadata/collection';
 import { isDevelopment } from '../lib/executionEnvironment';
 import {
     getPublicSettings,

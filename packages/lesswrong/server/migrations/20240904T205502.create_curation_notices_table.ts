@@ -44,7 +44,7 @@
  */
 export const acceptsSchemaHash = "f857f474b5a374350cc1797a5d9240fa";
 
-import { CurationNotices } from "../../lib/collections/curationNotices/collection.ts"
+import { CurationNotices } from "../../server/collections/curationNotices/collection.ts"
 import { createTable, dropTable } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

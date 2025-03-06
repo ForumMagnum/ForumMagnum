@@ -1,7 +1,7 @@
-import JargonTerms from "@/lib/collections/jargonTerms/collection";
+import JargonTerms from "@/server/collections/jargonTerms/collection";
 import { augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
-import Revisions from "@/lib/collections/revisions/collection";
+import Revisions from "@/server/collections/revisions/collection";
 
 augmentFieldsDict(JargonTerms, {
   humansAndOrAIEdited: {

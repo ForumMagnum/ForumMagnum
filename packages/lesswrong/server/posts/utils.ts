@@ -1,4 +1,4 @@
-import Localgroups from '../../lib/collections/localgroups/collection';
+import Localgroups from '../../server/collections/localgroups/collection';
 import { cheerioParse } from "../utils/htmlUtil";
 import type { FetchedFragment } from '../fetchFragment';
 import { getLatestContentsRevision } from '../collections/revisions/helpers';

@@ -6,8 +6,6 @@ import moment from 'moment';
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
-import Comments from '../comments/collection';
-import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
@@ -562,7 +560,8 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       if (!tag.isSubforum) return null;
-      const userTagRel = context.currentUser ? await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}) : null;
+      const { Comments, UserTagRels, currentUser } = context;
+      const userTagRel = currentUser ? await UserTagRels.findOne({userId: currentUser._id, tagId: tag._id}) : null;
       // This is when this field was added, so assume all messages before then have been read
       const earliestDate = new Date('2022-09-30T15:07:34.026Z');
       

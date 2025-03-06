@@ -1,8 +1,8 @@
 import { registerMigration } from './migrationUtils';
-import Posts from '../../lib/collections/posts/collection';
-import Collections from '../../lib/collections/collections/collection';
-import Sequences from '../../lib/collections/sequences/collection';
-import Chapters from '../../lib/collections/chapters/collection';
+import Posts from '../../server/collections/posts/collection';
+import Collections from '../../server/collections/collections/collection';
+import Sequences from '../../server/collections/sequences/collection';
+import Chapters from '../../server/collections/chapters/collection';
 import * as _ from 'underscore';
 
 // Extracted from this spreadsheet: https://docs.google.com/spreadsheets/d/1E9BgDtrYho9YU_vsnM9DMIWUa4zUH8M72MCA9wIl_vw/

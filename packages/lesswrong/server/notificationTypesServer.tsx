@@ -1,16 +1,16 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
-import { Comments } from '../lib/collections/comments/collection';
-import { Localgroups } from '../lib/collections/localgroups/collection';
-import { Messages } from '../lib/collections/messages/collection';
-import { TagRels } from '../lib/collections/tagRels/collection';
-import { Conversations } from '../lib/collections/conversations/collection';
+import { Comments } from '../server/collections/comments/collection';
+import { Localgroups } from '../server/collections/localgroups/collection';
+import { Messages } from '../server/collections/messages/collection';
+import { TagRels } from '../server/collections/tagRels/collection';
+import { Conversations } from '../server/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
-import Users from '../lib/collections/users/collection';
+import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
@@ -23,12 +23,12 @@ import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
-import Tags from '../lib/collections/tags/collection';
+import Tags from '../server/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
-import Sequences from '../lib/collections/sequences/collection';
+import Sequences from '../server/collections/sequences/collection';
 
 interface ServerNotificationType {
   name: string,

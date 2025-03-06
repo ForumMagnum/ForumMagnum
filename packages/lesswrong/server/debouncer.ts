@@ -1,5 +1,5 @@
 import { captureException } from '@sentry/core';
-import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
+import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
 import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cron/cronUtil';

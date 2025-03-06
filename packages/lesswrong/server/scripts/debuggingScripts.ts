@@ -1,5 +1,5 @@
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import {
   createDummyMessage,
   createDummyConversation,

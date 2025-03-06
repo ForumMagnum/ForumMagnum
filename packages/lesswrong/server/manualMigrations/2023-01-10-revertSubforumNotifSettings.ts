@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { LWEvents } from '../../lib/collections/lwevents/collection';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection';
-import UserTagRels from '../../lib/collections/userTagRels/collection';
+import { LWEvents } from '../../server/collections/lwevents/collection';
+import { Subscriptions } from '../../server/collections/subscriptions/collection';
+import UserTagRels from '../../server/collections/userTagRels/collection';
 import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 import { getSchema } from '../../lib/utils/getSchema';
 import { registerMigration } from './migrationUtils';
