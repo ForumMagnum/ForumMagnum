@@ -20,6 +20,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.headerStyle.fontFamily,
     ...(isFriendlyUI ? {
       fontSize: "2.0rem",
+      fontWeight: 500,
       lineHeight: '1.25em'
     } : {}),
   },
