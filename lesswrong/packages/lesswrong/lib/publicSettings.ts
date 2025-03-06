@@ -44,7 +44,7 @@ export class DatabasePublicSetting<SettingValueType> {
     //   console.log("getPublicSettings", window.publicSettings)
     // }
     if (!getPublicSettingsLoaded() && !(typeof window !== 'undefined' && window.publicSettings)) console.warn(`Tried to access public setting ${this.settingName} before it was initialized`)
-    const publicSettings = getPublicSettings() ?? (typeof window !== 'undefined' && window.publicSettings)
+    const publicSettings = Object.values(getPublicSettings()).length > 0 ? getPublicSettings() : (typeof window !== 'undefined' && window.publicSettings)
     const cacheValue = getNestedProperty(publicSettings, this.settingName)
     if(this.settingName === "curatedScoreBonus") {
       console.log("cacheValue", cacheValue)

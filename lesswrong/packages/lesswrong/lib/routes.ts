@@ -5,7 +5,7 @@ import {
   taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting,
   isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
-import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
+import { addRoute, RouterLocation, Route, Routes } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
@@ -1801,3 +1801,5 @@ if (hasSurveys) {
 }
 
 forumSpecificRoutes();
+
+export const routes = Object.values(Routes);
