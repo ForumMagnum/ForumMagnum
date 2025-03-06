@@ -1,4 +1,4 @@
-import { registerCollection } from '../../server/vulcan-lib/getCollection';
+// import { registerCollection } from '../../server/vulcan-lib/getCollection';
 import { pluralize } from './pluralize';
 import Collection from "@/server/sql/PgCollection"
 
@@ -13,7 +13,7 @@ export const createCollection = <N extends CollectionNameString>(
 ): CollectionsByName[N] => {
   const collection: CollectionBase<N> = new Collection(options);
 
-  registerCollection(collection);
+  // registerCollection(collection);
 
   // TODO: This type should coerce better?
   return collection as unknown as CollectionsByName[N];

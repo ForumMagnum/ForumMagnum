@@ -3,7 +3,7 @@ import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
 import PgCollection, { DbTarget } from './sql/PgCollection';
-import { Collections } from './vulcan-lib/getCollection';
+import { getAllCollections } from './vulcan-lib/getCollection';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
@@ -79,8 +79,8 @@ const initSettings = () => {
 }
 
 const initPostgres = async () => {
-  if (Collections.some(collection => collection instanceof PgCollection)) {
-    for (const collection of Collections) {
+  if (getAllCollections().some(collection => collection instanceof PgCollection)) {
+    for (const collection of getAllCollections()) {
       if (collection instanceof PgCollection) {
         collection.buildPostgresTable();
       }

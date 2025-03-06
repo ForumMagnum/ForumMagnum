@@ -1,9 +1,11 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { isEAForum } from "@/lib/instanceSettings";
 import { foreignKeyField, schemaDefaultValue, resolverOnlyField } from "@/lib/utils/schemaUtils";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema: SchemaType<"TagRels"> = {
+  ...universalFields({}),
   tagId: {
     nullable: false,
     ...foreignKeyField({

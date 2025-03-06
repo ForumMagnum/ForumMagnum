@@ -1,7 +1,7 @@
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
-import DialogueChecks from "@/server/collections/dialogueChecks/collection";
+import DialogueChecks from "../dialogueChecks/collection";
 import schema from "@/lib/collections/dialogueMatchPreferences/schema";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";

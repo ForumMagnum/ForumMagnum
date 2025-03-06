@@ -1,6 +1,8 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { foreignKeyField } from "@/lib/utils/schemaUtils";
 
 const schema: SchemaType<"ReadStatuses"> = {
+  ...universalFields({}),
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",

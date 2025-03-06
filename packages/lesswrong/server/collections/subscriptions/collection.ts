@@ -2,7 +2,7 @@ import schema, { subscriptionTypes } from '@/lib/collections/subscriptions/schem
 import { userCanDo, userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import Localgroups from '@/server/collections/localgroups/collection';
+import Localgroups from '../localgroups/collection';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 

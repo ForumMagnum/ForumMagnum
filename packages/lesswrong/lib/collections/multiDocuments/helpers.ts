@@ -1,4 +1,3 @@
-import { getCollection } from "@/server/vulcan-lib/getCollection";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 export function isMultiDocument(document: ObjectsByCollectionName[CollectionNameString]): document is DbMultiDocument {

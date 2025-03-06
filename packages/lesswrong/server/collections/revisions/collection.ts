@@ -4,7 +4,7 @@ import { extractVersionsFromSemver } from '@/lib/editor/utils';
 import { getCollaborativeEditorAccess, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getCollection } from "@/server/vulcan-lib/getCollection";
+import { getCollection } from "../../vulcan-lib/getCollection";
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 

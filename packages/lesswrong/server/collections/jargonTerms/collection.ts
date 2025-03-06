@@ -2,7 +2,7 @@ import schema from '@/lib/collections/jargonTerms/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
-import { Posts } from '@/server/collections/posts/collection';
+import { Posts } from '../posts/collection';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
 import { postCheckAccess } from '@/lib/collections/posts/checkAccess';

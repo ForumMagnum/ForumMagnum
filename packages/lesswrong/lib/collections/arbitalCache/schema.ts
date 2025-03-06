@@ -1,4 +1,7 @@
+import { universalFields } from "@/lib/collectionUtils";
+
 const schema: SchemaType<"ArbitalCaches"> = {
+  ...universalFields({}),
   pageAlias: {
     type: String,
     nullable: false,

@@ -1084,7 +1084,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
 (Form as any).propTypes = {
   // main options
-  collection: PropTypes.object.isRequired,
+  // collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
   typeName: PropTypes.string.isRequired,
   document: PropTypes.object, // if a document is passed, this will be an edit form

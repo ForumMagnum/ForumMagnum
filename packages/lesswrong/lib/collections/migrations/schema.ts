@@ -1,6 +1,8 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { schemaDefaultValue } from "@/lib/utils/schemaUtils";
 
 const schema: SchemaType<"Migrations"> = {
+  ...universalFields({}),
   name: {
     type: String,
     nullable: false,

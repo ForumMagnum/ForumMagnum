@@ -1,4 +1,7 @@
+import { universalFields } from "@/lib/collectionUtils";
+
 const schema: SchemaType<"Images"> = {
+  ...universalFields({}),
   /** @deprecated Use identifier + identifierType = 'originalUrl' */
   originalUrl: {
     type: String,
