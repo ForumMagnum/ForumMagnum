@@ -5,7 +5,7 @@ import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/beta
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
-  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
+  EditorTypeString, styles, FormProps, shouldSubmitContents, EditorComponent } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
@@ -488,7 +488,7 @@ export const EditorFormComponent = ({
       onRestore={onRestoreLocalStorage}
     />}
     <CKEditorPortalProvider>
-    <Components.Editor
+    <EditorComponent
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}

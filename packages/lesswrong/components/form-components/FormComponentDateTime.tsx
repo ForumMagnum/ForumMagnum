@@ -7,8 +7,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DatePicker", (theme: ThemeType) => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0',
@@ -239,22 +240,22 @@ const styles = (theme: ThemeType) => ({
       marginTop: 43,
     },
   },
-})
+}))
 
 /**
  * A wrapper around the react-datetime library, making a UI element for picking
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const DatePicker = ({label, name, value, below, onChange, classes}: {
+const DatePicker = ({label, name, value, below, onChange}: {
   label?: string,
   name?: string,
   value?: Date,
   below?: boolean,
   onChange: (newValue: Date) => void,
   onClose?: (newValue: Date) => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)
   const tzDate = value ? moment(value) : moment();
@@ -334,7 +335,7 @@ const FormComponentDateTime = (
   />
 }
 
-const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});
+const DatePickerComponent = registerComponent("DatePicker", DatePicker);
 const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime);
 
 declare global {

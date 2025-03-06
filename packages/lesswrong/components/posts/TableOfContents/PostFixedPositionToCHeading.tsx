@@ -28,11 +28,11 @@ const PostFixedPositionToCHeading = ({post, classes}: {
   </LWTooltip>
 }
 
-const FixedPositionToCHeadingComponent = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
+const PostFixedPositionToCHeadingComponent = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostFixedPositionToCHeading: typeof FixedPositionToCHeadingComponent
+    PostFixedPositionToCHeading: typeof PostFixedPositionToCHeadingComponent
   }
 }
 

@@ -7,8 +7,9 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MultiSelect", (theme: ThemeType) => ({
   greyDropdownRoot: {
     width: "100%",
     minHeight: 45,
@@ -55,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   placeholderGrey: {
     fontStyle: "normal",
   },
-});
+}));
 
 type MultiselectOption = {
   value: string,
@@ -74,7 +75,6 @@ const MultiSelect = ({
   separator,
   options,
   variant = "default",
-  classes,
 }: {
   value: string[],
   setValue: (newValue: any) => void,
@@ -83,8 +83,8 @@ const MultiSelect = ({
   separator?: string,
   options: Array<MultiselectOption>,
   variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const isGrey = variant === "grey";
 
   const renderValue = useCallback((selected: string[]) => {
@@ -169,7 +169,6 @@ const MultiSelect = ({
   </FormControl>
 }
 
-
 /**
  * FormComponentMultiSelect: Wrapper around MultiSelect for use with
  * vulcan-forms.
@@ -187,7 +186,6 @@ const FormComponentMultiSelect = ({
   separator?: string,
   options: Array<MultiselectOption>,
   variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>
 }) => {
   return <Components.MultiSelect
     label={label}
@@ -204,7 +202,7 @@ const FormComponentMultiSelect = ({
   />
 }
 
-const MultiSelectComponent = registerComponent("MultiSelect", MultiSelect, {styles});
+const MultiSelectComponent = registerComponent("MultiSelect", MultiSelect);
 const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect);
 
 declare global {

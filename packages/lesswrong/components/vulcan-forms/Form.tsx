@@ -1018,7 +1018,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   // --------------------------------------------------------------------- //
 
   render() {
-    const FormSubmit = this.props.formComponents?.FormSubmit ?? Components.FormSubmit;
+    const FormSubmitComponent = this.props.formComponents?.FormSubmit ?? Components.FormSubmit;
     return (
       <form
         className={classNames(
@@ -1057,7 +1057,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
           errors={this.state.errors}
         />}
 
-        {!this.props.autoSubmit && <FormSubmit
+        {!this.props.autoSubmit && <FormSubmitComponent
           submitLabel={this.props.submitLabel}
           cancelLabel={this.props.cancelLabel}
           revertLabel={this.props.revertLabel}

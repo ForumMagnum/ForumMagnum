@@ -145,7 +145,7 @@ const LocalEventMapMarkerWrappers = ({localEvents}: {
 const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappers);
 
 
-export const HomepageCommunityMap = ({dontAskUserLocation = false}: {
+const HomepageCommunityMap = ({dontAskUserLocation = false}: {
   dontAskUserLocation?: boolean,
 }) => {
   const classes = useStyles(styles);

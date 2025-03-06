@@ -14,6 +14,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -274,12 +275,13 @@ export const linkStyle = (theme: ThemeType) => (
           marginLeft: 1,
         },
       },
+      redLink: {},
     }
 );
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LinkPreview", (theme: ThemeType) => ({
   ...linkStyle(theme)
-})
+}))
 
 const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   href: string,
@@ -311,14 +313,14 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
 }
 const PostLinkCommentPreviewComponent = registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
+const PostLinkPreviewWithPost = ({href, post, id, children}: {
   href: string,
   post: PostsList|null,
   id: string,
   error: any,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!post) {
     return <span>
       <Link to={href}>
@@ -344,12 +346,9 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
     </PostsTooltip>
   );
 }
-const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, {
-  styles
-});
+const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost);
 
-const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, children}: {
-  classes: ClassesType<typeof styles>,
+const CommentLinkPreviewWithComment = ({href, comment, post, id, children}: {
   href: string,
   comment: any,
   post: PostsList|null,
@@ -357,6 +356,7 @@ const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, childr
   error: any,
   children: ReactNode,
 }) => {
+  const classes = useStyles(styles);
   if (!comment) {
     return <span>
       <Link to={href}>
@@ -380,16 +380,14 @@ const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, childr
     </PostsTooltip>
   );
 }
-const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
-  styles,
-});
+const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment);
 
-const SequencePreview = ({classes, targetLocation, href, children}: {
-  classes: ClassesType<typeof styles>,
+const SequencePreview = ({targetLocation, href, children}: {
   targetLocation: any,
   href: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(styles);
   const {SequencesTooltip} = Components;
   const sequenceId = targetLocation.params._id;
 
@@ -418,11 +416,9 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
   );
 }
 
-const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
-  styles,
-});
+const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview);
 
-const defaultPreviewStyles = (theme: ThemeType) => ({
+const defaultPreviewStyles = defineStyles("DefaultPreview", (theme: ThemeType) => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -436,16 +432,16 @@ const defaultPreviewStyles = (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
-})
+}))
 
-const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
-  classes: ClassesType<typeof defaultPreviewStyles>,
+const DefaultPreview = ({href, onsite=false, id, rel, children}: {
   href: string,
   onsite?: boolean,
   id?: string,
   rel?: string
   children: ReactNode,
 }) => {
+  const classes = useStyles(defaultPreviewStyles);
   const { LWPopper } = Components
   const { eventHandlers, hover, anchorEl } = useHover({
     eventProps: {
@@ -475,11 +471,9 @@ const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
     </span>
   );
 }
-const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPreview, {
-  styles: defaultPreviewStyles,
-});
+const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPreview);
 
-const mozillaHubStyles = (theme: ThemeType) => ({
+const mozillaHubStyles = defineStyles("MozillaHubPreview", (theme: ThemeType) => ({
   users: {
     marginLeft: 3,
     fontSize: "1.2rem",
@@ -516,14 +510,14 @@ const mozillaHubStyles = (theme: ThemeType) => ({
     marginTop: 8,
     fontSize: "1.1rem"
   }
-})
+}))
 
-const MozillaHubPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof mozillaHubStyles>,
+const MozillaHubPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(mozillaHubStyles);
   const roomId = href.split("/")[3]
   const { data: rawData, loading } = useQuery(gql`
     query MozillaHubsRoomData {
@@ -578,11 +572,9 @@ const MozillaHubPreview = ({classes, href, id, children}: {
   </AnalyticsTracker>
 }
 
-const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview, {
-  styles: mozillaHubStyles
-})
+const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview)
 
-const owidStyles = (theme: ThemeType) => ({
+const owidStyles = defineStyles("OWIDPreview", (theme: ThemeType) => ({
   iframeStyling: {
     width: 600,
     height: 375,
@@ -591,14 +583,14 @@ const owidStyles = (theme: ThemeType) => ({
   },
   background: {},
   ...linkStyle(theme)
-})
+}))
 
-const OWIDPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof owidStyles>,
+const OWIDPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(owidStyles);
   const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
@@ -624,11 +616,9 @@ const OWIDPreview = ({classes, href, id, children}: {
   </AnalyticsTracker>
 }
 
-const OWIDPreviewComponent = registerComponent('OWIDPreview', OWIDPreview, {
-  styles: owidStyles
-})
+const OWIDPreviewComponent = registerComponent('OWIDPreview', OWIDPreview)
 
-const metaculusStyles = (theme: ThemeType) => ({
+const metaculusStyles = defineStyles("MetaculusPreview", (theme: ThemeType) => ({
   background: {
     backgroundColor: theme.palette.panelBackground.metaculusBackground,
   },
@@ -639,14 +629,14 @@ const metaculusStyles = (theme: ThemeType) => ({
     maxWidth: "100vw"
   },
   ...linkStyle(theme)
-})
+}))
 
-const MetaculusPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof metaculusStyles>,
+const MetaculusPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(metaculusStyles);
   const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
@@ -672,11 +662,9 @@ const MetaculusPreview = ({classes, href, id, children}: {
   </AnalyticsTracker>
 }
 
-const MetaculusPreviewComponent = registerComponent('MetaculusPreview', MetaculusPreview, {
-  styles: metaculusStyles
-})
+const MetaculusPreviewComponent = registerComponent('MetaculusPreview', MetaculusPreview)
 
-const fatebookStyles = (theme: ThemeType) => ({
+const fatebookStyles = defineStyles("FatebookPreview", (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 200,
@@ -687,14 +675,14 @@ const fatebookStyles = (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.eaCard,
   },
   link: linkStyle(theme),
-})
+}))
 
-const FatebookPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof fatebookStyles>,
+const FatebookPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(fatebookStyles);
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -727,9 +715,9 @@ const FatebookPreview = ({classes, href, id, children}: {
   );
 };
 
-const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview, { styles: fatebookStyles })
+const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview)
 
-const manifoldStyles = (theme: ThemeType) => ({
+const manifoldStyles = defineStyles("ManifoldPreview", (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 405,
@@ -737,14 +725,14 @@ const manifoldStyles = (theme: ThemeType) => ({
     maxWidth: "100vw",
   },
   ...linkStyle(theme),
-});
+}));
 
-const ManifoldPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof manifoldStyles>;
+const ManifoldPreview = ({href, id, children}: {
   href: string;
   id?: string;
   children: ReactNode,
 }) => {
+  const classes = useStyles(manifoldStyles);
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -779,9 +767,9 @@ const ManifoldPreview = ({classes, href, id, children}: {
   );
 };
 
-const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
+const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview)
 
-const neuronpediaStyles = (theme: ThemeType) => ({
+const neuronpediaStyles = defineStyles("NeuronpediaPreview", (theme: ThemeType) => ({
   iframeStyling: {
     width: "100%",
     height: 360,
@@ -791,14 +779,14 @@ const neuronpediaStyles = (theme: ThemeType) => ({
     maxWidth: 639,
   },
   ...linkStyle(theme),
-});
+}));
 
-const NeuronpediaPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof neuronpediaStyles>;
+const NeuronpediaPreview = ({href, id, children}: {
   href: string;
   id?: string;
   children: ReactNode,
 }) => {
+  const classes = useStyles(neuronpediaStyles);
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -834,9 +822,9 @@ const NeuronpediaPreview = ({classes, href, id, children}: {
   );
 };
 
-const NeuronpediaPreviewComponent = registerComponent('NeuronpediaPreview', NeuronpediaPreview, { styles: neuronpediaStyles })
+const NeuronpediaPreviewComponent = registerComponent('NeuronpediaPreview', NeuronpediaPreview)
 
-const metaforecastStyles = (theme: ThemeType) => ({
+const metaforecastStyles = defineStyles("MetaforecastPreview", (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 405,
@@ -844,14 +832,14 @@ const metaforecastStyles = (theme: ThemeType) => ({
     maxWidth: "100vw",
   },
   ...linkStyle(theme),
-});
+}));
 
-const MetaforecastPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof metaforecastStyles>;
+const MetaforecastPreview = ({href, id, children}: {
   href: string;
   id?: string;
   children: ReactNode,
 }) => {
+  const classes = useStyles(metaforecastStyles);
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -886,10 +874,9 @@ const MetaforecastPreview = ({classes, href, id, children}: {
   );
 };
 
-const MetaforecastPreviewComponent = registerComponent('MetaforecastPreview', MetaforecastPreview, { styles: metaforecastStyles })
+const MetaforecastPreviewComponent = registerComponent('MetaforecastPreview', MetaforecastPreview)
 
-
-const arbitalStyles = (theme: ThemeType) => ({
+const arbitalStyles = defineStyles("ArbitalPreview", (theme: ThemeType) => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -914,17 +901,14 @@ const arbitalStyles = (theme: ThemeType) => ({
     marginTop: -5
   },
   ...linkStyle(theme)
-})
+}))
 
-
-
-
-const ArbitalPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof arbitalStyles>,
+const ArbitalPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(arbitalStyles);
   const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
@@ -968,11 +952,9 @@ const ArbitalPreview = ({classes, href, id, children}: {
   </AnalyticsTracker>
 }
 
-const ArbitalPreviewComponent = registerComponent('ArbitalPreview', ArbitalPreview, {
-  styles: arbitalStyles
-})
+const ArbitalPreviewComponent = registerComponent('ArbitalPreview', ArbitalPreview)
 
-const estimakerStyles = (theme: ThemeType) => ({
+const estimakerStyles = defineStyles("EstimakerPreview", (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 405,
@@ -980,14 +962,14 @@ const estimakerStyles = (theme: ThemeType) => ({
     maxWidth: "100vw",
   },
   ...linkStyle(theme),
-});
+}));
 
-const EstimakerPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof estimakerStyles>,
+const EstimakerPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(estimakerStyles);
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -1016,10 +998,10 @@ const EstimakerPreview = ({classes, href, id, children}: {
   );
 };
 
-const EstimakerPreviewComponent = registerComponent('EstimakerPreview', EstimakerPreview, { styles: estimakerStyles })
+const EstimakerPreviewComponent = registerComponent('EstimakerPreview', EstimakerPreview)
 
 
-const viewpointsStyles = (theme: ThemeType) => ({
+const viewpointsStyles = defineStyles("ViewpointsPrefiew", (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 300,
@@ -1027,14 +1009,14 @@ const viewpointsStyles = (theme: ThemeType) => ({
     maxWidth: "100vw",
   },
   ...linkStyle(theme),
-});
+}));
 
-const ViewpointsPreview = ({classes, href, id, children}: {
-  classes: ClassesType<typeof viewpointsStyles>,
+const ViewpointsPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
+  const classes = useStyles(viewpointsStyles);
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -1068,7 +1050,7 @@ const ViewpointsPreview = ({classes, href, id, children}: {
   );
 };
 
-const ViewpointsPreviewComponent = registerComponent('ViewpointsPreview', ViewpointsPreview, { styles: viewpointsStyles })
+const ViewpointsPreviewComponent = registerComponent('ViewpointsPreview', ViewpointsPreview)
 
 declare global {
   interface ComponentTypes {

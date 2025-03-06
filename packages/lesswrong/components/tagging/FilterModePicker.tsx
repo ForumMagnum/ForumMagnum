@@ -141,7 +141,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
+const FilterModePicker = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
   mode: FilterMode,
@@ -386,10 +386,10 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
+const FilterModePickerComponent = registerComponent("FilterModePicker", FilterModePicker, {styles});
 
 declare global {
   interface ComponentTypes {
-    FilterMode: typeof FilterModeComponent
+    FilterModePicker: typeof FilterModePickerComponent
   }
 }

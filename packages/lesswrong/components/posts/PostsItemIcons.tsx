@@ -12,8 +12,9 @@ import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
     marginLeft: isFriendlyUI ? 6 : theme.spacing.unit,
     marginRight: isFriendlyUI ? 2 : theme.spacing.unit,
@@ -77,13 +78,13 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   }
-});
+}));
 
-const CuratedIcon = ({hasColor, classes}: {
+const CuratedIcon = ({hasColor}: {
   hasColor?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip, ForumIcon } = Components;
+  const classes = useStyles(styles);
 
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
@@ -97,15 +98,15 @@ const CuratedIcon = ({hasColor, classes}: {
     </span>
 }
 
-const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
+const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon);
 
 
-const RecommendedPostIcon = ({post, hover, classes}: {
+const RecommendedPostIcon = ({post, hover}: {
   post: PostsBase,
   hover?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip, ForumIcon } = Components;
+  const classes = useStyles(styles);
 
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
@@ -134,14 +135,14 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 }
 
 
-const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
+const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
+  const classes = useStyles(styles);
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
@@ -184,12 +185,12 @@ const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon
       </LWTooltip>
     </span>}
 
-    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover} classes={classes}/>}
+    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover} />}
 
   </span>
 }
 
-const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, {styles});
+const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons);
 
 declare global {
   interface ComponentTypes {
