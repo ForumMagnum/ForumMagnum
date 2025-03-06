@@ -8,6 +8,7 @@ import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUt
 import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
 import { getCollection } from '@/server/vulcan-lib/getCollection';
 import { getLatestRev } from './editor/utils';
+import { createAnonymousContext } from '@/server/vulcan-lib/query';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
@@ -17,13 +18,15 @@ type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
+export const htmlToPingbacks = async (html: string, exclusions: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
   // collection name => array of distinct referenced document IDs in that
   // collection, in order of first appearance.
   const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
+
+  const context = createAnonymousContext();
   
   for (let link of links)
   {
@@ -43,7 +46,7 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
           onError: (pathname) => {} // Ignore malformed links
         });
         if (parsedUrl?.currentRoute?.getPingback) {
-          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
+          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl, context);
           if (pingback) {
             if (exclusions && _.find(exclusions,
               exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))

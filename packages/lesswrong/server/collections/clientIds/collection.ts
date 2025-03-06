@@ -2,7 +2,6 @@ import schema from '@/lib/collections/clientIds/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
@@ -21,19 +20,3 @@ ClientIds.checkAccess = async (currentUser: DbUser|null, clientId: DbClientId, c
   return currentUser?.isAdmin ?? false;
 }
 
-declare global {
-  interface ClientIdsViewTerms extends ViewTermsBase {
-    view?: ClientIdsViewName
-    clientId?: string
-  }
-}
-
-function getClientId(terms: ClientIdsViewTerms) {
-  return {
-    selector: {
-      clientId: terms.clientId,
-    },
-  };
-}
-
-export const ClientIdsViews = new CollectionViewSet('ClientIds', { getClientId });

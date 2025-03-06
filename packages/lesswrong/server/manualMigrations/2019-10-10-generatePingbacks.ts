@@ -43,7 +43,7 @@ const updatePingbacks = async (collectionName: CollectionNameString, fieldName: 
         }
         const html = rev.html;
         if (html) {
-          const pingbacks = await htmlToPingbacks(html);
+          const pingbacks = await htmlToPingbacks(html, null);
           if (JSON.stringify(document.pingbacks) !== JSON.stringify(pingbacks)) {
             updates.push({
               updateOne: {

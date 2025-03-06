@@ -1,6 +1,6 @@
 import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
 import { ChaptersViews } from '../collections/chapters/views';
-import { ClientIdsViews } from '../collections/clientIds/collection';
+import { ClientIdsViews } from '../collections/clientIds/views';
 import { CollectionsViews } from '../collections/collections/views';
 import { CommentsViews } from '../collections/comments/views';
 import { CommentModeratorActionsViews } from '../collections/commentModeratorActions/views';

@@ -24,6 +24,7 @@ import { DeferredForumSelect } from '../../forumTypeUtils';
 import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { editableFields } from '@/lib/editor/make_editable';
+import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -3219,6 +3220,8 @@ const schema: SchemaType<"Users"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
   },
+
+  ...recommendationSettingsField,
 };
 
 export default schema;

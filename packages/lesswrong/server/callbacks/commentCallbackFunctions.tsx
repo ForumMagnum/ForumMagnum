@@ -2,7 +2,7 @@ import React from "react";
 import { commentIsHidden } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/schema";
-import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID, subforumGetSubscribedUsers } from "@/lib/collections/tags/helpers";
+import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum } from "@/lib/instanceSettings";
@@ -166,7 +166,7 @@ const utils = {
   },
 
   sendNewCommentNotifications: async (comment: DbComment, context: ResolverContext) => {
-    const { UserTagRels, loaders, repos } = context;
+    const { Users, UserTagRels, loaders, repos } = context;
     const post = comment.postId ? await loaders.Posts.load(comment.postId) : null;
     
     if (comment.legacyData?.arbitalPageId) return;
@@ -305,7 +305,8 @@ const utils = {
       !comment.topLevelCommentId &&
       !comment.authorIsUnreviewed // FIXME: make this more general, and possibly queue up notifications from unreviewed users to send once they are approved
     ) {
-      const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId })).map((u) => u._id);
+      const subforumSubcribedUsers = await Users.find({profileTagIds: comment.tagId}).fetch();
+      const subforumSubscriberIds = subforumSubcribedUsers.map((u) => u._id);
       const subforumSubscriberIdsMaybeNotify = (
         await UserTagRels.find({
           userId: { $in: subforumSubscriberIds },
