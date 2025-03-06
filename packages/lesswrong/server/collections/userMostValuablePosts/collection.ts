@@ -1,7 +1,6 @@
 import schema from '@/lib/collections/userMostValuablePosts/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -20,6 +19,5 @@ export const UserMostValuablePosts: UserMostValuablePostsCollection = createColl
   logChanges: true,
 });
 
-addUniversalFields({collection: UserMostValuablePosts})
 
 export default UserMostValuablePosts;

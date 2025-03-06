@@ -1,7 +1,9 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"UserJobAds"> = {
+  ...universalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

@@ -1,7 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanUseTags } from '@/lib/betas';
 import { canVoteOnTagAsync } from '@/lib/voting/tagRelVoteRules';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -50,6 +49,5 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
     return true;
 }
 
-addUniversalFields({collection: TagRels})
 
 export default TagRels;

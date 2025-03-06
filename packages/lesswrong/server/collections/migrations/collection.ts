@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils'
 import schema from '@/lib/collections/migrations/schema';
 
 /*
@@ -21,6 +20,5 @@ export const Migrations: MigrationsCollection = createCollection({
   //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),
 });
-addUniversalFields({collection: Migrations});
 
 export default Migrations;

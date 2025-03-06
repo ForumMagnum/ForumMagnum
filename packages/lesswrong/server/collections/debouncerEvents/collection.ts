@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/debouncerEvents/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const DebouncerEvents: DebouncerEventsCollection = createCollection({
@@ -21,6 +20,5 @@ export const DebouncerEvents: DebouncerEventsCollection = createCollection({
   },
 });
 
-addUniversalFields({collection: DebouncerEvents})
 
 export default DebouncerEvents;

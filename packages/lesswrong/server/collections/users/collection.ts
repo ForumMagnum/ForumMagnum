@@ -2,7 +2,6 @@ import schema from '@/lib/collections/users/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib/graphql";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 
@@ -54,8 +53,6 @@ addGraphQLResolvers({
   },
 });
 addGraphQLQuery('currentUser: User');
-
-addUniversalFields({collection: Users});
 
 Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
   if (document && document.deleted && !userOwns(user, document)) return userCanDo(user, 'users.view.deleted')

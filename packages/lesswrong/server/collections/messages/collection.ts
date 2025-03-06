@@ -3,7 +3,6 @@ import schema from '@/lib/collections/messages/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import Conversations from '@/server/collections/conversations/collection'
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -44,11 +43,6 @@ export const Messages: MessagesCollection = createCollection({
   // Don't log things related to Messages to LWEvents, to keep LWEvents relatively
   // free of confidential stuff that admins shouldn't look at.
   logChanges: false,
-});
-
-addUniversalFields({
-  collection: Messages,
-  createdAtOptions: {canRead: ['members']},
 });
 
 Messages.checkAccess = async (user: DbUser|null, document: DbMessage, context: ResolverContext|null): Promise<boolean> => {

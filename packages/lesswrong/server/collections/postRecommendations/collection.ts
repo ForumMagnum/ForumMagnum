@@ -1,5 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { addUniversalFields } from "@/lib/collectionUtils"
 import { schema } from "@/lib/collections/postRecommendations/schema";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -17,7 +16,6 @@ export const PostRecommendations: PostRecommendationsCollection = createCollecti
     {type: "extension", name: "intarray"},
   ],
 });
-addUniversalFields({collection: PostRecommendations});
 
 
 export default PostRecommendations;

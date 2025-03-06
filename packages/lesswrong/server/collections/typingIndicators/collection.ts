@@ -1,6 +1,5 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import schema from "@/lib/collections/typingIndicators/schema";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -22,6 +21,5 @@ TypingIndicators.checkAccess = async (user: DbUser|null, document: DbTypingIndic
   return false
 };
 
-addUniversalFields({ collection: TypingIndicators })
 
 export default TypingIndicators;

@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/spotlights/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -19,6 +18,5 @@ export const Spotlights: SpotlightsCollection = createCollection({
   mutations: getDefaultMutations('Spotlights')
 });
 
-addUniversalFields({ collection: Spotlights });
 
 export default Spotlights;

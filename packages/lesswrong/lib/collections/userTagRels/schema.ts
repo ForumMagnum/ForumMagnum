@@ -1,7 +1,9 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { foreignKeyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema: SchemaType<"UserTagRels"> = {
+  ...universalFields({}),
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",

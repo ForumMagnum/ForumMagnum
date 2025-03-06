@@ -1,6 +1,5 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import schema from "@/lib/collections/dialogueChecks/schema";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -35,6 +34,5 @@ DialogueChecks.checkAccess = async (user: DbUser|null, document: DbDialogueCheck
   return false;
 };
 
-addUniversalFields({ collection: DialogueChecks })
 
 export default DialogueChecks;

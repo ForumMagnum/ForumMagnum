@@ -1,6 +1,5 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import schema from "@/lib/collections/ckEditorUserSessions/schema";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -17,6 +16,5 @@ export const CkEditorUserSessions = createCollection({
   logChanges: true,
 })
 
-addUniversalFields({ collection: CkEditorUserSessions })
 
 export default CkEditorUserSessions;

@@ -2,7 +2,6 @@ import schema from '@/lib/collections/lwevents/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -47,11 +46,6 @@ export const LWEvents = createCollection({
   },
   resolvers: getDefaultResolvers('LWEvents'),
   mutations: getDefaultMutations('LWEvents', options),
-});
-
-addUniversalFields({
-  collection: LWEvents,
-  createdAtOptions: {canRead: ['members']},
 });
 
 LWEvents.checkAccess = async (user: DbUser|null, document: DbLWEvent, context: ResolverContext|null): Promise<boolean> => {

@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/podcasts/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 
 export const Podcasts: PodcastsCollection = createCollection({
@@ -10,6 +9,5 @@ export const Podcasts: PodcastsCollection = createCollection({
   resolvers: getDefaultResolvers('Podcasts')
 });
 
-addUniversalFields({ collection: Podcasts });
 
 export default Podcasts;

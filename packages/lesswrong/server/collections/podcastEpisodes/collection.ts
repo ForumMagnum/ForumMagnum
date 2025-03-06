@@ -1,7 +1,6 @@
 import schema from '@/lib/collections/podcastEpisodes/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userIsAdmin, userIsPodcaster } from '@/lib/vulcan-users/permissions';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -26,6 +25,5 @@ export const PodcastEpisodes: PodcastEpisodesCollection = createCollection({
   })
 });
 
-addUniversalFields({ collection: PodcastEpisodes });
 
 export default PodcastEpisodes;

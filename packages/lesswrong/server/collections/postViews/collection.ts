@@ -1,7 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { schema } from '@/lib/collections/postViews/schema';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -26,8 +25,5 @@ export const PostViews = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({
-  collection: PostViews,
-});
 
 export default PostViews;

@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/featuredResources/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 
 export const FeaturedResources: FeaturedResourcesCollection = createCollection({
@@ -10,7 +9,6 @@ export const FeaturedResources: FeaturedResourcesCollection = createCollection({
   resolvers: getDefaultResolvers('FeaturedResources'),
 });
 
-addUniversalFields({collection: FeaturedResources})
 
 export default FeaturedResources;
 

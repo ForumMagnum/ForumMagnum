@@ -2,7 +2,6 @@ import { createCollection } from "@/lib/vulcan-lib/collections";
 import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
 import schema from "@/lib/collections/electionVotes/schema";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -50,8 +49,5 @@ const ElectionVotes: ElectionVotesCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({
-  collection: ElectionVotes,
-});
 
 export default ElectionVotes;

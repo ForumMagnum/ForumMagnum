@@ -2,7 +2,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { schema } from '@/lib/collections/reviewWinnerArts/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -37,8 +36,5 @@ export const ReviewWinnerArts = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({
-  collection: ReviewWinnerArts,
-});
 
 export default ReviewWinnerArts;

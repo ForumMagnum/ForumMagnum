@@ -1,3 +1,4 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { editableFields } from "@/lib/editor/make_editable";
 import { slugFields, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
@@ -25,6 +26,7 @@ export const eventTypes = [
 ];
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...universalFields({}),
   ...editableFields("GardenCodes", {
     pingbacks: true,
     commentEditor: true,

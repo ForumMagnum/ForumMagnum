@@ -3,7 +3,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from '@/lib/collections/posts/helpers';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
 
@@ -53,10 +52,6 @@ export const Posts = createCollection({
   ],
 });
 
-addUniversalFields({
-  collection: Posts,
-  createdAtOptions: {canRead: ['admins']},
-});
 
 Posts.checkAccess = postCheckAccess;
 

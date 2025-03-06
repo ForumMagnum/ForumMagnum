@@ -3,7 +3,6 @@ import { userCanDo, userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import Localgroups from '@/server/collections/localgroups/collection';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -51,8 +50,5 @@ Subscriptions.checkAccess = async (currentUser: DbUser|null, subscription: DbSub
   return false;
 }
 
-addUniversalFields({
-  collection: Subscriptions,
-});
 
 export default Subscriptions

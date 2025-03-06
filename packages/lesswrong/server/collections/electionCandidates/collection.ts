@@ -1,6 +1,5 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import schema from "@/lib/collections/electionCandidates/schema";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -22,8 +21,5 @@ const ElectionCandidates: ElectionCandidatesCollection = createCollection({
   },
 });
 
-addUniversalFields({
-  collection: ElectionCandidates,
-});
 
 export default ElectionCandidates;

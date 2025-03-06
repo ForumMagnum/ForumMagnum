@@ -1,7 +1,6 @@
 import { userCanUseTags } from "@/lib/betas";
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -30,7 +29,6 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
   }),
   logChanges: true,
 });
-addUniversalFields({collection: UserTagRels})
 
 UserTagRels.checkAccess = async (currentUser: DbUser|null, userTagRel: DbUserTagRel, context: ResolverContext|null): Promise<boolean> => {
   if (userIsAdmin(currentUser) || userOwns(currentUser, userTagRel)) { // admins can always see everything, users can always see their own settings

@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import schema from '@/lib/collections/readStatus/schema';
 
@@ -21,6 +20,5 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
   logChanges: false,
 });
 
-addUniversalFields({collection: ReadStatuses});
 
 export default ReadStatuses;

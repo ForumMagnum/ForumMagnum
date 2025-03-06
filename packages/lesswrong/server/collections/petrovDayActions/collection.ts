@@ -1,7 +1,6 @@
 import schema from '@/lib/collections/petrovDayActions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -57,6 +56,5 @@ export const PetrovDayActions: PetrovDayActionsCollection = createCollection({
   },
 });
 
-addUniversalFields({collection: PetrovDayActions})
 
 export default PetrovDayActions;

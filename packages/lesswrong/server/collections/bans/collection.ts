@@ -2,7 +2,6 @@ import schema from '@/lib/collections/bans/schema';
 import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -36,8 +35,6 @@ export const Bans: BansCollection = createCollection({
   mutations: getDefaultMutations('Bans', options),
   logChanges: true,
 });
-
-addUniversalFields({collection: Bans})
 
 Bans.checkAccess = async (user: DbUser|null, document: DbBan, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

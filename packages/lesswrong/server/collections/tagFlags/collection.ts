@@ -2,7 +2,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import '@/lib/collections/tagFlags/fragments'
 import { userCanDo } from '@/lib/vulcan-users/permissions';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import schema from '@/lib/collections/tagFlags/schema';
@@ -39,7 +38,6 @@ export const TagFlags: TagFlagsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: TagFlags})
 
 export default TagFlags;
 

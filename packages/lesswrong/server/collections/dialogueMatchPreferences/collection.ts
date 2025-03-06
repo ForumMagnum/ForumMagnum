@@ -3,7 +3,6 @@ import { createCollection } from "@/lib/vulcan-lib/collections";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import DialogueChecks from "@/server/collections/dialogueChecks/collection";
 import schema from "@/lib/collections/dialogueMatchPreferences/schema";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -59,6 +58,5 @@ DialogueMatchPreferences.checkAccess = async (user: DbUser|null, document: DbDia
   return false;
 };
 
-addUniversalFields({ collection: DialogueMatchPreferences });
 
 export default DialogueMatchPreferences;

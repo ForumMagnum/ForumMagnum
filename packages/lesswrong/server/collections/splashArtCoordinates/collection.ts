@@ -2,7 +2,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { schema } from '@/lib/collections/splashArtCoordinates/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -33,6 +32,5 @@ export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollec
   mutations: getDefaultMutations('SplashArtCoordinates', splashArtCoordinatesMutationOptions),
 });
 
-addUniversalFields({ collection: SplashArtCoordinates });
 
 export default SplashArtCoordinates;

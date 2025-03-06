@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/postRelations/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -17,6 +16,5 @@ export const PostRelations: PostRelationsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: PostRelations})
 
 export default PostRelations;

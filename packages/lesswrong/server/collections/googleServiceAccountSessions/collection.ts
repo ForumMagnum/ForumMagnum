@@ -2,7 +2,6 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/googleServiceAccountSessions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbGoogleServiceAccountSession> = {
@@ -29,6 +28,5 @@ export const GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollectio
   logChanges: false,
 });
 
-addUniversalFields({collection: GoogleServiceAccountSessions})
 
 export default GoogleServiceAccountSessions;

@@ -2,7 +2,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/sequences/schema';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -47,7 +46,6 @@ export const Sequences = createCollection({
   logChanges: true,
 })
 
-addUniversalFields({collection: Sequences})
 
 Sequences.checkAccess = async (user, document) => {
   if (!document || document.isDeleted) {

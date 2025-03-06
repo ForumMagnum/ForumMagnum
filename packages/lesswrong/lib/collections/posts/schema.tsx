@@ -40,6 +40,7 @@ import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
 import { editableFields } from '@/lib/editor/make_editable';
+import { universalFields } from "../../collectionUtils";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -171,6 +172,10 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 }
 
 const schema: SchemaType<"Posts"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['admins']},
+  }),
+  
   ...editableFields("Posts", {
     formGroup: formGroups.content,
     order: 25,

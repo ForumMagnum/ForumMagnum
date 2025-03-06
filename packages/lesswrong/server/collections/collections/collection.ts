@@ -1,6 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import schema from '@/lib/collections/collections/schema';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -20,12 +19,5 @@ export const Collections: CollectionsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({
-  collection: Collections,
-  createdAtOptions: {
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
-  },
-});
 
 export default Collections;

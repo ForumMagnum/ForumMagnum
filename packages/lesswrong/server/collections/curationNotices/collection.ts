@@ -2,7 +2,6 @@ import schema from '@/lib/collections/curationNotices/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 
 export const CurationNotices: CurationNoticesCollection = createCollection({
@@ -23,8 +22,6 @@ export const CurationNotices: CurationNoticesCollection = createCollection({
   }),
   logChanges: true,
 });
-
-addUniversalFields({collection: CurationNotices});
 
 CurationNotices.checkAccess = async (user) => {
   return userIsAdminOrMod(user);

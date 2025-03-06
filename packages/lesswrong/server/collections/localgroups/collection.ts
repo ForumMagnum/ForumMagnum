@@ -2,7 +2,6 @@ import { userCanDo } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/localgroups/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -45,6 +44,5 @@ export const Localgroups: LocalgroupsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: Localgroups})
 
 export default Localgroups;

@@ -6,7 +6,6 @@ import { Posts } from '@/server/collections/posts/collection';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
 import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -57,8 +56,6 @@ export const JargonTerms: JargonTermsCollection = createCollection({
   mutations: getDefaultMutations('JargonTerms', options),
   logChanges: true,
 });
-
-addUniversalFields({collection: JargonTerms});
 
 JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext | null) => {
   const post = context

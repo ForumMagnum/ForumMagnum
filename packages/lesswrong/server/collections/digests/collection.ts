@@ -1,7 +1,6 @@
 import schema from '@/lib/collections/digests/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -19,6 +18,5 @@ export const Digests: DigestsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: Digests})
 
 export default Digests;

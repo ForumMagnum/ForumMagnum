@@ -3,7 +3,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '@/lib/collections/users/helpers';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { commentVotingOptions } from '@/lib/collections/comments/voting';
 
@@ -48,9 +47,5 @@ export const Comments = createCollection({
   voteable: commentVotingOptions,
 });
 
-addUniversalFields({
-  collection: Comments,
-  createdAtOptions: {canRead: ['admins']},
-});
 
 export default Comments;

@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/pagecache/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const PageCache: PageCacheCollection = createCollection({
@@ -21,6 +20,5 @@ export const PageCache: PageCacheCollection = createCollection({
   writeAheadLogged: false,
 });
 
-addUniversalFields({collection: PageCache})
 
 export default PageCache;

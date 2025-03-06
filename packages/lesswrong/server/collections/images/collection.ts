@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import schema from '@/lib/collections/images/schema';
 
@@ -15,7 +14,6 @@ export const Images: ImagesCollection = createCollection({
     return indexSet;
   },
 });
-addUniversalFields({collection: Images});
 
 
 export default Images;

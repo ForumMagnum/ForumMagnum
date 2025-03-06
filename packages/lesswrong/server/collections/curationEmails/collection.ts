@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/curationEmails/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const CurationEmails: CurationEmailsCollection = createCollection({
@@ -15,6 +14,5 @@ export const CurationEmails: CurationEmailsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({ collection: CurationEmails });
 
 export default CurationEmails;

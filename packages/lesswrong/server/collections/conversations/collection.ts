@@ -2,7 +2,6 @@ import { userCanDo } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/conversations/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -47,12 +46,6 @@ export const Conversations: ConversationsCollection = createCollection({
   resolvers: getDefaultResolvers('Conversations'),
   mutations: getDefaultMutations('Conversations', options)
 });
-
-// Conversations,
-addUniversalFields({
-  collection: Conversations,
-  createdAtOptions: {canRead: ['members']},
-})
 
 Conversations.checkAccess = async (user: DbUser|null, document: DbConversation, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

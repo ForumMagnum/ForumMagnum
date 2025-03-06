@@ -1,4 +1,3 @@
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import schema from "@/lib/collections/tweets/schema";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -20,8 +19,5 @@ const Tweets: TweetsCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({
-  collection: Tweets,
-});
 
 export default Tweets;
