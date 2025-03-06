@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import PostsListEditor from '@/components/form-components/PostsListEditor';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <PostsListEditor />
     </>
   );
 }

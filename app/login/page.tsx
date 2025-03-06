@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import LoginPage from '@/components/users/LoginPage';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
-      
-      <LWHome />
+      <Helmet><title>Login</title></Helmet>
+      <LoginPage />
     </>
   );
 }

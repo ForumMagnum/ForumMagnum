@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import TagPageRouter from '@/components/tagging/TagPageRouter';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <TagPageRouter />
     </>
   );
 }

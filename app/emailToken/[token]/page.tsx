@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import EmailTokenPage from '@/components/users/EmailTokenPage';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <EmailTokenPage />
     </>
   );
 }

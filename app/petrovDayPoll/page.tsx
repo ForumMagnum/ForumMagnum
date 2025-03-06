@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import PetrovDayPoll from '@/components/seasonal/petrovDay/PetrovDayPoll';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <PetrovDayPoll />
     </>
   );
 }

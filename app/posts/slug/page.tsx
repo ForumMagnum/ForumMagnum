@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <PostsSingleSlugRedirect />
     </>
   );
 }

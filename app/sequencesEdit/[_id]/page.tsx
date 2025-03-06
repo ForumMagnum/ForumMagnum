@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import SequencesEditForm from '@/components/sequences/SequencesEditForm';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <SequencesEditForm />
     </>
   );
 }

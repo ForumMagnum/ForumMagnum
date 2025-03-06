@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import CollectionsSingle from '@/components/sequences/CollectionsSingle';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <CollectionsSingle />
     </>
   );
 }

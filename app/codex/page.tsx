@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import Codex from '@/components/sequences/Codex';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
-      
-      <LWHome />
+      <Helmet><title>The Codex</title></Helmet>
+      <Codex />
     </>
   );
 }

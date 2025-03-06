@@ -1,13 +1,13 @@
 "use client";
 
-import LWHome from '@/components/common/LWHome';
+import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
       
-      <LWHome />
+      <PostCollaborationEditor />
     </>
   );
 }
