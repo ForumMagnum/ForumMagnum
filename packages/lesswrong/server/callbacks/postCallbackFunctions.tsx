@@ -4,7 +4,7 @@ import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorA
 import { Posts } from "@/lib/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
+import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";

@@ -1,6 +1,6 @@
 const { extract } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 
 import Posts from '../../lib/collections/posts/collection'
 import { fetchFragmentSingle } from '../fetchFragment'

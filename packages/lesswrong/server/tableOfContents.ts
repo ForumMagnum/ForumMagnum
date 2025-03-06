@@ -10,7 +10,7 @@ import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableO
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
 import { FetchedFragment } from './fetchFragment';
-import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
+import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
 async function getTocAnswersServer (document: DbPost) {

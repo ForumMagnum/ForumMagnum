@@ -7,7 +7,7 @@ import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
 import { akismetKeySetting, akismetURLSetting } from './databaseSettings';
 import { getCollectionHooks } from './mutationCallbacks';
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 
 
 let akismetClient: any = null;

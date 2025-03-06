@@ -1,7 +1,7 @@
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { cheerioParse } from "../utils/htmlUtil";
 import type { FetchedFragment } from '../fetchFragment';
-import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { getLatestContentsRevision } from '../collections/revisions/helpers';
 
 export const getPostHTML = async (
   post: DbPost|FetchedFragment<"PostsHTML">,

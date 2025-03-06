@@ -37,7 +37,7 @@ import { hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEdi
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
 import { stableSortTags } from '../tags/helpers';
-import { getLatestContentsRevision } from '../revisions/helpers';
+import { getLatestContentsRevision } from '../../../server/collections/revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';

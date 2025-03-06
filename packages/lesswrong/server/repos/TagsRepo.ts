@@ -4,7 +4,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewableTagsSelector } from "./helpers";
 import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
 import sortBy from "lodash/sortBy";
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
+import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 
 class TagsRepo extends AbstractRepo<"Tags"> {
   constructor() {

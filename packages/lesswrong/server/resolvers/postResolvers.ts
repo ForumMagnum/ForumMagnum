@@ -28,7 +28,7 @@ import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { GoogleDocMetadata, getLatestContentsRevision } from '../collections/revisions/helpers';
 import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';

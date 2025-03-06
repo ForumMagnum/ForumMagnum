@@ -6,9 +6,41 @@ import {
   createDummyPost,
   createDummyComment,
 } from '../../integrationTests/utils';
-import { performSubscriptionAction } from '../../lib/collections/subscriptions/mutations';
+import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { createMutator } from '../vulcan-lib/mutators';
+import Subscriptions from '../collections/subscriptions/collection';
+
+
+/**
+ * @summary Perform the un/subscription after verification: update the collection item & the user
+ * @param {String} action
+ * @param {Collection} collection
+ * @param {String} itemId
+ * @param {Object} user: current user (xxx: legacy, to replace with this.userId)
+ * @returns {Boolean}
+ */
+export const performSubscriptionAction = async (action: "subscribe"|"unsubscribe", collection: CollectionBase<any>, itemId: string, user: DbUser) => {
+  const collectionName = collection.collectionName
+  const newSubscription: Partial<DbSubscription> = {
+    state: action === "subscribe" ? 'subscribed' : 'suppressed',
+    documentId: itemId,
+    collectionName,
+    type: (defaultSubscriptionTypeTable as any)[collectionName]
+  }
+  await createMutator({
+    collection: Subscriptions,
+    document: newSubscription,
+    validate: true,
+    currentUser: user,
+    // HACK: Make a shitty pretend context
+    context: {
+      currentUser: user,
+      Users: Users,
+    } as any,
+  })
+};
 
 export const populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {
   username: string,

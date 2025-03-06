@@ -1,5 +1,5 @@
 import Revisions from "./collection";
-import { getWithLoader } from "../../loaders";
+import { getWithLoader } from "@/lib/loaders";
 
 export type GoogleDocMetadata = {
   id: string;

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
+import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
 import { Posts } from "../../lib/collections/posts/collection";
 import Revisions from "../../lib/collections/revisions/collection";
