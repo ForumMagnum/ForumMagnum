@@ -5,6 +5,7 @@ import Table from "@/server/sql/Table";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 import TableIndex from "../sql/TableIndex";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 
 /**
  * Translates a mongo find query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
@@ -16,18 +17,21 @@ export const findToSQL = ({ tableName, selector, options }: { tableName: Collect
   const { sql, args } = select.compile();
   // eslint-disable-next-line no-console
   console.log({ sql, args });
+  return { sql, args };
 };
 
 /**
  * Translates a mongo insert query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
  * Exported to allow running manually with "yarn repl"
  */
-export const insertToSQL = ({ tableName, data, options }: { tableName: CollectionNameString, data: DbObject, options?: MongoFindOptions<DbObject> }) => {
+export const insertToSQL = <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: ObjectsByCollectionName[N], options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
   const table = Table.fromCollection(getCollection(tableName));
-  const insert = new InsertQuery<DbObject>(table, data, options);
+  const insert = new InsertQuery<ObjectsByCollectionName[N]>(table, data, options);
   const { sql, args } = insert.compile();
   // eslint-disable-next-line no-console
   console.log({ sql, args });
+
+  return { sql, args };
 };
 
 export const rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName: CollectionNameString, selector: AnyBecauseTodo, modifier: MongoModifier<DbObject> }) => {
@@ -36,6 +40,7 @@ export const rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName
   const { sql, args } = select.compile();
   // eslint-disable-next-line no-console
   console.log({ sql, args });
+  return { sql, args };
 };
 
 export const ensureIndexToSQL = ({ tableName, indexSpec, options }: { tableName: CollectionNameString, indexSpec: any, options?: any }) => {
@@ -46,4 +51,28 @@ export const ensureIndexToSQL = ({ tableName, indexSpec, options }: { tableName:
 
   // eslint-disable-next-line no-console
   console.log('query', { indexName: tableIndex.getName(), sql, args });
+};
+
+export const runFindToSQL = async <N extends CollectionNameString>({ tableName, selector, options }: { tableName: N, selector: AnyBecauseTodo, options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
+  const db = getSqlClientOrThrow();
+
+  const { sql, args } = findToSQL({ tableName, selector, options });
+  const result = await db.query(sql, args);
+  return result;
+};
+
+export const runInsertToSQL = async <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: ObjectsByCollectionName[N], options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
+  const db = getSqlClientOrThrow();
+
+  const { sql, args } = insertToSQL({ tableName, data, options });
+  const result = await db.query(sql, args);
+  return result;
+};
+
+export const runUpdateOneToSQL = async <N extends CollectionNameString>({ tableName, selector, modifier }: { tableName: N, selector: AnyBecauseTodo, modifier: MongoModifier<ObjectsByCollectionName[N]> }) => {
+  const db = getSqlClientOrThrow();
+
+  const { sql, args } = rawUpdateOneToSQL({ tableName, selector, modifier });
+  const result = await db.query(sql, args);
+  return result;
 };

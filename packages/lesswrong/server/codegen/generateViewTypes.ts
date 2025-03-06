@@ -10,11 +10,12 @@ function wrapWithQuotes(s: string): string {
 export function generateViewTypes(): string {
   const sb: Array<string> = [];
   const collections = getAllCollections();
-  const collectionsWithViews = collections.filter(collection => Object.keys(allViews[collection.collectionName].getAllViews()).length > 0);
+  const collectionsWithViews = collections
+    .filter(collection => Object.keys(allViews[collection.collectionName]?.getAllViews() ?? {})?.length > 0);
   
   for (let collection of collections) {
     const collectionName = collection.collectionName;
-    const views = allViews[collectionName].getAllViews();
+    const views = allViews[collectionName]?.getAllViews() ?? {};
     const viewNames = orderBy(Object.keys(views), v=>v);
     
     /*sb.push(`interface ${collectionName}View extends ViewBase {\n`);
@@ -35,7 +36,10 @@ export function generateViewTypes(): string {
     const collectionViewSet = allViews[collectionName];
     
     // Does this collection have any views?
-    if (Object.keys(collectionViewSet.getAllViews()).length > 0 || collectionViewSet.getDefaultView()) {
+    if (collectionViewSet && (
+      Object.keys(collectionViewSet.getAllViews()).length > 0
+      || collectionViewSet.getDefaultView()
+    )) {
       sb.push(`  ${collectionName}: ${collectionName}ViewTerms\n`);
     } else {
       sb.push(`  ${collectionName}: ViewTermsBase\n`);

@@ -54,21 +54,9 @@ function gatherTownUsers(terms: LWEventsViewTerms) {
   }
 }
 
-function postEverPublished(terms: LWEventsViewTerms) {
-  return {
-    selector: {
-      name: 'fieldChanges',
-      documentId: { $in: terms.postIds },
-      'properties.before.draft': false,
-      'properties.after.draft': true
-    }
-  }
-}
-
 export const LWEventsViews = new CollectionViewSet('LWEvents', {
   adminView,
   postVisits,
   emailHistory,
   gatherTownUsers,
-  postEverPublished
 });
