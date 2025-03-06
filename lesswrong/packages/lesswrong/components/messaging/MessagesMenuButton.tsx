@@ -2,12 +2,11 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles  } from "../notifications/NotificationsMenuButton";
-import Badge from "@material-ui/core/Badge";
-import IconButton from "@material-ui/core/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import LWTooltip from "@/components/common/LWTooltip";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Badge, IconButton } from "@/components/mui-replacement";
 
 const MessagesMenuButton = ({className, classes}: {
   className?: string,

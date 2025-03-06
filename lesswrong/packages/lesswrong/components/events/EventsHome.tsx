@@ -8,17 +8,11 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Select from '@material-ui/core/Select';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
-import Button from '@material-ui/core/Button';
 import { isEAForum } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/schema';
-import Input from '@material-ui/core/Input';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
@@ -28,6 +22,7 @@ import { Loading } from "@/components/vulcan-core/Loading";
 import DistanceUnitToggle from "@/components/community/modules/DistanceUnitToggle";
 import { MenuItem } from "@/components/common/Menus";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Select, Button, Input, OutlinedInput, Checkbox, ListItemText } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   section: {

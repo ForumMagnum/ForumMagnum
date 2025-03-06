@@ -1,14 +1,13 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
-import Paper from '@material-ui/core/Paper';
 import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Check from '@material-ui/icons/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
 import LWTooltip from "@/components/common/LWTooltip";
 import { MenuItem } from "@/components/common/Menus";
+import { Paper, ListItemIcon } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   check: {

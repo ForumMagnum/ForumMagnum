@@ -2,16 +2,15 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
-import Checkbox from '@material-ui/core/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import MetaInfo from "@/components/common/MetaInfo";
 import SettingsColumn from "@/components/common/SettingsColumn";
+import { Checkbox, Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

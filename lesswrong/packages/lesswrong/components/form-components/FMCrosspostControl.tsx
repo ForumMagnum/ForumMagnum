@@ -5,9 +5,6 @@ import {
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
 import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
@@ -15,6 +12,7 @@ import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { FormControlLabel, Checkbox, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

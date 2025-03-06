@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
-import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
@@ -22,6 +21,7 @@ import ToCColumn from "@/components/posts/TableOfContents/ToCColumn";
 import HeadTags from "@/components/common/HeadTags";
 import CollectionsEditForm from "@/components/sequences/CollectionsEditForm";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Button } from "@/components/mui-replacement";
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -9,6 +8,7 @@ import LWDialog from "@/components/common/LWDialog";
 import EAButton from "@/components/ea-forum/EAButton";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { Typography } from "@/components/common/Typography";
+import { DialogContent } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   dialogPaper: {

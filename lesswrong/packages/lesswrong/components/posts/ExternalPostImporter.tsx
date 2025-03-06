@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { gql, useMutation } from '@apollo/client';
-import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -14,6 +13,7 @@ import { useMessages } from '../common/withMessages';
 import { Typography } from "@/components/common/Typography";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Button } from "@/components/mui-replacement";
 
 export type ExternalPostImportData = {
   alreadyExists: boolean;

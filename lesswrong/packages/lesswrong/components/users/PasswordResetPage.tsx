@@ -2,8 +2,8 @@ import React, { useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
-import Button from '@material-ui/core/Button';
 import SingleColumnSection from "@/components/common/SingleColumnSection";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

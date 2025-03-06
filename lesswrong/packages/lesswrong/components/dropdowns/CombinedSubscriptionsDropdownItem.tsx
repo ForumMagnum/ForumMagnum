@@ -1,7 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import Card from "@material-ui/core/Card";
 import { NotifyMeDropdownItemProps } from "./NotifyMeDropdownItem";
 import { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdownItem";
 import LWTooltip from "@/components/common/LWTooltip";
@@ -9,6 +8,7 @@ import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import NotifyMeDropdownItem from "@/components/dropdowns/NotifyMeDropdownItem";
 import NotifyMeToggleDropdownItem from "@/components/dropdowns/NotifyMeToggleDropdownItem";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (_theme: ThemeType) => ({
   dropdownWrapper: {

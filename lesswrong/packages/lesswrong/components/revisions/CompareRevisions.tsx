@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import Menu from '@material-ui/core/Menu';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
@@ -11,6 +10,7 @@ import { Loading } from "@/components/vulcan-core/Loading";
 import ContentItemTruncated from "@/components/common/ContentItemTruncated";
 import ForumIcon from "@/components/common/ForumIcon";
 import { MenuItem } from "@/components/common/Menus";
+import { Menu } from "@/components/mui-replacement";
 
 const styles = defineStyles("CompareRevisions", (theme: ThemeType) => ({
   differences: {

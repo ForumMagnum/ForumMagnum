@@ -9,7 +9,6 @@ import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { CLIENT_ID_COOKIE, HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Collapse from "@material-ui/core/Collapse";
 import range from "lodash/range";
 import {
   SurveyQuestionFormat,
@@ -24,6 +23,7 @@ import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import PopperCard from "@/components/common/PopperCard";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Collapse } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

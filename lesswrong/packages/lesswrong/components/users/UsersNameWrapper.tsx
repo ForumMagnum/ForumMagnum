@@ -1,10 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
 import UserNameDeleted from "@/components/users/UserNameDeleted";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.

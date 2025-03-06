@@ -1,11 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
 import { withTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
@@ -15,6 +10,7 @@ import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { Typography } from "@/components/common/Typography";
 import { MenuItem } from "@/components/common/Menus";
+import { Radio, RadioGroup, FormControlLabel, Select, Checkbox } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@material-ui/core/Card';
 import { htmlToText } from 'html-to-text';
 import LWTooltip from "@/components/common/LWTooltip";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import MetaInfo from "@/components/common/MetaInfo";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

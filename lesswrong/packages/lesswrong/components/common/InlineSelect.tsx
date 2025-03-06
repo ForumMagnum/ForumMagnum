@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Menu from "@material-ui/core/Menu";
 import { MenuItem } from "@/components/common/Menus";
+import { Menu } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

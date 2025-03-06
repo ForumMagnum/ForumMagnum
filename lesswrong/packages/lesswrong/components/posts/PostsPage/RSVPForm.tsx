@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
 import { gql, useMutation } from '@apollo/client';
-import Input from '@material-ui/core/Input';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
@@ -13,6 +7,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
 import { MenuItem } from "@/components/common/Menus";
 import LWDialog from "@/components/common/LWDialog";
+import { DialogContent, Input, DialogTitle, Select, Button, DialogActions } from "@/components/mui-replacement";
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {

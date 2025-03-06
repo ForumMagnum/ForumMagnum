@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Loading } from "@/components/vulcan-core/Loading";
 import NotificationsItem from "@/components/notifications/NotificationsItem";
+import { List, ListItem } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

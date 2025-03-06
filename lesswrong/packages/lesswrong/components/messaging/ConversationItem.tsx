@@ -5,13 +5,13 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
 import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
 import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
 import UsersName from "@/components/users/UsersName";
 import FormatDate from "@/components/common/FormatDate";
 import ConversationPreview from "@/components/messaging/ConversationPreview";
+import { Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),

@@ -5,22 +5,15 @@ import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Slider from '@material-ui/lab/Slider';
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormLabel from '@material-ui/core/FormLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
-import InputLabel from '@material-ui/core/InputLabel';
 import { Loading } from "@/components/vulcan-core/Loading";
 import { Typography } from "@/components/common/Typography";
 import LWDialog from "@/components/common/LWDialog";
+import { DialogContent, DialogActions, DialogTitle, Input, InputAdornment, FormLabel, Checkbox, InputLabel } from "@/components/mui-replacement";
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null

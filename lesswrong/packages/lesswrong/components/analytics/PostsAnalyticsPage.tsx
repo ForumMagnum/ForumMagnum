@@ -5,10 +5,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { canUserEditPostMetadata, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
@@ -19,6 +15,7 @@ import HeadTags from "@/components/common/HeadTags";
 import { Typography } from "@/components/common/Typography";
 import AnalyticsGraph from "@/components/analytics/AnalyticsGraph";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Table, TableBody, TableRow, TableCell } from "@/components/mui-replacement";
 
 function formatBounceRate(denominator?: number, numerator?: number) {
   if (!denominator || numerator === undefined || numerator === null) return null

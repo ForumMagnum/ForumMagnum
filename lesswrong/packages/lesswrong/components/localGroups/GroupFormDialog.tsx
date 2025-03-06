@@ -1,13 +1,13 @@
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import DialogContent from '@material-ui/core/DialogContent';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 import LWDialog from "@/components/common/LWDialog";
 import GroupFormSubmit from "@/components/localGroups/GroupFormSubmit";
+import { DialogContent } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   localGroupForm: {

@@ -4,12 +4,10 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@material-ui/icons/Email';
 import LocationIcon from '@material-ui/icons/LocationOn';
@@ -36,6 +34,7 @@ import HoverOver from "@/components/common/HoverOver";
 import LocalGroupSubscribers from "@/components/localGroups/LocalGroupSubscribers";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 import ForumIcon from "@/components/common/ForumIcon";
+import { createStyles, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {},

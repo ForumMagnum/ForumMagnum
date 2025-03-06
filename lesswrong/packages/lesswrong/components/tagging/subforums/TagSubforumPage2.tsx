@@ -7,8 +7,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { useTagBySlug } from '../useTag';
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import qs from "qs";
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
@@ -29,6 +27,7 @@ import TagTableOfContents from "@/components/tagging/TagTableOfContents";
 import SidebarSubtagsBox from "@/components/tagging/subforums/SidebarSubtagsBox";
 import SubforumWikiTab from "@/components/tagging/subforums/SubforumWikiTab";
 import SubforumSubforumTab from "@/components/tagging/subforums/SubforumSubforumTab";
+import { Tabs, Tab } from "@/components/mui-replacement";
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-// eslint-disable-next-line no-restricted-imports
-import Dialog, { DialogProps, DialogClassKey } from '@material-ui/core/Dialog';
+import { Dialog, DialogProps, DialogClassKey } from "@/components/mui-replacement";
 
+// eslint-disable-next-line no-restricted-imports
 // Wrapped to ensure the disableEnforceFocus prop is provided, since not
 // providing that breaks the toolbar in CkEditor and DraftJS. Also provides a
 // centralized place to fix it if we discover other issues with MUI Dialog, or

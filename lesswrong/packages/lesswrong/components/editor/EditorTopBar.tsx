@@ -3,12 +3,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
 import PresenceList from "@/components/editor/PresenceList";
 import LWTooltip from "@/components/common/LWTooltip";
 import { MenuItem } from "@/components/common/Menus";
+import { Select, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   editorTopBar: {

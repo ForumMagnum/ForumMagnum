@@ -1,4 +1,3 @@
-import Button from '@material-ui/core/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import WebIcon from '@material-ui/icons/Web';
 import ForumIcon from '@material-ui/icons/Forum';
@@ -19,6 +18,7 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { Typography } from "@/components/common/Typography";
 import SmallMapPreview from "@/components/localGroups/SmallMapPreview";
 import EventTime from "@/components/localGroups/EventTime";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   metadata: {

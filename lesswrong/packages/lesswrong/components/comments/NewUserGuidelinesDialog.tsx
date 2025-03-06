@@ -1,5 +1,3 @@
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
@@ -12,6 +10,7 @@ import LWDialog from "@/components/common/LWDialog";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Button, DialogActions } from "@/components/mui-replacement";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 

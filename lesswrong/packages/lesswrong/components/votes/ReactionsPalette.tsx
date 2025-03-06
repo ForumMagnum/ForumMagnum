@@ -9,12 +9,12 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 import ReactionIcon from "@/components/votes/ReactionIcon";
 import LWTooltip from "@/components/common/LWTooltip";
 import Row from "@/components/common/Row";
 import ReactionDescription from "@/components/votes/lwReactions/ReactionDescription";
 import MetaInfo from "@/components/common/MetaInfo";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   moreReactions: {

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 import TabNavigationMenu from "@/components/common/TabNavigationMenu/TabNavigationMenu";
 import TabNavigationMenuCompressed from "@/components/common/TabNavigationMenu/TabNavigationMenuCompressed";
 import TableOfContentsList from "@/components/posts/TableOfContents/TableOfContentsList";
+import { SwipeableDrawer } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   paperWithoutToC: {

@@ -1,8 +1,7 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import Popover from "@material-ui/core/Popover";
-import Fade from "@material-ui/core/Fade";
 import classNames from "classnames";
+import { Popover, Fade } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

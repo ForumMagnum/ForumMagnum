@@ -13,7 +13,6 @@ import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import moment from 'moment';
 import FlagIcon from '@material-ui/icons/Flag';
-import Input from '@material-ui/core/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
@@ -24,6 +23,7 @@ import LWTooltip from "@/components/common/LWTooltip";
 import ModeratorActionItem from "@/components/sunshineDashboard/ModeratorUserInfo/ModeratorActionItem";
 import { MenuItem } from "@/components/common/Menus";
 import UserRateLimitItem from "@/components/sunshineDashboard/UserRateLimitItem";
+import { Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   row: {

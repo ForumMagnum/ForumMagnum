@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import Card from '@material-ui/core/Card';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -19,6 +18,7 @@ import SequencesTooltip from "@/components/sequences/SequencesTooltip";
 import LWPopper from "@/components/common/LWPopper";
 import AnalyticsTracker from "@/components/common/AnalyticsTracker";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Card } from "@/components/mui-replacement";
 
 let missingLinkPreviewsLogged = new Set<string>();
 

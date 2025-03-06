@@ -2,12 +2,12 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
-import Card from "@material-ui/core/Card";
 import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import HoverOver from "@/components/common/HoverOver";
 import UsersName from "@/components/users/UsersName";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import ContentItemTruncated from "@/components/common/ContentItemTruncated";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

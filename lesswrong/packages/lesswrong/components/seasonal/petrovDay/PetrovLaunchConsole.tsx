@@ -4,10 +4,10 @@ import { useTracking } from '@/lib/analyticsEvents';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
-import TextField from '@material-ui/core/TextField';
 import { PetrovDayActionType } from '@/lib/collections/petrovDayActions/schema';
 import PetrovWorldmapWrapper from "@/components/seasonal/petrovDay/PetrovWorldmapWrapper";
 import PastWarnings from "@/components/seasonal/petrovDay/PastWarnings";
+import { TextField } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

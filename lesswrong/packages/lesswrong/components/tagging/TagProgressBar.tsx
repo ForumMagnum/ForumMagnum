@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
@@ -11,6 +10,7 @@ import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import LWTooltip from "@/components/common/LWTooltip";
 import PostsItem2MetaInfo from "@/components/posts/PostsItem2MetaInfo";
 import SeparatorBullet from "@/components/common/SeparatorBullet";
+import { LinearProgress } from "@/components/mui-replacement";
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,

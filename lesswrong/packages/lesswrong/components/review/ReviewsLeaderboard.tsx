@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import Card from '@material-ui/core/Card';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -11,6 +10,7 @@ import Row from "@/components/common/Row";
 import MetaInfo from "@/components/common/MetaInfo";
 import LWTooltip from "@/components/common/LWTooltip";
 import CommentsNode from "@/components/comments/CommentsNode";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

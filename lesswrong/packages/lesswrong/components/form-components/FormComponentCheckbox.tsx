@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
 import { Typography } from "@/components/common/Typography";
+import { Checkbox } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

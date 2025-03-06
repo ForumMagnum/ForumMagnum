@@ -14,10 +14,10 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
-import Input from "@material-ui/core/Input";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 import ImageUpload2 from "@/components/form-components/ImageUpload2";
+import { Input } from "@/components/mui-replacement";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 

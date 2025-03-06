@@ -29,11 +29,7 @@
 
 // TODO: Add registerStyles() to register styles without the component.
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { fade } from '@material-ui/core/styles/colorManipulator';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { fade, Paper, Button, ListItem, ListItemIcon } from "@/components/mui-replacement";
 
 // Some of these baddies won't do well with our themePalette test situation,
 // which involves passing "fakecolor" colors in the theme. This would case

@@ -14,12 +14,12 @@ import {
   getEmojiMutuallyExclusivePartner,
 } from "../../lib/voting/eaEmojiPalette";
 import type { VotingProps } from "./votingProps";
-import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 import EAEmojiPalette from "@/components/votes/EAEmojiPalette";
 import ForumIcon from "@/components/common/ForumIcon";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Menu } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   button: {

@@ -3,13 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -19,6 +16,7 @@ import LWPopper from "@/components/common/LWPopper";
 import { Typography } from "@/components/common/Typography";
 import LWTooltip from "@/components/common/LWTooltip";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Button, Paper, Checkbox } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

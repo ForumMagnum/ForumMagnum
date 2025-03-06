@@ -1,9 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import LWDialog from "@/components/common/LWDialog";
+import { Button, DialogContent, DialogTitle } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   dismissButton: {

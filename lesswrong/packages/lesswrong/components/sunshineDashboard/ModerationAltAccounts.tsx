@@ -5,8 +5,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery, gql } from '@apollo/client';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { MenuItem } from "@/components/common/Menus";
@@ -14,6 +12,7 @@ import { ContentStyles } from "@/components/common/ContentStyles";
 import { Loading } from "@/components/vulcan-core/Loading";
 import FormatDate from "@/components/common/FormatDate";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import { Select, Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   selectUser: {

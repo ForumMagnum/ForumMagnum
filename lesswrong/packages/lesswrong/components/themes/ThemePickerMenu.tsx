@@ -6,7 +6,6 @@ import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF }
 import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
-import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "@/components/common/LWTooltip";
@@ -15,6 +14,7 @@ import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import DropdownDivider from "@/components/dropdowns/DropdownDivider";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Paper } from "@/components/mui-replacement";
 
 const styles = (_theme: ThemeType) => ({
   check: {

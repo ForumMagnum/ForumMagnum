@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from "../common/Header";
 import { gql, useMutation } from "@apollo/client";
@@ -11,6 +10,7 @@ import LoginForm from "@/components/users/LoginForm";
 import SiteLogo from "@/components/ea-forum/SiteLogo";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { Typography } from "@/components/common/Typography";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

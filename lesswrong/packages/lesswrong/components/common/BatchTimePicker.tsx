@@ -3,10 +3,10 @@ import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import Select from '@material-ui/core/Select';
 import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
 import { MenuItem } from "@/components/common/Menus";
+import { Select } from "@/components/mui-replacement";
 
 type TimeChange = {
   timeOfDay: number;

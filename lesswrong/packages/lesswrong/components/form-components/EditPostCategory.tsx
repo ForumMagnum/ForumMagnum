@@ -1,8 +1,7 @@
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useCallback, useRef } from "react";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import { isPostCategory } from "../../lib/collections/posts/helpers";
+import { Tabs, Tab } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   tabs: {

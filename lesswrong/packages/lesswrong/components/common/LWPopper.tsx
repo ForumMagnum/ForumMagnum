@@ -1,10 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {MutableRefObject, ReactNode, useState} from 'react';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
 import type { State } from '@popperjs/core/lib/types';
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   popper: {

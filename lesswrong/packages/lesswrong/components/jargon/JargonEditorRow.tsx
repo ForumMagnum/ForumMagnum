@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Loading } from "@/components/vulcan-core/Loading";
@@ -11,6 +9,7 @@ import JargonTooltip from "@/components/jargon/JargonTooltip";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Button, Checkbox } from "@/components/mui-replacement";
 
 export const formStyles = {
   '& .form-section-default > div': {

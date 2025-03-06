@@ -1,8 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import Chip from '@material-ui/core/Chip';
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Chip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   chip: {

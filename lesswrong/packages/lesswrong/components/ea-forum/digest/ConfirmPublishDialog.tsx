@@ -1,10 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import LWDialog from "@/components/common/LWDialog";
 import EAButton from "@/components/ea-forum/EAButton";
+import { DialogContent, DialogActions } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

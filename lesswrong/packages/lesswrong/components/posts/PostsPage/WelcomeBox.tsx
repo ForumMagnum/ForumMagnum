@@ -1,4 +1,3 @@
-import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
@@ -12,6 +11,7 @@ import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 import { Typography } from "@/components/common/Typography";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {

@@ -6,13 +6,13 @@ import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
 import startCase from "lodash/startCase";
-import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
 import { Typography } from "@/components/common/Typography";
 import ForumDropdown from "@/components/common/ForumDropdown";
 import LWTooltip from "@/components/common/LWTooltip";
 import AnalyticsGraphSkeleton from "@/components/analytics/AnalyticsGraphSkeleton";
 import AnalyticsDisclaimers from "@/components/analytics/AnalyticsDisclaimers";
+import { Checkbox, CheckboxProps } from "@/components/mui-replacement";
 
 const CONTROLS_BREAKPOINT = 650;
 

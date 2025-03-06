@@ -1,10 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
-import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
 import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

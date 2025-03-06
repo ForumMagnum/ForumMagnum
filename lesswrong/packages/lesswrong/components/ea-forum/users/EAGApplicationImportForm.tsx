@@ -5,7 +5,6 @@ import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/col
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES } from '../../../lib/collections/users/schema';
-import Input from '@material-ui/core/Input';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
@@ -24,6 +23,7 @@ import SelectLocalgroup from "@/components/form-components/SelectLocalgroup";
 import { LocationPicker } from "@/components/form-components/LocationFormComponent";
 import PrefixedInput from "@/components/form-components/PrefixedInput";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

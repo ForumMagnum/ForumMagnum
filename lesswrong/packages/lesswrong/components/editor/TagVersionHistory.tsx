@@ -4,7 +4,6 @@ import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
@@ -21,6 +20,7 @@ import ContentItemBody from "@/components/common/ContentItemBody";
 import FormatDate from "@/components/common/FormatDate";
 import LoadMore from "@/components/common/LoadMore";
 import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
+import { Button } from "@/components/mui-replacement";
 
 const LEFT_COLUMN_WIDTH = 160
 

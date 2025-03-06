@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Select from '@material-ui/core/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -11,6 +10,7 @@ import ReviewsLeaderboard from "@/components/review/ReviewsLeaderboard";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { MenuItem } from "@/components/common/Menus";
 import { Typography } from "@/components/common/Typography";
+import { Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

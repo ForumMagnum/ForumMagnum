@@ -1,7 +1,5 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Popover from '@material-ui/core/Popover';
-import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
@@ -9,6 +7,7 @@ import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 import EAButton from "@/components/ea-forum/EAButton";
 import EALoginPopover from "@/components/ea-forum/auth/EALoginPopover";
 import LoginForm from "@/components/users/LoginForm";
+import { Popover, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

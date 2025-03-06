@@ -7,8 +7,6 @@ import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-
-import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import SingleColumnSection from "@/components/common/SingleColumnSection";
@@ -18,6 +16,7 @@ import SettingsButton from "@/components/icons/SettingsButton";
 import PostsListSettings from "@/components/posts/PostsListSettings";
 import HeadTags from "@/components/common/HeadTags";
 import AllPostsList from "@/components/posts/AllPostsList";
+import { Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   title: {

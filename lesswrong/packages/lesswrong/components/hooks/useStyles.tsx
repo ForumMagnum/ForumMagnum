@@ -4,8 +4,8 @@ import React, { createContext, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from "jss";
-import { jssPreset } from "@material-ui/core/styles";
 import { isClient } from "@/lib/executionEnvironment";
+import { jssPreset } from "@/components/mui-replacement";
 
 export type StylesContextType = {
   theme: ThemeType

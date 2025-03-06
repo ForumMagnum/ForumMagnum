@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import Fullscreen from '@material-ui/icons/Fullscreen';
 import FullscreenExit from '@material-ui/icons/FullscreenExit';
@@ -12,6 +11,7 @@ import classNames from 'classnames';
 import { LanguageModelChat } from "@/components/languageModels/LanguageModelChat";
 import LWTooltip from "@/components/common/LWTooltip";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Card as Paper } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -1,5 +1,4 @@
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -13,6 +12,7 @@ import LWPopper from "@/components/common/LWPopper";
 import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import DropdownDivider from "@/components/dropdowns/DropdownDivider";
+import { Paper } from "@/components/mui-replacement";
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {

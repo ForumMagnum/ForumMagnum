@@ -1,7 +1,4 @@
 import React from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
@@ -9,6 +6,7 @@ import LWDialog from "@/components/common/LWDialog";
 import FormGroupNoStyling from "@/components/form-components/FormGroupNoStyling";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 import { Typography } from "@/components/common/Typography";
+import { DialogContent, DialogTitle, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   formButton: {

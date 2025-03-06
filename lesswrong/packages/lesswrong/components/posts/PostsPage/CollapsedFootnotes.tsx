@@ -3,8 +3,10 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useLocation } from "../../../lib/routeUtil";
 import { useOnSearchHotkey } from "../../common/withGlobalKeydown";
 import { InteractionWrapper } from "../../common/useClickableCell";
-import Collapse from "@material-ui/core/Collapse";
 import classNames from "classnames";
+import { Collapse } from "@/components/mui-replacement";
+// import { Collapse } from "@material-ui/core";
+
 
 const TRANSITION_DURATION = 200;
 

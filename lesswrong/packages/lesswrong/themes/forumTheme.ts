@@ -1,12 +1,12 @@
 import { getForumType, ThemeOptions } from './themeNames';
 import { baseTheme } from './createThemeDefaults';
-import { createMuiTheme, Theme as MuiThemeType } from '@material-ui/core/styles';
 import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import { forumSelect } from '../lib/forumTypeUtils';
 import capitalize from 'lodash/capitalize';
+import { createMuiTheme, Theme as MuiThemeType } from "@/components/mui-replacement";
 
 /**
  * Is this Forum a muted, dignified book-like experience, or a modern, friendly

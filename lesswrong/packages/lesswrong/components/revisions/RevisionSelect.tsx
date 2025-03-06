@@ -1,14 +1,13 @@
 import React, { useCallback, useState } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
-import Radio from '@material-ui/core/Radio';
 import classNames from 'classnames';
 import FormatDate from "@/components/common/FormatDate";
 import UsersName from "@/components/users/UsersName";
 import LoadMore from "@/components/common/LoadMore";
 import LWTooltip from "@/components/common/LWTooltip";
 import ChangeMetricsDisplay from "@/components/tagging/ChangeMetricsDisplay";
+import { Button, Radio } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   revisionRow: {

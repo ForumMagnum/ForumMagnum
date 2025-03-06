@@ -7,7 +7,6 @@ import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useNavigate } from "../../lib/routeUtil";
 import type { Hit } from "react-instantsearch-core";
-import Chip from "@material-ui/core/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
 import LWDialog from "@/components/common/LWDialog";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
@@ -15,6 +14,7 @@ import ExpandedUsersConversationSearchHit from "@/components/search/ExpandedUser
 import ForumIcon from "@/components/common/ForumIcon";
 import { Typography } from "@/components/common/Typography";
 import EAButton from "@/components/ea-forum/EAButton";
+import { Chip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   paper: {

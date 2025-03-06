@@ -1,6 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
-import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -8,6 +7,7 @@ import { PostCategory } from '../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
+import { Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -6,13 +6,13 @@ import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { PopperPlacementType } from '@material-ui/core/Popper';
 import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 /**
  * This is mostly deprecated - you should probably just use `PostsTooltip`

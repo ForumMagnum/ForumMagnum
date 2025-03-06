@@ -5,11 +5,11 @@ import { useMessages } from '../../common/withMessages';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import OmegaIcon from "@/components/icons/OmegaIcon";
+import { ListItemIcon } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {

@@ -5,8 +5,6 @@ import { useMessages } from '../common/withMessages';
 import { userCanUseSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -20,6 +18,7 @@ import EAButton from "@/components/ea-forum/EAButton";
 import EditableUsersList from "@/components/editor/EditableUsersList";
 import LWDialog from "@/components/common/LWDialog";
 import { MenuItem } from "@/components/common/Menus";
+import { Button, Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   linkSharingPreview: {

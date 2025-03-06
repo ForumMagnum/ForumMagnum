@@ -1,5 +1,4 @@
 import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -29,6 +28,7 @@ import NewCommentModerationWarning from "@/components/sunshineDashboard/NewComme
 import RateLimitWarning from "@/components/editor/RateLimitWarning";
 import FormGroupQuickTakes from "@/components/form-components/FormGroupQuickTakes";
 import FormGroupNoStyling from "@/components/form-components/FormGroupNoStyling";
+import { Button } from "@/components/mui-replacement";
 
 export type FormDisplayMode = "default" | "minimalist"
 

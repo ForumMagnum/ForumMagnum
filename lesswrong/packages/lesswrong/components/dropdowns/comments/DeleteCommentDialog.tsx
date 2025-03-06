@@ -2,13 +2,9 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import LWDialog from "@/components/common/LWDialog";
+import { DialogActions, DialogContent, DialogTitle, Button, TextField } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   subtitle: {

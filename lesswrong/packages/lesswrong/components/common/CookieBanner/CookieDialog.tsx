@@ -1,16 +1,13 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Checkbox from "@material-ui/core/Checkbox";
 import classNames from "classnames";
-import Button from "@material-ui/core/Button";
 import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { Typography } from "@/components/common/Typography";
 import ForumIcon from "@/components/common/ForumIcon";
 import CookieTable from "@/components/common/CookieBanner/CookieTable";
 import LWDialog from "@/components/common/LWDialog";
+import { DialogContent, DialogTitle, Checkbox, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   dialog: {

@@ -3,8 +3,8 @@ import React from 'react';
 import { useSingle } from '../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { withStyles, createStyles } from "@/components/mui-replacement";
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {
   const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";

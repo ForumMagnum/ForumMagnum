@@ -1,9 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
-import { PopperPlacementType } from '@material-ui/core/Popper'
 import LWTooltip from "@/components/common/LWTooltip";
+import { Checkbox, PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

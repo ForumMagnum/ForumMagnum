@@ -3,11 +3,11 @@ import React, { MouseEventHandler } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
-import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   noResults: {

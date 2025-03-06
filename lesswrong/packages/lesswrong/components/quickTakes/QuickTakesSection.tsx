@@ -1,5 +1,4 @@
 import React from "react";
-import Checkbox from "@material-ui/core/Checkbox";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
@@ -20,6 +19,7 @@ import QuickTakesListItem from "@/components/quickTakes/QuickTakesListItem";
 import { Loading } from "@/components/vulcan-core/Loading";
 import SectionFooter from "@/components/common/SectionFooter";
 import LoadMore from "@/components/common/LoadMore";
+import { Checkbox } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {

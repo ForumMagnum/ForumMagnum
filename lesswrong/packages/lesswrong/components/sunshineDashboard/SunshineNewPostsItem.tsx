@@ -7,7 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary';
-import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -27,6 +26,7 @@ import { Typography } from "@/components/common/Typography";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import SmallSideVote from "@/components/votes/SmallSideVote";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   icon: {

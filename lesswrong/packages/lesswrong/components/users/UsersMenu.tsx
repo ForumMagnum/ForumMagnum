@@ -4,9 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
-
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
 import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
 import EyeIcon from '@material-ui/icons/Visibility';
 
@@ -34,6 +31,7 @@ import DropdownDivider from "@/components/dropdowns/DropdownDivider";
 import UsersProfileImage from "@/components/users/UsersProfileImage";
 import ForumIcon from "@/components/common/ForumIcon";
 import { NewWikiTagMenu } from "@/components/tagging/NewWikiTagMenu";
+import { Paper, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

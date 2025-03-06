@@ -1,9 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
 import React from 'react';
 import UserNameDeleted from "@/components/users/UserNameDeleted";
 import UsersNameWrapper from "@/components/users/UsersNameWrapper";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 /**
  * A user name, with styling, tooltip, etc. Takes either a user object or a

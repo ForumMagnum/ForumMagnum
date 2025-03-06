@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import LWDialog from "@/components/common/LWDialog";
+import { DialogTitle, DialogActions } from "@/components/mui-replacement";
 
 // Dialog group, with trigger-button and dialog-instance
 const DialogGroup = ({title, trigger, actions, children}: {

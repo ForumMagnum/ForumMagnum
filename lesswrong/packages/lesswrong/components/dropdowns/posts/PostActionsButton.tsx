@@ -4,7 +4,6 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -12,6 +11,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PopperCard from "@/components/common/PopperCard";
 import PostActions from "@/components/dropdowns/posts/PostActions";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {

@@ -6,13 +6,13 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { PopperPlacementType } from '@material-ui/core/Popper';
 import LWPopper from "@/components/common/LWPopper";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import ForumIcon from "@/components/common/ForumIcon";
 import CommentBody from "@/components/comments/CommentsItem/CommentBody";
 import CommentsNewForm from "@/components/comments/CommentsNewForm";
 import UsersProfileImage from "@/components/users/UsersProfileImage";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   popperContent: {

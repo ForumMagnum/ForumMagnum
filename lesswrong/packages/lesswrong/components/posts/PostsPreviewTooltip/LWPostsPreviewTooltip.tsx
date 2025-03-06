@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import Card from '@material-ui/core/Card';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -18,6 +17,7 @@ import FormatDate from "@/components/common/FormatDate";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import EventTime from "@/components/localGroups/EventTime";
+import { Card } from "@/components/mui-replacement";
 
 export const highlightSimplifiedStyles = {
   '& img': {

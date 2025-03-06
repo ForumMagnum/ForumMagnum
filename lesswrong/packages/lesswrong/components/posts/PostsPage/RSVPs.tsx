@@ -1,4 +1,3 @@
-import Button from '@material-ui/core/Button';
 import React, { useCallback, useEffect } from 'react';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useLocation } from '../../../lib/routeUtil';
@@ -15,6 +14,7 @@ import mapValues from "lodash/mapValues";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { getFragment } from "../../../lib/vulcan-lib/fragments";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   body: {

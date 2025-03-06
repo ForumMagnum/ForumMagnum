@@ -23,7 +23,6 @@ import { getUserFromResults } from './UsersProfile';
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
@@ -58,6 +57,7 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import FooterTag from "@/components/tagging/FooterTag";
 import DisplayNameWithMarkers from "@/components/ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   section: {

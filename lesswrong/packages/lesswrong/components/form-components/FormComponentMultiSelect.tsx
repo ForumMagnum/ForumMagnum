@@ -1,16 +1,11 @@
 import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import FormLabel from '@material-ui/core/FormLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
 import { SectionTitle } from "@/components/common/SectionTitle";
 import PeopleDirectoryFilterDropdown from "@/components/peopleDirectory/PeopleDirectoryFilterDropdown";
 import PeopleDirectorySelectOption from "@/components/peopleDirectory/PeopleDirectorySelectOption";
 import { MenuItem } from "@/components/common/Menus";
+import { FormControl, Select, FormLabel, OutlinedInput, Checkbox, ListItemText } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   greyDropdownRoot: {

@@ -1,9 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button'
 import CloseIcon from '@material-ui/icons/Close'
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
@@ -14,6 +12,7 @@ import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
 import LWTooltip from "@/components/common/LWTooltip";
 import ForumIcon from "@/components/common/ForumIcon";
 import EAButton from "@/components/ea-forum/EAButton";
+import { Button, Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

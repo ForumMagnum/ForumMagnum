@@ -1,5 +1,4 @@
 import React from 'react'
-import Button from '@material-ui/core/Button';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
@@ -13,6 +12,7 @@ import SingleColumnSection from "@/components/common/SingleColumnSection";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { Typography } from "@/components/common/Typography";
+import { Button } from "@/components/mui-replacement";
 
 const bannerHeight = 250
 

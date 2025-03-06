@@ -11,7 +11,6 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import LWTooltip from "@/components/common/LWTooltip";
 import FormatDate from "@/components/common/FormatDate";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
@@ -19,6 +18,7 @@ import { LlmChatMessage } from "@/components/languageModels/LanguageModelChat";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import Error404 from "@/components/common/Error404";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Checkbox, CheckboxProps } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

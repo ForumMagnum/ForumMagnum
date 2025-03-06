@@ -3,10 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import LinearProgress from "@material-ui/core/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
 import ForumIcon from "@/components/common/ForumIcon";
@@ -15,6 +11,7 @@ import { Loading } from "@/components/vulcan-core/Loading";
 import PostsItem from "@/components/posts/PostsItem";
 import LoadMore from "@/components/common/LoadMore";
 import CommentsNode from "@/components/comments/CommentsNode";
+import { Checkbox, Button, IconButton, LinearProgress } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

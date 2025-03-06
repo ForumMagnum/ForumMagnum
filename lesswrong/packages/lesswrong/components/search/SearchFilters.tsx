@@ -4,7 +4,6 @@ import type { RefinementListExposed, RefinementListProvided } from 'react-instan
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import Select from '@material-ui/core/Select';
 import {
   SearchIndexCollectionName,
   ElasticSorting,
@@ -13,11 +12,11 @@ import {
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
 import { communityPath } from '../../lib/routes';
-import IconButton from '@material-ui/core/IconButton';
 import { Typography } from "@/components/common/Typography";
 import { MenuItem } from "@/components/common/Menus";
 import ForumIcon from "@/components/common/ForumIcon";
 import TagMultiselect from "@/components/form-components/TagMultiselect";
+import { Select, IconButton } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {

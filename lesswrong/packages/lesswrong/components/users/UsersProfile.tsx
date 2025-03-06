@@ -13,7 +13,6 @@ import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
@@ -58,6 +57,7 @@ import SequencesGridWrapper from "@/components/sequences/SequencesGridWrapper";
 import NewFeedButton from "@/components/rss/NewFeedButton";
 import MetaInfo from "@/components/common/MetaInfo";
 import OmegaIcon from "@/components/icons/OmegaIcon";
+import { Tooltip } from "@/components/mui-replacement";
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,

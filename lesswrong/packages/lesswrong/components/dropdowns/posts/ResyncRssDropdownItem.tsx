@@ -5,8 +5,6 @@ import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import RssFeed from "@material-ui/icons/RssFeed";
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import Button from "@/components/vulcan-ui-bootstrap/ui/Button";
@@ -14,6 +12,7 @@ import { ContentStyles } from "@/components/common/ContentStyles";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import LWDialog from "@/components/common/LWDialog";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { DialogActions, DialogContent } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   diffExplanation: {

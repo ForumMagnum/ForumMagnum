@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import Input from '@material-ui/core/Input';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
 import { UserSelect } from "@/components/form-components/UserSelect";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Input, TextField, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   adminOverrides: {

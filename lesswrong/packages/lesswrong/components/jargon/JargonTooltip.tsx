@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
-import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
@@ -11,6 +9,7 @@ import LWTooltip from "@/components/common/LWTooltip";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import ForumIcon from "@/components/common/ForumIcon";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import { Card, PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   card: {

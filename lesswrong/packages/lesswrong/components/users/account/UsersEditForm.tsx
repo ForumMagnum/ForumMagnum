@@ -1,7 +1,6 @@
 import { useMessages } from '@/components/common/withMessages';
 import React from 'react';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '@/lib/collections/users/helpers';
-import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { isEAForum } from '@/lib/instanceSettings';
@@ -12,6 +11,7 @@ import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

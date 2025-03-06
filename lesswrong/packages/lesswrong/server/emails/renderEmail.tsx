@@ -1,4 +1,3 @@
-import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
@@ -23,6 +22,7 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
+import { createGenerateClassName, MuiThemeProvider } from "@/components/mui-replacement";
 
 export interface RenderedEmail {
   user: DbUser | null,

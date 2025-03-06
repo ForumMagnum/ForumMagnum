@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
+import { InputLabel, FormControl } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   input: {

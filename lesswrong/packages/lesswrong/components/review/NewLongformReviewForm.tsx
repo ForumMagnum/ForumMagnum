@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
 import PostsNewForm from "@/components/posts/PostsNewForm";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import Row from "@/components/common/Row";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   text: {

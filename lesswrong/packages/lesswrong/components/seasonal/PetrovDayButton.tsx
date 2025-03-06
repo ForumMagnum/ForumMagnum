@@ -1,8 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
@@ -19,6 +17,7 @@ import { useMapStyle } from '../hooks/useMapStyle';
 import LWTooltip from "@/components/common/LWTooltip";
 import LoginPopupButton from "@/components/users/LoginPopupButton";
 import { Typography } from "@/components/common/Typography";
+import { TextField, Button } from "@/components/mui-replacement";
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')

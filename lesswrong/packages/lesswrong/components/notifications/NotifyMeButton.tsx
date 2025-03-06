@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
 import { useNotifyMe } from '../hooks/useNotifyMe';
@@ -10,6 +9,7 @@ import { Loading } from "@/components/vulcan-core/Loading";
 import ForumIcon from "@/components/common/ForumIcon";
 import { MenuItem } from "@/components/common/Menus";
 import EAButton from "@/components/ea-forum/EAButton";
+import { ListItemIcon } from "@/components/mui-replacement";
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them

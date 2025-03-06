@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { isLW } from "../../../lib/instanceSettings";
@@ -9,6 +8,7 @@ import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../PostsEditForm';
 import { useNavigate } from '../../../lib/routeUtil';
 import Row from "@/components/common/Row";
+import { Button } from "@/components/mui-replacement";
 
 export const styles = (theme: ThemeType) => ({
   formButton: {

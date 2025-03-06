@@ -1,12 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
-import IconButton from '@material-ui/core/IconButton';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
 import { useVoteColors } from './useVoteColors';
 import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
+import { IconButton } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

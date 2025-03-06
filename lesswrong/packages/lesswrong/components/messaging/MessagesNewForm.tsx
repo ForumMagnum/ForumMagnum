@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import Button from "@material-ui/core/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -12,6 +11,7 @@ import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 import { Loading } from "@/components/vulcan-core/Loading";
 import ForumIcon from "@/components/common/ForumIcon";
 import Error404 from "@/components/common/Error404";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

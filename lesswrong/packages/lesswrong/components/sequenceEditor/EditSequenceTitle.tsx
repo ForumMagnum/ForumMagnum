@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import PropTypes from 'prop-types'
-import Input from '@material-ui/core/Input';
 import { sequencesImageScrim } from '../sequences/SequencesPage'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

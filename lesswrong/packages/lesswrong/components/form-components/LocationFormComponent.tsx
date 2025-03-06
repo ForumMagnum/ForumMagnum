@@ -6,10 +6,10 @@ import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import FormLabel from '@material-ui/core/FormLabel';
 import classNames from 'classnames';
 import { Loading } from "@/components/vulcan-core/Loading";
 import { SectionTitle } from "@/components/common/SectionTitle";
+import { FormLabel } from "@/components/mui-replacement";
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({

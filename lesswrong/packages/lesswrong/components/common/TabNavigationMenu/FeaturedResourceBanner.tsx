@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
@@ -12,6 +8,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 import { Typography } from "@/components/common/Typography";
+import { Button, Card, Divider, Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   card: {

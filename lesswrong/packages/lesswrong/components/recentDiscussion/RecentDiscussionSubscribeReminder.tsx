@@ -7,19 +7,17 @@ import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { randInt } from '../../lib/random';
 import SimpleSchema from 'simpl-schema';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
 import MailOutline from '@material-ui/icons/MailOutline'
 import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
-import TextField from '@material-ui/core/TextField';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import LoginForm from "@/components/users/LoginForm";
 import SignupSubscribeToCurated from "@/components/users/SignupSubscribeToCurated";
 import { Loading } from "@/components/vulcan-core/Loading";
 import AnalyticsInViewTracker from "@/components/common/AnalyticsInViewTracker";
+import { Button, Input, TextField } from "@/components/mui-replacement";
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"

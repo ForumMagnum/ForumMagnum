@@ -1,9 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import LWDialog from "@/components/common/LWDialog";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import { DialogContent, DialogTitle } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   images: {

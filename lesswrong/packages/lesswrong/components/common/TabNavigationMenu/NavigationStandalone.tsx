@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
@@ -10,6 +9,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import TabNavigationMenu from "@/components/common/TabNavigationMenu/TabNavigationMenu";
+import { SwipeableDrawer as BadlyTypedSlide } from "@/components/mui-replacement";
 
 const Slide = componentWithChildren(BadlyTypedSlide);
 
@@ -61,12 +61,8 @@ const NavigationStandalone = ({
 
   return <>
     <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>
-      <Slide
-        direction='right'
-        in={!sidebarHidden}
-        appear={false}
-        mountOnEnter
-        unmountOnExit
+      <div
+        style={{display: 'none'}}
       >
         <div className={classNames(classes.sidebar, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
@@ -75,7 +71,7 @@ const NavigationStandalone = ({
             noTopMargin={noTopMargin}
           />
         </div>
-      </Slide>
+      </div>
     </div>
   </>
 }

@@ -1,9 +1,9 @@
 import React from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import LWDialog from "@/components/common/LWDialog";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { DialogContent } from "@/components/mui-replacement";
 
 const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   userId: string,

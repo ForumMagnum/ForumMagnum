@@ -1,8 +1,8 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import LWTooltip from "@/components/common/LWTooltip";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const KarmaDisplay = ({document, placement="left", linkItem}: {
   document: VoteableType,

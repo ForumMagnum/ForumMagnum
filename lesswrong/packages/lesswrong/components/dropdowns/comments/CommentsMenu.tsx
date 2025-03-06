@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Menu from '@material-ui/core/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentActions from "@/components/dropdowns/comments/CommentActions";
+import { Menu } from "@/components/mui-replacement";
 
 const styles = (_theme: ThemeType) => ({
   root: {

@@ -3,10 +3,10 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import TabNavigationSubItem from "@/components/common/TabNavigationMenu/TabNavigationSubItem";
+import { Tooltip } from "@/components/mui-replacement";
 
 const smallIconSize = 23
 

@@ -4,7 +4,6 @@ import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
-import { PopperPlacementType } from "@material-ui/core/Popper";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
@@ -18,6 +17,7 @@ import HoverOver from "@/components/common/HoverOver";
 import TagRelCard from "@/components/tagging/TagRelCard";
 import { TagPreview } from "@/components/tagging/TagPreview";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI

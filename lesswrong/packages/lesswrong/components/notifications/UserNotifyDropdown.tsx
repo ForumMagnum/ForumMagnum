@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import EAButton from "@/components/ea-forum/EAButton";
 import ForumIcon from "@/components/common/ForumIcon";
@@ -11,6 +10,7 @@ import PopperCard from "@/components/common/PopperCard";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import NotifyMeToggleDropdownItem from "@/components/dropdowns/NotifyMeToggleDropdownItem";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {

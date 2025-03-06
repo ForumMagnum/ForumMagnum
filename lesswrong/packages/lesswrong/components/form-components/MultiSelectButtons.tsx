@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   button: {

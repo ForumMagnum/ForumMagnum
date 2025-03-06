@@ -2,15 +2,14 @@ import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import Paper from '@material-ui/core/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import LWPopper from "@/components/common/LWPopper";
 import ForumIcon from "@/components/common/ForumIcon";
 import { MenuItem } from "@/components/common/Menus";
+import { Button, Paper } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

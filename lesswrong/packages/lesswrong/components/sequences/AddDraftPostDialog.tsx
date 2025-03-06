@@ -2,13 +2,10 @@ import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
 import { useDialog } from '../common/withDialog';
 import LWDialog from "@/components/common/LWDialog";
 import SequenceDraftsList from "@/components/sequences/SequenceDraftsList";
+import { DialogActions, DialogContent, DialogTitle, Button } from "@/components/mui-replacement";
 
 const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   documentId: string,

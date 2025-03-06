@@ -3,8 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import Menu from '@material-ui/core/Menu';
-import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
@@ -31,6 +29,7 @@ import LastVisitList from "@/components/comments/LastVisitList";
 import CalendarDate from "@/components/common/CalendarDate";
 import CommentsViews from "@/components/comments/CommentsViews";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Menu, Divider } from "@/components/mui-replacement";
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 

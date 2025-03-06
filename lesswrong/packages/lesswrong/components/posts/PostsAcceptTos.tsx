@@ -4,9 +4,9 @@ import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
-import Checkbox from '@material-ui/core/Checkbox';
 import { Typography } from "@/components/common/Typography";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Checkbox } from "@/components/mui-replacement";
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>

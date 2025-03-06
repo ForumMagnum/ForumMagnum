@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Select from '@material-ui/core/Select';
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import PostsList2 from "@/components/posts/PostsList2";
@@ -10,6 +9,7 @@ import SectionFooterCheckbox from "@/components/form-components/SectionFooterChe
 import RecentComments from "@/components/comments/RecentComments";
 import LWTooltip from "@/components/common/LWTooltip";
 import { MenuItem } from "@/components/common/Menus";
+import { Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   setting: {

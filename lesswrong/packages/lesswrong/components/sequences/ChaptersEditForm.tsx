@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from "../../lib/vulcan-lib/fragments";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

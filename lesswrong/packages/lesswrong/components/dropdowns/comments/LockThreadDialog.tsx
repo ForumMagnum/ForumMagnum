@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMutation, gql } from '@apollo/client';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import Button from '@material-ui/core/Button';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import LWDialog from "@/components/common/LWDialog";
 import { DatePicker } from "@/components/form-components/FormComponentDateTime";
+import { DialogTitle, DialogActions, DialogContent, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   message: {

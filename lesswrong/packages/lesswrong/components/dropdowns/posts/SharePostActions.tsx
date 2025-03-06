@@ -3,14 +3,13 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
-
-import Paper from '@material-ui/core/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import DropdownItem from "@/components/dropdowns/DropdownItem";
 import DropdownDivider from "@/components/dropdowns/DropdownDivider";
 import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
+import { Paper } from "@/components/mui-replacement";
 
 const styles = (_theme: ThemeType) => ({
   icon: {

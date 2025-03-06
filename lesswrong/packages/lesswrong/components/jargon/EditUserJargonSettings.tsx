@@ -2,10 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
-import Checkbox from '@material-ui/core/Checkbox';
 import { JARGON_LLM_MODEL } from './GlossaryEditForm';
 import LWTooltip from "@/components/common/LWTooltip";
 import MetaInfo from "@/components/common/MetaInfo";
+import { Checkbox } from "@/components/mui-replacement";
 
 const styles = () => ({
   checkboxContainer: {

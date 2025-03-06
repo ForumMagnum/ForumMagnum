@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
-import Input from '@material-ui/core/Input';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { UserMultiselect } from "@/components/form-components/UserMultiselect";
 import LWDialog from "@/components/common/LWDialog";
 import { Loading } from "@/components/vulcan-core/Loading";
 import EAButton from "@/components/ea-forum/EAButton";
+import { Button, DialogActions, Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   dialog: {

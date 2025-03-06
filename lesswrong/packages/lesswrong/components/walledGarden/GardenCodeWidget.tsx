@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
@@ -12,6 +10,7 @@ import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import FormGroupNoStyling from "@/components/form-components/FormGroupNoStyling";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { Button, TextField } from "@/components/mui-replacement";
 
 export const gardenForm = (theme: ThemeType) => ({
   border: theme.palette.border.normal,

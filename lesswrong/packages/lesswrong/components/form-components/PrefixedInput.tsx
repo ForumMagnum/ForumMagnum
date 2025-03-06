@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
 import FormComponentFriendlyTextInput from "@/components/form-components/FormComponentFriendlyTextInput";
+import { InputAdornment } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

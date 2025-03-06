@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { Components, mergeWithComponents, registerComponent } from '../../lib/vulcan-lib/components';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
+import { Tooltip } from "@/components/mui-replacement";
 
 const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {

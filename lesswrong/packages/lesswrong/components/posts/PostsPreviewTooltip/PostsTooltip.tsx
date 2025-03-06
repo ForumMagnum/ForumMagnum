@@ -1,6 +1,5 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
 import {
   DialogueMessagePreviewTooltip,
@@ -9,6 +8,7 @@ import {
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
 import HoverOver from "@/components/common/HoverOver";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const PostsTooltip = ({
   post,

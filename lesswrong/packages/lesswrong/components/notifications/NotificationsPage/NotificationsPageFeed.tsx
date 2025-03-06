@@ -6,8 +6,6 @@ import {
   notificationPageTabs,
   useNotificationsPageTab,
 } from "./notificationsPageTabs";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
@@ -18,6 +16,7 @@ import NotificationsPageEmpty from "@/components/notifications/NotificationsPage
 import LoadMore from "@/components/common/LoadMore";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { SectionTitle } from "@/components/common/SectionTitle";
+import { Tabs, Tab } from "@/components/mui-replacement";
 
 export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
 

@@ -12,9 +12,6 @@ import {
   recommendationStrategyNames,
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
-import Checkbox from "@material-ui/core/Checkbox";
-import Select from "@material-ui/core/Select";
-import Input from "@material-ui/core/Input";
 import moment from "moment";
 import qs from "qs";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
@@ -27,6 +24,7 @@ import LoadMore from "@/components/common/LoadMore";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { MenuItem } from "@/components/common/Menus";
 import Error404 from "@/components/common/Error404";
+import { Checkbox, Select, Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

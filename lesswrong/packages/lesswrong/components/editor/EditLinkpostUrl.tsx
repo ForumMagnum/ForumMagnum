@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Input from "@material-ui/core/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { Typography } from "@/components/common/Typography";
+import { Input } from "@/components/mui-replacement";
 
 const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 

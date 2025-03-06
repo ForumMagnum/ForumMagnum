@@ -1,16 +1,15 @@
 import React, { ReactNode, useRef, useState }  from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { PopperPlacementType } from '@material-ui/core/Popper';
 import LWPopper from "@/components/common/LWPopper";
 import AddTagOrWikiPage from "@/components/tagging/AddTagOrWikiPage";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Paper, PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   addTagButton: {

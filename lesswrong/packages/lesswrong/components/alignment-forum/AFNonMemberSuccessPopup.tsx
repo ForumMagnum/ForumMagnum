@@ -1,11 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import Card from "@material-ui/core/Card";
 import { useTagBySlug } from '../tagging/useTag';
-import Button  from '@material-ui/core/Button'
 import ContentItemBody from "@/components/common/ContentItemBody";
 import LWDialog from "@/components/common/LWDialog";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Card, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   dialog: {

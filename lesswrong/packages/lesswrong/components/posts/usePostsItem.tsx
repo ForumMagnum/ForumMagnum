@@ -11,13 +11,13 @@ import {
   postGetPrimaryTag,
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
-import type { PopperPlacementType } from "@material-ui/core/Popper"
 import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/collections/posts/annualReviewMarkets";
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/POST_DESCRIPTION_EXCLUSIONS';
 import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
 import type { PostsListViewType } from "../hooks/usePostsListView";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)

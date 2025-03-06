@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
-
+import { Button } from "@/components/mui-replacement";
 
 const SubmitButton = ({ name, label }: {
   name: string;

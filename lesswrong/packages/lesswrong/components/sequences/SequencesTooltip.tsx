@@ -1,9 +1,9 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
 import HoverOver from "@/components/common/HoverOver";
 import SequencesSummary from "@/components/sequences/SequencesSummary";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 export const SequencesTooltip = ({
   sequence,

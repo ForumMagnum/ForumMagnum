@@ -3,10 +3,10 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useCreate } from '@/lib/crud/withCreate';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Input from '@material-ui/core/Input';
 import LWDialog from "@/components/common/LWDialog";
 import Button from "@/components/vulcan-ui-bootstrap/ui/Button";
 import { Typography } from "@/components/common/Typography";
+import { Input } from "@/components/mui-replacement";
 
 const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   root: {

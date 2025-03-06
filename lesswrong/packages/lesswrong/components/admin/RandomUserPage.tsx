@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { gql, useLazyQuery } from '@apollo/client';
-import Button from '@material-ui/core/Button';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
@@ -10,6 +9,7 @@ import { SectionTitle } from "@/components/common/SectionTitle";
 import { Typography } from "@/components/common/Typography";
 import Error404 from "@/components/common/Error404";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

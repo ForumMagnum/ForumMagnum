@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useContext } from 'rea
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
-import Button from '@material-ui/core/Button';
 import { useMessages } from '../common/withMessages';
-import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
 import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
@@ -23,6 +21,7 @@ import ContentItemBody from "@/components/common/ContentItemBody";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { MenuItem } from "@/components/common/Menus";
+import { Button, Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

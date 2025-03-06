@@ -1,7 +1,4 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import Popper from "@material-ui/core/Popper";
-import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
 import { useRerenderOnce } from "../hooks/useFirstRender";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -15,6 +12,7 @@ import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Typography } from "@/components/common/Typography";
 import ForumIcon from "@/components/common/ForumIcon";
 import SocialMediaIcon from "@/components/icons/SocialMediaIcon";
+import { Popper, Paper, Button } from "@/components/mui-replacement";
 
 const ANIMATION_DURATION = 300;
 

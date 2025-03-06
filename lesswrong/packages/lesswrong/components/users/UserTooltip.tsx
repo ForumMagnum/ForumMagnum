@@ -1,10 +1,10 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import HoverOver from "@/components/common/HoverOver";
 import EAUserTooltipContent from "@/components/users/EAUserTooltipContent";
 import LWUserTooltipContent from "@/components/users/LWUserTooltipContent";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = () => ({
   root: isFriendlyUI

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "@/components/shortform/ShortformSubmitForm";
 import LWDialog from "@/components/common/LWDialog";
+import { DialogContent } from "@/components/mui-replacement";
 
 const styles = (_theme: ThemeType) => ({
   content: {

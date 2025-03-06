@@ -3,12 +3,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import Card from '@material-ui/core/Card';
 import ReviewProgressNominations from "@/components/review/ReviewProgressNominations";
 import ReviewProgressReviews from "@/components/review/ReviewProgressReviews";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import ReviewProgressVoting from "@/components/review/ReviewProgressVoting";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

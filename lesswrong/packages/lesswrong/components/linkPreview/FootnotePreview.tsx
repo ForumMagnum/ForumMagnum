@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
@@ -18,6 +17,7 @@ import { SideItem } from "@/components/contents/SideItems";
 import SideItemLine from "@/components/contents/SideItemLine";
 import LWPopper from "@/components/common/LWPopper";
 import ContentItemBody from "@/components/common/ContentItemBody";
+import { Card } from "@/components/mui-replacement";
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {

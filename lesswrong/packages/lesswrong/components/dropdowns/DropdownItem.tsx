@@ -1,7 +1,6 @@
 import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { ForumIconName } from "../common/ForumIcon";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
@@ -10,6 +9,7 @@ import { MenuItem } from "@/components/common/Menus";
 import { Loading } from "@/components/vulcan-core/Loading";
 import ForumIcon from "@/components/common/ForumIcon";
 import LWTooltip from "@/components/common/LWTooltip";
+import { ListItemIcon } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

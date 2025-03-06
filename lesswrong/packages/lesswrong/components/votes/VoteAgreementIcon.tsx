@@ -2,10 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
-import IconButton from '@material-ui/core/IconButton';
 import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import ForumIcon from "@/components/common/ForumIcon";
+import { IconButton } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CloseIcon from '@material-ui/icons/Close';
 
@@ -19,6 +18,7 @@ import PostsItemMeta from "@/components/posts/PostsItemMeta";
 import CommentsNode from "@/components/comments/CommentsNode";
 import PostsHighlight from "@/components/posts/PostsHighlight";
 import { PostActionsButton } from "@/components/dropdowns/posts/PostActionsButton";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

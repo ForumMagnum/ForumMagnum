@@ -13,7 +13,6 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
-import Card from '@material-ui/core/Card'
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
@@ -39,6 +38,7 @@ import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import ReactionsPalette from "@/components/votes/ReactionsPalette";
 import UsersWhoReacted from "@/components/votes/lwReactions/UsersWhoReacted";
 import ReactOrAntireactVote from "@/components/votes/lwReactions/ReactOrAntireactVote";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

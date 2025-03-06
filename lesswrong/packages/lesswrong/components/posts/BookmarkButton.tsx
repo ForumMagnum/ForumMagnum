@@ -2,11 +2,11 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { TooltipProps } from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "@/components/common/LWTooltip";
 import ForumIcon from "@/components/common/ForumIcon";
+import { TooltipProps } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   container: {

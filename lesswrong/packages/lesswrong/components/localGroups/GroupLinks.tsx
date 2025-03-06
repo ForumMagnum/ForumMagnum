@@ -1,11 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import ForumIcon from "@/components/common/ForumIcon";
+import { SvgIcon, Tooltip } from "@/components/mui-replacement";
 
 // just the "f", used for the FB Group link
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>

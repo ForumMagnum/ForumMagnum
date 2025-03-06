@@ -3,8 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { getReviewPhase, getReviewYearFromString } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import qs from 'qs'
 import classNames from 'classnames';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
@@ -17,6 +15,7 @@ import ReviewVotingExpandedPost from "@/components/review/ReviewVotingExpandedPo
 import ReviewsPage from "@/components/review/ReviewsPage";
 import ReviewPhaseInformation from "@/components/review/ReviewPhaseInformation";
 import QuickReviewPage from "@/components/review/QuickReviewPage";
+import { Tabs, Tab } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

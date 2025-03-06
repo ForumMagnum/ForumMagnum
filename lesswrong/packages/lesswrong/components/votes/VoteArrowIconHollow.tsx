@@ -1,12 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
+import { IconButton } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -5,11 +5,11 @@ import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import Card from '@material-ui/core/Card';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import HoverOver from "@/components/common/HoverOver";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import ContentItemBody from "@/components/common/ContentItemBody";
+import { Card } from "@/components/mui-replacement";
 
 const sharedStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.fontFamily,

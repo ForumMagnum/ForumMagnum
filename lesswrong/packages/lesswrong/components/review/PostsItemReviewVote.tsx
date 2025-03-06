@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
@@ -10,6 +9,7 @@ import ReviewVotingWidget from "@/components/review/ReviewVotingWidget";
 import LWPopper from "@/components/common/LWPopper";
 import LWTooltip from "@/components/common/LWTooltip";
 import ReviewPostButton from "@/components/review/ReviewPostButton";
+import { Card } from "@/components/mui-replacement";
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,

@@ -1,6 +1,3 @@
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
-import Select from '@material-ui/core/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -8,6 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
 import { Loading } from "@/components/vulcan-core/Loading";
 import { MenuItem } from "@/components/common/Menus";
+import { Button, Input, Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   podcastEpisodeName: {

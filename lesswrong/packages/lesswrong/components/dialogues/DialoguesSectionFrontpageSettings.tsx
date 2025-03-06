@@ -2,11 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
-import Checkbox from '@material-ui/core/Checkbox';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import MetaInfo from "@/components/common/MetaInfo";
+import { Checkbox, Tooltip } from "@/components/mui-replacement";
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',

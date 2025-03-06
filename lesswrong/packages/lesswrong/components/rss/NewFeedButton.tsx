@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
@@ -7,6 +6,7 @@ import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Loading } from "@/components/vulcan-core/Loading";
 import MetaInfo from "@/components/common/MetaInfo";
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

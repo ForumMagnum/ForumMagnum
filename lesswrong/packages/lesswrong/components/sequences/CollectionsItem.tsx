@@ -4,8 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
-import Tooltip from '@material-ui/core/Tooltip';
-import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -15,6 +13,7 @@ import LinkCard from "@/components/common/LinkCard";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
+import { Tooltip, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

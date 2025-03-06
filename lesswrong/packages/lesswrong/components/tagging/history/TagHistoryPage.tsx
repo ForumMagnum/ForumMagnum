@@ -7,8 +7,6 @@ import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
 import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Checkbox from '@material-ui/core/Checkbox';
-import Select from '@material-ui/core/Select';
 import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
@@ -30,6 +28,7 @@ import SettingsButton from "@/components/icons/SettingsButton";
 import Error404 from "@/components/common/Error404";
 import ErrorPage from "@/components/common/ErrorPage";
 import MixedTypeFeed from '@/components/common/MixedTypeFeed';
+import { Checkbox, Select } from "@/components/mui-replacement";
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {

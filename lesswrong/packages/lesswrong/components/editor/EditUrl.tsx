@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib/components';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
-import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 import { Typography } from "@/components/common/Typography";
+import { InputAdornment, Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

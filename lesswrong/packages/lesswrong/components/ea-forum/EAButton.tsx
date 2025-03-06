@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Button, { ButtonProps } from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
+import { Button, ButtonProps } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

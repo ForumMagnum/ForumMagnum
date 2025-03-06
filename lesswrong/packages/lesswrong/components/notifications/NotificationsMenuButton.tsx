@@ -5,8 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -14,6 +12,7 @@ import ForumIcon from "@/components/common/ForumIcon";
 import LWPopper from "@/components/common/LWPopper";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import NotificationsPopover from "@/components/notifications/NotificationsPopover";
+import { IconButton, Badge } from "@/components/mui-replacement";
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here

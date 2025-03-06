@@ -1,13 +1,12 @@
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import LWTooltip from "@/components/common/LWTooltip";
 import LoginPopupButton from "@/components/users/LoginPopupButton";
+import { Button, TextField } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

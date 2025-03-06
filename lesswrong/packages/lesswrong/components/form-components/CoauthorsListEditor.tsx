@@ -1,14 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
-import InputLabel from '@material-ui/core/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
 import LWTooltip from "@/components/common/LWTooltip";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
 import SingleUsersItem from "@/components/form-components/SingleUsersItem";
+import { Checkbox, InputLabel } from "@/components/mui-replacement";
 
 const coauthorsListEditorStyles = (theme: ThemeType) => ({
   root: {

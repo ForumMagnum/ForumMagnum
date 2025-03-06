@@ -2,11 +2,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 import UsersName from "@/components/users/UsersName";
 import UserNameDeleted from "@/components/users/UserNameDeleted";
 import UserCommentMarkers from "@/components/users/UserCommentMarkers";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   lengthLimited: {

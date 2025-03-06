@@ -6,9 +6,9 @@ import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
 import UserTooltip from "@/components/users/UserTooltip";
 import UserNameDeleted from "@/components/users/UserNameDeleted";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   color: {

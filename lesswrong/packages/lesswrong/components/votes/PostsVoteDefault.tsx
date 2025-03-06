@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
@@ -10,6 +9,7 @@ import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import OverallVoteButton from "@/components/votes/OverallVoteButton";
 import { Typography } from "@/components/common/Typography";
+import { Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   voteBlock: {

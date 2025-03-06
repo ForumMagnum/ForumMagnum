@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -10,6 +9,7 @@ import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Button } from "@/components/mui-replacement";
 
 export const styles = (theme: ThemeType) => ({
   formButton: {

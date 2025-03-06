@@ -1,10 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import Badge from '@material-ui/core/Badge';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
@@ -17,6 +13,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import NotificationsList from "@/components/notifications/NotificationsList";
 import ForumIcon from "@/components/common/ForumIcon";
+import { SwipeableDrawer, Badge, Tab, Tabs } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

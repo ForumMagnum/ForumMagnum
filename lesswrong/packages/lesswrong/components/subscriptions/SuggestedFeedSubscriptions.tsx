@@ -8,9 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
-import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useCurrentUser } from '../common/withUser';
-import Paper from '@material-ui/core/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';
@@ -21,6 +19,7 @@ import FollowUserSearch from "@/components/subscriptions/FollowUserSearch";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import ForumIcon from "@/components/common/ForumIcon";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { PopperPlacementType, Paper } from "@/components/mui-replacement";
 
 const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;

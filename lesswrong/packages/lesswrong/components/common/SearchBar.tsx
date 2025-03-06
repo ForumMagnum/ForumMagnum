@@ -4,8 +4,6 @@ import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
-import Portal from '@material-ui/core/Portal';
-import IconButton from '@material-ui/core/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { isAF } from '../../lib/instanceSettings';
@@ -17,6 +15,7 @@ import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import SearchBarResults from "@/components/search/SearchBarResults";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Portal, IconButton } from "@/components/mui-replacement";
 
 const VirtualMenu = connectMenu(() => null);
 

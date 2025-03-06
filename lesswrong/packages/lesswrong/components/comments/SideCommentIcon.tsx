@@ -5,7 +5,6 @@ import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
-import Badge from '@material-ui/core/Badge';
 import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
@@ -16,6 +15,7 @@ import SideItemLine from "@/components/contents/SideItemLine";
 import LWPopper from "@/components/common/LWPopper";
 import LWClickAwayListener from "@/components/common/LWClickAwayListener";
 import CommentWithReplies from "@/components/comments/CommentWithReplies";
+import { Badge } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {

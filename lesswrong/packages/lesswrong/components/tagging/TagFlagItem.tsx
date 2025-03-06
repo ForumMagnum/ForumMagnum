@@ -5,12 +5,12 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import Card from "@material-ui/core/Card";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 import LWPopper from "@/components/common/LWPopper";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

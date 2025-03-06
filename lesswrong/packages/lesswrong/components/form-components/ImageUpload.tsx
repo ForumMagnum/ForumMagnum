@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';
@@ -13,6 +12,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { CloudinaryPropsType } from '../common/CloudinaryImage2';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import UsersProfileImage from "@/components/users/UsersProfileImage";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

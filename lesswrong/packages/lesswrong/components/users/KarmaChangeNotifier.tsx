@@ -4,10 +4,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Badge from '@material-ui/core/Badge';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
@@ -27,6 +24,7 @@ import ForumIcon from "@/components/common/ForumIcon";
 import ReactionIcon from "@/components/votes/ReactionIcon";
 import LWTooltip from "@/components/common/LWTooltip";
 import UsersName from "@/components/users/UsersName";
+import { Paper, IconButton, Badge } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

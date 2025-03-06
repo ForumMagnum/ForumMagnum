@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
-import Card from '@material-ui/core/Card';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -9,6 +8,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Loading } from "@/components/vulcan-core/Loading";
 import AddToCalendarButton from "@/components/posts/AddToCalendar/AddToCalendarButton";
 import PrettyEventDateTime from "@/components/events/modules/PrettyEventDateTime";
+import { Card } from "@/components/mui-replacement";
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {

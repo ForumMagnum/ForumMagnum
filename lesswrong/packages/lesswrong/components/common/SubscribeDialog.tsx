@@ -4,27 +4,14 @@ import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useU
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import LWDialog from "@/components/common/LWDialog";
 import { MenuItem } from "@/components/common/Menus";
+import { TextField, Button, DialogActions, DialogContent, DialogContentText, Radio, RadioGroup, FormControlLabel, FormControl, InputLabel, Select, withMobileDialog, Tabs, Tab } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   thresholdSelector: {

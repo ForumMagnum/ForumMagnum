@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/server';
 // Adds selected MUI components to global styles.
 // import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
-import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
@@ -20,6 +19,7 @@ import { brotliCompressResource, CompressedCacheResource } from './utils/bundleU
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
+import { withStyles } from "@/components/mui-replacement";
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string> = {

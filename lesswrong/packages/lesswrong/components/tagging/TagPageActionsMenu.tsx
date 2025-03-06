@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Menu from '@material-ui/core/Menu';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMutation, gql, useApolloClient } from '@apollo/client';
@@ -14,6 +13,7 @@ import DropdownMenu from "@/components/dropdowns/DropdownMenu";
 import { MenuItem } from "@/components/common/Menus";
 import LWTooltip from "@/components/common/LWTooltip";
 import AnalyticsTracker from "@/components/common/AnalyticsTracker";
+import { Menu } from "@/components/mui-replacement";
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {},

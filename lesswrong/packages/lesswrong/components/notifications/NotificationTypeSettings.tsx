@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
@@ -10,6 +9,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import BatchTimePicker from "@/components/common/BatchTimePicker";
 import { Typography } from "@/components/common/Typography";
 import { MenuItem } from "@/components/common/Menus";
+import { Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

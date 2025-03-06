@@ -1,9 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import type { InputBaseComponentProps } from '@material-ui/core/InputBase';
+import { Input, InputAdornment, InputBaseComponentProps } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   input: {

@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
@@ -13,6 +11,7 @@ import BookmarksTab from "@/components/bookmarks/BookmarksTab";
 import ReadHistoryTab from "@/components/bookmarks/ReadHistoryTab";
 import VoteHistoryTab from "@/components/bookmarks/VoteHistoryTab";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
+import { Tabs, Tab } from "@/components/mui-replacement";
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 

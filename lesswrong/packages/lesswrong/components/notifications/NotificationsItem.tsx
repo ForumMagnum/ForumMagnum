@@ -2,7 +2,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
-import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
@@ -15,6 +14,7 @@ import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import ConversationPreview from "@/components/messaging/ConversationPreview";
 import PostNominatedNotification from "@/components/review/PostNominatedNotification";
 import TagRelNotificationItem from "@/components/notifications/TagRelNotificationItem";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

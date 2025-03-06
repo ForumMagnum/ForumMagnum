@@ -1,4 +1,3 @@
-import Select from '@material-ui/core/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/schema';
@@ -12,6 +11,7 @@ import { MenuItem } from "@/components/common/Menus";
 import { Loading } from "@/components/vulcan-core/Loading";
 import MetaInfo from "@/components/common/MetaInfo";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {

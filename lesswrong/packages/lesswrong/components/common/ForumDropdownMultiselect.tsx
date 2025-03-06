@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { MenuItem } from "@/components/common/Menus";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Menu, Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

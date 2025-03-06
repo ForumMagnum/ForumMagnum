@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { MuiThemeProvider } from '@material-ui/core/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -9,6 +8,7 @@ import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { isClient } from '@/lib/executionEnvironment';
+import { MuiThemeProvider } from "@/components/mui-replacement";
 
 type ThemeContextObj = {
   theme: ThemeType,

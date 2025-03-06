@@ -10,12 +10,7 @@ import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import Button from '@material-ui/core/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import Chip from '@material-ui/core/Chip';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -26,6 +21,7 @@ import CommunityMembers from "@/components/community/modules/CommunityMembers";
 import GroupFormLink from "@/components/localGroups/GroupFormLink";
 import DistanceUnitToggle from "@/components/community/modules/DistanceUnitToggle";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Button, OutlinedInput, Tab, Tabs, Chip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   section: {

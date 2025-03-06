@@ -1,13 +1,12 @@
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { Loading } from "@/components/vulcan-core/Loading";
 import Error404 from "@/components/common/Error404";
+import { TextField, Button } from "@/components/mui-replacement";
 
 const searchSynonymsQuery = gql`
   query SearchSynonyms {

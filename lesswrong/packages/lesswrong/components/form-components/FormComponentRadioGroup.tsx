@@ -1,11 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
 import PropTypes from 'prop-types';
+import { FormLabel, FormControl, FormControlLabel, RadioGroup, Radio } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   radio: {

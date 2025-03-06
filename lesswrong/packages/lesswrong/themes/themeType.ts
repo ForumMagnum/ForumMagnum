@@ -1,11 +1,11 @@
 // eslint-disable-next-line no-restricted-imports
-import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import type { ZIndexMap } from './zIndexes';
 import type { JssStyles } from '@/lib/jssStyles';
 import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
+import { Color as MuiColorShades } from "@/components/mui-replacement";
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"

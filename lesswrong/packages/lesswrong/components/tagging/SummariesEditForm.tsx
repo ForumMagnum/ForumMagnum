@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
-import Button from '@material-ui/core/Button';
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
@@ -14,6 +13,7 @@ import LWTooltip from "@/components/common/LWTooltip";
 import ContentItemBody from "@/components/common/ContentItemBody";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Button } from "@/components/mui-replacement";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {

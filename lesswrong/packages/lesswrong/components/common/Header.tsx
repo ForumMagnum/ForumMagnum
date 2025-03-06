@@ -2,8 +2,6 @@ import React, { useContext, useState, useCallback, useEffect, CSSProperties } fr
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
 import TocIcon from '@material-ui/icons/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
@@ -32,6 +30,7 @@ import ForumIcon from "@/components/common/ForumIcon";
 import ActiveDialogues from "@/components/dialogues/ActiveDialogues";
 import SiteLogo from "@/components/ea-forum/SiteLogo";
 import MessagesMenuButton from "@/components/messaging/MessagesMenuButton";
+import { Toolbar, IconButton } from "@/components/mui-replacement";
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")

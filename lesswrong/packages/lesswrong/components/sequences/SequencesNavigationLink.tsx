@@ -1,13 +1,12 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import IconButton from '@material-ui/core/IconButton'
-import Tooltip from '@material-ui/core/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import { IconButton, Tooltip } from "@/components/mui-replacement";
 
 // Shared with SequencesNavigationLinkDisabled
 export const styles = (theme: ThemeType) => ({

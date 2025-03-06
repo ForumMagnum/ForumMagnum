@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Select from '@material-ui/core/Select';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { MenuItem } from "@/components/common/Menus";
+import { Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   explanatoryText: {

@@ -1,17 +1,16 @@
 import React, {useState} from 'react';
-import Menu from '@material-ui/core/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@material-ui/icons/Edit";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
 import ContentItemBody from "@/components/common/ContentItemBody";
 import LWTooltip from "@/components/common/LWTooltip";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import { MenuItem } from "@/components/common/Menus";
+import { Menu, ListItemIcon } from "@/components/mui-replacement";
 
 const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 

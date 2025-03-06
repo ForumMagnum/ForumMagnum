@@ -2,12 +2,12 @@
 
 import compose from 'lodash/flowRight';
 import React, { forwardRef } from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 import { classNameProxy, withAddClasses } from '@/components/hooks/useStyles';
 import type { StyleOptions } from '@/server/styleGeneration';
+import { withStyles } from "@/components/mui-replacement";
 
 type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }

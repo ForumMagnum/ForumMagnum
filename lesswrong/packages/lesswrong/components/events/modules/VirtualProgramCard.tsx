@@ -1,13 +1,13 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import * as _ from 'underscore';
-import Card from '@material-ui/core/Card';
 import classNames from 'classnames';
 import moment from 'moment';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { useEAVirtualPrograms } from '@/components/hooks/useEAVirtualPrograms';
 import FormatDate from "@/components/common/FormatDate";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   eventCard: {

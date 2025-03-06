@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import type { CommentsNewFormProps } from './CommentsNewForm';
 import CommentsNewForm from "@/components/comments/CommentsNewForm";
+import { Card as Paper } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

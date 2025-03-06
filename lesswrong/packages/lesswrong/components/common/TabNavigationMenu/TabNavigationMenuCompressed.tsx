@@ -1,11 +1,10 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import Divider from '@material-ui/core/Divider';
-
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationCompressedItem from "@/components/common/TabNavigationMenu/TabNavigationCompressedItem";
+import { Divider } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -1,11 +1,11 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils";
 import { Typography } from "@/components/common/Typography";
+import { Button } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   bannerContainer: {

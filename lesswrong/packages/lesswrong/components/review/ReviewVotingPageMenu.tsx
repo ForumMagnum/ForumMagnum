@@ -6,7 +6,6 @@ import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
-import Select from '@material-ui/core/Select';
 import qs from 'qs';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isLW, isLWorAF } from '@/lib/instanceSettings';
@@ -19,6 +18,7 @@ import { ContentStyles } from "@/components/common/ContentStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import { Loading } from "@/components/vulcan-core/Loading";
 import { MenuItem } from "@/components/common/Menus";
+import { Select } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

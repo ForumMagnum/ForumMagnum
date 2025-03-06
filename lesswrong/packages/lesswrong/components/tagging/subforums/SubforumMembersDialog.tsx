@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
-import DialogContent from '@material-ui/core/DialogContent';
 import LWDialog from "@/components/common/LWDialog";
 import SubforumSubscribeSection from "@/components/tagging/subforums/SubforumSubscribeSection";
 import SubforumMember from "@/components/tagging/subforums/SubforumMember";
 import { Loading } from "@/components/vulcan-core/Loading";
+import { DialogContent } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   titleRow: {

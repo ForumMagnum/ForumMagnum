@@ -2,8 +2,6 @@ import React from 'react';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
@@ -19,6 +17,7 @@ import { Typography } from "@/components/common/Typography";
 import LWTooltip from "@/components/common/LWTooltip";
 import AllPostsPage from "@/components/posts/AllPostsPage";
 import ExternalPostImporter from "@/components/posts/ExternalPostImporter";
+import { Tabs, Tab } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   headline: {

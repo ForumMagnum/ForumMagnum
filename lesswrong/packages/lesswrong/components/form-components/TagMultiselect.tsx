@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Link } from '@/lib/reactRouterWrapper';
-import FormLabel from '@material-ui/core/FormLabel';
 import classNames from 'classnames';
 import SingleTagItem from "@/components/form-components/SingleTagItem";
 import TagsSearchAutoComplete from "@/components/search/TagsSearchAutoComplete";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { SectionTitle } from "@/components/common/SectionTitle";
+import { FormLabel } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   label: {

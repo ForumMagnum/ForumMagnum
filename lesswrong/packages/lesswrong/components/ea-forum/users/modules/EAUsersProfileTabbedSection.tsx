@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import Button from '@material-ui/core/Button';
 import { useCheckMeritsCollapse } from '../../../common/useCheckMeritsCollapse';
 import { Typography } from "@/components/common/Typography";
+import { Button } from "@/components/mui-replacement";
 
 const COLLAPSED_SECTION_HEIGHT = 200
 

@@ -4,7 +4,6 @@ import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../li
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
@@ -19,6 +18,7 @@ import LWTooltip from "@/components/common/LWTooltip";
 import PopperCard from "@/components/common/PopperCard";
 import { TagPreview } from "@/components/tagging/TagPreview";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Input } from "@/components/mui-replacement";
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;

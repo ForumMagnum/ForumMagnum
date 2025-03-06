@@ -1,10 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
 import { Loading } from "@/components/vulcan-core/Loading";
 import LWDialog from "@/components/common/LWDialog";
+import { DialogTitle, DialogContent } from "@/components/mui-replacement";
 
 const PostSummaryDialog = ({post, onClose}: {
   post: PostsList|SunshinePostsList,

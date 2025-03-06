@@ -1,10 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
 import * as _ from 'underscore';
 import classNames from 'classnames';
@@ -18,6 +14,7 @@ import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
 import { Loading } from "@/components/vulcan-core/Loading";
 import HeadTags from "@/components/common/HeadTags";
 import { ContentStyles } from "@/components/common/ContentStyles";
+import { Table, TableBody, TableCell, TableRow } from "@/components/mui-replacement";
 
 const cellStyle = () => ({
   maxWidth: 350,

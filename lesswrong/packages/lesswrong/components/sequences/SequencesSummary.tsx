@@ -1,7 +1,6 @@
 import React, { FC, ReactNode } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -13,6 +12,7 @@ import { Loading } from "@/components/vulcan-core/Loading";
 import { ContentStyles } from "@/components/common/ContentStyles";
 import ContentItemTruncated from "@/components/common/ContentItemTruncated";
 import LWTooltip from "@/components/common/LWTooltip";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: {

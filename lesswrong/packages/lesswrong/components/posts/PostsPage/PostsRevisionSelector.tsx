@@ -1,10 +1,9 @@
 import React, { useState, useCallback } from 'react'
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import HistoryIcon from '@material-ui/icons/History';
-import Menu from '@material-ui/core/Menu';
-import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../../lib/moment-timezone';
 import PostsRevisionsList from "@/components/posts/PostsPage/PostsRevisionsList";
+import { Menu, Tooltip } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   icon: {

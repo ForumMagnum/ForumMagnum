@@ -2,8 +2,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import { useTimezone } from '../../common/withTimezone';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
@@ -17,6 +15,7 @@ import PostsItemTooltipWrapper from "@/components/posts/PostsItemTooltipWrapper"
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import VirtualProgramCard from "@/components/events/modules/VirtualProgramCard";
 import PrettyEventDateTime from "@/components/events/modules/PrettyEventDateTime";
+import { Card, CardContent } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   noResults: {

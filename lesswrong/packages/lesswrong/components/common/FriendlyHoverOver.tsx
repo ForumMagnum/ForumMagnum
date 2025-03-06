@@ -1,9 +1,9 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import LWTooltip from "@/components/common/LWTooltip";
+import { PopperPlacementType } from "@/components/mui-replacement";
 
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;

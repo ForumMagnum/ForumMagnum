@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import WrappedSmartForm from "@/components/form-components/WrappedSmartForm";
 import LWDialog from "@/components/common/LWDialog";
+import { DialogTitle } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {

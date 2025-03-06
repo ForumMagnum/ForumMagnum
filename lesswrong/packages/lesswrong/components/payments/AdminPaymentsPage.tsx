@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
 import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
-import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { SectionTitle } from "@/components/common/SectionTitle";
@@ -15,6 +11,7 @@ import LoadMore from "@/components/common/LoadMore";
 import UserTooltip from "@/components/users/UserTooltip";
 import ErrorAccessDenied from "@/components/common/ErrorAccessDenied";
 import ForumIcon from "@/components/common/ForumIcon";
+import { Table, TableRow, TableCell, Input } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   row: {

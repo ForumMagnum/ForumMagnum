@@ -1,8 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@material-ui/core/Card';
-import { PopperPlacementType } from '@material-ui/core/Popper'
 import LWPopper from "@/components/common/LWPopper";
+import { Card, PopperPlacementType } from "@/components/mui-replacement";
 
 const PopperCard = ({
   children,

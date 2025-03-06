@@ -3,15 +3,12 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
-import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import Select from '@material-ui/core/Select';
 import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
 import { MenuItem } from "@/components/common/Menus";
 import { Loading } from "@/components/vulcan-core/Loading";
@@ -21,6 +18,7 @@ import { Typography } from "@/components/common/Typography";
 import CKPostEditor from "@/components/editor/CKPostEditor";
 import WarningBanner from "@/components/common/WarningBanner";
 import CKCommentEditor from "@/components/editor/CKCommentEditor";
+import { Input, Select, FormLabel } from "@/components/mui-replacement";
 
 const postEditorHeight = isEAForum ? 250 : 400;
 const questionEditorHeight = isEAForum ? 150 : 400;

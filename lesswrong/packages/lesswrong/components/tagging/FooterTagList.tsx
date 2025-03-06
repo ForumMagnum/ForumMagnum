@@ -6,7 +6,6 @@ import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
-import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
@@ -25,6 +24,7 @@ import FooterTag from "@/components/tagging/FooterTag";
 import AddTagButton from "@/components/tagging/AddTagButton";
 import CoreTagsChecklist from "@/components/tagging/CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "@/components/posts/PostsAnnualReviewMarketTag";
+import { Card } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
