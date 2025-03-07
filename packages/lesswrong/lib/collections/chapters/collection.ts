@@ -2,9 +2,7 @@ import { createCollection } from '../../vulcan-lib/collections';
 import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import Sequences from '../sequences/collection';
-import { makeEditable } from '../../editor/make_editable';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -44,18 +42,6 @@ export const Chapters: ChaptersCollection = createCollection({
   mutations: getDefaultMutations('Chapters', options),
   logChanges: true,
 })
-
-makeEditable({
-  collection: Chapters,
-  options: {
-    order: 30,
-    getLocalStorageId: (chapter, name) => {
-      if (chapter._id) { return {id: `${chapter._id}_${name}`, verify: true} }
-      return {id: `sequence: ${chapter.sequenceId}_${name}`, verify: false}
-    },
-  }
-})
-addUniversalFields({collection: Chapters})
 
 Chapters.checkAccess = async (user: DbUser|null, document: DbChapter, context: ResolverContext|null): Promise<boolean> => {
   if (!document) return false;

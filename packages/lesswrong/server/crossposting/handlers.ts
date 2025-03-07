@@ -1,6 +1,6 @@
 import { Application, Request, Response, json } from "express";
 import { ZodType, z } from "zod";
-import { Utils } from "@/lib/vulcan-lib/utils.ts";
+import { createMutator } from "../vulcan-lib/mutators";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
 import {
@@ -148,7 +148,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
         throw new InvalidUserError();
       }
 
-      const {data: post} = await Utils.createMutator({
+      const {data: post} = await createMutator({
         document: {
           userId: user._id,
           fmCrosspost: {

@@ -5,7 +5,7 @@ import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '.
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
-import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue, slugFields } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
@@ -18,10 +18,12 @@ import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesE
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { universalFields } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
 import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
+import { editableFields } from '@/lib/editor/make_editable';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -194,7 +196,7 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   canRead: [userOwns, 'admins'] as FieldPermissions,
   canUpdate: [userOwns, 'admins'] as FieldPermissions,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
-  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
+  ...schemaDefaultValue<'Users'>({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
 const partiallyReadSequenceItem = new SimpleSchema({
@@ -334,6 +336,88 @@ addGraphQLSchema(`
  * @type {Object}
  */
 const schema: SchemaType<"Users"> = {
+  ...universalFields({}),
+  ...editableFields("Users", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    }
+  }),
+
+  ...editableFields("Users", {
+    fieldName: 'howOthersCanHelpMe',
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 7,
+    label: "How others can help me",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  ...editableFields("Users", {
+    fieldName: 'howICanHelpOthers',
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 8,
+    label: "How I can help others",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  ...slugFields("Users", {
+    getTitle: (u) => u.displayName ?? createDisplayName(u),
+    includesOldSlugs: true,
+    onCollision: "rejectIfExplicit",
+    slugOptions: {
+      canUpdate: ['admins'],
+      order: 40,
+      group: formGroups.adminOptions,
+    },
+  }),
+
+  // biography: Some text the user provides for their profile page and to display
+  // when people hover over their name.
+  //
+  // Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+  // which now exist as resolver-only fields for back-compatibility.
+  ...editableFields("Users", {
+    fieldName: "biography",
+    commentEditor: true,
+    commentStyles: true,
+    hidden: isEAForum,
+    order: isEAForum ? 6 : 40,
+    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
+    label: "Bio",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Tell us about yourself",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+  
   username: {
     type: String,
     optional: true,

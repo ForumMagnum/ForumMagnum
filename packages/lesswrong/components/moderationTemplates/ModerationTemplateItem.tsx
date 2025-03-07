@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,8 +40,8 @@ export const ModerationTemplateItem = ({classes, template}: {
           <WrappedSmartForm
             collectionName="ModerationTemplates"
             documentId={template._id}
-            mutationFragment={getFragment('ModerationTemplateFragment')}
-            queryFragment={getFragment('ModerationTemplateFragment')}
+            mutationFragmentName={'ModerationTemplateFragment'}
+            queryFragmentName={'ModerationTemplateFragment'}
             successCallback={() => setEdit(false)}
           /> 
         </BasicFormStyles>

@@ -1,9 +1,10 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"ReadStatuses"> = {
+  ...universalFields({}),
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
@@ -59,7 +60,5 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
   },
   logChanges: false,
 });
-
-addUniversalFields({collection: ReadStatuses});
 
 export default ReadStatuses;

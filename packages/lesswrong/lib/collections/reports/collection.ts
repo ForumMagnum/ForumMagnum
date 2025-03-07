@@ -1,9 +1,8 @@
 import schema from './schema';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const Reports: ReportsCollection = createCollection({
@@ -20,14 +19,6 @@ const Reports: ReportsCollection = createCollection({
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),
   logChanges: true,
-});
-
-addUniversalFields({
-  collection: Reports,
-  createdAtOptions: {
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-  },
 });
 
 Reports.checkAccess = async (user: DbUser|null, document: DbReport, context: ResolverContext|null): Promise<boolean> => {

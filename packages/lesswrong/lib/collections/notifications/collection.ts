@@ -1,8 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -45,11 +44,6 @@ export const Notifications: NotificationsCollection = createCollection({
   mutations: getDefaultMutations('Notifications', options),
   logChanges: false,
 });
-
-addUniversalFields({
-  collection: Notifications,
-  createdAtOptions: {canRead: [userOwns]},
-})
 
 Notifications.checkAccess = async (user: DbUser|null, document: DbNotification, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

@@ -98,17 +98,14 @@ interface DefaultMutationBase {
 }
 
 interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
-  check: (user: DbUser | null, document: T | null) => Promise<boolean> | boolean,
+  check: (user: DbUser | null, document: T | null, context: ResolverContext) => Promise<boolean> | boolean,
 }
 
 type DefaultMutations<T extends DbObject> = Partial<{
   create: DefaultMutationWithCheck<T>,
-  new: DefaultMutationWithCheck<T>,
   update: DefaultMutationWithCheck<T>,
-  edit: DefaultMutationWithCheck<T>,
   upsert: DefaultMutationBase,
   delete: DefaultMutationWithCheck<T>,
-  remove: DefaultMutationWithCheck<T>,
 }>;
 
 type CollectionOptions<N extends CollectionNameString> = {

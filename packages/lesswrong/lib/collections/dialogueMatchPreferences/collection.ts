@@ -1,9 +1,8 @@
-import { MutationOptions, getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { createCollection } from "../../vulcan-lib/collections";
 import { userIsAdmin, userOwns } from "../../vulcan-users/permissions";
 import DialogueChecks from "../dialogueChecks/collection";
 import schema from "./schema";
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -58,7 +57,5 @@ DialogueMatchPreferences.checkAccess = async (user: DbUser|null, document: DbDia
 
   return false;
 };
-
-addUniversalFields({ collection: DialogueMatchPreferences });
 
 export default DialogueMatchPreferences;

@@ -84,7 +84,7 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: await userGetDisplayNameById(post.userId),
+      author: await userGetDisplayNameById(post.userId, context),
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,

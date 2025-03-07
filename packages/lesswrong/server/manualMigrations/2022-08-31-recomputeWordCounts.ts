@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from "./migrationUtils";
-import { editableCollections, editableCollectionsFields } from "../../lib/editor/make_editable"
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from "../../lib/editor/make_editable"
 import { getCollection } from "../../lib/vulcan-lib/getCollection";
 import { dataToWordCount } from "../editor/conversionUtils";
 import { Revisions } from "../../lib/collections/revisions/collection";
@@ -43,8 +43,8 @@ export default registerMigration({
         }
       },
     });
-    for (const collectionName of editableCollections) {
-      for (const fieldName of editableCollectionsFields[collectionName]!) {
+    for (const collectionName of getEditableCollectionNames()) {
+      for (const fieldName of getEditableFieldNamesForCollection(collectionName)) {
         const collection: CollectionBase<any> = getCollection(collectionName)
         await forEachDocumentBatchInCollection({
           collection,

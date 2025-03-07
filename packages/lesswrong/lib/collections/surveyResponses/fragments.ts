@@ -1,6 +1,4 @@
-import { registerFragment } from "@/lib/vulcan-lib/fragments.ts";
-
-registerFragment(`
+export const SurveyResponseMinimumInfo = `
   fragment SurveyResponseMinimumInfo on SurveyResponse {
     _id
     surveyId
@@ -9,4 +7,4 @@ registerFragment(`
     clientId
     response
   }
-`);
+`

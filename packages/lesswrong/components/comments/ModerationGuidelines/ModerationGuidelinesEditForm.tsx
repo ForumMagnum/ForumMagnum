@@ -4,7 +4,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from "../../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   formButton: {
@@ -56,8 +55,8 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
           collectionName={isPost ? "Posts" : "Tags"}
           documentId={documentId}
           fields={['moderationGuidelines', ...(isPost ? ['moderationStyle'] : [])]}
-          queryFragment={getFragment(isPost ? "PostsEditQueryFragment" : "TagEditFragment")}
-          mutationFragment={getFragment(isPost ? "PostsPage" : "TagWithFlagsFragment")}
+          queryFragmentName={isPost ? "PostsEditQueryFragment" : "TagEditFragment"}
+          mutationFragmentName={isPost ? "PostsPage" : "TagWithFlagsFragment"}
           successCallback={onClose}
           formComponents={{
             FormSubmit: SubmitComponent,

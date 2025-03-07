@@ -1468,6 +1468,7 @@ interface DbTag extends DbObject {
   descriptionTruncationCount: number
   description_latest: string | null
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  forceAllowType3Audio: boolean
   htmlWithContributorAnnotations: string | null
   inactive: boolean
   introSequenceId: string | null

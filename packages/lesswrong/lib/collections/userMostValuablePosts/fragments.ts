@@ -1,10 +1,8 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const UserMostValuablePostInfo = `
   fragment UserMostValuablePostInfo on UserMostValuablePost {
     _id
     userId
     postId
     deleted
   }
-`);
+`

@@ -1,14 +1,8 @@
-import schema, { createDisplayName } from './schema';
+import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { makeEditable } from '../../editor/make_editable';
-import { formGroups } from './formGroups';
-import { isEAForum } from '../../instanceSettings';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { addSlugFields } from '@/lib/utils/schemaUtils';
 import { createCollection } from "../../vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "../../vulcan-lib/graphql";
-import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const Users = createCollection({
@@ -59,104 +53,6 @@ addGraphQLResolvers({
   },
 });
 addGraphQLQuery('currentUser: User');
-
-addUniversalFields({collection: Users});
-
-addSlugFields({
-  collection: Users,
-  getTitle: (u) => u.displayName ?? createDisplayName(u),
-  includesOldSlugs: true,
-  onCollision: "rejectIfExplicit",
-  slugOptions: {
-    canUpdate: ['admins'],
-    order: 40,
-    group: formGroups.adminOptions,
-  },
-});
-
-makeEditable({
-  collection: Users,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    formGroup: formGroups.moderationGroup,
-    hidden: isFriendlyUI,
-    order: 50,
-    fieldName: "moderationGuidelines",
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
-    }
-  }
-})
-
-makeEditable({
-  collection: Users,
-  options: {
-    commentEditor: true,
-    commentStyles: true,
-    formGroup: formGroups.aboutMe,
-    hidden: true,
-    order: 7,
-    fieldName: 'howOthersCanHelpMe',
-    label: "How others can help me",
-    formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Ex: I am looking for opportunities to do...",
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
-    },
-  }
-})
-
-makeEditable({
-  collection: Users,
-  options: {
-    commentEditor: true,
-    commentStyles: true,
-    formGroup: formGroups.aboutMe,
-    hidden: true,
-    order: 8,
-    fieldName: 'howICanHelpOthers',
-    label: "How I can help others",
-    formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Ex: Reach out to me if you have questions about...",
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
-    },
-  }
-})
-
-// biography: Some text the user provides for their profile page and to display
-// when people hover over their name.
-//
-// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
-// which now exist as resolver-only fields for back-compatibility.
-makeEditable({
-  collection: Users,
-  options: {
-    commentEditor: true,
-    commentStyles: true,
-    hidden: isEAForum,
-    order: isEAForum ? 6 : 40,
-    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
-    fieldName: "biography",
-    label: "Bio",
-    formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Tell us about yourself",
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
-    },
-  }
-});
 
 Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
   if (document && document.deleted && !userOwns(user, document)) return userCanDo(user, 'users.view.deleted')

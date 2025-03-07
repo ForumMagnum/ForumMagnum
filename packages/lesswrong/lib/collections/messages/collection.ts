@@ -1,10 +1,8 @@
-import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import Conversations from '../conversations/collection'
-import { makeEditable } from '../../editor/make_editable'
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -47,26 +45,6 @@ export const Messages: MessagesCollection = createCollection({
   logChanges: false,
 });
 
-makeEditable({
-  collection: Messages,
-  options: {
-    // Determines whether to use the comment editor configuration (e.g. Toolbars)
-    commentEditor: true,
-    // Determines whether to use the comment editor styles (e.g. Fonts)
-    commentStyles: true,
-    permissions: {
-      canRead: ['members'],
-      canCreate: ['members'],
-      canUpdate: userOwns,
-    },
-    order: 2,
-  }
-})
-
-addUniversalFields({
-  collection: Messages,
-  createdAtOptions: {canRead: ['members']},
-});
 
 Messages.checkAccess = async (user: DbUser|null, document: DbMessage, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

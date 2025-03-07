@@ -5,8 +5,7 @@ import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEdi
 import { postCheckAccess } from '../posts/checkAccess';
 import { createCollection } from "../../vulcan-lib/collections";
 import { getCollection } from "../../vulcan-lib/getCollection";
-import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
@@ -30,14 +29,6 @@ export const Revisions: RevisionsCollection = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
-addUniversalFields({
-  collection: Revisions,
-  legacyDataOptions: {
-    canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-  }
-})
 
 // Note, since we want to make sure checkAccess is a performant function, we can only check the 
 // userId of the current revision for ownership. If the userId of the document the revision is on,

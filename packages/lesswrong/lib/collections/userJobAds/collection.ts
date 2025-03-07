@@ -1,7 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { getDefaultMutations } from '../../vulcan-core/default_mutations';
-import { addUniversalFields } from "../../collectionUtils";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -22,7 +21,5 @@ export const UserJobAds: UserJobAdsCollection = createCollection({
   mutations: getDefaultMutations('UserJobAds'),
   logChanges: true,
 });
-
-addUniversalFields({collection: UserJobAds})
 
 export default UserJobAds;

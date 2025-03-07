@@ -4,12 +4,13 @@ import { userCanUseTags } from '../../betas';
 import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
 import { isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"TagRels"> = {
+  ...universalFields({}),
   tagId: {
     nullable: false,
     ...foreignKeyField({
@@ -126,7 +127,5 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
   else
     return true;
 }
-
-addUniversalFields({collection: TagRels})
 
 export default TagRels;

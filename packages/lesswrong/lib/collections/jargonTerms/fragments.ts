@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const JargonTerms = `
   fragment JargonTerms on JargonTerm {
     _id
     postId
@@ -13,9 +11,9 @@ registerFragment(`
     deleted
     altTerms
   }
-`);
+`
 
-registerFragment(`
+export const JargonTermsPost = `
   fragment JargonTermsPost on JargonTerm {
     _id
     term
@@ -27,13 +25,13 @@ registerFragment(`
       ...RevisionDisplay
     }
   }
-`);
+`
 
-registerFragment(`
+export const JargonTermsWithPostInfo = `
   fragment JargonTermsWithPostInfo on JargonTerm {
     ...JargonTerms
     post {
       ...PostsMinimumInfo
     }
   }
-`);
+`

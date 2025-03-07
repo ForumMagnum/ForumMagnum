@@ -1,8 +1,11 @@
 import { userHasLlmChat } from "@/lib/betas";
+import { universalFields } from "@/lib/collectionUtils";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 
 const schema: SchemaType<"LlmConversations"> = {
+  ...universalFields({}),
+
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

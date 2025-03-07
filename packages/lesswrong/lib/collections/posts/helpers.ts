@@ -1,6 +1,5 @@
 import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -39,8 +38,8 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost): Promise<string> {
-  var user = await mongoFindOne("Users", post.userId);
+export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
+  var user = await context.Users.findOne({_id: post.userId});
   if (user) {
     return userGetDisplayName(user);
   } else {
@@ -340,7 +339,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
-const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
+export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
 const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
 /** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */

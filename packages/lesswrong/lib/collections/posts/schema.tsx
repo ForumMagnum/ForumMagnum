@@ -1,6 +1,6 @@
 import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -33,7 +33,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../betas';
+import { hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
 import { stableSortTags } from '../tags/helpers';
@@ -42,6 +42,8 @@ import { marketInfoLoader } from './annualReviewMarkets';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
+import { editableFields } from '@/lib/editor/make_editable';
+import { universalFields } from "../../collectionUtils";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -161,11 +163,66 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+const schemaDefaultValueFmCrosspost = schemaDefaultValue<'Posts'>({
   isCrosspost: false,
 })
 
+const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
+}
+
 const schema: SchemaType<"Posts"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['admins']},
+  }),
+  
+  ...editableFields("Posts", {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+    permissions: {
+      canRead: ['guests'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
+    },
+    hasToc: true,
+    normalized: true,
+  }),
+
+  ...editableFields("Posts", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: [userHasModerationGuidelines]
+    },
+    normalized: true,
+  }),
+
+  ...editableFields("Posts", {
+    fieldName: "customHighlight",
+    formGroup: formGroups.highlight,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...slugFields("Posts", {
+    getTitle: (post) => post.title,
+    includesOldSlugs: false,
+  }),
+  
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
@@ -404,10 +461,10 @@ const schema: SchemaType<"Posts"> = {
     denormalized: true,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onUpdate: async ({modifier, document, currentUser}) => {
+    onUpdate: async ({modifier, document, currentUser, context}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return await userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId, context)
       }
     }
   },

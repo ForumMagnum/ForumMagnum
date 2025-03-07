@@ -1,10 +1,9 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { getDefaultMutations } from '../../vulcan-core/default_mutations';
-import { addUniversalFields } from "../../collectionUtils";
-import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { universalFields } from "../../collectionUtils";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"ArbitalCaches"> = {
+  ...universalFields({}),
   pageAlias: {
     type: String,
     nullable: false,
@@ -38,7 +37,5 @@ export const ArbitalCaches: ArbitalCachesCollection = createCollection({
   },
   logChanges: true,
 });
-
-addUniversalFields({collection: ArbitalCaches})
 
 export default ArbitalCaches;

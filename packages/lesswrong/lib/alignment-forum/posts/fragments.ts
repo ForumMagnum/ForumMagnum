@@ -1,11 +1,8 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-
-registerFragment(`
+export const SuggestAlignmentPost = `
   fragment SuggestAlignmentPost on Post {
     ...PostsList
     suggestForAlignmentUsers {
       _id
       displayName
     }
-  }`)
+  }`

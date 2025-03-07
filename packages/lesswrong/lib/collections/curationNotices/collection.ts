@@ -1,9 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { getDefaultMutations } from '../../vulcan-core/default_mutations';
-import { makeEditable } from "../../editor/make_editable";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const CurationNotices: CurationNoticesCollection = createCollection({
@@ -24,18 +22,6 @@ export const CurationNotices: CurationNoticesCollection = createCollection({
   }),
   logChanges: true,
 });
-
-addUniversalFields({collection: CurationNotices});
-
-makeEditable({
-  collection: CurationNotices,
-  options: {
-    commentEditor: true,
-    commentStyles: true,
-    hideControls: true,
-    order: 20
-  }
-})
 
 CurationNotices.checkAccess = async (user) => {
   return userIsAdminOrMod(user);

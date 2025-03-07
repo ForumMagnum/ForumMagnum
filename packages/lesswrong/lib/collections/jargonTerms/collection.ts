@@ -1,13 +1,11 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { makeEditable } from "../../editor/make_editable";
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
 import { Posts } from '../posts/collection';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '../posts/helpers';
 import { postCheckAccess } from '../posts/checkAccess';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -57,24 +55,6 @@ export const JargonTerms: JargonTermsCollection = createCollection({
   resolvers: getDefaultResolvers('JargonTerms'),
   mutations: getDefaultMutations('JargonTerms', options),
   logChanges: true,
-});
-
-addUniversalFields({collection: JargonTerms});
-
-makeEditable({
-  collection: JargonTerms,
-  options: {
-    commentEditor: true,
-    commentStyles: true,
-    hideControls: true,
-    order: 10,
-    hintText: 'If you want to add a custom term, use this form.  The description goes here.  The term, as well as any alt terms, must appear in your post.',
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members'],
-      canCreate: ['members'],
-    }
-  },
 });
 
 JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext | null) => {

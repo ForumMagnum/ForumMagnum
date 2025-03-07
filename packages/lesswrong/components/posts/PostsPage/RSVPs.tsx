@@ -13,8 +13,8 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from "../../../lib/vulcan-lib/fragments";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
   body: {
@@ -131,7 +131,7 @@ const RSVPs = ({post}: {
         ...PostsDetails
         }
     }
-    ${getFragment("PostsDetails")}
+    ${fragmentTextForQuery("PostsDetails")}
   `)
   const cancelRSVP = async (rsvp: RSVPType) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
 

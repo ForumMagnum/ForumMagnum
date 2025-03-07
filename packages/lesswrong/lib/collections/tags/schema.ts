@@ -1,4 +1,4 @@
-import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple, slugFields } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
@@ -14,8 +14,12 @@ import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
+import { editableFields } from '@/lib/editor/make_editable';
+import { userIsSubforumModerator } from './helpers';
+import { universalFields } from "../../collectionUtils";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -57,6 +61,66 @@ async function getTagMultiDocuments(
 }
 
 const schema: SchemaType<"Tags"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
+    }
+  }),
+  
+  ...editableFields("Tags", {
+    fieldName: "description",
+    commentStyles: true,
+    pingbacks: true,
+    getLocalStorageId: (tag, name) => {
+      if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
+      return {id: `tag:create`, verify:true}
+    },
+    revisionsHaveCommitMessages: true,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
+    },
+    order: 10
+  }),
+
+  ...editableFields("Tags", {
+    fieldName: "subforumWelcomeText",
+    formGroup: formGroups.subforumWelcomeMessage,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...editableFields("Tags", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...slugFields("Tags", {
+    collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+    getTitle: (t) => t.name,
+    slugOptions: {
+      canCreate: ['admins', 'sunshineRegiment'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      group: formGroups.advancedOptions,
+    },
+    includesOldSlugs: true,
+  }),
+  
   name: {
     type: String,
     nullable: false,
@@ -840,6 +904,8 @@ const schema: SchemaType<"Tags"> = {
 
   ...summariesField('Tags', { group: formGroups.summaries }),
 
+  ...textLastUpdatedAtField('Tags'),
+
   isArbitalImport: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
@@ -895,6 +961,19 @@ const schema: SchemaType<"Tags"> = {
       displayName: { type: String },
     }),
     optional: true,
+  },
+
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    group: formGroups.adminOptions,
+    label: "Force Allow T3 Audio",
+    ...schemaDefaultValue(false),
   },
 }
 

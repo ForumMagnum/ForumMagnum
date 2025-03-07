@@ -1,7 +1,6 @@
 import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
   userId: string,
@@ -28,7 +27,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
       <DialogContent>
         <Components.WrappedSmartForm
           collectionName="Reports"
-          mutationFragment={getFragment('UnclaimedReportsList')}
+          mutationFragmentName={'UnclaimedReportsList'}
           prefilledProps={{
             userId: userId,
             postId: postId,

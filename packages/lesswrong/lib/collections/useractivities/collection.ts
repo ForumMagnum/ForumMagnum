@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils'
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /*
@@ -51,7 +50,5 @@ export const UserActivities: UserActivitiesCollection = createCollection({
   },
   logChanges: true,
 });
-
-addUniversalFields({collection: UserActivities})
 
 export default UserActivities;
