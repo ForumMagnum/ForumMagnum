@@ -259,8 +259,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar || !hasLoaded,
-    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`),
-    useFirstViewportHeight: true
+    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
   });
 
   const jumpToAnchor = (anchor: string) => {

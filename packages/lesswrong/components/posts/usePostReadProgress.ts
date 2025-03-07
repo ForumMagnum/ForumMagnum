@@ -28,22 +28,46 @@ interface UsePostReadProgressProps {
   setScrollWindowHeight?: (element: HTMLDivElement, height: number) => void;
 
   /**
-   * Progress bars in the full-height ToC which display a sliding window need to include the height of the initial viewport when calculating the scroll percentage
+   * Whether to use the fixed ToC scroll calculation method.
+   * If true, uses the method that calculates based on viewport bottom relative to post top (viewport-centric).
+   * If false, uses the original method that calculates based on post bottom position (post-centric).
    */
-  useFirstViewportHeight?: boolean;
+  useFixedToCScrollCalculation?: boolean;
 }
 
 const clampPct = getClamper(0, 100);
 
-export const usePostReadProgress = ({ updateProgressBar, disabled = false, delayStartOffset = 0, setScrollWindowHeight, useFirstViewportHeight = false }: UsePostReadProgressProps) => {
+export const usePostReadProgress = ({ 
+  updateProgressBar, 
+  disabled = false, 
+  delayStartOffset = 0, 
+  setScrollWindowHeight, 
+  useFixedToCScrollCalculation = true 
+}: UsePostReadProgressProps) => {
   const readingProgressBarRef = useRef<HTMLDivElement|null>(null);
 
   /**
+   * Original method for calculating scroll percentage
+   * Based on post body bottom position relative to viewport
+   */
+  const getOriginalScrollPct = (postBodyElement: HTMLElement, offset: number, clamp = true): number => {
+    // position of post body bottom relative to the bottom of the viewport
+    const postBodyBottomPos = postBodyElement.getBoundingClientRect().bottom - window.innerHeight;
+    // total distance from top of page to post body bottom
+    const totalHeight = window.scrollY + postBodyBottomPos;
+  
+    const scrollPercent = 1 - ((postBodyBottomPos + offset) / totalHeight);
+    const adjustedScrollPercent = clamp ? clampPct(scrollPercent) : scrollPercent;
+    return adjustedScrollPercent;
+  }
+
+  /**
+   * New method for calculating scroll percentage
    * Calculates what percentage of the post has been scrolled through
    * Uses the bottom of the viewport as the reference point
    * @returns A value between 0-100 representing percentage of post that's been scrolled, unless clamp=false
    */
-  function getScrollPct(
+  function getFixedToCScrollPct(
     postBodyElement: HTMLElement,
     clamp = true
   ): number {
@@ -58,6 +82,18 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
       return clampPct(scrollPercent);
     }
     return scrollPercent;
+  }
+  
+  /**
+   * Chooses between original and fixed ToC scroll percentage calculation methods
+   * based on the useFixedToCScrollCalculation parameter
+   */
+  const getScrollPct = (postBodyElement: HTMLElement, clamp = true): number => {
+    if (useFixedToCScrollCalculation) {
+      return getFixedToCScrollPct(postBodyElement, clamp);
+    } else {
+      return getOriginalScrollPct(postBodyElement, delayStartOffset, clamp) * 100;
+    }
   }
   
   /**
