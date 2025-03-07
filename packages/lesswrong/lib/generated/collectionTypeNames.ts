@@ -1,4 +1,5 @@
-import { isAnyTest } from '@/lib/executionEnvironment';
+import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
+
 export const collectionNameToTypeName = {
   AdvisorRequests: 'AdvisorRequest',
   ArbitalCaches: 'ArbitalCaches',
@@ -264,7 +265,7 @@ export const tableNameToCollectionName = {
   usertagrels: 'UserTagRels',
   users: 'Users',
   votes: 'Votes',
-  ...(isAnyTest ? {
+  ...((isAnyTest && !isIntegrationTest) ? {
     testcollection: 'TestCollection',
     testcollection2: 'TestCollection2',
     testcollection3: 'TestCollection3',

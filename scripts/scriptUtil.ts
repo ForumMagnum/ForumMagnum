@@ -13,6 +13,7 @@ export const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
   Object.assign(global, {
     bundleIsServer: true,
     bundleIsTest: false,
+    bundleIsIntegrationTest: false,
     bundleIsE2E: false,
     bundleIsProduction: isProd,
     bundleIsMigrations: true,

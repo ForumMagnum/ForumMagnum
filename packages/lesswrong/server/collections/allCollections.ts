@@ -1,4 +1,4 @@
-import { isAnyTest } from '@/lib/executionEnvironment';
+import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
 import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
@@ -88,7 +88,7 @@ import { Votes } from './votes/collection';
 import sortBy from 'lodash/sortBy';
 
 let testCollections: Record<never, never>;
-if (isAnyTest) {
+if (isAnyTest && !isIntegrationTest) {
   ({ testCollections } = require('../sql/tests/testHelpers'));
 } else {
   testCollections = {};

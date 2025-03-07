@@ -5,7 +5,6 @@ import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-// import { getAllCollections } from '../../server/collections/allCollections';
 import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
 
 export const RevisionStorageType = new SimpleSchema({

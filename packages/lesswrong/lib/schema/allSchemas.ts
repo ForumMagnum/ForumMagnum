@@ -108,6 +108,10 @@ export const allSchemas = {
   Users, Votes,
 } satisfies Record<CollectionNameString, SchemaType<CollectionNameString>>;
 
+export function getSchema<N extends CollectionNameString>(collectionName: N) {
+  return allSchemas[collectionName];
+}
+
 export function apolloCacheVoteablePossibleTypes() {
   return {
     Voteable: Object.entries(allSchemas)

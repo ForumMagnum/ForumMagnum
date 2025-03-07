@@ -5,7 +5,7 @@ import { testCollections } from "../sql/tests/testHelpers";
 export function generateCollectionTypeNames(): string {
   const sb: Array<string> = [];
   const collections = getAllCollections();
-  sb.push(`import { isAnyTest } from '@/lib/executionEnvironment';`);
+  sb.push(`import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';\n`);
 
   sb.push(`export const collectionNameToTypeName = {`);
   for (let collection of collections) {
@@ -23,7 +23,7 @@ export function generateCollectionTypeNames(): string {
   for (let collection of collections) {
     sb.push(`  ${collection.collectionName.toLowerCase()}: '${collection.collectionName}',`);
   }
-  sb.push(`  ...(isAnyTest ? {`);
+  sb.push(`  ...((isAnyTest && !isIntegrationTest) ? {`);
   for (let collection of Object.values(testCollections)) {
     sb.push(`    ${collection.collectionName.toLowerCase()}: '${collection.collectionName}',`);
   }

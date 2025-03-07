@@ -68,6 +68,7 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsIntegrationTest: false,
     bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,

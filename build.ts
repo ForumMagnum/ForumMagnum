@@ -199,6 +199,7 @@ const bundleDefinitions: Record<string,string> = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": `${isProduction}`,
   "bundleIsTest": "false",
+  "bundleIsIntegrationTest": "false",
   "bundleIsE2E": `${isE2E}`,
   "bundleIsMigrations": "false",
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
