@@ -444,7 +444,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
             >
               <img src={links.googleLogo} /> Continue with Google
             </EAButton>}
-            {facebookEnabled && <EAButton
+            {facebookEnabled && !isSignup && <EAButton
               style="grey"
               variant="outlined"
               onClick={onClickFacebook}
