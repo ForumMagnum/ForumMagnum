@@ -3,16 +3,25 @@ import type {
   AggregationsTopHitsAggregate,
   SearchHit,
   SearchResponse,
+  SearchTotalHits,
 } from "@elastic/elasticsearch/lib/api/types";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
 import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
 import sortBy from "lodash/sortBy";
 import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting } from "./elasticSettings";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
+import take from "lodash/take";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
 export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
+
+export type HitsOnlySearchResponse = {
+  hits: {
+    total?: number|SearchTotalHits
+    hits: ElasticSearchHit[]
+  }
+};
 
 const DEBUG_LOG_ELASTIC_QUERIES = false;
 
@@ -57,7 +66,7 @@ class ElasticClient {
     return this.client;
   }
 
-  search(queryData: QueryData): Promise<ElasticSearchResponse> {
+  search(queryData: QueryData): Promise<HitsOnlySearchResponse> {
     const query = new ElasticQuery(queryData);
     const request = query.compile();
     if (DEBUG_LOG_ELASTIC_QUERIES) {
@@ -67,26 +76,31 @@ class ElasticClient {
     return this.client.search(request);
   }
 
-  async multiSearch(queryData: MultiQueryData): Promise<ElasticSearchResponse> {
-    const query = new ElasticMultiQuery(queryData);
-    const request = query.compile();
-    if (DEBUG_LOG_ELASTIC_QUERIES) {
-      // eslint-disable-next-line no-console
-      console.log("Elastic multi query:", JSON.stringify(request, null, 2));
-    }
-    const result: ElasticSearchResponse = await this.client.search(request);
+  async multiSearch(queryData: MultiQueryData): Promise<HitsOnlySearchResponse> {
+    // Perform the same search against each index
+    const resultsBySearchIndex = await Promise.all(
+      queryData.indexes.map((searchIndex) =>
+        this.client.search(new ElasticQuery({
+          index: searchIndex,
+          filters: [],
+          limit: queryData.limit,
+          search: queryData.search,
+        }).compile())
+      )
+    )
+    
+    // Merge the result set, sorting the merged list by similarity score (even
+    // though similarity score calculation methods may differ between indexes)
+    // and applying the limit.
+    const mergedResultsList = resultsBySearchIndex.flatMap(r => r.hits.hits);
+    const sortedResults = take(sortBy(mergedResultsList, h => -(h._score ?? 0)), queryData.limit);
 
-    const aggregation = result.aggregations?.indexes as undefined | {
-      buckets?: {hits?: AggregationsTopHitsAggregate}[],
+    return {
+      hits: {
+        total: mergedResultsList.length,
+        hits: sortedResults as ElasticSearchHit[],
+      },
     };
-    const allHits = (aggregation?.buckets ?? [])
-      .flatMap((bucket) => bucket?.hits?.hits?.hits)
-      .filter((hit): hit is SearchHit<SearchDocument> => (hit?._score ?? 0) > 0);
-    const sortedHits = sortBy(allHits ?? [], ((hit) => hit._score));
-    result.hits.hits = sortedHits;
-    result.hits.max_score = sortedHits[0]?._score ?? null;
-    delete result.aggregations;
-    return result;
   }
 }
 
