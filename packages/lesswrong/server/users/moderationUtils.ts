@@ -6,7 +6,7 @@ import Reports from "@/server/collections/reports/collection";
 import Revisions from "@/server/collections/revisions/collection";
 import Sequences from "@/server/collections/sequences/collection";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
-import { getCollection } from "@/server/vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from "../akismet";
 import { syncDocumentWithLatestRevision } from "../editor/utils";
 import UsersRepo from "../repos/UsersRepo";

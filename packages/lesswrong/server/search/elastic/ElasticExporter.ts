@@ -14,7 +14,7 @@ import PostsRepo from "../../repos/PostsRepo";
 import SequencesRepo from "../../repos/SequencesRepo";
 import TagsRepo from "../../repos/TagsRepo";
 import UsersRepo from "../../repos/UsersRepo";
-import { getCollection } from "../../vulcan-lib/getCollection";
+import { getCollection } from "../../collections/allCollections";
 
 const HTML_FIELDS = [
   "body",

@@ -38,7 +38,7 @@ import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenor
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
 import { createAdminContext } from "@/server/vulcan-lib/query.ts";
 import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
-import { getCollection } from "@/server/vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 
 export type ArbitalImportOptions = {
   /**

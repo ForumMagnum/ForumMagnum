@@ -64,7 +64,7 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
 const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
   // TODO: figure out why it doesn't like the type assignment
   // In practice, it was working fine before I fixed the type of the schema field in the props
-  const schema = new SimpleSchema({ ...nextProps.schema });
+  const schema = new SimpleSchema(nextProps.schema as AnyBecauseHard);
   const convertedSchema = convertSchema(schema as any)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document

@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
-import { getCollection } from '../vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import { dataToWordCount } from '../editor/conversionUtils';
 import { Revisions } from '../../server/collections/revisions/collection';
 

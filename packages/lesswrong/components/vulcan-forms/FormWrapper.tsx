@@ -7,7 +7,7 @@ import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { getSchema } from '../../lib/utils/getSchema';
-import { getCollection } from '../../server/vulcan-lib/getCollection';
+// import { getCollection } from '../../server/vulcan-lib/getCollection';
 import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 import { WrappedSmartFormProps } from './propTypes';
@@ -17,6 +17,7 @@ import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { allSchemas } from '@/lib/schema/allSchemas';
 
 const intlSuffix = '_intl';
 
@@ -115,8 +116,7 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
  */
 const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}: WrappedSmartFormProps<N>) => {
   // TODO: refactor to `getSchemaByCollectionName` once that exists
-  const collection = getCollection(props.collectionName);
-  const schema = getSchema(collection);
+  const schema = allSchemas[props.collectionName];
 
   const navigationContext = useContext(NavigationContext);
   const history = navigationContext?.history;
@@ -128,9 +128,9 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
   const formType = (props.documentId || props.slug) ? 'edit' : 'new';
 
   if (formType === "edit") {
-    return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema}/>
+    return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema as SchemaType<N>}/>
   } else {
-    return <FormWrapperNew {...newProps} showRemove={showRemove} schema={schema}/>
+    return <FormWrapperNew {...newProps} showRemove={showRemove} schema={schema as SchemaType<N>}/>
   }
 }
 

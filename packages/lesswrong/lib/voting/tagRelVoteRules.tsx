@@ -1,5 +1,5 @@
 import { PermissionableUser, userGetGroups } from '../vulcan-users/permissions';
-import { PermissionResult } from '../make_voteable';
+import type { PermissionResult } from '../make_voteable';
 import { CoauthoredPost, userIsPostCoauthor } from '../collections/posts/helpers';
 import { taggingNameSetting } from '../instanceSettings';
 

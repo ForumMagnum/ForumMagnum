@@ -5,7 +5,7 @@ import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { getAllCollections } from '../../server/vulcan-lib/getCollection';
+// import { getAllCollections } from '../../server/collections/allCollections';
 import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
 
 export const RevisionStorageType = new SimpleSchema({
@@ -82,12 +82,13 @@ export function isEditableField<N extends CollectionNameString>(field: [string, 
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
+    const { allSchemas }: { allSchemas: Record<string, SchemaType<CollectionNameString>> } = require('../schema/allSchemas');
     if (!editableFieldsByCollection) {
-      const allCollections = getAllCollections();
-      editableFieldsByCollection = allCollections.reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, collection) => {
-        const editableFields = Object.entries(collection._schemaFields).filter(isEditableField);
+      // const allCollections = getAllCollections();
+      editableFieldsByCollection = Object.entries(allSchemas).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
+        const editableFields = Object.entries(schema).filter(isEditableField);
         if (editableFields.length > 0) {
-          acc[collection.collectionName] = Object.fromEntries(editableFields);
+          acc[collectionName as CollectionNameString] = Object.fromEntries(editableFields);
         }
         return acc;
       }, {});

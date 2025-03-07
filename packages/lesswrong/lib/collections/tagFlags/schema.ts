@@ -1,7 +1,9 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { editableFields } from "@/lib/editor/make_editable";
 import { slugFields, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 
 const schema: SchemaType<"TagFlags"> = {
+  ...universalFields({}),
   ...editableFields("TagFlags", {
     order: 30,
     getLocalStorageId: (tagFlag, name) => {

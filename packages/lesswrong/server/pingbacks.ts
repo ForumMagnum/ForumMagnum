@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
 import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
-import { getCollection } from '@/server/vulcan-lib/getCollection';
+import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
 import { createAnonymousContext } from '@/server/vulcan-lib/query';
 

@@ -5,7 +5,7 @@ import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-const Reports: ReportsCollection = createCollection({
+export const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
   schema,

@@ -1,6 +1,6 @@
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
-import { Collections, getCollection } from "../vulcan-lib/getCollection";
+import { getAllCollections, getCollection } from "../collections/allCollections";
 
 type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string) => void) => Promise<void>;
 type CollectionCustomValidator<T extends DbObject> = {
@@ -175,7 +175,7 @@ export async function validateCollection(collection: AnyBecauseTodo)
 // Outputs a summary of the results through console.log, and returns nothing.
 export async function validateDatabase()
 {
-  for (let collection of Collections)
+  for (let collection of getAllCollections())
   {
     await validateCollection(collection);
   }

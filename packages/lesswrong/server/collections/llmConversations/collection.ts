@@ -5,7 +5,7 @@ import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-const LlmConversations: LlmConversationsCollection = createCollection({
+export const LlmConversations: LlmConversationsCollection = createCollection({
   collectionName: "LlmConversations",
   typeName: "LlmConversation",
   schema,

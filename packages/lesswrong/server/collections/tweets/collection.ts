@@ -6,7 +6,7 @@ import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
  * Tweets that have been posted by the forum twitter bot. Currently (2024-07-02)
  * posts are tweeted when they cross a certain karma threshold (see packages/lesswrong/server/twitterBot.ts)
  */
-const Tweets: TweetsCollection = createCollection({
+export const Tweets: TweetsCollection = createCollection({
   collectionName: "Tweets",
   typeName: "Tweet",
   schema,

@@ -6,7 +6,7 @@ import {
 import { runSqlQuery } from "@/server/sql/sqlClient";
 import chunk from "lodash/chunk";
 import compact from "lodash/compact";
-import { getCollection } from "./vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive

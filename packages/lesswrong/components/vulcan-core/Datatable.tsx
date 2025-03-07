@@ -6,6 +6,7 @@ import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { allSchemas } from '@/lib/schema/allSchemas';
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -71,7 +72,7 @@ const DatatableHeader = ({ collectionName, column }: {
   
   if (collectionName) {
     // TODO: refactor to `getSchemaByCollectionName` once that exists
-    const schema = getSchemaByCollectionName(collectionName);
+    const schema = allSchemas[collectionName];
 
     /*
 

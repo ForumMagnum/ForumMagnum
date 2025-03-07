@@ -8,7 +8,7 @@ import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
-import { getCollection } from '../vulcan-lib/getCollection';
+import { getCollection } from '@/server/collections/allCollections';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../server/collections/posts/collection';

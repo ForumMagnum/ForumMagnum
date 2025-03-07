@@ -3,7 +3,7 @@ import { getSchema } from '../../lib/utils/getSchema';
 import groupBy from 'lodash/groupBy';
 import { getAllFragmentNames, getFragment } from "../../lib/vulcan-lib/fragments";
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
-import { getAllCollections, getCollection, isValidCollectionName } from "../vulcan-lib/getCollection";
+import { getAllCollections, getCollection, isValidCollectionName } from "@/server/collections/allCollections";
 import orderBy from 'lodash/orderBy';
 
 const fragmentFileHeader = generatedFileHeader+`//

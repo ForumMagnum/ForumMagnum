@@ -15,7 +15,7 @@ import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenor
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
 import { buildRevision } from "@/server/editor/make_editable_callbacks";
 import { Users } from "@/server/collections/users/collection";
-import { getCollection } from "@/server/vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 import { getEditableFieldInCollection } from "@/lib/editor/make_editable";
 
 export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {

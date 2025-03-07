@@ -1,6 +1,4 @@
 import SqlFragment, { getResolverCollection } from "@/server/sql/SqlFragment";
-import { registerCollection } from "@/server/vulcan-lib/getCollection";
-import JargonTerms from "@/server/collections/jargonTerms/collection";
 import GraphQLJSON from "graphql-type-json";
 import type { GraphQLScalarType } from "graphql";
 
@@ -115,8 +113,6 @@ describe("SqlFragment", () => {
 });
 
 describe('getResolverCollection', () => {
-  registerCollection(JargonTerms);
-
   const createResolver = (type: string | GraphQLScalarType) => ({
     fieldName: 'testField',
     type,

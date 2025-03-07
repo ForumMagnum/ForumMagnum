@@ -1,4 +1,3 @@
-import { getCollection } from "@/server/vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "@/lib/random";
@@ -100,7 +99,7 @@ export abstract class Type {
     switch (schema.type) {
       case String:
         return typeof schema.foreignKey === "string"
-          ? new IdType(getCollection(schema.foreignKey as CollectionNameString))
+          ? new IdType()
           : new StringType(typeof schema.max === "number" ? schema.max : undefined);
       case Boolean:
         return new BoolType();
@@ -222,12 +221,8 @@ export class VectorType extends Type {
  * right now.
  */
 export class IdType extends StringType {
-  constructor(private collection?: CollectionBase<any>) {
+  constructor() {
     super(ID_LENGTH + 10);
-  }
-
-  getCollection() {
-    return this.collection;
   }
 }
 

@@ -8,7 +8,7 @@ import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { generateDataLoaders } from './apollo-server/context';
 import { getAllRepos } from '../repos';
-import { getCollectionsByName } from './getCollection';
+import { allCollections } from '../collections/allCollections';
 import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
 import { getMultiResolverName } from '@/lib/crud/utils';
 import { PrimitiveGraphQLType } from '@/lib/crud/types';
@@ -114,7 +114,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     isSSR: false,
     isGreaterWrong: false,
     repos: getAllRepos(),
-    ...getCollectionsByName(),
+    ...allCollections,
     ...generateDataLoaders(),
     ...options,
   };

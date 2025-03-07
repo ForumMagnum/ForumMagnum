@@ -3,7 +3,7 @@ import schema from "@/lib/collections/llmMessages/schema"
 import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-const LlmMessages: LlmMessagesCollection = createCollection({
+export const LlmMessages: LlmMessagesCollection = createCollection({
   collectionName: "LlmMessages",
   typeName: "LlmMessage",
   schema,

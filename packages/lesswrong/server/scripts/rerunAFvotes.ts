@@ -1,7 +1,7 @@
 import Users from '../../server/collections/users/collection';
 import { Votes } from '../../server/collections/votes/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
-import { getCollection } from "../vulcan-lib/getCollection";
+import { getCollection } from "../collections/allCollections";
 
 export const rerunAFVotes = async () => {
   await Users.rawUpdateMany({}, {$set:{afKarma:0}}, {multi:true})

@@ -1,6 +1,6 @@
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
-import { getCollectionByTypeName } from "../vulcan-lib/getCollection";
+import { getCollectionByTypeName } from "../collections/allCollections";
 
 /**
  * Checks if a graphql type passed in as a string literal is one of those that corresponds a collection's DbObject type

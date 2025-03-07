@@ -2,14 +2,14 @@ import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../manualMigrations/migrationUtils'
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
-import { Collections } from "../vulcan-lib/getCollection";
+import { getAllCollections } from "@/server/collections/allCollections";
 
 registerMigration({
   name: "fillMissingValues",
   dateWritten: "2018-12-26",
   idempotent: true,
   action: async () => {
-    for(let collection of Collections) {
+    for(let collection of getAllCollections()) {
       const schema = getSchema(collection);
       if (!schema) continue;
       
@@ -52,7 +52,7 @@ registerMigration({
 
 // Exported to allow running manually with "yarn repl"
 export const checkForMissingValues = async () => {
-  for(let collection of Collections) {
+  for(let collection of getAllCollections()) {
     const schema = getSchema(collection);
     if (!schema) continue;
     

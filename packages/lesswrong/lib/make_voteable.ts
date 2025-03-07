@@ -1,8 +1,7 @@
-import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue } from './utils/schemaUtils'
+import { denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
-import { getAllCollections } from '../server/vulcan-lib/getCollection';
 
 export type PermissionResult = {
   fail: false,
@@ -24,15 +23,6 @@ export interface CollectionVoteOptions {
   ) => PermissionResult|Promise<PermissionResult>,
 }
 
-export const apolloCacheVoteablePossibleTypes = () => {
-  return {
-    Voteable: getVoteableCollections().map(collection => collection.typeName),
-  }
-}
-
-export const getVoteableCollections = (): CollectionBase<VoteableCollectionName>[] => {
-  return getAllCollections().filter((c): c is CollectionBase<VoteableCollectionName> => c.isVoteable());
-}
 
 const currentUserVoteResolver = <N extends CollectionNameString>(
   resolver: SqlResolverJoin<'Votes'>["resolver"],

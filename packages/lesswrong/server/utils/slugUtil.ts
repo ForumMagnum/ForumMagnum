@@ -1,5 +1,5 @@
 import { randomLowercaseId } from "@/lib/random";
-import { getCollection } from "@/server/vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 import type { CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { slugify } from "@/lib/utils/slugify";
 

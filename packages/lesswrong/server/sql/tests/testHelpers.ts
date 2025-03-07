@@ -1,4 +1,3 @@
-import { registerCollection } from "@/server/vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
 import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
@@ -46,7 +45,6 @@ export const TestCollection = {
 
 export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
 (TestCollection as any).getTable = () => testTable;
-registerCollection(TestCollection);
 
 export type DbTestObject2 = {
   _id: string,
@@ -72,7 +70,6 @@ export const TestCollection2 = {
 
 export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
 (TestCollection2 as any).getTable = () => testTable2;
-registerCollection(TestCollection2);
 
 export type DbTestObject3 = {
   _id: string,
@@ -99,7 +96,6 @@ export const TestCollection3 = {
 
 export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
 (TestCollection3 as any).getTable = () => testTable3;
-registerCollection(TestCollection3);
 
 export type DbTestObject4 = {
   _id: string,
@@ -146,7 +142,13 @@ export const TestCollection4 = {
 
 export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
 (TestCollection4 as any).getTable = () => testTable4;
-registerCollection(TestCollection4);
+
+export const testCollections = {
+  TestCollection,
+  TestCollection2,
+  TestCollection3,
+  TestCollection4,
+};
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

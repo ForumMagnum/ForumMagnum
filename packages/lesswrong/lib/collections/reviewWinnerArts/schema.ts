@@ -40,3 +40,5 @@ export const schema: SchemaType<"ReviewWinnerArts"> = {
     },
   }),
 }
+
+export default schema;

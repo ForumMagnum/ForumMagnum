@@ -2,7 +2,7 @@ import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import schema from "@/lib/collections/recommendationsCaches/schema";
 
-const RecommendationsCaches: RecommendationsCachesCollection = createCollection({
+export const RecommendationsCaches: RecommendationsCachesCollection = createCollection({
   collectionName: "RecommendationsCaches",
   typeName: "RecommendationsCache",
   schema,

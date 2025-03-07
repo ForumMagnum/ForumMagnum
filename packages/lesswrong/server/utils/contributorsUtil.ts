@@ -5,7 +5,7 @@ import { computeAttributions } from '../attributeEdits';
 import { compareVersionNumbers } from '@/lib/editor/utils';
 import VotesRepo from '../repos/VotesRepo';
 import toDictionary from '@/lib/utils/toDictionary';
-import { getCollection } from '../vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import { isLWorAF } from '@/lib/instanceSettings';
 
 export type ContributorStats = {

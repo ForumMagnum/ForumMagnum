@@ -2,7 +2,7 @@ import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
-import { getCollection } from "./vulcan-lib/getCollection";
+import { getCollection } from "./collections/allCollections";
 import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
 
 type FetchFragmentOptions<

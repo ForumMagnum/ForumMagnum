@@ -3,7 +3,7 @@ import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
 import PgCollection, { DbTarget } from './sql/PgCollection';
-import { getAllCollections } from './vulcan-lib/getCollection';
+import { getAllCollections } from './collections/allCollections';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';

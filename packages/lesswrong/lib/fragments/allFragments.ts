@@ -68,15 +68,16 @@ import * as userTagRelsFragments from '../collections/userTagRels/fragments';
 import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
-import { getAllCollections } from '../../server/vulcan-lib/getCollection';
+import { allSchemas } from '@/lib/schema/allSchemas';
 import uniq from 'lodash/uniq';
 import SqlFragment from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';
 import { isAnyTest } from '../executionEnvironment';
+import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 
 // Create default "dumb" gql fragment object for a given collection
 function getDefaultFragmentText<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collectionName: N,
   schema: SchemaType<N>,
   options = { onlyViewable: true },
 ): string|null {
@@ -98,7 +99,7 @@ function getDefaultFragmentText<N extends CollectionNameString>(
 
   if (fieldNames.length) {
     const fragmentText = `
-      fragment ${collection.collectionName}DefaultFragment on ${collection.typeName} {
+      fragment ${collectionName}DefaultFragment on ${collectionNameToTypeName[collectionName]} {
         ${fieldNames.map(fieldName => {
           return fieldName+'\n';
         }).join('')}
@@ -116,8 +117,8 @@ const getDefaultFragments = (() => {
   return () => {
     if (!defaultFragments) {
       defaultFragments = Object.fromEntries(
-        getAllCollections()
-          .map(collection => [`${collection.collectionName}DefaultFragment`, getDefaultFragmentText(collection, collection._schemaFields)])
+        Object.entries(allSchemas)
+          .map(([collectionName, schema]) => [`${collectionName}DefaultFragment`, getDefaultFragmentText(collectionName as CollectionNameString, schema)])
           .filter(([_, fragment]) => fragment !== null)
       ) as Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
     }

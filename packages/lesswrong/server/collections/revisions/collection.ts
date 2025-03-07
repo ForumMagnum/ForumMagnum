@@ -4,7 +4,6 @@ import { extractVersionsFromSemver } from '@/lib/editor/utils';
 import { getCollaborativeEditorAccess, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getCollection } from "../../vulcan-lib/getCollection";
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 
@@ -57,16 +56,15 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
   const { major: majorVersion } = extractVersionsFromSemver(revision.version)
-  const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
+  // Avoid import cycle
+  const collection: CollectionBase<CollectionNameString> = require('../allCollections').getCollection(collectionName);
   const documentId = revision.documentId;
 
   if (!documentId) {
     return false
   }
   
-  const document = context
-    ? await context.loaders[collectionName].load(documentId)
-    : await collection.findOne(documentId);
+  const document = await context.loaders[collectionName].load(documentId);
 
   // This shouldn't happen, but `collection.findOne` has a type signature that returns null, and technically we don't enforce data consistency such that it's strictly impossible
   if (!document) {
@@ -90,10 +88,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // so we need to check read access to the post itself
   if (collectionName === "JargonTerms") {
     const postId = (document as DbJargonTerm).postId;
-    const post = context
-      ? await context.loaders.Posts.load(postId)
-      // Avoid import cycle
-      : await getCollection("Posts").findOne(postId);
+    const post = await context.loaders.Posts.load(postId);
 
     if (!post) {
       return false;

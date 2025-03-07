@@ -1,7 +1,7 @@
 import './server/databaseSettings'
 
-import './server/collections/allCollections';
 import './server/vulcan-lib/site';
+import './server/collections/allCollections';
 import './server/vulcan-lib/utils';
 import './server/vulcan-lib/apollo-server/authentication';
 

@@ -1,4 +1,4 @@
-import { getCollection } from '../../server/vulcan-lib/getCollection';
+import type { getCollection as getCollectionType } from '@/server/collections/allCollections';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
@@ -19,6 +19,10 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
   type DataType = ObjectsByCollectionName[CollectionName];
   return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DataType>|null> => {
     if (!doc[fieldName]) return null
+
+    // Can't do a top-level import because of a dependency cycle.
+    // Also, this still requires a stub, since we can't import the server code on the client.
+    const { getCollection }: { getCollection: typeof getCollectionType } = require('@/server/collections/allCollections');
 
     const { currentUser } = context
     const collection = getCollection(collectionName);
@@ -49,6 +53,8 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   
   return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> => {
     if (!doc[fieldName]) return []
+    const { getCollection }: { getCollection: typeof getCollectionType } = require('@/server/collections/allCollections');
+
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
@@ -318,6 +324,68 @@ SimpleSchema.extendOptions(['editableFieldOptions']);
 SimpleSchema.extendOptions(['slugCallbackOptions']);
 
 
+SimpleSchema.extendOptions([
+  'hidden', // hidden: true means the field is never shown in a form no matter what
+  'form', // extra form properties
+  'input', // SmartForm control (String or React component)
+  'control', // SmartForm control (String or React component) (legacy)
+  'order', // position in the form
+  'group', // form fieldset group
+
+  'onCreate', // field insert callback
+  'onUpdate', // field edit callback
+  'onDelete', // field remove callback
+
+  'canRead', // who can view the field
+  'canCreate', // who can insert the field
+  'canUpdate', // who can edit the field
+
+  'resolveAs', // field-level resolver
+  'description', // description/help
+  'beforeComponent', // before form component
+  'afterComponent', // after form component
+  'placeholder', // form field placeholder value
+  'options', // form options
+  'query', // field-specific data loading query
+  'unique', // field can be used as part of a selectorUnique when querying for data
+
+  'tooltip', // if not empty, the field will provide a tooltip when hovered over
+
+  // canAutofillDefault: Marks a field where, if its value is null, it should
+  // be auto-replaced with defaultValue in migration scripts.
+  'canAutofillDefault',
+
+  // denormalized: In a schema entry, denormalized:true means that this field can
+  // (in principle) be regenerated from other fields. For now, it's a glorified
+  // machine-readable comment; in the future, it may have other infrastructure
+  // attached.
+  'denormalized',
+
+  // foreignKey: In a schema entry, this is either an object {collection,field},
+  // or just a string, in which case the string is the collection name and field
+  // is _id. Indicates that if this field is present and not null, its value
+  // must correspond to an existing row in the named collection. For example,
+  //
+  //   foreignKey: 'Users'
+  //   means that the value of this field must be the _id of a user;
+  //
+  //   foreignKey: {
+  //     collection: 'Posts',
+  //     field: 'slug'
+  //   }
+  //   means that the value of this field must be the slug of a post.
+  //
+   'foreignKey',
+
+  // nullable: In a schema entry, this boolean indicates whether the type system
+  // should treat this field as nullable 
+   'nullable',
+
+  // Define a static vector size for use in Postgres - this should only be
+  // used on array fields
+   'vectorSize'
+]);
+
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of
@@ -388,6 +456,7 @@ export function denormalizedCountOfReferences<
       document: ObjectsByCollectionName[SourceCollectionName],
       context: ResolverContext,
     ): Promise<number> => {
+      const { getCollection }: { getCollection: typeof getCollectionType } = require('@/server/collections/allCollections');
       const foreignCollection = getCollection(foreignCollectionName);
       const docsThatMayCount = await getWithLoader<TargetCollectionName>(
         context,

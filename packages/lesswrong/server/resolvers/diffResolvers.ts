@@ -1,5 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import { isValidCollectionName } from '../vulcan-lib/getCollection';
+import { isValidCollectionName } from '@/server/collections/allCollections';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { getEditableCollectionNames, getEditableFieldNamesForCollection, } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';

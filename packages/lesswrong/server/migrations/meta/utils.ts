@@ -24,7 +24,7 @@ import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
-import { getCollection } from "@/server/vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 import { createMutator } from "@/server/vulcan-lib/mutators";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;

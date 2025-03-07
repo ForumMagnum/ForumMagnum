@@ -4,7 +4,7 @@ import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-const ElectionCandidates: ElectionCandidatesCollection = createCollection({
+export const ElectionCandidates: ElectionCandidatesCollection = createCollection({
   collectionName: "ElectionCandidates",
   typeName: "ElectionCandidate",
   schema,

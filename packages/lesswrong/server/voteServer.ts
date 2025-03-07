@@ -26,10 +26,9 @@ import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
-import { getCollection } from '@/server/vulcan-lib/getCollection';
+import { getCollection, getVoteableCollections } from '@/server/collections/allCollections';
 import Users from '@/server/collections/users/collection';
 import { capitalize } from '@/lib/vulcan-lib/utils';
-import { getVoteableCollections } from '@/lib/make_voteable';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {

@@ -1,6 +1,6 @@
 import { Votes } from '../../server/collections/votes/collection';
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
-import { getCollection } from '../vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import * as _ from 'underscore';
 
 export default registerMigration({

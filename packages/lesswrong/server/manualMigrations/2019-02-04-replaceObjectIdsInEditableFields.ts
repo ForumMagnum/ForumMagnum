@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { getEditableCollectionNames } from '../../lib/editor/make_editable'
-import { getCollection } from '../vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import * as _ from 'underscore';
 
 export default registerMigration({
