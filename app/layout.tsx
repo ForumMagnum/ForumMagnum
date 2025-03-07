@@ -20,7 +20,6 @@ if (!sqlClient) {
 }
 
 const { serverSettingsObject, publicSettingsObject, loadedDatabaseId } = await loadDatabaseSettings()
-console.log("publicSettingsObject", publicSettingsObject)
 setPublicSettings(publicSettingsObject?.value)
 
 console.log("Running layout")
