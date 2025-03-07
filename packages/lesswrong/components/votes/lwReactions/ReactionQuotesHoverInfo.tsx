@@ -1,9 +1,7 @@
 import React from 'react';
-import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
+import { EmojiReactName, getNormalizedReactionsListFromVoteProps, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
-import filter from 'lodash/filter';
-import uniq from 'lodash/uniq';
+import { useNamesAttachedReactionsVoting } from './useNamesAttachedReactionVoting';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import { ContentItemBody } from '../../common/ContentItemBody';

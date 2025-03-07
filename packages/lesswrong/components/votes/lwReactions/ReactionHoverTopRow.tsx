@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import type { EmojiReactName, UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import { VotingProps } from '../votingProps';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
-import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
+import { useNamesAttachedReactionsVoting } from './useNamesAttachedReactionVoting';
 import filter from 'lodash/filter';
 import sumBy from 'lodash/sumBy';
 
