@@ -6,8 +6,6 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { getSchema } from '../../lib/utils/getSchema';
-// import { getCollection } from '../../server/vulcan-lib/getCollection';
 import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 import { WrappedSmartFormProps } from './propTypes';
