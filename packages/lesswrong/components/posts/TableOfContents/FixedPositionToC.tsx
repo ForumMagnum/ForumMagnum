@@ -25,49 +25,56 @@ function normalizeToCScale({containerPosition, sections}: {
   // If we have no sections, just return empty array
   if (sections.length === 0) return [];
   
-  // Calculate the gap between container top and first section for proper spacing
-  // See longer comment below for more details of normalization of vertical scale
-  const firstSectionOffset = sections[0].offset || 0;
+  // Get the total height of the post content
   const containerTop = containerPosition?.top || 0;
+  const containerBottom = containerPosition?.bottom || 0;
+  const totalContentHeight = containerBottom - containerTop;
+  
+  // Calculate the gap between container top and first section for proper spacing
+  const firstSectionOffset = sections[0].offset || 0;
   const gapToFirstSection = firstSectionOffset - containerTop;
   
-  // Create a virtual spacer for the gap at the top if needed
+  // Create a virtual spacer for the gap at the top if needed because first heading is not at the top of the page
   const titleGapSpacer = {
     title: "",
     anchor: "spacer",
     level: 0,
     offset: containerTop,
-    scale: gapToFirstSection > 0 ? gapToFirstSection : 0,
+    scale: gapToFirstSection > 0 ? gapToFirstSection / totalContentHeight * 100 : 0,
     spacer: true
   };
   
-  // Map the sections with their scales
-  const normalizedSections = sections.map((section,idx) => {
-    // The vertical scale (flex-grow amount) of a ToC element is proportional
-    // to the offset of the next positioned element minus its own offset.
-    // However, not every element necessarily has an offset; if an element
-    // doesn't have one its vertical scale is 0 (ie it does not grow past its
-    // minimum size), and it's skipped for purposes of deciding what counts as
-    // the "next positioned element". (When we hit the end of the list, we use
-    // containerPosition.bottom in place of the next offset)
+  // For each section (corresponding to a heading), calculate a "scale" that's proportional to its position in the document
+  // We will set the flex-grow amount of the corresponding ToC element proportional this value.
+  // The scale for an element is calculated by subtracting its own offset from the offset of the next positioned element.
+  // However, not every element necessarily has an offset; if an element doesn't have one its vertical scale is 0 (ie it 
+  // does not grow past its minimum size), and it's skipped for purposes of deciding what counts as the "next positioned 
+  // element". (When we hit the end of the list, we use containerPosition.bottom in place of the next offset)
+  const normalizedSections = sections.map((section, idx) => {
+    
+    // Find the next section with an offset, or use the container bottom
     let nextPositionedIdx = idx+1;
-    while (nextPositionedIdx<sections.length && !sections[nextPositionedIdx].offset)
+    while (nextPositionedIdx<sections.length && !sections[nextPositionedIdx].offset) {
       nextPositionedIdx++;
+    }
     
     const nextSectionOffset = (nextPositionedIdx>=sections.length)
       ? containerPosition?.bottom ?? 0
       : sections[nextPositionedIdx].offset ?? 0;
-      
-    const scale = section.divider ? 1 : nextSectionOffset - (section.offset ?? 0);
-      
+    
+    const sectionHeight = nextSectionOffset - (section.offset ?? 0);
+    
+    // Scale is the percentage of total content height this section occupies
+    const sectionScale = section.divider ? 1 : (sectionHeight / totalContentHeight) * 100;
+    
     return {
       ...section,
       offset: section.offset ?? 0,
-      scale
+      scale: sectionScale
     };
   });
   
-  // Return with spacer if there's a significant gap
+  // Return with spacer if there's a significant gap before the first heading
   return gapToFirstSection > 50 ? [titleGapSpacer, ...normalizedSections] : normalizedSections;
 };
 

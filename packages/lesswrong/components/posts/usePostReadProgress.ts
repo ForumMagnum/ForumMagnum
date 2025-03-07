@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { getClamper } from "../../lib/utils/mathUtils";
+import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 interface UsePostReadProgressProps {
   /**
@@ -32,37 +33,57 @@ interface UsePostReadProgressProps {
   useFirstViewportHeight?: boolean;
 }
 
-const clampPct = getClamper(0, 1);
+const clampPct = getClamper(0, 100);
 
 export const usePostReadProgress = ({ updateProgressBar, disabled = false, delayStartOffset = 0, setScrollWindowHeight, useFirstViewportHeight = false }: UsePostReadProgressProps) => {
   const readingProgressBarRef = useRef<HTMLDivElement|null>(null);
 
-  const getScrollPct = (postBodyElement: HTMLElement, delayStartOffset: number, clamp = true) => {
-    // position of post body bottom relative to the bottom of the viewport
-    const postBodyBottomPos = postBodyElement.getBoundingClientRect().bottom - window.innerHeight;
-    // total distance from top of page to post body bottom
-    const totalHeight = useFirstViewportHeight ? postBodyElement.getBoundingClientRect().height : window.scrollY + postBodyBottomPos;
-  
-    const scrollPercent = 1 - ((postBodyBottomPos + delayStartOffset) / totalHeight);
-    const adjustedScrollPercent = clamp ? clampPct(scrollPercent) : scrollPercent;
-    return adjustedScrollPercent * 100;
+  /**
+   * Calculates what percentage of the post has been scrolled through
+   * Uses the bottom of the viewport as the reference point
+   * @returns A value between 0-100 representing percentage of post that's been scrolled, unless clamp=false
+   */
+  function getScrollPct(
+    postBodyElement: HTMLElement,
+    clamp = true
+  ): number {
+    const containerTop = getOffsetChainTop(postBodyElement); 
+    const containerHeight = postBodyElement.offsetHeight;
+    const bottomOfViewport = window.scrollY + window.innerHeight;
+
+    const distanceFromPostTopToViewportBottom = bottomOfViewport - containerTop;
+    const scrollPercent = (distanceFromPostTopToViewportBottom / containerHeight) * 100;
+
+    if (clamp) {
+      return clampPct(scrollPercent);
+    }
+    return scrollPercent;
   }
   
+  /**
+   * What percent of the post body's height is revealed within the window viewport.
+   * We want to show "scroll window" that's proportionally large, relative to the height of the entire progress bar container.
+   * @returns The height the scrollbar indicator should be in pixels
+   */
   const getScrollWindowHeight = (postBodyElement: HTMLElement, readingProgressBarContainerElement: HTMLElement) => {
-    const postBodyHeight = postBodyElement.getBoundingClientRect().height;
-    const windowHeight = window.innerHeight;
+    const postRect = postBodyElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const tocHeight = readingProgressBarContainerElement.getBoundingClientRect().height;
     
-    /**
-     * What percent of the post body's height is revealed within the window viewport.
-     * We want to show "scroll window" that's proportionally large, relative to the height of the entire progress bar container.
-     */
-    const windowBodyPercent = clampPct(windowHeight / postBodyHeight) * 100;
-    const containerHeight = readingProgressBarContainerElement.getBoundingClientRect().height;
-    const absoluteScrollWindowHeight = (windowBodyPercent / 100) * containerHeight;
-    const currentScrollPct = getScrollPct(postBodyElement, delayStartOffset);
+    // If post is smaller than viewport, the window should be 100% of the TOC height
+    if (postRect.height <= viewportHeight) {
+      return { displayedWindowScrollHeight: tocHeight };
+    }
     
-    const displayedScrollWindowPercent = clampPct(currentScrollPct / windowBodyPercent);
-    const displayedWindowScrollHeight = absoluteScrollWindowHeight * displayedScrollWindowPercent;
+    // Calculate how much of the post is actually visible in the viewport
+    const visibleTop = Math.max(0, Math.min(viewportHeight, postRect.top));
+    const visibleBottom = Math.max(0, Math.min(viewportHeight, postRect.bottom));
+    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+    const visiblePostPortion = visibleHeight / postRect.height;
+    
+    // Calculate how tall the indicator should be proportionally in the ToC
+    // We ensure a minimum size of 10px to keep it visible
+    const displayedWindowScrollHeight = Math.max(10, visiblePostPortion * tocHeight);
     
     return { displayedWindowScrollHeight };
   }
@@ -70,7 +91,7 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
   const updateReadingProgressBar = (postBodyElement: HTMLElement | null) => {
     if (!postBodyElement || !readingProgressBarRef.current) return;
 
-    const scrollPercent = getScrollPct(postBodyElement, delayStartOffset);
+    const scrollPercent = getScrollPct(postBodyElement);
 
     updateProgressBar(readingProgressBarRef.current, scrollPercent);
   };
