@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
-import { communityPath } from '../../lib/routes';
+import { communityPath } from '@/lib/routeConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';

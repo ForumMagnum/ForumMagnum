@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 
-export const EmailHistoryPage = () => {
+const EmailHistoryPage = () => {
   const currentUser = useCurrentUser();
   if (!currentUser) return <div/>
   
@@ -12,10 +12,7 @@ export const EmailHistoryPage = () => {
   />
 }
 
-const EmailHistoryPageComponent = registerComponent('EmailHistoryPage', EmailHistoryPage);
-
-
-export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
+const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   const { results } = useMulti({
     terms,
     collectionName: 'LWEvents',
@@ -29,6 +26,7 @@ export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   }</>
 }
 
+const EmailHistoryPageComponent = registerComponent('EmailHistoryPage', EmailHistoryPage);
 const EmailHistoryComponent = registerComponent('EmailHistory', EmailHistory);
 
 declare global {

@@ -9,7 +9,7 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
-import { communityPath } from '../../../lib/routes';
+import { communityPath } from '../../../lib/routeConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 

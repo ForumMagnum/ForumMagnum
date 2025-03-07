@@ -5,7 +5,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/sche
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
-import { SyntheticQualitativeVote } from './ReviewVotingPage';
+import type { SyntheticQualitativeVote } from './ReviewVotingPage';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => {

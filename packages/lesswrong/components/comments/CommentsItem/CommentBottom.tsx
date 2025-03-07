@@ -8,7 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyRef } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
@@ -36,7 +36,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   treeOptions: CommentTreeOptions,
   votingSystem: VotingSystem
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: ContentItemBodyRef|null,
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {

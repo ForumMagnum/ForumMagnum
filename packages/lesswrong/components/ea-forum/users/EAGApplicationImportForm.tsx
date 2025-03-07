@@ -16,8 +16,9 @@ import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAGApplicationImportForm", (theme: ThemeType) => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',
@@ -174,7 +175,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[500]
     }
   }
-})
+}))
 
 type EAGApplicationDataType = {
   jobTitle?: string,
@@ -223,10 +224,10 @@ const EAGApplicationImportFormWrapper = () => {
   />
 }
 
-const EAGApplicationImportForm = ({currentUser, classes}: {
+const EAGApplicationImportForm = ({currentUser}: {
   currentUser: UsersEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const { pathname } = useLocation()
   const { flash } = useMessages()
@@ -749,7 +750,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
 
 
 const EAGApplicationImportFormWrapperComponent = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportForm);
-const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm, {styles});
+const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm);
 
 declare global {
   interface ComponentTypes {

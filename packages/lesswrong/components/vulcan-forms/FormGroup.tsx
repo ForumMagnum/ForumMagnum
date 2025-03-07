@@ -7,8 +7,9 @@ import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
 import { FormComponentOverridesType } from './propTypes';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const headerStyles = (theme: ThemeType) => ({
+const headerStyles = defineStyles("FormGroupHeader", (theme: ThemeType) => ({
   formSectionHeading: {
     cursor: "pointer",
     display:"flex",
@@ -26,15 +27,15 @@ const headerStyles = (theme: ThemeType) => ({
     fontSize: "1.25rem",
     fontWeight: isFriendlyUI ? 600 : undefined,
   },
-});
+}));
 
-const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
+const FormGroupHeader = ({ toggle, collapsed, label }: {
   toggle: () => void
   collapsed: boolean
   label?: string
-  classes: ClassesType<typeof headerStyles>
-}) => (
-  <div className={classNames(classes.formSectionHeading, {
+}) => {
+  const classes = useStyles(headerStyles);
+  return <div className={classNames(classes.formSectionHeading, {
     [classes.formSectionHeadingExpanded]: !collapsed
   })} onClick={toggle}>
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
@@ -46,11 +47,9 @@ const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
       )}
     </span>
   </div>
-);
+}
 
-const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader, {
-  styles: headerStyles
-});
+const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader);
 
 interface FormControlProps {
   disabled: boolean;

@@ -4,7 +4,7 @@ import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
-import { communityPath } from '../../../lib/routes';
+import { communityPath } from '../../../lib/routeConstants';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';

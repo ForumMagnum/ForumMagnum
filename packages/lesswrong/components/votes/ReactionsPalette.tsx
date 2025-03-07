@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import type { EmojiReactName, QuoteLocator, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
 import AppsIcon from '@material-ui/icons/Apps';
@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import type { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
 const styles = (theme: ThemeType) => ({
   moreReactions: {

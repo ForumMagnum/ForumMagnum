@@ -3,12 +3,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
-import { contentTypes } from '../posts/PostsPage/ContentType';
+import { getContentTypes } from '../posts/PostsPage/ContentType';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
@@ -267,7 +266,7 @@ const FooterTagList = ({
     }
   }
 
-  const contentTypeInfo = forumSelect(contentTypes);
+  const contentTypeInfo = getContentTypes();
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
     tooltipBody: ReactNode,

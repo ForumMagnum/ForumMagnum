@@ -16,7 +16,7 @@ import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
 import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
-import { LikesList } from '@/lib/voting/reactionsAndLikes';
+import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
 import { universalFields } from "../../collectionUtils";
