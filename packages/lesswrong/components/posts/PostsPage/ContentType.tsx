@@ -11,7 +11,7 @@ import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSettin
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { getAllTagsPath } from '../../../lib/routes';
+import { getAllTagsPath } from '@/lib/routeConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

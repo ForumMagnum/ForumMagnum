@@ -1,5 +1,5 @@
 import React from 'react';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { communityPath, getAllTagsPath } from '../../../lib/routeConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';

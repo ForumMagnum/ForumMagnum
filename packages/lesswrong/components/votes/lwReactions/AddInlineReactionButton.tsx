@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useNamesAttachedReactionsVoting } from "./useNamesAttachedReactionVoting";
-import { VotingProps } from "../votingProps";
-import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
+import type { VotingProps } from "../votingProps";
+import type { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({

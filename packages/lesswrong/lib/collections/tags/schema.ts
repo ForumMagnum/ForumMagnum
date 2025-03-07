@@ -15,7 +15,7 @@ import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
 import uniqBy from 'lodash/uniqBy';
-import { LikesList } from '@/lib/voting/reactionsAndLikes';
+import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 
 addGraphQLSchema(`
   type TagContributor {

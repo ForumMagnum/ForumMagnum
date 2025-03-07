@@ -8,7 +8,7 @@ import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { getAllTagsPath } from '../../lib/routes';
+import { getAllTagsPath } from '@/lib/routeConstants';
 import type { SearchState } from 'react-instantsearch-core';
 
 const styles = (theme: ThemeType) => ({
