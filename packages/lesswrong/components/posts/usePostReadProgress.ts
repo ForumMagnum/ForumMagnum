@@ -28,9 +28,19 @@ interface UsePostReadProgressProps {
   setScrollWindowHeight?: (element: HTMLDivElement, height: number) => void;
 
   /**
-   * Whether to use the fixed ToC scroll calculation method.
-   * If true, uses the method that calculates based on viewport bottom relative to post top (viewport-centric).
-   * If false, uses the original method that calculates based on post bottom position (post-centric).
+   * Determines which scroll progress calculation method to use:
+   *
+   * - If false ("Origina"/"Scrollable distance" method):
+   *   Measures scroll progress by how far the viewport bottom has moved from its initial position
+   *   (when you're at the top) to the bottom of the post.
+   *   The denominator for progress calculation is total scrollable distance (this is less than the post height if the post is taller than the viewport),
+   *   if the post starts at the top of the page.
+   *   (At the top, even if the viewport already covers half the post, this starts at 0%.)
+   * 
+   * - If true ("Viewport Bottom" method):
+   *   Measures scroll progress by how far the viewport bottom has moved from the top of the post,
+   *   relative to the total height of the post. 
+   *   (At the top, if the viewport already covers half the post, this starts at 50%.)
    */
   useFixedToCScrollCalculation?: boolean;
 }
@@ -56,7 +66,7 @@ export const usePostReadProgress = ({
     // total distance from top of page to post body bottom
     const totalHeight = window.scrollY + postBodyBottomPos;
   
-    const scrollPercent = 1 - ((postBodyBottomPos + offset) / totalHeight);
+    const scrollPercent = (1 - ((postBodyBottomPos + offset) / totalHeight)) * 100;
     const adjustedScrollPercent = clamp ? clampPct(scrollPercent) : scrollPercent;
     return adjustedScrollPercent;
   }
@@ -92,7 +102,7 @@ export const usePostReadProgress = ({
     if (useFixedToCScrollCalculation) {
       return getFixedToCScrollPct(postBodyElement, clamp);
     } else {
-      return getOriginalScrollPct(postBodyElement, delayStartOffset, clamp) * 100;
+      return getOriginalScrollPct(postBodyElement, delayStartOffset, clamp);
     }
   }
   
