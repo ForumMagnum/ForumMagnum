@@ -77,10 +77,10 @@ export const usePostReadProgress = ({
    * Uses the bottom of the viewport as the reference point
    * @returns A value between 0-100 representing percentage of post that's been scrolled, unless clamp=false
    */
-  function getFixedToCScrollPct(
+  const getFixedToCScrollPct = (
     postBodyElement: HTMLElement,
     clamp = true
-  ): number {
+  ): number => {
     const containerTop = getOffsetChainTop(postBodyElement); 
     const containerHeight = postBodyElement.offsetHeight;
     const bottomOfViewport = window.scrollY + window.innerHeight;
