@@ -2,7 +2,7 @@ import React from 'react';
 import { communityPath, getAllTagsPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 import { compassIcon } from '../../icons/compassIcon';
@@ -99,7 +99,7 @@ export type MenuTabRegular = {
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
 
-export const menuTabs: ForumOptions<Array<MenuTab>> = {
+export const getMenuTabs = (): Array<MenuTab> => forumSelect({
   LessWrong: [
     {
       id: 'home',
@@ -450,6 +450,4 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }
   ]
-}
-
-export default menuTabs;
+})

@@ -3,8 +3,7 @@ import React from 'react';
 import Divider from '@material-ui/core/Divider';
 
 // -- See here for all the tab content --
-import menuTabs from './menuTabs'
-import { forumSelect } from '../../../lib/forumTypeUtils';
+import { getMenuTabs } from './menuTabs'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,7 +29,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
 
   return (
     <div className={classes.root}>
-      {forumSelect(menuTabs).map(tab => {
+      {getMenuTabs().map(tab => {
         if (!('showOnCompressed' in tab) || !tab.showOnCompressed) {
           return
         }

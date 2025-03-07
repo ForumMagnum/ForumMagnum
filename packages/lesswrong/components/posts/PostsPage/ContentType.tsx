@@ -57,7 +57,7 @@ type ContentTypeRecord = {
   event?: ContentTypeSettings,
 }
 
-export const contentTypes: ForumOptions<ContentTypeRecord> = {
+export const getContentTypes = (): ContentTypeRecord => forumSelect({
   LessWrong: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
@@ -301,7 +301,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       linkTarget: getAllTagsPath(),
     },
   }
-}
+});
 
 const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
   classes,
@@ -329,7 +329,7 @@ const ContentType = ({classes, className, type, label}: {
   }
   const { LWTooltip, SectionTitle } = Components
 
-  const contentData = forumSelect(contentTypes)[type]
+  const contentData = getContentTypes()[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
