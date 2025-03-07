@@ -5,7 +5,7 @@ import {OpenDialogContextType} from "../../components/common/withDialog";
 
 
 const isComment = (document: PostsBase | CommentsList): document is CommentsList => {
-  if (document.hasOwnProperty("answer")) return true //only comments can be answers
+  if ('answer' in document) return true //only comments can be answers
   return false
 }
 

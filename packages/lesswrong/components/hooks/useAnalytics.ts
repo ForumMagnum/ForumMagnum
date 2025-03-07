@@ -1,4 +1,5 @@
-import { useQuery, gql, ApolloError } from "@apollo/client";
+import { gql, ApolloError } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";

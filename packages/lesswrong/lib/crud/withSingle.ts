@@ -1,4 +1,5 @@
-import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, ApolloError, gql, WatchQueryFetchPolicy } from '@apollo/client';
+import { useQuery } from './useQuery';
 import * as _ from 'underscore';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../vulcan-lib/getCollection';

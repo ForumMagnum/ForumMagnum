@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
@@ -12,6 +12,7 @@ import { pluralize } from "../vulcan-lib/pluralize";
 import { camelCaseify } from "../vulcan-lib/utils";
 import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
 import { useLocation, useNavigate } from "../routeUtil";
+import { useQuery } from './useQuery';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:

@@ -5,7 +5,8 @@ import { useMulti } from '@/lib/crud/withMulti';
 import { DatabasePublicSetting } from '@/lib/publicSettings';
 import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpotlightItem';
 import { useSingle } from '@/lib/crud/withSingle';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 
 const styles = (theme: ThemeType) => ({

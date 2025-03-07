@@ -51,6 +51,18 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
   return result;
 };
 
+export const runStringQueryWithContext = async <T = Record<string, any>>(query: string, variables: any = {}, context: ResolverContext) => {
+  const executableSchema = getExecutableSchema();
+  const result = await graphql(executableSchema, query, {}, context, variables) as ExecutionResult<T>;
+
+  if (result.errors) {
+    onGraphQLError(result.errors);
+    throw new Error(result.errors[0].message);
+  }
+
+  return result;
+};
+
 export const runFragmentSingleQuery = async <
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString,
@@ -128,3 +140,6 @@ export const createAdminContext = (options?: Partial<ResolverContext>): Resolver
     ...options,
   };
 }
+
+
+
