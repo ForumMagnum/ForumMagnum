@@ -1,3 +1,4 @@
+import '@/lib/executionEnvironment';
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';

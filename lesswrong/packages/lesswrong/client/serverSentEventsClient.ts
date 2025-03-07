@@ -55,12 +55,12 @@ function connectServerSentEvents() {
     console.log(`Server-sent events error`, errorEvent);
     disconnectServerSentEvents();
 
-    if (!reconnectPending) {
-      reconnectPending = true;
-      setTimeout(() => {
-        connectServerSentEvents();
-      }, 15000);
-    }
+    // if (!reconnectPending) {
+    //   reconnectPending = true;
+    //   setTimeout(() => {
+    //     connectServerSentEvents();
+    //   }, 15000);
+    // }
   }
   serverSentEventSource.onmessage = (event) => {
     const parsedEventData = JSON.parse(event.data);

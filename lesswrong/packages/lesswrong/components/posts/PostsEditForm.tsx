@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { styles } from './PostsNewForm';
+import { styles } from './styles';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";

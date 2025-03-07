@@ -195,7 +195,6 @@ import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
-import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
@@ -243,3 +242,4 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
+import './server/resolvers/defaultResolvers';

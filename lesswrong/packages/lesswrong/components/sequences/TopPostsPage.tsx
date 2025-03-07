@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';

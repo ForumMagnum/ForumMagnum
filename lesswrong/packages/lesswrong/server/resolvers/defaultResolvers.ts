@@ -360,6 +360,9 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
   }
 }
 
-for (const collection of getAllCollections()) {
-  addDefaultResolvers(collection);
+export const addAllDefaultResolvers = () => {
+  for (const collection of getAllCollections()) {
+    addDefaultResolvers(collection);
+  }
 }
+

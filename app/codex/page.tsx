@@ -1,5 +1,5 @@
 "use client";
-
+export const dynamic = 'force-dynamic';
 import Codex from '@/components/sequences/Codex';
 import { Helmet } from 'react-helmet';
 

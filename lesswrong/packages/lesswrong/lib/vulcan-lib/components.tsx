@@ -1,5 +1,6 @@
 "use client"
 
+import '@/lib/vulcan-lib/allFragments';
 import compose from 'lodash/flowRight';
 import React, { forwardRef } from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';

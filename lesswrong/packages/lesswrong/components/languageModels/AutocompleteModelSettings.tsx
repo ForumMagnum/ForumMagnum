@@ -11,7 +11,10 @@ import { Loading } from "@/components/vulcan-core/Loading";
 import PostsItem from "@/components/posts/PostsItem";
 import LoadMore from "@/components/common/LoadMore";
 import CommentsNode from "@/components/comments/CommentsNode";
-import { Checkbox, Button, IconButton, LinearProgress } from "@/components/mui-replacement";
+import { Checkbox, Button, IconButton } from "@/components/mui-replacement";
+import { LinearProgress } from "@material-ui/core";
+
+const localStorage = (typeof window !== "undefined" ? window.localStorage : null);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -346,15 +349,15 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
       ),
   );
 
-  localStorage.setItem("selectedTrainingPosts", JSON.stringify(selectedPosts));
-  localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
+  localStorage?.setItem("selectedTrainingPosts", JSON.stringify(selectedPosts));
+  localStorage?.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
 const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
-    const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
-    const savedComments = JSON.parse(localStorage.getItem("selectedTrainingComments") ?? "[]");
+    const savedPosts = JSON.parse(localStorage?.getItem("selectedTrainingPosts") ?? "[]");
+    const savedComments = JSON.parse(localStorage?.getItem("selectedTrainingComments") ?? "[]");
     const initialSelectedItems: Record<string, boolean> = {};
     [...savedPosts, ...savedComments].forEach((id) => {
       initialSelectedItems[id] = true;

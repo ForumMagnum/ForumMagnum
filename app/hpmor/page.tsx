@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 
 import HPMOR from '@/components/sequences/HPMOR';
 import { Helmet } from 'react-helmet';

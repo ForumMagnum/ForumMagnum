@@ -20,7 +20,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./packages/lesswrong/*"],
-      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"]
+      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"],
+      "@material-ui/icons/*": ["./packages/lesswrong/lib/vendor/material-ui-icons/src/*"]
     }
   },
   "include": [

@@ -8,7 +8,7 @@ import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import WrappedStrawPoll from "@/components/common/WrappedStrawPoll";
 import ElicitBlock from "@/components/posts/ElicitBlock";
@@ -436,7 +436,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
     for (let replacement of sortedSubstrings) {
       if (replacement.replace === "all") {
-        const ReplacementComponent = Components[replacement.componentName];
+        const ReplacementComponent = ({children}: {children: React.ReactNode}) => <span>{children}</span>;
         const replacementComponentProps = replacement.props;
         
         try {
@@ -525,7 +525,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       } else {
-        const ReplacementComponent = Components[replacement.componentName];
+        const ReplacementComponent = ({children}: {children: React.ReactNode}) => <span>{children}</span>;
         const replacementComponentProps = replacement.props;
         const str = replacement.replacedString;
   

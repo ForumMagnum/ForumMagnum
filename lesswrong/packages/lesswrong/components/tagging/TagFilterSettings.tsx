@@ -9,7 +9,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import AddTagButton from "@/components/tagging/AddTagButton";
-import FilterMode from "@/components/tagging/FilterMode";
+import FilterModeComponent from "@/components/tagging/FilterMode";
 import LWTooltip from "@/components/common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
@@ -85,7 +85,7 @@ const TagFilterSettings = ({
   
   return <span className={classes.root}>
     {filterSettings.tags.map(tagSettings =>
-      <FilterMode
+      <FilterModeComponent
         label={tagSettings.tagName}
         key={tagSettings.tagId}
         tagId={tagSettings.tagId}
@@ -105,7 +105,7 @@ const TagFilterSettings = ({
 
     {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
     <div className={classes.personalAndPlus}>
-      <FilterMode
+      <FilterModeComponent
         label={personalBlogpostName}
         description={personalBlogpostTooltip}
         mode={filterSettings.personalBlog}

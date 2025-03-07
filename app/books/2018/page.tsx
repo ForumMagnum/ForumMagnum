@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 
 import Book2018Landing from '@/components/books/Book2018Landing';
 import { Helmet } from 'react-helmet';

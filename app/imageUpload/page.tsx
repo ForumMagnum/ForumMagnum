@@ -1,13 +1,12 @@
 "use client";
-
-import ImageUpload from '@/components/form-components/ImageUpload';
+export const dynamic = 'force-dynamic';
 import { Helmet } from 'react-helmet';
 
 export default function Page() {
   return (
     <>
-      
-      <ImageUpload />
+      <Helmet><title>Image Upload</title></Helmet>
+      <div>Hello</div>
     </>
   );
 }

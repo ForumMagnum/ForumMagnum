@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./lesswrong/packages/lesswrong/*"]
+      "@/*": ["./lesswrong/packages/lesswrong/*"],
+      "@material-ui/icons/*": ["./lesswrong/packages/lesswrong/lib/vendor/material-ui-icons/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

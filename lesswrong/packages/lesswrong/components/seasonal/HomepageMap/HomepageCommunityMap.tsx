@@ -147,7 +147,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 });
 
 
-export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
+const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -164,7 +164,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
 
   const renderedMarkers = useMemo(() => {
     return <>
-      <LocalEventMapMarkerWrappers localEvents={localEvents} />
+      <LocalEventMapMarkerWrappersComponent localEvents={localEvents} />
       <div className={classes.mapButtons}>
         <HomepageMapFilter />
       </div>
@@ -182,7 +182,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       width="100%"
       height="100%"
       mapStyle={mapStyle}
-      onViewportChange={viewport => setViewport(viewport)}
+      onViewportChange={(viewport: any) => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     >
       {renderedMarkers}

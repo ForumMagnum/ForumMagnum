@@ -473,7 +473,7 @@ export const ChatInterface = ({classes}: {
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChat = ({classes}: {
+const LanguageModelChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>

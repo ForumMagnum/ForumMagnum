@@ -53,7 +53,8 @@ export {
   createMuiTheme,
   createGenerateClassName,
   jssPreset,
-  createStyles
+  createStyles,
+  Theme
 } from '@material-ui/core/styles';
 
 // Export types

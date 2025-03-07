@@ -28,7 +28,6 @@ import { getFragment } from "../../lib/vulcan-lib/fragments";
 import PostsEditBotTips from "@/components/posts/PostsEditBotTips";
 import { PostVersionHistoryButton } from "@/components/editor/PostVersionHistory";
 import EditorTypeSelect from "@/components/editor/EditorTypeSelect";
-import Editor from "@/components/editor/Editor";
 import LocalStorageCheck from "@/components/editor/LocalStorageCheck";
 import LastEditedInWarning from "@/components/editor/LastEditedInWarning";
 
