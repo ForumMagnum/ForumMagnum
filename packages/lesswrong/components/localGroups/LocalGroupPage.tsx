@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanPost } from '../../server/collections/posts/collection';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'

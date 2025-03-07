@@ -4,7 +4,7 @@ import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/
 import { useMessages } from "../common/withMessages";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
-import { GoogleDocMetadata } from "../../server/collections/revisions/helpers";
+import type { GoogleDocMetadata } from "../../server/collections/revisions/helpers";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";

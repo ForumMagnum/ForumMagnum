@@ -2,7 +2,7 @@ import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
@@ -14,7 +14,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanPost } from '../../server/collections/posts/collection';
 import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';

@@ -5,12 +5,7 @@ import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/de
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from '@/lib/collections/posts/helpers';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
-
-export const userCanPost = (user: UsersCurrent|DbUser) => {
-  if (user.deleted) return false;
-  if (user.postingDisabled) return false
-  return userCanDo(user, 'posts.new')
-}
+import { userCanPost } from '@/lib/collections/users/helpers';
 
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {

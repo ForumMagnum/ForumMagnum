@@ -625,3 +625,9 @@ export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
   const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');
   return `${displayNameWithoutEmojis}'s ${shortformName}`;
 }
+
+export const userCanPost = (user: UsersCurrent|DbUser) => {
+  if (user.deleted) return false;
+  if (user.postingDisabled) return false
+  return userCanDo(user, 'posts.new')
+}
