@@ -21,11 +21,11 @@ const forceNonResolverFields = [
 ];
 
 export const isResolverOnly = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collectionName: N,
   fieldName: string,
   schema: CollectionFieldSpecification<N>,
 ) => {
-  if (editableFieldIsNormalized(collection.collectionName, fieldName)) {
+  if (editableFieldIsNormalized(collectionName, fieldName)) {
     return true;
   }
   return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
@@ -68,13 +68,13 @@ export abstract class Type {
   }
 
   static fromSchema<N extends CollectionNameString>(
-    collection: CollectionBase<N>,
+    collectionName: N,
     fieldName: string,
     schema: CollectionFieldSpecification<N>,
     indexSchema: CollectionFieldSpecification<N> | undefined,
     forumType: ForumTypeString,
   ): Type {
-    if (isResolverOnly(collection, fieldName, schema)) {
+    if (isResolverOnly(collectionName, fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }
 
@@ -84,7 +84,7 @@ export abstract class Type {
         ? defaultValue.get(forumType)
         : defaultValue;
       return new DefaultValueType(
-        Type.fromSchema(collection, fieldName, rest, indexSchema, forumType),
+        Type.fromSchema(collectionName, fieldName, rest, indexSchema, forumType),
         value,
       );
     }
@@ -92,7 +92,7 @@ export abstract class Type {
     if (schema.optional === false || schema.nullable === false) {
       const newSchema = {...schema, optional: true, nullable: true};
       return new NotNullType(
-        Type.fromSchema(collection, fieldName, newSchema, indexSchema, forumType),
+        Type.fromSchema(collectionName, fieldName, newSchema, indexSchema, forumType),
       );
     }
 
@@ -124,7 +124,7 @@ export abstract class Type {
           return new VectorType(schema.vectorSize);
         }
         return new ArrayType(
-          Type.fromSchema(collection, fieldName + ".$", indexSchema, undefined, forumType),
+          Type.fromSchema(collectionName, fieldName + ".$", indexSchema, undefined, forumType),
         );
     }
 

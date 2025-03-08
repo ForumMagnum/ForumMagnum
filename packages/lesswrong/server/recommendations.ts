@@ -349,9 +349,9 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
       ]);
       
       return {
-        sequence: await accessFilterSingle(currentUser, Sequences, sequence, context),
-        collection: await accessFilterSingle(currentUser, Collections, collection, context),
-        nextPost: await accessFilterSingle(currentUser, Posts, nextPost, context),
+        sequence: await accessFilterSingle(currentUser, 'Sequences', sequence, context),
+        collection: await accessFilterSingle(currentUser, 'Collections', collection, context),
+        nextPost: await accessFilterSingle(currentUser, 'Posts', nextPost, context),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,
@@ -389,7 +389,7 @@ addGraphQLResolvers({
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");

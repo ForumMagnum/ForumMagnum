@@ -16,10 +16,4 @@ export const TypingIndicators: TypingIndicatorsCollection = createCollection({
   logChanges: true,
 })
 
-TypingIndicators.checkAccess = async (user: DbUser|null, document: DbTypingIndicator, context: ResolverContext|null): Promise<boolean> => {
-  // no access here via GraphQL API. Instead, access via direct database query inside server sent event logic
-  return false
-};
-
-
 export default TypingIndicators;

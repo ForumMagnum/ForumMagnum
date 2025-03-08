@@ -5,7 +5,7 @@ import { getLatestContentsRevision } from '../collections/revisions/helpers';
 
 export const getPostHTML = async (
   post: DbPost|FetchedFragment<"PostsHTML">,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<string> => {
   if ("contents" in post && post.contents) {
     return post.contents?.html ?? "";
@@ -26,7 +26,7 @@ export async function getDefaultPostLocationFields(post: DbPost) {
 
 export const getDialogueResponseIds = async (
   post: DbPost,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<string[]> => {
   const html = await getPostHTML(post, context);
   if (!html) return [];
@@ -44,7 +44,7 @@ export const getDialogueResponseIds = async (
 
 export const getDialogueMessageTimestamps = async (
   post: DbPost,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<Date[]> => {
   const html = await getPostHTML(post, context);
   if (!html) return [];

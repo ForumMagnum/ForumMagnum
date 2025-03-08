@@ -1,17 +1,16 @@
-import JargonTerms from "@/server/collections/jargonTerms/collection";
-import { augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
-import Revisions from "@/server/collections/revisions/collection";
 
-augmentFieldsDict(JargonTerms, {
+export const jargonTermResolvers = {
   humansAndOrAIEdited: {
     resolveAs: {
       type: 'String',
-      resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsPost['humansAndOrAIEdited'] | null> => {
+      resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsPost['humansAndOrAIEdited'] | null> => {        
         const botAccountId = await getAdminTeamAccountId();
         if (!botAccountId) {
           return null;
         }
+
+        const { Revisions } = context;
 
         const selector = { documentId: document._id, collectionName: 'JargonTerms' };
 
@@ -37,4 +36,4 @@ augmentFieldsDict(JargonTerms, {
       }
     }
   }
-});
+} satisfies Record<string, CollectionFieldSpecification<"JargonTerms">>;

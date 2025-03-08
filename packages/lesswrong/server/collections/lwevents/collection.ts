@@ -48,10 +48,4 @@ export const LWEvents = createCollection({
   mutations: getDefaultMutations('LWEvents', options),
 });
 
-LWEvents.checkAccess = async (user: DbUser|null, document: DbLWEvent, context: ResolverContext|null): Promise<boolean> => {
-  if (!user || !document) return false;
-  if (document.name === "gatherTownUsersCheck") return true
-  return userOwns(user, document) ? userCanDo(user, 'events.view.own') : userCanDo(user, `events.view.all`)
-};
-
 export default LWEvents;

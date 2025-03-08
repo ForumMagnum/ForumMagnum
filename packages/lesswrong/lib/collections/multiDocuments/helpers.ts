@@ -1,6 +1,6 @@
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
-export function isMultiDocument(document: ObjectsByCollectionName[CollectionNameString]): document is DbMultiDocument {
+export function isMultiDocument(document: DbTag | DbMultiDocument): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
 
@@ -32,7 +32,7 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
     parentDocument = nextDocument;
   }
 
-  return { document: parentDocument, parentCollectionName };
+  return { document: parentDocument, parentCollectionName: 'Tags' as const };
 }
 
 /**
@@ -54,7 +54,7 @@ export async function canMutateParentDocument(user: DbUser | null, multiDocument
   }
 
   const { document: parentDocument, parentCollectionName } = rootDocumentInfo;
-  const parentCollection = context[parentCollectionName] as CollectionBase<'Tags'>;
+  const parentCollection = context[parentCollectionName];
   const check = parentCollection.options.mutations?.[mutation]?.check;
   if (!check) {
     // eslint-disable-next-line no-console

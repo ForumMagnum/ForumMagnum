@@ -13,7 +13,12 @@ export type PermissionResult = {
 
 export interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
-  customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
+  /**
+   * If set, the baseScore and extendedScore fields use this for permissions instead of their permissive default.
+   */
+  publicScoreOptions?: {
+    canRead?: FieldPermissions 
+  },
   userCanVoteOn?: (
     user: DbUser,
     document: DbVoteableType,
@@ -37,16 +42,12 @@ const currentUserVoteResolver = <N extends CollectionNameString>(
   resolver,
 });
 
-// options: {
-//   customBaseScoreReadAccess: baseScore can have a customized canRead value.
-//     Option will be bassed directly to the canRead key
-// }
 export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
   collectionName: N,
-  options: CollectionVoteOptions,
+  options: Pick<CollectionVoteOptions, 'publicScoreOptions'> = {},
 ): SchemaType<N> => {
   options = options || {}
-  const {customBaseScoreReadAccess} = options
+  const { publicScoreOptions = {} } = options
 
   return {
     currentUserVote: {
@@ -138,13 +139,15 @@ export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
     baseScore: {
       type: Number,
       optional: true,
-      canRead: customBaseScoreReadAccess || ['guests'],
+      canRead: ['guests'],
       ...schemaDefaultValue(0),
+      ...publicScoreOptions,
     },
     extendedScore: {
       type: GraphQLJSON,
       optional: true,
-      canRead: customBaseScoreReadAccess || ['guests'],
+      canRead: ['guests'],
+      ...publicScoreOptions,
     },
     // The document's current score (factoring in age)
     score: {
@@ -192,7 +195,7 @@ async function getCurrentUserVotes<T extends DbVoteableType>(document: T, contex
   );
   
   if (!votes.length) return [];
-  return await accessFilterMultiple(currentUser, Votes, votes, context);
+  return await accessFilterMultiple(currentUser, 'Votes', votes, context);
 }
 
 async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
@@ -206,5 +209,5 @@ async function getAllVotes<T extends DbVoteableType>(document: T, context: Resol
   );
   
   if (!votes.length) return [];
-  return await accessFilterMultiple(currentUser, Votes, votes, context);
+  return await accessFilterMultiple(currentUser, 'Votes', votes, context);
 }

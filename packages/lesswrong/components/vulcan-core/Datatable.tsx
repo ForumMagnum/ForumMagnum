@@ -1,12 +1,11 @@
 import { LoadMoreCallback, useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { getSchema } from '../../lib/utils/getSchema';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { allSchemas } from '@/lib/schema/allSchemas';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -71,8 +70,7 @@ const DatatableHeader = ({ collectionName, column }: {
   const columnName = getColumnName(column);
   
   if (collectionName) {
-    // TODO: refactor to `getSchemaByCollectionName` once that exists
-    const schema = allSchemas[collectionName];
+    const schema = getSchema(collectionName);
 
     /*
 

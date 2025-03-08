@@ -36,9 +36,4 @@ export const Bans: BansCollection = createCollection({
   logChanges: true,
 });
 
-Bans.checkAccess = async (user: DbUser|null, document: DbBan, context: ResolverContext|null): Promise<boolean> => {
-  if (!user || !document) return false;
-  return userCanDo(user, 'bans.view')
-};
-
 export default Bans

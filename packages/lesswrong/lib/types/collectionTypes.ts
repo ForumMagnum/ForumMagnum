@@ -22,9 +22,9 @@ import type { BulkWriterResult } from '@/server/sql/BulkWriter';
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-type CheckAccessFunction<T extends DbObject> = (
+type CheckAccessFunction<N extends CollectionNameString> = (
   user: DbUser|null,
-  obj: T,
+  obj: ObjectsByCollectionName[N],
   context: ResolverContext,
   outReasonDenied?: {reason?: string},
 ) => Promise<boolean>;
@@ -41,7 +41,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   isConnected: () => boolean
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
   hasSlug: () => boolean
-  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   getTable: () => Table<ObjectsByCollectionName[N]>;
   getIndexes: () => DatabaseIndexSet;
 

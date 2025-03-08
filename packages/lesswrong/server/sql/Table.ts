@@ -1,3 +1,4 @@
+import { getSchema } from "@/lib/schema/allSchemas";
 import { Type, IdType, isResolverOnly } from "./Type";
 import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
 
@@ -62,7 +63,7 @@ class Table<T extends DbObject> {
 
     table.writeAheadLogged = collection.options?.writeAheadLogged ?? true;
 
-    const schema = collection._schemaFields;
+    const schema = getSchema(collection.collectionName);
     for (const field of Object.keys(schema)) {
       // Force `_id` fields to use the IdType type, with an exception for `Sessions`
       // which uses longer custom ids.
@@ -70,13 +71,13 @@ class Table<T extends DbObject> {
         table.addField("_id", new IdType());
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
-        if (isResolverOnly(collection, field, fieldSchema)) {
+        if (isResolverOnly(collection.collectionName, field, fieldSchema)) {
           table.resolverOnlyFields.add(field);
         } else {
           const indexSchema = schema[`${field}.$`];
           table.addField(
             field,
-            Type.fromSchema(collection, field, fieldSchema, indexSchema, forumType),
+            Type.fromSchema(collection.collectionName, field, fieldSchema, indexSchema, forumType),
           );
         }
       }

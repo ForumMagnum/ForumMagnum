@@ -94,7 +94,7 @@ defineQuery({
       }
       
       // Return the post
-      const filteredPost = restrictViewableFields(currentUser, Posts, post);
+      const filteredPost = restrictViewableFields(currentUser, 'Posts', post);
       return filteredPost;
     } else {
       throw new Error("Invalid postId or not shared with you");
@@ -166,7 +166,7 @@ defineMutation({
       }
     }
     
-    const filteredPost = await accessFilterSingle(currentUser, Posts, post, context);
+    const filteredPost = await accessFilterSingle(currentUser, 'Posts', post, context);
     return filteredPost!;
   }
 });

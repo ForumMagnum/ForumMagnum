@@ -16,7 +16,4 @@ export const ClientIds: ClientIdsCollection = createCollection({
   resolvers: getDefaultResolvers('ClientIds'),
 });
 
-ClientIds.checkAccess = async (currentUser: DbUser|null, clientId: DbClientId, context: ResolverContext|null): Promise<boolean> => {
-  return currentUser?.isAdmin ?? false;
-}
 

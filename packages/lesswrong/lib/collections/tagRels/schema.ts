@@ -1,5 +1,6 @@
 import { universalFields } from "@/lib/collectionUtils";
 import { isEAForum } from "@/lib/instanceSettings";
+import { getVoteableSchemaFields } from "@/lib/make_voteable";
 import { foreignKeyField, schemaDefaultValue, resolverOnlyField } from "@/lib/utils/schemaUtils";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
 import { userOwns } from "@/lib/vulcan-users/permissions";
@@ -77,7 +78,9 @@ const schema: SchemaType<"TagRels"> = {
     optional: true,
     hidden: true,
     ...schemaDefaultValue(false),
-  }
+  },
+
+  ...getVoteableSchemaFields('TagRels'),
 };
 
 export default schema;

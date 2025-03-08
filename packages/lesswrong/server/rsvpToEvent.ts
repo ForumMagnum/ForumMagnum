@@ -57,7 +57,7 @@ addGraphQLResolvers({
       })).data
 
       await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id, context})
-      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
     }
   }
 });
@@ -90,7 +90,7 @@ addGraphQLResolvers({
       })).data
 
       await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id, context})
-      return accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return accessFilterSingle(currentUser, 'Posts', updatedPost, context);
     }
   }
 });

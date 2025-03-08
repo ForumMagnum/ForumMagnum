@@ -8,7 +8,7 @@ import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { postIsPublic } from "@/lib/collections/posts/helpers";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import _ from "underscore";
 
 const utils = {

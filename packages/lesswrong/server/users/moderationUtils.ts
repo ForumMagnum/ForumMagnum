@@ -89,7 +89,8 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
 }
 
 
-async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
+async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, context: ResolverContext) {
+  const { Tags, Revisions } = context;
   const tags = await Tags.find({userId: user._id}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tags: ", tags)
@@ -133,7 +134,8 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   }
 }
 
-export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser, context: ResolverContext, deleteTags=true) {
+  const { Posts, Comments, Notifications } = context;
   //eslint-disable-next-line no-console
   console.log("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -174,7 +176,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
       })
     }
     
-    await postReportPurgeAsSpam(post);
+    await postReportPurgeAsSpam(post, context);
   }
 
   const comments = await Comments.find({userId: user._id}).fetch();
@@ -224,7 +226,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
       })
     }
 
-    await commentReportPurgeAsSpam(comment);
+    await commentReportPurgeAsSpam(comment, context);
   }
   
   const sequences = await Sequences.find({userId: user._id}).fetch();
@@ -242,7 +244,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
   }
   
   if (deleteTags) {
-    await deleteUserTagsAndRevisions(user, deletingUser)
+    await deleteUserTagsAndRevisions(user, deletingUser, context)
   }
 
   //eslint-disable-next-line no-console

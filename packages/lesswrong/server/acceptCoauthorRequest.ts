@@ -51,7 +51,7 @@ addGraphQLResolvers({
         validate: false
       })).data;
 
-      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
     },
   },
 });

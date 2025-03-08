@@ -1,13 +1,13 @@
-import type { getCollection as getCollectionType } from '@/server/collections/allCollections';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
-import { isAnyTest } from '../executionEnvironment';
+import { isAnyTest, isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
+import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -20,12 +20,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
   return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DataType>|null> => {
     if (!doc[fieldName]) return null
 
-    // Can't do a top-level import because of a dependency cycle.
-    // Also, this still requires a stub, since we can't import the server code on the client.
-    const { getCollection }: { getCollection: typeof getCollectionType } = require('@/server/collections/allCollections');
-
     const { currentUser } = context
-    const collection = getCollection(collectionName);
 
     const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
     const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
@@ -37,7 +32,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
       return null;
     }
 
-    return await accessFilterSingle(currentUser, collection, resolvedDoc, context);
+    return await accessFilterSingle(currentUser, collectionName, resolvedDoc, context);
   }
 }
 
@@ -53,15 +48,13 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   
   return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> => {
     if (!doc[fieldName]) return []
-    const { getCollection }: { getCollection: typeof getCollectionType } = require('@/server/collections/allCollections');
 
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
-    const collection = getCollection(collectionName);
 
     const resolvedDocs: Array<DbType|null> = await loadByIds(context, collectionName, keys)
-    return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
+    return await accessFilterMultiple(currentUser, collectionName, resolvedDocs, context);
   }
 }
 
@@ -71,14 +64,14 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 // have been removed. If document is null, returns null.
 export const accessFilterSingle = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   document: DocType|null,
   context: ResolverContext,
 ): Promise<Partial<DocType|null>> => {
-  const { checkAccess } = collection
   if (!document) return null;
-  if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
-  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection, document)
+  const checkAccess = getCollectionAccessFilter(collectionName);
+  if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
+  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collectionName, document)
   return restrictedDoc;
 }
 
@@ -89,11 +82,11 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
 // view.
 export const accessFilterMultiple = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   unfilteredDocs: Array<DocType|null>,
   context: ResolverContext,
 ): Promise<Partial<DocType>[]> => {
-  const { checkAccess } = collection
+  const checkAccess = getCollectionAccessFilter(collectionName);
   
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
@@ -101,10 +94,10 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   const existingDocs = _.filter(unfilteredDocs, d=>!!d) as DocType[];
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
-    ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d, context))
+    ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
     : existingDocs
   // Apply field-level permissions
-  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
+  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
   
   return restrictedDocs;
 }
@@ -249,44 +242,6 @@ export const resolverOnlyField = <N extends CollectionNameString>({
       sqlPostProcess,
     },
     ...rest
-  }
-}
-
-// Given a collection and a fieldName=>fieldSchema dictionary, add fields to
-// the collection schema. If any of the fields mentioned are already present,
-// throws an error.
-export const addFieldsDict = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  fieldsDict: Record<string, CollectionFieldSpecification<N>>,
-): void => {
-  collection._simpleSchema = null;
-
-  for (let key in fieldsDict) {
-    if (key in collection._schemaFields) {
-      throw new Error("Field already exists: "+key);
-    } else {
-      collection._schemaFields[key] = fieldsDict[key];
-    }
-  }
-}
-
-// Given a collection and a fieldName=>fieldSchema dictionary, add properties
-// to existing fields on the collection schema, by shallow merging them. If any
-// of the fields named don't already exist, throws an error. This is used for
-// making parts of the schema (in particular, resolvers, onCreate callbacks,
-// etc) specific to server-side code.
-export const augmentFieldsDict = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  fieldsDict: Record<string, CollectionFieldSpecification<N>>,
-): void => {
-  collection._simpleSchema = null;
-
-  for (let key in fieldsDict) {
-    if (key in collection._schemaFields) {
-      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
-    } else {
-      throw new Error("Field does not exist: "+key);
-    }
   }
 }
 
@@ -456,8 +411,10 @@ export function denormalizedCountOfReferences<
       document: ObjectsByCollectionName[SourceCollectionName],
       context: ResolverContext,
     ): Promise<number> => {
-      const { getCollection }: { getCollection: typeof getCollectionType } = require('@/server/collections/allCollections');
-      const foreignCollection = getCollection(foreignCollectionName);
+      if (!isServer) {
+        throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
+      }
+      const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
       const docsThatMayCount = await getWithLoader<TargetCollectionName>(
         context,
         foreignCollection,

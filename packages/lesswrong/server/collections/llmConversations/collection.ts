@@ -1,6 +1,5 @@
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import schema from "@/lib/collections/llmConversations/schema";
-import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions.ts";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -25,9 +24,5 @@ export const LlmConversations: LlmConversationsCollection = createCollection({
     }
   }),
 });
-
-LlmConversations.checkAccess = async (user, llmConversation) => {
-  return isAdmin(user) || userOwns(user, llmConversation);
-};
 
 export default LlmConversations;

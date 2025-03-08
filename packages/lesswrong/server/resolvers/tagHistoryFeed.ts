@@ -35,7 +35,7 @@ defineFeedResolver<Date>({
     
     const tagRaw = await Tags.findOne({_id: tagId});
     if (!tagRaw) throw new Error("Tag not found");
-    const tag = await accessFilterSingle(currentUser, Tags, tagRaw, context);
+    const tag = await accessFilterSingle(currentUser, 'Tags', tagRaw, context);
     if (!tag) throw new Error("Tag not found");
     
     type SortKeyType = Date

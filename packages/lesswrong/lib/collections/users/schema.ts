@@ -1442,7 +1442,7 @@ const schema: SchemaType<"Users"> = {
           sort: {createdAt: -1}
         }
       ).fetch()
-      const filteredEvents = await accessFilterMultiple(currentUser, LWEvents, events, context);
+      const filteredEvents = await accessFilterMultiple(currentUser, 'LWEvents', events, context);
       const IPs = filteredEvents.map(event => event.properties?.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
@@ -2213,7 +2213,7 @@ const schema: SchemaType<"Users"> = {
         cancelled: false,
       }).fetch();
       if (!votes.length) return [];
-      return await accessFilterMultiple(currentUser, Votes, votes, context);
+      return await accessFilterMultiple(currentUser, 'Votes', votes, context);
     },
   }),
 
@@ -2478,7 +2478,7 @@ const schema: SchemaType<"Users"> = {
         const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
-        return await accessFilterMultiple(currentUser, Posts, posts, context);
+        return await accessFilterMultiple(currentUser, 'Posts', posts, context);
       }
     }
   },
@@ -3219,6 +3219,12 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
+  },
+
+  karmaChanges: {
+    canRead: userOwns,
+    type: "KarmaChanges",
+    optional: true,
   },
 
   ...recommendationSettingsField,

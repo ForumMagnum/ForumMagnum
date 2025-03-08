@@ -31,7 +31,7 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import { throwError } from './errors';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import clone from 'lodash/clone';
@@ -65,7 +65,7 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
     document
   } = createMutatorParams;
 
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
 
   return {
     currentUser, collection,
@@ -131,7 +131,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const context = createMutatorParams.context ?? require('./query').createAnonymousContext();
 
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const schema = getSchema(collectionName);
 
   const hooks = getCollectionHooks(collectionName);
 
@@ -357,7 +357,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   document: oldDocument,
 }: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const schema = getSchema(collectionName);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
   logger('updateMutator() begin')
 
@@ -613,7 +613,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   document,
 }: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const schema = getSchema(collectionName);
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
 

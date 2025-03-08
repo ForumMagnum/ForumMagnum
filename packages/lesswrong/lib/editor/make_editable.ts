@@ -6,6 +6,7 @@ import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
+import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -117,7 +118,7 @@ const buildEditableResolver = <N extends CollectionNameString>(
         context: ResolverContext,
       ): Promise<DbRevision|null> => {
         const {currentUser, Revisions} = context;
-        const {checkAccess} = Revisions;
+        const checkAccess = getCollectionAccessFilter('Revisions');
 
         let revision: DbRevision|null;
         if (args.version) {
@@ -172,7 +173,7 @@ const buildEditableResolver = <N extends CollectionNameString>(
     ): Promise<DbRevision|null> => {
       const {currentUser, Revisions} = context;
       if (version) {
-        const {checkAccess} = Revisions;
+        const checkAccess = getCollectionAccessFilter('Revisions');
         if (version === "draft") {
           // If version is the special string "draft", that means
           // instead of returning the latest non-draft version
@@ -360,7 +361,7 @@ export function editableFields<N extends CollectionNameString>(collectionName: N
           {sort: {editedAt: -1}, limit},
         );
 
-        return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
+        return await accessFilterMultiple(currentUser, 'Revisions', loaderResults, context);
       }
     },
   };

@@ -2,9 +2,8 @@ import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { LWEvents } from '@/server/collections/lwevents/collection.ts';
+import { LWEvents } from '@/server/collections/lwevents/collection';
 import pick from 'lodash/pick';
 import { FieldChangeResult } from '@/lib/collections/lwevents/fragments';
 
@@ -298,7 +297,7 @@ async function queryWithCutoff<N extends CollectionNameString>({
   }).fetch();
 
   if (applyPermissions) {
-    return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+    return await accessFilterMultiple(currentUser, collection.collectionName, resultsRaw, context);
   } else {
     return resultsRaw;
   }

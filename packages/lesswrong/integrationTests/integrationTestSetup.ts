@@ -12,6 +12,7 @@ import PgCollection from '../server/sql/PgCollection';
 import { waitUntilCallbacksFinished } from './utils';
 import "@/lib"
 import { runServerOnStartupFunctions } from '@/server/serverMain';
+import { augmentSchemas } from '@/lib/schema/allSchemas';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
@@ -19,6 +20,7 @@ require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
 
 const preparePgTables = () => {
+  augmentSchemas();
   for (let collection of getAllCollections()) {
     if (collection instanceof PgCollection) {
       if (!collection.getTable()) {

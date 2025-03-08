@@ -147,10 +147,9 @@ const schema: SchemaType<"Votes"> = {
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
-      const { TagRels } = context;
       if (vote.collectionName === "TagRels") {
         const tagRel = await context.loaders.TagRels.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, TagRels, tagRel, context);
+        return accessFilterSingle(context.currentUser, 'TagRels', tagRel, context);
       } else {
         return null;
       }
@@ -162,10 +161,9 @@ const schema: SchemaType<"Votes"> = {
     graphQLtype: 'Comment',
     canRead: ['guests'],
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
-      const { Comments } = context;
       if (vote.collectionName === "Comments") {
         const comment = await context.loaders.Comments.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, Comments, comment, context);
+        return accessFilterSingle(context.currentUser, 'Comments', comment, context);
       } else {
         return null;
       }
@@ -177,10 +175,9 @@ const schema: SchemaType<"Votes"> = {
     graphQLtype: 'Post',
     canRead: ['guests'],
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
-      const { Posts } = context;
       if (vote.collectionName === "Posts") {
         const post = await context.loaders.Posts.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, Posts, post, context);
+        return accessFilterSingle(context.currentUser, 'Posts', post, context);
       } else {
         return null;
       }

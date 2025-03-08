@@ -1,6 +1,8 @@
 import Table from "../Table";
 import Query from "../Query";
-import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
+import { createCollection } from "@/lib/vulcan-lib/collections";
+import { testSchema, testSchema2, testSchema3, testSchema4 } from "./testSchemas";
+
 export type DbTestObject = {
   _id: string,
   a?: number,
@@ -14,34 +16,11 @@ export type DbTestObject = {
   schemaVersion: number,
 }
 
-export const TestCollection = {
-  collectionName: "TestCollection",
+export const TestCollection = createCollection({
+  collectionName: "TestCollection" as CollectionNameString,
   typeName: "TestCollection",
-  _schemaFields: {
-    _id: {
-      type: String,
-    },
-    a: {
-      type: Number,
-      defaultValue: 3,
-    },
-    b: {
-      type: String,
-    },
-    c: {
-      type: Object,
-    },
-    d: {
-      type: Array
-    },
-    'd.$': {
-      type: String
-    },
-    schemaVersion: {
-      type: Number,
-    },
-  },
-} as unknown as CollectionBase<CollectionNameString>;
+  schema: testSchema,
+});
 
 export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
 (TestCollection as any).getTable = () => testTable;
@@ -52,21 +31,11 @@ export type DbTestObject2 = {
   schemaVersion: number,
 }
 
-export const TestCollection2 = {
-  collectionName: "TestCollection2",
+export const TestCollection2 = createCollection({
+  collectionName: "TestCollection2" as CollectionNameString,
   typeName: "TestCollection2",
-  _schemaFields: {
-    _id: {
-      type: String,
-    },
-    data: {
-      type: String,
-    },
-    schemaVersion: {
-      type: Number,
-    },
-  },
-} as unknown as CollectionBase<CollectionNameString>;
+  schema: testSchema2,
+});
 
 export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
 (TestCollection2 as any).getTable = () => testTable2;
@@ -77,22 +46,11 @@ export type DbTestObject3 = {
   schemaVersion: number
 };
 
-export const TestCollection3 = {
-  collectionName: "TestCollection3",
+export const TestCollection3 = createCollection({
+  collectionName: "TestCollection3" as CollectionNameString,
   typeName: "TestCollection3",
-  _schemaFields: {
-    _id: {
-      type: String,
-    },
-    notNullData: {
-      type: String,
-      nullable: false
-    },
-    schemaVersion: {
-      type: Number,
-    }
-  }
-} as unknown as CollectionBase<CollectionNameString>;
+  schema: testSchema3,
+});
 
 export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
 (TestCollection3 as any).getTable = () => testTable3;
@@ -103,42 +61,11 @@ export type DbTestObject4 = {
   schemaVersion: number
 };
 
-export const TestCollection4 = {
-  collectionName: "TestCollection4",
+export const TestCollection4 = createCollection({
+  collectionName: "TestCollection4" as CollectionNameString,
   typeName: "TestCollection4",
-  _schemaFields: {
-    _id: {
-      type: String,
-    },
-    testCollection3Id: {
-      ...foreignKeyField({
-        idFieldName: "testCollection3Id",
-        resolverName: "testCollection3",
-        collectionName: "TestCollection3" as CollectionNameString,
-        type: "TestCollection3",
-        nullable: true,
-        autoJoin: true,
-      }),
-    },
-    testCollection2: resolverOnlyField({
-      type: "TestCollection2",
-      graphQLtype: "TestCollection2",
-      graphqlArguments: "testCollection2Id: String",
-      resolver: async () => null,
-      sqlResolver: ({resolverArg, join}) => join({
-        table: "TestCollection2" as CollectionNameString,
-        type: "left",
-        on: {
-          _id: resolverArg("testCollection2Id"),
-        },
-        resolver: (testCollection2Field) => testCollection2Field("*"),
-      }),
-    }),
-    schemaVersion: {
-      type: Number,
-    },
-  },
-} as unknown as CollectionBase<CollectionNameString>;
+  schema: testSchema4,
+});
 
 export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
 (TestCollection4 as any).getTable = () => testTable4;

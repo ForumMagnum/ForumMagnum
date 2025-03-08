@@ -1,27 +1,29 @@
-import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
+import { userCanDo } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/messages/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import Conversations from '../conversations/collection'
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbMessage> = {
-  newCheck: async (user: DbUser|null, document: DbMessage|null) => {
+  newCheck: async (user: DbUser|null, document: DbMessage|null, context: ResolverContext) => {
+    const { Conversations } = context;
     if (!user || !document) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
       userCanDo(user, 'messages.new.own') : userCanDo(user, `messages.new.all`)
   },
 
-  editCheck: async (user: DbUser|null, document: DbMessage|null) => {
+  editCheck: async (user: DbUser|null, document: DbMessage|null, context: ResolverContext) => {
+    const { Conversations } = context;
     if (!user || !document) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
     userCanDo(user, 'messages.edit.own') : userCanDo(user, `messages.edit.all`)
   },
 
-  removeCheck: async (user: DbUser|null, document: DbMessage|null) => {
+  removeCheck: async (user: DbUser|null, document: DbMessage|null, context: ResolverContext) => {
+    const { Conversations } = context;
     if (!user || !document) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
@@ -44,11 +46,5 @@ export const Messages: MessagesCollection = createCollection({
   // free of confidential stuff that admins shouldn't look at.
   logChanges: false,
 });
-
-Messages.checkAccess = async (user: DbUser|null, document: DbMessage, context: ResolverContext|null): Promise<boolean> => {
-  if (!user || !document) return false;
-  return (await Conversations.findOne({_id: document.conversationId}))?.participantIds?.includes(user._id) ?
-    userCanDo(user, 'messages.view.own') : userCanDo(user, `messages.view.all`)
-};
 
 export default Messages;

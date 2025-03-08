@@ -32,7 +32,6 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../../../server/collections/revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
@@ -41,6 +40,7 @@ import groupBy from 'lodash/groupBy';
 import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
 import { editableFields } from '@/lib/editor/make_editable';
 import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -691,7 +691,7 @@ const schema: SchemaType<"Posts"> = {
 
       const { currentUser, PostRelations } = context;
       const result = await PostRelations.find({targetPostId: post._id}).fetch()
-      return await accessFilterMultiple(currentUser, PostRelations, result, context);
+      return await accessFilterMultiple(currentUser, 'PostRelations', result, context);
     }
   }),
   'sourcePostRelations.$': {
@@ -709,7 +709,7 @@ const schema: SchemaType<"Posts"> = {
       const {currentUser, repos, PostRelations} = context;
       const postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
       if (!postRelations || postRelations.length < 1) return []
-      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
+      return await accessFilterMultiple(currentUser, 'PostRelations', postRelations, context);
     }
   }),
   'targetPostRelations.$': {
@@ -901,7 +901,7 @@ const schema: SchemaType<"Posts"> = {
 
       const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 }}).fetch();
 
-      return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
+      return await accessFilterMultiple(context.currentUser, 'JargonTerms', jargonTerms, context);
     },
     sqlResolver: ({ field, currentUserField }) => `(
       SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
@@ -1051,7 +1051,7 @@ const schema: SchemaType<"Posts"> = {
         },
         'postId', post._id
       );
-      const filteredTagRels = await accessFilterMultiple(currentUser, TagRels, tagRels, context)
+      const filteredTagRels = await accessFilterMultiple(currentUser, 'TagRels', tagRels, context)
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
@@ -1085,7 +1085,7 @@ const schema: SchemaType<"Posts"> = {
 
       const sortedTags = sortedTagInfo.map(({ tag }) => tag);
 
-      return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
+      return await accessFilterMultiple(currentUser, 'Tags', sortedTags, context);
     }
   }),
   
@@ -1122,7 +1122,7 @@ const schema: SchemaType<"Posts"> = {
         const comment: DbComment|null = await getWithCustomLoader<DbComment|null,string>(context, "lastPromotedComments", post._id, async (postIds: string[]): Promise<Array<DbComment|null>> => {
           return await context.repos.comments.getPromotedCommentsOnPosts(postIds);
         });
-        return await accessFilterSingle(currentUser, Comments, comment, context)
+        return await accessFilterSingle(currentUser, 'Comments', comment, context)
       }
     }
   }),
@@ -1136,10 +1136,10 @@ const schema: SchemaType<"Posts"> = {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
-          return await accessFilterSingle(currentUser, Comments, comment, context)
+          return await accessFilterSingle(currentUser, 'Comments', comment, context)
         } else {
           const comment = await Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
-          return await accessFilterSingle(currentUser, Comments, comment, context)
+          return await accessFilterSingle(currentUser, 'Comments', comment, context)
         }
       }
     }
@@ -1258,7 +1258,7 @@ const schema: SchemaType<"Posts"> = {
         "postId", post._id
       );
       if (!votes.length) return null;
-      const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
+      const vote = await accessFilterSingle(currentUser, 'ReviewVotes', votes[0], context);
       return vote;
     },
     sqlResolver: ({field, currentUserField, join}) => join({
@@ -1280,9 +1280,13 @@ const schema: SchemaType<"Posts"> = {
       if (!isLWorAF) {
         return null;
       }
-      const { currentUser, ReviewWinners } = context;
+      const { currentUser } = context;
+      // There's an annoying dependency cycle here
+      // We could also pull this out to a server-side augmentation later, if preferred
+      // TODO: figure out how to fix this to avoid esbuild headaches
+      const { getPostReviewWinnerInfo } = require('../../../server/review/reviewWinnersCache');
       const winner = await getPostReviewWinnerInfo(post._id, context);
-      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
+      return accessFilterSingle(currentUser, 'ReviewWinners', winner, context);
     },
   }),
 
@@ -1301,7 +1305,7 @@ const schema: SchemaType<"Posts"> = {
         },
         "documentId", post._id
       );
-      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+      return accessFilterSingle(currentUser, 'Spotlights', spotlight[0], context);
     },
     sqlResolver: ({field, join}) => join({
       table: "Spotlights",
@@ -1619,7 +1623,7 @@ const schema: SchemaType<"Posts"> = {
         const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
         );
-        return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
+        return await accessFilterMultiple(context.currentUser, 'Users', resolvedDocs, context);
       },
       addOriginalField: true,
     },
@@ -1796,7 +1800,7 @@ const schema: SchemaType<"Posts"> = {
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!post.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
-        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
+        return await accessFilterSingle(context.currentUser, 'Collections', collection, context);
       }
     },
   },
@@ -1867,7 +1871,7 @@ const schema: SchemaType<"Posts"> = {
         const nextPostID = await sequenceGetNextPostID(sequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          return accessFilterSingle(currentUser, Posts, nextPost, context);
+          return accessFilterSingle(currentUser, 'Posts', nextPost, context);
         } else {
           const nextSequencePostIdTuple = await getNextPostIdFromNextSequence(sequenceId, post._id, context);
           if (!nextSequencePostIdTuple) {
@@ -1875,21 +1879,21 @@ const schema: SchemaType<"Posts"> = {
           }
 
           const nextPost = await context.loaders.Posts.load(nextSequencePostIdTuple.postId);
-          return accessFilterSingle(currentUser, Posts, nextPost, context);
+          return accessFilterSingle(currentUser, 'Posts', nextPost, context);
         }
       }
       if(post.canonicalSequenceId) {
         const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+          const nextPostFiltered = await accessFilterSingle(currentUser, 'Posts', nextPost, context);
           if (nextPostFiltered)
             return nextPostFiltered;
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+        const nextPostFiltered = await accessFilterSingle(currentUser, 'Posts', nextPost, context);
         if (nextPostFiltered)
           return nextPostFiltered;
       }
@@ -1917,7 +1921,7 @@ const schema: SchemaType<"Posts"> = {
         const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          return accessFilterSingle(currentUser, Posts, prevPost, context);
+          return accessFilterSingle(currentUser, 'Posts', prevPost, context);
         } else {
           const prevSequencePostIdTuple = await getPrevPostIdFromPrevSequence(sequenceId, post._id, context);
           if (!prevSequencePostIdTuple) {
@@ -1925,14 +1929,14 @@ const schema: SchemaType<"Posts"> = {
           }
 
           const prevPost = await context.loaders.Posts.load(prevSequencePostIdTuple.postId);
-          return accessFilterSingle(currentUser, Posts, prevPost, context);
+          return accessFilterSingle(currentUser, 'Posts', prevPost, context);
         }
       }
       if(post.canonicalSequenceId) {
         const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+          const prevPostFiltered = await accessFilterSingle(currentUser, 'Posts', prevPost, context);
           if (prevPostFiltered) {
             return prevPostFiltered;
           }
@@ -1940,7 +1944,7 @@ const schema: SchemaType<"Posts"> = {
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+        const prevPostFiltered = await accessFilterSingle(currentUser, 'Posts', prevPost, context);
         if (prevPostFiltered) {
           return prevPostFiltered;
         }
@@ -1983,7 +1987,7 @@ const schema: SchemaType<"Posts"> = {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
-      return await accessFilterSingle(currentUser, context.Sequences, sequence, context);
+      return await accessFilterSingle(currentUser, 'Sequences', sequence, context);
     }
   }),
 
@@ -2825,7 +2829,7 @@ const schema: SchemaType<"Posts"> = {
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
         return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
       });
-      return await accessFilterMultiple(currentUser, Comments, comments, context);
+      return await accessFilterMultiple(currentUser, 'Comments', comments, context);
     }
   }),
   'recentComments.$': {
@@ -3171,7 +3175,7 @@ const schema: SchemaType<"Posts"> = {
         postId: post._id,
         deleted: { $ne: true },
       }).fetch();
-      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
+      return await accessFilterMultiple(currentUser, 'CurationNotices', curationNotices, context);
     }
   }),
   'curationNotices.$': {
@@ -3191,13 +3195,15 @@ const schema: SchemaType<"Posts"> = {
         post._id,
         (postIds: string[]) => context.repos.comments.getPostReviews(postIds, 2, 10),
       );
-      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+      return await accessFilterMultiple(currentUser, 'Comments', reviews, context);
     }
   }),
   'reviews.$': {
     type: Object,
     foreignKey: 'Comments',
   },
+
+  ...getVoteableSchemaFields('Posts'),
 };
 
 export default schema;

@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import type { Column } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import sanitizeHtml from 'sanitize-html';
+// import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
@@ -52,13 +52,13 @@ const CommentDisplay = ({column, document}: {
   column: Column;
   document: any;
 }) => {
-  const mainTextHtml = sanitizeHtml(
-    document.contents.html, {
-      allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
-      nonTextTags: ['img', 'style']
-    }
-  )
-  return <div>{htmlToText(mainTextHtml)}</div>
+  // const mainTextHtml = sanitizeHtml(
+  //   document.contents.html, {
+  //     allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
+  //     nonTextTags: ['img', 'style']
+  //   }
+  // )
+  return <div>{htmlToText('mainTextHtml')}</div>
 }
 
 const DateDisplay = ({column, document}: {

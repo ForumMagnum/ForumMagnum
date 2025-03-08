@@ -1,8 +1,7 @@
-import schema, { subscriptionTypes } from '@/lib/collections/subscriptions/schema';
-import { userCanDo, userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
+import schema from '@/lib/collections/subscriptions/schema';
+import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import Localgroups from '../localgroups/collection';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -29,26 +28,5 @@ export const Subscriptions: SubscriptionsCollection = createCollection({
   resolvers: getDefaultResolvers('Subscriptions'),
   mutations: getDefaultMutations('Subscriptions', options),
 });
-
-Subscriptions.checkAccess = async (currentUser: DbUser|null, subscription: DbSubscription, context: ResolverContext|null): Promise<boolean> => {
-  if (!currentUser) return false;
-  if (subscription.userId === currentUser._id) return true;
-  if (userIsAdmin(currentUser)) return true;
-  
-  // If this subscription is to a LocalGroup, organizers of that group can see
-  // the subscription
-  if (subscription.type === subscriptionTypes.newEvents && subscription.documentId) {
-    const localGroup = context
-      ? await context.loaders.Localgroups.load(subscription.documentId)
-      : await Localgroups.findOne({_id: subscription.documentId});
-    if (localGroup) {
-      if (localGroup.organizerIds.includes(currentUser._id))
-        return true;
-    }
-  }
-  
-  return false;
-}
-
 
 export default Subscriptions

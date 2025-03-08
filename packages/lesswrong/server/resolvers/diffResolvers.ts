@@ -25,12 +25,10 @@ addGraphQLResolvers({
         throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
       }
       
-      const collection = context[collectionName];
-      
       const documentUnfiltered = await context.loaders[collectionName].load(id);
       
       // Check that the user has access to the document
-      const document = await accessFilterSingle(currentUser, collection, documentUnfiltered, context);
+      const document = await accessFilterSingle(currentUser, collectionName, documentUnfiltered, context);
       if (!document) {
         throw new Error(`Could not find document: ${id}`);
       }
@@ -54,8 +52,8 @@ addGraphQLResolvers({
         beforeUnfiltered = await getPrecedingRev(afterUnfiltered);
       }
       
-      const before: Partial<DbRevision>|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
-      const after: Partial<DbRevision>|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
+      const before: Partial<DbRevision>|null = await accessFilterSingle(currentUser, 'Revisions', beforeUnfiltered, context);
+      const after: Partial<DbRevision>|null = await accessFilterSingle(currentUser, 'Revisions', afterUnfiltered, context);
       // If we don't provide a beforeRev at all, then just assume that all in the current revision is new
       if (beforeRev && (!before || !beforeUnfiltered)) {
         throw new Error(`Could not find revision: ${beforeRev}`);

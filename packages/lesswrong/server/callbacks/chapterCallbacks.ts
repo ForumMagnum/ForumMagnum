@@ -6,7 +6,7 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 import { createNotifications, getSubscribedUsers } from '../notificationCallbacksHelpers';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import xor from 'lodash/xor';
 
 async function ChaptersEditCanonizeCallback (chapter: DbChapter) {

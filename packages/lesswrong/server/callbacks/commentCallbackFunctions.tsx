@@ -26,7 +26,7 @@ import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { Components } from "@/lib/vulcan-lib/components";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import _ from "underscore";
@@ -769,7 +769,8 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
 }
 
 export async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
-  const { Comments } = properties.context;
+  const { context } = properties;
+  const { Comments } = context;
   if (!currentUser) throw new Error("Submitted comment has no associated user");
   
   // Don't spam-check imported comments
@@ -782,7 +783,7 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
   if (unreviewedUser && akismetKeySetting.get()) {
     const start = Date.now();
 
-    const spam = await checkForAkismetSpam({document: comment, type: "comment"})
+    const spam = await checkForAkismetSpam({document: comment, type: "comment", context})
 
     const timeElapsed = Date.now() - start;
     captureEvent('checkForAkismetSpamCompleted', {

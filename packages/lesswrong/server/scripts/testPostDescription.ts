@@ -2,12 +2,12 @@
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
 import { Posts } from "../../server/collections/posts/collection";
-import Revisions from "../../server/collections/revisions/collection";
-
+import { revisionResolvers } from "../../server/resolvers/revisionResolvers";
+import { createAnonymousContext } from "../vulcan-lib/query";
 
 /** For visually inspecting that our descriptions match the post content well */
 export const testPostDescription = async () => {
-  const plaintextResolver = Revisions._schemaFields.plaintextDescription.resolveAs?.resolver
+  const plaintextResolver = revisionResolvers.plaintextDescription.resolveAs.resolver;
   console.log("running");
   console.log('plaintextResolver', plaintextResolver);
   if (!plaintextResolver) throw new Error('no plaintextResolver');
@@ -17,14 +17,14 @@ export const testPostDescription = async () => {
   ]).toArray();
 
   const revisions = await Promise.all(
-    posts.map((post) => getLatestContentsRevision(post)),
+    posts.map((post) => getLatestContentsRevision(post, createAnonymousContext())),
   );
 
   for (let i = 0; i < posts.length; i++) {
     const post = posts[i];
     const rev = revisions[i];
     if (!rev) continue;
-    const plaintextDescription = plaintextResolver(rev, {}, {} as any)
+    const plaintextDescription = plaintextResolver(rev);
     const fakeDoc = {
       contents: {
         plaintextDescription

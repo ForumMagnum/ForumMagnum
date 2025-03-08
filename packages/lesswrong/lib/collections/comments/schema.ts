@@ -9,10 +9,11 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
-import { updateMutator } from '@/server/vulcan-lib/mutators';
 import { editableFields } from '@/lib/editor/make_editable';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import { publicScoreOptions } from './voting';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -403,6 +404,10 @@ const schema: SchemaType<"Comments"> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
+        // There's an annoying dependency cycle here
+        // We could also pull this out to a server-side augmentation later, if preferred
+        // TODO: figure out how to fix this to avoid esbuild headaches
+        const { updateMutator } = require('../../../server/vulcan-lib/mutators');
         void updateMutator({
           collection: context.Posts,
           context,
@@ -934,7 +939,9 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-  } 
+  },
+
+  ...getVoteableSchemaFields('Comments', { publicScoreOptions }),
 };
 
 export default schema;

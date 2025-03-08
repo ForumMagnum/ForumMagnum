@@ -4,7 +4,6 @@ import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '@/lib/vulc
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from '@/lib/collections/posts/helpers';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
-import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
 import { userCanPost } from '@/lib/collections/users/helpers';
 
 const options: MutationOptions<DbPost> = {
@@ -46,9 +45,5 @@ export const Posts = createCollection({
     {type: "extension", name: "earthdistance"},
   ],
 });
-
-
-Posts.checkAccess = postCheckAccess;
-
 
 export default Posts;

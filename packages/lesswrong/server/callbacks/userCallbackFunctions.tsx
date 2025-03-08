@@ -510,12 +510,12 @@ export function updateUserMayTriggerReview({document, data}: UpdateCallbackPrope
 }
 
 // updateAsync
-export async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}: UpdateCallbackProperties<"Users">) {
+export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
-    void userDeleteContent(newDocument, currentUser);
+    void userDeleteContent(newDocument, currentUser, context);
   }
 }
 

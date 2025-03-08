@@ -1,5 +1,5 @@
 import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript } from './typeGenerationUtils';
-import { getSchema } from '../../lib/utils/getSchema';
+import { allSchemas, getSimpleSchema } from '@/lib/schema/allSchemas';
 import groupBy from 'lodash/groupBy';
 import { getAllFragmentNames, getFragment } from "../../lib/vulcan-lib/fragments";
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
@@ -105,26 +105,26 @@ function generateCollectionNamesByFragmentNameType(): string {
 
 const generateCollectionNameList = (
   name: string,
-  collections: CollectionBase<CollectionNameString>[],
+  collectionNames: CollectionNameString[],
 ): string =>
-  `type ${name} = ${collections.map(c => `"${c.collectionName}"`).join('|')}\n\n`;
+  `type ${name} = ${collectionNames.map(c => `"${c}"`).join('|')}\n\n`;
 
 const generateCollectionNamesIndexType = () =>
-  generateCollectionNameList("CollectionNameString", getAllCollections());
+  generateCollectionNameList("CollectionNameString", getAllCollections().map(c => c.collectionName));
 
 const generateCollectionNamesWithCreatedAtIndexType = () =>
   generateCollectionNameList(
     "CollectionNameWithCreatedAt",
-    getAllCollections().filter((c) => !!c._schemaFields.createdAt),
+    Object.entries(allSchemas).filter(([_, schema]) => 'createdAt' in schema).map(([collectionName]) => collectionName as CollectionNameString),
   );
 
 const generateCollectionNamesWithSlugIndexType = () =>
   generateCollectionNameList(
     "CollectionNameWithSlug",
-    getAllCollections().filter((c) => !!c._schemaFields.slug),
+    Object.entries(allSchemas).filter(([_, schema]) => 'slug' in schema).map(([collectionName]) => collectionName as CollectionNameString),
   );
 
-function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection: AnyBecauseTodo): string {
+function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection: CollectionBase<CollectionNameString> | null): string {
   const sb: Array<string> = [];
   
   const spreadFragments = getSpreadFragments(parsedFragment);
@@ -180,7 +180,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   if (fieldName === "__typename") {
     return { fieldType: "string", subfragment: null };
   }
-  const schema = getSchema(collection);
+  const schema = getSimpleSchema(collection.collectionName)._schema;
   
   // There are two ways a field name can appear in a schema. The first is as a
   // regular field with that name. The second is as a resolver with that name,

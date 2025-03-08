@@ -1,5 +1,5 @@
 import { LWEvents } from '../server/collections/lwevents/collection';
-import { getSchema } from '../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import { createMutator } from './vulcan-lib/mutators';
 
 export const logFieldChanges = async <
@@ -12,7 +12,7 @@ export const logFieldChanges = async <
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};
-  let schema = getSchema(collection);
+  let schema = getSchema(collection.collectionName);
   
   for (let key of Object.keys(data)) {
     let before = oldDocument[key as keyof ObjectsByCollectionName[N]];

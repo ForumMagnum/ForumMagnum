@@ -107,6 +107,29 @@ const allCollections = {
   UserActivities, Users, Votes, ...testCollections
 } satisfies CollectionsByName;
 
+// TODO: do something less horrible than this, maybe?
+// Actually check whether we even use ._schemaFields anywhere, maybe I've gotten the last of them.
+const augmentCollections = (() => {
+  let augmented = false;
+  return () => {
+    if (augmented) return;
+    augmented = true;
+    const augmentations: Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>> = require('../resolvers/allFieldAugmentations').allFieldAugmentations;
+    for (const collectionName in augmentations) {
+      const collection = allCollections[collectionName as CollectionNameString];
+      const collectionAugmentations = augmentations[collectionName as CollectionNameString];
+      if (collectionAugmentations) {
+        collection._simpleSchema = null;
+        for (const fieldName in collectionAugmentations) {
+          collection._schemaFields[fieldName] = { ...collection._schemaFields[fieldName], ...collectionAugmentations[fieldName] };
+        }
+      }
+    }
+  }
+})();
+
+augmentCollections();
+
 const collectionsByLowercaseName = Object.fromEntries(
   Object.values(allCollections).map((collection) => [collection.collectionName.toLowerCase(), collection]),
 );

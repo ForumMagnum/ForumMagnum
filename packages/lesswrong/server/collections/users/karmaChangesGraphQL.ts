@@ -1,6 +1,3 @@
-import Users from "../users/collection";
-import { userOwns } from '../../../lib/vulcan-users/permissions';
-import { addFieldsDict } from '../../../lib/utils/schemaUtils';
 import { addGraphQLResolvers, addGraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 import type { TagCommentType } from "../../../lib/collections/comments/types";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
@@ -73,14 +70,6 @@ addGraphQLResolvers({
     },
   }
 })
-
-addFieldsDict(Users, {
-  "karmaChanges": {
-    canRead: userOwns,
-    type: "KarmaChanges",
-    optional: true,
-  }
-});
 
 export type KarmaChangesArgs = {
   userId: string,

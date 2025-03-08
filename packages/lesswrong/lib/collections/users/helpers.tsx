@@ -14,6 +14,8 @@ const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>(
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
+export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
+
 export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
 
 // Get a user's display name (not unique, can take special characters and spaces)

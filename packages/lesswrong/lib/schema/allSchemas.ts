@@ -84,7 +84,17 @@ import { default as UserTagRels } from '../collections/userTagRels/schema';
 import { default as UserActivities } from '../collections/useractivities/schema';
 import { default as Users } from '../collections/users/schema';
 import { default as Votes } from '../collections/votes/schema';
+import { isAnyTest, isCodegen, isServer } from '../executionEnvironment';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
+import SimpleSchema from 'simpl-schema';
+
+let testSchemas: Record<never, never>;
+if (isAnyTest || isCodegen) {
+  // TODO: does this need fixing to avoid esbuild headaches?
+  ({ testSchemas } = require('../../server/sql/tests/testSchemas'));
+} else {
+  testSchemas = {};
+}
 
 export const allSchemas = {
   AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books,
@@ -105,11 +115,50 @@ export const allSchemas = {
   SurveySchedules, Surveys, TagFlags, TagRels, Tags,
   Tweets, TypingIndicators, UserEAGDetails, UserJobAds,
   UserMostValuablePosts, UserRateLimits, UserTagRels, UserActivities,
-  Users, Votes,
+  Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, SchemaType<CollectionNameString>>;
 
-export function getSchema<N extends CollectionNameString>(collectionName: N) {
-  return allSchemas[collectionName];
+// TODO: do something less horrible than this.
+export const augmentSchemas = (() => {
+  let augmented = false;
+  return () => {
+    if (augmented) return;
+    augmented = true;
+    if (isServer || isCodegen) {
+      // TODO: does this need fixing to avoid esbuild headaches?
+      const augmentations: Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>> = require('../../server/resolvers/allFieldAugmentations').allFieldAugmentations;
+      for (const collectionName in augmentations) {
+        const schema: SchemaType<CollectionNameString> = allSchemas[collectionName as CollectionNameString];
+        const schemaAugmentations = augmentations[collectionName as CollectionNameString];
+        if (schemaAugmentations) {
+          for (const fieldName in schemaAugmentations) {
+            schema[fieldName] = { ...schema[fieldName], ...schemaAugmentations[fieldName] };
+          }
+        }
+      }  
+    }
+  }
+})();
+
+export function getSchema<N extends CollectionNameString>(collectionName: N): SchemaType<N> {
+  return allSchemas[collectionName] as SchemaType<N>;
+}
+
+const allSimpleSchemas: Record<CollectionNameString, SimpleSchema> = new Proxy({} as Record<CollectionNameString, SimpleSchema>, {
+  get<N extends CollectionNameString>(target: Partial<Record<CollectionNameString, SimpleSchema>>, collectionName: N) {
+    if (!target[collectionName]) {
+      if (!(collectionName in allSchemas)) {
+        throw new Error(`Invalid collection name: ${collectionName}`);
+      }
+      target[collectionName] = new SimpleSchema(allSchemas[collectionName] as AnyBecauseHard);
+    }
+
+    return target[collectionName];
+  }
+});
+
+export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): SimpleSchemaType<N> {
+  return allSimpleSchemas[collectionName] as SimpleSchemaType<N>;
 }
 
 export function apolloCacheVoteablePossibleTypes() {

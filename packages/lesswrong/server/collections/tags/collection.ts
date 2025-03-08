@@ -1,6 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanCreateTags } from '@/lib/betas';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/tags/schema';
 import { tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
@@ -42,15 +41,5 @@ export const Tags = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
-
-Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
-  if (userIsAdmin(currentUser))
-    return true;
-  else if (tag.deleted)
-    return false;
-  else
-    return true;
-}
-
 
 export default Tags;

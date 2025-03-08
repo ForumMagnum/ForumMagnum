@@ -1,4 +1,3 @@
-import Revisions from "./collection";
 import { getWithLoader } from "@/lib/loaders";
 
 export type GoogleDocMetadata = {
@@ -16,8 +15,10 @@ export type GoogleDocMetadata = {
  */
 export const getLatestContentsRevision = async <T extends { contents_latest: string | null }>(
   document: T,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<DbRevision | null> => {
+  const { Revisions } = context;
+
   if (!document.contents_latest) {
     return null;
   }

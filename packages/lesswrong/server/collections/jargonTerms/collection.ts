@@ -2,10 +2,8 @@ import schema from '@/lib/collections/jargonTerms/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
-import { Posts } from '../posts/collection';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
-import { postCheckAccess } from '@/lib/collections/posts/checkAccess';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -18,7 +16,9 @@ function postCanHaveJargonTerms(post: DbPost) {
   return !post.isEvent;
 }
 
-async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | null) {
+async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | null, context: ResolverContext) {
+  const { Posts } = context;
+
   if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {
     return false;
   }
@@ -32,11 +32,11 @@ async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: D
 }
 
 const options: MutationOptions<DbJargonTerm> = {
-  newCheck: (user, jargonTerm) => {
-    return userCanCreateJargonTermForPost(user, jargonTerm);
+  newCheck: (user, jargonTerm, context) => {
+    return userCanCreateJargonTermForPost(user, jargonTerm, context);
   },
-  editCheck: (user, jargonTerm) => {
-    return userCanCreateJargonTermForPost(user, jargonTerm);
+  editCheck: (user, jargonTerm, context) => {
+    return userCanCreateJargonTermForPost(user, jargonTerm, context);
   },
   removeCheck: () => {
     return false;
@@ -56,18 +56,5 @@ export const JargonTerms: JargonTermsCollection = createCollection({
   mutations: getDefaultMutations('JargonTerms', options),
   logChanges: true,
 });
-
-JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext) => {
-  const post = context
-    ? await context.loaders.Posts.load(jargonTerm.postId)
-    : await Posts.findOne(jargonTerm.postId);
-
-  if (!post) {
-    return false;
-  }
-
-  // If a user has read access to the post, they have read access to any jargon terms for that post
-  return await postCheckAccess(user, post, context);
-};
 
 export default JargonTerms;

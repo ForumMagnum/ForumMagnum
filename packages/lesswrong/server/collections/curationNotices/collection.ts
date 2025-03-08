@@ -23,8 +23,4 @@ export const CurationNotices: CurationNoticesCollection = createCollection({
   logChanges: true,
 });
 
-CurationNotices.checkAccess = async (user) => {
-  return userIsAdminOrMod(user);
-};
-
 export default CurationNotices;

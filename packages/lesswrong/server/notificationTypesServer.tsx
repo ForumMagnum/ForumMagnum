@@ -202,7 +202,7 @@ export const NewCommentNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -225,7 +225,7 @@ export const NewUserCommentNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -237,14 +237,14 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
   skip: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
 
     return comments.length === 0;
   },
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
 
     const commentCount = comments.length
     const subforumIds = uniq(comments.map(c => c.tagId))
@@ -259,7 +259,7 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -346,7 +346,7 @@ export const NewDebateCommentNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -369,7 +369,7 @@ export const NewDebateReplyNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -392,7 +392,7 @@ export const NewReplyNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -415,7 +415,7 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -443,18 +443,18 @@ export const NewMessageNotification = serverRegisterNotificationType({
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);
     const messagesRaw = await Messages.find({ _id: {$in: messageIds} }).fetch();
-    const messages = await accessFilterMultiple(user, Messages, messagesRaw, context);
+    const messages = await accessFilterMultiple(user, 'Messages', messagesRaw, context);
     
     // Load conversations
     const messagesByConversationId = keyBy(messages, message=>message.conversationId);
     const conversationIds = _.keys(messagesByConversationId);
     const conversationsRaw = await Conversations.find({ _id: {$in: conversationIds} }).fetch();
-    const conversations = await accessFilterMultiple(user, Conversations, conversationsRaw, context);
+    const conversations = await accessFilterMultiple(user, 'Conversations', conversationsRaw, context);
     
     // Load participant users
     const participantIds = _.uniq(_.flatten(conversations.map(conversation => conversation.participantIds), true));
     const participantsRaw = await Users.find({ _id: {$in: participantIds} }).fetch();
-    const participants = await accessFilterMultiple(user, Users, participantsRaw, context);
+    const participants = await accessFilterMultiple(user, 'Users', participantsRaw, context);
     const participantsById = keyBy(participants, u=>u._id);
     const otherParticipants = _.filter(participants, participant=>participant._id!==user._id);
     

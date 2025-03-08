@@ -3,7 +3,6 @@ import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { Revisions } from '../server/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
-
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
@@ -13,6 +12,8 @@ import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
+import { getCollectionAccessFilter } from './permissions/accessFilters';
+
 async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
 
@@ -69,7 +70,8 @@ async function getHtmlWithContributorAnnotations({
       console.log(e);
       const revision = await Revisions.findOne({ documentId: document._id, version, fieldName });
       if (!revision?.html) return null;
-      if (!await Revisions.checkAccess(context.currentUser, revision, context))
+      const checkAccess = getCollectionAccessFilter('Revisions');
+      if (!await checkAccess(context.currentUser, revision, context))
         return null;
       return revision.html;
     }
@@ -104,7 +106,8 @@ export const getToCforPost = async ({document, version, context}: {
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
     if (!revision?.html) return null;
-    if (!await Revisions.checkAccess(context.currentUser, revision, context))
+    const checkAccess = getCollectionAccessFilter('Revisions');
+    if (!await checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
   } else if ("contents" in document && document.contents) {

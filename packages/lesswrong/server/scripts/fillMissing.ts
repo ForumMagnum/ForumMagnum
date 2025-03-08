@@ -1,6 +1,6 @@
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../manualMigrations/migrationUtils'
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import * as _ from 'underscore';
 import { getAllCollections } from "@/server/collections/allCollections";
 
@@ -10,7 +10,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for(let collection of getAllCollections()) {
-      const schema = getSchema(collection);
+      const schema = getSchema(collection.collectionName);
       if (!schema) continue;
       
       const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
@@ -53,7 +53,7 @@ registerMigration({
 // Exported to allow running manually with "yarn repl"
 export const checkForMissingValues = async () => {
   for(let collection of getAllCollections()) {
-    const schema = getSchema(collection);
+    const schema = getSchema(collection.collectionName);
     if (!schema) continue;
     
     const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')

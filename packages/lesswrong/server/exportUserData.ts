@@ -110,7 +110,7 @@ export const exportUserData = async (
   context.currentUser = user;
 
   const values = await Promise.all(entries.map(async ([collection, {fetch}]) =>
-    accessFilterMultiple(user, collection, await fetch(), context),
+    accessFilterMultiple(user, collection.collectionName, await fetch(), context),
   ));
   const result = Object.fromEntries(entries
     .map(([collection, _], i) => [collection.collectionName, values[i]])

@@ -94,7 +94,7 @@ export const fetchFragment = async <
 
   const filtered = await accessFilterMultiple(
     currentUser,
-    getCollection(collectionName),
+    collectionName,
     results,
     context ?? null,
   );

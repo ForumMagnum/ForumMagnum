@@ -68,7 +68,7 @@ import * as userTagRelsFragments from '../collections/userTagRels/fragments';
 import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
-import { allSchemas } from '@/lib/schema/allSchemas';
+import { allSchemas, augmentSchemas } from '@/lib/schema/allSchemas';
 import uniq from 'lodash/uniq';
 import SqlFragment from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';
@@ -116,6 +116,7 @@ const getDefaultFragments = (() => {
   let defaultFragments: Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
   return () => {
     if (!defaultFragments) {
+      augmentSchemas();
       defaultFragments = Object.fromEntries(
         Object.entries(allSchemas)
           .map(([collectionName, schema]) => [`${collectionName}DefaultFragment`, getDefaultFragmentText(collectionName as CollectionNameString, schema)])
@@ -128,6 +129,7 @@ const getDefaultFragments = (() => {
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
+// TODO: does this need fixing to avoid esbuild headaches?
 let testFragments: Record<never, never>;
 if (isAnyTest) {
   testFragments = require('../../server/sql/tests/testFragments');

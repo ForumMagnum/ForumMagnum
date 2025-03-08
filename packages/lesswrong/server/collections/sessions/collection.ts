@@ -16,14 +16,4 @@ export const Sessions: SessionsCollection = createCollection({
   logChanges: false,
 });
 
-Sessions.checkAccess = async (
-  _user: DbUser|null,
-  _session: DbSession,
-  _context: ResolverContext|null,
-  outReasonDenied: {reason?: string},
-): Promise<boolean> => {
-  outReasonDenied.reason = "Sessions cannot be accessed manually";
-  return false;
-}
-
 export default Sessions;

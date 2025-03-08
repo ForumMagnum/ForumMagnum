@@ -39,7 +39,7 @@ addGraphQLResolvers({
       });
       
       const updatedUser = await Users.findOne(currentUser._id)!;
-      return (await accessFilterSingle(currentUser, Users, updatedUser, context))!;
+      return (await accessFilterSingle(currentUser, 'Users', updatedUser, context))!;
     }
   }
 });

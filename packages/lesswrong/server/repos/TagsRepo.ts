@@ -4,7 +4,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewableTagsSelector } from "./helpers";
 import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import sortBy from "lodash/sortBy";
-import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
+// import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 
 class TagsRepo extends AbstractRepo<"Tags"> {
   constructor() {
@@ -96,9 +96,11 @@ class TagsRepo extends AbstractRepo<"Tags"> {
   private async lensToSearchDocumentHtml(lens: DbMultiDocument): Promise<string> {
     const contentsRevId = lens.contents_latest
     if (!contentsRevId) return "";
-    const contentsRev = await getLatestContentsRevision(lens);
-    if (!contentsRev) return "";
-    return `<h2>${lens.tabTitle}${lens.tabSubtitle ? (": "+lens.tabSubtitle) : ""}</h2>${contentsRev.html}`;
+    return "";
+    // TODO: write this in raw sql without the import
+    // const contentsRev = await getLatestContentsRevision(lens);
+    // if (!contentsRev) return "";
+    // return `<h2>${lens.tabTitle}${lens.tabSubtitle ? (": "+lens.tabSubtitle) : ""}</h2>${contentsRev.html}`;
   }
 
   async countSearchDocuments(): Promise<number> {

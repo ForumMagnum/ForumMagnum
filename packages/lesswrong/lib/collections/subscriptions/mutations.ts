@@ -1,4 +1,4 @@
-import { subscriptionTypes } from './schema'
+import { subscriptionTypes } from './helpers'
 
 export const defaultSubscriptionTypeTable = {
   "Comments": subscriptionTypes.newReplies,

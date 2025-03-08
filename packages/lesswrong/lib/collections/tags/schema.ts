@@ -14,10 +14,11 @@ import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
 import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
-import { LikesList } from '@/lib/voting/reactionsAndLikes';
+import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
 import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -346,7 +347,7 @@ const schema: SchemaType<"Tags"> = {
         limit: tagCommentsLimit ?? 5,
         sort: {postedAt:-1}
       }).fetch();
-      return await accessFilterMultiple(currentUser, Comments, comments, context);
+      return await accessFilterMultiple(currentUser, 'Comments', comments, context);
     }
   }),
   'recentComments.$': {
@@ -757,7 +758,7 @@ const schema: SchemaType<"Tags"> = {
         contents: revisionsById.get(md._id),
       }));
 
-      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+      return await accessFilterMultiple(context.currentUser, 'MultiDocuments', unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -845,7 +846,7 @@ const schema: SchemaType<"Tags"> = {
         contents: revisionsById.get(md._id),
       }));
 
-      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+      return await accessFilterMultiple(context.currentUser, 'MultiDocuments', unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -974,6 +975,8 @@ const schema: SchemaType<"Tags"> = {
     label: "Force Allow T3 Audio",
     ...schemaDefaultValue(false),
   },
+
+  ...getVoteableSchemaFields('Tags'),
 }
 
 export default schema;

@@ -1,11 +1,15 @@
-import { getAllCollections } from "@/server/collections/allCollections";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
+import { allSchemas } from "@/lib/schema/allSchemas";
 
 export function getMiscDbIndexes() {
   const indexSet = new DatabaseIndexSet();
+
+  const collectionNamesWithSchemaVersion = Object.entries(allSchemas)
+    .filter(([_, schema]) => 'schemaVersion' in schema)
+    .map(([collectionName]) => collectionName as CollectionNameString);
   
-  for (const collection of getAllCollections().filter(c => 'schemaVersion' in c._schemaFields)) {
-    indexSet.addIndex(collection.collectionName, {schemaVersion:1});
+  for (const collectionName of collectionNamesWithSchemaVersion) {
+    indexSet.addIndex(collectionName, {schemaVersion:1});
   }
 
   return indexSet;

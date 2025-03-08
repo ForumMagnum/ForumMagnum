@@ -76,7 +76,7 @@ export const createPaginatedResolver = <
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
         const accessFilterFunction = collection
-          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!, records as AnyBecauseHard[], context)
+          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!.collectionName, records as AnyBecauseHard[], context)
           : undefined;
 
         const limit = args.limit;

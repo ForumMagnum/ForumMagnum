@@ -1,6 +1,4 @@
-import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { GraphQLJSON } from "graphql-type-json";
-import { accessFilterMultiple, augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { getToCforMultiDocument } from "../tableOfContents";
 import { loadByIds } from "@/lib/loaders";
 import { defineMutation } from "../utils/serverGraphqlUtil";
@@ -8,7 +6,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { updateMutator } from "../vulcan-lib/mutators";
 import { contributorsField } from '../utils/contributorsFieldHelper';
 
-augmentFieldsDict(MultiDocuments, {
+export const multiDocumentResolvers = {
   contributors: contributorsField({
     collectionName: 'MultiDocuments',
     fieldName: 'contents',
@@ -22,7 +20,7 @@ augmentFieldsDict(MultiDocuments, {
       },
     },
   },
-});
+} satisfies Record<string, CollectionFieldSpecification<"MultiDocuments">>;
 
 defineMutation({
   name: 'reorderSummaries',

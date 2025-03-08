@@ -150,7 +150,7 @@ defineQuery({
     if (!feedId) {
       throw new Error("This post is not associated with an RSS feed");
     }
-    const feed = await accessFilterSingle(currentUser, RSSFeeds,
+    const feed = await accessFilterSingle(currentUser, 'RSSFeeds',
       await context.loaders.RSSFeeds.load(feedId),
       context
     );

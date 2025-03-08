@@ -17,9 +17,9 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   // and that this user can see both.
   const post = await Posts.findOne({_id: postId});
   const tag = await Tags.findOne({_id: tagId});
-  if (!await accessFilterSingle(currentUser, Posts, post, context))
+  if (!await accessFilterSingle(currentUser, 'Posts', post, context))
     throw new Error(`Invalid postId ${postId}, either this post does not exist, or you do not have access`);
-  if (!await accessFilterSingle(currentUser, Tags, tag, context))
+  if (!await accessFilterSingle(currentUser, 'Tags', tag, context))
     throw new Error(`Invalid tagId ${tagId}, either this tag does not exist, or you do not have access`);
   
   // Check whether this document already has this tag applied

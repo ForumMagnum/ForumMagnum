@@ -41,22 +41,4 @@ export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = crea
   logChanges: true,
 });
 
-DialogueMatchPreferences.checkAccess = async (user: DbUser|null, document: DbDialogueMatchPreference, context: ResolverContext|null): Promise<boolean> => {
-  if (!user) {
-    return false;
-  }
-
-  // Users can see their own preferences
-  const dialogueCheck = context
-    ? await context.loaders.DialogueChecks.load(document.dialogueCheckId)
-    : await DialogueChecks.findOne(document.dialogueCheckId);
-  
-  if (dialogueCheck?.userId === user._id || dialogueCheck?.targetUserId === user._id) {
-    return true;
-  }
-
-  return false;
-};
-
-
 export default DialogueMatchPreferences;

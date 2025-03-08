@@ -1,7 +1,7 @@
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../manualMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import * as _ from 'underscore';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { getAllCollections, getCollection } from "../collections/allCollections";
@@ -38,7 +38,7 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
   console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 
   const collection = getCollection(collectionName)
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
   if (!schema) {
     // eslint-disable-next-line no-console
     console.log(`${collectionName} does not have a schema defined, not computing denormalized values`)

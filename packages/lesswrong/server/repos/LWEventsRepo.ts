@@ -1,4 +1,4 @@
-import { LWEvents } from "@/server/collections/lwevents/collection.ts";
+import { LWEvents } from "@/server/collections/lwevents/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

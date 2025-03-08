@@ -14,6 +14,7 @@ import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
 import { getAllCollections, getCollection } from "@/server/collections/allCollections";
 import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
 import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
+import { getCollectionAccessFilter } from "../permissions/accessFilters";
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -173,12 +174,13 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
 
       // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
-      const viewableDocs: T[] = collection.checkAccess
-        ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
+      const checkAccess = getCollectionAccessFilter(collectionName);
+      const viewableDocs: T[] = checkAccess
+        ? await asyncFilter(docs, async (doc: T) => await checkAccess(currentUser, doc as AnyBecauseHard, context))
         : docs;
 
       // take the remaining documents and remove any fields that shouldn't be accessible
-      const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
+      const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, viewableDocs);
 
       // prime the cache
       restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -277,9 +279,10 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       // if collection has a checkAccess function defined, use it to perform a check on the current document
       // (will throw an error if check doesn't pass)
-      if (collection.checkAccess) {
+      const checkAccess = getCollectionAccessFilter(collectionName);
+      if (checkAccess) {
         const reasonDenied: {reason?: string} = {reason: undefined};
-        const canAccess = await collection.checkAccess(currentUser, doc, context, reasonDenied)
+        const canAccess = await checkAccess(currentUser, doc as AnyBecauseHard, context, reasonDenied)
         if (!canAccess) {
           if (reasonDenied.reason) {
             throwError({
@@ -294,7 +297,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         }
       }
 
-      const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection, doc);
+      const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection.collectionName, doc);
 
       logGroupEnd();
       logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);

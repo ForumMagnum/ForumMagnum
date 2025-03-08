@@ -1,6 +1,6 @@
 import schema from "@/lib/collections/multiDocuments/schema";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
-import { canMutateParentDocument, getRootDocument } from "@/lib/collections/multiDocuments/helpers";
+import { canMutateParentDocument } from "@/lib/collections/multiDocuments/helpers";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
@@ -41,26 +41,3 @@ export const MultiDocuments = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
-
-MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext, outReasonDenied) => {
-  if (userIsAdmin(user)) {
-    return true;
-  }
-
-  const rootDocumentInfo = await getRootDocument(multiDocument, context);
-  if (!rootDocumentInfo) {
-    return false;
-  }
-
-  const { document, parentCollectionName } = rootDocumentInfo;
-  const parentCollection = context[parentCollectionName] as CollectionBase<CollectionNameString>;
-
-  if ('checkAccess' in parentCollection && parentCollection.checkAccess) {
-    const canAccessParent = await parentCollection.checkAccess(user, document, context, outReasonDenied);
-    if (!canAccessParent) {
-      return false;
-    }
-  }
-
-  return true;
-};

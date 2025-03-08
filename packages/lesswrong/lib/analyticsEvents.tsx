@@ -8,7 +8,6 @@ import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
-import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -58,6 +57,9 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
       if (!suppressConsoleLog && getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
+      // Break an import cycle allowing Table.ts to use `getSchema` -.-
+      // TODO: figure out how to fix this to avoid esbuild headaches
+      const serverWriteEvent: (typeof import('../server/analytics/serverAnalyticsWriter').serverWriteEvent) = require('../server/analytics/serverAnalyticsWriter').serverWriteEvent;
       serverWriteEvent(event);
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
