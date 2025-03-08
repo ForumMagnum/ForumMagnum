@@ -129,13 +129,19 @@ async function replMain() {
       repl.evalCode(`const {${Object.keys(importsExceptDefault).join(", ")}} = __repl_import;\n`);
     }
     if (commandLineOptions.command) {
-      const result = await repl.evalCode(commandLineOptions.command);
-      console.log(result);
-      process.exit(0);
+      try {
+        const result = await repl.evalCode(commandLineOptions.command);
+        console.log(result);
+      } finally {
+        process.exit(0);
+      }
     } else if (defaultExport && typeof defaultExport==='function') {
-      const result = await defaultExport();
-      console.log(result);
-      process.exit(0);
+      try {
+        const result = await defaultExport();
+        console.log(result);
+      } finally {
+        process.exit(0);
+      }
     }
   })();
 }

@@ -29,8 +29,6 @@ process.on("unhandledRejection", (r: any) => {
   }
 });
 
-captureEvent("serverStarted", {});
-
 
 export function serverInitSentry() {
   const sentryUrl = sentryUrlSetting.get()

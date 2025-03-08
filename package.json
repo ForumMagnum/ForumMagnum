@@ -9,7 +9,7 @@
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "ts-node --transpile-only ./build.ts",
     "migrate": "ts-node -r tsconfig-paths/register ./migrate.ts",
-    "repl": "NODE_OPTIONS=--inspect ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
+    "repl": "NODE_OPTIONS='--inspect --no-deprecation' ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
     "upload-ckeditor-bundle": "node -r tsconfig-paths/register deployCkEditorBundle",
     "branchdb": "ts-node -r tsconfig-paths/register scripts/branchDb.ts",
     "start": "yarn start-local-db",
