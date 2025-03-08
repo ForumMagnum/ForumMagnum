@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { FC, ReactNode, createContext, startTransition, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
@@ -145,12 +145,14 @@ export const UnreadNotificationsContextProvider: FC<{
   });
   
   const refetchBoth = useCallback(async () => {
+    startTransition(async () => {
     if (currentUser?._id) {
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
       updateFavicon(newCounts.data);
-    }
+      }
+    });
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
 
   // Subscribe to localStorage change events. The localStorage key
