@@ -83,11 +83,14 @@ const CollectionsPage = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Collections",
-    fragmentName: 'CollectionsPageFragment',
-  });
+  // const { document, loading } = useSingle({
+  //   documentId,
+  //   collectionName: "Collections",
+  //   fragmentName: 'CollectionsPageFragment',
+  // });
+
+  const document = undefined;
+  const loading = true;
 
   const showEdit = useCallback(() => {
     setEdit(true);

@@ -694,16 +694,22 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
   };
 
-  const { data } = useSuspenseQuery(gql`
-    query GetAllReviewWinners {
-      GetAllReviewWinners {
-        ...PostsTopItemInfo
-      }
-    }
-    ${fragmentTextForQuery('PostsTopItemInfo')}
-  `);
+  // const { data, error, ...rest} = useSuspenseQuery(gql`
+  //   query GetAllReviewWinners {
+  //     GetAllReviewWinners {
+  //       ...PostsTopItemInfo
+  //     }
+  //   }
+  //   ${fragmentTextForQuery('PostsTopItemInfo')}
+  // `);
 
-  console.log({data})
+  // console.log({data}, error)
+
+  // if (error) {
+  //   console.error(error)
+  //   throw error;
+  // }
+  const data = {GetAllReviewWinners: []}
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...(data as any).GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);

@@ -1,5 +1,6 @@
 "use client";
 
+import '@/lib/collections/lwevents/collection'
 import Nominations2019 from '@/components/review/Nominations2019';
 import { Helmet } from 'react-helmet';
 
