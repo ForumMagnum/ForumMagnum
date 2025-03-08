@@ -86,10 +86,9 @@ const TabNavigationMenu = ({
             if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }
-            if ('customComponentName' in tab) {
+            if ('customComponent' in tab) {
               // FIXME: not clear how to type this without the intersection of all the component types causing all the props to evaluate to `never`
-              const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
-              return <CustomComponent
+              return <tab.customComponent
                 key={tab.id}
                 tab={tab}
                 onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}

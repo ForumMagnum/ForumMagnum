@@ -2,7 +2,7 @@
 
 import '@/lib/vulcan-lib/allFragments';
 import compose from 'lodash/flowRight';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, Suspense } from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
@@ -134,7 +134,8 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   
   if (enableVite) {
     delete PreparedComponents[name as keyof ComponentTypes];
-    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<PropType,"classes">>;
+    const Component = Components[name as keyof ComponentTypes] as React.ComponentType<Omit<PropType,"classes">>;
+    return (props: any) => <Suspense fallback={<div>Loading...</div>}><Component {...props}/></Suspense>;
   }
   
   // The Omit is a hacky way of ensuring that hocs props are omitted from the

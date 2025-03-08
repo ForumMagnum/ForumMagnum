@@ -11,6 +11,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
     position: 'absolute',
     right: 0,
+    top: 0,
   },
   backgroundImage: {
     position: 'absolute',

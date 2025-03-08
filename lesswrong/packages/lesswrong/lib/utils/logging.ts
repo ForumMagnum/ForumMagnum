@@ -50,7 +50,7 @@ export const loggerConstructor = (scope: string): Logger => {
         formattedArgs = args.map(a => typeof a === 'object' ? util.inspect(a, false, null) : a)
       }
       // eslint-disable-next-line no-console
-      console.log(`[${scope}]`, ...formattedArgs)
+      // console.log(`[${scope}]`, ...formattedArgs)
     }
   }
 }

@@ -2,8 +2,12 @@
 
 import '../pages/api/reactFactoryShim'
 import '@/lib/vulcan-lib/allFragments'
-import React from 'react';
+import '@/lib/collections/notifications/collection'
+import '@/lib/collections/llmConversations/collection'
+import '@/lib/collections/forumEvents/collection'
+import React, { Suspense } from 'react';
 import { HttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 import {
   ApolloNextAppProvider,
   ApolloClient,
@@ -24,22 +28,35 @@ import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { getDefaultThemeOptions } from '@/themes/themeNames';
 import SidebarsWrapper from '@/components/common/SidebarsWrapper';
+import { Layout } from '@/components/Layout';
 
 export default function Providers({
   children,
   publicSettings,
+  loginToken,
 }: Readonly<{
   children: React.ReactNode;
   publicSettings: any;
+  loginToken: string | undefined;
 }>) {
   if (typeof window === 'undefined') {
     setPublicSettings(publicSettings);
   }
 
   function makeClient() {
+    console.log("makeClient", { loginToken }, `Bearer ${loginToken}`)
+    const authLink = setContext((_, { headers }) => {
+      return {
+        headers: {
+          ...headers,
+          authorization: loginToken ? `Bearer ${loginToken}` : undefined,
+        },
+      }
+    })
     const httpLink = new HttpLink({
       // this needs to be an absolute url, as relative urls cannot be used in SSR
       uri: "http://localhost:3000/api/graphql",
+      credentials: 'same-origin',
       // you can disable result caching here if you want to
       // (this does not work if you are rendering your page with `export const dynamic = "force-static"`)
       // fetchOptions: { cache: "no-store" },
@@ -48,12 +65,12 @@ export default function Providers({
       // to an Apollo Client data fetching hook, e.g.:
       // const { data } = useSuspenseQuery(MY_QUERY, { context: { fetchOptions: { cache: "force-cache" }}});
     });
-  
+
     // use the `ApolloClient` from "@apollo/experimental-nextjs-app-support"
     return new ApolloClient({
       // use the `InMemoryCache` from "@apollo/experimental-nextjs-app-support"
       cache: new InMemoryCache(),
-      link: httpLink,
+      link: authLink.concat(httpLink),
     });
   }
 
@@ -69,27 +86,31 @@ export default function Providers({
 
   return (
     <ApolloNextAppProvider makeClient={makeClient}>
-        <LayoutOptionsContextProvider>
-          <EnvironmentOverrideContext.Provider value={{
-            matchSSR: true
-          }}>
+      <LayoutOptionsContextProvider>
+        <EnvironmentOverrideContext.Provider value={{
+          matchSSR: true
+        }}>
+          <Suspense>
             <ServerRequestStatusContext.Provider value={{}}>
               <RefetchCurrentUserContext.Provider value={() => (null as any)}>
                 <MessageContextProvider>
                   <ThemeContextProvider options={getDefaultThemeOptions()}>
                     <FMJssProvider>
                       <SidebarsWrapper>
-                        {/* <Suspense fallback={<div>Loading...</div>}> */}
+                        <Layout>
+                          {/* <Suspense fallback={<div>Loading...</div>}> */}
                           {children}
-                        {/* </Suspense> */}
+                          {/* </Suspense> */}
+                        </Layout>
                       </SidebarsWrapper>
                     </FMJssProvider>
                   </ThemeContextProvider>
                 </MessageContextProvider>
               </RefetchCurrentUserContext.Provider>
             </ServerRequestStatusContext.Provider>
-          </EnvironmentOverrideContext.Provider>
-        </LayoutOptionsContextProvider>
+          </Suspense>
+        </EnvironmentOverrideContext.Provider>
+      </LayoutOptionsContextProvider>
     </ApolloNextAppProvider>
   );
 }

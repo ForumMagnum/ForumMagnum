@@ -38,6 +38,8 @@ import {
   PeopleDirectorySelectedIcon,
 } from '../../icons/peopleDirectoryIcon';
 import { podcastPost } from '@/lib/eaPodcasts';
+import EventsListComponent from './EventsList';
+import SubscribeWidget from '../SubscribeWidget';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -73,7 +75,7 @@ type MenuTabDivider = {
 
 type MenuTabCustomComponent = {
   id: string
-  customComponentName: string
+  customComponent: React.ComponentType<any>
 }
 
 type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
@@ -191,14 +193,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'eventsList',
-      customComponentName: "EventsList",
+      customComponent: EventsListComponent,
     }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
     }, {
       id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
+      customComponent: SubscribeWidget,
     }, {
       id: 'lwAlbum',
       title: 'LW the Album',
@@ -371,7 +373,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
+      customComponent: SubscribeWidget,
     }, {
       id: 'cookies',
       title: preferredHeadingCase('Cookie Policy'),
@@ -429,7 +431,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true
     }, {
       id: 'eventsList',
-      customComponentName: "EventsList",
+      customComponent: EventsListComponent,
     }, {
       id: 'divider',
       divider: true,
@@ -441,7 +443,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
+      customComponent: SubscribeWidget,
     }, {
       id: 'about',
       title: 'About the Forum',

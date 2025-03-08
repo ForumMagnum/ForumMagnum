@@ -1,3 +1,5 @@
+"use client"
+
 import React, { ForwardedRef, createContext, forwardRef, useContext } from 'react';
 import { ApolloQueryResult, NetworkStatus, OperationVariables } from '@apollo/client';
 

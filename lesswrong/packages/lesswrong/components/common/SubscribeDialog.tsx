@@ -11,7 +11,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import LWDialog from "@/components/common/LWDialog";
 import { MenuItem } from "@/components/common/Menus";
-import { TextField, Button, DialogActions, DialogContent, DialogContentText, Radio, RadioGroup, FormControlLabel, FormControl, InputLabel, Select, withMobileDialog, Tabs, Tab } from "@/components/mui-replacement";
+import { TextField, Button, DialogActions, DialogContent, Radio, RadioGroup, FormControlLabel, Select, Tabs, Tab } from "@/components/mui-replacement";
 
 const styles = (theme: ThemeType) => ({
   thresholdSelector: {
@@ -130,6 +130,18 @@ type EventWithSelectTarget = {
   target: {
     select: Function
   }
+};
+
+const DialogContentText = ({ children }: { children: React.ReactNode }) => {
+  return <div>{children}</div>;
+};
+
+const FormControl = ({ children }: { children: React.ReactNode }) => {
+  return <div>{children}</div>;
+};
+
+const InputLabel = ({ children }: { children: React.ReactNode }) => {
+  return <div>{children}</div>;
 };
 
 class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogState> {
@@ -342,7 +354,6 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
 const SubscribeDialogComponent = registerComponent<ExternalProps>("SubscribeDialog", SubscribeDialog, {
   styles,
   hocs: [
-    withMobileDialog(),
     withUser,
     withUpdateCurrentUser,
     withTracking,

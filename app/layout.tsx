@@ -9,6 +9,7 @@ import Script from 'next/script';
 import { getPublicSettings, setPublicSettings } from '@/lib/settingsCache';
 import Loading from './loadingA';
 import { getSqlClient } from '@/server/sql/sqlClient';
+import { cookies } from 'next/headers';
 
 
 const sqlClient = getSqlClient()
@@ -24,14 +25,14 @@ setPublicSettings(publicSettingsObject?.value)
 
 console.log("Running layout")
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: Readonly<{
   children: React.ReactNode;
   params: { id: string };
 }>) {
-  console.log("Rerendering layout")
+  const cookieStore = await cookies()
   return (
     <html>
       <body>
@@ -41,7 +42,7 @@ export default function RootLayout({
           {`console.log("WOOP")`}
           {`window.publicSettings = ${JSON.stringify(publicSettingsObject?.value)}`}
         </Script>
-        <Providers publicSettings={publicSettingsObject?.value}>
+        <Providers loginToken={cookieStore.get('loginToken')?.value} publicSettings={publicSettingsObject?.value}>
           <Suspense fallback={<Loading />}>
             {children}
           </Suspense>

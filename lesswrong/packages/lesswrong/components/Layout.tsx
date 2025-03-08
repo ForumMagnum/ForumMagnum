@@ -1,3 +1,6 @@
+"use client"
+
+import '../lib/vulcan-lib/allFragments';
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib/components';
 import { useUpdate } from '../lib/crud/withUpdate';
@@ -62,6 +65,7 @@ import ReviewVotingCanvas from "@/components/review/ReviewVotingCanvas";
 import LWBackgroundImage from "@/components/LWBackgroundImage";
 import IntercomWrapper from "@/components/common/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
+import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -254,11 +258,11 @@ const StickyWrapper: FC<{
     )
     : <>{children}</>;
 
-const Layout = ({currentUser, children, classes}: {
-  currentUser: UsersCurrent|null,
+const Layout = ({children, classes}: {
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {currentUser} = useQueryCurrentUser()
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
@@ -279,17 +283,17 @@ const Layout = ({currentUser, children, classes}: {
   //   fragmentName: 'UsersCurrent',
   // });
   
-  // const toggleStandaloneNavigation = useCallback(() => {
-  //   if (currentUser) {
-  //     void updateUser({
-  //       selector: {_id: currentUser._id},
-  //       data: {
-  //         hideNavigationSidebar: !hideNavigationSidebar
-  //       }
-  //     })
-  //   }
-  //   setHideNavigationSidebar(!hideNavigationSidebar);
-  // }, [updateUser, currentUser, hideNavigationSidebar]);
+  const toggleStandaloneNavigation = useCallback(() => {
+    // if (currentUser) {
+    //   void updateUser({
+    //     selector: {_id: currentUser._id},
+    //     data: {
+    //       hideNavigationSidebar: !hideNavigationSidebar
+    //     }
+    //   })
+    // }
+    setHideNavigationSidebar(!hideNavigationSidebar);
+  }, [currentUser, hideNavigationSidebar]);
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -409,14 +413,14 @@ const Layout = ({currentUser, children, classes}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {/* {!currentRoute?.standalone && <Header
-                searchResultsArea={searchResultsAreaRef}
+              {<Header
+                searchResultsArea={searchResultsAreaRef as React.RefObject<HTMLDivElement>}
                 standaloneNavigationPresent={standaloneNavigation}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={!!currentRoute?.staticHeader}
+                stayAtTop={false}
                 backgroundColor={headerBackgroundColor}
-              />} */}
+              />}
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
@@ -424,8 +428,8 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                // [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
-                // [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
+                [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
+                [classes.fullscreenBodyWrapper]: true
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}

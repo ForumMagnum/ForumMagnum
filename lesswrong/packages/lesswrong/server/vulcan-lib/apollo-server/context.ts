@@ -26,6 +26,7 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
+
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
@@ -158,9 +159,14 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
-export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
-  return req.user
-  // return getUser(getAuthToken(req));
+export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {
+  const authHeader = new Headers(req.headers).get('authorization')
+  const loginToken = authHeader?.split(' ')[1] || req.cookies.loginToken || req.cookies.meteor_login_token // Backwards compatibility with meteor_login_token here
+  if (!loginToken) return null
+  const user = await getUser(loginToken)
+  if (!user) return null
+  req.user = user
+  return user
 }
 
 export async function getContextFromReqAndRes({req, res, isSSR}: {
@@ -168,7 +174,7 @@ export async function getContextFromReqAndRes({req, res, isSSR}: {
   res: Response,
   isSSR: boolean
 }): Promise<ResolverContext> {
-  const user = getUserFromReq(req);
+  const user = await getUserFromReq(req);
   const context = await computeContextFromUser({user, req, res, isSSR});
   return context;
 }
