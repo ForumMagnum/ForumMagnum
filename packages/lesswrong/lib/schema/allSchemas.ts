@@ -84,13 +84,14 @@ import { default as UserTagRels } from '../collections/userTagRels/schema';
 import { default as UserActivities } from '../collections/useractivities/schema';
 import { default as Users } from '../collections/users/schema';
 import { default as Votes } from '../collections/votes/schema';
-import { isAnyTest, isCodegen, isServer } from '../executionEnvironment';
+import { isAnyTest, isCodegen } from '../executionEnvironment';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import SimpleSchema from 'simpl-schema';
 
 let testSchemas: Record<never, never>;
 if (isAnyTest || isCodegen) {
   // TODO: does this need fixing to avoid esbuild headaches?
+  // Seems like no, but it might be a footgun.
   ({ testSchemas } = require('../../server/sql/tests/testSchemas'));
 } else {
   testSchemas = {};
@@ -117,28 +118,6 @@ export const allSchemas = {
   UserMostValuablePosts, UserRateLimits, UserTagRels, UserActivities,
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, SchemaType<CollectionNameString>>;
-
-// TODO: do something less horrible than this.
-export const augmentSchemas = (() => {
-  let augmented = false;
-  return () => {
-    if (augmented) return;
-    augmented = true;
-    if (isServer || isCodegen) {
-      // TODO: does this need fixing to avoid esbuild headaches?
-      const augmentations: Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>> = require('../../server/resolvers/allFieldAugmentations').allFieldAugmentations;
-      for (const collectionName in augmentations) {
-        const schema: SchemaType<CollectionNameString> = allSchemas[collectionName as CollectionNameString];
-        const schemaAugmentations = augmentations[collectionName as CollectionNameString];
-        if (schemaAugmentations) {
-          for (const fieldName in schemaAugmentations) {
-            schema[fieldName] = { ...schema[fieldName], ...schemaAugmentations[fieldName] };
-          }
-        }
-      }  
-    }
-  }
-})();
 
 export function getSchema<N extends CollectionNameString>(collectionName: N): SchemaType<N> {
   return allSchemas[collectionName] as SchemaType<N>;

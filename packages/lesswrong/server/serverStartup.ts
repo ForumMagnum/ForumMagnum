@@ -15,7 +15,7 @@ import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFil
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
-import { augmentSchemas } from '@/lib/schema/allSchemas';
+import { augmentSchemas } from '@/server/resolvers/allFieldAugmentations';
 
 const numCPUs = cpus().length;
 

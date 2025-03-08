@@ -1272,23 +1272,12 @@ const schema: SchemaType<"Posts"> = {
     }),
   }),
 
-  reviewWinner: resolverOnlyField({
+  reviewWinner: {
     type: "ReviewWinner",
-    graphQLtype: "ReviewWinner",
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      if (!isLWorAF) {
-        return null;
-      }
-      const { currentUser } = context;
-      // There's an annoying dependency cycle here
-      // We could also pull this out to a server-side augmentation later, if preferred
-      // TODO: figure out how to fix this to avoid esbuild headaches
-      const { getPostReviewWinnerInfo } = require('../../../server/review/reviewWinnersCache');
-      const winner = await getPostReviewWinnerInfo(post._id, context);
-      return accessFilterSingle(currentUser, 'ReviewWinners', winner, context);
-    },
-  }),
+    optional: true,
+    // Implemented in server/resolvers/postResolvers.ts
+  },
 
   spotlight: resolverOnlyField({
     type: "Spotlight",

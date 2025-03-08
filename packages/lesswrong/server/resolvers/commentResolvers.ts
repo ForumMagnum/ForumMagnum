@@ -105,4 +105,25 @@ export const commentResolvers = {
       return (post && post.contents && post.contents.version) || "1.0.0";
     },
   },
+  promotedByUserId: {
+    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
+      data: Partial<DbComment>,
+      currentUser: DbUser|null,
+      document: DbComment,
+      oldDocument: DbComment,
+      context: ResolverContext,
+    }) => {
+      if (data?.promoted && !oldDocument.promoted && document.postId) {
+        void updateMutator({
+          collection: context.Posts,
+          context,
+          documentId: document.postId,
+          data: { lastCommentPromotedAt: new Date() },
+          currentUser,
+          validate: false
+        })
+        return currentUser!._id
+      }
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Comments">>;

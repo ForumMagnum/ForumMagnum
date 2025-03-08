@@ -2,7 +2,7 @@ import { Posts } from '../../server/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../server/collections/comments/collection';
 import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
+import { denormalizedField, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
@@ -38,6 +38,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import { createMutator } from "../vulcan-lib/mutators";
 import { fetchFragmentSingle } from '../fetchFragment';
 import { languageModelGenerateText } from '../languageModels/languageModelIntegration';
+import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
 
 export const postResolvers = {
   // Compute a denormalized start/end time for events, accounting for the
@@ -389,6 +390,20 @@ export const postResolvers = {
         });
       }
     },
+  },
+
+  reviewWinner: {
+    resolveAs: {
+      type: 'ReviewWinner',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return null;
+        }
+        const { currentUser } = context;
+        const winner = await getPostReviewWinnerInfo(post._id, context);
+        return accessFilterSingle(currentUser, 'ReviewWinners', winner, context);
+      },
+    }
   },
 } satisfies Record<string, CollectionFieldSpecification<"Posts">>;
 

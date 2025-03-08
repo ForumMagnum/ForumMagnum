@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-// import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
@@ -296,136 +296,135 @@ const footnoteAttributes = [
 ]
 
 export const sanitize = function(s: string): string {
-  return '';
-  // return sanitizeHtml(s, {
-  //   allowedTags: sanitizeAllowedTags,
-  //   allowedAttributes:  {
-  //     ...sanitizeHtml.defaults.allowedAttributes,
-  //     '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
-  //     audio: [ 'controls', 'src', 'style' ],
-  //     img: [ 'src' , 'srcset', 'alt', 'style'],
-  //     figure: ['style', 'class'],
-  //     table: ['style'],
-  //     tbody: ['style'],
-  //     tr: ['style'],
-  //     td: ['rowspan', 'colspan', 'style'],
-  //     th: ['rowspan', 'colspan', 'style'],
-  //     ol: ['start', 'reversed', 'type', 'role'],
-  //     span: ['style', 'id', 'role'],
-  //     div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
-  //     a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
-  //     iframe: ['src', 'allowfullscreen', 'allow'],
-  //     li: ['id', 'role'],
+  return sanitizeHtml(s, {
+    allowedTags: sanitizeAllowedTags,
+    allowedAttributes:  {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
+      audio: [ 'controls', 'src', 'style' ],
+      img: [ 'src' , 'srcset', 'alt', 'style'],
+      figure: ['style', 'class'],
+      table: ['style'],
+      tbody: ['style'],
+      tr: ['style'],
+      td: ['rowspan', 'colspan', 'style'],
+      th: ['rowspan', 'colspan', 'style'],
+      ol: ['start', 'reversed', 'type', 'role'],
+      span: ['style', 'id', 'role'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
+      a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id', 'role'],
 
-  //     // Attributes for dialogues
-  //     section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
+      // Attributes for dialogues
+      section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
       
-  //     // Attributes for collapsible sections
-  //     details: ['class'],
-  //     summary: ['class'],
+      // Attributes for collapsible sections
+      details: ['class'],
+      summary: ['class'],
       
-  //     // Attributes for MathML elements
-  //     math: [...allowedMathMLGlobalAttributes, 'display'],
-  //     mi: allowedMathMLGlobalAttributes,
-  //     mn: allowedMathMLGlobalAttributes,
-  //     mtext: allowedMathMLGlobalAttributes,
-  //     merror: allowedMathMLGlobalAttributes,
-  //     mfrac: [...allowedMathMLGlobalAttributes, 'linethickness'],
-  //     mmultiscripts: allowedMathMLGlobalAttributes,
-  //     mo: [...allowedMathMLGlobalAttributes, 'fence', 'largeop', 'lspace', 'maxsize', 'minsize', 'movablelimits', 'rspace', 'separator', 'stretchy', 'symmetric'],
-  //     mover: [...allowedMathMLGlobalAttributes, 'accent'],
-  //     mpadded: [...allowedMathMLGlobalAttributes, 'depth','height','lspace','voffset','width'],
-  //     mphantom: allowedMathMLGlobalAttributes,
-  //     mprescripts: allowedMathMLGlobalAttributes,
-  //     mroot: allowedMathMLGlobalAttributes,
-  //     mrow: allowedMathMLGlobalAttributes,
-  //     ms: [...allowedMathMLGlobalAttributes, 'lquote','rquote'],
-  //     mspace: [...allowedMathMLGlobalAttributes, 'depth','height','width'],
-  //     msqrt: allowedMathMLGlobalAttributes,
-  //     mstyle: allowedMathMLGlobalAttributes,
-  //     msub: allowedMathMLGlobalAttributes,
-  //     msubsup: allowedMathMLGlobalAttributes,
-  //     msup: allowedMathMLGlobalAttributes,
-  //     mtable: allowedMathMLGlobalAttributes,
-  //     mtd: [...allowedMathMLGlobalAttributes, 'columnspan','rowspan'],
-  //     mtr: allowedMathMLGlobalAttributes,
-  //     munder: [...allowedMathMLGlobalAttributes, 'accentunder'],
-  //     munderover: [...allowedMathMLGlobalAttributes, 'accent','accentunder'],
-  //   },
-  //   allowedIframeHostnames: [
-  //     'www.youtube.com', 'youtube.com',
-  //     'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
-  //     'metaculus.com',
-  //     'manifold.markets',
-  //     'metaforecast.org',
-  //     'app.thoughtsaver.com',
-  //     'ourworldindata.org',
-  //     'strawpoll.com',
-  //     'estimaker.app',
-  //     'viewpoints.xyz',
-  //     'calendly.com',
-  //     'neuronpedia.org',
-  //     'lwartifacts.vercel.app'
-  //   ],
-  //   allowedClasses: {
-  //     span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
-  //     div: [
-  //       'spoilers',
-  //       'footnote-content',
-  //       'footnote-item',
-  //       'footnote-label',
-  //       'footnote-reference',
-  //       'metaculus-preview',
-  //       'manifold-preview',
-  //       'neuronpedia-preview',
-  //       'metaforecast-preview',
-  //       'owid-preview',
-  //       'elicit-binary-prediction',
-  //       'thoughtSaverFrameWrapper',
-  //       'strawpoll-embed',
-  //       'estimaker-preview',
-  //       'viewpoints-preview',
-  //       'ck-cta-button',
-  //       'ck-cta-button-centered',
-  //       'detailsBlockContent',
-  //       'calendly-preview',
-  //       'conditionallyVisibleBlock',
-  //       'defaultVisible',
-  //       'defaultHidden',
-  //       /arb-custom-script-[a-zA-Z0-9]*/,
-  //     ],
-  //     iframe: [ 'thoughtSaverFrame' ],
-  //     ol: [ 'footnotes', 'footnote-section' ],
-  //     li: [ 'footnote-item' ],
-  //     details: ['detailsBlock'],
-  //     summary: ['detailsBlockTitle'],
-  //   },
-  //   allowedStyles: {
-  //     figure: {
-  //       'width': [cssSizeRegex],
-  //       'height': [cssSizeRegex],
-  //       'padding': [/^.*$/],
-  //     },
-  //     img: {
-  //       'width': [cssSizeRegex],
-  //       'height': [cssSizeRegex],
-  //       'max-width': [cssSizeRegex],
-  //       'max-height': [cssSizeRegex],
-  //       'padding': [/^.*$/],
-  //     },
-  //     table: {
-  //       ...allowedTableStyles,
-  //     },
-  //     td: {
-  //       ...allowedTableStyles,
-  //     },
-  //     th: {
-  //       ...allowedTableStyles,
-  //     },
-  //     span: {
-  //       // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
-  //       color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
-  //     },
-  //   }
-  // });
+      // Attributes for MathML elements
+      math: [...allowedMathMLGlobalAttributes, 'display'],
+      mi: allowedMathMLGlobalAttributes,
+      mn: allowedMathMLGlobalAttributes,
+      mtext: allowedMathMLGlobalAttributes,
+      merror: allowedMathMLGlobalAttributes,
+      mfrac: [...allowedMathMLGlobalAttributes, 'linethickness'],
+      mmultiscripts: allowedMathMLGlobalAttributes,
+      mo: [...allowedMathMLGlobalAttributes, 'fence', 'largeop', 'lspace', 'maxsize', 'minsize', 'movablelimits', 'rspace', 'separator', 'stretchy', 'symmetric'],
+      mover: [...allowedMathMLGlobalAttributes, 'accent'],
+      mpadded: [...allowedMathMLGlobalAttributes, 'depth','height','lspace','voffset','width'],
+      mphantom: allowedMathMLGlobalAttributes,
+      mprescripts: allowedMathMLGlobalAttributes,
+      mroot: allowedMathMLGlobalAttributes,
+      mrow: allowedMathMLGlobalAttributes,
+      ms: [...allowedMathMLGlobalAttributes, 'lquote','rquote'],
+      mspace: [...allowedMathMLGlobalAttributes, 'depth','height','width'],
+      msqrt: allowedMathMLGlobalAttributes,
+      mstyle: allowedMathMLGlobalAttributes,
+      msub: allowedMathMLGlobalAttributes,
+      msubsup: allowedMathMLGlobalAttributes,
+      msup: allowedMathMLGlobalAttributes,
+      mtable: allowedMathMLGlobalAttributes,
+      mtd: [...allowedMathMLGlobalAttributes, 'columnspan','rowspan'],
+      mtr: allowedMathMLGlobalAttributes,
+      munder: [...allowedMathMLGlobalAttributes, 'accentunder'],
+      munderover: [...allowedMathMLGlobalAttributes, 'accent','accentunder'],
+    },
+    allowedIframeHostnames: [
+      'www.youtube.com', 'youtube.com',
+      'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
+      'metaculus.com',
+      'manifold.markets',
+      'metaforecast.org',
+      'app.thoughtsaver.com',
+      'ourworldindata.org',
+      'strawpoll.com',
+      'estimaker.app',
+      'viewpoints.xyz',
+      'calendly.com',
+      'neuronpedia.org',
+      'lwartifacts.vercel.app'
+    ],
+    allowedClasses: {
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
+      div: [
+        'spoilers',
+        'footnote-content',
+        'footnote-item',
+        'footnote-label',
+        'footnote-reference',
+        'metaculus-preview',
+        'manifold-preview',
+        'neuronpedia-preview',
+        'metaforecast-preview',
+        'owid-preview',
+        'elicit-binary-prediction',
+        'thoughtSaverFrameWrapper',
+        'strawpoll-embed',
+        'estimaker-preview',
+        'viewpoints-preview',
+        'ck-cta-button',
+        'ck-cta-button-centered',
+        'detailsBlockContent',
+        'calendly-preview',
+        'conditionallyVisibleBlock',
+        'defaultVisible',
+        'defaultHidden',
+        /arb-custom-script-[a-zA-Z0-9]*/,
+      ],
+      iframe: [ 'thoughtSaverFrame' ],
+      ol: [ 'footnotes', 'footnote-section' ],
+      li: [ 'footnote-item' ],
+      details: ['detailsBlock'],
+      summary: ['detailsBlockTitle'],
+    },
+    allowedStyles: {
+      figure: {
+        'width': [cssSizeRegex],
+        'height': [cssSizeRegex],
+        'padding': [/^.*$/],
+      },
+      img: {
+        'width': [cssSizeRegex],
+        'height': [cssSizeRegex],
+        'max-width': [cssSizeRegex],
+        'max-height': [cssSizeRegex],
+        'padding': [/^.*$/],
+      },
+      table: {
+        ...allowedTableStyles,
+      },
+      td: {
+        ...allowedTableStyles,
+      },
+      th: {
+        ...allowedTableStyles,
+      },
+      span: {
+        // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
+        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
+      },
+    }
+  });
 };

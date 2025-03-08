@@ -456,11 +456,7 @@ async function main() {
       ...clientBundleDefinitions,
     },
     external: [
-      "cheerio", "fs", "stream", "constants", "child_process", "crypto",
-      "dns", "readline", "zlib", "os", "path", "net", "tls", "async_hooks",
-      "http", "https", "http2", "domain", "node:fs", "console", "worker_threads",
-      "perf_hooks", "util/types", "node:stream", "node:util", "node:events",
-      "diagnostics_channel"
+      "cheerio"
     ],
   });
   

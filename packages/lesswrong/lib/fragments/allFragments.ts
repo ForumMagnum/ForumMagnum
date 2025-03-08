@@ -68,68 +68,15 @@ import * as userTagRelsFragments from '../collections/userTagRels/fragments';
 import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
-import { allSchemas, augmentSchemas } from '@/lib/schema/allSchemas';
-import uniq from 'lodash/uniq';
+import * as defaultFragments from '@/lib/generated/defaultFragments';
 import SqlFragment from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';
 import { isAnyTest } from '../executionEnvironment';
-import { collectionNameToTypeName } from '../generated/collectionTypeNames';
-
-// Create default "dumb" gql fragment object for a given collection
-function getDefaultFragmentText<N extends CollectionNameString>(
-  collectionName: N,
-  schema: SchemaType<N>,
-  options = { onlyViewable: true },
-): string|null {
-  const fieldNames = Object.keys(schema).filter((fieldName: string) => {
-    /*
-
-    Exclude a field from the default fragment if
-    1. it has a resolver and addOriginalField is false
-    2. it has $ in its name
-    3. it's not viewable (if onlyViewable option is true)
-
-    */
-    const field: CollectionFieldSpecification<N> = schema[fieldName];
-    // OpenCRUD backwards compatibility
-
-    const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
-    return !(isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !field.canRead));
-  });
-
-  if (fieldNames.length) {
-    const fragmentText = `
-      fragment ${collectionName}DefaultFragment on ${collectionNameToTypeName[collectionName]} {
-        ${fieldNames.map(fieldName => {
-          return fieldName+'\n';
-        }).join('')}
-      }
-    `;
-
-    return fragmentText;
-  } else {
-    return null;
-  }
-};
-
-const getDefaultFragments = (() => {
-  let defaultFragments: Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
-  return () => {
-    if (!defaultFragments) {
-      augmentSchemas();
-      defaultFragments = Object.fromEntries(
-        Object.entries(allSchemas)
-          .map(([collectionName, schema]) => [`${collectionName}DefaultFragment`, getDefaultFragmentText(collectionName as CollectionNameString, schema)])
-          .filter(([_, fragment]) => fragment !== null)
-      ) as Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
-    }
-    return defaultFragments;
-  }
-})();
+import uniq from 'lodash/uniq';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
-// TODO: does this need fixing to avoid esbuild headaches?
+// TODO: does this need fixing to avoid esbuild headaches?  I think no, but could be risky in the future.
 let testFragments: Record<never, never>;
 if (isAnyTest) {
   testFragments = require('../../server/sql/tests/testFragments');
@@ -209,15 +156,15 @@ const staticFragments = {
   ...testFragments,
 };
 
-// This needs to have deferred execution because getDefaultFragments needs to be called after the collections are registered
-// Once we refactor the collections to just be exported objects instead of effectfully-"registered" into globals, we might be able to simplify this
+// TODO: I originally implemented this with deferred execution because getDefaultFragments needed to be called after the collections were registered
+// But now we're generating the default fragments in a separate step, so maybe we can just do this in one go?
 export const getAllFragments = (() => {
-  let allFragments: typeof staticFragments & Record<Extract<keyof FragmentTypes, `${CollectionNameString}DefaultFragment`>, string>;
+  let allFragments: typeof staticFragments & typeof defaultFragments;
   return () => {
     if (!allFragments) {
       allFragments = {
         ...staticFragments,
-        ...getDefaultFragments(),
+        ...defaultFragments,
       };
     }
     return allFragments;

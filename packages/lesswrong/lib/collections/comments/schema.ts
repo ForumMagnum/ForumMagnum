@@ -396,29 +396,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
-      data: Partial<DbComment>,
-      currentUser: DbUser|null,
-      document: DbComment,
-      oldDocument: DbComment,
-      context: ResolverContext,
-    }) => {
-      if (data?.promoted && !oldDocument.promoted && document.postId) {
-        // There's an annoying dependency cycle here
-        // We could also pull this out to a server-side augmentation later, if preferred
-        // TODO: figure out how to fix this to avoid esbuild headaches
-        const { updateMutator } = require('../../../server/vulcan-lib/mutators');
-        void updateMutator({
-          collection: context.Posts,
-          context,
-          documentId: document.postId,
-          data: { lastCommentPromotedAt: new Date() },
-          currentUser,
-          validate: false
-        })
-        return currentUser!._id
-      }
-    }
+    // onUpdate defined in `commentResolvers.ts` to avoid dependency cycle
   },
 
   promotedAt: {
