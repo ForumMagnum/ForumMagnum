@@ -4,8 +4,10 @@ import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries } from "@/server/sql/sqlClient";
+import { logAllQueries, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
+
+let sqlBytesDownloaded = 0;
 
 // Setting this to -1 disables slow query logging
 const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
@@ -173,6 +175,9 @@ const logIfSlow = async <T>(
   recordSqlQueryPerfMetric(originalQuery, startTime, endTime);
 
   const milliseconds = endTime - startTime;
+  if (measureSqlBytesDownloaded || logAllQueries) {
+    sqlBytesDownloaded += JSON.stringify(result).length;
+  }
   if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
@@ -243,4 +248,8 @@ export const createSqlConnection = async (
   };
 
   return client;
+}
+
+export const getSqlBytesDownloaded = (): number => {
+  return sqlBytesDownloaded;
 }
