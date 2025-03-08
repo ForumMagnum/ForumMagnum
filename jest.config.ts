@@ -185,7 +185,7 @@ export default {
   // A map from regular expressions to paths to transformers
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": [
-      "esbuild-jest2",
+      "<rootDir>/esbuild-jest-vendored.js",
       {
         sourcemap: true,
       },

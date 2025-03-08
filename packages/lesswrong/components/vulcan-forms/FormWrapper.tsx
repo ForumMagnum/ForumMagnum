@@ -15,7 +15,7 @@ import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
-import { allSchemas } from '@/lib/schema/allSchemas';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 const intlSuffix = '_intl';
 
@@ -113,8 +113,7 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
  * generating a default fragment if none is given.
  */
 const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}: WrappedSmartFormProps<N>) => {
-  // TODO: refactor to `getSchemaByCollectionName` once that exists
-  const schema = allSchemas[props.collectionName];
+  const schema = getSchema(props.collectionName);
 
   const navigationContext = useContext(NavigationContext);
   const history = navigationContext?.history;
@@ -126,9 +125,9 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
   const formType = (props.documentId || props.slug) ? 'edit' : 'new';
 
   if (formType === "edit") {
-    return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema as SchemaType<N>}/>
+    return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema}/>
   } else {
-    return <FormWrapperNew {...newProps} showRemove={showRemove} schema={schema as SchemaType<N>}/>
+    return <FormWrapperNew {...newProps} showRemove={showRemove} schema={schema}/>
   }
 }
 
