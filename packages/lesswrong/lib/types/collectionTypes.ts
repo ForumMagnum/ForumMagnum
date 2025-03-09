@@ -35,9 +35,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   typeName: string,
   options: CollectionOptions<N>,
 
-  _schemaFields: SchemaType<N>
-  _simpleSchema: any
-
   isConnected: () => boolean
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
   hasSlug: () => boolean

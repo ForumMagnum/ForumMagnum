@@ -8,8 +8,6 @@ class ClientCollection<
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
-  _schemaFields: SchemaType<N>;
-  _simpleSchema: any = null;
   private voteable = false;
 
   constructor(options: CollectionOptions<N>) {
@@ -17,10 +15,6 @@ class ClientCollection<
     this.typeName = options.typeName;
     this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
-
-    this._schemaFields = {
-      ...options.schema,
-    };
   }
 
   isConnected() {

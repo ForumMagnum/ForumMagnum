@@ -1,4 +1,4 @@
-import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
+import { isAnyTest, isIntegrationTest, isMigrations } from '@/lib/executionEnvironment';
 import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
@@ -88,7 +88,7 @@ import { Votes } from './votes/collection';
 import sortBy from 'lodash/sortBy';
 
 let testCollections: Record<never, never>;
-if (isAnyTest && !isIntegrationTest) {
+if (isAnyTest && !isIntegrationTest && !isMigrations) {
   ({ testCollections } = require('../sql/tests/testHelpers'));
 } else {
   testCollections = {};
@@ -106,29 +106,6 @@ const allCollections = {
   SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   UserActivities, Users, Votes, ...testCollections
 } satisfies CollectionsByName;
-
-// TODO: do something less horrible than this, maybe?
-// Actually check whether we even use ._schemaFields anywhere, maybe I've gotten the last of them.
-const augmentCollections = (() => {
-  let augmented = false;
-  return () => {
-    if (augmented) return;
-    augmented = true;
-    const augmentations: Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>> = require('../resolvers/allFieldAugmentations').allFieldAugmentations;
-    for (const collectionName in augmentations) {
-      const collection = allCollections[collectionName as CollectionNameString];
-      const collectionAugmentations = augmentations[collectionName as CollectionNameString];
-      if (collectionAugmentations) {
-        collection._simpleSchema = null;
-        for (const fieldName in collectionAugmentations) {
-          collection._schemaFields[fieldName] = { ...collection._schemaFields[fieldName], ...collectionAugmentations[fieldName] };
-        }
-      }
-    }
-  }
-})();
-
-augmentCollections();
 
 const collectionsByLowercaseName = Object.fromEntries(
   Object.values(allCollections).map((collection) => [collection.collectionName.toLowerCase(), collection]),
