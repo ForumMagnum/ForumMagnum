@@ -1,7 +1,7 @@
-import Users from '../lib/collections/users/collection';
-import { Sequences } from '../lib/collections/sequences/collection';
+import Users from '../server/collections/users/collection';
+import { Sequences } from '../server/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
-import { Collections } from '../lib/collections/collections/collection';
+import { Collections } from '../server/collections/collections/collection';
 import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';

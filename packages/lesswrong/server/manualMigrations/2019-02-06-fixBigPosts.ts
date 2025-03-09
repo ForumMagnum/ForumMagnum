@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/conversionUtils'
-import { Posts } from '../../lib/collections/posts/collection'
+import { Posts } from '../../server/collections/posts/collection'
 import { updateMutator } from '../vulcan-lib/mutators';
 
 export default registerMigration({

@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, InMemoryCache, ApolloLink } from '@apollo/client';
-import { apolloCacheVoteablePossibleTypes } from '../lib/make_voteable';
+import { apolloCacheVoteablePossibleTypes } from '@/lib/schema/allSchemas';
 import { createHttpLink, createErrorLink, headerLink } from '../lib/apollo/links';
 
 export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheObject> => {

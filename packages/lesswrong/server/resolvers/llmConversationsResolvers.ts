@@ -1,9 +1,7 @@
-import LlmConversations from "@/lib/collections/llmConversations/collection";
-import { augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { markdownToHtml } from "../editor/conversionUtils";
 import { userVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 
-augmentFieldsDict(LlmConversations, {
+export const llmConversationResolvers = {
   messages: {
     resolveAs: {
       type: '[LlmMessage]',
@@ -18,5 +16,4 @@ augmentFieldsDict(LlmConversations, {
       },
     }
   },
-})
-
+} satisfies Record<string, CollectionFieldSpecification<"LlmConversations">>;

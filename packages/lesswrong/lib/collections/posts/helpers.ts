@@ -4,7 +4,6 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting } from '../../publicSettings';
-import Localgroups from '../localgroups/collection';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
@@ -237,14 +236,14 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null 
  * @param post
  * @returns {Promise} Promise object resolves to true if the post has a group and the user is an organizer for that group
  */
-export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext|null): Promise<boolean> => {
+export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext): Promise<boolean> => {
+  const { loaders } = context;
+
   const groupId = ('group' in post) ? post.group?._id : post.groupId;
   if (!user || !groupId)
     return false
     
-  const group = context
-    ? await context.loaders.Localgroups.load(groupId)
-    : await Localgroups.findOne({_id: groupId});
+  const group = await loaders.Localgroups.load(groupId);
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 

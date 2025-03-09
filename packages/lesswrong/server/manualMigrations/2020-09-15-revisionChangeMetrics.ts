@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Revisions from '../../lib/collections/revisions/collection'
+import Revisions from '../../server/collections/revisions/collection'
 import { getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 
 export default registerMigration({

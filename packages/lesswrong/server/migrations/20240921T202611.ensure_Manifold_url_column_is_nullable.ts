@@ -34,7 +34,7 @@
  */
 export const acceptsSchemaHash = "16016945b35edcc8c5df47e292005a22";
 
-import ManifoldProbabilitiesCaches from "@/lib/collections/manifoldProbabilitiesCaches/collection"
+import ManifoldProbabilitiesCaches from "@/server/collections/manifoldProbabilitiesCaches/collection"
 import { addField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

@@ -14,6 +14,8 @@ const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>(
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
+export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
+
 export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -624,4 +626,10 @@ export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
   // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
   const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');
   return `${displayNameWithoutEmojis}'s ${shortformName}`;
+}
+
+export const userCanPost = (user: UsersCurrent|DbUser) => {
+  if (user.deleted) return false;
+  if (user.postingDisabled) return false
+  return userCanDo(user, 'posts.new')
 }

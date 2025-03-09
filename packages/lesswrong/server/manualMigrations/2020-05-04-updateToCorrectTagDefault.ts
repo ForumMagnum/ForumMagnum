@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { getDefaultFilterSettings } from '../../lib/filterSettings';
 
 export default registerMigration({

@@ -34,7 +34,7 @@
  */
 export const acceptsSchemaHash = "afc7cd96d9085ca54d2a50765d02338f";
 
-import UserTagRels from "../../lib/collections/userTagRels/collection";
+import UserTagRels from "../../server/collections/userTagRels/collection";
 import { updateDefaultValue } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

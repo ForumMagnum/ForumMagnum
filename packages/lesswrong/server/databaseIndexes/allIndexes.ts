@@ -5,7 +5,7 @@ import { getDbIndexesOnUsers } from "./usersDbIndexes";
 import { getDbIndexesOnTags } from "./tagsDbIndexes";
 import { getDbIndexesOnComments } from "./commentsDbIndexes";
 import { getDbIndexesOnVotes } from "./votesDbIndexes";
-import { getAllCollections } from "@/lib/vulcan-lib/getCollection";
+import { getAllCollections } from "@/server/collections/allCollections";
 
 export function getAllIndexes(): DatabaseIndexSet {
   const indexSets: DatabaseIndexSet[] = [

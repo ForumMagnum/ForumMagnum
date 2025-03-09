@@ -9,10 +9,12 @@ import { CommandLineOptions } from "../build";
 // @ts-ignore This is a javascript file without a .d.ts
 import { getDatabaseConfig } from "./startup/buildUtil";
 
-export const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
+export const initGlobals = (args: Record<string, unknown>, isProd: boolean, globalOverrides?: Record<string, unknown>) => {
   Object.assign(global, {
     bundleIsServer: true,
     bundleIsTest: false,
+    bundleIsIntegrationTest: false,
+    bundleIsCodegen: false,
     bundleIsE2E: false,
     bundleIsProduction: isProd,
     bundleIsMigrations: true,
@@ -20,6 +22,7 @@ export const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
     serverPort: 5001,
     buildProcessPid: -1,
     enableVite: false,
+    ...globalOverrides,
   });
 
   const { getInstanceSettings } = require("../packages/lesswrong/lib/getInstanceSettings");
@@ -124,3 +127,5 @@ export const isForumType = (t: string): t is ForumType =>
   forumTypes.includes(t as ForumType)
 export const isEnvironmentType = (t: string): t is EnvironmentType =>
   environmentTypes.includes(t as EnvironmentType);
+export const isCodegen = (t: string): t is 'codegen' =>
+  t === 'codegen';

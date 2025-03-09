@@ -1,5 +1,4 @@
 import SelectQuery from "./SelectQuery";
-import { getSqlFragment } from "../../lib/vulcan-lib/fragments";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
 import type SqlFragment from "./SqlFragment";
 

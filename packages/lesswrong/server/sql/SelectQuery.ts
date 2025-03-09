@@ -1,7 +1,7 @@
 import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
 import { DefaultValueType, IdType, NotNullType, Type, UnknownType } from "./Type";
-import { getCollectionByTableName } from "@/lib/vulcan-lib/getCollection";
+import { tableNameToCollectionName } from "@/lib/generated/collectionTypeNames";
 import { inspect } from "util";
 import { getCollationType } from "./collation";
 
@@ -232,9 +232,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       throw new Error("Invalid $lookup");
     }
 
+    if (!(from in tableNameToCollectionName)) {
+      throw new Error(`Invalid $lookup: ${from} is not a valid table name`);
+    }
+
     if ("localField" in lookup && "foreignField" in lookup) {
       const {localField, foreignField} = lookup;
-      const table = getCollectionByTableName(from).collectionName;
+      const table = tableNameToCollectionName[from as keyof typeof tableNameToCollectionName];
       this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
       this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
       this.syntheticFields[as] = new UnknownType();

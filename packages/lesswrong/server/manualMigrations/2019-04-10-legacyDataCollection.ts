@@ -1,8 +1,8 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { LegacyData } from '../../lib/collections/legacyData/collection';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
+import { LegacyData } from '../../server/collections/legacyData/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import * as _ from 'underscore';
 
 export default registerMigration({

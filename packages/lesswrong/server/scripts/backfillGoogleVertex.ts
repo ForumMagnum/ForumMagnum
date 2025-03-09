@@ -1,7 +1,7 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import ReadStatuses from "../../lib/collections/readStatus/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";

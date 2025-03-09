@@ -1,4 +1,4 @@
-import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
+import PostEmbeddings from "../../server/collections/postEmbeddings/collection";
 import { createTable, dropTable } from "./meta/utils";
 
 export const acceptsSchemaHash = "8a6bdab9352a0251d6db2fa801b6b593";

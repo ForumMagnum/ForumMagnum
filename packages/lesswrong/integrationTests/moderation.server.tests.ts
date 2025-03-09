@@ -11,7 +11,7 @@ import {
   assertIsPermissionsFlavoredError,
   withNoLogs,
 } from './utils';
-import Users from '../lib/collections/users/collection';
+import Users from '../server/collections/users/collection';
 import {
   userIsBannedFromPost,
   userIsBannedFromAllPosts,

@@ -1,5 +1,5 @@
-import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
-import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
+import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPredictions/collection';
+import ElicitQuestions from '../../server/collections/elicitQuestions/collection';
 import { executePromiseQueue } from '../../lib/utils/asyncUtils';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import CommentsRepo from '../repos/CommentsRepo';

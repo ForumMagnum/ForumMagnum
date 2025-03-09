@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Localgroups from "../../lib/collections/localgroups/collection";
+import Localgroups from "../../server/collections/localgroups/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class LocalgroupsRepo extends AbstractRepo<"Localgroups"> {

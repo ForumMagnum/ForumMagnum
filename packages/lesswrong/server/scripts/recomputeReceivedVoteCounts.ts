@@ -1,6 +1,6 @@
 import { migrateDocuments } from "../manualMigrations/migrationUtils";
-import { Users } from '../../lib/collections/users/collection';
-import { Votes } from "../../lib/collections/votes/collection";
+import { Users } from '../../server/collections/users/collection';
+import { Votes } from "../../server/collections/votes/collection";
 import { collectionsThatAffectKarma } from "../callbacks/votingCallbacks";
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { commentIsHidden } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/schema";
-import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID, subforumGetSubscribedUsers } from "@/lib/collections/tags/helpers";
+import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum } from "@/lib/instanceSettings";
@@ -26,7 +26,7 @@ import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { Components } from "@/lib/vulcan-lib/components";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import _ from "underscore";
@@ -166,7 +166,7 @@ const utils = {
   },
 
   sendNewCommentNotifications: async (comment: DbComment, context: ResolverContext) => {
-    const { UserTagRels, loaders, repos } = context;
+    const { Users, UserTagRels, loaders, repos } = context;
     const post = comment.postId ? await loaders.Posts.load(comment.postId) : null;
     
     if (comment.legacyData?.arbitalPageId) return;
@@ -305,7 +305,8 @@ const utils = {
       !comment.topLevelCommentId &&
       !comment.authorIsUnreviewed // FIXME: make this more general, and possibly queue up notifications from unreviewed users to send once they are approved
     ) {
-      const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId })).map((u) => u._id);
+      const subforumSubcribedUsers = await Users.find({profileTagIds: comment.tagId}).fetch();
+      const subforumSubscriberIds = subforumSubcribedUsers.map((u) => u._id);
       const subforumSubscriberIdsMaybeNotify = (
         await UserTagRels.find({
           userId: { $in: subforumSubscriberIds },
@@ -768,7 +769,8 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
 }
 
 export async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
-  const { Comments } = properties.context;
+  const { context } = properties;
+  const { Comments } = context;
   if (!currentUser) throw new Error("Submitted comment has no associated user");
   
   // Don't spam-check imported comments
@@ -781,7 +783,7 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
   if (unreviewedUser && akismetKeySetting.get()) {
     const start = Date.now();
 
-    const spam = await checkForAkismetSpam({document: comment, type: "comment"})
+    const spam = await checkForAkismetSpam({document: comment, type: "comment", context})
 
     const timeElapsed = Date.now() - start;
     captureEvent('checkForAkismetSpamCompleted', {

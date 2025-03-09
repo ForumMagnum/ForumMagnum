@@ -1,4 +1,4 @@
-import ElicitQuestionPredictions from "@/lib/collections/elicitQuestionPredictions/collection"
+import ElicitQuestionPredictions from "@/server/collections/elicitQuestionPredictions/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

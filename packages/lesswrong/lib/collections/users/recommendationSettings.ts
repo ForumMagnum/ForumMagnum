@@ -1,6 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import { addFieldsDict } from '../../utils/schemaUtils';
-import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
@@ -191,7 +189,7 @@ const recommendationSettingsSchema = new SimpleSchema({
   recommendationspage: recommendationAlgorithmSettingsSchema,
 });
 
-addFieldsDict(Users, {
+export const recommendationSettingsField = {
   // Admin-only options for configuring Recommendations placement, for experimentation
   recommendationSettings: {
     type: recommendationSettingsSchema,
@@ -201,4 +199,5 @@ addFieldsDict(Users, {
     canUpdate: [userOwns],
     optional: true,
   },
-});
+};
+

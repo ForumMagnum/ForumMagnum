@@ -2,7 +2,7 @@ import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
-import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
+import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import { DatabasePublicSetting } from '../publicSettings';
 
 export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
@@ -50,7 +50,7 @@ const addVoteClient = ({ document, collectionName, voteType, extendedVote, user,
     voteCount: (document.voteCount||0) + 1,
     afBaseScore: (document.afBaseScore||0) + afPower,
     afVoteCount: (document.afVoteCount||0) + (isAfVote?1:0),
-    __typename: collectionNameToTypeName(collectionName),
+    __typename: collectionNameToTypeName[collectionName],
   };
 
   newDocument.score = recalculateScore(newDocument);

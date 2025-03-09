@@ -1,5 +1,5 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
-import { apolloCacheVoteablePossibleTypes } from '../../../lib/make_voteable';
+import { apolloCacheVoteablePossibleTypes } from '@/lib/schema/allSchemas';
 import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";

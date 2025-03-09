@@ -1,9 +1,9 @@
 import { addField, createTable, dropField, dropTable, updateIndexes } from "./meta/utils";
-import Surveys from "@/lib/collections/surveys/collection";
-import SurveyQuestions from "@/lib/collections/surveyQuestions/collection";
-import SurveyResponses from "@/lib/collections/surveyResponses/collection";
-import SurveySchedules from "@/lib/collections/surveySchedules/collection";
-import Users from "@/lib/collections/users/collection";
+import Surveys from "@/server/collections/surveys/collection";
+import SurveyQuestions from "@/server/collections/surveyQuestions/collection";
+import SurveyResponses from "@/server/collections/surveyResponses/collection";
+import SurveySchedules from "@/server/collections/surveySchedules/collection";
+import Users from "@/server/collections/users/collection";
 
 export const acceptsSchemaHash = "b1f9f6080e26c6425541b770717f7c98"
 

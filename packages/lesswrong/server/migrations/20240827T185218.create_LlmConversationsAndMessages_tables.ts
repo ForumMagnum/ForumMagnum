@@ -1,5 +1,5 @@
-import LlmConversations from "@/lib/collections/llmConversations/collection";
-import LlmMessages from "@/lib/collections/llmMessages/collection";
+import LlmConversations from "@/server/collections/llmConversations/collection";
+import LlmMessages from "@/server/collections/llmMessages/collection";
 import { createTable, updateIndexes, dropTable } from "./meta/utils";
 
 /**

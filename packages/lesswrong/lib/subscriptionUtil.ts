@@ -1,6 +1,6 @@
-import { SubscriptionType, subscriptionTypes } from './collections/subscriptions/schema';
 import * as _ from 'underscore';
 import { getConfirmedCoauthorIds } from './collections/posts/helpers';
+import { subscriptionTypes, SubscriptionType } from './collections/subscriptions/helpers';
 
 export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document}: {
   user: DbUser|UsersCurrent|null,

@@ -1,4 +1,4 @@
-import Revisions from "@/lib/collections/revisions/collection"
+import Revisions from "@/server/collections/revisions/collection"
 import { addField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

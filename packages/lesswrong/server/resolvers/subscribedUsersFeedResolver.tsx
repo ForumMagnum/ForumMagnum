@@ -76,11 +76,11 @@ defineFeedResolver<Date>({
     
     const [posts, comments] = await Promise.all([
       loadByIds(context, "Posts", postIds)
-        .then(posts => accessFilterMultiple(currentUser, context.Posts, posts, context))
+        .then(posts => accessFilterMultiple(currentUser, 'Posts', posts, context))
         .then(filterNonnull)
         .then(filter(ensureHasId)),
       loadByIds(context, "Comments", commentIds)
-        .then(comments => accessFilterMultiple(currentUser, context.Comments, comments, context))
+        .then(comments => accessFilterMultiple(currentUser, 'Comments', comments, context))
         .then(filterNonnull)
         .then(filter(ensureHasId)),
     ]);

@@ -1,5 +1,5 @@
-import Chapters from "../../lib/collections/chapters/collection";
-import Sequences from "../../lib/collections/sequences/collection";
+import Chapters from "../../server/collections/chapters/collection";
+import Sequences from "../../server/collections/sequences/collection";
 import { randomId } from "../../lib/random";
 import InsertQuery from "@/server/sql/InsertQuery";
 

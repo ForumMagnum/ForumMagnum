@@ -1,5 +1,5 @@
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Posts } from '../../lib/collections/posts/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 import { isElasticEnabled } from '../../lib/instanceSettings';
 

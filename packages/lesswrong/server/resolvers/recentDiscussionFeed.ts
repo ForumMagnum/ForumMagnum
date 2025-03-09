@@ -1,7 +1,7 @@
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
 import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
 import { EA_FORUM_COMMUNITY_TOPIC_ID, EA_FORUM_TRANSLATION_TOPIC_ID } from '@/lib/collections/tags/helpers';

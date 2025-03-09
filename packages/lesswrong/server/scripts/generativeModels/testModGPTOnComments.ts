@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import sanitizeHtml from 'sanitize-html';
-import { Comments } from '../../../lib/collections/comments/collection';
+import { Comments } from '../../../server/collections/comments/collection';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { wrapVulcanAsyncScript } from '../utils';
 import * as _ from 'underscore';

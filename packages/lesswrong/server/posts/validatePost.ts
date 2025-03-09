@@ -1,6 +1,6 @@
 import { registerCollectionValidator } from '../scripts/validateDatabase';
 import { createAdminContext } from '../vulcan-lib/query';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import * as _ from 'underscore';
 

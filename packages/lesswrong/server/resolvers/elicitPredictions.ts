@@ -3,8 +3,8 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
 import { encode } from 'querystring'
-import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
-import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
+import ElicitQuestions from '../../server/collections/elicitQuestions/collection';
+import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
 import { createMutator } from '../vulcan-lib/mutators';
 import { randomId } from '@/lib/random';

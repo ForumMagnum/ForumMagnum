@@ -1,9 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments/collection';
-import TagRels from '../tagRels/collection';
-import { Posts } from '../posts/collection';
 import { universalFields } from '../../collectionUtils';
 
 //
@@ -152,7 +149,7 @@ const schema: SchemaType<"Votes"> = {
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = await context.loaders.TagRels.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, TagRels, tagRel, context);
+        return accessFilterSingle(context.currentUser, 'TagRels', tagRel, context);
       } else {
         return null;
       }
@@ -166,7 +163,7 @@ const schema: SchemaType<"Votes"> = {
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Comments") {
         const comment = await context.loaders.Comments.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, Comments, comment, context);
+        return accessFilterSingle(context.currentUser, 'Comments', comment, context);
       } else {
         return null;
       }
@@ -180,7 +177,7 @@ const schema: SchemaType<"Votes"> = {
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Posts") {
         const post = await context.loaders.Posts.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, Posts, post, context);
+        return accessFilterSingle(context.currentUser, 'Posts', post, context);
       } else {
         return null;
       }

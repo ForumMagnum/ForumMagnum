@@ -1,4 +1,4 @@
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';

@@ -1,5 +1,5 @@
 import { randomId } from "@/lib/random";
-import ElectionVotes from "../../lib/collections/electionVotes/collection";
+import ElectionVotes from "../../server/collections/electionVotes/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

@@ -1,6 +1,6 @@
 import { isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
-import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
+import { DatabaseMetadata } from '../server/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { getPreloadedDatabaseId } from './loadDatabaseSettings';
 

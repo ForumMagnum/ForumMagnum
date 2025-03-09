@@ -1,5 +1,5 @@
 import { AnnualReviewMarketInfo } from "../../lib/collections/posts/annualReviewMarkets";
-import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
+import ManifoldProbabilitiesCaches from "../../server/collections/manifoldProbabilitiesCaches/collection";
 import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 

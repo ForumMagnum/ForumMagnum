@@ -1,6 +1,5 @@
 import { restrictViewableFieldsSingle } from "../../lib/vulcan-users/permissions";
 import { defineQuery } from "../utils/serverGraphqlUtil";
-import Posts from "../../lib/collections/posts/collection";
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
@@ -17,7 +16,7 @@ export async function initReviewWinnerCache() {
 
 function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
   return reviewWinners.map(({ reviewWinner, ...post }) => ({
-    ...restrictViewableFieldsSingle(context.currentUser, Posts, post),
+    ...restrictViewableFieldsSingle(context.currentUser, 'Posts', post),
     reviewWinner
   }));
 }

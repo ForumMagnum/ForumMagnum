@@ -1,4 +1,4 @@
-import ElicitQuestions from "@/lib/collections/elicitQuestions/collection";
+import ElicitQuestions from "@/server/collections/elicitQuestions/collection";
 import { addField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

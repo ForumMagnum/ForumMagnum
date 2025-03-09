@@ -1,4 +1,4 @@
-import Comments from "../../lib/collections/comments/collection";
+import Comments from "../../server/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';

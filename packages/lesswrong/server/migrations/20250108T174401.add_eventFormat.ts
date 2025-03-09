@@ -1,6 +1,6 @@
-import ForumEvents from "@/lib/collections/forumEvents/collection"
+import ForumEvents from "@/server/collections/forumEvents/collection"
 import { addField, dropField } from "./meta/utils"
-import { Comments } from "@/lib/collections/comments/collection"
+import { Comments } from "@/server/collections/comments/collection"
 
 export const up = async ({db}: MigrationContext) => {
   await addField(db, ForumEvents, "eventFormat")

@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";

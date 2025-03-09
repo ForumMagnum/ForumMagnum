@@ -38,7 +38,7 @@
  */
 export const acceptsSchemaHash = "c7d6d21198c4725672bcea289b5c32ff";
 
-import TypingIndicator from "../../lib/collections/typingIndicators/collection";
+import TypingIndicator from "../../server/collections/typingIndicators/collection";
 import { createTable, dropTable } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

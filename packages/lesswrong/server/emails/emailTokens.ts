@@ -1,7 +1,7 @@
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { EmailTokens } from '../../lib/collections/emailTokens/collection';
+import { EmailTokens } from '../../server/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';

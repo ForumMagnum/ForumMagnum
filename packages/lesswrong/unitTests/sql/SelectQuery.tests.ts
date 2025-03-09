@@ -496,7 +496,7 @@ describe("SelectQuery", () => {
     {
       name: "pipeline lookups are not implemented",
       getQuery: () => new SelectQuery(testTable, {}, {}, {lookup: {
-        from: "SomeCollection",
+        from: "testcollection",
         let: {k: "$a"},
         pipeline: [],
         as: "a",

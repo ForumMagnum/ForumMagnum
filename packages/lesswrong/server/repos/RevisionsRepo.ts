@@ -1,4 +1,4 @@
-import Revisions from "@/lib/collections/revisions/collection";
+import Revisions from "@/server/collections/revisions/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

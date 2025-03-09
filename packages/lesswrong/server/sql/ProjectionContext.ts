@@ -1,4 +1,5 @@
 import { RandIntCallback, randomId, seededRandInt } from "@/lib/random";
+import { getSchema } from "@/lib/schema/allSchemas";
 import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
 
@@ -124,7 +125,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   }
 
   getSchema() {
-    return this.collection._schemaFields;
+    return getSchema<N>(this.collection.collectionName);
   }
 
   getResolver(name: string): CustomResolver | null {

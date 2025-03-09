@@ -1,4 +1,4 @@
-import { Subscriptions } from '../../lib/collections/subscriptions/collection'
+import { Subscriptions } from '../../server/collections/subscriptions/collection'
 import { getCollectionHooks } from '../mutationCallbacks';
 
 getCollectionHooks("Subscriptions").createBefore.add(async function deleteOldSubscriptions(subscription) {

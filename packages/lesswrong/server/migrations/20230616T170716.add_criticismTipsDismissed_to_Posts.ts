@@ -24,8 +24,8 @@
  */
 export const acceptsSchemaHash = "88bc10e632764af3e6cff68763da9113";
 
-import Posts from "../../lib/collections/posts/collection"
-import Tags from "../../lib/collections/tags/collection";
+import Posts from "../../server/collections/posts/collection"
+import Tags from "../../server/collections/tags/collection";
 import { BoolType } from "../sql/Type";
 import { addRemovedField, dropRemovedField, updateDefaultValue } from "./meta/utils"
 

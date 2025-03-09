@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Comments } from '../../lib/collections/comments/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { Comments } from '../../server/collections/comments/collection';
 
 export default registerMigration({
   name: "tagLastCommentedAt",

@@ -33,7 +33,7 @@
  */
 export const acceptsSchemaHash = "df6daf9edd46c15e6eb9a3862852ae85";
 
-import Localgroups from "../../lib/collections/localgroups/collection";
+import Localgroups from "../../server/collections/localgroups/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

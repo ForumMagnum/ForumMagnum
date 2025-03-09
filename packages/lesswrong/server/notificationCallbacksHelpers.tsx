@@ -1,9 +1,9 @@
-import Notifications from '../lib/collections/notifications/collection';
+import Notifications from '../server/collections/notifications/collection';
 import { messageGetLink } from '../lib/helpers';
-import Subscriptions from '../lib/collections/subscriptions/collection';
-import Users from '../lib/collections/users/collection';
+import Subscriptions from '../server/collections/subscriptions/collection';
+import Users from '../server/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';

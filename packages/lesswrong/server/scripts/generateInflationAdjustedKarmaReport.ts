@@ -1,4 +1,4 @@
-import { Posts } from "../../lib/collections/posts/collection";
+import { Posts } from "../../server/collections/posts/collection";
 import { getKarmaInflationSeries } from "../../lib/collections/posts/karmaInflation";
 import { buildInflationAdjustedField } from "../../lib/collections/posts/views";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";

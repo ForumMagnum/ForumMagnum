@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Tags from '../../lib/collections/tags/collection';
-import Users from '../../lib/collections/users/collection';
+import Tags from '../../server/collections/tags/collection';
+import Users from '../../server/collections/users/collection';
 
 export default registerMigration({
   name: "addDadTagSettings",

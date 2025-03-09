@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import moment from 'moment'
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';

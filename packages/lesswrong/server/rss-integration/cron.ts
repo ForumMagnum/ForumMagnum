@@ -1,8 +1,8 @@
 import { addCronJob } from '../cron/cronUtil';
-import RSSFeeds from '../../lib/collections/rssfeeds/collection';
+import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import feedparser from 'feedparser-promised';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -150,7 +150,7 @@ defineQuery({
     if (!feedId) {
       throw new Error("This post is not associated with an RSS feed");
     }
-    const feed = await accessFilterSingle(currentUser, RSSFeeds,
+    const feed = await accessFilterSingle(currentUser, 'RSSFeeds',
       await context.loaders.RSSFeeds.load(feedId),
       context
     );

@@ -4,9 +4,9 @@ import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
 import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
-import { Users } from '../lib/collections/users/collection'
-import { Posts } from '../lib/collections/posts/collection'
-import { Comments } from '../lib/collections/comments/collection'
+import { Users } from '../server/collections/users/collection'
+import { Posts } from '../server/collections/posts/collection'
+import { Comments } from '../server/collections/comments/collection'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";

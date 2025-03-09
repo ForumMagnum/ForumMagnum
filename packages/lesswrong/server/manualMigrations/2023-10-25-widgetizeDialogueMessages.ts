@@ -1,5 +1,5 @@
 import merge from 'lodash/merge';
-import Revisions from '../../lib/collections/revisions/collection';
+import Revisions from '../../server/collections/revisions/collection';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
 import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';

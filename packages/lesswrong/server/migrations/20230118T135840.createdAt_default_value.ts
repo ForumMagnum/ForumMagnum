@@ -1,6 +1,6 @@
 export const acceptsSchemaHash = "afb5555a6e3a18714877036b68c63786";
 
-import { Collections } from "../../lib/vulcan-lib/getCollection"
+import { getAllCollections } from "@/server/collections/allCollections";
 import { updateDefaultValue, dropDefaultValue } from "./meta/utils"
 
 /*
@@ -11,13 +11,13 @@ import { updateDefaultValue, dropDefaultValue } from "./meta/utils"
  */
 
 export const up = async ({db}: MigrationContext) => {
-  for (const collection of Collections) {
+  for (const collection of getAllCollections()) {
     // await updateDefaultValue(db, collection, "createdAt");
   }
 }
 
 export const down = async ({db}: MigrationContext) => {
-  for (const collection of Collections) {
+  for (const collection of getAllCollections()) {
     // await dropDefaultValue(db, collection, "createdAt");
   }
 }

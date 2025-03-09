@@ -1,6 +1,6 @@
 import merge from 'lodash/merge';
-import { Posts } from '../../lib/collections/posts/collection';
-import Revisions from '../../lib/collections/revisions/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Revisions from '../../server/collections/revisions/collection';
 import { sleep } from '../../lib/helpers';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';

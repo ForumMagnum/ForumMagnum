@@ -1,6 +1,6 @@
-import Users from '../../lib/collections/users/collection';
-import { Comments } from '../../lib/collections/comments/collection'
-import { Posts } from '../../lib/collections/posts/collection'
+import Users from '../../server/collections/users/collection';
+import { Comments } from '../../server/collections/comments/collection'
+import { Posts } from '../../server/collections/posts/collection'
 import { postStatuses } from '../../lib/collections/posts/constants'
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';

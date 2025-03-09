@@ -1,5 +1,5 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-import { Notifications } from '../../lib/collections/notifications/collection';
+import { Notifications } from '../../server/collections/notifications/collection';
 
 export default registerMigration({
   name: "deletedNotifications",

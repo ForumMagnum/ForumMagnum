@@ -1,9 +1,9 @@
 import * as _ from 'underscore';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
-import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
+import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
 import { createAdminContext } from "../vulcan-lib/query";
 import { createMutator } from "../vulcan-lib/mutators";

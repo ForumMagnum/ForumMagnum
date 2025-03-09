@@ -13,7 +13,7 @@ import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
-import { userCanStartConversations } from "@/lib/collections/conversations/collection";
+import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import { LoadMoreProps, useMulti } from "@/lib/crud/withMulti";
 
 // When adding a new year you'll need to run the server command to update the

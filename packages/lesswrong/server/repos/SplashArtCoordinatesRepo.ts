@@ -1,4 +1,4 @@
-import SplashArtCoordinates from "../../lib/collections/splashArtCoordinates/collection";
+import SplashArtCoordinates from "../../server/collections/splashArtCoordinates/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

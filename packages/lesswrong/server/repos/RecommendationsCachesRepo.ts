@@ -1,4 +1,4 @@
-import RecommendationsCaches from "../../lib/collections/recommendationsCaches/collection";
+import RecommendationsCaches from "../../server/collections/recommendationsCaches/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

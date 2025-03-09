@@ -2,9 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-
-
-export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
+import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 
 const styles = (theme: ThemeType) => ({
   warningText: {

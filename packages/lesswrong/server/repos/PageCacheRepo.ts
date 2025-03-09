@@ -1,5 +1,5 @@
 import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from "../../lib/abTestImpl";
-import PageCache from "../../lib/collections/pagecache/collection";
+import PageCache from "../../server/collections/pagecache/collection";
 import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";

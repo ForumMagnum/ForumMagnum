@@ -1,5 +1,5 @@
-import Votes from '../../lib/collections/votes/collection';
-import { getVoteableCollections } from '../../lib/make_voteable';
+import Votes from '../../server/collections/votes/collection';
+import { getVoteableCollections } from '@/server/collections/allCollections';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import mapValues from 'lodash/mapValues';
 import * as _ from 'underscore';

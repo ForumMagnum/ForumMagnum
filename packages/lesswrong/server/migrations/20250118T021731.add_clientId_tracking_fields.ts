@@ -1,4 +1,4 @@
-import { ClientIds } from "@/lib/collections/clientIds/collection"
+import { ClientIds } from "@/server/collections/clientIds/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

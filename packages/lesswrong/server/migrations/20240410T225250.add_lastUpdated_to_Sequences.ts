@@ -32,7 +32,7 @@
  */
 export const acceptsSchemaHash = "b2d46df0cf4693fc419953f2fbe9a0cc";
 
-import Sequences from "../../lib/collections/sequences/collection"
+import Sequences from "../../server/collections/sequences/collection"
 import { dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

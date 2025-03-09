@@ -1,7 +1,7 @@
 import chunk from "lodash/chunk";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
-import Revisions from "@/lib/collections/revisions/collection";
+import Revisions from "@/server/collections/revisions/collection";
 import { getNextVersion } from "../editor/utils";
 
 interface PostRevisionInfo {

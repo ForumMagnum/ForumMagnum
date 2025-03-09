@@ -19,7 +19,7 @@
  */
 export const acceptsSchemaHash = "4acff74195e36da33248763ab681bfd7";
 
-import Spotlights from "../../lib/collections/spotlights/collection";
+import Spotlights from "../../server/collections/spotlights/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

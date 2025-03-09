@@ -1,5 +1,5 @@
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
-import { Notifications } from '../../lib/collections/notifications/collection';
+import { Notifications } from '../../server/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
 import { NotificationCountsResult } from '../../lib/collections/notifications/schema';

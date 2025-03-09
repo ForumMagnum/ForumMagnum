@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
 import { asyncForeachParallel } from '../../lib/utils/asyncUtils';
-import Comments from '../../lib/collections/comments/collection';
+import Comments from '../../server/collections/comments/collection';
 import * as _ from 'underscore';
 
 // Populates the descendentCount field on all comments. Populates the

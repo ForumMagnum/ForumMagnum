@@ -6,7 +6,7 @@ import { getPostDescription } from "../posts/PostsPage/PostsPage";
 import {
   PLAINTEXT_DESCRIPTION_LENGTH,
   PLAINTEXT_HTML_TRUNCATION_LENGTH,
-} from "../../lib/collections/revisions/collection";
+} from "../../server/collections/revisions/collection";
 import markdownIt from "markdown-it";
 import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";

@@ -1,5 +1,5 @@
 import { wrapVulcanAsyncScript } from './utils'
-import Users from '../../lib/collections/users/collection'
+import Users from '../../server/collections/users/collection'
 
 /*
  * This script attempts to ensure that all users with an "email" value

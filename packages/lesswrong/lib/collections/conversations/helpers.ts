@@ -48,3 +48,9 @@ export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false
 
   return `${prefix}/inbox/${conversation._id}`;
 }
+
+export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
+  if (user.deleted) return false
+  if (user.conversationsDisabled) return false;
+  return true
+}

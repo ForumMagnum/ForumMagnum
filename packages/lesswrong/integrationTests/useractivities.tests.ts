@@ -1,5 +1,5 @@
 import "./integrationTestSetup";
-import UserActivities from "../lib/collections/useractivities/collection";
+import UserActivities from "../server/collections/useractivities/collection";
 import { updateUserActivities } from "../server/useractivities/cron";
 import { getUserActivityData } from "../server/useractivities/getUserActivityData";
 

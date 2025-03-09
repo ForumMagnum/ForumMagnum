@@ -1,4 +1,4 @@
-import Digests from "@/lib/collections/digests/collection";
+import Digests from "@/server/collections/digests/collection";
 import { addField, dropField } from "./meta/utils";
 
 /**

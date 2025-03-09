@@ -1,4 +1,4 @@
-import Spotlights from '../lib/collections/spotlights/collection';
+import Spotlights from '../server/collections/spotlights/collection';
 import { addCronJob } from './cron/cronUtil';
 
 const MS_IN_DAY = 1000 * 60 * 60 * 24;

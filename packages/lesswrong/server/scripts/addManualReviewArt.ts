@@ -1,5 +1,5 @@
 import { createAdminContext } from "../vulcan-lib/query";
-import ReviewWinnerArts from "../../lib/collections/reviewWinnerArts/collection";
+import ReviewWinnerArts from "../../server/collections/reviewWinnerArts/collection";
 import { moveImageToCloudinary } from "./convertImagesToCloudinary";
 import { createMutator } from "../vulcan-lib/mutators";
 

@@ -1,4 +1,4 @@
-import { Posts } from "@/lib/collections/posts/collection.ts";
+import { Posts } from "@/server/collections/posts/collection.ts";
 import { manifoldAPIKeySetting } from "@/lib/instanceSettings";
 import { postGetMarketInfoFromManifold, LiteMarket } from "@/lib/collections/posts/annualReviewMarkets";
 import { sleep } from "@/lib/utils/asyncUtils";

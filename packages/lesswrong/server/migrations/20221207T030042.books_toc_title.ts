@@ -1,4 +1,4 @@
-import Books from "../../lib/collections/books/collection";
+import Books from "../../server/collections/books/collection";
 import { addField } from "./meta/utils";
 
 /**

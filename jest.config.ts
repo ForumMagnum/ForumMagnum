@@ -68,6 +68,8 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsIntegrationTest: false,
+    bundleIsCodegen: false,
     bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
@@ -183,7 +185,7 @@ export default {
   // A map from regular expressions to paths to transformers
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": [
-      "esbuild-jest",
+      "<rootDir>/esbuild-jest-vendored.js",
       {
         sourcemap: true,
       },

@@ -2,8 +2,8 @@ import { registerMigration } from './migrationUtils';
 import { updateMutator } from '../vulcan-lib/mutators';
 
 
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 
 export default registerMigration({
   name: "setAfShortformValues",

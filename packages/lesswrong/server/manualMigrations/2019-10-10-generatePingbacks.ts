@@ -1,8 +1,8 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getEditableFieldsByCollection } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import { htmlToPingbacks } from '../pingbacks';
-import Revisions from '@/lib/collections/revisions/collection';
+import Revisions from '@/server/collections/revisions/collection';
 
 export default registerMigration({
   name: "generatePingbacks",
@@ -43,7 +43,7 @@ const updatePingbacks = async (collectionName: CollectionNameString, fieldName: 
         }
         const html = rev.html;
         if (html) {
-          const pingbacks = await htmlToPingbacks(html);
+          const pingbacks = await htmlToPingbacks(html, null);
           if (JSON.stringify(document.pingbacks) !== JSON.stringify(pingbacks)) {
             updates.push({
               updateOne: {

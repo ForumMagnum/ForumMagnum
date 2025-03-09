@@ -1,7 +1,7 @@
 import "./integrationTestSetup";
 import { createDummyPost, createDummyUser } from "./utils";
-import Revisions from "../lib/collections/revisions/collection";
-import { Posts } from "../lib/collections/posts/collection";
+import Revisions from "../server/collections/revisions/collection";
+import { Posts } from "../server/collections/posts/collection";
 import { runQuery } from "../server/vulcan-lib/query";
 import { syncDocumentWithLatestRevision } from "../server/editor/utils";
 import { fetchFragmentSingle } from "../server/fetchFragment";

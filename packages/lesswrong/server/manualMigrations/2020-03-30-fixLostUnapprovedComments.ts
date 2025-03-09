@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
-import { Comments } from '../../lib/collections/comments/collection';
-import Users from '../../lib/collections/users/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import Users from '../../server/collections/users/collection';
 import * as _ from 'underscore';
 
 // There was a bug where, when a user is approved, only one post/comment is

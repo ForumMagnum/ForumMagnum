@@ -1,4 +1,4 @@
-import { Users } from "@/lib/collections/users/collection";
+import { Users } from "@/server/collections/users/collection";
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { updateMutator } from "../vulcan-lib/mutators";
 import { createDisplayName } from "@/lib/collections/users/schema";

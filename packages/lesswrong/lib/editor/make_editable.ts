@@ -5,8 +5,8 @@ import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { getAllCollections } from '../vulcan-lib/getCollection';
 import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
+import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -82,12 +82,13 @@ export function isEditableField<N extends CollectionNameString>(field: [string, 
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
+    const { allSchemas }: { allSchemas: Record<string, SchemaType<CollectionNameString>> } = require('../schema/allSchemas');
     if (!editableFieldsByCollection) {
-      const allCollections = getAllCollections();
-      editableFieldsByCollection = allCollections.reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, collection) => {
-        const editableFields = Object.entries(collection._schemaFields).filter(isEditableField);
+      // const allCollections = getAllCollections();
+      editableFieldsByCollection = Object.entries(allSchemas).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
+        const editableFields = Object.entries(schema).filter(isEditableField);
         if (editableFields.length > 0) {
-          acc[collection.collectionName] = Object.fromEntries(editableFields);
+          acc[collectionName as CollectionNameString] = Object.fromEntries(editableFields);
         }
         return acc;
       }, {});
@@ -117,7 +118,7 @@ const buildEditableResolver = <N extends CollectionNameString>(
         context: ResolverContext,
       ): Promise<DbRevision|null> => {
         const {currentUser, Revisions} = context;
-        const {checkAccess} = Revisions;
+        const checkAccess = getCollectionAccessFilter('Revisions');
 
         let revision: DbRevision|null;
         if (args.version) {
@@ -172,7 +173,7 @@ const buildEditableResolver = <N extends CollectionNameString>(
     ): Promise<DbRevision|null> => {
       const {currentUser, Revisions} = context;
       if (version) {
-        const {checkAccess} = Revisions;
+        const checkAccess = getCollectionAccessFilter('Revisions');
         if (version === "draft") {
           // If version is the special string "draft", that means
           // instead of returning the latest non-draft version
@@ -360,7 +361,7 @@ export function editableFields<N extends CollectionNameString>(collectionName: N
           {sort: {editedAt: -1}, limit},
         );
 
-        return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
+        return await accessFilterMultiple(currentUser, 'Revisions', loaderResults, context);
       }
     },
   };

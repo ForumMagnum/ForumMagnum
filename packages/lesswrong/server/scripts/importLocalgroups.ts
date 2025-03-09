@@ -1,6 +1,6 @@
 import fs from 'mz/fs';
 import Papa from 'papaparse';
-import Localgroups from '../../lib/collections/localgroups/collection';
+import Localgroups from '../../server/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { wrapVulcanAsyncScript } from './utils';
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";

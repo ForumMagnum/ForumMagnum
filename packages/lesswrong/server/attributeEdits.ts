@@ -1,5 +1,5 @@
 import { diff } from './vendor/node-htmldiff/htmldiff';
-import { Revisions } from '../lib/collections/revisions/collection';
+import { Revisions } from '../server/collections/revisions/collection';
 import { compareVersionNumbers } from '../lib/editor/utils';
 import cheerio from 'cheerio';
 import { cheerioParse } from './utils/htmlUtil';

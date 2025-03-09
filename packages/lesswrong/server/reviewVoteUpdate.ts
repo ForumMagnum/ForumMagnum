@@ -1,13 +1,13 @@
-import ReviewVotes from "../lib/collections/reviewVotes/collection"
-import Users from "../lib/collections/users/collection"
+import ReviewVotes from "../server/collections/reviewVotes/collection"
+import Users from "../server/collections/users/collection"
 import { getCostData, REVIEW_YEAR, ReviewWinnerCategory } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
-import ReviewWinners from "@/lib/collections/reviewWinners/collection";
-import { Tags } from "@/lib/collections/tags/collection";
+import ReviewWinners from "@/server/collections/reviewWinners/collection";
+import { Tags } from "@/server/collections/tags/collection";
 import { createAdminContext } from "./vulcan-lib/query";
 import { createMutator } from "./vulcan-lib/mutators";
 

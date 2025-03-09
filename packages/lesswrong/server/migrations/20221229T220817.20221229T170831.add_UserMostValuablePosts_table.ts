@@ -1,4 +1,4 @@
-import UserMostValuablePosts from "../../lib/collections/userMostValuablePosts/collection";
+import UserMostValuablePosts from "../../server/collections/userMostValuablePosts/collection";
 import { createTable, dropTable } from "./meta/utils";
 
 /**

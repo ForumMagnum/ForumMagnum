@@ -1,10 +1,10 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import Books from '../books/collection';
 import { sequenceGetAllPostIDs } from '../sequences/helpers';
 import toDictionary from '../../utils/toDictionary';
 import * as _ from 'underscore';
 
 export const collectionGetAllPostIDs = async (collectionID: string, context: ResolverContext): Promise<Array<string>> => {
+  const { Books } = context;
   const books = await Books.find({collectionId: collectionID}).fetch();
   const sequenceIDs = _.flatten(books.map(book=>book.sequenceIds));
   

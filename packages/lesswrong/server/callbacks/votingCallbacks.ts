@@ -1,7 +1,7 @@
 import moment from 'moment';
-import Notifications from '../../lib/collections/notifications/collection';
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
+import Notifications from '../../server/collections/notifications/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
@@ -11,7 +11,7 @@ import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
 import { createAdminContext } from '../vulcan-lib/query';
-import Tags from '../../lib/collections/tags/collection';
+import Tags from '../../server/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
@@ -22,7 +22,7 @@ import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 
 async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {

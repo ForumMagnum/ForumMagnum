@@ -1,5 +1,5 @@
 import pick from 'lodash/pick'
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";

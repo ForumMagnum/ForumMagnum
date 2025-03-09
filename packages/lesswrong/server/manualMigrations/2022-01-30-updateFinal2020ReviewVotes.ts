@@ -1,9 +1,9 @@
 import { registerMigration } from './migrationUtils';
-import ReviewVotes from '../../lib/collections/reviewVotes/collection';
+import ReviewVotes from '../../server/collections/reviewVotes/collection';
 import { getCostData, REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../../lib/collections/posts/collection';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
 import { isLW } from '../../lib/instanceSettings';

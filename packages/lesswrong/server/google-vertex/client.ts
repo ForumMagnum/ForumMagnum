@@ -181,7 +181,7 @@ const googleVertexApi = {
 
     const postIds = filterNonnull(recommendationsResponse.results.map(result => result.document?.id ?? result.id));
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', posts, context);
 
     const attributionId = recommendationsResponse.attributionToken;
     const postsWithAttribution = filteredPosts.map(post => ({ post, attributionId }));

@@ -1,7 +1,7 @@
-import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
+import { getAllCollections } from '@/server/collections/allCollections';
 import { generatedFileHeader, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/collectionUtils';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import { isResolverOnly } from '../sql/Type';
 import orderBy from 'lodash/orderBy';
 
@@ -31,14 +31,14 @@ function generateCollectionType(collection: any): string {
 function generateCollectionDbType(collection: CollectionBase<any>): string {
   let sb: Array<string> = [];
   const typeName = collection.typeName;
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
   
   sb.push(`interface Db${typeName} extends DbObject {\n`);
   sb.push(`  __collectionName?: "${collection.collectionName}"\n`);
   
   for (let fieldName of orderBy(Object.keys(schema), f=>f)) {
     const fieldSchema = schema[fieldName];
-    if (isResolverOnly(collection, fieldName, fieldSchema)) {
+    if (isResolverOnly(collection.collectionName, fieldName, fieldSchema)) {
       continue;
     }
     // Universal field (therefore in base type)?
@@ -55,7 +55,8 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
       const nullable = schema[fieldName].nullable === false ? "" : " | null";
       typeName = schema[fieldName].typescriptType + nullable;
     } else {
-      typeName = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type, 2, true);
+      const simpleSchema = getSimpleSchema(collection.collectionName);
+      typeName = simplSchemaTypeToTypescript(simpleSchema._schema, fieldName, simpleSchema._schema[fieldName].type, 2, true);
     }
 
     sb.push(`  ${fieldName}: ${typeName}\n`);

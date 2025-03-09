@@ -40,7 +40,7 @@
  */
 export const acceptsSchemaHash = "a43d70aa333497e5911f91e0e60c2115";
 
-import Tweets from "@/lib/collections/tweets/collection";
+import Tweets from "@/server/collections/tweets/collection";
 import { createTable, dropTable, updateIndexes } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

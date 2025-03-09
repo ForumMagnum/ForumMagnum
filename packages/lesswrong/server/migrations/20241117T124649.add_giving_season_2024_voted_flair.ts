@@ -1,4 +1,4 @@
-import Users from "@/lib/collections/users/collection";
+import Users from "@/server/collections/users/collection";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 import { BoolType } from "../sql/Type";
 

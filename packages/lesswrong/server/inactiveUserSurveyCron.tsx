@@ -4,7 +4,7 @@ import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailInactiveUserSurvey';
 import { loggerConstructor } from '../lib/utils/logging';
 import UsersRepo from './repos/UsersRepo';
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
 import { isEAForum } from '../lib/instanceSettings';
 import { Components } from "../lib/vulcan-lib/components";
 

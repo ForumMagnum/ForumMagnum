@@ -1,11 +1,11 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
-import Users from '../../lib/collections/users/collection';
-import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import Users from '../../server/collections/users/collection';
+import { denormalizedField } from '../../lib/utils/schemaUtils'
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
-import {getUserEmail, userCanEditUser, userGetDisplayName} from "../../lib/collections/users/helpers";
+import {getUserEmail, userCanEditUser} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../commonQueries";
-import { isEAForum } from '../../lib/instanceSettings';
+import { isAF, isEAForum } from '../../lib/instanceSettings';
 import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
@@ -17,6 +17,7 @@ import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { updateMutator } from "../vulcan-lib/mutators";
+import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from '../karmaChanges';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -48,7 +49,7 @@ addGraphQLSchema(`
   }
 `)
 
-augmentFieldsDict(Users, {
+export const userResolvers = {
   htmlMapMarkerText: {
     ...denormalizedField({
       needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),
@@ -113,8 +114,57 @@ augmentFieldsDict(Users, {
         return getRecentKarmaInfo(user._id)
       }
     }
-  }
-});
+  },
+  karmaChanges: {
+    type: 'KarmaChanges',
+    resolveAs: {
+      arguments: 'startDate: Date, endDate: Date',
+      type: 'KarmaChanges',
+      resolver: async (document, {startDate, endDate}, context: ResolverContext) => {
+        const { currentUser, Users } = context;
+        if (!currentUser)
+          return null;
+        
+        
+        // If this isn't an SSR (ie, it might be a mutation), refetch the current
+        // user, because the current user gets set at the beginning of the request,
+        // which matters if we're refetching this because we just updated
+        // karmaChangeLastOpened.
+        const newCurrentUser = context.isSSR
+          ? currentUser
+          : await Users.findOne(currentUser._id)
+        if (!newCurrentUser) throw Error(`Cant find user with ID: ${currentUser._id}`)
+        
+        const settings = newCurrentUser.karmaChangeNotifierSettings
+        const now = new Date();
+        
+        // If date range isn't specified, infer it from user settings
+        if (!startDate || !endDate) {
+          // If the user has karmaChanges disabled, don't return anything
+          if (settings.updateFrequency === "disabled") return null
+          const lastOpened = newCurrentUser.karmaChangeLastOpened;
+          const lastBatchStart = newCurrentUser.karmaChangeBatchStart;
+          
+          const dateRange = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now})
+          if (dateRange == null) return null;
+          const {start, end} = dateRange;
+          startDate = start;
+          endDate = end;
+        }
+        
+        const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
+        
+        return getKarmaChanges({
+          user: document,
+          startDate, endDate,
+          nextBatchDate,
+          af: isAF,
+          context,
+        });
+      },
+    },
+  },
+} satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 addGraphQLSchema(`
   type NewUserCompletedProfile {

@@ -1,5 +1,5 @@
 import { registerMigration, migrateDocuments, dropUnusedField } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import * as _ from 'underscore';
 
 export const scoreExceededDateFalseToNull = registerMigration({

@@ -15,4 +15,8 @@ export default {
     ...config.coveragePathIgnorePatterns,
     "/unitTests/",
   ],
+  globals: {
+    ...config.globals,
+    bundleIsIntegrationTest: true,
+  },
 };

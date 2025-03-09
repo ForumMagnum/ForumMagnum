@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 // Given all the console logs, this seemed more elegant than commenting on every one
 import { registerMigration } from './migrationUtils';
-import { Votes } from '../../lib/collections/votes/collection';
-import Users from '../../lib/collections/users/collection';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { Votes } from '../../server/collections/votes/collection';
+import Users from '../../server/collections/users/collection';
+import { getCollection } from '../collections/allCollections';
 
 
 export default registerMigration({

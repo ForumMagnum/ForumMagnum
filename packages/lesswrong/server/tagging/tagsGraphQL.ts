@@ -1,6 +1,6 @@
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { createMutator } from "../vulcan-lib/mutators";
 import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
@@ -17,9 +17,9 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   // and that this user can see both.
   const post = await Posts.findOne({_id: postId});
   const tag = await Tags.findOne({_id: tagId});
-  if (!await accessFilterSingle(currentUser, Posts, post, context))
+  if (!await accessFilterSingle(currentUser, 'Posts', post, context))
     throw new Error(`Invalid postId ${postId}, either this post does not exist, or you do not have access`);
-  if (!await accessFilterSingle(currentUser, Tags, tag, context))
+  if (!await accessFilterSingle(currentUser, 'Tags', tag, context))
     throw new Error(`Invalid tagId ${tagId}, either this tag does not exist, or you do not have access`);
   
   // Check whether this document already has this tag applied

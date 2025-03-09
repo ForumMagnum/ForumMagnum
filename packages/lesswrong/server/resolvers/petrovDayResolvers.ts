@@ -1,4 +1,4 @@
-import { PetrovDayLaunchs } from '../../lib/collections/petrovDayLaunchs/collection';
+import { PetrovDayLaunchs } from '../../server/collections/petrovDayLaunchs/collection';
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, addGraphQLQuery } from "../../lib/vulcan-lib/graphql";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 const crypto = require('crypto');

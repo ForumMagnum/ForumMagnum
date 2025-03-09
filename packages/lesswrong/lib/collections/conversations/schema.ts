@@ -118,7 +118,7 @@ const schema: SchemaType<"Conversations"> = {
           return await context.repos.conversations.getLatestMessages(conversationIds);
         }
       );
-      const filteredMessage = await accessFilterSingle(currentUser, context.Messages, message, context)
+      const filteredMessage = await accessFilterSingle(currentUser, 'Messages', message, context)
       return filteredMessage;
     },
     sqlResolver: ({field, join}) => join({

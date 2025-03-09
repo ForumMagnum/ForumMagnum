@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Conversations from "../../lib/collections/conversations/collection";
+import Conversations from "../../server/collections/conversations/collection";
 import keyBy from "lodash/keyBy";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

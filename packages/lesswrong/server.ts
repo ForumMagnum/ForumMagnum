@@ -1,6 +1,7 @@
 import './server/databaseSettings'
 
 import './server/vulcan-lib/site';
+import './server/collections/allCollections';
 import './server/vulcan-lib/utils';
 import './server/vulcan-lib/apollo-server/authentication';
 
@@ -105,7 +106,6 @@ import './server/resolvers/postResolvers';
 import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
-import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
 import './server/resolvers/arbitalPageData';
@@ -149,7 +149,6 @@ import './server/inactiveUserSurveyCron';
 
 import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';
-import './server/languageModels/postSummaryResolver';
 
 import './server/codegen/generateTypes';
 import './server/styleGeneration';

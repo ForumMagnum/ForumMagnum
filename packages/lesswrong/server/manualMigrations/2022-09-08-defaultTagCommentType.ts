@@ -1,5 +1,5 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-import Comments from '../../lib/collections/comments/collection';
+import Comments from '../../server/collections/comments/collection';
 
 
 export default registerMigration({

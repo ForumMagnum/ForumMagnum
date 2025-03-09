@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import type { KarmaChangesSimple } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChangesSimple } from "../../../server/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {

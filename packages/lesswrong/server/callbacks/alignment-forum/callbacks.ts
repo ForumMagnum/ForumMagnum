@@ -1,6 +1,6 @@
-import Users from "../../../lib/collections/users/collection";
+import Users from "../../../server/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { Votes } from '../../../lib/collections/votes/collection';
+import { Votes } from '../../../server/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import type { VoteDocTuple } from '../../../lib/voting/vote';
 import UsersRepo from "../../repos/UsersRepo";

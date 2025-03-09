@@ -33,7 +33,7 @@
  */
 export const acceptsSchemaHash = "d6b5c3a5a64a7eea065377c71e1b8acf";
 
-import Tags from "../../lib/collections/tags/collection";
+import Tags from "../../server/collections/tags/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

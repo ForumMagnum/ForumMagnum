@@ -1,5 +1,5 @@
 import keyBy from "lodash/keyBy";
-import ReviewWinnerArts from "../../lib/collections/reviewWinnerArts/collection";
+import ReviewWinnerArts from "../../server/collections/reviewWinnerArts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

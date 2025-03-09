@@ -3,7 +3,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { updateMutator } from '../vulcan-lib/mutators';
-import Comments from '../../lib/collections/comments/collection';
+import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 import OpenAI from 'openai';
 import { captureEvent } from '../../lib/analyticsEvents';

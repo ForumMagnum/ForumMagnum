@@ -1,4 +1,4 @@
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { createNotification } from './notificationCallbacksHelpers';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import sortBy from 'lodash/sortBy';
@@ -57,7 +57,7 @@ addGraphQLResolvers({
       })).data
 
       await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id, context})
-      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
     }
   }
 });
@@ -90,7 +90,7 @@ addGraphQLResolvers({
       })).data
 
       await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id, context})
-      return accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return accessFilterSingle(currentUser, 'Posts', updatedPost, context);
     }
   }
 });

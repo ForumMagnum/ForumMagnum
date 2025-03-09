@@ -1,4 +1,4 @@
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { triggerAutomodIfNeededForUser } from "../callbacks/sunshineCallbackUtils";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 

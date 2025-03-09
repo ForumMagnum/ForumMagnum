@@ -41,7 +41,7 @@
  */
 export const acceptsSchemaHash = "8f9b37b6b8213a24c21dba39e77f7bbb";
 
-import PageCache from "../../lib/collections/pagecache/collection"
+import PageCache from "../../server/collections/pagecache/collection"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

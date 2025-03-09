@@ -1,5 +1,5 @@
-import TagRels from "../../lib/collections/tagRels/collection";
-import Tags from "../../lib/collections/tags/collection";
+import TagRels from "../../server/collections/tagRels/collection";
+import Tags from "../../server/collections/tags/collection";
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { randomId } from "../../lib/random";
 

@@ -1,5 +1,5 @@
 import { forEachDocumentInCollection, registerMigration } from './migrationUtils';
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 
 export default registerMigration({
   name: "oauthCleanup",

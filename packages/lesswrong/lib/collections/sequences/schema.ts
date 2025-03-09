@@ -167,7 +167,7 @@ const schema: SchemaType<"Sequences"> = {
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
-        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
+        return await accessFilterSingle(context.currentUser, 'Collections', collection, context);
       }
     }
   },
@@ -252,7 +252,7 @@ const schema: SchemaType<"Sequences"> = {
           {sequenceId: sequence._id},
           {sort: {number: 1}},
         ).fetch();
-        return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+        return await accessFilterMultiple(context.currentUser, 'Chapters', chapters, context);
       }
     }
   },

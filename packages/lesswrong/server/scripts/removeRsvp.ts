@@ -1,4 +1,4 @@
-import { Posts } from "../../lib/collections/posts/collection";
+import { Posts } from "../../server/collections/posts/collection";
 
 // Exported to allow running manually with "yarn repl"
 export const removeRsvp = async (eventId: string, userNameOrId: string) => {

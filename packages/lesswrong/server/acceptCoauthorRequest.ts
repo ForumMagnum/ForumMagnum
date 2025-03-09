@@ -1,4 +1,4 @@
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import { createNotification } from './notificationCallbacksHelpers';
 import { addGraphQLMutation, addGraphQLResolvers } from "../lib/vulcan-lib/graphql";
@@ -51,7 +51,7 @@ addGraphQLResolvers({
         validate: false
       })).data;
 
-      return await accessFilterSingle(currentUser, Posts, updatedPost, context);
+      return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
     },
   },
 });

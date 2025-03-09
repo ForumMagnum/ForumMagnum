@@ -1,6 +1,6 @@
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 import { dataToWordCount } from "@/server/editor/conversionUtils";
-import Revisions from "@/lib/collections/revisions/collection";
+import Revisions from "@/server/collections/revisions/collection";
 
 export default registerMigration({
   name: "fillMissingWordCounts",

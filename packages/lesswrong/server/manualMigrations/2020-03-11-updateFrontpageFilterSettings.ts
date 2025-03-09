@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getDefaultFilterSettings } from '../../lib/filterSettings';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 export default registerMigration({
   name: "updateUserDefaultTagFilterSettings",

@@ -103,3 +103,5 @@ export const schema: SchemaType<"ReviewWinners"> = {
     canUpdate: ['admins']
   },
 }
+
+export default schema;

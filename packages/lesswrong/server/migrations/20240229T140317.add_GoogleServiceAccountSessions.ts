@@ -49,8 +49,8 @@
  */
 export const acceptsSchemaHash = "10225605411f6e346ca4185fd18de582";
 
-import GoogleServiceAccountSessions from "../../lib/collections/googleServiceAccountSessions/collection"
-import Revisions from "../../lib/collections/revisions/collection"
+import GoogleServiceAccountSessions from "../../server/collections/googleServiceAccountSessions/collection"
+import Revisions from "../../server/collections/revisions/collection"
 import { addField, createTable, dropField, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

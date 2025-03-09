@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema";
+import { subscriptionTypes } from "../../../lib/collections/subscriptions/helpers";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";

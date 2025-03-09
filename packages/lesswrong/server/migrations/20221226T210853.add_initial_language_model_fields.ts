@@ -1,5 +1,5 @@
 import { addField, dropField } from "./meta/utils";
-import { Tags } from '../../lib/collections/tags/collection';
+import { Tags } from '../../server/collections/tags/collection';
 
 /**
  * Generated on 2022-12-26T21:08:53.270Z by `yarn makemigrations`

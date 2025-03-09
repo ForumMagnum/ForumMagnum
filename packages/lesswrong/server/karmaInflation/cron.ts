@@ -1,4 +1,4 @@
-import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
+import { DatabaseMetadata } from "../../server/collections/databaseMetadata/collection";
 import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '../../lib/collections/posts/karmaInflation';
 import { addCronJob } from '../cron/cronUtil';
 import PostsRepo from '../repos/PostsRepo';

@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
+import PostEmbeddings from "../../server/collections/postEmbeddings/collection";
 import { randomId } from "../../lib/random";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewablePostsSelector } from "./helpers";

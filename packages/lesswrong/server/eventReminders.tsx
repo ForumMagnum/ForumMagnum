@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { testServerSetting } from '../lib/instanceSettings';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
-import { Users } from '../lib/collections/users/collection';
+import { Users } from '../server/collections/users/collection';
 import { getUsersToNotifyAboutEvent } from './notificationCallbacks';
 import { addCronJob } from './cron/cronUtil';
 import { updateMutator } from './vulcan-lib/mutators';

@@ -48,8 +48,8 @@
  */
 export const acceptsSchemaHash = "1aeedd5dfed78362382d387f2f2bce84";
 
-import UserJobAds from "../../lib/collections/userJobAds/collection"
-import Users from "../../lib/collections/users/collection"
+import UserJobAds from "../../server/collections/userJobAds/collection"
+import Users from "../../server/collections/users/collection"
 import { addField, createTable, dropField, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

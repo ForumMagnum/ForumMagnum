@@ -2,8 +2,8 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { hasSurveys } from "@/lib/betas";
-import Surveys from "@/lib/collections/surveys/collection";
-import SurveyQuestions from "@/lib/collections/surveyQuestions/collection";
+import Surveys from "@/server/collections/surveys/collection";
+import SurveyQuestions from "@/server/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
 import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
 

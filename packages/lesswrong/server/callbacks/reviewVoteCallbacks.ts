@@ -1,4 +1,4 @@
-import ReviewVotes from '../../lib/collections/reviewVotes/collection'
+import ReviewVotes from '../../server/collections/reviewVotes/collection'
 import { getCollectionHooks } from '../mutationCallbacks';
 
 getCollectionHooks("ReviewVotes").createValidate.add(async function ensureUniqueVotes(errors, {newDocument: newVote}) {

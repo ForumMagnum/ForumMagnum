@@ -1,4 +1,4 @@
-import SurveySchedules from "@/lib/collections/surveySchedules/collection";
+import SurveySchedules from "@/server/collections/surveySchedules/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

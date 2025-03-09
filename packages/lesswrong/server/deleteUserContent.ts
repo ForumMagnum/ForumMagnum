@@ -1,6 +1,6 @@
-import Comments from "../lib/collections/comments/collection";
-import Posts from "../lib/collections/posts/collection";
-import Users from "../lib/collections/users/collection";
+import Comments from "../server/collections/comments/collection";
+import Posts from "../server/collections/posts/collection";
+import Users from "../server/collections/users/collection";
 import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
 import { sleep } from "../lib/utils/asyncUtils";

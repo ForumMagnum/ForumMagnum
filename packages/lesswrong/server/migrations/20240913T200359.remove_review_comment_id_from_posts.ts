@@ -42,7 +42,7 @@
  */
 export const acceptsSchemaHash = "1184dfb713785c6ceabde629903f40dc";
 
-import { Posts } from "@/lib/collections/posts/collection.ts"
+import { Posts } from "@/server/collections/posts/collection.ts"
 import { addRemovedField, dropRemovedField } from "./meta/utils"
 import { StringType } from "../../server/sql/Type";
 

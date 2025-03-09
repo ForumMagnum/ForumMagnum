@@ -1,5 +1,5 @@
 import { format as sqlFormatter } from 'sql-formatter';
-import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
+import { getAllCollections, isValidCollectionName } from "@/server/collections/allCollections";
 import Table from "@/server/sql/Table";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
 import { writeFileSync } from 'node:fs'
@@ -13,6 +13,7 @@ import type { CustomPgIndex } from '../../lib/utils/databaseIndexSet';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '@/server/sql/TableIndex';
 import { getAllIndexes } from '../databaseIndexes/allIndexes';
+import PgCollection from '../sql/PgCollection';
 
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
 
@@ -251,10 +252,17 @@ const buildSchemaSQL = () => {
   graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
   const allIndexes = getAllIndexes();
   graph.addNodes(getAllCollections().flatMap((collection) => {
-    const table = Table.fromCollection(collection);
-    const tableIndexes = (allIndexes.mongoStyleIndexes[collection.collectionName] ?? []).map((i) => new TableIndex(table.getName(), i.key, i.options));
-    const indexes: Node[] = tableIndexes.map((i) => new IndexNode(table, i));
-    return indexes.concat(new TableNode(table));
+    const collectionName = collection.collectionName;
+    if (collection instanceof PgCollection) {
+      // Because of some import issues (probably related to `repl` setup) I haven't figured out yet,
+      // we need to call `buildPostgresTable` here to make sure the fields on the table exist.
+      collection.buildPostgresTable();
+      const table = collection.getTable();
+      const tableIndexes = (allIndexes.mongoStyleIndexes[collectionName] ?? []).map((i) => new TableIndex(table.getName(), i.key, i.options));
+      const indexes: Node[] = tableIndexes.map((i) => new IndexNode(table, i));
+      return indexes.concat(new TableNode(table));
+    }
+    return [];
   }));
   const customPgIndexes = getAllIndexes().customPgIndexes;
   graph.addNodes(customPgIndexes.map((i) => new CustomIndexNode(i)));

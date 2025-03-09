@@ -1,5 +1,5 @@
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import PostViews from "../../lib/collections/postViews/collection";
+import PostViews from "../../server/collections/postViews/collection";
 import moment from "moment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { randomId } from "../../lib/random";

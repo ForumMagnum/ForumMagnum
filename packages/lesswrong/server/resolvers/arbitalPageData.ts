@@ -3,7 +3,7 @@ import markdownIt from 'markdown-it'
 import markdownItMathjax from '../editor/markdown-mathjax'
 import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/utils';
-import { ArbitalCaches } from '../../lib/collections/arbitalCache/collection';
+import { ArbitalCaches } from '../../server/collections/arbitalCache/collection';
 import { addCronJob } from '../cron/cronUtil';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;

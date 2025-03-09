@@ -1,5 +1,5 @@
 import { SyncedCron } from '@/server/vendor/synced-cron/synced-cron-server';
-import { CronHistories } from '@/lib/collections/cronHistories/collection';
+import { CronHistories } from '@/server/collections/cronHistories/collection';
 
 export type CronJobSpec = {
   name: string,

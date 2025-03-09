@@ -22,7 +22,7 @@
  */
 export const acceptsSchemaHash = "4176699fcd50a096b6fd2437aec71b01";
 
-import Posts from "@/lib/collections/posts/collection";
+import Posts from "@/server/collections/posts/collection";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 import { BoolType } from "../sql/Type";
 

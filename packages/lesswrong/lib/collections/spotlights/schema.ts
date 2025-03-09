@@ -68,15 +68,15 @@ const schema: SchemaType<"Spotlights"> = {
         switch(spotlight.documentType) {
           case "Post": {
             const document = await context.loaders.Posts.load(spotlight.documentId);
-            return accessFilterSingle(context.currentUser, context.Posts, document, context);
+            return accessFilterSingle(context.currentUser, 'Posts', document, context);
           }
           case "Sequence": {
             const document = await context.loaders.Sequences.load(spotlight.documentId);
-            return accessFilterSingle(context.currentUser, context.Sequences, document, context);
+            return accessFilterSingle(context.currentUser, 'Sequences', document, context);
           }
           case "Tag": {
             const document = await context.loaders.Tags.load(spotlight.documentId);
-            return accessFilterSingle(context.currentUser, context.Tags, document, context);
+            return accessFilterSingle(context.currentUser, 'Tags', document, context);
           }
         }
       }
@@ -93,7 +93,7 @@ const schema: SchemaType<"Spotlights"> = {
       }
 
       const post = await context.loaders.Posts.load(spotlight.documentId);
-      return accessFilterSingle(context.currentUser, context.Posts, post, context);
+      return accessFilterSingle(context.currentUser, 'Posts', post, context);
     }
   }),
 
@@ -107,7 +107,7 @@ const schema: SchemaType<"Spotlights"> = {
       }
 
       const sequence = await context.loaders.Sequences.load(spotlight.documentId);
-      return accessFilterSingle(context.currentUser, context.Sequences, sequence, context);
+      return accessFilterSingle(context.currentUser, 'Sequences', sequence, context);
     }
   }),
 
@@ -121,7 +121,7 @@ const schema: SchemaType<"Spotlights"> = {
       }
 
       const tag = await context.loaders.Tags.load(spotlight.documentId);
-      return accessFilterSingle(context.currentUser, context.Tags, tag, context);
+      return accessFilterSingle(context.currentUser, 'Tags', tag, context);
     }
   }),
   
@@ -369,7 +369,7 @@ const schema: SchemaType<"Spotlights"> = {
         sort: {number:1},
       }).fetch();
       
-      return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+      return await accessFilterMultiple(context.currentUser, 'Chapters', chapters, context);
     }
   }),
   "sequenceChapters.$": {

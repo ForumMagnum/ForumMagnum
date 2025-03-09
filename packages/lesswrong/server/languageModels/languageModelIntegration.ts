@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Tags } from '../../lib/collections/tags/collection';
+import { Tags } from '../../server/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
