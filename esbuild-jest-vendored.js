@@ -62,17 +62,17 @@ const transformer = {
     /// this will support the jest.mock
     /// https://github.com/etroynov/esbuild-jest/issues/12
     /// TODO: transform the jest.mock to a function using babel traverse/parse then hoist it
-    /// RobertM: This was dying on some files which included the `satisfies` keyword, as well as FragmentLexer with something in a regex.
-    /// Commenting it out seems to have fixed it.
-    // if (sources.code.indexOf("ock(") >= 0 || opts?.instrument) {
-    //   // console.log("babelTransform", sources.code, sources.code.indexOf("ock("));
-    //   const source = babelTransform({
-    //     sourceText: content,
-    //     sourcePath: filename,
-    //     options: opts,
-    //   });
-    //   sources.code = source;
-    // }
+    /// RobertM: This used to match on `ock(` but that seemed too narrow.
+    /// It also went through babelTransform when `opts.instrument` was true, which was "always" in CI (i.e. `unit-ci`)
+    /// I'm not sure why that needed to happen, but there doesn't seem to be a good reason to do that.
+    if (sources.code.indexOf(".mock(") >= 0) {
+      const source = babelTransform({
+        sourceText: content,
+        sourcePath: filename,
+        options: opts,
+      });
+      sources.code = source;
+    }
 
     const result = transformSync(sources.code, {
       loader,
