@@ -1,8 +1,8 @@
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { createCollection } from '../../vulcan-lib/collections';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 const options: MutationOptions<DbGoogleServiceAccountSession> = {
   newCheck: (user: DbUser|null, document: DbGoogleServiceAccountSession|null) => {
@@ -27,7 +27,5 @@ export const GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollectio
   mutations: getDefaultMutations('GoogleServiceAccountSessions', options),
   logChanges: false,
 });
-
-addUniversalFields({collection: GoogleServiceAccountSessions})
 
 export default GoogleServiceAccountSessions;

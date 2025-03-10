@@ -4,7 +4,7 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
-import { getPostgresViewByName } from "../postgresView";
+import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
 import { getViewablePostsSelector } from "./helpers";
@@ -136,7 +136,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   private async refreshUserLoginTokens() {
-    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
+    await userLoginTokensView.refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
@@ -216,6 +216,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
           'github', NULLIF(TRIM(u."githubProfileURL"), ''),
+          'bluesky', NULLIF(TRIM(u."blueskyProfileURL"), ''),
           'twitter', NULLIF(TRIM(u."twitterProfileURL"), ''),
           'linkedin', NULLIF(TRIM(u."linkedinProfileURL"), ''),
           'facebook', NULLIF(TRIM(u."facebookProfileURL"), '')
@@ -239,6 +240,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           CASE WHEN u."careerStage" IS NULL THEN 0 ELSE 1 END +
           CASE WHEN u."website" IS NULL THEN 0 ELSE 0.25 END +
           CASE WHEN u."githubProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."blueskyProfileURL" IS NULL THEN 0 ELSE 0.25 END +
           CASE WHEN u."twitterProfileURL" IS NULL THEN 0 ELSE 0.25 END +
           CASE WHEN u."linkedinProfileURL" IS NULL THEN 0 ELSE 0.25 END +
           CASE WHEN u."facebookProfileURL" IS NULL THEN 0 ELSE 0.25 END +

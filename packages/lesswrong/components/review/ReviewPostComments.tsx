@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
   singleLinePlaceholder: {
     height: 30,
     width: "100%",
+    display: "flex",
     ...singleLineStyles(theme),
     backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,

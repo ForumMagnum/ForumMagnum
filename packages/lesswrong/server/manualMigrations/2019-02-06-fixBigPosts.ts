@@ -1,9 +1,9 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/conversionUtils'
-import { Posts } from '../../lib/collections/posts'
-import { updateMutator } from '../vulcan-lib';
+import { Posts } from '../../lib/collections/posts/collection'
+import { updateMutator } from '../vulcan-lib/mutators';
 
-registerMigration({
+export default registerMigration({
   name: "fixBigPosts",
   dateWritten: "2019-02-06",
   idempotent: true,

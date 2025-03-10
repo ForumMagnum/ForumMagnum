@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@material-ui/icons/AddBox';
@@ -11,10 +10,11 @@ import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
-
 import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -111,7 +111,7 @@ const AddPostsToTag = ({classes, tag}: {
         ...TagRelCreationFragment
       }
     }
-    ${getFragment("TagRelCreationFragment")}
+    ${fragmentTextForQuery("TagRelCreationFragment")}
   `, {
     update(cache, { data: {addOrUpvoteTag: TagRel}  }) {
       updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })

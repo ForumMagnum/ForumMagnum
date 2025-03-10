@@ -1,9 +1,8 @@
 import React, { FC, MouseEvent } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import { Components } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { FIXED_TOC_COMMENT_COUNT_HEIGHT, HOVER_CLASSNAME } from './MultiToCLayout';
+import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {

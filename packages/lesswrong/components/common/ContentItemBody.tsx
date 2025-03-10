@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
 import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
@@ -9,6 +8,9 @@ import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { validateUrl } from "../../lib/vulcan-lib/utils";
+import type { ContentStyleType } from './ContentStyles';
 
 interface ExternalProps {
   /**
@@ -64,6 +66,11 @@ interface ExternalProps {
    * have been applied.
    */
   onContentReady?: (content: HTMLDivElement) => void;
+
+  /**
+   * If passed, will change the content style used in HoverPreviewLink.
+   */
+  contentStyleType?: ContentStyleType;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -152,13 +159,13 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
-      this.markConditionallyVisibleBlocks(element);
       this.collapseFootnotes(element);
       this.markHoverableLinks(element);
       this.markElicitBlocks(element);
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
       this.exposeInternalIds(element);
+      this.markConditionallyVisibleBlocks(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -356,6 +363,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         id={id}
         rel={rel}
         noPrefetch={this.props.noHoverPreviewPrefetch}
+        contentStyleType={this.props.contentStyleType}
       >
         <TagLinkContents/>
       </Components.HoverPreviewLink>

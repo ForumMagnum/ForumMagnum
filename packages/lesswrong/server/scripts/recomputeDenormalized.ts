@@ -1,30 +1,27 @@
-import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../manualMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-
+import { Collections, getCollection } from "../../lib/vulcan-lib/getCollection";
 
 export const recomputeAllDenormalizedValues = async () => {
   for(let collection of Collections) {
-    await Vulcan.recomputeDenormalizedValues({
-      collectionName: collection.options.collectionName
+    await recomputeDenormalizedValues({
+      collectionName: collection.collectionName
     })
   }
 }
-Vulcan.recomputeAllDenormalizedValues = recomputeAllDenormalizedValues;
 
 export const validateAllDenormalizedValues = async () => {
   for(let collection of Collections) {
-    await Vulcan.recomputeDenormalizedValues({
-      collectionName: collection.options.collectionName,
+    await recomputeDenormalizedValues({
+      collectionName: collection.collectionName,
       validateOnly: true
     })
   }
 }
-Vulcan.validateAllDenormalizedValues = validateAllDenormalizedValues;
 
 // Recompute the value of denormalized fields (that are tagged with canAutoDenormalize).
 // If validateOnly is true, compare them with the existing values in the database and
@@ -41,7 +38,7 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
   console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 
   const collection = getCollection(collectionName)
-  const schema: any = getSchema(collection);
+  const schema = getSchema(collection);
   if (!schema) {
     // eslint-disable-next-line no-console
     console.log(`${collectionName} does not have a schema defined, not computing denormalized values`)
@@ -86,7 +83,6 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
   // eslint-disable-next-line no-console
   console.log(`Finished recomputing denormalized values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 }
-Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
 async function runDenormalizedFieldMigration<N extends CollectionNameString>({
   collection,

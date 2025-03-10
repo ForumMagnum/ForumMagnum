@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 import classNames from "classnames";

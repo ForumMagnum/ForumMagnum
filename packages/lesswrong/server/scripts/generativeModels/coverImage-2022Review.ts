@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
 import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
@@ -9,6 +8,8 @@ import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
+import { createAdminContext } from "../../vulcan-lib/query";
+import { createMutator } from "../../vulcan-lib/mutators";
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 
@@ -269,7 +270,8 @@ async function generateCoverImages({limit = 2}: {
   }, Promise.resolve([]) as Promise<string[]>)
 }
 
-async function coverImages () {
+// Exported to allow running manually with yarn repl
+export async function coverImages () {
   if (!myMidjourneyKey) {
     throw new Error('No MyMidjourney API key found!');
   }
@@ -280,5 +282,3 @@ async function coverImages () {
   // There are often failures in the process of the generation. We run until we no longer have candidate essays
   await coverImages()
 }
-
-Globals.coverImages = coverImages

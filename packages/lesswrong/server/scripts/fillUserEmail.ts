@@ -1,11 +1,10 @@
 import { wrapVulcanAsyncScript } from "./utils";
-import { Vulcan } from '../vulcan-lib';
-import Users from "../../lib/vulcan-users";
+import Users from "../../lib/collections/users/collection";
 
 /**
  * Fixes users affected by a bug on 2021-10-05 where the NewUserCompleteProfile process was setting their email to null. Fortunately their emails were spared.
  */
-Vulcan.fillUserEmail = wrapVulcanAsyncScript('fillUserEmail', async () => {
+export const fillUserEmail = wrapVulcanAsyncScript('fillUserEmail', async () => {
   const users = await (Users.find({
     createdAt: {$gt: new Date('2021-10-04')},
     email: null,

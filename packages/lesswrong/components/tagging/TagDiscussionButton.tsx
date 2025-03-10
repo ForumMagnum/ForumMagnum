@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
@@ -42,14 +42,18 @@ const styles = (theme: ThemeType) => ({
   },
   hideLabel: {
     display: "none",
+  },
+  text: {
+    marginRight: 2,
   }
 });
 
 
-const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideLabelOnMobile = false, classes}: {
+const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabel?: boolean,
+  hideParens?: boolean,
   hideLabelOnMobile?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -67,8 +71,8 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
     enableTotal: true,
   });
 
-  const hideLabelClass = hideLabel ? classes.hideLabel : undefined;
-  const hideLabelOnMobileClass = hideLabelOnMobile ? classes.hideOnMobile : undefined;
+  const labelClass = hideLabel ? classes.hideLabel : classes.text;
+  const labelOnMobileClass = hideLabelOnMobile ? classes.hideOnMobile : classes.text;
 
   const discussionCountClass = hideLabel ? classes.discussionCountWithoutLabel : classes.discussionCount;
 
@@ -81,8 +85,8 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
     {...eventHandlers}
   >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
-    <span className={classNames(hideLabelClass, hideLabelOnMobileClass)}>{text}</span>
-    {!loading && <span className={discussionCountClass}>&nbsp;{`(${totalCount || 0})`}</span>}
+    <span className={classNames(labelClass, labelOnMobileClass)}>{text}</span>
+    {!loading && <span className={discussionCountClass}>{hideParens ? (totalCount ?? 0) : `(${totalCount ?? 0})`}</span>}
     <PopperCard open={showDiscussionPopper} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>
     </PopperCard>

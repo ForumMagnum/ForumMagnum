@@ -1,10 +1,11 @@
-import { Globals, createAdminContext, createMutator, updateMutator } from "../../vulcan-lib";
 import Spotlights from "../../../lib/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
-import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
+import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { Posts } from "@/lib/collections/posts";
+import { Posts } from "@/lib/collections/posts/collection.ts";
+import { createAdminContext } from "../../vulcan-lib/query";
+import { createMutator, updateMutator } from "../../vulcan-lib/mutators";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
@@ -118,12 +119,13 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
   }]
 }
 
-async function createSpotlights() {
+// Exported to allow running manually with "yarn repl"
+export async function createSpotlights() {
   // eslint-disable-next-line no-console
   console.log("Creating spotlights for review winners");
 
   const { posts, spotlights } = await getPromptInfo()
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+  const { reviewWinners } = await reviewWinnerCache.get()
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
@@ -171,8 +173,9 @@ async function createSpotlights() {
 }
 
 
+// Exported to allow running manually with "yarn repl"
 const updateOldSpotlightsWithSubtitle = async () => {
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+  const { reviewWinners } = await reviewWinnerCache.get()
   const postIds = reviewWinners.map(winner => winner._id);
   const spotlights = await Spotlights.find({ documentId: { $in: postIds }, customSubtitle: null, draft: false, deletedDraft: false }).fetch();
 
@@ -184,8 +187,9 @@ const updateOldSpotlightsWithSubtitle = async () => {
 
 // This updates the spotlights so that subtitleUrl leads to the best of LW page for that year and category
 // and changes the corresponding Post customHighlight to the spotlight description
-const updateSpotlightUrlsAndPostCustomHighlights = async () => {
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
+// Exported to allow running manually with "yarn repl"
+export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
+  const { reviewWinners } = await reviewWinnerCache.get()
   const postIds = reviewWinners.map(winner => winner._id);
 
   const spotlights = await fetchFragment({
@@ -222,7 +226,3 @@ const updateSpotlightUrlsAndPostCustomHighlights = async () => {
     })
   }
 }
-
-Globals.updateSpotlightUrlsAndPostCustomHighlights = updateSpotlightUrlsAndPostCustomHighlights;
-Globals.createSpotlights = createSpotlights;
-Globals.updateOldSpotlightsWithSubtitle = updateOldSpotlightsWithSubtitle;

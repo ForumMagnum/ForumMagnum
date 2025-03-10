@@ -3,7 +3,7 @@ import { gql, useMutation } from "@apollo/client";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -53,12 +53,6 @@ const styles = (theme: ThemeType) => ({
     },
   }
 });
-
-const removeForumEventStickerQuery = gql`
-  mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
-    RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
-  }
-`;
 
 const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
@@ -138,7 +132,11 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [removeSticker] = useMutation(removeForumEventStickerQuery);
+  const [removeSticker] = useMutation(gql`
+    mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
+      RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
+    }
+  `);
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length

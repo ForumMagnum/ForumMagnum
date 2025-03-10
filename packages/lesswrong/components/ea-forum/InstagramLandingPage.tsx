@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
@@ -23,6 +23,11 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'jCwuozHHjeoLPLemB', // How Long Do Policy Changes Matter?
+  'DgpRaCdvupy6cMbdk', // Nuance in Proxies
+  'RLCfqw9DKchfngv3f', // We need a new Artesunate - the miracle drug fades
+  'ZuWcG3W3rEBxLceWj', // Teaching AI to reason: this year's most important story
+  'dsdSnqf7CALBBwjkL', // DAW announcement
   'rXYW9GPsmwZYu3doX', // What happens on the average day?
   'H46HiaQp7YtfNiDZk', // Wild Animal Suffering is the Worst Thing in the World
   'wYjMsKsEkDPgHeAbS', // Four Ideas You Already Agree With

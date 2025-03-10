@@ -1,7 +1,7 @@
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
-registerMigration({
+export default registerMigration({
   name: "fixUnsubmittedFrontpagePosts",
   dateWritten: "2024-05-06",
   idempotent: true,

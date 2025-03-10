@@ -2,7 +2,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "fixMaxBaseScore",
   dateWritten: "2019-07-24",
   idempotent: true,

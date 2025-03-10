@@ -4,7 +4,7 @@ import Select from '@material-ui/core/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
 
 const styles = (theme: ThemeType) => ({
@@ -117,7 +117,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
   const episodeTitleProps = episodeNotFound ? { value: episodeTitle } : { disabled: true, value: episodeTitle };
 
   const createNewEpisode = useCallback(async () => {
-    const episodeData: PodcastEpisodesDefaultFragment = {
+    const episodeData = {
       podcastId,
       externalEpisodeId,
       episodeLink,

@@ -1,9 +1,10 @@
 import schema, { subscriptionTypes } from './schema';
 import { userCanDo, userIsAdmin, userOwns } from '../../vulcan-users/permissions';
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { createCollection } from '../../vulcan-lib/collections';
+import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import Localgroups from '../localgroups/collection';
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbSubscription> = {
   create: true,
@@ -20,6 +21,11 @@ export const Subscriptions: SubscriptionsCollection = createCollection({
   collectionName: 'Subscriptions',
   typeName: 'Subscription',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('Subscriptions', {userId: 1, documentId: 1, collectionName: 1, type: 1, createdAt: 1});
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('Subscriptions'),
   mutations: getDefaultMutations('Subscriptions', options),
 });
@@ -43,9 +49,5 @@ Subscriptions.checkAccess = async (currentUser: DbUser|null, subscription: DbSub
   
   return false;
 }
-
-addUniversalFields({
-  collection: Subscriptions,
-});
 
 export default Subscriptions

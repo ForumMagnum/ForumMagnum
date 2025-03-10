@@ -1,9 +1,8 @@
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { Globals } from "../vulcan-lib";
 import { slugify } from "@/lib/utils/slugify";
 
-Globals.regenerateUnicodeSlugs = async () => {
+export const regenerateUnicodeSlugs = async () => {
   const db = getSqlClientOrThrow();
   const posts: Pick<DbPost, "_id" | "title" | "slug">[] = await db.any(`
     SELECT "_id", "title", "slug"

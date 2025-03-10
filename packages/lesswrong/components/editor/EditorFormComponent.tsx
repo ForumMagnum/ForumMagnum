@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, getEditableFieldInCollection, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -19,11 +18,12 @@ import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicT
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from './CKEditorPortalProvider';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -80,39 +80,35 @@ export const EditorFormComponent = ({
   label,
   formVariant,
   commentStyles,
+  updateCurrentValues,
   classes,
-}: {
+}: FormComponentProps<any> & {
   form: any,
-  formType: "edit"|"new",
   formProps: FormProps,
   document: any,
-  name: any,
   fieldName: any,
-  value: any,
   hintText: string,
-  placeholder: string,
-  label: string,
   formVariant?: "default" | "grey",
   commentStyles: boolean,
   classes: ClassesType<typeof styles>,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
-  const { updateCurrentValues, submitForm } = context;
+  const { submitForm } = context;
   const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
-  const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
+  const { editableFieldOptions } = getEditableFieldInCollection(collectionName, fieldName)!;
 
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
+    const getLocalStorageId = editableFieldOptions.clientOptions.getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [document, name, editableFieldOptions.getLocalStorageId]);
+  }, [document, name, editableFieldOptions.clientOptions.getLocalStorageId]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
@@ -254,7 +250,7 @@ export const EditorFormComponent = ({
         ...RevisionEdit
       }
     }
-    ${getFragment('RevisionEdit')}
+    ${fragmentTextForQuery('RevisionEdit')}
   `);
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
@@ -291,7 +287,7 @@ export const EditorFormComponent = ({
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
-    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+    void updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
   }, {
     rateLimitMs: autosaveInterval,
     callOnLeadingEdge: true,
@@ -317,7 +313,7 @@ export const EditorFormComponent = ({
   
   const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
-    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && editableFieldOptions.clientOptions.hasToc) {
       dynamicTableOfContents.setToc(change.contents);
     }
     setContents(newContents);
@@ -336,7 +332,7 @@ export const EditorFormComponent = ({
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
-    updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
+    void updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
     void throttledSetContentsValue({})
     
     if (autosave) {
@@ -359,11 +355,11 @@ export const EditorFormComponent = ({
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
-    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.clientOptions.hasToc) {
       dynamicTableOfContents.setToc(contents);
       hasGeneratedFirstToC.current.generated = true;
     }
-  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  }, [contents, dynamicTableOfContents, editableFieldOptions.clientOptions.hasToc]);
 
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -448,7 +444,7 @@ export const EditorFormComponent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
-  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = getEditableFieldInCollection(collectionName as CollectionNameString, fieldName)?.editableFieldOptions.clientOptions.revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || updatedFormType==="edit");
@@ -544,7 +540,6 @@ export const EditorFormComponentComponent = registerComponent('EditorFormCompone
 (EditorFormComponent as any).contextTypes = {
   addToSubmitForm: PropTypes.func,
   addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
   submitForm: PropTypes.func,
 };
 

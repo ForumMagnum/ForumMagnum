@@ -4,8 +4,11 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { LWEvents } from '@/lib/collections/lwevents/collection.ts';
+import pick from 'lodash/pick';
+import { FieldChangeResult } from '@/lib/collections/lwevents/fragments';
 
-type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
+type FeedSubquery<ResultType extends {}, SortKeyType> = {
   type: string,
   getSortKey: (item: ResultType) => SortKeyType,
   isNumericallyPositioned?: boolean,
@@ -46,6 +49,42 @@ export function viewBasedSubquery<
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
       return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
     }
+  };
+}
+
+export function fieldChangesSubquery<N extends CollectionNameString>({type, collection, context, documentIds, fieldNames}: {
+  type: string,
+  collection: CollectionBase<N>,
+  context: ResolverContext,
+  documentIds: string[],
+  fieldNames: Array<keyof ObjectsByCollectionName[N]>
+}) {
+  return {
+    type,
+    getSortKey: (item: FieldChangeResult<N>): Date => item.createdAt,
+    doQuery: async (limit: number, cutoff: Date|null): Promise<FieldChangeResult<N>[]> => {
+      const events = await queryWithCutoff({
+        context, collection: LWEvents,
+        selector: {
+          name: "fieldChanges",
+          documentId: {$in: documentIds},
+        },
+        limit, cutoff,
+        cutoffField: "createdAt",
+        sortDirection: "desc",
+        applyPermissions: false,
+      });
+      return events
+        .map((event: DbLWEvent): FieldChangeResult<N> => ({
+          _id: event._id,
+          createdAt: event.createdAt,
+          userId: event.userId!,
+          documentId: event.documentId!,
+          before: pick(event.properties.before, fieldNames),
+          after: pick(event.properties.after, fieldNames),
+        }))
+        .filter(fieldChangeResult => Object.keys(fieldChangeResult.after).length > 0);
+    },
   };
 }
 
@@ -142,7 +181,7 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
   cutoff?: SortKeyType,
   offset?: number,
   sortDirection?: SortDirection,
-  subqueries: Array<FeedSubquery<DbObject, any>|null>,
+  subqueries: Array<FeedSubquery<{}, any>|null>,
 }) {
   sortDirection ??= "desc";
 
@@ -229,6 +268,7 @@ function isNonEmptyObject(obj: {}): boolean {
 
 async function queryWithCutoff<N extends CollectionNameString>({
   context, collection, selector, limit, cutoffField, cutoff, sortDirection,
+  applyPermissions=true,
 }: {
   context: ResolverContext,
   collection: CollectionBase<N>,
@@ -237,6 +277,7 @@ async function queryWithCutoff<N extends CollectionNameString>({
   cutoffField: keyof ObjectsByCollectionName[N],
   cutoff: any,
   sortDirection: SortDirection,
+  applyPermissions?: boolean,
 }) {
   const collectionName = collection.collectionName;
   const {currentUser} = context;
@@ -256,5 +297,9 @@ async function queryWithCutoff<N extends CollectionNameString>({
     limit,
   }).fetch();
 
-  return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+  if (applyPermissions) {
+    return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+  } else {
+    return resultsRaw;
+  }
 }

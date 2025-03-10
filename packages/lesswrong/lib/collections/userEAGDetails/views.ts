@@ -1,5 +1,4 @@
-import UserEAGDetails from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 declare global {
   interface UserEAGDetailsViewTerms extends ViewTermsBase {
@@ -8,11 +7,12 @@ declare global {
   }
 }
 
-UserEAGDetails.addView("dataByUser", function (terms: UserEAGDetailsViewTerms) {
+function dataByUser(terms: UserEAGDetailsViewTerms) {
   return {
     selector: {
       userId: terms.userId
     }
   };
-});
-ensureIndex(UserEAGDetails, { userId: 1 }, { unique: true })
+}
+
+export const UserEAGDetailsViews = new CollectionViewSet('UserEAGDetails', { dataByUser });

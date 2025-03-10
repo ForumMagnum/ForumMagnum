@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import DialogContent from '@material-ui/core/DialogContent';
 import { gql, useMutation } from '@apollo/client';
 import Input from '@material-ui/core/Input';
@@ -9,7 +8,9 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { useNavigate } from '../../../lib/routeUtil';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -40,7 +41,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
         ...PostsDetails
         }
     }
-    ${getFragment("PostsDetails")}
+    ${fragmentTextForQuery("PostsDetails")}
   `)
   const navigate = useNavigate();
   const currentUser = useCurrentUser()

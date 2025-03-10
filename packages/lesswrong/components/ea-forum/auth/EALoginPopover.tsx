@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
@@ -9,6 +9,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
 import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
+import { captureException } from '@sentry/core';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -265,10 +266,21 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } catch(e) {
       // eslint-disable-next-line no-console
       console.error(e);
+      captureException(e, {
+        tags: {
+          component: "EALoginPopover",
+          action: action || "unknown",
+        },
+        extra: {
+          email,
+          isSignup,
+          isResettingPassword,
+        },
+      });
       setError(e.description || e.message || String(e) || "An error occurred");
     }
     setLoading(false);
-  }, [client, email]);
+  }, [client, email, action, isSignup, isResettingPassword]);
 
   const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -297,6 +309,17 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
+      captureException(e, {
+        tags: {
+          component: "EALoginPopover",
+          action: action || "unknown",
+        },
+        extra: {
+          email,
+          isSignup,
+          isResettingPassword,
+        },
+      });
       setError(e.description || e.message || String(e) || "An error occurred");
       setPolicy(e.policy ?? null);
     } finally {
@@ -304,7 +327,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     }
   }, [
     client, email, password, isSignup, isResettingPassword,
-    onSendPasswordReset, refetchCurrentUser,
+    onSendPasswordReset, refetchCurrentUser, action,
   ]);
 
   const onClickGoogle = useCallback(async () => {
@@ -444,7 +467,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
             >
               <img src={links.googleLogo} /> Continue with Google
             </EAButton>}
-            {facebookEnabled && <EAButton
+            {facebookEnabled && !isSignup && <EAButton
               style="grey"
               variant="outlined"
               onClick={onClickFacebook}

@@ -9,6 +9,8 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { CollectionVoteOptions } from '../make_voteable';
+import type { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 // These server imports are safe as they use `import type`
 // eslint-disable-next-line import/no-restricted-paths
@@ -32,30 +34,21 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string,
   options: CollectionOptions<N>,
-  addDefaultView: (view: ViewFunction<N>) => void
-  addView: (viewName: string, view: ViewFunction<N>) => void
-  defaultView?: ViewFunction<N>
-  views: Record<string, ViewFunction<N>>
 
   _schemaFields: SchemaType<N>
   _simpleSchema: any
 
   isConnected: () => boolean
-
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
-  makeVoteable: () => void
-
   hasSlug: () => boolean
-
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
-
   getTable: () => Table<ObjectsByCollectionName[N]>;
+  getIndexes: () => DatabaseIndexSet;
 
   rawCollection: () => {
     bulkWrite: (operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>, options?: MongoBulkWriteOptions) => Promise<BulkWriterResult>,
     findOneAndUpdate: any,
     dropIndex: any,
-    indexes: any,
     updateOne: any,
     updateMany: any
   }
@@ -105,17 +98,14 @@ interface DefaultMutationBase {
 }
 
 interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
-  check: (user: DbUser | null, document: T | null) => Promise<boolean> | boolean,
+  check: (user: DbUser | null, document: T | null, context: ResolverContext) => Promise<boolean> | boolean,
 }
 
 type DefaultMutations<T extends DbObject> = Partial<{
   create: DefaultMutationWithCheck<T>,
-  new: DefaultMutationWithCheck<T>,
   update: DefaultMutationWithCheck<T>,
-  edit: DefaultMutationWithCheck<T>,
   upsert: DefaultMutationBase,
   delete: DefaultMutationWithCheck<T>,
-  remove: DefaultMutationWithCheck<T>,
 }>;
 
 type CollectionOptions<N extends CollectionNameString> = {
@@ -123,7 +113,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   collectionName: N,
   dbCollectionName?: string,
   schema: SchemaType<N>,
-  generateGraphQLSchema?: boolean,
   collection?: any,
   resolvers?: any,
   mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
@@ -132,6 +121,8 @@ type CollectionOptions<N extends CollectionNameString> = {
   logChanges?: boolean,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],
+  voteable?: CollectionVoteOptions,
+  getIndexes?: () => DatabaseIndexSet,
 };
 
 interface FindResult<T> {
@@ -262,8 +253,9 @@ type MongoEnsureIndexOptions<T> = {
     strength: number,
   },
 }
-type MongoIndexSpecification<T> = MongoEnsureIndexOptions<T> & {
+type MongoIndexSpecification<T> = {
   key: MongoIndexKeyObj<T>
+  options: MongoEnsureIndexOptions<T>
 }
 
 type MongoDropIndexOptions = {};
@@ -430,7 +422,7 @@ type DbInsertion<T extends DbObject> = Omit<
   "_id"
 >
 
-type SpotlightDocumentType = 'Post' | 'Sequence';
+type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 interface SpotlightFirstPost {
   _id: string;
   title: string;

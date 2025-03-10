@@ -1,4 +1,3 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
@@ -20,6 +19,7 @@ import moment from 'moment';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -498,7 +498,7 @@ const CommentsNewForm = ({
             <WrappedSmartForm
               id="new-comment-form"
               collectionName="Comments"
-              mutationFragment={getFragment(fragment)}
+              mutationFragmentName={fragment}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
               submitCallback={(data: unknown) => {

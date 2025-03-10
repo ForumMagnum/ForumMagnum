@@ -1,6 +1,4 @@
-import { registerFragment } from "@/lib/vulcan-lib";
-
-registerFragment(`
+export const LlmMessagesFragment = `
   fragment LlmMessagesFragment on LlmMessage {
     _id
     userId
@@ -9,4 +7,4 @@ registerFragment(`
     content
     createdAt
   }
-`);
+`

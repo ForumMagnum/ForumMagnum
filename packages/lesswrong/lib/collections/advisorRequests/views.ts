@@ -1,5 +1,4 @@
-import AdvisorRequests from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface AdvisorRequestsViewTerms extends ViewTermsBase {
@@ -8,11 +7,14 @@ declare global {
   }
 }
 
-AdvisorRequests.addView("requestsByUser", function (terms: AdvisorRequestsViewTerms) {
+function requestsByUser(terms: AdvisorRequestsViewTerms) {
   return {
     selector: {
       userId: terms.userId
     }
   };
+};
+
+export const AdvisorRequestsViews = new CollectionViewSet('AdvisorRequests', {
+  requestsByUser
 });
-ensureIndex(AdvisorRequests, { userId: 1 })

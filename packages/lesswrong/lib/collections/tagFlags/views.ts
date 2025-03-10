@@ -1,5 +1,4 @@
-import { TagFlags } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface TagFlagsViewTerms extends ViewTermsBase {
@@ -8,7 +7,7 @@ declare global {
   }
 }
 
-TagFlags.addView('allTagFlags', (terms: TagFlagsViewTerms) => {
+function allTagFlags(terms: TagFlagsViewTerms) {
   return {
     selector: {
       deleted: false,
@@ -17,6 +16,8 @@ TagFlags.addView('allTagFlags', (terms: TagFlagsViewTerms) => {
       sort: {order: 1, name: -1},
     },
   };
-});
+}
 
-ensureIndex(TagFlags, {deleted:1, order:1, name: 1});
+export const TagFlagsViews = new CollectionViewSet('TagFlags', {
+  allTagFlags
+});

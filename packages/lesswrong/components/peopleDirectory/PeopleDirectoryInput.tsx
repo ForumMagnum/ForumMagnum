@@ -1,5 +1,5 @@
 import React, { ChangeEvent, MutableRefObject, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 

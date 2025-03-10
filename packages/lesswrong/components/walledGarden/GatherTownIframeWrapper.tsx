@@ -1,5 +1,5 @@
   import React, { useEffect } from 'react'
-import { registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
   import {gatherTownRoomId, gatherTownRoomName} from "../../lib/publicSettings";
 
 

@@ -1,4 +1,4 @@
-import { DialogueChecks } from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface NoViewTerms extends ViewTermsBase {
   view?: undefined;
@@ -22,19 +22,24 @@ declare global {
     | UserTargetDialogueChecksViewTerms;
 }
 
-DialogueChecks.addView('userDialogueChecks', (terms: UserDialogueChecksViewTerms) => {
+function userDialogueChecks(terms: UserDialogueChecksViewTerms) {
   return {
     selector: {
       userId: terms.userId,
     },
   };
-});
+}
 
-DialogueChecks.addView('userTargetDialogueChecks', (terms: UserTargetDialogueChecksViewTerms) => {
+function userTargetDialogueChecks(terms: UserTargetDialogueChecksViewTerms) {
   return {
     selector: {
       userId: terms.userId,
       targetUserId: { $in: terms.targetUserIds }
     },
   };
+}
+
+export const DialogueChecksViews = new CollectionViewSet('DialogueChecks', {
+  userDialogueChecks,
+  userTargetDialogueChecks
 });

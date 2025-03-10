@@ -353,6 +353,9 @@ const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
     border: theme.palette.border.normal,
     borderRadius: 4,
     padding: 8,
+    "&.defaultHidden": {
+      display: "none",
+    },
   },
 });
 
@@ -476,7 +479,8 @@ const baseBodyStyles = (theme: ThemeType) => ({
     verticalAlign: 'baseline',
     top: '-0.6em',
     fontSize: '65%',
-    position: 'relative'
+    position: 'relative',
+    lineHeight: 0,
   },
   '& sub': {
     fontSize: '70%',

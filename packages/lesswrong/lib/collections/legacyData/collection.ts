@@ -1,8 +1,9 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields } from '../../collectionUtils';
-import { ensureIndex } from '../../collectionIndexUtils'
+import { createCollection } from '../../vulcan-lib/collections';
+import { universalFields } from '../../collectionUtils';
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"LegacyData"> = {
+  ...universalFields({}),
   objectId: {
     type: String,
     nullable: false,
@@ -16,10 +17,12 @@ const schema: SchemaType<"LegacyData"> = {
 export const LegacyData: LegacyDataCollection = createCollection({
   collectionName: "LegacyData",
   typeName: "LegacyData",
-  schema
+  schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('LegacyData', {objectId: 1});
+    return indexSet;
+  },
 });
-
-addUniversalFields({collection: LegacyData});
-ensureIndex(LegacyData, {objectId:1});
 
 export default LegacyData;

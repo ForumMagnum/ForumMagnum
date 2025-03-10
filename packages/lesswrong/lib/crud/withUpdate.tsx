@@ -82,22 +82,25 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
     optimisticResponse?: FragmentTypes[F],
     extraVariables?: any,
   }) => {
-
-    const optimisticMutationResponse = {
-      [`update${typeName}`]: {
-        __typename: `update${typeName}`,
-        data: {
-          __typename: typeName,
-          ...optimisticResponse,  
+    const optimisticMutationResponse = optimisticResponse
+      ? {
+        optimisticResponse: {
+          [`update${typeName}`]: {
+            __typename: `update${typeName}`,
+            data: {
+              __typename: typeName,
+              ...optimisticResponse,  
+            }
+          }
         }
       }
-    };
+      : {};
 
     return mutate({
       variables: { selector, data, ...extraVariables },
       update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName),
-      optimisticResponse: optimisticMutationResponse
-    })
+      ...optimisticMutationResponse
+    });
   }, [mutate, typeName, options.skipCacheUpdate]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }
