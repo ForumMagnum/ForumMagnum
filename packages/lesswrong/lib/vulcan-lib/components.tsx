@@ -16,7 +16,7 @@ type ComponentOptions = StyleOptions & {
   // JSS styles for this component. These will generate class names, which will
   // be passed as an extra prop named "classes".
   styles?: any
-  
+
   // Array of higher-order components that this component should be wrapped
   // with.
   hocs?: Array<any>
@@ -91,18 +91,37 @@ const addClassnames = (componentName: string, styles: any) => {
   })
 }
 
-// Register a component. Takes a name, a raw component, and ComponentOptions
-// (see above). Components should be in their own file, imported with
-// `importComponent`, and registered in that file; components that are
-// registered this way can be accessed via the Components object and are lazy-
-// loaded.
-//
-// Returns a dummy value--null, but coerced to a type that you can add to the
-// ComponentTypes interface to type-check usages of the component in other
-// files.
-export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>,
-  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
-{
+/**
+ * Takes a props type, and, if it doesn't mention `ref`, set its type to
+ * `never`. This is used to enforce that components don't take a ref unless
+ * that's specified explicitly in their props list.
+ *
+ * "Taking a ref" means being used with <MyComponent ref={...}/>. This is
+ * useful if that the component either is a class component that can have its
+ * methods called by a parent component, or calls a useImperativeHandle.
+ * However if a component takes a ref, then any higher-order components need to
+ * be careful about forwarding that ref properly, which requires sticking extra
+ * HoCs related to that in the component tree. We don't want to do that
+ * implicitly because most components don't take refs.
+ */
+type NoImplicitRef<T> = (T extends {ref?: any} ? T : T & {ref?: never});
+
+/**
+ * Register a component. Takes a name, a raw component, and ComponentOptions
+ * (see above). Components should be in their own file, imported with
+ * `importComponent`, and registered in that file; components that are
+ * registered this way can be accessed via the Components object and are lazy-
+ * loaded.
+ *
+ * Returns a dummy value--null, but coerced to a type that you can add to the
+ * ComponentTypes interface to type-check usages of the component in other
+ * files.
+ */
+export function registerComponent<PropType>(
+  name: string,
+  rawComponent: React.ComponentType<PropType>,
+  options?: ComponentOptions
+): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
     if (isClient && (window?.missingMainStylesheet || enableVite)) {
@@ -131,14 +150,14 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   
   if (enableVite) {
     delete PreparedComponents[name as keyof ComponentTypes];
-    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<PropType,"classes">>;
+    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>;
   }
   
   // The Omit is a hacky way of ensuring that hocs props are omitted from the
   // ones required to be passed in by parent components. It doesn't work for
   // hocs that share prop names that overlap with actually passed-in props, like
   // `location`.
-  return (null as any as React.ComponentType<Omit<PropType,"classes">>);
+  return (null as any as React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">>);
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until
