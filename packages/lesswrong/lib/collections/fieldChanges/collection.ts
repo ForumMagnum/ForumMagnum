@@ -1,9 +1,10 @@
 import { foreignKeyField } from '@/lib/utils/schemaUtils';
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '@/lib/collectionUtils';
+import { universalFields } from '@/lib/collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"FieldChanges"> = {
+  ...universalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -56,5 +57,3 @@ export const FieldChanges = createCollection({
     return indexSet;
   },
 });
-
-addUniversalFields({ collection: FieldChanges, });
