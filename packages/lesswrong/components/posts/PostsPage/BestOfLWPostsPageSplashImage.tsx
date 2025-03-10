@@ -1,7 +1,7 @@
 // TODO: Import component in components.ts
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import { useTracking } from '../../../lib/analyticsEvents';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { useTracking } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
