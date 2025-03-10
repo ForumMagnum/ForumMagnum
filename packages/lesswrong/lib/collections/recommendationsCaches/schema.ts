@@ -1,6 +1,8 @@
 import { userOwns } from "../../vulcan-users/permissions";
+import { universalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"RecommendationsCaches"> = {
+  ...universalFields({}),
   // NOTE: this "userId" is the recombee user id, which is our userId for logged-in users and clientId for logged out users
   // Do not use it as a foreign key for Users
   userId: {

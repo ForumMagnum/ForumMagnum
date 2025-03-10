@@ -1,6 +1,6 @@
 import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -43,6 +43,7 @@ import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
 import { editableFields } from '@/lib/editor/make_editable';
+import { universalFields } from "../../collectionUtils";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -162,7 +163,7 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+const schemaDefaultValueFmCrosspost = schemaDefaultValue<'Posts'>({
   isCrosspost: false,
 })
 
@@ -174,6 +175,10 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 }
 
 const schema: SchemaType<"Posts"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['admins']},
+  }),
+  
   ...editableFields("Posts", {
     formGroup: formGroups.content,
     order: 25,
@@ -211,6 +216,11 @@ const schema: SchemaType<"Posts"> = {
       canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
     },
+  }),
+
+  ...slugFields("Posts", {
+    getTitle: (post) => post.title,
+    includesOldSlugs: false,
   }),
   
   // Timestamp of post first appearing on the site (i.e. being approved)

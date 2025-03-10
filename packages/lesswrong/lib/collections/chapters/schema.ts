@@ -1,5 +1,6 @@
 import { editableFields } from '@/lib/editor/make_editable'
 import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
+import { universalFields } from '../../collectionUtils';
 
 export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
   chapterDetails: {
@@ -11,6 +12,7 @@ export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
 }
 
 const schema: SchemaType<"Chapters"> = {
+  ...universalFields({}),
   ...editableFields("Chapters", {
     order: 30,
     getLocalStorageId: (chapter, name) => {

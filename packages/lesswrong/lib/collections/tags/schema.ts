@@ -1,4 +1,4 @@
-import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple, slugFields } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
@@ -14,10 +14,12 @@ import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
 import { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
+import { universalFields } from "../../collectionUtils";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -59,6 +61,14 @@ async function getTagMultiDocuments(
 }
 
 const schema: SchemaType<"Tags"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
+    }
+  }),
+  
   ...editableFields("Tags", {
     fieldName: "description",
     commentStyles: true,
@@ -98,6 +108,17 @@ const schema: SchemaType<"Tags"> = {
       canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
       canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
+  }),
+
+  ...slugFields("Tags", {
+    collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+    getTitle: (t) => t.name,
+    slugOptions: {
+      canCreate: ['admins', 'sunshineRegiment'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      group: formGroups.advancedOptions,
+    },
+    includesOldSlugs: true,
   }),
   
   name: {
@@ -882,6 +903,8 @@ const schema: SchemaType<"Tags"> = {
   },
 
   ...summariesField('Tags', { group: formGroups.summaries }),
+
+  ...textLastUpdatedAtField('Tags'),
 
   isArbitalImport: resolverOnlyField({
     type: Boolean,

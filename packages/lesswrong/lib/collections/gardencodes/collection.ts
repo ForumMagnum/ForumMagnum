@@ -1,10 +1,10 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { slugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { editableFields } from '../../editor/make_editable';
-import { addUniversalFields } from "../../collectionUtils";
+import { universalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -31,12 +31,18 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...universalFields({}),
   ...editableFields("GardenCodes", {
     pingbacks: true,
     commentEditor: true,
     commentStyles: true,
     hideControls: true,
     order: 20
+  }),
+
+  ...slugFields("GardenCodes", {
+    getTitle: (gc) => gc.title,
+    includesOldSlugs: false,
   }),
   
   code: {
@@ -165,27 +171,6 @@ const schema: SchemaType<"GardenCodes"> = {
   // },
 };
 
-
-
-//
-// const options = {
-//   newCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     if (!user || !document) return false;
-//     return userCanDo(user, `gardenCodes.new`)
-//   },
-//
-//   editCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     if (!user || !document) return false;
-//     return userCanDo(user, `gardenCode.edit.all`)
-//   },
-//
-//   removeCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     // Nobody should be allowed to remove documents completely from the DB.
-//     // Deletion is handled via the `deleted` flag.
-//     return false
-//   },
-// }
-//
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
@@ -200,14 +185,6 @@ export const GardenCodes: GardenCodesCollection = createCollection({
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),
   logChanges: true,
-});
-
-addUniversalFields({collection: GardenCodes})
-
-addSlugFields({
-  collection: GardenCodes,
-  getTitle: (gc) => gc.title,
-  includesOldSlugs: false,
 });
 
 export default GardenCodes;

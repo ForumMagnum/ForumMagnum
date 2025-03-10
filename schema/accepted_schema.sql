@@ -20,12 +20,12 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 -- Table "AdvisorRequests"
 CREATE TABLE "AdvisorRequests" (
   _id VARCHAR(27) PRIMARY KEY,
-  "userId" VARCHAR(27) NOT NULL,
-  "interestedInMetaculus" BOOL NOT NULL DEFAULT FALSE,
-  "jobAds" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "userId" VARCHAR(27) NOT NULL,
+  "interestedInMetaculus" BOOL NOT NULL DEFAULT FALSE,
+  "jobAds" JSONB
 );
 
 -- Index "idx_AdvisorRequests_schemaVersion"
@@ -37,13 +37,13 @@ CREATE INDEX IF NOT EXISTS "idx_AdvisorRequests_userId" ON "AdvisorRequests" USI
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "pageAlias" TEXT NOT NULL,
   "title" TEXT NOT NULL,
   "fetchedAt" TIMESTAMPTZ NOT NULL,
-  "sanitizedHtml" TEXT NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "sanitizedHtml" TEXT NOT NULL
 );
 
 -- Index "idx_ArbitalCaches_schemaVersion"
@@ -58,16 +58,16 @@ CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USIN
 -- Table "ArbitalTagContentRels"
 CREATE TABLE "ArbitalTagContentRels" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "parentDocumentId" TEXT NOT NULL,
   "childDocumentId" TEXT NOT NULL,
   "parentCollectionName" TEXT NOT NULL,
   "childCollectionName" TEXT NOT NULL,
   "type" TEXT NOT NULL,
   "level" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "isStrong" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "isStrong" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ArbitalTagContentRels_schemaVersion"
@@ -76,15 +76,15 @@ CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "Arbital
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "expirationDate" TIMESTAMPTZ NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "ip" TEXT,
   "reason" TEXT,
   "comment" TEXT NOT NULL DEFAULT '',
-  "properties" JSONB,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "properties" JSONB
 );
 
 -- Index "idx_Bans_schemaVersion"
@@ -96,6 +96,9 @@ CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");
 -- Table "Books"
 CREATE TABLE "Books" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "postedAt" TIMESTAMPTZ,
@@ -108,10 +111,7 @@ CREATE TABLE "Books" (
   "sequenceIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "displaySequencesAsGrid" BOOL,
   "hideProgressBar" BOOL,
-  "showChapters" BOOL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "showChapters" BOOL
 );
 
 -- Index "idx_Books_schemaVersion"
@@ -123,16 +123,16 @@ CREATE INDEX IF NOT EXISTS "idx_Books_collectionId" ON "Books" USING btree ("col
 -- Table "Chapters"
 CREATE TABLE "Chapters" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "title" TEXT,
   "subtitle" TEXT,
   "number" DOUBLE PRECISION,
   "sequenceId" VARCHAR(27),
-  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}'
 );
 
 -- Index "idx_Chapters_schemaVersion"
@@ -144,13 +144,13 @@ CREATE INDEX IF NOT EXISTS "idx_Chapters_sequenceId_number" ON "Chapters" USING 
 -- Table "CkEditorUserSessions"
 CREATE TABLE "CkEditorUserSessions" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "documentId" TEXT NOT NULL,
   "userId" TEXT NOT NULL,
   "endedAt" TIMESTAMPTZ,
-  "endedBy" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "endedBy" TEXT
 );
 
 -- Index "idx_CkEditorUserSessions_schemaVersion"
@@ -162,16 +162,16 @@ CREATE INDEX IF NOT EXISTS "idx_CkEditorUserSessions_documentId_userId" ON "CkEd
 -- Table "ClientIds"
 CREATE TABLE "ClientIds" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "clientId" TEXT NOT NULL,
   "firstSeenReferrer" TEXT,
   "firstSeenLandingPage" TEXT,
   "userIds" TEXT[] DEFAULT '{}'::TEXT[],
   "invalidated" BOOL NOT NULL DEFAULT FALSE,
   "lastSeenAt" TIMESTAMPTZ,
-  "timesSeen" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "timesSeen" DOUBLE PRECISION NOT NULL DEFAULT 1
 );
 
 -- Index "idx_ClientIds_schemaVersion"
@@ -186,6 +186,9 @@ CREATE INDEX IF NOT EXISTS "idx_ClientIds_userIds" ON "ClientIds" USING gin ("us
 -- Table "Collections"
 CREATE TABLE "Collections" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
@@ -194,10 +197,7 @@ CREATE TABLE "Collections" (
   "gridImageId" TEXT,
   "firstPageLink" TEXT NOT NULL,
   "hideStartReadingButton" BOOL,
-  "noindex" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "noindex" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Collections_schemaVersion"
@@ -209,12 +209,12 @@ CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree (
 -- Table "CommentModeratorActions"
 CREATE TABLE "CommentModeratorActions" (
   _id VARCHAR(27) PRIMARY KEY,
-  "commentId" VARCHAR(27) NOT NULL,
-  "type" TEXT NOT NULL,
-  "endedAt" TIMESTAMPTZ,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "commentId" VARCHAR(27) NOT NULL,
+  "type" TEXT NOT NULL,
+  "endedAt" TIMESTAMPTZ
 );
 
 -- Index "idx_CommentModeratorActions_schemaVersion"
@@ -226,6 +226,9 @@ CREATE INDEX IF NOT EXISTS "idx_CommentModeratorActions_commentId_createdAt" ON 
 -- Table "Comments"
 CREATE TABLE "Comments" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
@@ -299,10 +302,7 @@ CREATE TABLE "Comments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Comments_postId"
@@ -589,16 +589,16 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_schemaVersion" ON "Comments" USING btre
 -- Table "Conversations"
 CREATE TABLE "Conversations" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "title" TEXT,
   "participantIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "latestActivity" TIMESTAMPTZ,
   "af" BOOL,
   "messageCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "moderator" BOOL,
-  "archivedByIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "archivedByIds" VARCHAR(27) [] NOT NULL DEFAULT '{}'
 );
 
 -- Index "idx_Conversations_schemaVersion"
@@ -641,11 +641,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_CronHistories_intendedAt_name" ON "CronHi
 -- Table "CurationEmails"
 CREATE TABLE "CurationEmails" (
   _id VARCHAR(27) PRIMARY KEY,
-  "userId" TEXT NOT NULL,
-  "postId" TEXT NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "userId" TEXT NOT NULL,
+  "postId" TEXT NOT NULL
 );
 
 -- Index "idx_CurationEmails_schemaVersion"
@@ -657,15 +657,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_CurationEmails_userId" ON "CurationEmails
 -- Table "CurationNotices"
 CREATE TABLE "CurationNotices" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "commentId" VARCHAR(27),
   "postId" VARCHAR(27),
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_CurationNotices_schemaVersion"
@@ -674,11 +674,11 @@ CREATE INDEX IF NOT EXISTS "idx_CurationNotices_schemaVersion" ON "CurationNotic
 -- Table "DatabaseMetadata"
 CREATE TABLE "DatabaseMetadata" (
   _id VARCHAR(27) PRIMARY KEY,
-  "name" TEXT NOT NULL,
-  "value" JSONB NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "name" TEXT NOT NULL,
+  "value" JSONB NOT NULL
 );
 
 -- Index "idx_DatabaseMetadata_schemaVersion"
@@ -687,6 +687,9 @@ CREATE INDEX IF NOT EXISTS "idx_DatabaseMetadata_schemaVersion" ON "DatabaseMeta
 -- Table "DebouncerEvents"
 CREATE TABLE "DebouncerEvents" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "name" TEXT NOT NULL,
   "af" BOOL,
   "dispatched" BOOL NOT NULL,
@@ -694,10 +697,7 @@ CREATE TABLE "DebouncerEvents" (
   "delayTime" TIMESTAMPTZ NOT NULL,
   "upperBoundTime" TIMESTAMPTZ NOT NULL,
   "key" TEXT NOT NULL,
-  "pendingEvents" TEXT[],
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "pendingEvents" TEXT[]
 );
 
 -- Index "idx_DebouncerEvents_schemaVersion"
@@ -712,14 +712,14 @@ CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_upperBoundTime" ON
 -- Table "DialogueChecks"
 CREATE TABLE "DialogueChecks" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" TEXT NOT NULL,
   "targetUserId" TEXT NOT NULL,
   "checked" BOOL NOT NULL DEFAULT FALSE,
   "checkedAt" TIMESTAMPTZ NOT NULL,
-  "hideInRecommendations" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "hideInRecommendations" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_DialogueChecks_schemaVersion"
@@ -731,6 +731,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_DialogueChecks_userId_targetUserId" ON "D
 -- Table "DialogueMatchPreferences"
 CREATE TABLE "DialogueMatchPreferences" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "dialogueCheckId" VARCHAR(27) NOT NULL,
   "topicPreferences" JSONB[] NOT NULL DEFAULT '{}',
   "topicNotes" TEXT NOT NULL DEFAULT '',
@@ -739,10 +742,7 @@ CREATE TABLE "DialogueMatchPreferences" (
   "formatNotes" TEXT NOT NULL DEFAULT '',
   "calendlyLink" TEXT,
   "generatedDialogueId" TEXT,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_DialogueMatchPreferences_schemaVersion"
@@ -754,13 +754,13 @@ CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_dialogueCheckId" ON "Di
 -- Table "DigestPosts"
 CREATE TABLE "DigestPosts" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "digestId" VARCHAR(27) NOT NULL,
   "postId" VARCHAR(27) NOT NULL,
   "emailDigestStatus" TEXT,
-  "onsiteDigestStatus" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "onsiteDigestStatus" TEXT
 );
 
 -- Index "idx_DigestPosts_schemaVersion"
@@ -772,15 +772,15 @@ CREATE INDEX IF NOT EXISTS "idx_DigestPosts_digestId" ON "DigestPosts" USING btr
 -- Table "Digests"
 CREATE TABLE "Digests" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "num" DOUBLE PRECISION NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
   "endDate" TIMESTAMPTZ,
   "publishedDate" TIMESTAMPTZ,
   "onsiteImageId" TEXT,
-  "onsitePrimaryColor" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "onsitePrimaryColor" TEXT
 );
 
 -- Index "idx_Digests_schemaVersion"
@@ -792,6 +792,9 @@ CREATE INDEX IF NOT EXISTS "idx_Digests_num" ON "Digests" USING btree ("num");
 -- Table "ElectionCandidates"
 CREATE TABLE "ElectionCandidates" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "electionName" TEXT NOT NULL,
   "name" TEXT NOT NULL,
   "logoSrc" TEXT NOT NULL,
@@ -813,10 +816,7 @@ CREATE TABLE "ElectionCandidates" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_ElectionCandidates_schemaVersion"
@@ -828,6 +828,9 @@ CREATE INDEX IF NOT EXISTS "idx_ElectionCandidates_electionName" ON "ElectionCan
 -- Table "ElectionVotes"
 CREATE TABLE "ElectionVotes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "electionName" TEXT NOT NULL,
   "userId" VARCHAR(27),
   "compareState" JSONB,
@@ -835,10 +838,7 @@ CREATE TABLE "ElectionVotes" (
   "submittedAt" TIMESTAMPTZ,
   "submissionComments" JSONB,
   "userExplanation" TEXT,
-  "userOtherComments" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "userOtherComments" TEXT
 );
 
 -- Index "idx_ElectionVotes_schemaVersion"
@@ -867,13 +867,13 @@ CREATE TABLE "ElicitQuestionPredictions" (
 -- Table "ElicitQuestions"
 CREATE TABLE "ElicitQuestions" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "title" TEXT NOT NULL,
   "notes" TEXT,
   "resolution" TEXT,
-  "resolvesBy" TIMESTAMPTZ,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "resolvesBy" TIMESTAMPTZ
 );
 
 -- Index "idx_ElicitQuestions_schemaVersion"
@@ -882,14 +882,14 @@ CREATE INDEX IF NOT EXISTS "idx_ElicitQuestions_schemaVersion" ON "ElicitQuestio
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "token" TEXT NOT NULL,
   "tokenType" TEXT NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "usedAt" TIMESTAMPTZ,
-  "params" JSONB,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "params" JSONB
 );
 
 -- Index "idx_EmailTokens_schemaVersion"
@@ -901,14 +901,14 @@ CREATE INDEX IF NOT EXISTS "idx_EmailTokens_token" ON "EmailTokens" USING btree 
 -- Table "FeaturedResources"
 CREATE TABLE "FeaturedResources" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "title" TEXT NOT NULL,
   "body" TEXT,
   "ctaText" TEXT NOT NULL,
   "ctaUrl" TEXT NOT NULL,
-  "expiresAt" TIMESTAMPTZ,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "expiresAt" TIMESTAMPTZ
 );
 
 -- Index "idx_FeaturedResources_schemaVersion"
@@ -917,6 +917,9 @@ CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedRes
 -- Table "ForumEvents"
 CREATE TABLE "ForumEvents" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "frontpageDescription" JSONB,
   "frontpageDescription_latest" TEXT,
   "frontpageDescriptionMobile" JSONB,
@@ -938,10 +941,7 @@ CREATE TABLE "ForumEvents" (
   "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
   "commentPrompt" TEXT,
-  "publicData" JSONB,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "publicData" JSONB
 );
 
 -- Index "idx_ForumEvents_schemaVersion"
@@ -953,9 +953,13 @@ CREATE INDEX IF NOT EXISTS "idx_ForumEvents_endDate" ON "ForumEvents" USING btre
 -- Table "GardenCodes"
 CREATE TABLE "GardenCodes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
+  "slug" TEXT NOT NULL,
   "code" TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
   "userId" VARCHAR(27) NOT NULL,
@@ -965,11 +969,7 @@ CREATE TABLE "GardenCodes" (
   "type" TEXT NOT NULL DEFAULT 'public',
   "hidden" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "afOnly" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL
+  "afOnly" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_GardenCodes_schemaVersion"
@@ -987,14 +987,14 @@ CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted_userId" ON "GardenCodes
 -- Table "GoogleServiceAccountSessions"
 CREATE TABLE "GoogleServiceAccountSessions" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "email" TEXT NOT NULL,
   "refreshToken" TEXT NOT NULL,
   "estimatedExpiry" TIMESTAMPTZ NOT NULL,
   "active" BOOL NOT NULL,
-  "revoked" BOOL NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "revoked" BOOL NOT NULL
 );
 
 -- Index "idx_GoogleServiceAccountSessions_schemaVersion"
@@ -1003,13 +1003,13 @@ CREATE INDEX IF NOT EXISTS "idx_GoogleServiceAccountSessions_schemaVersion" ON "
 -- Table "Images"
 CREATE TABLE "Images" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "originalUrl" TEXT,
   "identifier" TEXT NOT NULL,
   "identifierType" TEXT NOT NULL,
-  "cdnHostedUrl" TEXT NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "cdnHostedUrl" TEXT NOT NULL
 );
 
 -- Index "idx_Images_schemaVersion"
@@ -1024,16 +1024,16 @@ CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("c
 -- Table "JargonTerms"
 CREATE TABLE "JargonTerms" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "postId" VARCHAR(27) NOT NULL,
   "term" TEXT NOT NULL,
   "approved" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "altTerms" TEXT[] NOT NULL DEFAULT '{}',
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "altTerms" TEXT[] NOT NULL DEFAULT '{}'
 );
 
 -- Index "idx_JargonTerms_schemaVersion"
@@ -1045,15 +1045,15 @@ CREATE INDEX IF NOT EXISTS "idx_JargonTerms_postId_term_createdAt" ON "JargonTer
 -- Table "LWEvents"
 CREATE TABLE "LWEvents" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27),
   "name" TEXT,
   "documentId" TEXT,
   "important" BOOL,
   "properties" JSONB,
-  "intercom" BOOL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "intercom" BOOL
 );
 
 -- Index "idx_LWEvents_schemaVersion"
@@ -1071,11 +1071,11 @@ CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_userId_createdAt" ON "LWEvents" US
 -- Table "LegacyData"
 CREATE TABLE "LegacyData" (
   _id VARCHAR(27) PRIMARY KEY,
-  "objectId" TEXT NOT NULL,
-  "collectionName" TEXT NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "objectId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL
 );
 
 -- Index "idx_LegacyData_schemaVersion"
@@ -1087,14 +1087,14 @@ CREATE INDEX IF NOT EXISTS "idx_LegacyData_objectId" ON "LegacyData" USING btree
 -- Table "LlmConversations"
 CREATE TABLE "LlmConversations" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "title" TEXT NOT NULL,
   "model" TEXT NOT NULL,
   "systemPrompt" TEXT,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_LlmConversations_schemaVersion"
@@ -1106,13 +1106,13 @@ CREATE INDEX IF NOT EXISTS "idx_LlmConversations_userId_deleted_createdAt" ON "L
 -- Table "LlmMessages"
 CREATE TABLE "LlmMessages" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" TEXT NOT NULL,
   "conversationId" TEXT NOT NULL,
   "role" TEXT NOT NULL,
-  "content" TEXT NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "content" TEXT NOT NULL
 );
 
 -- Index "idx_LlmMessages_schemaVersion"
@@ -1124,6 +1124,9 @@ CREATE INDEX IF NOT EXISTS "idx_LlmMessages_conversationId_createdAt" ON "LlmMes
 -- Table "Localgroups"
 CREATE TABLE "Localgroups" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "name" TEXT,
@@ -1145,10 +1148,7 @@ CREATE TABLE "Localgroups" (
   "bannerImageId" TEXT,
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "salesforceId" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "salesforceId" TEXT
 );
 
 -- Index "idx_Localgroups_schemaVersion"
@@ -1180,15 +1180,15 @@ CREATE INDEX IF NOT EXISTS "idx_Localgroups_isOnline_inactive_deleted_name" ON "
 -- Table "ManifoldProbabilitiesCaches"
 CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "marketId" TEXT NOT NULL,
   "probability" DOUBLE PRECISION NOT NULL,
   "isResolved" BOOL NOT NULL,
   "year" DOUBLE PRECISION NOT NULL,
   "lastUpdated" TIMESTAMPTZ NOT NULL,
-  "url" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "url" TEXT
 );
 
 -- Index "idx_ManifoldProbabilitiesCaches_schemaVersion"
@@ -1200,14 +1200,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_marketId" ON 
 -- Table "Messages"
 CREATE TABLE "Messages" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
-  "noEmail" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "noEmail" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Messages_schemaVersion"
@@ -1219,13 +1219,13 @@ CREATE INDEX IF NOT EXISTS "idx_Messages_conversationId_createdAt" ON "Messages"
 -- Table "Migrations"
 CREATE TABLE "Migrations" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "name" TEXT NOT NULL,
   "started" TIMESTAMPTZ NOT NULL,
   "finished" BOOL NOT NULL DEFAULT FALSE,
-  "succeeded" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "succeeded" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Migrations_schemaVersion"
@@ -1234,15 +1234,15 @@ CREATE INDEX IF NOT EXISTS "idx_Migrations_schemaVersion" ON "Migrations" USING 
 -- Table "ModerationTemplates"
 CREATE TABLE "ModerationTemplates" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "name" TEXT NOT NULL,
   "collectionName" TEXT NOT NULL,
   "order" DOUBLE PRECISION NOT NULL DEFAULT 10,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_ModerationTemplates_schemaVersion"
@@ -1257,12 +1257,12 @@ CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_collectionName_deleted_order
 -- Table "ModeratorActions"
 CREATE TABLE "ModeratorActions" (
   _id VARCHAR(27) PRIMARY KEY,
-  "userId" VARCHAR(27) NOT NULL,
-  "type" TEXT NOT NULL,
-  "endedAt" TIMESTAMPTZ,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "userId" VARCHAR(27) NOT NULL,
+  "type" TEXT NOT NULL,
+  "endedAt" TIMESTAMPTZ
 );
 
 -- Index "idx_ModeratorActions_schemaVersion"
@@ -1277,8 +1277,13 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "Mod
 -- Table "MultiDocuments"
 CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "title" TEXT,
   "preview" TEXT,
   "tabTitle" TEXT NOT NULL,
@@ -1298,12 +1303,7 @@ CREATE TABLE "MultiDocuments" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -1321,6 +1321,9 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USI
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "documentId" TEXT,
   "documentType" TEXT,
@@ -1332,10 +1335,7 @@ CREATE TABLE "Notifications" (
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "viewed" BOOL NOT NULL DEFAULT FALSE,
   "emailed" BOOL NOT NULL DEFAULT FALSE,
-  "waitingForBatch" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "waitingForBatch" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Notifications_schemaVersion"
@@ -1362,16 +1362,16 @@ CREATE INDEX IF NOT EXISTS "idx_Notifications_createdAt" ON "Notifications" USIN
 -- Table "PageCache"
 CREATE UNLOGGED TABLE "PageCache" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "path" TEXT NOT NULL,
   "abTestGroups" JSONB NOT NULL,
   "bundleHash" TEXT NOT NULL,
   "renderedAt" TIMESTAMPTZ NOT NULL,
   "expiresAt" TIMESTAMPTZ NOT NULL,
   "ttlMs" DOUBLE PRECISION NOT NULL,
-  "renderResult" JSONB NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "renderResult" JSONB NOT NULL
 );
 
 -- Index "idx_PageCache_schemaVersion"
@@ -1383,12 +1383,12 @@ CREATE INDEX IF NOT EXISTS "idx_PageCache_path_bundleHash_expiresAt" ON "PageCac
 -- Table "PetrovDayActions"
 CREATE TABLE "PetrovDayActions" (
   _id VARCHAR(27) PRIMARY KEY,
-  "actionType" TEXT NOT NULL,
-  "data" JSONB,
-  "userId" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "actionType" TEXT NOT NULL,
+  "data" JSONB,
+  "userId" TEXT
 );
 
 -- Index "idx_PetrovDayActions_schemaVersion"
@@ -1400,12 +1400,12 @@ CREATE INDEX IF NOT EXISTS "idx_PetrovDayActions_userId_actionType" ON "PetrovDa
 -- Table "PetrovDayLaunchs"
 CREATE TABLE "PetrovDayLaunchs" (
   _id VARCHAR(27) PRIMARY KEY,
-  "launchCode" TEXT NOT NULL,
-  "hashedLaunchCode" TEXT,
-  "userId" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "launchCode" TEXT NOT NULL,
+  "hashedLaunchCode" TEXT,
+  "userId" TEXT
 );
 
 -- Index "idx_PetrovDayLaunchs_schemaVersion"
@@ -1414,13 +1414,13 @@ CREATE INDEX IF NOT EXISTS "idx_PetrovDayLaunchs_schemaVersion" ON "PetrovDayLau
 -- Table "PodcastEpisodes"
 CREATE TABLE "PodcastEpisodes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "podcastId" VARCHAR(27) NOT NULL,
   "title" TEXT NOT NULL,
   "episodeLink" TEXT NOT NULL,
-  "externalEpisodeId" TEXT NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "externalEpisodeId" TEXT NOT NULL
 );
 
 -- Index "idx_PodcastEpisodes_schemaVersion"
@@ -1432,12 +1432,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_PodcastEpisodes_externalEpisodeId" ON "Po
 -- Table "Podcasts"
 CREATE TABLE "Podcasts" (
   _id VARCHAR(27) PRIMARY KEY,
-  "title" TEXT NOT NULL,
-  "applePodcastLink" TEXT,
-  "spotifyPodcastLink" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "title" TEXT NOT NULL,
+  "applePodcastLink" TEXT,
+  "spotifyPodcastLink" TEXT
 );
 
 -- Index "idx_Podcasts_schemaVersion"
@@ -1446,14 +1446,14 @@ CREATE INDEX IF NOT EXISTS "idx_Podcasts_schemaVersion" ON "Podcasts" USING btre
 -- Table "PostEmbeddings"
 CREATE TABLE "PostEmbeddings" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "postId" VARCHAR(27) NOT NULL,
   "postHash" TEXT NOT NULL,
   "lastGeneratedAt" TIMESTAMPTZ NOT NULL,
   "model" TEXT NOT NULL,
-  "embeddings" VECTOR (1536) NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "embeddings" VECTOR (1536) NOT NULL
 );
 
 -- Index "idx_PostEmbeddings_schemaVersion"
@@ -1465,6 +1465,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbe
 -- Table "PostRecommendations"
 CREATE TABLE "PostRecommendations" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27),
   "clientId" TEXT,
   "postId" VARCHAR(27) NOT NULL,
@@ -1472,10 +1475,7 @@ CREATE TABLE "PostRecommendations" (
   "strategySettings" JSONB,
   "recommendationCount" INTEGER NOT NULL DEFAULT 0,
   "lastRecommendedAt" TIMESTAMPTZ NOT NULL,
-  "clickedAt" TIMESTAMPTZ,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "clickedAt" TIMESTAMPTZ
 );
 
 -- Index "idx_PostRecommendations_schemaVersion"
@@ -1491,13 +1491,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostRecommendations_userId_clientId_postI
 -- Table "PostRelations"
 CREATE TABLE "PostRelations" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "type" TEXT NOT NULL,
   "sourcePostId" VARCHAR(27) NOT NULL,
   "targetPostId" VARCHAR(27) NOT NULL,
-  "order" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "order" DOUBLE PRECISION
 );
 
 -- Index "idx_PostRelations_schemaVersion"
@@ -1509,15 +1509,15 @@ CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "
 -- Table "PostViewTimes"
 CREATE TABLE "PostViewTimes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "updatedAt" TIMESTAMPTZ NOT NULL,
   "windowStart" TIMESTAMPTZ NOT NULL,
   "windowEnd" TIMESTAMPTZ NOT NULL,
   "clientId" VARCHAR(27) NOT NULL,
   "postId" VARCHAR(27) NOT NULL,
-  "totalSeconds" DOUBLE PRECISION NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "totalSeconds" DOUBLE PRECISION NOT NULL
 );
 
 -- Index "idx_PostViewTimes_schemaVersion"
@@ -1538,15 +1538,15 @@ CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_windowStart" ON "PostViewTimes" US
 -- Table "PostViews"
 CREATE TABLE "PostViews" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "updatedAt" TIMESTAMPTZ NOT NULL,
   "windowStart" TIMESTAMPTZ NOT NULL,
   "windowEnd" TIMESTAMPTZ NOT NULL,
   "postId" VARCHAR(27) NOT NULL,
   "viewCount" DOUBLE PRECISION NOT NULL,
-  "uniqueViewCount" DOUBLE PRECISION NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "uniqueViewCount" DOUBLE PRECISION NOT NULL
 );
 
 -- Index "idx_PostViews_schemaVersion"
@@ -1567,11 +1567,15 @@ CREATE INDEX IF NOT EXISTS "idx_PostViews_windowStart" ON "PostViews" USING btre
 -- Table "Posts"
 CREATE TABLE "Posts" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents_latest" TEXT,
   "pingbacks" JSONB,
   "moderationGuidelines_latest" TEXT,
   "customHighlight" JSONB,
   "customHighlight_latest" TEXT,
+  "slug" TEXT NOT NULL,
   "postedAt" TIMESTAMPTZ NOT NULL,
   "modifiedAt" TIMESTAMPTZ,
   "url" VARCHAR(500),
@@ -1731,11 +1735,7 @@ CREATE TABLE "Posts" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_posts_coauthorStatuses_postedAt"
@@ -2371,6 +2371,9 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("sc
 -- Table "RSSFeeds"
 CREATE TABLE "RSSFeeds" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "ownedByUser" BOOL NOT NULL DEFAULT FALSE,
   "displayFullContent" BOOL NOT NULL DEFAULT FALSE,
@@ -2379,10 +2382,7 @@ CREATE TABLE "RSSFeeds" (
   "status" TEXT,
   "rawFeed" JSONB NOT NULL,
   "setCanonicalUrl" BOOL NOT NULL DEFAULT FALSE,
-  "importAsDraft" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "importAsDraft" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_RSSFeeds_schemaVersion"
@@ -2394,14 +2394,14 @@ CREATE INDEX IF NOT EXISTS "idx_RSSFeeds_userId_createdAt" ON "RSSFeeds" USING b
 -- Table "ReadStatuses"
 CREATE TABLE "ReadStatuses" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "postId" VARCHAR(27),
   "tagId" VARCHAR(27),
   "userId" VARCHAR(27) NOT NULL,
   "isRead" BOOL NOT NULL,
-  "lastUpdated" TIMESTAMPTZ NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "lastUpdated" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_ReadStatuses_schemaVersion"
@@ -2416,15 +2416,15 @@ CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_tagId" ON "ReadStatuses" USI
 -- Table "RecommendationsCaches"
 CREATE TABLE "RecommendationsCaches" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" TEXT NOT NULL,
   "postId" TEXT NOT NULL,
   "source" TEXT NOT NULL,
   "scenario" TEXT NOT NULL,
   "attributionId" TEXT NOT NULL,
-  "ttlMs" DOUBLE PRECISION NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "ttlMs" DOUBLE PRECISION NOT NULL
 );
 
 -- Index "idx_RecommendationsCaches_schemaVersion"
@@ -2436,6 +2436,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_RecommendationsCaches_userId_postId_sourc
 -- Table "Reports"
 CREATE TABLE "Reports" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "reportedUserId" VARCHAR(27),
   "commentId" VARCHAR(27),
@@ -2445,10 +2448,7 @@ CREATE TABLE "Reports" (
   "description" TEXT,
   "closedAt" TIMESTAMPTZ,
   "markedAsSpam" BOOL,
-  "reportedAsSpam" BOOL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "reportedAsSpam" BOOL
 );
 
 -- Index "idx_Reports_schemaVersion"
@@ -2466,6 +2466,9 @@ CREATE INDEX IF NOT EXISTS "idx_Reports_closedAt_createdAt" ON "Reports" USING b
 -- Table "ReviewVotes"
 CREATE TABLE "ReviewVotes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "postId" VARCHAR(27) NOT NULL,
   "qualitativeScore" INTEGER NOT NULL DEFAULT 4,
@@ -2473,10 +2476,7 @@ CREATE TABLE "ReviewVotes" (
   "comment" TEXT,
   "year" TEXT NOT NULL DEFAULT '2018',
   "dummy" BOOL NOT NULL DEFAULT FALSE,
-  "reactions" TEXT[],
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "reactions" TEXT[]
 );
 
 -- Index "idx_ReviewVotes_schemaVersion"
@@ -2497,12 +2497,12 @@ CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_year_dummy_createdAt" ON "ReviewVote
 -- Table "ReviewWinnerArts"
 CREATE TABLE "ReviewWinnerArts" (
   _id VARCHAR(27) PRIMARY KEY,
-  "postId" TEXT NOT NULL,
-  "splashArtImagePrompt" TEXT NOT NULL,
-  "splashArtImageUrl" TEXT NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "postId" TEXT NOT NULL,
+  "splashArtImagePrompt" TEXT NOT NULL,
+  "splashArtImageUrl" TEXT NOT NULL
 );
 
 -- Index "idx_ReviewWinnerArts_schemaVersion"
@@ -2514,15 +2514,15 @@ CREATE INDEX IF NOT EXISTS "idx_ReviewWinnerArts_postId" ON "ReviewWinnerArts" U
 -- Table "ReviewWinners"
 CREATE TABLE "ReviewWinners" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "postId" VARCHAR(27) NOT NULL,
   "reviewYear" DOUBLE PRECISION NOT NULL,
   "category" TEXT NOT NULL DEFAULT 'misc',
   "curatedOrder" DOUBLE PRECISION,
   "reviewRanking" DOUBLE PRECISION NOT NULL,
-  "isAI" BOOL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "isAI" BOOL
 );
 
 -- Index "idx_ReviewWinners_schemaVersion"
@@ -2540,6 +2540,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_reviewYear_reviewRanking" O
 -- Table "Revisions"
 CREATE TABLE "Revisions" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "documentId" TEXT,
   "collectionName" TEXT,
   "fieldName" TEXT,
@@ -2563,10 +2566,7 @@ CREATE TABLE "Revisions" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Revisions_userId_collectionName_editedAt"
@@ -2590,6 +2590,9 @@ CREATE INDEX IF NOT EXISTS "idx_Revisions_schemaVersion" ON "Revisions" USING bt
 -- Table "Sequences"
 CREATE TABLE "Sequences" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
   "lastUpdated" TIMESTAMPTZ NOT NULL,
@@ -2605,10 +2608,7 @@ CREATE TABLE "Sequences" (
   "canonicalCollectionSlug" TEXT,
   "hidden" BOOL NOT NULL DEFAULT FALSE,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
-  "af" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "af" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Sequences_schemaVersion"
@@ -2654,13 +2654,13 @@ CREATE INDEX IF NOT EXISTS "idx_Sessions_expires" ON "Sessions" USING btree ("ex
 -- Table "SideCommentCaches"
 CREATE TABLE "SideCommentCaches" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "postId" VARCHAR(27) NOT NULL,
   "annotatedHtml" TEXT NOT NULL,
   "commentsByBlock" JSONB NOT NULL,
-  "version" DOUBLE PRECISION NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "version" DOUBLE PRECISION NOT NULL
 );
 
 -- Index "idx_SideCommentCaches_schemaVersion"
@@ -2675,6 +2675,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_SideCommentCaches_postId_version" ON "Sid
 -- Table "SplashArtCoordinates"
 CREATE TABLE "SplashArtCoordinates" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "reviewWinnerArtId" VARCHAR(27) NOT NULL,
   "leftXPct" DOUBLE PRECISION NOT NULL,
   "leftYPct" DOUBLE PRECISION NOT NULL,
@@ -2690,10 +2693,7 @@ CREATE TABLE "SplashArtCoordinates" (
   "rightYPct" DOUBLE PRECISION NOT NULL,
   "rightHeightPct" DOUBLE PRECISION NOT NULL,
   "rightWidthPct" DOUBLE PRECISION NOT NULL,
-  "rightFlipped" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "rightFlipped" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_SplashArtCoordinates_schemaVersion"
@@ -2705,6 +2705,9 @@ CREATE INDEX IF NOT EXISTS "idx_SplashArtCoordinates_reviewWinnerArtId_createdAt
 -- Table "Spotlights"
 CREATE TABLE "Spotlights" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "description" JSONB,
   "description_latest" TEXT,
   "documentId" TEXT NOT NULL,
@@ -2725,10 +2728,7 @@ CREATE TABLE "Spotlights" (
   "imageFade" BOOL NOT NULL DEFAULT TRUE,
   "imageFadeColor" TEXT,
   "spotlightImageId" TEXT,
-  "spotlightDarkImageId" TEXT,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "spotlightDarkImageId" TEXT
 );
 
 -- Index "idx_Spotlights_schemaVersion"
@@ -2743,15 +2743,15 @@ CREATE INDEX IF NOT EXISTS "idx_Spotlights_position" ON "Spotlights" USING btree
 -- Table "Subscriptions"
 CREATE TABLE "Subscriptions" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "state" TEXT NOT NULL,
   "documentId" TEXT,
   "collectionName" TEXT NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "type" TEXT NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "type" TEXT NOT NULL
 );
 
 -- Index "idx_Subscriptions_schemaVersion"
@@ -2769,13 +2769,13 @@ CREATE INDEX IF NOT EXISTS "idx_Subscriptions_userId_documentId_collectionName_t
 -- Table "SurveyQuestions"
 CREATE TABLE "SurveyQuestions" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "surveyId" VARCHAR(27) NOT NULL,
   "question" TEXT NOT NULL,
   "format" TEXT NOT NULL,
-  "order" DOUBLE PRECISION NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "order" DOUBLE PRECISION NOT NULL
 );
 
 -- Index "idx_SurveyQuestions_schemaVersion"
@@ -2787,14 +2787,14 @@ CREATE INDEX IF NOT EXISTS "idx_SurveyQuestions_surveyId" ON "SurveyQuestions" U
 -- Table "SurveyResponses"
 CREATE TABLE "SurveyResponses" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "surveyId" VARCHAR(27) NOT NULL,
   "surveyScheduleId" VARCHAR(27) NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "clientId" VARCHAR(27) NOT NULL,
-  "response" JSONB NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "response" JSONB NOT NULL
 );
 
 -- Index "idx_SurveyResponses_schemaVersion"
@@ -2815,6 +2815,9 @@ CREATE INDEX IF NOT EXISTS "idx_SurveyResponses_clientId" ON "SurveyResponses" U
 -- Table "SurveySchedules"
 CREATE TABLE "SurveySchedules" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "surveyId" VARCHAR(27) NOT NULL,
   "name" TEXT NOT NULL,
   "impressionsLimit" DOUBLE PRECISION,
@@ -2825,10 +2828,7 @@ CREATE TABLE "SurveySchedules" (
   "startDate" TIMESTAMPTZ,
   "endDate" TIMESTAMPTZ,
   "deactivated" BOOL NOT NULL DEFAULT FALSE,
-  "clientIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "clientIds" VARCHAR(27) [] NOT NULL DEFAULT '{}'
 );
 
 -- Index "idx_SurveySchedules_schemaVersion"
@@ -2843,10 +2843,10 @@ CREATE INDEX IF NOT EXISTS "idx_SurveySchedules_clientIds" ON "SurveySchedules" 
 -- Table "Surveys"
 CREATE TABLE "Surveys" (
   _id VARCHAR(27) PRIMARY KEY,
-  "name" TEXT NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "name" TEXT NOT NULL
 );
 
 -- Index "idx_Surveys_schemaVersion"
@@ -2855,15 +2855,15 @@ CREATE INDEX IF NOT EXISTS "idx_Surveys_schemaVersion" ON "Surveys" USING btree 
 -- Table "TagFlags"
 CREATE TABLE "TagFlags" (
   _id VARCHAR(27) PRIMARY KEY,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "name" TEXT NOT NULL,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "order" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "slug" TEXT NOT NULL
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT FALSE,
+  "order" DOUBLE PRECISION
 );
 
 -- Index "idx_TagFlags_schemaVersion"
@@ -2875,6 +2875,9 @@ CREATE INDEX IF NOT EXISTS "idx_TagFlags_deleted_order_name" ON "TagFlags" USING
 -- Table "TagRels"
 CREATE TABLE "TagRels" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "tagId" VARCHAR(27) NOT NULL,
   "postId" VARCHAR(27) NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
@@ -2887,10 +2890,7 @@ CREATE TABLE "TagRels" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_TagRels_schemaVersion"
@@ -2905,6 +2905,9 @@ CREATE INDEX IF NOT EXISTS "idx_TagRels_tagId" ON "TagRels" USING btree ("tagId"
 -- Table "Tags"
 CREATE TABLE "Tags" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "description" JSONB,
   "description_latest" TEXT,
   "pingbacks" JSONB,
@@ -2912,6 +2915,8 @@ CREATE TABLE "Tags" (
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
   "moderationGuidelines_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "name" TEXT NOT NULL,
   "shortName" TEXT,
   "subtitle" TEXT,
@@ -2962,12 +2967,7 @@ CREATE TABLE "Tags" (
   "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}'
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Tags_deleted_adminOnly"
@@ -3037,12 +3037,12 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_schemaVersion" ON "Tags" USING btree ("sche
 -- Table "Tweets"
 CREATE TABLE "Tweets" (
   _id VARCHAR(27) PRIMARY KEY,
-  "postId" TEXT NOT NULL,
-  "tweetId" TEXT NOT NULL,
-  "content" TEXT NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "postId" TEXT NOT NULL,
+  "tweetId" TEXT NOT NULL,
+  "content" TEXT NOT NULL
 );
 
 -- Index "idx_Tweets_schemaVersion"
@@ -3057,12 +3057,12 @@ CREATE INDEX IF NOT EXISTS "idx_Tweets_tweetId" ON "Tweets" USING btree ("tweetI
 -- Table "TypingIndicators"
 CREATE TABLE "TypingIndicators" (
   _id VARCHAR(27) PRIMARY KEY,
-  "userId" TEXT NOT NULL,
-  "documentId" TEXT NOT NULL,
-  "lastUpdated" TIMESTAMPTZ NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "userId" TEXT NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_TypingIndicators_schemaVersion"
@@ -3074,14 +3074,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "T
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "visitorId" TEXT NOT NULL,
   "type" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
   "endDate" TIMESTAMPTZ NOT NULL,
-  "activityArray" DOUBLE PRECISION[] NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "activityArray" DOUBLE PRECISION[] NOT NULL
 );
 
 -- Index "idx_UserActivities_schemaVersion"
@@ -3093,6 +3093,9 @@ CREATE INDEX IF NOT EXISTS "idx_UserActivities_visitorId_type" ON "UserActivitie
 -- Table "UserEAGDetails"
 CREATE TABLE "UserEAGDetails" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "careerStage" TEXT[],
   "countryOrRegion" TEXT,
@@ -3100,10 +3103,7 @@ CREATE TABLE "UserEAGDetails" (
   "willingnessToRelocate" JSONB,
   "experiencedIn" TEXT[],
   "interestedIn" TEXT[],
-  "lastUpdated" TIMESTAMPTZ NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "lastUpdated" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_UserEAGDetails_schemaVersion"
@@ -3115,14 +3115,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserEAGDetails_userId" ON "UserEAGDetails
 -- Table "UserJobAds"
 CREATE TABLE "UserJobAds" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "jobName" TEXT NOT NULL,
   "adState" TEXT NOT NULL,
   "reminderSetAt" TIMESTAMPTZ,
-  "lastUpdated" TIMESTAMPTZ NOT NULL,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "lastUpdated" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_UserJobAds_schemaVersion"
@@ -3140,12 +3140,12 @@ CREATE INDEX IF NOT EXISTS "idx_UserJobAds_jobName_adState" ON "UserJobAds" USIN
 -- Table "UserMostValuablePosts"
 CREATE TABLE "UserMostValuablePosts" (
   _id VARCHAR(27) PRIMARY KEY,
-  "userId" VARCHAR(27) NOT NULL,
-  "postId" VARCHAR(27) NOT NULL,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "legacyData" JSONB,
+  "userId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_UserMostValuablePosts_schemaVersion"
@@ -3160,15 +3160,15 @@ CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_userId_postId" ON "UserMos
 -- Table "UserRateLimits"
 CREATE TABLE "UserRateLimits" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27) NOT NULL,
   "type" TEXT NOT NULL,
   "intervalUnit" TEXT NOT NULL,
   "intervalLength" DOUBLE PRECISION NOT NULL,
   "actionsPerInterval" DOUBLE PRECISION NOT NULL,
-  "endedAt" TIMESTAMPTZ,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "endedAt" TIMESTAMPTZ
 );
 
 -- Index "idx_UserRateLimits_schemaVersion"
@@ -3180,15 +3180,15 @@ CREATE INDEX IF NOT EXISTS "idx_UserRateLimits_userId_createdAt_endedAt" ON "Use
 -- Table "UserTagRels"
 CREATE TABLE "UserTagRels" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "tagId" VARCHAR(27),
   "userId" VARCHAR(27) NOT NULL,
   "subforumLastVisitedAt" TIMESTAMPTZ,
   "subforumShowUnreadInSidebar" BOOL NOT NULL DEFAULT TRUE,
   "subforumEmailNotifications" BOOL NOT NULL DEFAULT FALSE,
-  "subforumHideIntroPost" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "subforumHideIntroPost" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_UserTagRels_schemaVersion"
@@ -3200,12 +3200,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels
 -- Table "Users"
 CREATE TABLE "Users" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "moderationGuidelines" JSONB,
   "moderationGuidelines_latest" TEXT,
   "howOthersCanHelpMe" JSONB,
   "howOthersCanHelpMe_latest" TEXT,
   "howICanHelpOthers" JSONB,
   "howICanHelpOthers_latest" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "biography" JSONB,
   "biography_latest" TEXT,
   "username" TEXT,
@@ -3429,11 +3434,6 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "slug" TEXT NOT NULL,
-  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "recommendationSettings" JSONB
 );
 
@@ -3587,6 +3587,9 @@ CREATE INDEX IF NOT EXISTS "idx_Users_schemaVersion" ON "Users" USING btree ("sc
 -- Table "Votes"
 CREATE TABLE "Votes" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "documentId" TEXT NOT NULL,
   "collectionName" TEXT NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
@@ -3599,10 +3602,7 @@ CREATE TABLE "Votes" (
   "isUnvote" BOOL NOT NULL DEFAULT FALSE,
   "votedAt" TIMESTAMPTZ NOT NULL,
   "documentIsAf" BOOL NOT NULL DEFAULT FALSE,
-  "silenceNotification" BOOL NOT NULL DEFAULT FALSE,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "silenceNotification" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Votes_cancelled_userId_documentId"

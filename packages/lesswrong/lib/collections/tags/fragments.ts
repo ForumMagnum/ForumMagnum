@@ -82,6 +82,7 @@ export const TagFragment = `
 export const TagHistoryFragment = `
   fragment TagHistoryFragment on Tag {
     ...TagFragment
+    textLastUpdatedAt
     tableOfContents
     user {
       ...UsersMinimumInfo
@@ -308,6 +309,7 @@ export const TagPageFragment = `
     }
     canVoteOnRels
     forceAllowType3Audio
+    textLastUpdatedAt
   }
 `
 
@@ -329,6 +331,7 @@ export const TagPageWithRevisionFragment = `
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    textLastUpdatedAt
     postsDefaultSortOrder
     subforumIntroPost {
       ...PostsListWithVotes
