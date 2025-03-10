@@ -1,10 +1,19 @@
+import { editableFields } from '@/lib/editor/make_editable';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { universalFields } from '../../collectionUtils';
 
 export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
 
 export type TemplateType = 'Messages' | 'Comments' | 'Rejections';
 
 const schema: SchemaType<"ModerationTemplates"> = {
+  ...universalFields({}),
+  ...editableFields("ModerationTemplates", {
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 20
+  }),
   name: {
     type: String,
     canRead: ['guests'],

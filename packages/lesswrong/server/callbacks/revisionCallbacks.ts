@@ -5,6 +5,8 @@ import { afterCreateRevisionCallback } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { getCollectionHooks } from '../mutationCallbacks';
+import { recomputeContributorScoresFor } from './votingCallbacks';
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -36,8 +38,12 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
 afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions}) => {
   const revision = await Revisions.findOne({_id: revisionID});
   if (!revision) return;
-  if (revision.collectionName !== 'Tags' && revision.collectionName !== 'MultiDocuments') return;
-  if (skipDenormalizedAttributions) return;
+  if (!skipDenormalizedAttributions) {
+    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision);
+  }
+});
+
+async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision) {
 
   if (revision.collectionName === 'Tags') {
     const tag = await Tags.findOne({_id: revision.documentId});
@@ -47,5 +53,12 @@ afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions
     const multiDoc = await MultiDocuments.findOne({_id: revision.documentId});
     if (!multiDoc) return;
     await updateDenormalizedHtmlAttributions({ document: multiDoc, collectionName: 'MultiDocuments', fieldName: 'contents' });
+  }
+}
+
+getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument}) => {
+  if (oldDocument.skipAttributions !== newDocument.skipAttributions) {
+    await recomputeContributorScoresFor(newDocument);
+    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument);
   }
 });

@@ -9,7 +9,7 @@ import {
 } from '../lib/settingsCache'
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
-import { ensureIndex } from '../lib/collectionIndexUtils';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 const runValidateSettings = false
 
@@ -98,3 +98,22 @@ export const openAIOrganizationId = new DatabaseServerSetting<string|null>('lang
 export const vertexDocumentServiceParentPathSetting = new DatabaseServerSetting<string | null>('googleVertex.documentServiceParentPath', null);
 export const vertexUserEventServiceParentPathSetting = new DatabaseServerSetting<string | null>('googleVertex.userEventServiceParentPath', null);
 export const vertexRecommendationServingConfigPathSetting = new DatabaseServerSetting<string | null>('googleVertex.recommendationServingConfigPath', null);
+
+export const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
+export const tagBotActiveTimeSetting = new DatabaseServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
+
+export const autoFrontpageSetting = new DatabaseServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
+export const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
+export const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
+
+// Akismet API integration
+export const akismetKeySetting = new DatabaseServerSetting<string | null>('akismet.apiKey', null)
+export const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)
+
+export const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
+
+export const changesAllowedSetting = new DatabaseServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
+export const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
+
+export const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
+export const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);

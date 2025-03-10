@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -26,7 +25,6 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
@@ -45,6 +43,7 @@ import { useCommentLinkState } from '@/components/comments/CommentsItem/useComme
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLWPostsPageSplashImage';
+import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -475,7 +474,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar
+    disabled: disableProgressBar,
+    useFixedToCScrollCalculation: false
   });
   
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
@@ -1014,8 +1014,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
               centralColumn: commentsSection,
               isCommentToC: true
             },
+            {
+              centralColumn: <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+            }
           ]}
-          tocRowMap={[0, 0, 2]}
+          tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
           answerCount={answerCount}
           commentCount={commentCount}

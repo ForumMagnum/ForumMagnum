@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 // Populates the descendentCount field on all comments. Populates the
 // lastSubthreadActivity field on comments where it's missing, ie non-root
 // comments.
-registerMigration({
+export default registerMigration({
   name: "populateCommentDescendentCounts",
   dateWritten: "2021-04-28",
   idempotent: true,

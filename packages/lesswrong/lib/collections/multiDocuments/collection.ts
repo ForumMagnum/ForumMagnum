@@ -1,22 +1,28 @@
-import { createCollection, getCollection } from "@/lib/vulcan-lib";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/lib/collectionUtils";
-import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
-import { ensureIndex } from "@/lib/collectionIndexUtils";
-import { membersGroup, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
-import { makeVoteable } from "@/lib/make_voteable";
-import { addSlugFields } from "@/lib/utils/schemaUtils";
+import { createCollection } from "@/lib/vulcan-lib/collections.ts";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
   typeName: 'MultiDocument',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('MultiDocuments', { parentDocumentId: 1, collectionName: 1 });
+    indexSet.addIndex('MultiDocuments', { slug: 1 });
+    indexSet.addIndex('MultiDocuments', { oldSlugs: 1 });
+    indexSet.addCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
-    newCheck: (user, multiDocument) => canMutateParentDocument(user, multiDocument, 'create'),
-    editCheck: async (user, multiDocument: DbMultiDocument) => {
-      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update');
+    newCheck: (user, multiDocument, context) => canMutateParentDocument(user, multiDocument, 'create', context),
+    editCheck: async (user, multiDocument: DbMultiDocument, context) => {
+      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update', context);
       if (!canEditParent) {
         return false;
       }
@@ -30,39 +36,9 @@ export const MultiDocuments = createCollection({
     },
     removeCheck: () => false,
   }),
-});
-
-addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
-addSlugFields({
-  collection: MultiDocuments,
-  collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
-  getTitle: (md) => md.title ?? md.tabTitle,
-  onCollision: "rejectNewDocument",
-  includesOldSlugs: true,
-});
-
-ensureIndex(MultiDocuments, { parentDocumentId: 1, collectionName: 1 });
-ensureIndex(MultiDocuments, { slug: 1 });
-ensureIndex(MultiDocuments, { oldSlugs: 1 });
-
-makeEditable({
-  collection: MultiDocuments,
-  options: {
-    fieldName: "contents",
-    order: 30,
-    commentStyles: true,
-    normalized: true,
-    revisionsHaveCommitMessages: true,
-    pingbacks: true,
-    permissions: {
-      canRead: ['guests'],
-      canUpdate: ['members'],
-      canCreate: ['members']
-    },
-    getLocalStorageId: (multiDocument: DbMultiDocument, name: string) => {
-      const { _id, parentDocumentId, collectionName } = multiDocument;
-      return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
-    },
+  logChanges: true,
+  voteable: {
+    timeDecayScoresCronjob: false,
   },
 });
 
@@ -71,7 +47,7 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
     return true;
   }
 
-  const rootDocumentInfo = await getRootDocument(multiDocument);
+  const rootDocumentInfo = await getRootDocument(multiDocument, context);
   if (!rootDocumentInfo) {
     return false;
   }
@@ -85,20 +61,5 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
     }
   }
 
-  if (multiDocument.deleted) {
-    return userOwns(user, multiDocument);
-  }
-
   return true;
 };
-
-membersGroup.can([
-  'multidocuments.smallDownvote',
-  'multidocuments.bigDownvote',
-  'multidocuments.smallUpvote',
-  'multidocuments.bigUpvote',
-]);
-
-makeVoteable(MultiDocuments, {
-  timeDecayScoresCronjob: false,
-});

@@ -5,7 +5,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Users } from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
 import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
@@ -14,7 +14,6 @@ import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import pick from 'lodash/pick';
-import isEmpty from 'lodash/isEmpty';
 import * as _ from 'underscore';
 import {
   defaultSubforumSorting,
@@ -25,19 +24,24 @@ import {
 } from '../../lib/collections/tags/subforumHelpers';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { defineQuery } from '../utils/serverGraphqlUtil';
+import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
 import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
+import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
+import { namedPromiseAll } from '@/lib/utils/asyncUtils';
+import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { getLatestRev } from '../editor/utils';
+import { updateMutator } from "../vulcan-lib/mutators";
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -757,3 +761,170 @@ defineQuery({
     return { tags, totalCount };
   },
 });
+
+defineMutation({
+  name: "promoteLensToMain",
+  resultType: "Boolean",
+  argTypes: "(lensId: String!)",
+  fn: async (root, args: {lensId: string}, context) => {
+    const { lensId } = args;
+    if (!userIsAdminOrMod(context.currentUser)) {
+      throw new Error("Only admins can promote lenses to main");
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`Promoting lens ${lensId} to main`);
+    
+    // Find the lens and corresponding tag
+    const lensMultiDocument = await context.loaders.MultiDocuments.load(lensId);
+    if (!lensMultiDocument) throw new Error("Lens ID not found: "+lensId);
+    if (lensMultiDocument.fieldName !== "description") {
+      throw new Error("lensId is not a lens");
+    }
+    const tagId = lensMultiDocument.parentDocumentId;
+    const tag = await context.loaders.Tags.load(tagId);
+    if (!tag) throw new Error("Could not find corresponding tag for lens ID: "+lensId);
+    
+    // Swap revisions
+    const { tagRevisions, lensRevisions } = await namedPromiseAll({
+      tagRevisions: Revisions.find({ documentId: tagId }).fetch(),
+      lensRevisions: Revisions.find({ documentId: lensId }).fetch(),
+    });
+    const latestTagRevisionId = tag.description_latest;
+    const latestLensRevisionId = lensMultiDocument.contents_latest;
+    const latestLensRevision = lensRevisions.find(l => l._id===latestLensRevisionId);
+    if (!latestLensRevision) throw new Error("Couldn't find latest lens revision");
+    console.log(`Moving ${tagRevisions.length} revisions from tag to lens`); //eslint-disable-line no-console
+    console.log(`Moving ${lensRevisions.length} revisions from lens to tag`); //eslint-disable-line no-console
+    await Promise.all([
+      // Move revs from tag to lens
+      Revisions.rawUpdateMany(
+        {_id: {$in: tagRevisions.map(r => r._id)}},
+        {$set: {
+          documentId: lensMultiDocument._id,
+          collectionName: "MultiDocuments",
+          fieldName: "contents",
+        }}
+      ),
+      // Move revs from lens to tag
+      Revisions.rawUpdateMany(
+        {_id: {$in: lensRevisions.map(r => r._id)}},
+        {$set: {
+          documentId: tag._id,
+          collectionName: "Tags",
+          fieldName: "description",
+        }}
+      )
+    ]);
+    
+    await Tags.rawUpdateOne(
+      {_id: tag._id},
+      {$set: {
+        description: {
+          ...pick(latestLensRevision, [
+            "html", "version", "userId", "editedAt", "wordCount",
+            "originalContents", "commitMessage", "googleDocMetadata", "updateType"
+          ])
+        }
+      }},
+    );
+    
+    // Swap the description_latest field
+    await Promise.all([
+      Tags.rawUpdateOne(
+        {_id: tagId},
+        {$set: {
+          description_latest: latestLensRevisionId
+        }}
+      ),
+      context.MultiDocuments.rawUpdateOne(
+        {_id: lensMultiDocument._id},
+        {$set: {
+          contents_latest: latestTagRevisionId
+        }}
+      )
+    ]);
+
+    // Recompute denormalized fields
+    await Promise.all([
+      updateDenormalizedHtmlAttributions({
+        document: tag,
+        collectionName: "Tags",
+        fieldName: "description",
+      }),
+      updateDenormalizedHtmlAttributions({
+        document: lensMultiDocument,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      }),
+      updateDenormalizedContributorsList({
+        document: tag,
+        collectionName: "Tags",
+        fieldName: "description",
+      }),
+      updateDenormalizedContributorsList({
+        document: lensMultiDocument,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+      }),
+    ]);
+    
+    // eslint-disable-next-line no-console
+    console.log(`Finished promoting lens ${lensId} to main`);
+    return true;
+  }
+});
+
+// Exported to allow running from "yarn repl"
+export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+  const tag = await Tags.findOne({slug: tagSlug});
+  if (!tag) throw new Error(`No such tag: ${tagSlug}`);
+  const latestRev = await getLatestRev(tag._id, "description");
+  if (!latestRev) throw new Error("Could not get latest rev");
+  await Tags.rawUpdateOne(
+    {_id: tag._id},
+    {$set: {
+      description: {
+        ...pick(latestRev, [
+          "html", "version", "userId", "editedAt", "wordCount",
+          "originalContents", "commitMessage", "googleDocMetadata", "updateType"
+        ])
+      }
+    }},
+  );
+}
+
+// Exported to allow running from "yarn repl"
+export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+  const tag = await Tags.findOne({slug: tagSlug});
+  if (!tag) throw new Error(`No such tag: ${tagSlug}`);
+  const lenses = await MultiDocuments.find({
+    parentDocumentId: tag._id,
+    fieldName: "description",
+  }).fetch();
+  // eslint-disable-next-line no-console
+  console.log(`Found ${lenses.length} lenses`);
+
+  await updateDenormalizedHtmlAttributions({
+    document: tag,
+    collectionName: "Tags",
+    fieldName: "description",
+  });
+  await updateDenormalizedContributorsList({
+    document: tag,
+    collectionName: "Tags",
+    fieldName: "description",
+  });
+  for (const lensMultiDocument of lenses) {
+    await updateDenormalizedHtmlAttributions({
+      document: lensMultiDocument,
+      collectionName: "MultiDocuments",
+      fieldName: "contents",
+    });
+    await updateDenormalizedContributorsList({
+      document: lensMultiDocument,
+      collectionName: "MultiDocuments",
+      fieldName: "contents",
+    });
+  }
+}

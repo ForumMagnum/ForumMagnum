@@ -1,17 +1,20 @@
 import Users from '../../lib/collections/users/collection';
-import { Vulcan, updateMutator, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { editableCollectionsFields } from '../../lib/editor/make_editable'
+import { getEditableFieldNamesForCollection, editableFieldIsNormalized } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
-import { Votes } from '../../lib/collections/votes/index';
+import { Votes } from '../../lib/collections/votes/collection';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
+import ConversationsRepo from '../repos/ConversationsRepo';
+import LocalgroupsRepo from '../repos/LocalgroupsRepo';
+import PostsRepo from '../repos/PostsRepo';
+import VotesRepo from '../repos/VotesRepo';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
+import { updateMutator } from "../vulcan-lib/mutators";
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -57,8 +60,8 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
         try {
           await transferOwnership({documentId: doc._id, targetUserId, collection, fieldName})
           // Transfer ownership of all revisions and denormalized references for editable fields
-          const editableFieldNames = editableCollectionsFields[collectionName]
-          if (editableFieldNames?.length) {
+          const editableFieldNames = getEditableFieldNamesForCollection(collectionName)
+          if (editableFieldNames.length) {
             await asyncForeachSequential(editableFieldNames, async (editableFieldName) => {
               await transferEditableField({documentId: doc._id, sourceUserId, targetUserId, collection, fieldName: editableFieldName})
             })
@@ -166,7 +169,8 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
+// Exported to allow usage with "yarn repl". Also wrapped by scripts/mergeUsers.sh.
+export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   sourceUserId: string, 
   targetUserId: string, 
   dryRun: boolean
@@ -465,4 +469,4 @@ async function recomputeKarma(userId: string) {
   return karma
 }
 
-Vulcan.getTotalKarmaForUser = recomputeKarma
+export const getTotalKarmaForUser = recomputeKarma

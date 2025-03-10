@@ -4,13 +4,13 @@ import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'r
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -36,6 +36,10 @@ import type { ContentItemBody } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { useDisplayedContributors } from "./ContributorsList";
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
+
+const AUDIO_PLAYER_WIDTH = 325;
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -97,9 +101,10 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   title: {
     ...theme.typography[isFriendlyUI ? "display2" : "display3"],
     ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
-    marginTop: 0,
+    marginTop: 4,
+    marginBottom: 12,
     fontWeight: isFriendlyUI ? 700 : 600,
-    ...theme.typography.smallCaps,
+    lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
       fontSize: '27px',
     },
@@ -207,16 +212,15 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   contributorRow: {
     ...theme.typography.body1,
     color: theme.palette.grey[600],
-    display: 'flex',
-    flexDirection: 'column',
+    display: 'block',
     fontSize: '17px',
     lineHeight: 'inherit',
     marginBottom: 8,
   },
+  contributorRowContent: {
+    display: 'inline',
+  },
   lastUpdated: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[600],
-    fontWeight: 550,
   },
   alternativeArrowIcon: {
     width: 16,
@@ -245,6 +249,29 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     height: 18,
     width: 18,
     marginRight: 4,
+  },
+  nonMobileAudioPlayer: {
+    display: 'flex',
+    position: 'absolute',
+    right: 8,
+    width: AUDIO_PLAYER_WIDTH,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  nonMobileAudioPlayerSpaceHolder: {
+    height: 100
+  },
+  mobileAudioPlayer: {
+    justifyContent: 'flex-start',
+    display: 'flex',
+    width: AUDIO_PLAYER_WIDTH,
+    '& .T3AudioPlayer-embeddedPlayer': {
+      marginBottom: 8,
+    },
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
   },
 }));
 
@@ -484,12 +511,11 @@ function getTagQueryOptions(
 
 const LWTagPage = () => {
   const {
-    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    PathInfo, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
+    PostsList2, Loading, AddPostsToTag, Typography, ContentStyles,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, CommentsListCondensed,
+    TagPageButtonRow, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    MultiToCLayout, TableOfContents, FormatDate, LWTagPageRightColumn,
+    ArbitalRelationshipsSmallScreen, ParentsAndChildrenSmallScreen
   } = Components;
   const classes = useStyles(styles);
 
@@ -575,7 +601,8 @@ const LWTagPage = () => {
     // because we already do it inside of Form.tsx because of the route change
     setEditing(false, false);
     updateSelectedLens(lensId);
-  }, [setEditing, updateSelectedLens]);
+    captureEvent('tagPageLensSwitched', { lensId });
+  }, [setEditing, updateSelectedLens, captureEvent]);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -621,12 +648,27 @@ const LWTagPage = () => {
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 
-  if (loadingTag && !tag)
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
+  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  
+  const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag) ? () => {
+    const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    captureEvent("audioPlayerToggle", { action, tagId: tag._id });
+    setCookie(
+      SHOW_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
+    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+  } : undefined;
+
+  if (loadingTag && !tag) {
     return <Loading/>
-  if (tagError) {
-    return <Loading/> //TODO
-  }
-  if (!tag) {
+  } else if (tagError) {
+    return <Components.ErrorPage error={tagError}/>
+  } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
     }
@@ -765,10 +807,11 @@ const LWTagPage = () => {
 
   const tagPostsAndCommentsSection = (
     <div className={classes.centralColumn}>
-      {editing && <TagDiscussionSection
+      {/* disabling this for now as it clutters the page and isn't getting much use, but leaving here for future consideration of somehow restoring it */}
+      {/* {editing && <TagDiscussionSection
         key={tag._id}
         tag={tag}
-      />}
+      />} */}
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
@@ -807,7 +850,7 @@ const LWTagPage = () => {
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
-      heading={<Components.ToCContributorsList topContributors={topContributors} onHoverContributor={onHoverContributor} />}
+      heading={<Components.ToCContributorsList contributors={topContributors.concat(smallContributors)} onHoverContributor={onHoverContributor} />}
       onClickSection={expandAll}
       fixedPositionToc
       hover
@@ -816,6 +859,12 @@ const LWTagPage = () => {
 
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
+      {tag && showEmbeddedPlayer && <>
+        <span className={classNames(classes.nonMobileAudioPlayer)}>
+          <Components.TagAudioPlayerWrapper tag={tag} showEmbeddedPlayer={showEmbeddedPlayer} />
+        </span>
+        <div className={classes.nonMobileAudioPlayerSpaceHolder} />
+      </>}
       {query.flagId && <span>
         <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
           <TagFlagItem 
@@ -844,7 +893,6 @@ const LWTagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {selectedLens?.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        {/* intentionally don't pass in refetchTag or updateSelectedLens here to avoid showing newLens button mobile for clutter reasons */}
         <TagPageButtonRow
           tag={tag}
           selectedLens={selectedLens}
@@ -852,6 +900,10 @@ const LWTagPage = () => {
           setEditing={setEditing}
           hideLabels={true}
           className={classNames(classes.editMenu, classes.mobileButtonRow)}
+          refetchTag={refetchTag}
+          updateSelectedLens={updateSelectedLens}
+          toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+          showEmbeddedPlayer={showEmbeddedPlayer}
         />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
@@ -863,14 +915,22 @@ const LWTagPage = () => {
           />
         }
       </div>
+      {tag && <span className={classNames(classes.mobileAudioPlayer)}>
+          <Components.TagAudioPlayerWrapper
+            tag={tag}
+            showEmbeddedPlayer={showEmbeddedPlayer}
+          />
+        </span>}
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
-        <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
-        {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
-          {'last updated '}
-          {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div>}
+        <span className={classes.contributorRowContent}>
+          <Components.HeadingContributorsList topContributors={topContributors} smallContributors={smallContributors} onHoverContributor={onHoverContributor} />
+          {selectedLens?.textLastUpdatedAt && <>
+            {' '}{'last updated '}
+            <FormatDate date={selectedLens.textLastUpdatedAt} format="Do MMM YYYY" tooltip={false} />
+          </>}
+        </span>
       </div>}
-      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tag={tag} selectedLens={selectedLens} />
     </div>
   );
 
@@ -893,6 +953,7 @@ const LWTagPage = () => {
         },
       ]}
       tocRowMap={[0, 1, 1, 1]}
+      tocContext='tag'
     />
   );
   
@@ -930,6 +991,8 @@ const LWTagPage = () => {
           className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
           refetchTag={refetchTag}
           updateSelectedLens={updateSelectedLens}
+          toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+          showEmbeddedPlayer={showEmbeddedPlayer}
         />
         <Components.SideItemsContainer>
           {multiColumnToc}
@@ -974,6 +1037,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
           className={classes.description}
           replacedSubstrings={inlineReactHighlights}
           onContentReady={initializeRadioHandlers}
+          contentStyleType="tag"
         />
         <PathInfo tag={tag} lens={selectedLens ?? null} />
       </>

@@ -24,6 +24,7 @@ export type TagLens = MultiDocumentMinimumInfo & {
   preview: string | null;
   originalLensDocument: MultiDocumentContentDisplay | MultiDocumentWithContributors | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
+  textLastUpdatedAt: Date | null;
 }
 
 interface TagLensInfo {
@@ -51,12 +52,12 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     slug: 'main',
     oldSlugs: [],
     userId: tag.userId,
-    deleted: false,
+    deleted: tag.deleted,
     createdAt: tag.createdAt,
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
-
+    textLastUpdatedAt: tag.textLastUpdatedAt,
     baseScore: tag.baseScore,
     extendedScore: tag.extendedScore,
     score: tag.score,
@@ -68,17 +69,21 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
   }
 }
 
-export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | TagHistoryFragment | null): TagLens[] {
-  if (!tag?.lenses) return [];
+export function addDefaultLensToLenses(
+  tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | TagHistoryFragment | null,
+  lenses: MultiDocumentContentDisplay[] | MultiDocumentWithContributors[] | MultiDocumentWithContributorsRevision[] | undefined,
+): TagLens[] {
+  if (!tag || !lenses) return [];
   return [
     getDefaultLens(tag),
-    ...tag.lenses.map(lens => ({
+    ...lenses.map(lens => ({
       ...lens,
       index: lens.index + 1,
       title: lens.title ?? tag.name,
       contributors: 'contributors' in lens ? lens.contributors : null,
       arbitalLinkedPages: 'arbitalLinkedPages' in lens ? lens.arbitalLinkedPages : null,
       originalLensDocument: lens,
+      textLastUpdatedAt: lens.textLastUpdatedAt,
     }))
   ];
 }
@@ -88,7 +93,7 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
   const queryLens = query.lens ?? query.l;
   const navigate = useNavigate();
 
-  const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
+  const availableLenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lenses), [tag]);
 
   const querySelectedLens = useMemo(() =>
     availableLenses.find(lens => lens.slug === queryLens || lens.oldSlugs.includes(queryLens) || lens.legacyData?.arbitalPageId === queryLens),

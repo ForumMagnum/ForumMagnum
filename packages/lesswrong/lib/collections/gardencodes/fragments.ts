@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const GardenCodeFragment = `
   fragment GardenCodeFragment on GardenCode {
     _id
     code
@@ -17,9 +15,9 @@ registerFragment(`
       ...RevisionDisplay
     }
   }
-`);
+`
 
-registerFragment(`
+export const GardenCodeFragmentEdit = `
   fragment GardenCodeFragmentEdit on GardenCode {
     _id
     code
@@ -36,5 +34,5 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`
 

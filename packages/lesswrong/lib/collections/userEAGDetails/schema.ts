@@ -1,11 +1,13 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
+import { universalFields } from '../../collectionUtils';
 
 /**
  * This collection is currently just used for targeting job ads on EAF.
  * Values are currently only changed via /scripts/importEAGUserInterests.
  */
 const schema: SchemaType<"UserEAGDetails"> = {
+  ...universalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -46,7 +48,7 @@ const schema: SchemaType<"UserEAGDetails"> = {
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
   },
-  // Looks like: {"Boston": "I’m unwilling or unable to move here"}
+  // Looks like: {"Boston": "I'm unwilling or unable to move here"}
   willingnessToRelocate: {
     type: Object,
     blackbox: true,

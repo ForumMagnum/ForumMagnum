@@ -7,18 +7,6 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
-interface UtilsType {
-  // In server/vulcan-lib/mutators.ts
-  createMutator: CreateMutator
-  updateMutator: UpdateMutator
-  deleteMutator: DeleteMutator
-  
-  // In server/vulcan-lib/utils.ts
-  performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
-}
-
-export const Utils: UtilsType = ({} as UtilsType);
-
 // @summary Convert a camelCase string to a space-separated capitalized string
 // See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
 export const camelToSpaces = function (str: string): string {
@@ -401,6 +389,8 @@ export const sanitize = function(s: string): string {
         'detailsBlockContent',
         'calendly-preview',
         'conditionallyVisibleBlock',
+        'defaultVisible',
+        'defaultHidden',
         /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],

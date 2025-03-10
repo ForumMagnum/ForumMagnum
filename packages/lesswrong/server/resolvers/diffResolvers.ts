@@ -1,7 +1,7 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { isValidCollectionName } from '../../lib/vulcan-lib/getCollection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { editableCollections, editableCollectionsFields, } from '../../lib/editor/make_editable';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection, } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from './htmlDiff';
 import { getPrecedingRev } from '../editor/utils';
@@ -18,10 +18,10 @@ addGraphQLResolvers({
       if (!isValidCollectionName(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
       }
-      if (!editableCollections.has(collectionName)) {
+      if (!getEditableCollectionNames().includes(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
       }
-      if (!editableCollectionsFields[collectionName]!.find(f=>f===fieldName)) {
+      if (!getEditableFieldNamesForCollection(collectionName).find(f=>f===fieldName)) {
         throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
       }
       

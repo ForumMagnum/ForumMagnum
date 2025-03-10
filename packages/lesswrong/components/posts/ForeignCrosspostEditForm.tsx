@@ -1,10 +1,11 @@
 import React from "react";
-import { Components, registerComponent, combineUrls } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { Link } from "../../lib/reactRouterWrapper";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { combineUrls } from "../../lib/vulcan-lib/utils";
 
 const styles = (theme: ThemeType) => ({
   link: {

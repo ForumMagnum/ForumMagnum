@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const ChaptersFragment = `
   fragment ChaptersFragment on Chapter {
     _id
     createdAt
@@ -16,13 +14,13 @@ registerFragment(`
       ...PostsListWithVotes
     }
   }
-`);
+`
 
-registerFragment(`
+export const ChaptersEdit = `
   fragment ChaptersEdit on Chapter {
     ...ChaptersFragment
     contents {
       ...RevisionEdit
     }
   }
-`);
+`

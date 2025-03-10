@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
@@ -41,7 +41,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
       <TagRevisionItem tag={tag} revision={revision} documentId={documentId} headingStyle="abridged" noContainer={true} />
     </div>
   } else {
-    const lens = tag.lenses.find(l => l._id === revision.documentId);
+    const lens = tag.lensesIncludingDeleted.find(l => l._id === revision.documentId);
     // This shouldn't ever actually happen
     if (!lens) {
       return null;

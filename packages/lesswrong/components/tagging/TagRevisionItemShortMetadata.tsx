@@ -1,8 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
-import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { useDialog } from '../common/withDialog';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 
@@ -22,16 +20,22 @@ const styles = (theme: ThemeType) => ({
     marginRight: 16,
     verticalAlign: "baseline",
   },
+  skippedIcon: {
+    cursor: "pointer",
+    "--icon-size": "20px",
+    verticalAlign: "middle",
+    marginRight: 16,
+  },
 });
 
-const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
+const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
   tag: TagBasicInfo,
-  lens?: MultiDocumentContentDisplay | TagLens,
+  url: string,
+  itemDescription?: React.ReactNode,
   revision: RevisionHistoryEntry,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
-  const revUrl = tagGetRevisionLink(tag, revision.version, lens);
+  const { FormatDate, UsersNameDisplay, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote, ForumIcon } = Components
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -44,13 +48,12 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   }
   
   return <>
-    {/* TODO: should we link to the lens via the lens title? */}
-    {lens && <div>Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` (${lens.tabSubtitle})` : ""}`}</div>}
+    {itemDescription}
     <span className={classes.username}>
-      <UsersName documentId={revision.userId}/>
+      <UsersNameDisplay user={revision.user}/>
     </span>
     {" "}
-    <Link to={revUrl}>
+    <Link to={url}>
       <LWTooltip title="View Selected Revision"><>
         <MetaInfo>
           v{revision.version}
@@ -61,6 +64,13 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
       </></LWTooltip>
     </Link>
     {" "}
+    {revision.skipAttributions && <>
+      <LWTooltip title="Excluded from author-attribution.">
+        <span className={classes.skippedIcon}>
+          <ForumIcon icon="Clear"/>
+        </span>
+      </LWTooltip>
+    </>}
     {revision.legacyData?.arbitalPageId && <>
       <LWTooltip title="Imported from Arbital. Click to view original Markdown.">
         <span onClick={showArbitalImportDetails}>
@@ -69,7 +79,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
       </LWTooltip>
     </>}
     <MetaInfo>
-      <Link to={revUrl}>
+      <Link to={url}>
         <ChangeMetricsDisplay changeMetrics={revision.changeMetrics}/>
         {" "}
         {revision.commitMessage}

@@ -1,7 +1,7 @@
 import { registerMigration, fillDefaultValues } from "./migrationUtils";
 import Users from "../../lib/collections/users/collection";
 
-registerMigration({
+export default registerMigration({
   name: "fillUserTheme",
   dateWritten: "2022-10-25",
   idempotent: true,

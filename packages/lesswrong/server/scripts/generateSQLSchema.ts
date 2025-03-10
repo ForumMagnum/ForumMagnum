@@ -1,5 +1,4 @@
 import { format as sqlFormatter } from 'sql-formatter';
-import { Globals } from "../vulcan-lib";
 import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "@/server/sql/Table";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
@@ -10,11 +9,11 @@ import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '@/server/sql/CreateExtensionQuery';
 import CreateIndexQuery from '@/server/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '@/server/sql/Type';
-import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import type { CustomPgIndex } from '../../lib/utils/databaseIndexSet';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '@/server/sql/TableIndex';
+import { getAllIndexes } from '../databaseIndexes/allIndexes';
 
-const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
 
 const schemaFileHeaderTemplate = `-- GENERATED FILE
@@ -250,12 +249,15 @@ class Graph {
 const buildSchemaSQL = () => {
   const graph = new Graph();
   graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
+  const allIndexes = getAllIndexes();
   graph.addNodes(getAllCollections().flatMap((collection) => {
     const table = Table.fromCollection(collection);
-    const indexes: Node[] = table.getRequestedIndexes().map((i) => new IndexNode(table, i));
+    const tableIndexes = (allIndexes.mongoStyleIndexes[collection.collectionName] ?? []).map((i) => new TableIndex(table.getName(), i.key, i.options));
+    const indexes: Node[] = tableIndexes.map((i) => new IndexNode(table, i));
     return indexes.concat(new TableNode(table));
   }));
-  graph.addNodes(expectedCustomPgIndexes.map((i) => new CustomIndexNode(i)));
+  const customPgIndexes = getAllIndexes().customPgIndexes;
+  graph.addNodes(customPgIndexes.map((i) => new CustomIndexNode(i)));
   graph.addNodes(postgresFunctions.map((f) => new FunctionNode(f)));
   graph.addNodes(getAllPostgresViews().flatMap((view) => {
     const indexQueries = view.getCreateIndexQueries();
@@ -285,9 +287,8 @@ const buildSchemaSQL = () => {
   return schemaFileHeaderTemplate + schemaFileContents + "\n";
 }
 
-export const generateSQLSchema = (rootPath = ROOT_PATH) => {
+export const generateSQLSchema = (rootPath: string|null = null) => {
   const sqlSchema = buildSchemaSQL();
-  writeFileSync(acceptedSchemePath(rootPath), sqlSchema);
+  writeFileSync(acceptedSchemePath(rootPath ?? process.cwd()), sqlSchema);
 }
 
-Globals.generateSQLSchema = generateSQLSchema;

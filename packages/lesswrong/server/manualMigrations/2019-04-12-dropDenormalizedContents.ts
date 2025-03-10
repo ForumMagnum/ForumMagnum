@@ -1,14 +1,14 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 
-registerMigration({
+export default registerMigration({
   name: "dropDenormalizedContents",
   dateWritten: "2019-04-12",
   idempotent: true,
   action: async () => {
-    for (let collectionName of editableCollections) {
-      for (let editableField of editableCollectionsFields[collectionName]!) {
+    for (let collectionName of getEditableCollectionNames()) {
+      for (let editableField of getEditableFieldNamesForCollection(collectionName)) {
         // eslint-disable-next-line no-console
         console.log(`Dropping denormalized part of ${collectionName}.${editableField}...`);
         

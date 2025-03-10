@@ -1,6 +1,4 @@
-import { updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
-import { getUser } from '../lib/vulcan-users/helpers';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
 import { Collections } from '../lib/collections/collections/collection';
@@ -9,14 +7,15 @@ import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
 import { runSqlQuery } from '../server/sql/sqlClient';
-
+import { updateMutator } from "./vulcan-lib/mutators";
+import { addGraphQLMutation, addGraphQLResolvers } from "../lib/vulcan-lib/graphql";
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have
 // a partially-read sequence, and update their user object to reflect this
 // status.
 const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string, context: ResolverContext) => {
-  const user = await getUser(userId);
+  const user = await context.loaders.Users.load(userId);
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);

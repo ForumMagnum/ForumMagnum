@@ -58,6 +58,11 @@ type SmartFormCallbacks = {
   revertCallback?: any
 }
 
+export type FormComponentOverridesType = {
+  FormSubmit?: any
+  FormGroupLayout?: any
+};
+
 export interface WrappedSmartFormProps<T extends CollectionNameString> extends SmartFormCallbacks {
   collectionName: T
 
@@ -73,7 +78,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   repeatErrors?: boolean
   noSubmitOnCmdEnter?: boolean
   warnUnsavedChanges?: boolean
-  formComponents?: { FormSubmit?: any, FormGroupLayout?: any }
+  formComponents?: FormComponentOverridesType
   
   // Wasn't in propTypes but used
   id?: string
@@ -82,8 +87,6 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   autoSubmit?: any
   formProps?: any
   
-  queryFragment?: any
-  mutationFragment?: any
   queryFragmentName?: FragmentName
   mutationFragmentName?: FragmentName
 
@@ -93,10 +96,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
    * Warning - passing in a prefetched document into a wrapped smart form might cause unexpected issues for anything using ckEditor, if the loaded document comes back with different data than what was prefetched.
    */
   prefetchedDocument?: T extends keyof FragmentTypesByCollection ? FragmentTypes[FragmentTypesByCollection[T]] : never
-  
-  // fragment: Used externally, but may be erroneous; the internals of the forms seem to only use queryFragment and mutationFragment
-  fragment?: any
-  
+    
   // version: Passed from PostsEditForm, but may be erroneous; does not seem to be used inside the forms code
   version?: "draft"
   
@@ -136,7 +136,7 @@ declare global {
     name: string
     label?: string
     placeholder?: string
-    input?: FormInputType
+    input: FormInputType
     datatype: any
     path: string
     disabled?: boolean
@@ -148,9 +148,8 @@ declare global {
     errors: any[]
     addToDeletedValues: any
     clearFieldErrors: any
-    currentUser?: UsersCurrent|null
     tooltip?: string
-    formComponents: ComponentTypes
+    formComponents?: FormComponentOverridesType
     locale?: string
     max?: number
     nestedInput: any
@@ -159,9 +158,15 @@ declare global {
     setFooterContent?: any
     hideClear?: boolean
   }
-  interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
+  interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
+    beforeComponent?: any
+    afterComponent?: any
+    formInput: React.ComponentType<FormComponentProps<T>>
+    onChange: any
     value: T
+    clearField: (ev?: AnyBecauseTodo) => void
   }
+  type FormComponentProps<T> = Omit<FormComponentInnerWrapperProps<T>, "input"|"formInput">
 
   interface FormButtonProps {
     submitLabel: React.ReactNode;

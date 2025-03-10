@@ -1,9 +1,10 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
-import { formProperties } from '../vulcan-forms/schema_utils';
+import type { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
-import { permissionGroups } from "../permissions";
+import type { permissionGroups } from "../permissions";
 import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
+import type { EditableFieldOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -22,7 +23,8 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
-type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
+type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
+type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
@@ -106,6 +108,51 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
+interface CountOfReferenceOptions {
+  foreignCollectionName: CollectionNameString
+  foreignFieldName: string
+  filterFn?: (obj: AnyBecauseHard) => boolean
+  resyncElastic: boolean
+}
+
+interface SlugCallbackOptions {
+  /**
+   * The collection to add slug fields to.
+   */
+  // collection: CollectionBase<CollectionNameString>,
+
+  /**
+   * If set, check for collisions not just within the same collision, but also
+   * within a provided list of other collections.
+   */
+  collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
+
+  /**
+   * Returns the title that will be used to generate slugs. (This does not have
+   * to already be slugified.)
+   */
+  getTitle: (obj: ObjectsByCollectionName[CollectionNameString] | DbInsertion<ObjectsByCollectionName[CollectionNameString]>) => string,
+  
+  /**
+   * How to handle it when a newly created document's slug, or the new slug in
+   * a document whose slug is being edited, collides with the slug on an
+   * existing document.
+   *   newDocumentGetsSuffix: Add a suffix to the slug of the new document
+   *   rejectNewDocument: Block the creation/edit of the new document that
+   *     had a colliding slug
+   *   rejectIfExplicit: If the colliding slug was inferred from a change to
+   *     the title, deconflict it with a suffix. If the slug was edited
+   *     directly, however, reject the edit.
+   */
+  onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
+
+  /**
+   * If true, adds a field `oldSlugs` and automatically adds to it when slugs
+   * change.
+   */
+  includesOldSlugs: boolean,
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -171,13 +218,10 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   order?: number,
   label?: string,
   tooltip?: string,
-  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
   group?: FormGroupType<N>,
-  inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
@@ -209,12 +253,9 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   }) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 
-  countOfReferences?: {
-    foreignCollectionName: CollectionNameString
-    foreignFieldName: string
-    filterFn?: (obj: AnyBecauseHard) => boolean
-    resyncElastic: boolean
-  }
+  countOfReferences?: CountOfReferenceOptions;
+  editableFieldOptions?: EditableFieldOptions;
+  slugCallbackOptions?: SlugCallbackOptions;
 }
 
 /** Field specification for a Form field, created from the collection schema */
@@ -226,7 +267,7 @@ type FormField<N extends CollectionNameString> = Pick<
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
+  input: FormInputType
   label: string
   help: string
   path: string
@@ -246,7 +287,8 @@ type FormGroupType<N extends CollectionNameString> = {
   startCollapsed?: boolean,
   helpText?: string,
   hideHeader?: boolean,
-  layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  //layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  layoutComponent?: keyof ComponentTypes
   layoutComponentProps?: Partial<FormGroupLayoutProps>,
   fields?: FormField<N>[]
 }

@@ -1,11 +1,13 @@
-import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { addSlugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { createCollection } from '../../vulcan-lib/collections';
+import { slugFields, foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
-import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
-import { makeEditable } from '../../editor/make_editable';
+import { editableFields } from '../../editor/make_editable';
+import { universalFields } from "../../collectionUtils";
+import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 function generateCode(length: number) {
   let result = '';
@@ -29,6 +31,20 @@ export const eventTypes = [
 ]
 
 const schema: SchemaType<"GardenCodes"> = {
+  ...universalFields({}),
+  ...editableFields("GardenCodes", {
+    pingbacks: true,
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 20
+  }),
+
+  ...slugFields("GardenCodes", {
+    getTitle: (gc) => gc.title,
+    includesOldSlugs: false,
+  }),
+  
   code: {
     type: String,
     optional: true,
@@ -155,53 +171,20 @@ const schema: SchemaType<"GardenCodes"> = {
   // },
 };
 
-
-
-//
-// const options = {
-//   newCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     if (!user || !document) return false;
-//     return userCanDo(user, `gardenCodes.new`)
-//   },
-//
-//   editCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     if (!user || !document) return false;
-//     return userCanDo(user, `gardenCode.edit.all`)
-//   },
-//
-//   removeCheck: (user: DbUser|null, document: DbGardenCode|null) => {
-//     // Nobody should be allowed to remove documents completely from the DB.
-//     // Deletion is handled via the `deleted` flag.
-//     return false
-//   },
-// }
-//
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
   schema,
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('GardenCodes', {code: 1, deleted: 1});
+    indexSet.addIndex('GardenCodes', {userId: 1, deleted: 1});
+    indexSet.addIndex('GardenCodes', {code: 1, deleted: 1, userId: 1, });
+    return indexSet;
+  },
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),
   logChanges: true,
 });
-
-addUniversalFields({collection: GardenCodes})
-
-addSlugFields({
-  collection: GardenCodes,
-  getTitle: (gc) => gc.title,
-  includesOldSlugs: false,
-});
-
-makeEditable({
-  collection: GardenCodes,
-  options: {
-    pingbacks: true,
-    commentEditor: true,
-    commentStyles: true,
-    hideControls: true,
-    order: 20
-  }
-})
 
 export default GardenCodes;

@@ -1,7 +1,6 @@
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { cheerioParse, tokenizeHtml } from '../utils/htmlUtil';
 import { sanitize } from '../../lib/vulcan-lib/utils';
-import { Globals } from '../vulcan-lib';
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {
   // Normalize unicode and &entities; so that smart quotes changing form won't
@@ -32,7 +31,15 @@ export const trimHtmlDiff = (html: string): string => {
   
   rootElement.children().each(function(i, elem) {
     const e = $(elem)
-    if (!e.find('ins').length && !e.find('del').length) {
+    let isInsDel = false;
+    for (const node of e) {
+      if (node.type === 'tag') {
+        if (node.tagName === 'ins' || node.tagName === 'del') {
+          isInsDel = true;
+        }
+      }
+    }
+    if (!isInsDel && !e.find('ins').length && !e.find('del').length) {
       e.remove()
     }
   })
@@ -78,5 +85,3 @@ export function normalizeHtmlForDiff(html: string): string {
     }
   }).join("");
 }
-
-Globals.normalizeHtmlForDiff = normalizeHtmlForDiff;

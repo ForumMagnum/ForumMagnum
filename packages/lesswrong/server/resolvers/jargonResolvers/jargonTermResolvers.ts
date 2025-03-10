@@ -1,15 +1,15 @@
 import JargonTerms from "@/lib/collections/jargonTerms/collection";
 import { augmentFieldsDict } from "@/lib/utils/schemaUtils";
-import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
+import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
 import Revisions from "@/lib/collections/revisions/collection";
 
 augmentFieldsDict(JargonTerms, {
   humansAndOrAIEdited: {
     resolveAs: {
       type: 'String',
-      resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsDefaultFragment['humansAndOrAIEdited'] | null> => {
-        const botAccount = await getAdminTeamAccount();
-        if (!botAccount) {
+      resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsPost['humansAndOrAIEdited'] | null> => {
+        const botAccountId = await getAdminTeamAccountId();
+        if (!botAccountId) {
           return null;
         }
 
@@ -24,8 +24,8 @@ augmentFieldsDict(JargonTerms, {
           return null;
         }
         
-        const madeByAI = earliestRevision.userId === botAccount._id;
-        const editedByHumans = latestRevision.userId !== botAccount._id;
+        const madeByAI = earliestRevision.userId === botAccountId;
+        const editedByHumans = latestRevision.userId !== botAccountId;
 
         if (madeByAI && editedByHumans) {
           return 'humansAndAI';

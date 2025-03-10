@@ -1,6 +1,4 @@
-import { registerFragment } from "../../vulcan-lib";
-
-registerFragment(`
+export const ElectionVoteInfo = `
   fragment ElectionVoteInfo on ElectionVote {
     _id
     electionName
@@ -12,12 +10,12 @@ registerFragment(`
     userExplanation
     userOtherComments
   }
-`);
+`
 
-registerFragment(`
+export const ElectionVoteRecentDiscussion = `
   fragment ElectionVoteRecentDiscussion on ElectionVote {
     _id
     electionName
     submittedAt
   }
-`);
+`

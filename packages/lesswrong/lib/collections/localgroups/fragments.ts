@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const localGroupsBase = `
   fragment localGroupsBase on Localgroup {
     _id
     createdAt
@@ -27,30 +25,30 @@ registerFragment(`
     inactive
     deleted
   }
-`);
+`
 
-registerFragment(`
+export const localGroupsHomeFragment = `
   fragment localGroupsHomeFragment on Localgroup {
     ...localGroupsBase
     contents {
       ...RevisionDisplay
     }
   }
-`);
+`
 
-registerFragment(`
+export const localGroupsEdit = `
   fragment localGroupsEdit on Localgroup {
     ...localGroupsBase
     contents {
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const localGroupsIsOnline = `
   fragment localGroupsIsOnline on Localgroup {
     _id
     name
     isOnline
   }
-`);
+`

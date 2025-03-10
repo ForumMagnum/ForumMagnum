@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil'
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
   tag: TagFragment,
@@ -14,18 +13,21 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   changeCallback?: any,
   warnUnsavedChanges?: boolean,
 }) => {
-  return <Components.WrappedSmartForm
-    key={`${tag?._id}_${tag?.description?.version}`}
-    collectionName="Tags"
-    documentId={tag._id}
-    queryFragment={getFragment('TagEditFragment')}
-    mutationFragment={getFragment('TagWithFlagsFragment')}
-    successCallback={successCallback}
-    cancelCallback={cancelCallback}
-    addFields={isLWorAF ? ['summaries'] : []}
-    warnUnsavedChanges={warnUnsavedChanges}
-    changeCallback={changeCallback}
-  />
+  const { ContentStyles } = Components;
+  return <ContentStyles contentType="tag">
+    <Components.WrappedSmartForm
+      key={`${tag?._id}_${tag?.description?.version}`}
+      collectionName="Tags"
+      documentId={tag._id}
+      queryFragmentName={'TagEditFragment'}
+      mutationFragmentName={'TagWithFlagsFragment'}
+      successCallback={successCallback}
+      cancelCallback={cancelCallback}
+      addFields={isLWorAF ? ['summaries'] : []}
+      warnUnsavedChanges={warnUnsavedChanges}
+      changeCallback={changeCallback}
+    />
+  </ContentStyles>
 }
 
 const EditTagPage = () => {

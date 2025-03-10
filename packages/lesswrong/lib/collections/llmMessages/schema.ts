@@ -1,6 +1,7 @@
 import { userHasLlmChat } from "@/lib/betas";
+import { universalFields } from "@/lib/collectionUtils";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { userOwns } from "@/lib/vulcan-users";
+import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 
 const messageRoles = new TupleSet(["user", "assistant", "user-context", "assistant-context", "lw-assistant"] as const);
 export const llmVisibleMessageRoles = new TupleSet(["user", "assistant", "assistant-context", "lw-assistant"] as const);
@@ -10,6 +11,8 @@ export const userVisibleMessageRoles = new TupleSet(["user", "assistant", "user-
 export type UserVisibleMessageRole = UnionOf<typeof userVisibleMessageRoles>;
 
 const schema: SchemaType<"LlmMessages"> = {
+  ...universalFields({}),
+
   userId: {
     type: String,
     optional: false,

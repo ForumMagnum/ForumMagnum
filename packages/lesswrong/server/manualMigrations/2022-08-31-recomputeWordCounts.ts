@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from "./migrationUtils";
-import { editableCollections, editableCollectionsFields } from "../../lib/editor/make_editable"
-import { getCollection } from "../../lib/vulcan-lib";
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from "../../lib/editor/make_editable"
+import { getCollection } from "../../lib/vulcan-lib/getCollection";
 import { dataToWordCount } from "../editor/conversionUtils";
 import { Revisions } from "../../lib/collections/revisions/collection";
 
@@ -9,7 +9,7 @@ import { Revisions } from "../../lib/collections/revisions/collection";
  * fields using dataToWordCount. It's based on 2019-02-14-computeWordCounts
  * which only creates word counts for documents where the field is undefined.
  */
-registerMigration({
+export default registerMigration({
   name: "recomputeWordCounts",
   dateWritten: "2022-08-31",
   idempotent: true,
@@ -43,8 +43,8 @@ registerMigration({
         }
       },
     });
-    for (const collectionName of editableCollections) {
-      for (const fieldName of editableCollectionsFields[collectionName]!) {
+    for (const collectionName of getEditableCollectionNames()) {
+      for (const fieldName of getEditableFieldNamesForCollection(collectionName)) {
         const collection: CollectionBase<any> = getCollection(collectionName)
         await forEachDocumentBatchInCollection({
           collection,

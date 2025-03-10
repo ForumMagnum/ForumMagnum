@@ -1,8 +1,5 @@
 import * as _ from 'underscore';
-import { ensureIndex } from './collectionIndexUtils';
-import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
-export { getDefaultMutations } from './vulcan-core/default_mutations';
-export { getDefaultResolvers } from './vulcan-core/default_resolvers';
+import { schemaDefaultValue } from './utils/schemaUtils';
 
 declare module "simpl-schema" {
   interface SchemaDefinition {
@@ -13,18 +10,16 @@ declare module "simpl-schema" {
   }
 }
 
-export function addUniversalFields<N extends CollectionNameString>({
-  collection,
+export function universalFields({
   schemaVersion = 1,
   createdAtOptions = {},
   legacyDataOptions = {},
 }: {
-  collection: CollectionBase<N>,
   schemaVersion?: number
   createdAtOptions?: Partial<CollectionFieldPermissions>,
   legacyDataOptions?: Partial<CollectionFieldPermissions>,
-}): void {
-  addFieldsDict(collection, {
+}) {
+  const universalFields: Record<string, CollectionFieldSpecification<CollectionNameString>> = {
     _id: {
       optional: true,
       nullable: false,
@@ -58,22 +53,11 @@ export function addUniversalFields<N extends CollectionNameString>({
       canUpdate: ['admins'],
       ...legacyDataOptions,
     },
-  })
-  ensureIndex(collection, {schemaVersion: 1});
+  };
+
+  return universalFields;
 }
 
 export function isUniversalField(fieldName: string): boolean {
   return fieldName==="_id" || fieldName==="schemaVersion";
-}
-
-export function isUnbackedCollection<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-): boolean {
-  const collectionName: string = collection.collectionName;
-  if (collectionName === 'Settings' || collectionName === 'Callbacks') {
-    // Vulcan collections with no backing database table
-    return true;
-  }
-  
-  return false;
 }

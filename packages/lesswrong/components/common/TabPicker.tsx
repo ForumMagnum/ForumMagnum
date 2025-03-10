@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
 
 const rightFadeStyle = (theme: ThemeType) => ({

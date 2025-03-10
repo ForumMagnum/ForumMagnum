@@ -1,4 +1,7 @@
+import { universalFields } from '../../collectionUtils';
+
 const schema: SchemaType<"ManifoldProbabilitiesCaches"> = {
+  ...universalFields({}),
   marketId: {
     type: String,
     optional: false,

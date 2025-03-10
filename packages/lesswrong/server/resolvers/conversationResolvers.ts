@@ -1,8 +1,8 @@
 import { forumSelect } from "@/lib/forumTypeUtils";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { createMutator } from "../vulcan-lib";
+import { createMutator } from "../vulcan-lib/mutators";
 import { adminAccountSetting } from "@/lib/publicSettings";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)

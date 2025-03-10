@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const SuggestAlignmentComment = `
   fragment SuggestAlignmentComment on Comment {
     ...CommentsList
     post {
@@ -11,4 +9,4 @@ registerFragment(`
       _id
       displayName
     }
-  }`)
+  }`

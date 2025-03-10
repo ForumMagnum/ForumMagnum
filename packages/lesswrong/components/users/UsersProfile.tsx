@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -232,7 +232,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug) && !user.deleted) {
+    if (slug !== user.slug && user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
