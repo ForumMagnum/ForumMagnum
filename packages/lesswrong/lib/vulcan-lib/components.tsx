@@ -17,6 +17,11 @@ type ComponentOptions = StyleOptions & {
   // be passed as an extra prop named "classes".
   styles?: any
 
+  // Whether this component can take a ref. If set, forwardRef is used to pass
+  // the ref across any higher-order components. If not set, and HoCs are
+  // present, the ref may not work work.
+  allowRef?: boolean
+
   // Array of higher-order components that this component should be wrapped
   // with.
   hocs?: Array<any>
@@ -78,17 +83,30 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const addClassnames = (componentName: string, styles: any) => {
+const addClassnames = (componentName: string, styles: any, hasForwardRef: boolean) => {
   const classesProxy = classNameProxy(componentName+'-');
-  return (WrappedComponent: any) => forwardRef((props, ref) => {
-    const emailRenderContext = React.useContext(EmailRenderContext);
-    if (emailRenderContext?.isEmailRender) {
-      const withStylesHoc = withStyles(styles, {name: componentName})
-      const StylesWrappedComponent = withStylesHoc(WrappedComponent)
-      return <StylesWrappedComponent {...props}/>
+  
+  if (hasForwardRef) {
+    return (WrappedComponent: any) => forwardRef((props, ref) => {
+      const emailRenderContext = React.useContext(EmailRenderContext);
+      if (emailRenderContext?.isEmailRender) {
+        const withStylesHoc = withStyles(styles, {name: componentName})
+        const StylesWrappedComponent = withStylesHoc(WrappedComponent)
+        return <StylesWrappedComponent {...props}/>
+      }
+      return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
+    })
+  } else {
+    return (WrappedComponent: any) => (props: AnyBecauseHard) => {
+      const emailRenderContext = React.useContext(EmailRenderContext);
+      if (emailRenderContext?.isEmailRender) {
+        const withStylesHoc = withStyles(styles, {name: componentName})
+        const StylesWrappedComponent = withStylesHoc(WrappedComponent)
+        return <StylesWrappedComponent {...props}/>
+      }
+      return <WrappedComponent {...props} classes={classesProxy}/>
     }
-    return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
-  })
+  }
 }
 
 /**
@@ -127,7 +145,7 @@ export function registerComponent<PropType>(
     if (isClient && (window?.missingMainStylesheet || enableVite)) {
       hocs.push(withAddClasses(styles, name, options));
     } else {
-      hocs.push(addClassnames(name, styles));
+      hocs.push(addClassnames(name, styles, options?.allowRef ?? false));
     }
   }
   
