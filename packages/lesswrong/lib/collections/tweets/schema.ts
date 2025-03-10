@@ -1,5 +1,7 @@
+import { universalFields } from "@/lib/collectionUtils";
 
 const schema: SchemaType<"Tweets"> = {
+  ...universalFields({}),
   postId: {
     type: String,
     nullable: false,

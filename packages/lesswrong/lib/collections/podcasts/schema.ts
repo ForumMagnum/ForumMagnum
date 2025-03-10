@@ -1,4 +1,8 @@
+import { universalFields } from "@/lib/collectionUtils";
+
 const schema: SchemaType<"Podcasts"> = {
+  ...universalFields({}),
+
   title: {
     type: String,
     optional: false,

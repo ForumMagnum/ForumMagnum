@@ -49,6 +49,11 @@ import type {
   runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
 } from '../editor/make_editable_callbacks';
 import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
+import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from '../utils/slugUtil';
+import { isElasticEnabled } from '@/lib/instanceSettings';
+import { searchIndexedCollectionNamesSet } from '@/lib/search/searchUtil';
+// This needs to be import type to avoid a dependency cycle
+import type { elasticSyncDocument as elasticSyncDocumentType } from '../search/elastic/elasticCallbacks';
 
 const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
@@ -129,11 +134,17 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   const hooks = getCollectionHooks(collectionName);
 
+  // There are some functions we need to run in various mutator stages which themselves call mutators somewhere,
+  // so to avoid dependency cycles we need to dynamically import them.
   const { runCreateBeforeEditableCallbacks, runCreateAfterEditableCallbacks, runNewAsyncEditableCallbacks }: {
     runCreateBeforeEditableCallbacks: typeof runCreateBeforeEditableCallbacksType,
     runCreateAfterEditableCallbacks: typeof runCreateAfterEditableCallbacksType,
     runNewAsyncEditableCallbacks: typeof runNewAsyncEditableCallbacksType,
   } = require('../editor/make_editable_callbacks');
+
+  const { elasticSyncDocument }: {
+    elasticSyncDocument: typeof elasticSyncDocumentType,
+  } = require('../search/elastic/elasticCallbacks');
 
   /*
 
@@ -213,6 +224,9 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  document = await runSlugCreateBeforeCallback(properties);
+
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
@@ -291,6 +305,11 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   await hooks.createAsync.runCallbacksAsync(
     [{ ...afterCreateProperties, document: completedDocument, newDocument: completedDocument }],
   );
+
+  if (isElasticEnabled && searchIndexedCollectionNamesSet.has(collectionName)) {
+    void elasticSyncDocument(collectionName, insertedId);
+  }
+
   logger('newAsync')
   // OpenCRUD backwards compatibility
   await hooks.newAsync.runCallbacksAsync([
@@ -352,6 +371,10 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     runUpdateAfterEditableCallbacks: typeof runUpdateAfterEditableCallbacksType,
     runEditAsyncEditableCallbacks: typeof runEditAsyncEditableCallbacksType,
   } = require('../editor/make_editable_callbacks');
+
+  const { elasticSyncDocument }: {
+    elasticSyncDocument: typeof elasticSyncDocumentType,
+  } = require('../search/elastic/elasticCallbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -437,6 +460,9 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  data = await runSlugUpdateBeforeCallback(properties);
+  
   logger('updateBefore')
   data = await hooks.updateBefore.runCallbacks({
     iterator: data,
@@ -544,6 +570,10 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     newDoc: document,
     props: properties,
   });
+
+  if (isElasticEnabled && searchIndexedCollectionNamesSet.has(collectionName)) {
+    void elasticSyncDocument(collectionName, document._id);
+  }
   
   void require('../fieldChanges').logFieldChanges({currentUser, collection, oldDocument, data: origData});
 

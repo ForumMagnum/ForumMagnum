@@ -1,8 +1,9 @@
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from '../../collectionUtils';
+import { universalFields } from '../../collectionUtils';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const schema: SchemaType<"LegacyData"> = {
+  ...universalFields({}),
   objectId: {
     type: String,
     nullable: false,
@@ -23,7 +24,5 @@ export const LegacyData: LegacyDataCollection = createCollection({
     return indexSet;
   },
 });
-
-addUniversalFields({collection: LegacyData});
 
 export default LegacyData;

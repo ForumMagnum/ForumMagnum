@@ -2,7 +2,6 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -38,7 +37,5 @@ export const RSSFeeds: RSSFeedsCollection = createCollection({
   mutations: getDefaultMutations('RSSFeeds', options),
   logChanges: true,
 });
-
-addUniversalFields({collection: RSSFeeds})
 
 export default RSSFeeds;

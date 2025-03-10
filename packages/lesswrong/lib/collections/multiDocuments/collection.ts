@@ -1,9 +1,7 @@
 import schema from "./schema";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
-import { addSlugFields } from "@/lib/utils/schemaUtils";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
-import { addUniversalFields } from "@/lib/collectionUtils";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
@@ -42,15 +40,6 @@ export const MultiDocuments = createCollection({
   voteable: {
     timeDecayScoresCronjob: false,
   },
-});
-
-addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
-addSlugFields({
-  collection: MultiDocuments,
-  collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
-  getTitle: (md) => md.title ?? md.tabTitle,
-  onCollision: "rejectNewDocument",
-  includesOldSlugs: true,
 });
 
 MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {

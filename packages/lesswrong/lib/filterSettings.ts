@@ -172,13 +172,13 @@ export const filterModeIsSubscribed = (filterMode: FilterMode) =>
  * A simple wrapper on top of useFilterSettings focused on a single tag
  * subscription
  */
-export const useSubscribeUserToTag = (tag?: TagBasicInfo) => {
+export const useSubscribeUserToTag = (tag?: Pick<TagBasicInfo, "_id" | "name">) => {
   const { filterSettings, setTagFilter } = useFilterSettings()
   
   const tagFilterSetting = filterSettings.tags.find(ft => tag && ft.tagId === tag._id)
   const isSubscribed = !!(tagFilterSetting && (filterModeIsSubscribed(tagFilterSetting.filterMode)))
   
-  const subscribeUserToTag = useCallback((tag: TagBasicInfo, filterMode: FilterMode) => {
+  const subscribeUserToTag = useCallback((tag: Pick<TagBasicInfo, "_id" | "name">, filterMode: FilterMode) => {
     setTagFilter({
       tagId: tag._id,
       tagName: tag.name,
