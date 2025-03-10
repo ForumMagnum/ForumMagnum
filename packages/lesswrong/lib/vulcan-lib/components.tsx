@@ -87,7 +87,7 @@ const addClassnames = (componentName: string, styles: any, hasForwardRef: boolea
   const classesProxy = classNameProxy(componentName+'-');
   
   if (hasForwardRef) {
-    return (WrappedComponent: any) => forwardRef((props, ref) => {
+    return (WrappedComponent: any) => forwardRef(function addClassnames(props, ref) {
       const emailRenderContext = React.useContext(EmailRenderContext);
       if (emailRenderContext?.isEmailRender) {
         const withStylesHoc = withStyles(styles, {name: componentName})
@@ -97,7 +97,7 @@ const addClassnames = (componentName: string, styles: any, hasForwardRef: boolea
       return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
     })
   } else {
-    return (WrappedComponent: any) => (props: AnyBecauseHard) => {
+    return (WrappedComponent: any) => function addClassnames(props: AnyBecauseHard) {
       const emailRenderContext = React.useContext(EmailRenderContext);
       if (emailRenderContext?.isEmailRender) {
         const withStylesHoc = withStyles(styles, {name: componentName})

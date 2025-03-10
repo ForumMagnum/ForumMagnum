@@ -632,6 +632,8 @@ const addNofollowToHTML = (html: string): string => {
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   hocs: [withTracking],
+  
+  // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
   allowRef: true,
 
   // Memoization options. If this spuriously rerenders, then voting on a comment
