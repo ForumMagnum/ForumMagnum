@@ -2,7 +2,6 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
-import { createAdminContext, createMutator, Globals } from '../../vulcan-lib/index.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
 import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
@@ -10,8 +9,10 @@ import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import shuffle from 'lodash/shuffle';
 import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import { fal } from '@fal-ai/client';
-import { falApiKey } from '@/lib/instanceSettings.ts';
+import { falApiKey } from '@/lib/instanceSettings.ts';  
 import type { RunOptions, Result } from '@fal-ai/client';
+import { createAdminContext } from '../../vulcan-lib/query.ts';
+import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
 
 
@@ -199,7 +200,6 @@ const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: 
   return promptElements.map(el => prompter(el))
 }
 
-
 type EssayResult = {
   title: string,
   prompt: string, 
@@ -220,7 +220,8 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
   return results
 }
 
-const getReviewWinnerArts = async () => {
+export const getReviewWinnerArts = async () => {
+  console.log("Running getReviewWinnerArts")
   const essays = (await getEssaysWithoutEnoughArt()).slice(0, 1)
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
@@ -235,5 +236,3 @@ const getReviewWinnerArts = async () => {
   // eslint-disable-next-line no-console
   console.log(results)
 }
-
-Globals.getReviewWinnerArts = getReviewWinnerArts
