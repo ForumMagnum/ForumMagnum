@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-import { registerMigration } from "./migrationUtils";
+import { bulkRawInsert, registerMigration } from "./migrationUtils";
 import LWEvents from "@/lib/collections/lwevents/collection";
 import { executePromiseQueue, sleep } from "@/lib/utils/asyncUtils";
-import { randomId } from "@/lib/random";
 import { FieldChanges } from "@/lib/collections/fieldChanges/collection";
+import chunk from 'lodash/chunk';
+import { randomId } from "@/lib/random";
 
 export default registerMigration({
   name: "fieldChangesPopulateTable",
@@ -25,18 +26,24 @@ export default registerMigration({
     
     console.log(`Got ${fieldChangesFromLWEvents.length} field-change events`);
     console.log("Inserting field changes into the FieldChanges table");
-    await executePromiseQueue(fieldChangesFromLWEvents.map((lwEvent) => async () => {
-      const changeGroupId = randomId();
-      for (const fieldName of Object.keys(lwEvent.properties.after)) {
-        await FieldChanges.rawInsert({
-          userId: lwEvent.userId,
-          changeGroup: changeGroupId,
-          documentId: lwEvent.documentId,
-          fieldName,
-          oldValue: lwEvent.properties.before[fieldName],
-          newValue: lwEvent.properties.after[fieldName],
-        });
-      }
+    const batches = chunk(fieldChangesFromLWEvents.flatMap((lwEvent) => {
+      const changeGroupId = lwEvent._id;
+      return Object.keys(lwEvent.properties.after).map(fieldName => ({
+        _id: randomId(),
+        userId: lwEvent.userId,
+        changeGroup: changeGroupId,
+        documentId: lwEvent.documentId,
+          createdAt: lwEvent.createdAt,
+        fieldName,
+        oldValue: lwEvent.properties.before[fieldName],
+        newValue: lwEvent.properties.after[fieldName],
+        legacyData: null,
+        schemaVersion: 1,
+      }));
+    }), 50);
+    
+    await executePromiseQueue(batches.map((batch) => async () => {
+      await bulkRawInsert("FieldChanges", batch);
     }), 10);
     
     console.log("Removing field changes from the LWEvents table");
