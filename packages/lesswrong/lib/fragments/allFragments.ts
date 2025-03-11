@@ -169,7 +169,7 @@ const staticFragments = {
 
   // Test fragments
   ...testFragments,
-};
+} satisfies Record<string, string>;
 
 // TODO: I originally implemented this with deferred execution because getDefaultFragments needed to be called after the collections were registered
 // But now we're generating the default fragments in a separate step, so maybe we can just do this in one go?

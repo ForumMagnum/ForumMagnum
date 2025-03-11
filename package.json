@@ -71,7 +71,8 @@
     "ea-load-testing-db": "ts-node -r tsconfig-paths/register ./scripts/loadDbSettings.ts testing",
     "ea-replicate-dev-db": "./scripts/eaReplicateDevDb.sh",
     "generate-client-stats": "esbuild-visualizer --metadata ./client_meta.json --filename client_stats.html",
-    "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts"
+    "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts",
+    "create-collection": "scripts/createCollection.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
