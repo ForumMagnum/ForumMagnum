@@ -1,6 +1,7 @@
 import { FieldChanges } from '@/lib/collections/fieldChanges/collection';
 import { getSchema } from '../lib/utils/getSchema';
 import { randomId } from '@/lib/random';
+import { captureException } from '@sentry/core';
 
 export const logFieldChanges = async <
   N extends CollectionNameString
@@ -43,16 +44,22 @@ export const logFieldChanges = async <
   if (Object.keys(loggedChangesAfter).length > 0) {
     const changeGroup = randomId();
 
-    await Promise.all(Object.keys(loggedChangesAfter).map(key =>
-      FieldChanges.rawInsert({
-        userId: currentUser?._id,
-        changeGroup,
-        documentId: oldDocument._id,
-        fieldName: key,
-        oldValue: loggedChangesBefore[key],
-        newValue: loggedChangesAfter[key],
-      })
-    ));
+    try {
+      await Promise.all(Object.keys(loggedChangesAfter).map(key =>
+        FieldChanges.rawInsert({
+          userId: currentUser?._id,
+          changeGroup,
+          documentId: oldDocument._id,
+          fieldName: key,
+          oldValue: loggedChangesBefore[key],
+          newValue: loggedChangesAfter[key],
+        })
+      ));  
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error logging field changes', error);
+      captureException(error);
+    }
   }
 }
 
