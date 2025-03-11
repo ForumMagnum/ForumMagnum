@@ -1202,4 +1202,5 @@ importComponent("WalledGardenHome", () => require("../../components/walledGarden
 importComponent("WalledGardenMessage", () => require("../../components/walledGarden/WalledGardenMessage.tsx"));
 importComponent("WalledGardenPortal", () => require("../../components/walledGarden/WalledGardenPortal.tsx"));
 importComponent("WalledGardenPortalBar", () => require("../../components/walledGarden/WalledGardenPortalBar.tsx"));
+importComponent("UltraFeed", () => require("../../components/ultraFeed/UltraFeed.tsx"));
 

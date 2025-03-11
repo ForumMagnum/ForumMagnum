@@ -1339,4 +1339,4 @@ import "../../components/walledGarden/WalledGardenHome.tsx"
 import "../../components/walledGarden/WalledGardenMessage.tsx"
 import "../../components/walledGarden/WalledGardenPortal.tsx"
 import "../../components/walledGarden/WalledGardenPortalBar.tsx"
-
+import "../../components/ultraFeed/UltraFeed.tsx"

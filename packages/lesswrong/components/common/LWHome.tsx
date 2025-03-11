@@ -5,7 +5,7 @@ import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { userHasUltraFeed, visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
@@ -41,26 +41,12 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
-    QuickTakesSection, LWHomePosts, HeadTags, SectionFooterCheckbox, MixedTypeFeed, FeedPostCommentsCard
+    SingleColumnSection, EAPopularCommentsSection, QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
   } = Components;
 
   const currentUser = useCurrentUser();
-  const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
+  const [ultraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabled = userHasUltraFeed(currentUser) && ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
-
-  const toggleUltraFeed = () => {
-    setUltraFeedCookie(ULTRA_FEED_ENABLED_COOKIE, String(!ultraFeedEnabled), { path: "/", });
-  };
-
-  const ultraFeedToggle = 
-    <div>
-      <SectionFooterCheckbox 
-        value={ultraFeedEnabled} 
-        onClick={toggleUltraFeed} 
-        label="Use UltraFeed"
-      />
-    </div>
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -81,7 +67,7 @@ const LWHome = () => {
             observerProps={{threshold:[0, 0.5, 1]}}
           >
             <LWHomePosts>
-              {userHasUltraFeed(currentUser) && ultraFeedToggle}
+              <UltraFeed />
               {!ultraFeedEnabled && <>
                 <QuickTakesSection />
                 <EAPopularCommentsSection />
@@ -91,30 +77,6 @@ const LWHome = () => {
                   maxAgeHours={18}
                 />
               </>}
-              {/* for now, use the Subscribed MixedType Feed from @lwh/components/common/LWHomePosts.tsx */}
-              {ultraFeedEnabled && 
-                <MixedTypeFeed
-                  resolverName="SubscribedFeed"
-                  firstPageSize={10}
-                  pageSize={20}
-                  sortKeyType="Date"
-                  reorderOnRefetch={true}
-                  renderers={{
-                    postCommented: {
-                      fragmentName: "SubscribedPostAndCommentsFeed",
-                      render: (postCommented: any) => {
-                        return <FeedPostCommentsCard
-                          key={postCommented.post._id}
-                          post={postCommented.post}
-                          comments={postCommented.comments}
-                          maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
-                          refetch={() => {}}
-                        />
-                      },
-                    }
-                  }}
-                />
-              }
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>
