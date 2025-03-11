@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import { bulkRawInsert, registerMigration } from "./migrationUtils";
+import { bulkRawInsert, forEachBucketRangeInCollection, registerMigration } from "./migrationUtils";
 import LWEvents from "@/lib/collections/lwevents/collection";
 import { executePromiseQueue, sleep } from "@/lib/utils/asyncUtils";
 import { FieldChanges } from "@/lib/collections/fieldChanges/collection";
 import chunk from 'lodash/chunk';
 import { randomId } from "@/lib/random";
+import range from "lodash/range";
 
 export default registerMigration({
   name: "fieldChangesPopulateTable",
@@ -19,34 +20,54 @@ export default registerMigration({
     // Also note that development DBs may be created by cloning a production
     // DB with LWEvents omitted, which complicates performance testing. 
 
-    console.log("Loading field changes from the LWEvents table");
-    const fieldChangesFromLWEvents = await LWEvents.find({
-      name: "fieldChanges"
-    }).fetch();
+    const oldestFieldChange = (await LWEvents.findOne(
+      {name: "fieldChanges"},
+      {sort: {createdAt: 1}}
+    )).createdAt;
+    const totalTimespan = new Date().getTime() - oldestFieldChange.getTime();
+    const numBuckets = 10;
+    const cutoffs: Date[] = range(0,numBuckets).map(i => new Date(
+      oldestFieldChange.getTime() + ((i/numBuckets) * totalTimespan)
+    ));
     
-    console.log(`Got ${fieldChangesFromLWEvents.length} field-change events`);
-    console.log("Inserting field changes into the FieldChanges table");
-    const batches = chunk(fieldChangesFromLWEvents.flatMap((lwEvent) => {
-      const changeGroupId = lwEvent._id;
-      return Object.keys(lwEvent.properties.after).map(fieldName => ({
-        _id: randomId(),
-        userId: lwEvent.userId,
-        changeGroup: changeGroupId,
-        documentId: lwEvent.documentId,
-          createdAt: lwEvent.createdAt,
-        fieldName,
-        oldValue: lwEvent.properties.before[fieldName],
-        newValue: lwEvent.properties.after[fieldName],
-        legacyData: null,
-        schemaVersion: 1,
-      }));
-    }), 50);
+    for (let i=0; i<numBuckets; i++) {
+      console.log("Loading field changes from the LWEvents table");
+      const fieldChangesFromLWEvents = await LWEvents.find({
+        name: "fieldChanges",
+        createdAt: {
+          $gte: cutoffs[i],
+          ...(i+1<numBuckets
+            ? {$lt: cutoffs[i+1]}
+            : {}
+          )
+        },
+      }).fetch();
+      
+      console.log(`Got ${fieldChangesFromLWEvents.length} field-change events starting ${cutoffs[i]}`);
+      console.log("Inserting field changes into the FieldChanges table");
+      const batches = chunk(fieldChangesFromLWEvents.flatMap((lwEvent) => {
+        const changeGroupId = lwEvent._id;
+        return Object.keys(lwEvent.properties.after).map(fieldName => ({
+          _id: randomId(),
+          userId: lwEvent.userId,
+          changeGroup: changeGroupId,
+          documentId: lwEvent.documentId,
+            createdAt: lwEvent.createdAt,
+          fieldName,
+          oldValue: lwEvent.properties.before[fieldName],
+          newValue: lwEvent.properties.after[fieldName],
+          legacyData: null,
+          schemaVersion: 1,
+        }));
+      }), 50);
+      
+      await executePromiseQueue(batches.map((batch) => async () => {
+        await bulkRawInsert("FieldChanges", batch);
+      }), 10);
+    }
     
-    await executePromiseQueue(batches.map((batch) => async () => {
-      await bulkRawInsert("FieldChanges", batch);
-    }), 10);
-    
-    console.log("Removing field changes from the LWEvents table");
-    await LWEvents.rawRemove({ name: "fieldChanges" });
+    console.log("NOT removing field changes from the LWEvents table");
+    //console.log("Removing field changes from the LWEvents table");
+    //await LWEvents.rawRemove({ name: "fieldChanges" });
   },
 });
