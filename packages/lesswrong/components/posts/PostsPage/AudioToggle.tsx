@@ -38,17 +38,15 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
 }) => {
   const { LWTooltip, ForumIcon } = Components;
 
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-    <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
-    </a>
-  </LWTooltip>
-
   if (!postHasAudioPlayer(post)) {
     return null;
   }
 
-  return audioIcon;
+  return <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+    <a href="#" onClick={toggleEmbeddedPlayer}>
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
+    </a>
+  </LWTooltip>
 }
 
 const AudioToggleComponent = registerComponent('AudioToggle', AudioToggle, {styles});
