@@ -19,6 +19,7 @@ import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { NewPostHowToGuides } from './NewPostHowToGuides';
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -128,7 +129,10 @@ const PostsEditForm = ({ documentId, version }: {
   version?: string | null,
 }) => {
   const classes = useStyles(styles);
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, NewPostModerationWarning } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags,
+    ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning,
+    DynamicTableOfContents, NewPostModerationWarning, NewPostHowToGuides
+  } = Components
 
   const { query, params } = useLocation();
   const navigate = useNavigate();
@@ -240,7 +244,7 @@ const PostsEditForm = ({ documentId, version }: {
   const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
 
   return (
-    <DynamicTableOfContents title={document.title}>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}

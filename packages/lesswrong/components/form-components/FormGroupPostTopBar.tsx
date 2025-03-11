@@ -83,9 +83,9 @@ const styles = defineStyles("FormGroupPostTopBar", (theme: ThemeType) => ({
   editorGuideLink: {}
 }));
 
-const useGetPostEditorGuide = () => {
+const LinkToEditorGuideButton = () => {
   const classes = useStyles(styles);
-  const {LWTooltip, EAButton, ForumIcon, NewPostHowToGuides} = Components;
+  const {LWTooltip, EAButton, ForumIcon} = Components;
   const navigate = useNavigate();
 
   if (isLWorAF) {
@@ -102,11 +102,9 @@ const useGetPostEditorGuide = () => {
         </EAButton>
       </LWTooltip>
     );
+  } else {
+    return null;
   }
-  if (isEAForum) {
-    return <NewPostHowToGuides />;
-  }
-  return undefined;
 }
 
 const FormGroupPostTopBar = ({ children }: FormGroupLayoutProps) => {
@@ -125,7 +123,7 @@ const FormGroupPostTopBar = ({ children }: FormGroupLayoutProps) => {
       <div className={classes.tabs}>{tabs}</div>
       <div className={classes.otherChildren}>
         {hasGoogleDocImportSetting.get() && <GoogleDocImportButton postId={postId} version={version} />}
-        {useGetPostEditorGuide()}
+        <LinkToEditorGuideButton />
         {otherChildren}
       </div>
     </div>
