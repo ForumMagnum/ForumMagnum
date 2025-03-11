@@ -175,6 +175,8 @@ const PostsNewForm = () => {
         }
       })();
     }
+  // Disable warning because lint doesn't know depending on JSON.stringify(prefilledProps) is the same as depending on prefilledProps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser, currentUserWithModerationGuidelines, templateLoading, createPost, navigate, JSON.stringify(prefilledProps)]);
 
   if (!currentUser) {
