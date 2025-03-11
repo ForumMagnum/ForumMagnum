@@ -161,7 +161,7 @@ const PostsNewForm = () => {
   useEffect(() => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
-      (async () => {
+      void (async () => {
         const insertableFields = getInsertableFields(getSchema(Posts), currentUser);
         const { data, errors } = await createPost.create({
           data: {
@@ -175,7 +175,7 @@ const PostsNewForm = () => {
         }
       })();
     }
-  }, [currentUser, currentUserWithModerationGuidelines, templateLoading, createPost, navigate, prefilledProps]);
+  }, [currentUser, currentUserWithModerationGuidelines, templateLoading, createPost, navigate, JSON.stringify(prefilledProps)]);
 
   if (!currentUser) {
     return (<LoginForm />);

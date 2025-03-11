@@ -268,7 +268,7 @@ export const EditorFormComponent = ({
         variables: { postId: document._id, contents: newContents }
       });
     }
-  }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
+  }, [currentUser, collectionName, fieldName, updatedFormType, document._id, updateCurrentValues, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
