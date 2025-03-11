@@ -170,7 +170,6 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 
 const isProduction = !!opts.production;
 const isE2E = !!opts.e2e;
-const isCodegen = !!opts.codegen;
 const settingsFile = opts.settings || "settings.json"
 
 // Allow FM_WATCH to override the --watch CLI flag that is passed in
@@ -207,7 +206,7 @@ const bundleDefinitions: Record<string,string> = {
   "bundleIsProduction": `${isProduction}`,
   "bundleIsTest": "false",
   "bundleIsIntegrationTest": "false",
-  "bundleIsCodegen": `${isCodegen}`,
+  "bundleIsCodegen": "false",
   "bundleIsE2E": `${isE2E}`,
   "bundleIsMigrations": "false",
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
