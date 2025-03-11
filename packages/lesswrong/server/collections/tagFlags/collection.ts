@@ -2,7 +2,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import '@/lib/collections/tagFlags/fragments'
 import { userCanDo } from '@/lib/vulcan-users/permissions';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import schema from '@/lib/collections/tagFlags/schema';
 

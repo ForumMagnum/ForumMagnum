@@ -3,7 +3,7 @@ import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument } from "@/lib/collections/multiDocuments/helpers";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers.ts";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const MultiDocuments = createCollection({

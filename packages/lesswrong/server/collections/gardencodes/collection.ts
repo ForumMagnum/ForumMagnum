@@ -1,6 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import '@/lib/collections/gardencodes/fragments';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import schema from '@/lib/collections/gardencodes/schema';
