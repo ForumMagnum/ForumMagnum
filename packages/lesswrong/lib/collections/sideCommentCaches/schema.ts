@@ -1,4 +1,5 @@
 import { foreignKeyField } from "../../utils/schemaUtils"
+import { universalFields } from "../../collectionUtils";
 
 // Deny all permissions on these objects - they're only used internally
 const commonFields = () => ({
@@ -11,6 +12,7 @@ const commonFields = () => ({
 });
 
 const schema: SchemaType<"SideCommentCaches"> = {
+  ...universalFields({}),
   postId: {
     ...commonFields(),
     ...foreignKeyField({

@@ -1,7 +1,6 @@
 import { createCollection } from '../../vulcan-lib/collections';
 import schema from './schema';
 import { userIsAdminOrMod } from '../../vulcan-users/permissions';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 
 export const Votes: VotesCollection = createCollection({
@@ -15,7 +14,5 @@ Votes.checkAccess = async (currentUser: DbUser|null, vote: DbVote, context: Reso
   if (!currentUser) return false;
   return (vote.userId===currentUser._id || userIsAdminOrMod(currentUser));
 }
-
-addUniversalFields({collection: Votes})
 
 export default Votes;

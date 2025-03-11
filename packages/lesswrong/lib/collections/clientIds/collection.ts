@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib/collections';
-import { addUniversalFields } from "../../collectionUtils";
 import { getDefaultResolvers } from "../../vulcan-core/default_resolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import { CollectionViewSet } from '@/lib/views/collectionViewSet';
@@ -21,11 +20,6 @@ export const ClientIds: ClientIdsCollection = createCollection({
 ClientIds.checkAccess = async (currentUser: DbUser|null, clientId: DbClientId, context: ResolverContext|null): Promise<boolean> => {
   return currentUser?.isAdmin ?? false;
 }
-
-addUniversalFields({
-  collection: ClientIds,
-  createdAtOptions: {canRead: ['admins']},
-});
 
 declare global {
   interface ClientIdsViewTerms extends ViewTermsBase {

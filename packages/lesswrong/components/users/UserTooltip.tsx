@@ -21,12 +21,13 @@ const styles = () => ({
   }
 });
 
-const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, classes}: {
+const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children, classes}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
   // LW specific
   hideFollowButton?: boolean,
+  disabled?: boolean,
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -42,6 +43,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
       clickable={!isFriendlyUI}
+      disabled={disabled}
     >
       {children}
     </HoverOver>

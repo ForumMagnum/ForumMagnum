@@ -1,6 +1,8 @@
 import type { DbTarget } from "./PgCollection";
+import { isProduction } from "@/lib/executionEnvironment";
 
 export const logAllQueries = false;
+export const measureSqlBytesDownloaded = !isProduction;
 
 /** Main sql client which is safe to use for all queries */
 let sql: SqlClient | null = null;
