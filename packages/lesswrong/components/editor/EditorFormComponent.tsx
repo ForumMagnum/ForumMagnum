@@ -264,17 +264,9 @@ export const EditorFormComponent = ({
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
       autosaveContentsRef.current = newContents;
-      if (updatedFormType === 'new') {
-        setUpdatedFormType('edit');
-        const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
-        await updateCurrentValues({ draft: true, ...defaultTitle });
-        // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
-        await submitForm(null, { noReload: true });
-      } else {
-        await autosaveRevision({ 
-          variables: { postId: document._id, contents: newContents }
-        });
-      }
+      await autosaveRevision({
+        variables: { postId: document._id, contents: newContents }
+      });
     }
   }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
 

@@ -1,26 +1,14 @@
 import { useMessages } from '../common/withMessages';
 import Posts, { userCanPost } from '../../lib/collections/posts/collection';
-import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
+import { postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
-import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
-import type { PostSubmitProps } from './PostSubmit';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { QuestionIcon } from '../icons/questionIcon';
-import DeferRender from '../common/DeferRender';
-import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { useStyles } from '../hooks/useStyles';
-import { styles } from './PostsEditForm';
 import { useCreate } from '@/lib/crud/withCreate';
 import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
 import { getSchema } from '@/lib/utils/getSchema';
@@ -103,20 +91,10 @@ function usePrefetchForAutosaveRedirect() {
 }
 
 const PostsNewForm = () => {
-  const classes = useStyles(styles);
-  const {
-    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
-    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
-  } = Components;
-
+  const { LoginForm, SingleColumnSection, Typography, Loading } = Components;
   const { query } = useLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { flash } = useMessages();
-  const { openDialog } = useDialog();
-
-  const prefetchPostFragmentsForRedirect = usePrefetchForAutosaveRedirect();
 
   const templateId = query && query.templateId;
   const debateForm = !!(query && query.debate);

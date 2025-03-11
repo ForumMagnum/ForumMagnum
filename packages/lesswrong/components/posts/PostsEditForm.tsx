@@ -20,8 +20,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-// Also used by PostsNewForm
-export const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
+const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
     maxWidth: 715,
     margin: "0 auto",
@@ -139,11 +138,10 @@ const PostsEditForm = ({ documentId, version }: {
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
 
-  const { bestResult: document, fetchedResult: { loading } } = useSingleWithPreload({
+  const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
-    preloadFragmentName: 'PostsPage',
   });
 
   const { document: userWithRateLimit } = useSingle({
@@ -160,10 +158,7 @@ const PostsEditForm = ({ documentId, version }: {
     fragmentName: 'SuggestAlignmentPost',
   });
 
-  const saveDraftLabel = getDraftLabel(document);
-
-  // If we've been redirected from PostsNewForm because of the post being autosaved, have the WrappedSmartForm try to fetch from the apollo cache first, since we should have prefetched to hydrate it before redirecting.
-  const editFormFetchPolicy = query.autosaveRedirect ? 'cache-first' : undefined;
+  const saveDraftLabel = getDraftLabel(document ?? null);
 
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
@@ -293,8 +288,6 @@ const PostsEditForm = ({ documentId, version }: {
               repeatErrors
               
               addFields={addFields}
-
-              editFormFetchPolicy={editFormFetchPolicy}
             />
           </EditorContext.Provider>
         </DeferRender>
