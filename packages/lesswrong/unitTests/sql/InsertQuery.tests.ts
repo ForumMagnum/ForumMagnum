@@ -137,10 +137,10 @@ describe("InsertQuery", () => {
       expectedArgs: ["abc", 'true', 1],
     },
     {
-      name: "can correctly cast and add a type hint for null values in a JSONB field",
+      name: "can correctly handle null values in a JSONB field",
       getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: null, schemaVersion: 1}),
-      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
-      expectedArgs: ["abc", 'null', 1],
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2 , $3 )`,
+      expectedArgs: ["abc", null, 1],
     },
     {
       name: "can correctly cast and add a type hint for arrays of prmitive values (i.e. text[]) in a JSONB field",
