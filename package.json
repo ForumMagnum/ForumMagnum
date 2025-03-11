@@ -95,7 +95,7 @@
     "@material-ui/icons": "^3.0.0",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "@popperjs/core": "^2.11.5",
-    "@sentry/browser": "^5.12.4",
+    "@sentry/browser": "^7.119.1",
     "@sentry/core": "^5.12.4",
     "@sentry/integrations": "^5.12.4",
     "@sentry/node": "^5.12.4",
