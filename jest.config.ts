@@ -33,6 +33,7 @@ export default {
     "/migrations/",
     "/manualMigrations/",
     "/vendor/",
+    "/components/editor/draftjs-plugins/[^.]+\.d.ts",
   ],
 
   // Indicates which provider should be used to instrument code for coverage
