@@ -148,6 +148,18 @@ describe("InsertQuery", () => {
       expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
       expectedArgs: ["abc", '["test","test2"]', 1],
     },
+    {
+      name: "can correctly cast and add a type hint for dates in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: new Date('2025-01-01'), schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2::JSONB , $3 )`,
+      expectedArgs: ["abc", JSON.stringify(new Date('2025-01-01')), 1],
+    },
+    {
+      name: "can correctly cast and add a type hint for objects with date fields in a JSONB field",
+      getQuery: () => new InsertQuery<DbTestObject5>(testTable5, {_id: "abc", jsonField: { date: new Date('2025-01-01') }, schemaVersion: 1}),
+      expectedSql: `INSERT INTO "TestCollection5" ( "_id" , "jsonField" , "schemaVersion" ) VALUES ( $1 , $2 , $3 )`,
+      expectedArgs: ["abc", { date: new Date('2025-01-01') }, 1],
+    },
   ]);
 });
 

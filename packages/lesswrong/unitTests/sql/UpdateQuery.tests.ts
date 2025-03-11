@@ -110,6 +110,12 @@ describe("UpdateQuery", () => {
       expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
       expectedArgs: ['["test","test2"]', "abc"],
     },
+    {
+      name: "can correctly cast and add a type hint for dates in a JSONB field",
+      getQuery: () => new UpdateQuery<DbTestObject5>(testTable5, {_id: "abc"}, {$set: {jsonField: new Date('2025-01-01')}}),
+      expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
+      expectedArgs: [JSON.stringify(new Date('2025-01-01')), "abc"],
+    },
   ]);
 });
 

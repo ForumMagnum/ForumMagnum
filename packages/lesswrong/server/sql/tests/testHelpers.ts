@@ -151,7 +151,7 @@ registerCollection(TestCollection4);
 export type DbTestObject5 = {
   _id: string,
   schemaVersion: number,
-  jsonField: Json,
+  jsonField: AnyBecauseHard,
 };
 
 export const TestCollection5 = {
