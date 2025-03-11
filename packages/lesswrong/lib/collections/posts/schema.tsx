@@ -3158,6 +3158,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     canRead: ['members'],
+    canCreate: ['members'],
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
   },

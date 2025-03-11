@@ -1,8 +1,8 @@
 import { useMessages } from '../common/withMessages';
-import { userCanPost } from '../../lib/collections/posts/collection';
+import Posts, { userCanPost } from '../../lib/collections/posts/collection';
 import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
@@ -19,125 +19,11 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-
-// Also used by PostsEditForm
-export const styles = (theme: ThemeType) => ({
-  postForm: {
-    maxWidth: 715,
-    margin: "0 auto",
-
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    },
-
-    "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
-      margin: 0,
-      [theme.breakpoints.down('xs')]: {
-        width:125,
-      },
-
-      "& .form-group.row": {
-        marginBottom:0,
-      },
-
-      "& .checkbox": {
-        width: 150,
-        margin: "0 0 6px 0",
-        [theme.breakpoints.down('xs')]: {
-          width: 150,
-        }
-      }
-    },
-    "& .document-new .input-frontpage .checkbox": {
-      marginBottom: 12,
-    },
-    "& .document-new .input-draft .checkbox": {
-      marginBottom: 12,
-    },
-
-    "& .vulcan-form .input-draft": {
-      right:115,
-      width:125,
-      [theme.breakpoints.down('xs')]: {
-        bottom: 50,
-        right: 0,
-        width: 100,
-
-        "& .checkbox": {
-          width: 100,
-        }
-      }
-    },
-
-    "& .vulcan-form .input-frontpage": {
-      right: 255,
-      width: 150,
-      [theme.breakpoints.down('xs')]: {
-        bottom: 50,
-        right: 150,
-        width: 100,
-      }
-    },
-
-    "& .document-edit > div > hr": {
-    // Ray Sept 2017:
-    // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
-    // path: /packages/vulcan-forms/lib/Form.jsx
-      display: "none",
-    },
-
-    "& .form-submit": {
-      textAlign: "right",
-    },
-    
-    "& .form-input.input-url": {
-      margin: 0,
-      width: "100%"
-    },
-    "& .form-input.input-contents": {
-      marginTop: 0,
-    },
-  },
-  formSubmit: {
-    display: "flex",
-    flexWrap: "wrap",
-    marginTop: 20
-  },
-  collaborativeRedirectLink: {
-    color:  theme.palette.secondary.main
-  },
-  modNote: {
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 20,
-    },
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20
-  },
-  editorGuideOffset: {
-    paddingTop: isLW ? 80 : 100,
-  },
-  editorGuide: {
-    display: 'flex',
-    alignItems: 'center',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 10,
-    borderRadius: theme.borderRadius.default,
-    color: theme.palette.primary.main,
-    [theme.breakpoints.up('lg')]: {
-      width: 'max-content',
-      paddingLeft: 20,
-      paddingRight: 20
-    },
-  },
-  editorGuideIcon: {
-    height: 40,
-    width: 40,
-    fill: theme.palette.primary.main,
-    marginRight: -4
-  },
-  editorGuideLink: {}
-})
+import { useStyles } from '../hooks/useStyles';
+import { styles } from './PostsEditForm';
+import { useCreate } from '@/lib/crud/withCreate';
+import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
+import { getSchema } from '@/lib/utils/getSchema';
 
 const prefillFromTemplate = (template: PostsEdit) => {
   return pick(
@@ -168,28 +54,6 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "hasCoauthorPermission",
     ]
   )
-}
-
-export const getPostEditorGuide = (classes: ClassesType<typeof styles>) => {
-  const {LWTooltip, NewPostHowToGuides} = Components;
-  if (isLWorAF) {
-    return (
-      <div className={classes.editorGuideOffset}>
-        <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
-          <div className={classes.editorGuide}>
-            <QuestionIcon className={classes.editorGuideIcon} />
-            <div className={classes.editorGuideLink}>
-              <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>Editor Guide / FAQ</Link>
-            </div>
-          </div>
-        </LWTooltip>
-      </div>
-    );
-  }
-  if (isEAForum) {
-    return <NewPostHowToGuides />;
-  }
-  return undefined;
 }
 
 function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
@@ -238,9 +102,8 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
-const PostsNewForm = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PostsNewForm = () => {
+  const classes = useStyles(styles);
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
@@ -261,9 +124,6 @@ const PostsNewForm = ({classes}: {
   const eventForm = query && query.eventForm
 
   const postCategory = getPostCategory(query, questionInQuery);
-  
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
 
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -288,18 +148,6 @@ const PostsNewForm = ({classes}: {
     fragmentName: "UsersEdit",
     skip: !currentUser,
   });
-
-  const { document: userWithRateLimit } = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentPostRateLimit",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser,
-    extraVariables: { eventForm: 'Boolean' },
-    extraVariablesValues: { eventForm: !!eventForm }
-  });
-
-  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
@@ -326,10 +174,30 @@ const PostsNewForm = ({classes}: {
     }
   }
 
-  const { mutate: updatePost } = useUpdate({
+  const createPost = useCreate({
     collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
+    fragmentName: "PostsEdit",
   });
+
+  const attemptedToCreatePostRef = useRef(false);
+  useEffect(() => {
+    if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
+      attemptedToCreatePostRef.current = true;
+      (async () => {
+        const insertableFields = getInsertableFields(getSchema(Posts), currentUser);
+        const { data, errors } = await createPost.create({
+          data: {
+            title: "Untitled Draft",
+            draft: true,
+            ...pick(prefilledProps, insertableFields),
+          },
+        });
+        if (data) {
+          navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+        }
+      })();
+    }
+  }, [currentUser, currentUserWithModerationGuidelines, templateLoading, createPost, navigate, prefilledProps]);
 
   if (!currentUser) {
     return (<LoginForm />);
@@ -349,80 +217,11 @@ const PostsNewForm = ({classes}: {
   if (templateId && templateLoading) {
     return <Loading />
   }
-
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
-    return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit {...props} />
-    </div>
-  }
-
-  const addFields: string[] = [];
   
-  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
-  if (userCanCreateAndEditJargonTerms(currentUser)) {
-    addFields.push('glossary');
-  }
-
-  return (
-    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
-      <div className={classes.postForm}>
-        <RecaptchaWarning currentUser={currentUser}>
-          <PostsAcceptTos currentUser={currentUser} />
-          {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning
-            contentType="post"
-            lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
-            rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}
-          />}
-          <DeferRender ssr={false}>
-              <WrappedSmartForm
-                collectionName="Posts"
-                mutationFragmentName={'PostsPage'}
-                prefilledProps={prefilledProps}
-                successCallback={(post: any, options: any) => {
-                  if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                  if (options?.submitOptions?.noReload) {
-                    // First prefetch the relevant post fragments to hydrate the apollo cache, then do the navigation after that's done
-                    void prefetchPostFragmentsForRedirect(post._id).then(() => {
-                      const editPostUrl = `${postGetEditUrl(post._id, false, post.linkSharingKey)}&autosaveRedirect=true`;
-                      navigate(editPostUrl, { replace: true });
-                    });
-                  } else if (options?.submitOptions?.redirectToEditor) {
-                    navigate(postGetEditUrl(post._id));
-                  } else {
-                    // If they are publishing a non-draft post, show the share popup
-                    const showSharePopup = !isLWorAF && !post.draft
-                    const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                    const url  = postGetPageUrl(post);
-                    navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
-
-                    const postDescription = post.draft ? "Draft" : "Post";
-                    if (!showSharePopup) {
-                      flash({ messageString: `${postDescription} created`, type: 'success'});
-                    }
-                  }
-                }}
-                eventForm={eventForm}
-                debateForm={debateForm}
-                repeatErrors
-                addFields={addFields}
-                noSubmitOnCmdEnter
-                formComponents={{
-                  FormSubmit: NewPostsSubmit
-                }}
-              />
-          </DeferRender>
-        </RecaptchaWarning>
-      </div>
-    </DynamicTableOfContents>
-
-  );
+  return <Loading/>
 }
 
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, {styles});
+const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm);
 
 declare global {
   interface ComponentTypes {
