@@ -1,6 +1,7 @@
 import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
-import { loadByIds } from "../../loaders";
+import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
+import keyBy from "lodash/keyBy";
 
 // Information about a market, but without bets or comments
 export type LiteMarket = {
@@ -149,8 +150,12 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
     return undefined;
   }
   
-  const cacheItem = await context.ManifoldProbabilitiesCaches.findOne({
-    marketId: post.manifoldReviewMarketId
+  const cacheItem = await getWithCustomLoader(context, "cachesByMarketId", post.manifoldReviewMarketId, async (ids: string[]) => {
+    const probabilitiesCaches = await context.ManifoldProbabilitiesCaches.find({
+      marketId: {$in: ids}
+    }).fetch();
+    const probabilitiesCachesById = keyBy(probabilitiesCaches, c=>c.marketId);
+    return ids.map(id => probabilitiesCachesById[id]);
   });
 
   if (!cacheItem) {

@@ -2164,22 +2164,6 @@ interface PostsListTagWithVotes extends PostsListWithVotes { // fragment on Post
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
-  readonly podcastEpisode: PostsListWithVotes_podcastEpisode|null,
-}
-
-interface PostsListWithVotes_podcastEpisode { // fragment on PodcastEpisodes
-  readonly _id: string,
-  readonly title: string,
-  readonly podcast: PostsListWithVotes_podcastEpisode_podcast,
-  readonly episodeLink: string,
-  readonly externalEpisodeId: string,
-}
-
-interface PostsListWithVotes_podcastEpisode_podcast { // fragment on Podcasts
-  readonly _id: string,
-  readonly title: string,
-  readonly applePodcastLink: string | null,
-  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
