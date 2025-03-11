@@ -490,8 +490,8 @@ interface DbFieldChange extends DbObject {
   documentId: string | null
   fieldName: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  newValue: Json | null
-  oldValue: Json | null
+  newValue: any /*{"definitions":[{"blackbox":true}]}*/
+  oldValue: any /*{"definitions":[{"blackbox":true}]}*/
   userId: string | null
 }
 

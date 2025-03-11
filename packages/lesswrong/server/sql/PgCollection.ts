@@ -190,9 +190,6 @@ class PgCollection<
     options: MongoInsertOptions<ObjectsByCollectionName[N]>,
   ) {
     const insert = new InsertQuery<ObjectsByCollectionName[N]>(this.getTable(), data, options, {returnInserted: true});
-    if (this.collectionName === 'FieldChanges') {
-      console.log('insert', { insert, data, options });
-    }
     const result = await this.executeWriteQuery(insert, {data, options});
     return result[0]._id;
   }

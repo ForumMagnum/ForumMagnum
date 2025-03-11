@@ -27,7 +27,7 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
-    } else if ((typeof this.value !== "object" || Array.isArray(this.value)) && type?.toConcrete() instanceof JsonType) {
+    } else if ((this.value instanceof Date ||typeof this.value !== "object" || Array.isArray(this.value)) && type?.toConcrete() instanceof JsonType) {
       this.value = JSON.stringify(this.value);
       this.typehint = "::JSONB";
     }

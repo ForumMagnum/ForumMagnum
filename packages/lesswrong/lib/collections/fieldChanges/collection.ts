@@ -33,13 +33,11 @@ const schema: SchemaType<"FieldChanges"> = {
   // They should still get deserialized correctly.
   oldValue: {
     type: Object,
-    typescriptType: 'Json',
     blackbox: true,
     canRead: ['members'],
   },
   newValue: {
     type: Object,
-    typescriptType: 'Json',
     blackbox: true,
     canRead: ['members'],
   },

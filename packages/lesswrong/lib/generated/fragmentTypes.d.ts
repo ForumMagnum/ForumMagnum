@@ -931,16 +931,16 @@ interface FieldChangeFragment { // fragment on FieldChanges
 }
 
 interface FieldChangesDefaultFragment { // fragment on FieldChanges
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userId: string,
   readonly changeGroup: string,
   readonly documentId: string,
   readonly fieldName: string,
   readonly oldValue: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly _id: string,
-  readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents

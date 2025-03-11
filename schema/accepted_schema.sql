@@ -917,15 +917,15 @@ CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedRes
 -- Table "FieldChanges"
 CREATE TABLE "FieldChanges" (
   _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
   "userId" VARCHAR(27),
   "changeGroup" TEXT,
   "documentId" TEXT,
   "fieldName" TEXT,
   "oldValue" JSONB,
-  "newValue" JSONB,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB
+  "newValue" JSONB
 );
 
 -- Index "idx_FieldChanges_schemaVersion"
