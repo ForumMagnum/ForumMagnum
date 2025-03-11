@@ -68,6 +68,7 @@ import * as userTagRelsFragments from '../collections/userTagRels/fragments';
 import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
+import * as ultraFeedFragments from '../ultraFeed';
 import { getAllCollections } from '../vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import SqlFragment from '@/server/sql/SqlFragment';
@@ -203,6 +204,7 @@ const staticFragments = {
   ...usersFragments,
   ...votesFragments,
   ...subscribedUserFeedFragments,
+  ...ultraFeedFragments,
   ...testFragments,
 };
 

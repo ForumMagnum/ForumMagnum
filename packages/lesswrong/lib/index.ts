@@ -384,6 +384,7 @@ import './rateLimits/constants';
 import './rateLimits/types';
 
 import './subscribedUsersFeed';
+import './ultraFeed';
 
 import './collections/jargonTerms/collection';
 import './collections/jargonTerms/views';

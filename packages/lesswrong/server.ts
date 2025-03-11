@@ -133,6 +133,7 @@ import './server/resolvers/jargonResolvers/jargonTermResolvers';
 import './server/resolvers/multiDocumentResolvers';
 import './server/resolvers/importUrlAsDraftPost';
 import './server/resolvers/lightcone2024FundraiserResolvers';
+import './server/resolvers/ultraFeedResolver';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

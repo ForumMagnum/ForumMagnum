@@ -6,28 +6,37 @@ import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import { userHasUltraFeed } from '../../lib/betas';
 import { useMulti } from '../../lib/crud/withMulti';
 import type { ObservableQuery } from '@apollo/client';
+import classNames from 'classnames';
+import { recentDisucssionFeedComponents } from '../recentDiscussion/RecentDiscussionFeed';
 
 const styles = (theme: ThemeType) => ({
   toggleContainer: {
-    marginBottom: theme.spacing.unit * 2,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginBottom: 8,
   },
   settingsButton: {
-    '&&': {
-      cursor: 'pointer',
-      color: theme.palette.grey[600],
-      fontSize: '1rem',
-      opacity: 0.75,
-      '&:hover': {
-        opacity: 1,
-      }
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    '&:hover': {
+      opacity: 0.8
     }
+  },
+  feedContainer: {
+    marginTop: 16
+  },
+  feedComementItem: {
+    marginBottom: 16
   }
 });
 
 export const UltraFeed = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SectionFooterCheckbox, MixedTypeFeed, FeedPostCommentsCard, SuggestedFeedSubscriptions } = Components;
+  const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, FeedItemWrapper } = Components;
+  
+  // Get components used in RecentDiscussionFeed for rendering
+  const { ThreadComponent } = recentDisucssionFeedComponents();
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -54,6 +63,13 @@ export const UltraFeed = ({classes}: {
     fragmentName: "SubscriptionState",
     skip: !currentUser
   });
+
+  // Generic refetch function for the feed
+  const refetch = useCallback(() => {
+    if (refetchSubscriptionContentRef.current) {
+      void refetchSubscriptionContentRef.current();
+    }
+  }, [refetchSubscriptionContentRef]);
 
   // Early return if user doesn't have access to UltraFeed
   if (!userHasUltraFeed(currentUser)) {
@@ -89,29 +105,32 @@ export const UltraFeed = ({classes}: {
           settingsButton={suggestedUsersSettingsButton}
           existingSubscriptions={userSubscriptions}
         />
-
-        <MixedTypeFeed
-          resolverName="SubscribedFeed"
-          firstPageSize={10}
-          pageSize={20}
-          sortKeyType="Date"
-          reorderOnRefetch={true}
-          refetchRef={refetchSubscriptionContentRef}
-          renderers={{
-            postCommented: {
-              fragmentName: "SubscribedPostAndCommentsFeed",
-              render: (postCommented: any) => {
-                return <FeedPostCommentsCard
-                  key={postCommented.post._id}
-                  post={postCommented.post}
-                  comments={postCommented.comments}
-                  maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
-                  refetch={() => {}}
-                />
-              },
-            }
-          }}
-        />
+        
+        <div className={classes.feedContainer}>
+          <MixedTypeFeed
+            resolverName="UltraFeed"
+            sortKeyType="Date"
+            firstPageSize={15}
+            pageSize={10}
+            refetchRef={refetchSubscriptionContentRef}
+            renderers={{
+              feedComment: {
+                fragmentName: 'FeedCommentFragment',
+                render: (feedComment) => {
+                  const comment = feedComment.comment;
+                  return (
+                    <FeedItemWrapper sources={feedComment.sources}>
+                      <QuickTakesListItem 
+                        key={comment._id}
+                        quickTake={comment}
+                      />
+                    </FeedItemWrapper>
+                  );
+                }
+              }
+            }}
+          />
+        </div>
       </>}
     </div>
   );
