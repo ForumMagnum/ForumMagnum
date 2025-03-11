@@ -14,7 +14,6 @@ export default {
   coveragePathIgnorePatterns: [
     ...config.coveragePathIgnorePatterns,
     "/unitTests/",
-    "/packages/lesswrong/components/editor/draftjs-plugins/*.d.ts",
   ],
   globals: {
     ...config.globals,
