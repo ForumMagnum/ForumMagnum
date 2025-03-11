@@ -1,3 +1,12 @@
+// Note: this file is modified by the `create-collection` codegen script.
+// Keep that in mind if changing the structure.
+
+// Helper imports
+import SimpleSchema from 'simpl-schema';
+import { isAnyTest, isCodegen } from '../executionEnvironment';
+import { collectionNameToTypeName } from '../generated/collectionTypeNames';
+
+// Collection imports
 import { default as AdvisorRequests } from '../collections/advisorRequests/schema';
 import { default as ArbitalCaches } from '../collections/arbitalCache/schema';
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/schema';
@@ -84,9 +93,6 @@ import { default as UserTagRels } from '../collections/userTagRels/schema';
 import { default as UserActivities } from '../collections/useractivities/schema';
 import { default as Users } from '../collections/users/schema';
 import { default as Votes } from '../collections/votes/schema';
-import { isAnyTest, isCodegen } from '../executionEnvironment';
-import { collectionNameToTypeName } from '../generated/collectionTypeNames';
-import SimpleSchema from 'simpl-schema';
 
 let testSchemas: Record<never, never>;
 if (isAnyTest || isCodegen) {

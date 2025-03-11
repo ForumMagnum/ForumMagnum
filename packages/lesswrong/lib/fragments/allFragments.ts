@@ -1,3 +1,15 @@
+// Note: this file is modified by the `create-collection` codegen script.
+// Keep that in mind if changing the structure.
+
+// Helper imports
+import SqlFragment from '@/server/sql/SqlFragment';
+import type { DocumentNode } from 'graphql';
+import uniq from 'lodash/uniq';
+import { isAnyTest } from '../executionEnvironment';
+
+// Generated default fragments
+import * as defaultFragments from '@/lib/generated/defaultFragments';
+
 // Alignment Forum imports
 import * as alignmentCommentsFragments from '../alignment-forum/comments/fragments';
 import * as alignmentPostsFragments from '../alignment-forum/posts/fragments';
@@ -67,12 +79,9 @@ import * as userRateLimitsFragments from '../collections/userRateLimits/fragment
 import * as userTagRelsFragments from '../collections/userTagRels/fragments';
 import * as usersFragments from '../collections/users/fragments';
 import * as votesFragments from '../collections/votes/fragments';
+
+// Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
-import * as defaultFragments from '@/lib/generated/defaultFragments';
-import SqlFragment from '@/server/sql/SqlFragment';
-import type { DocumentNode } from 'graphql';
-import { isAnyTest } from '../executionEnvironment';
-import uniq from 'lodash/uniq';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
@@ -85,10 +94,12 @@ if (isAnyTest) {
 }
 
 const staticFragments = {
+  // Alignment Forum fragments
   ...alignmentCommentsFragments,
   ...alignmentPostsFragments,
   ...alignmentUsersFragments,
-  
+
+  // Collection fragments
   ...advisorRequestsFragments,
   ...bansFragments,
   ...booksFragments,
@@ -152,7 +163,11 @@ const staticFragments = {
   ...userTagRelsFragments,
   ...usersFragments,
   ...votesFragments,
+
+  // Non-collection fragments
   ...subscribedUserFeedFragments,
+
+  // Test fragments
   ...testFragments,
 };
 

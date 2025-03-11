@@ -1,4 +1,11 @@
+// Note: this file is modified by the `create-collection` codegen script.
+// Keep that in mind if changing the structure.
+
+// Helper imports
 import { isAnyTest, isIntegrationTest, isMigrations } from '@/lib/executionEnvironment';
+import sortBy from 'lodash/sortBy';
+
+// Collection imports
 import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
@@ -85,7 +92,6 @@ import { UserTagRels } from './userTagRels/collection';
 import { UserActivities } from './useractivities/collection';
 import { Users } from './users/collection';
 import { Votes } from './votes/collection';
-import sortBy from 'lodash/sortBy';
 
 let testCollections: Record<never, never>;
 if (isAnyTest && !isIntegrationTest && !isMigrations) {

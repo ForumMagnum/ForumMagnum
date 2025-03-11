@@ -1,3 +1,10 @@
+// Note: this file is modified by the `create-collection` codegen script.
+// Keep that in mind if changing the structure.
+
+// Helper imports
+import { CollectionViewSet } from './collectionViewSet';
+
+// Collection imports
 import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
 import { ChaptersViews } from '../collections/chapters/views';
 import { ClientIdsViews } from '../collections/clientIds/views';
@@ -49,7 +56,6 @@ import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
 import { VotesViews } from '../collections/votes/views';
-import { CollectionViewSet } from './collectionViewSet';
 
 export const allViews = {
   AdvisorRequests: AdvisorRequestsViews,
