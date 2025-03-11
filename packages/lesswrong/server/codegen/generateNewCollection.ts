@@ -198,6 +198,8 @@ async function insertIntoAllSchemas(collectionName: string) {
   
   // eslint-disable-next-line no-console
   console.log(`Updated allSchemas.ts with ${collectionName}`);
+
+  return allSchemasPath;
 }
 
 async function insertIntoAllCollections(collectionName: string) {
@@ -292,6 +294,8 @@ async function insertIntoAllCollections(collectionName: string) {
   
   // eslint-disable-next-line no-console
   console.log(`Updated allCollections.ts with ${collectionName}`);
+
+  return allCollectionsPath;
 }
 
 async function insertIntoAllViews(collectionName: string) {
@@ -359,6 +363,8 @@ async function insertIntoAllViews(collectionName: string) {
   
   // eslint-disable-next-line no-console
   console.log(`Updated allViews.ts with ${collectionName}`);
+
+  return allViewsPath;
 }
 
 async function insertIntoAllFragments(collectionName: string) {
@@ -461,6 +467,8 @@ async function insertIntoAllFragments(collectionName: string) {
   
   // eslint-disable-next-line no-console
   console.log(`Updated allFragments.ts with ${collectionName}`);
+
+  return allFragmentsPath;
 }
 
 export async function generateNewCollection(collectionName?: string) {
@@ -505,10 +513,25 @@ export async function generateNewCollection(collectionName?: string) {
 
   // eslint-disable-next-line no-console
   console.log('Updating allCollections.ts, allViews.ts, allFragments.ts, and allSchemas.ts');
-  await Promise.all([
+  const [allCollectionsPath, allViewsPath, allFragmentsPath, allSchemasPath] = await Promise.all([
     insertIntoAllCollections(collectionName),
     insertIntoAllViews(collectionName),
     insertIntoAllFragments(collectionName),
     insertIntoAllSchemas(collectionName),
   ]);
+
+  // eslint-disable-next-line no-console
+  console.log(`
+    Collection ${collectionName} created successfully.
+    Files created at:
+      ${libPath}
+      ${serverPath}
+    Files modified:
+      ${allCollectionsPath}
+      ${allViewsPath}
+      ${allFragmentsPath}
+      ${allSchemasPath}
+  `);
+  // eslint-disable-next-line no-console
+  console.log('Now running `yarn generate`...');
 }
