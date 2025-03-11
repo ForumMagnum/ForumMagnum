@@ -26,7 +26,7 @@ export const findToSQL = ({ tableName, selector, options }: { tableName: Collect
  */
 export const insertToSQL = <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: ObjectsByCollectionName[N], options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
   const table = Table.fromCollection(getCollection(tableName));
-  const insert = new InsertQuery<ObjectsByCollectionName[N]>(table, data, options);
+  const insert = new InsertQuery<ObjectsByCollectionName[N]>(table, data, options, {returnInserted: true});
   const { sql, args } = insert.compile();
   // eslint-disable-next-line no-console
   console.log({ sql, args });
