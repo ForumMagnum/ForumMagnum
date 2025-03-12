@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser'
-import AddBoxIcon from '@material-ui/icons/AddBox'
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
 
 const includeRelatedQuestionsParam = new TupleSet(['true', 'false'] as const);

@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanceSettings";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";

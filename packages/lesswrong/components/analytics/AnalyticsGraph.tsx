@@ -6,7 +6,7 @@ import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
 import startCase from "lodash/startCase";
-import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
+import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { useDialog } from "../common/withDialog";
 
 const CONTROLS_BREAKPOINT = 650;

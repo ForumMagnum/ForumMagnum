@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
+import { DatabaseMetadata } from "../../server/collections/databaseMetadata/collection";
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
 import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";

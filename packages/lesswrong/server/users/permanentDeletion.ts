@@ -1,4 +1,4 @@
-import Users from "@/lib/collections/users/collection";
+import Users from "@/server/collections/users/collection";
 import { addCronJob } from "../cron/cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";

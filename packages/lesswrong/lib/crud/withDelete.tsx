@@ -3,7 +3,7 @@ import { updateCacheAfterDelete } from './cacheUpdates';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
 import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
-import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
+import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 
 // Delete mutation query used on the client. Eg:
 //
@@ -46,7 +46,7 @@ export const useDelete = <CollectionName extends CollectionNameString>(options: 
   called: boolean,
   data: ObjectsByCollectionName[CollectionName],
 } => {
-  const typeName = collectionNameToTypeName(options.collectionName);
+  const typeName = collectionNameToTypeName[options.collectionName];
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
   const query = gql`

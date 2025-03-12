@@ -2,12 +2,9 @@ import groupBy from "lodash/groupBy"
 import uniq from "lodash/uniq"
 import moment from "moment"
 import { forumSelect } from "../forumTypeUtils"
-import { userIsAdmin, userIsMemberOf } from "../vulcan-users/permissions"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import { AutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RateLimitUser, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { ModeratorActions } from "../collections/moderatorActions/collection"
-import { EXEMPT_FROM_RATE_LIMITS } from "../collections/moderatorActions/schema"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -30,19 +27,6 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   return Math.max(...rateLimits.map(({timeframeLength, timeframeUnit}) => {
     return moment.duration(timeframeLength, timeframeUnit).asHours()
   }))
-}
-
-export async function shouldIgnorePostRateLimit(user: DbUser) {
-  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")) return true
-
-  const isRateLimitExempt = await ModeratorActions.findOne({
-    userId: user._id,
-    type: EXEMPT_FROM_RATE_LIMITS,
-    endedAt: { $gt: new Date() }
-  })
-  if (isRateLimitExempt) return true
-  
-  return false
 }
 
 export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {

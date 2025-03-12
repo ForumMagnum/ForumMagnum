@@ -1,6 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import Divider from "@material-ui/core/Divider";
+import Divider from "@/lib/vendor/@material-ui/core/src/Divider";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 

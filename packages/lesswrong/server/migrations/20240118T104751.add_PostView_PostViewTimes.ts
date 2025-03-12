@@ -39,8 +39,8 @@
  */
 export const acceptsSchemaHash = "7dbf024fc86645c003e6ca3f42cf3af5";
 
-import PostViewTimes from "../../lib/collections/postViewTimes/collection";
-import PostViews from "../../lib/collections/postViews/collection";
+import PostViewTimes from "../../server/collections/postViewTimes/collection";
+import PostViews from "../../server/collections/postViews/collection";
 import { createTable, dropTable } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

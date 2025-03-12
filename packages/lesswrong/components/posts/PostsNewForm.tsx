@@ -1,6 +1,6 @@
 import { useMessages } from '../common/withMessages';
-import Posts, { userCanPost } from '../../lib/collections/posts/collection';
-import { postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
+import Posts, { userCanPost } from '@/lib/collections/posts/collection';
+import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser'

@@ -3,6 +3,7 @@ import { type DowncastConversionApi, type Element, type Writer } from '@ckeditor
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import collapsibleSectionIcon from './ckeditor5-collapsible-section-icon.svg';
+import blockAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
 
 /**
  * CkEditor5 plugin that makes a collapsible section, using the html <details>
@@ -75,6 +76,12 @@ export default class CollapsibleSections extends Plugin {
 
       return buttonView;
     });
+  }
+  
+  afterInit() {
+    if (this.editor.commands.get('insertCollapsibleSection')) {
+      blockAutoformatEditing(this.editor, this as AnyBecauseTodo, /^<details>$/, 'insertCollapsibleSection');
+    }
   }
   
   private _defineSchema() {

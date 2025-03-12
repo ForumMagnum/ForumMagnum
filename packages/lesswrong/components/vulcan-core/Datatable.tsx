@@ -1,12 +1,11 @@
 import { LoadMoreCallback, useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { getSchema } from '../../lib/utils/getSchema';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import { getSchema } from '@/lib/schema/allSchemas';
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -34,7 +33,6 @@ export const Datatable = <
   limit?: number,
   terms: ViewTermsByCollectionName[CollectionName]
 }) => {
-  const collection = getCollection(collectionName);
   const { results, loading, loadingMore, loadMore, count, totalCount } = useMulti({
     collectionName,
     fragmentName,
@@ -42,10 +40,10 @@ export const Datatable = <
     limit,
     enableTotal: true,
   });
-  return <DatatableLayout collectionName={collection.collectionName}>
+  return <DatatableLayout collectionName={collectionName}>
     <DatatableContents
       columns={columns}
-      collection={collection}
+      collectionName={collectionName}
       results={results}
       loading={loading}
       loadingMore={loadingMore}
@@ -65,14 +63,14 @@ const DatatableLayout = ({ collectionName, children }: {
   </div>
 );
 
-const DatatableHeader = ({ collection, column }: {
-  collection: CollectionBase<any>
+const DatatableHeader = ({ collectionName, column }: {
+  collectionName: CollectionNameString;
   column: Column;
 }) => {
   const columnName = getColumnName(column);
   
-  if (collection) {
-    const schema = getSchema(collection);
+  if (collectionName) {
+    const schema = getSchema(collectionName);
 
     /*
 
@@ -83,7 +81,7 @@ const DatatableHeader = ({ collection, column }: {
     3. the raw column name.
 
     */
-    const formattedLabel = formatLabel({fieldName: columnName, collectionName: collection.collectionName, schema: schema});
+    const formattedLabel = formatLabel({fieldName: columnName, collectionName, schema});
 
     return <DatatableHeaderCellLayout>{formattedLabel}</DatatableHeaderCellLayout>;
   } else {
@@ -107,7 +105,7 @@ const DatatableHeaderCellLayout = ({ children, ...otherProps }: {
 const DatatableContents = (props: {
   columns: Column[];
   title?: string;
-  collection: CollectionBase<any>;
+  collectionName: CollectionNameString;
   results?: any[];
   loading?: boolean;
   loadMore: LoadMoreCallback;
@@ -116,7 +114,7 @@ const DatatableContents = (props: {
   loadingMore: boolean;
   emptyState?: JSX.Element;
 }) => {
-  const { title, collection, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
+  const { title, collectionName, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
   const { LoadMore } = Components;
 
   if (loading) {
@@ -133,11 +131,11 @@ const DatatableContents = (props: {
       <DatatableContentsInnerLayout>
         <DatatableContentsHeadLayout>
           {sortedColumns.map((column, index) =>
-            <DatatableHeader key={index} collection={collection} column={column} />)
+            <DatatableHeader key={index} collectionName={collectionName} column={column} />)
           }
         </DatatableContentsHeadLayout>
         <DatatableContentsBodyLayout>
-          {results.map((document: any, index: number) => <DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} />)}
+          {results.map((document: any, index: number) => <DatatableRow {...props} columns={columns} document={document} key={index} />)}
         </DatatableContentsBodyLayout>
       </DatatableContentsInnerLayout>
       {hasMore &&
@@ -198,7 +196,6 @@ const DatatableTitle = ({ title }: {
 interface DatatableRowProps {
   columns: Column[];
   document: any;
-  collection: CollectionBase<any>;
 }
 
 const DatatableRow = (props: DatatableRowProps) => {

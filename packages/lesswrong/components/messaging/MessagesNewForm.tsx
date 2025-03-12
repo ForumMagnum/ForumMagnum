@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import Button from "@material-ui/core/Button";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
 import { TemplateQueryStrings } from "./NewConversationButton";

@@ -1,6 +1,6 @@
-import ForumEvents from "@/lib/collections/forumEvents/collection";
+import ForumEvents from "@/server/collections/forumEvents/collection";
 import { addField, dropField, updateIndexes } from "./meta/utils";
-import { Comments } from "@/lib/collections/comments/collection.ts";
+import { Comments } from "@/server/collections/comments/collection.ts";
 
 export const acceptsSchemaHash = "845ab447f6646ba141b9aee88cc3a619";
 

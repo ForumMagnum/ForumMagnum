@@ -1,6 +1,6 @@
 import type { Request } from "express";
-import Posts from "../../lib/collections/posts/collection";
-import Users from "../../lib/collections/users/collection";
+import Posts from "../../server/collections/posts/collection";
+import Users from "../../server/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
 import { createMutator } from "../vulcan-lib/mutators";
 import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";

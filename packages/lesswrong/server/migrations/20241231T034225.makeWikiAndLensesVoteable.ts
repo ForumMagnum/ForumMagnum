@@ -1,5 +1,5 @@
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
-import Tags from "@/lib/collections/tags/collection"
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
+import Tags from "@/server/collections/tags/collection"
 import { addField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

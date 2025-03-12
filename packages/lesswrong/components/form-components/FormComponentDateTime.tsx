@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
 

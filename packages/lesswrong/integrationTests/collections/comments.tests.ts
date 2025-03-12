@@ -13,7 +13,7 @@ import {
   createDummyUserRateLimit,
 } from '../utils';
 import moment from 'moment';
-import { Comments } from "../../lib/collections/comments/collection";
+import { Comments } from "../../server/collections/comments/collection";
 
 const { assert } = chai;
 

@@ -1,8 +1,8 @@
-import Revisions, { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/collection'
+import Revisions from '@/server/collections/revisions/collection';
+import { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/revisionConstants';
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { htmlStartingAtHash } from '../extractHighlights';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
@@ -34,7 +34,7 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
   ]
 });
 
-augmentFieldsDict(Revisions, {
+export const revisionResolvers = {
   markdown: {
     type: String,
     resolveAs: {
@@ -141,7 +141,7 @@ augmentFieldsDict(Revisions, {
       },
     },
   },
-})
+} satisfies Record<string, CollectionFieldSpecification<"Revisions">>;
 
 defineQuery({
   name: "convertDocument",

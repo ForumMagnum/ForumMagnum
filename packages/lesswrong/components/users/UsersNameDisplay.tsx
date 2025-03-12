@@ -6,7 +6,7 @@ import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -36,6 +36,7 @@ const UsersNameDisplay = ({
   nofollow=false,
   simple=false,
   nowrap=false,
+  noTooltip=false,
   hideFollowButton=false,
   tooltipPlacement="left",
   pageSectionContext,
@@ -48,6 +49,8 @@ const UsersNameDisplay = ({
   color?: boolean,
   /** If the name is a link, it's marked nofollow */
   nofollow?: boolean,
+  /** If set, the tooltip is not shown though otherwise is a link */
+  noTooltip?: boolean,
   /** The name is only text, not a link, and doesn't have a hover */
   simple?: boolean,
   /** If set, usernames with spaces are not allowed to wrap. Default false. */
@@ -113,6 +116,7 @@ const UsersNameDisplay = ({
           placement={tooltipPlacement}
           inlineBlock={false}
           hideFollowButton={hideFollowButton}
+          disabled={noTooltip}
         >
           <Link
             to={profileUrl}

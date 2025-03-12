@@ -7,11 +7,11 @@
  */
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils'
 import { FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings'
-import Users from '../../lib/collections/users/collection'
-import Tags from '../../lib/collections/tags/collection'
-import Posts from '../../lib/collections/posts/collection';
+import Users from '../../server/collections/users/collection'
+import Tags from '../../server/collections/tags/collection'
+import Posts from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import TagRels from '../../lib/collections/tagRels/collection';
+import TagRels from '../../server/collections/tagRels/collection';
 import { createMutator } from '../vulcan-lib/mutators';
 
 // Your frontpage settings are shaped like:

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useLocation } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
