@@ -1,4 +1,4 @@
-import { getVoteableSchemaFields } from "../make_voteable";
+import { getSchema } from "@/lib/schema/allSchemas";
 
 class ClientCollection<
   N extends CollectionNameString = CollectionNameString
@@ -8,9 +8,6 @@ class ClientCollection<
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
-  _schemaFields: SchemaType<N>;
-  _simpleSchema: any = null;
-  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private voteable = false;
 
   constructor(options: CollectionOptions<N>) {
@@ -18,14 +15,6 @@ class ClientCollection<
     this.typeName = options.typeName;
     this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
-
-    const votingFields: SchemaType<N> = options.voteable
-      ? getVoteableSchemaFields(options.collectionName as N&VoteableCollectionName, options.voteable) as SchemaType<N>
-      : {};
-    this._schemaFields = {
-      ...options.schema,
-      ...votingFields,
-    };
   }
 
   isConnected() {
@@ -37,7 +26,7 @@ class ClientCollection<
   }
 
   hasSlug(): this is ClientCollection<CollectionNameWithSlug> {
-    return !!this._schemaFields.slug;
+    return !!getSchema(this.collectionName).slug;
   }
 
   private executeQuery(): never {

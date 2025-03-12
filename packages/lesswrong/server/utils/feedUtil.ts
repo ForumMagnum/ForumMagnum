@@ -3,7 +3,7 @@ import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../li
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { FieldChanges } from '@/lib/collections/fieldChanges/collection';
+import { FieldChanges } from '@/server/collections/fieldChanges/collection';
 
 type FeedSubquery<ResultType extends {}, SortKeyType> = {
   type: string,
@@ -45,7 +45,7 @@ export function viewBasedSubquery<
     isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
       const results = await queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
-      return await accessFilterMultiple(context.currentUser, collection, results, context);
+      return await accessFilterMultiple(context.currentUser, collection.collectionName, results, context);
     }
   };
 }

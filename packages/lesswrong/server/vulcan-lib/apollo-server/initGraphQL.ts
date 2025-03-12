@@ -29,14 +29,15 @@ import {
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
-import { getSchema } from '../../../lib/utils/getSchema';
+import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
-import { getAllCollections, getCollectionByTypeName } from "../../../lib/vulcan-lib/getCollection";
+import { getAllCollections, getCollectionByTypeName } from "../../collections/allCollections";
+import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
@@ -171,8 +172,11 @@ const getSqlResolverPermissionsData = (type: string|GraphQLScalarType) => {
 
   try {
     // Get the collection corresponding to the type name string.
-    const collection = getCollectionByTypeName(nullableScalarType);
-    return collection ? {collection, isArray} : null;
+    const collectionName = nullableScalarType in typeNameToCollectionName
+      ? typeNameToCollectionName[nullableScalarType as keyof typeof typeNameToCollectionName]
+      : null;
+
+    return collectionName ? {collectionName, isArray} : null;
   } catch (_e) {
     return null;
   }
@@ -278,7 +282,7 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
                       : accessFilterSingle;
                     return filter(
                       context.currentUser,
-                      permissionData.collection,
+                      permissionData.collectionName,
                       existingValue as AnyBecauseHard,
                       context,
                     );
@@ -350,7 +354,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
     ? collection.typeName
     : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
 
-  const schema = getSchema(collection);
+  const schema = getSimpleSchema(collectionName)._schema;
 
   const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 

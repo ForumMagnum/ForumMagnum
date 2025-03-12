@@ -3,7 +3,7 @@ import InsertQuery from "@/server/sql/InsertQuery";
 import SelectQuery from "@/server/sql/SelectQuery";
 import Table from "@/server/sql/Table";
 import UpdateQuery from "@/server/sql/UpdateQuery";
-import { getCollection } from "../../lib/vulcan-lib/getCollection";
+import { getCollection } from "../collections/allCollections";
 import TableIndex from "../sql/TableIndex";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 

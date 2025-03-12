@@ -39,7 +39,7 @@
 export const acceptsSchemaHash = "e30b5ca4f4989161f627585b747ee83e";
 
 import { createTable, dropTable } from "./meta/utils";
-import CkEditorUserSession from "../../lib/collections/ckEditorUserSessions/collection";
+import CkEditorUserSession from "../../server/collections/ckEditorUserSessions/collection";
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, CkEditorUserSession);

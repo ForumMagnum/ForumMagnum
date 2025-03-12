@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getEditableCollectionNames } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import Revisions from '../../lib/collections/revisions/collection'
+import { getCollection } from '../collections/allCollections';
+import Revisions from '../../server/collections/revisions/collection'
 
 export default registerMigration({
   name: "addRevisionCollectionName",

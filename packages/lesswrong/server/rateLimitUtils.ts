@@ -1,22 +1,46 @@
 import moment from "moment"
-import Comments from "../lib/collections/comments/collection"
-import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from "../lib/collections/moderatorActions/helpers"
-import { EXEMPT_FROM_RATE_LIMITS, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "../lib/collections/moderatorActions/schema"
-import Posts from "../lib/collections/posts/collection"
-import UserRateLimits from "../lib/collections/userRateLimits/collection"
+import Comments from "../server/collections/comments/collection"
+import { getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
+import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, postAndCommentRateLimits } from "../lib/collections/moderatorActions/schema"
+import Posts from "../server/collections/posts/collection"
+import UserRateLimits from "../server/collections/userRateLimits/collection"
 import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
 import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
-import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, shouldIgnorePostRateLimit } from "../lib/rateLimits/utils"
-import Users from "../lib/collections/users/collection"
+import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours } from "../lib/rateLimits/utils"
+import Users from "../server/collections/users/collection"
 import { triggerReview } from "./callbacks/sunshineCallbackUtils"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 import { isNonEmpty } from "fp-ts/Array"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
 import { getDownvoteRatio } from "../components/sunshineDashboard/UsersReviewInfoCard"
-import { ModeratorActions } from "../lib/collections/moderatorActions/collection"
+import { ModeratorActions } from "../server/collections/moderatorActions/collection"
+
+/**
+ * Fetches the most recent, active rate limit affecting a user.
+ */
+function getModeratorRateLimit(userId: string) {
+  return ModeratorActions.findOne({
+    userId: userId,
+    type: {$in: postAndCommentRateLimits},
+    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
+  }, {
+    sort: {
+      createdAt: -1
+    }
+  }) as Promise<DbModeratorAction & {type: PostAndCommentRateLimitTypes} | null>
+}
+
+async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES): Promise<boolean> {
+  const action = await ModeratorActions.findOne({
+    userId: userId,
+    type: moderatorActionType,
+    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
+  });
+  return !!action;
+}
 
 async function getModRateLimitHours(userId: string): Promise<number> {
   const moderatorRateLimit = await getModeratorRateLimit(userId)
@@ -183,6 +207,19 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
     rateLimit => getAutoRateLimitInfo(user, features, rateLimit, commentsInTimeframe)
   ) ?? []
   return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, manualRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
+}
+
+async function shouldIgnorePostRateLimit(user: DbUser) {
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")) return true
+
+  const isRateLimitExempt = await ModeratorActions.findOne({
+    userId: user._id,
+    type: EXEMPT_FROM_RATE_LIMITS,
+    endedAt: { $gt: new Date() }
+  })
+  if (isRateLimitExempt) return true
+  
+  return false
 }
 
 export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {

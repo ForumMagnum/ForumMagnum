@@ -1,4 +1,4 @@
-import { subscriptionTypes } from "./schema";
+import { subscriptionTypes } from "./helpers";
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {

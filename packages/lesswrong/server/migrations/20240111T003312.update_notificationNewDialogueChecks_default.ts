@@ -13,7 +13,7 @@
  */
 export const acceptsSchemaHash = "2431de6961ce37514d54a17a5ca14adc";
 
-import Users from "../../lib/collections/users/collection"
+import Users from "../../server/collections/users/collection"
 import { NotificationTypeSettings } from "../../lib/collections/users/schema";
 import { updateDefaultValue } from "./meta/utils"
 

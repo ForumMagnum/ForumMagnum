@@ -1,8 +1,8 @@
-import ReadStatuses from "../../lib/collections/readStatus/collection";
-import { Votes } from "../../lib/collections/votes/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
+import { Votes } from "../../server/collections/votes/collection";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/client";
 import chunk from "lodash/chunk";
 

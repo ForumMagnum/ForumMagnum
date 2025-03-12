@@ -6,8 +6,6 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { getSchema } from '../../lib/utils/getSchema';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 import { WrappedSmartFormProps } from './propTypes';
@@ -16,6 +14,8 @@ import * as _ from 'underscore';
 import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 const intlSuffix = '_intl';
 
@@ -26,9 +26,9 @@ function convertFields(field: string) {
 /**
  * generate query fragment based on the fields that can be edited. Note: always add _id.
  */
-function generateQueryFragment<N extends CollectionNameString>(queryFragmentName: string, collection: CollectionBase<N>, queryFields: string[]) {
+function generateQueryFragment(queryFragmentName: string, collectionTypeName: string, queryFields: string[]) {
   return gql`
-    fragment ${queryFragmentName} on ${collection.typeName} {
+    fragment ${queryFragmentName} on ${collectionTypeName} {
       _id
       ${queryFields.map(convertFields).join('\n')}
     }
@@ -38,9 +38,9 @@ function generateQueryFragment<N extends CollectionNameString>(queryFragmentName
 /**
  * generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
  */
-function generateMutationFragment<N extends CollectionNameString>(mutationFragmentName: string, collection: CollectionBase<N>, mutationFields: string[]) {
+function generateMutationFragment(mutationFragmentName: string, collectionTypeName: string, mutationFields: string[]) {
   return gql`
-    fragment ${mutationFragmentName} on ${collection.typeName} {
+    fragment ${mutationFragmentName} on ${collectionTypeName} {
       _id
       ${mutationFields.map(convertFields).join('\n')}
     }
@@ -51,9 +51,9 @@ function generateMutationFragment<N extends CollectionNameString>(mutationFragme
  * Get fragment used to decide what data to load from the server to populate the form,
  * as well as what data to ask for as return value for the mutation
  */
-const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N>) => {
-  const collection = getCollection(props.collectionName);
-  const schema = getSchema(collection);
+const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N> & { schema: SchemaType<N> }) => {
+  const { collectionName, schema } = props;
+  const collectionTypeName = collectionNameToTypeName[collectionName];
   const fragmentName = `${props.collectionName}${capitalize(formType)}FormFragment`;
   const queryFragmentName = `${fragmentName}Query`;
   const mutationFragmentName = `${fragmentName}Mutation`;
@@ -89,11 +89,11 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
   // default to generated fragments if no fragment name is provided
   const queryFragment = props.queryFragmentName
     ? getFragment(props.queryFragmentName)
-    : generateQueryFragment(queryFragmentName, collection, queryFields);
+    : generateQueryFragment(queryFragmentName, collectionTypeName, queryFields);
 
   const mutationFragment = props.mutationFragmentName
     ? getFragment(props.mutationFragmentName)
-    : generateMutationFragment(mutationFragmentName, collection, mutationFields);
+    : generateMutationFragment(mutationFragmentName, collectionTypeName, mutationFields);
 
   // get query & mutation fragments from props or else default to same as generatedFragment
   return { queryFragment, mutationFragment };
@@ -113,8 +113,7 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
  * generating a default fragment if none is given.
  */
 const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}: WrappedSmartFormProps<N>) => {
-  const collection = getCollection(props.collectionName);
-  const schema = getSchema(collection);
+  const schema = getSchema(props.collectionName);
 
   const navigationContext = useContext(NavigationContext);
   const history = navigationContext?.history;
@@ -136,20 +135,21 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
  * Wrapper around a 'new' form, which adds createMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N>&{schema: any}) => {
+const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: SchemaType<N> }) => {
   const currentUser = useCurrentUser();
-  const collection = getCollection(props.collectionName);
+  const { collectionName } = props;
+  const typeName = collectionNameToTypeName[collectionName];
   const { mutationFragment } = getFragments("new", props);
 
   const {create} = useCreate({
-    collectionName: collection.collectionName,
+    collectionName,
     fragment: mutationFragment,
   });
+
   return <Form
     {...props}
     currentUser={currentUser}
-    collection={collection}
-    typeName={collection.typeName}
+    typeName={typeName}
     schema={props.schema}
     createMutation={create}
   />
@@ -159,9 +159,10 @@ const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormP
  * Wrapper around an 'edit' form, which adds updateMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N>&{schema: any}) => {
+const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N>&{schema: SchemaType<N>}) => {
   const currentUser = useCurrentUser();
-  const collection = getCollection(props.collectionName);
+  const { collectionName } = props;
+  const typeName = collectionNameToTypeName[collectionName];
   const { queryFragment, mutationFragment } = getFragments("edit", props);
   const { extraVariables = {}, extraVariablesValues = {}, editFormFetchPolicy, prefetchedDocument } = props;
 
@@ -173,18 +174,18 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
     : {slug: props.slug}
   const { document, loading } = useSingle<AnyBecauseHard>({
     ...selector,
-    collectionName: props.collectionName,
+    collectionName,
     fragment: queryFragment,
     extraVariables,
     extraVariablesValues,
     fetchPolicy,
   });
   const {mutate: updateMutation} = useUpdate({
-    collectionName: collection.collectionName,
+    collectionName,
     fragment: mutationFragment,
   });
   const {deleteDocument} = useDelete({
-    collectionName: collection.collectionName,
+    collectionName,
     fragment: mutationFragment,
   });
 
@@ -195,8 +196,7 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
   return <Form
     {...props}
     currentUser={currentUser}
-    collection={collection}
-    typeName={collection.typeName}
+    typeName={typeName}
     schema={props.schema}
     document={document ?? prefetchedDocument}
     updateMutation={updateMutation}

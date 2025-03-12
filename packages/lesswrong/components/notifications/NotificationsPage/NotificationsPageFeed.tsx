@@ -9,7 +9,7 @@ import {
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
-import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChanges } from "../../../server/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
 import { useNotificationDisplays } from "./useNotificationDisplays";
 

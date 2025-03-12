@@ -1,12 +1,11 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Users } from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts/collection';
-import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { Comments } from '../../server/collections/comments/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -39,7 +38,7 @@ import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
 import { updateMutator } from "../vulcan-lib/mutators";
 
@@ -215,7 +214,7 @@ async function getRevisionAndCommentUsers(revisions: DbRevision[], rootComments:
   const userIds = filterNonnull(_.uniq([...revisionUserIds, ...commentUserIds]));
 
   const usersAll = await loadByIds(context, "Users", userIds);
-  const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context);
+  const users = await accessFilterMultiple(context.currentUser, 'Users', usersAll, context);
 
   // We need the cast because `keyBy` doesn't like it when you try to key on an optional field,
   // so it defaults to the overloaded version, which ends up treating the array as the object in question
@@ -232,7 +231,7 @@ async function getMultiDocumentsByTagId(revisions: DbRevision[], context: Resolv
   const multiDocumentIds = filterNonnull(_.uniq(revisionMultiDocumentIds));
 
   const multiDocumentsUnfiltered = await loadByIds(context, "MultiDocuments", multiDocumentIds);
-  const multiDocuments = await accessFilterMultiple(context.currentUser, MultiDocuments, multiDocumentsUnfiltered, context);
+  const multiDocuments = await accessFilterMultiple(context.currentUser, 'MultiDocuments', multiDocumentsUnfiltered, context);
 
   const lenses = multiDocuments.filter(md=>md.fieldName === "description" && md.collectionName === "Tags");
   const summaries = multiDocuments.filter(md=>md.fieldName === "summary");
@@ -254,7 +253,7 @@ async function getTopLevelTags(revisions: DbRevision[], rootComments: DbComment[
   const topLevelTagIds = filterNonnull(_.uniq([...tagIds, ...lensTagIds, ...summaryTagIds]));
 
   const tagsUnfiltered = await loadByIds(context, "Tags", topLevelTagIds);
-  return await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
+  return await accessFilterMultiple(context.currentUser, 'Tags', tagsUnfiltered, context);
 }
 
 function getNetDeletionsByDocumentId(documentDeletions: DbLWEvent[]) {
@@ -632,7 +631,7 @@ addGraphQLResolvers({
       // Get the tags themselves, keyed by the id
       const tagIds = filterNonnull(_.uniq(tagRevisions.map(r=>r.documentId)))
       const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
-      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
+      const tags = (await accessFilterMultiple(context.currentUser, 'Tags', tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
         acc[tag._id] = tag;
         return acc;
       }, {});
@@ -681,9 +680,9 @@ defineQuery({
     const { summaries, lens, ...tag } = tagWithSummaries;
 
     const [filteredTag, filteredLens, filteredSummaries] = await Promise.all([
-      accessFilterSingle(currentUser, Tags, tag, context),
-      accessFilterSingle(currentUser, MultiDocuments, lens, context),
-      accessFilterMultiple(currentUser, MultiDocuments, summaries, context)
+      accessFilterSingle(currentUser, 'Tags', tag, context),
+      accessFilterSingle(currentUser, 'MultiDocuments', lens, context),
+      accessFilterMultiple(currentUser, 'MultiDocuments', summaries, context)
     ]);
 
     if (!filteredTag) return null;
@@ -696,7 +695,7 @@ defineQuery({
   },
 });
 
-augmentFieldsDict(Tags, {
+export const tagResolvers = {
   contributors: contributorsField({
     collectionName: 'Tags',
     fieldName: 'description',
@@ -715,9 +714,9 @@ augmentFieldsDict(Tags, {
       }
     },
   },
-});
+} satisfies Record<string, CollectionFieldSpecification<"Tags">>;
 
-augmentFieldsDict(TagRels, {
+export const tagRelResolvers = {
   autoApplied: {
     resolveAs: {
       type: "Boolean!",
@@ -728,7 +727,7 @@ augmentFieldsDict(TagRels, {
       },
     },
   },
-});
+} satisfies Record<string, CollectionFieldSpecification<"TagRels">>;
 
 function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   const tagsByIdMap = keyBy(tags, '_id');

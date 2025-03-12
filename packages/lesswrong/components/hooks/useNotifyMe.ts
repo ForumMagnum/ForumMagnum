@@ -9,7 +9,7 @@ import {
   defaultSubscriptionTypeTable,
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
-import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
+import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";

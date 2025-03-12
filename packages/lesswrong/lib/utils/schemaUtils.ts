@@ -1,13 +1,13 @@
-import { getCollection } from '../vulcan-lib/getCollection';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
-import { isAnyTest } from '../executionEnvironment';
+import { isAnyTest, isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
+import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -21,7 +21,6 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
     if (!doc[fieldName]) return null
 
     const { currentUser } = context
-    const collection = getCollection(collectionName);
 
     const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
     const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
@@ -33,7 +32,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
       return null;
     }
 
-    return await accessFilterSingle(currentUser, collection, resolvedDoc, context);
+    return await accessFilterSingle(currentUser, collectionName, resolvedDoc, context);
   }
 }
 
@@ -49,13 +48,13 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   
   return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> => {
     if (!doc[fieldName]) return []
+
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
-    const collection = getCollection(collectionName);
 
     const resolvedDocs: Array<DbType|null> = await loadByIds(context, collectionName, keys)
-    return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
+    return await accessFilterMultiple(currentUser, collectionName, resolvedDocs, context);
   }
 }
 
@@ -65,14 +64,14 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 // have been removed. If document is null, returns null.
 export const accessFilterSingle = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   document: DocType|null,
-  context: ResolverContext|null,
+  context: ResolverContext,
 ): Promise<Partial<DocType|null>> => {
-  const { checkAccess } = collection
   if (!document) return null;
-  if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
-  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection, document)
+  const checkAccess = getCollectionAccessFilter(collectionName);
+  if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
+  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collectionName, document)
   return restrictedDoc;
 }
 
@@ -83,11 +82,11 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
 // view.
 export const accessFilterMultiple = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   unfilteredDocs: Array<DocType|null>,
-  context: ResolverContext|null,
+  context: ResolverContext,
 ): Promise<Partial<DocType>[]> => {
-  const { checkAccess } = collection
+  const checkAccess = getCollectionAccessFilter(collectionName);
   
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
@@ -95,10 +94,10 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   const existingDocs = _.filter(unfilteredDocs, d=>!!d) as DocType[];
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
-    ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d, context))
+    ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
     : existingDocs
   // Apply field-level permissions
-  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
+  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
   
   return restrictedDocs;
 }
@@ -246,44 +245,6 @@ export const resolverOnlyField = <N extends CollectionNameString>({
   }
 }
 
-// Given a collection and a fieldName=>fieldSchema dictionary, add fields to
-// the collection schema. If any of the fields mentioned are already present,
-// throws an error.
-export const addFieldsDict = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  fieldsDict: Record<string, CollectionFieldSpecification<N>>,
-): void => {
-  collection._simpleSchema = null;
-
-  for (let key in fieldsDict) {
-    if (key in collection._schemaFields) {
-      throw new Error("Field already exists: "+key);
-    } else {
-      collection._schemaFields[key] = fieldsDict[key];
-    }
-  }
-}
-
-// Given a collection and a fieldName=>fieldSchema dictionary, add properties
-// to existing fields on the collection schema, by shallow merging them. If any
-// of the fields named don't already exist, throws an error. This is used for
-// making parts of the schema (in particular, resolvers, onCreate callbacks,
-// etc) specific to server-side code.
-export const augmentFieldsDict = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  fieldsDict: Record<string, CollectionFieldSpecification<N>>,
-): void => {
-  collection._simpleSchema = null;
-
-  for (let key in fieldsDict) {
-    if (key in collection._schemaFields) {
-      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
-    } else {
-      throw new Error("Field does not exist: "+key);
-    }
-  }
-}
-
 // For auto-generated database type definitions, provides a (string) definition
 // of this field's type. Useful for fields that would otherwise be black-box types.
 SimpleSchema.extendOptions(['typescriptType'])
@@ -317,6 +278,68 @@ SimpleSchema.extendOptions(['editableFieldOptions']);
 // For slug fields, this option allows you to specify the options necessary to run the slug callbacks
 SimpleSchema.extendOptions(['slugCallbackOptions']);
 
+
+SimpleSchema.extendOptions([
+  'hidden', // hidden: true means the field is never shown in a form no matter what
+  'form', // extra form properties
+  'input', // SmartForm control (String or React component)
+  'control', // SmartForm control (String or React component) (legacy)
+  'order', // position in the form
+  'group', // form fieldset group
+
+  'onCreate', // field insert callback
+  'onUpdate', // field edit callback
+  'onDelete', // field remove callback
+
+  'canRead', // who can view the field
+  'canCreate', // who can insert the field
+  'canUpdate', // who can edit the field
+
+  'resolveAs', // field-level resolver
+  'description', // description/help
+  'beforeComponent', // before form component
+  'afterComponent', // after form component
+  'placeholder', // form field placeholder value
+  'options', // form options
+  'query', // field-specific data loading query
+  'unique', // field can be used as part of a selectorUnique when querying for data
+
+  'tooltip', // if not empty, the field will provide a tooltip when hovered over
+
+  // canAutofillDefault: Marks a field where, if its value is null, it should
+  // be auto-replaced with defaultValue in migration scripts.
+  'canAutofillDefault',
+
+  // denormalized: In a schema entry, denormalized:true means that this field can
+  // (in principle) be regenerated from other fields. For now, it's a glorified
+  // machine-readable comment; in the future, it may have other infrastructure
+  // attached.
+  'denormalized',
+
+  // foreignKey: In a schema entry, this is either an object {collection,field},
+  // or just a string, in which case the string is the collection name and field
+  // is _id. Indicates that if this field is present and not null, its value
+  // must correspond to an existing row in the named collection. For example,
+  //
+  //   foreignKey: 'Users'
+  //   means that the value of this field must be the _id of a user;
+  //
+  //   foreignKey: {
+  //     collection: 'Posts',
+  //     field: 'slug'
+  //   }
+  //   means that the value of this field must be the slug of a post.
+  //
+   'foreignKey',
+
+  // nullable: In a schema entry, this boolean indicates whether the type system
+  // should treat this field as nullable 
+   'nullable',
+
+  // Define a static vector size for use in Postgres - this should only be
+  // used on array fields
+   'vectorSize'
+]);
 
 
 // Helper function to add all the correct callbacks and metadata for a field
@@ -388,7 +411,10 @@ export function denormalizedCountOfReferences<
       document: ObjectsByCollectionName[SourceCollectionName],
       context: ResolverContext,
     ): Promise<number> => {
-      const foreignCollection = getCollection(foreignCollectionName);
+      if (!isServer) {
+        throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
+      }
+      const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
       const docsThatMayCount = await getWithLoader<TargetCollectionName>(
         context,
         foreignCollection,

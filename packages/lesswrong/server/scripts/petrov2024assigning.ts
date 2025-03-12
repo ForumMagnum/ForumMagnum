@@ -1,5 +1,5 @@
-import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
-import Users from "@/lib/collections/users/collection";
+import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
+import Users from "@/server/collections/users/collection";
 import { filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { createAdminContext, runQuery } from "../vulcan-lib/query";
 import { createMutator } from "../vulcan-lib/mutators";

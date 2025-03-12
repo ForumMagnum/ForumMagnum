@@ -134,7 +134,7 @@ async function postEditAsync(post: DbPost, oldPost: DbPost, currentUser: DbUser 
 
   await moveToAFUpdatesUserAFKarma(post, oldPost);
   sendPostApprovalNotifications(post, oldPost);
-  await sendNewPublishedDialogueMessageNotifications(post, oldPost);
+  await sendNewPublishedDialogueMessageNotifications(post, oldPost, context);
   await removeRedraftNotifications(post, oldPost, context);
 
   if (isEAForum) {

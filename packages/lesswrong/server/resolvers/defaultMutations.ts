@@ -82,7 +82,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         });
 
         // There are some fields that users who have permission to create a document don't have permission to read.
-        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection, returnValue.data, context);
+        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection.collectionName, returnValue.data, context);
         return { data: filteredReturnValue };
       },
     };
@@ -162,7 +162,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         });
 
         // There are some fields that users who have permission to edit a document don't have permission to read.
-        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection, returnValue.data, context);
+        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection.collectionName, returnValue.data, context);
         return { data: filteredReturnValue };
       },
     };
@@ -267,7 +267,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         });
 
         // There are some fields that users who have permission to delete a document don't have permission to read.
-        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection, returnValue.data, context);
+        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection.collectionName, returnValue.data, context);
         return { data: filteredReturnValue };
       },
     };

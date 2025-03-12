@@ -10,7 +10,7 @@ import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
 import { getFragment } from "../vulcan-lib/fragments";
 import { pluralize } from "../vulcan-lib/pluralize";
 import { camelCaseify } from "../vulcan-lib/utils";
-import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
+import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 import { useLocation, useNavigate } from "../routeUtil";
 
 // Template of a GraphQL query for useMulti. A sample query might look
@@ -158,7 +158,7 @@ export function useMulti<
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   const fragment = getFragment(fragmentName);
   
   const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });

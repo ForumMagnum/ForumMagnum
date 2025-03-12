@@ -1,6 +1,6 @@
 import mjAPI from 'mathjax-node'
 import {isAnyTest, isMigrations} from '../../lib/executionEnvironment'
-import Revisions, { ChangeMetrics } from '../../lib/collections/revisions/collection';
+import Revisions, { ChangeMetrics } from '../../server/collections/revisions/collection';
 import { diff } from "../vendor/node-htmldiff/htmldiff";
 import { cheerioParse } from '../utils/htmlUtil'
 import cheerio from 'cheerio'

@@ -1,6 +1,6 @@
 
 import { registerMigration, fillDefaultValues } from './migrationUtils';
-import { Tags } from '../../lib/collections/tags/collection';
+import { Tags } from '../../server/collections/tags/collection';
 
 export default registerMigration({
   name: "defaultWikiGrade",

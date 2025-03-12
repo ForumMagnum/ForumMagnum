@@ -2,7 +2,6 @@ import intersection from 'lodash/intersection';
 import moment from 'moment';
 import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
-import { getSchema } from'../utils/getSchema';
 import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
 import { allUserGroupsByName } from '../permissions';
 
@@ -242,42 +241,45 @@ const userHasFieldPermissions = <T extends DbObject>(
 // TODO: Integrate permissions-filtered DbObjects into the type system
 export function restrictViewableFields<N extends CollectionNameString>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docOrDocs: ObjectsByCollectionName[N] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]>;
 export function restrictViewableFields<N extends CollectionNameString>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]>[];
 export function restrictViewableFields<N extends CollectionNameString>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
   if (Array.isArray(docOrDocs)) {
-    return restrictViewableFieldsMultiple(user, collection, docOrDocs);
+    return restrictViewableFieldsMultiple(user, collectionName, docOrDocs);
   } else {
-    return restrictViewableFieldsSingle(user, collection, docOrDocs);
+    return restrictViewableFieldsSingle(user, collectionName, docOrDocs);
   }
 };
 
 export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docs: DocType[],
 ): Partial<DocType>[] {
   if (!docs) return [];
-  return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
+  return docs.map(doc => restrictViewableFieldsSingle(user, collectionName, doc));
 };
 
 export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   doc: DocType | undefined | null,
 ): Partial<DocType> {
   if (!doc) return {};
-  const schema = getSchema(collection);
+  // This is to avoid a dependency cycle, since obviously many schemas import helper functions from this file or others that depend on them.
+  // TODO: does this need fixing to avoid esbuild headaches?  Probably not this one.
+  const { getSchema }: (typeof import('../schema/allSchemas')) = require('../schema/allSchemas');
+  const schema = getSchema(collectionName);
   const restrictedDocument: Partial<DocType> = {};
   const userGroups = userGetGroups(user);
 

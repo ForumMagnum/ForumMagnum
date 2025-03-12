@@ -1,9 +1,9 @@
-import Migrations from '../../lib/collections/migrations/collection';
+import Migrations from '../../server/collections/migrations/collection';
 import * as _ from 'underscore';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../server/sql/sqlClient';
-import { getCollection } from '@/lib/vulcan-lib/getCollection';
+import { getCollection } from '@/server/collections/allCollections';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -123,7 +123,7 @@ export async function fillDefaultValues<N extends CollectionNameString>({ collec
 }) {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
   if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
   const defaultValue = schema[fieldName].defaultValue;
   if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);

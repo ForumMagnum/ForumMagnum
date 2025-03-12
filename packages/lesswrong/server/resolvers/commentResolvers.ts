@@ -1,9 +1,9 @@
 import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
-import { accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib/mutators';
-import { Comments } from '../../lib/collections/comments/collection';
+import { Comments } from '../../server/collections/comments/collection';
 import CommentsRepo from '../repos/CommentsRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -48,7 +48,7 @@ const specificResolvers = {
           validate: false,
           context
         });
-        return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
+        return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
       } else {
         throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }
@@ -90,7 +90,7 @@ type TopicRecommendation = {
   recommendationReason: string
 }
 
-augmentFieldsDict(Comments, {
+export const commentResolvers = {
   postVersion: {
     onCreate: async ({newDocument}) => {
       if (!newDocument.postId) {
@@ -105,4 +105,25 @@ augmentFieldsDict(Comments, {
       return (post && post.contents && post.contents.version) || "1.0.0";
     },
   },
-});
+  promotedByUserId: {
+    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
+      data: Partial<DbComment>,
+      currentUser: DbUser|null,
+      document: DbComment,
+      oldDocument: DbComment,
+      context: ResolverContext,
+    }) => {
+      if (data?.promoted && !oldDocument.promoted && document.postId) {
+        void updateMutator({
+          collection: context.Posts,
+          context,
+          documentId: document.postId,
+          data: { lastCommentPromotedAt: new Date() },
+          currentUser,
+          validate: false
+        })
+        return currentUser!._id
+      }
+    },
+  },
+} satisfies Record<string, CollectionFieldSpecification<"Comments">>;
