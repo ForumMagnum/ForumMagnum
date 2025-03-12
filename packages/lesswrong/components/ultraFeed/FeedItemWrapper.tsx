@@ -10,11 +10,11 @@ const styles = (theme: ThemeType) => ({
   },
   sourceLabel: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.1rem',
-    fontStyle: 'italic',
-    color: theme.palette.primary.main,
+    // fontStyle: 'italic',
+    color: theme.palette.lwTertiary.main,
     marginBottom: 4
   }
 });

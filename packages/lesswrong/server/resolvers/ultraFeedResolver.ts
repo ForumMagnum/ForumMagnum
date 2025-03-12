@@ -1,8 +1,6 @@
 import { defineFeedResolver } from "../utils/feedUtil";
 import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
-import groupBy from "lodash/groupBy";
-import sortBy from "lodash/sortBy";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
@@ -161,7 +159,7 @@ defineFeedResolver<Date>({
       
       const quickTakes = await accessFilterMultiple(
         currentUser,
-        context.Comments,
+        "Comments",
         quickTakesRaw,
         context
       );
@@ -195,7 +193,7 @@ defineFeedResolver<Date>({
       
       const popularComments = await accessFilterMultiple(
         currentUser,
-        context.Comments,
+        "Comments",
         popularCommentsRaw,
         context
       );
@@ -230,10 +228,10 @@ defineFeedResolver<Date>({
         
         const [posts, comments] = await Promise.all([
           loadByIds(context, "Posts", postIds)
-            .then(posts => accessFilterMultiple(currentUser, context.Posts, posts, context))
+            .then(posts => accessFilterMultiple(currentUser, "Posts", posts, context))
             .then(filterNonnull),
           loadByIds(context, "Comments", commentIds)
-            .then(comments => accessFilterMultiple(currentUser, context.Comments, comments, context))
+            .then(comments => accessFilterMultiple(currentUser, "Comments", comments, context))
             .then(filterNonnull)
         ]);
 

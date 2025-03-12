@@ -27,19 +27,41 @@ const styles = (theme: ThemeType) => ({
   feedComementItem: {
     marginBottom: 16
   },
+  sectionTitle: {
+    marginTop: 60,
+    display: 'flex',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   titleContainer: {
     display: 'flex',
-    alignItems: 'baseline',
+    flex: '1 1 0',
+    width: 'auto',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     cursor: 'pointer',
+    minHeight: 24,
     '&:hover': {
       opacity: 0.8
     }
   },
+  titleText: {
+    // No custom styling to preserve original appearance
+  },
   refreshText: {
-    marginLeft: 8,
+    // margin: '0 auto',
     fontSize: '0.65em',
     fontStyle: 'italic',
-    fontFamily: theme.palette.fonts.sansSerifStack
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    pointerEvents: 'none',
+    marginRight: -60
+  },
+  settingsButtonContainer: {
+    flex: '1 1 0',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center'
   }
 });
 
@@ -47,7 +69,7 @@ export const UltraFeed = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, 
-    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection } = Components;
+    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -108,12 +130,21 @@ export const UltraFeed = ({classes}: {
   );
   
   // Custom title with refresh button
-  const customTitle = (
+  const customTitle = <>
     <div className={classes.titleContainer} onClick={loadMoreAtTop}>
-      <span>Update Feed </span>
-      <span className={classes.refreshText}>click to refresh</span>
+      <span className={classes.titleText}>Update Feed</span>
+      <span className={classes.refreshText}>click for new content</span>
     </div>
-  );
+    <div className={classes.settingsButtonContainer}>
+      <SettingsButton 
+        showIcon={true}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation(); // Prevent triggering the container's onClick
+          /* No-op for now */
+        }}
+      />
+    </div>
+  </>;
 
   return (
     <div>
@@ -128,7 +159,7 @@ export const UltraFeed = ({classes}: {
       
       {ultraFeedEnabled && <>
         <SingleColumnSection>
-          <SectionTitle title={customTitle} />
+          <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
           {/* <SuggestedFeedSubscriptions
             refetchFeed={refetchSubscriptionContent}
             settingsButton={suggestedUsersSettingsButton}
