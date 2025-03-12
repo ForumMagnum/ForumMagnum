@@ -126,19 +126,40 @@ const styles = (theme: ThemeType) => ({
   },
   readTime: {
     marginRight: 20,
+  },
+  splashPageTitle: {
+    '&&': {
+      fontSize: '6rem',
+      marginRight: -100
+    }
+  },
+  splashPageTitleLong: {
+    '&&': {
+      fontSize: '6rem',
+      marginRight: -100
+    }
+  },
+  titleSectionWithSplashPageHeader: {
+    marginBottom: 140,
+  },
+  rootWithSplashPageHeader: {
+    paddingTop: 350,
+    marginBottom: 140,
   }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
+const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
+  fullPost?: PostsWithNavigation|PostsWithNavigationAndRevision,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  showSplashPageHeader?: boolean
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
 
@@ -171,7 +192,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     </a>
   </LWTooltip> : null;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer})}>
+  const splashPageTitleClass = post.title.length > 100 ? classes.splashPageTitleLong : classes.splashPageTitle;
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
@@ -186,9 +208,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
         </span>}
       </div>
-      <div className={classes.titleSection}>
+      <div className={classNames(classes.titleSection, {[classes.titleSectionWithSplashPageHeader]: showSplashPageHeader})}>
         <div className={classes.title}>
-          <PostsPageTitle post={post} />
+          <PostsPageTitle post={post} className={showSplashPageHeader ? splashPageTitleClass : undefined}/>
           <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>
               <PostsAuthors post={post} pageSectionContext="post_header" />

@@ -643,6 +643,7 @@ importComponent("PostsNewForm", () => require("../../components/posts/PostsNewFo
 importComponent("PostsNoMore", () => require("../../components/posts/PostsNoMore.tsx"));
 importComponent("PostsNoResults", () => require("../../components/posts/PostsNoResults.tsx"));
 importComponent("AudioToggle", () => require("../../components/posts/PostsPage/AudioToggle.tsx"));
+importComponent("BestOfLWPostsPageSplashImage", () => require("../../components/posts/PostsPage/BestOfLWPostsPageSplashImage.tsx"));
 importComponent("CollapsedFootnotes", () => require("../../components/posts/PostsPage/CollapsedFootnotes.tsx"));
 importComponent("ContentType", () => require("../../components/posts/PostsPage/ContentType.tsx"));
 importComponent("CrosspostHeaderIcon", () => require("../../components/posts/PostsPage/CrosspostHeaderIcon.tsx"));
