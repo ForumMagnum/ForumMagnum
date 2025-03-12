@@ -1,15 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 import { Components } from './vulcan-lib/components';
-import Conversations from './collections/conversations/collection';
-import { Posts } from './collections/posts/collection';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
-import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
-import { TagRels } from './collections/tagRels/collection';
-import { Tags } from './collections/tags/collection';
-import Messages from './collections/messages/collection';
-import Localgroups from './collections/localgroups/collection';
-import Users from './collections/users/collection';
 import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
@@ -28,7 +20,6 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
-import Sequences from './collections/sequences/collection';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
@@ -195,6 +186,8 @@ type DocumentSummary =
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext): Promise<DocumentSummary | null> => {
   if (!documentId) return null
 
+  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context;
+
   switch (documentType) {
     case 'post':
       const post = await Posts.findOne(documentId)
@@ -209,7 +202,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return comment && {
         type: documentType,
         document: comment,
-        displayName: await getCommentParentTitle(comment),
+        displayName: await getCommentParentTitle(comment, context),
         associatedUserName: await commentGetAuthorName(comment, context),
       }
     case 'user':
@@ -295,7 +288,7 @@ export const NewUserCommentNotification = registerNotificationType({
   userSettingField: "notificationSubscribedUserComment",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document: DbComment = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' left a new comment on the post ' + await getCommentParentTitle(document);
+    return await commentGetAuthorName(document, context) + ' left a new comment on the post ' + await getCommentParentTitle(document, context);
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -333,6 +326,7 @@ export const NewEventNotification = registerNotificationType({
   name: "newEvent",
   userSettingField: "notificationPostsInGroups",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const { Localgroups } = context;
     let document = await getDocument(documentType, documentId, context);
     let group: DbLocalgroup|null = null
     if (documentType === "post") {
@@ -358,6 +352,7 @@ export const NewGroupPostNotification = registerNotificationType({
   name: "newGroupPost",
   userSettingField: "notificationPostsInGroups",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const { Localgroups } = context;
     let document = await getDocument(documentType, documentId, context);
     let group: DbLocalgroup|null = null
     if (documentType === "post") {
@@ -389,7 +384,7 @@ export const NewCommentNotification = registerNotificationType({
   userSettingField: "notificationCommentsOnSubscribedPost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' left a new comment on "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document, context) + ' left a new comment on "' + await getCommentParentTitle(document, context) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -407,7 +402,7 @@ export const NewSubforumCommentNotification = registerNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document, context)} left a new comment`;
+    return `${startCase(await getCommentParentTitle(document, context))}: ${await commentGetAuthorName(document, context)} left a new comment`;
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -528,7 +523,7 @@ export const NewDebateCommentNotification = registerNotificationType({
   userSettingField: "notificationDebateCommentsOnSubscribedPost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document, context) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -544,7 +539,7 @@ export const NewDebateReplyNotification = registerNotificationType({
   userSettingField: "notificationDebateReplies",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document, context) + '"';
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
@@ -557,7 +552,7 @@ export const NewShortformNotification = registerNotificationType({
   userSettingField: "notificationShortformContent",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return 'New comment on "' + await getCommentParentTitle(document) + '"';
+    return 'New comment on "' + await getCommentParentTitle(document, context) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -568,6 +563,7 @@ export const NewShortformNotification = registerNotificationType({
 });
 
 export const taggedPostMessage = async ({documentType, documentId, context}: GetMessageProps) => {
+  const { Tags, Posts } = context;
   const tagRel = await getDocument(documentType, documentId, context) as DbTagRel;
   const tag = await Tags.findOne({_id: tagRel.tagId})
   const post = await Posts.findOne({_id: tagRel.postId})
@@ -602,7 +598,8 @@ export const NewSequencePostsNotification = registerNotificationType({
   Display: ({Sequence}) => <>Posts added to <Sequence /></>,
 });
 
-export async function getCommentParentTitle(comment: DbComment) {
+export async function getCommentParentTitle(comment: DbComment, context: ResolverContext) {
+  const { Tags, Posts } = context;
   if (comment.postId) return (await Posts.findOne(comment.postId))?.title
   if (comment.tagId) return (await Tags.findOne(comment.tagId))?.name
   return "Unknown Parent"
@@ -614,7 +611,7 @@ export const NewReplyNotification = registerNotificationType({
   userSettingField: "notificationRepliesToSubscribedComments",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' replied to a comment on "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document, context) + ' replied to a comment on "' + await getCommentParentTitle(document, context) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -630,7 +627,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   userSettingField: "notificationRepliesToMyComments",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document) + '"';
+    return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document, context) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -661,6 +658,7 @@ export const NewMessageNotification = registerNotificationType({
   userSettingField: "notificationPrivateMessage",
   allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const { Conversations, Users } = context;
     let document = await getDocument(documentType, documentId, context) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
@@ -856,7 +854,8 @@ export const CancelledRSVPNotification = registerNotificationType({
 export const NewGroupOrganizerNotification = registerNotificationType({
   name: "newGroupOrganizer",
   userSettingField: "notificationGroupAdministration",
-  async getMessage({documentType, documentId}: GetMessageProps) {
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const { Localgroups } = context;
     if (documentType !== 'localgroup') throw new Error("documentType must be localgroup")
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
@@ -871,7 +870,8 @@ export const NewGroupOrganizerNotification = registerNotificationType({
 export const NewSubforumMemberNotification = registerNotificationType({
   name: "newSubforumMember",
   userSettingField: "notificationGroupAdministration",
-  async getMessage({documentType, documentId}: GetMessageProps) {
+  async getMessage({documentType, documentId, context}: GetMessageProps) {
+    const { Users } = context;
     if (documentType !== 'user') throw new Error("documentType must be user")
     const newUser = await Users.findOne(documentId)
     if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")

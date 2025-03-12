@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentInCollection } from './migrationUtils';
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Users } from '../../lib/collections/users/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { Users } from '../../server/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 
 export default registerMigration({

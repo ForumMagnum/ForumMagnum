@@ -1,3 +1,3 @@
 #!/bin/bash
 
-yarn repl dev "packages/lesswrong/server/codegen/generateTypes.ts" "generateTypesAndSQLSchema('.')"
+yarn repl dev codegen "packages/lesswrong/server/codegen/generateTypes.ts" "generateTypesAndSQLSchema('.')"

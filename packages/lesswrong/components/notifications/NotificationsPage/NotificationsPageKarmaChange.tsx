@@ -6,7 +6,7 @@ import type {
   EAReactionChanges,
   PostKarmaChange,
   TagRevisionKarmaChange,
-} from "../../../lib/collections/users/karmaChangesGraphQL";
+} from "../../../server/collections/users/karmaChangesGraphQL";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import {

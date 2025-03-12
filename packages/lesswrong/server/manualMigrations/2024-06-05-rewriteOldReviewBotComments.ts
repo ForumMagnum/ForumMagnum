@@ -1,4 +1,4 @@
-import { Comments } from "@/lib/collections/comments/collection.ts";
+import { Comments } from "@/server/collections/comments/collection.ts";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/query";

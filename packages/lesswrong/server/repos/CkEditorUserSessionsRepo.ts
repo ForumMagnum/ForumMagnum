@@ -1,4 +1,4 @@
-import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
+import CkEditorUserSessions from "../../server/collections/ckEditorUserSessions/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

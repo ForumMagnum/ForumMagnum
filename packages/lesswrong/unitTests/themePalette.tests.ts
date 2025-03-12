@@ -21,7 +21,7 @@ jest.mock("../components/editor/DraftJSEditor", () => {
  * need this import to actually get the components _into_ the deferred
  * components table in the first place.
  */
-import "../server";
+import '../lib/generated/allComponents';
 
 describe('JSS', () => {
   /**

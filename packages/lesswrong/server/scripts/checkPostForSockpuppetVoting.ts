@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { ClientIds } from "../../lib/collections/clientIds/collection";
-import { Comments } from "../../lib/collections/comments/collection";
-import LWEvents from "../../lib/collections/lwevents/collection";
-import Votes from "../../lib/collections/votes/collection";
+import { ClientIds } from "../../server/collections/clientIds/collection";
+import { Comments } from "../../server/collections/comments/collection";
+import LWEvents from "../../server/collections/lwevents/collection";
+import Votes from "../../server/collections/votes/collection";
 import uniq from "lodash/uniq";
 import intersection from "lodash/intersection";
 import { wrapVulcanAsyncScript } from "./utils";

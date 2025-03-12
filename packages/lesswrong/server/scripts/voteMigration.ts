@@ -1,6 +1,6 @@
 import { randomId } from '../../lib/random';
-import Users from '../../lib/collections/users/collection';
-import { Votes } from '../../lib/collections/votes/collection';
+import Users from '../../server/collections/users/collection';
+import { Votes } from '../../server/collections/votes/collection';
 
 export async function runVoteMigration(collectionName: CollectionNameString) {
   try {

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';

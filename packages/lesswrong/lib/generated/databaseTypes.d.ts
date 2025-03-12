@@ -481,6 +481,20 @@ interface DbFeaturedResource extends DbObject {
   title: string
 }
 
+type FieldChangesCollection = CollectionBase<"FieldChanges">;
+
+interface DbFieldChange extends DbObject {
+  __collectionName?: "FieldChanges"
+  changeGroup: string | null
+  createdAt: Date
+  documentId: string | null
+  fieldName: string | null
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  newValue: any /*{"definitions":[{"blackbox":true}]}*/
+  oldValue: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string | null
+}
+
 type ForumEventsCollection = CollectionBase<"ForumEvents">;
 
 interface DbForumEvent extends DbObject {
@@ -2095,6 +2109,7 @@ interface CollectionsByName {
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
+  FieldChanges: FieldChangesCollection
   ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
@@ -2184,6 +2199,7 @@ interface ObjectsByCollectionName {
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
+  FieldChanges: DbFieldChange
   ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
@@ -2273,6 +2289,7 @@ interface ObjectsByTypeName {
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
+  FieldChange: DbFieldChange
   ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession

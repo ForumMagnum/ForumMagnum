@@ -195,7 +195,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     try {
       const fieldType = this.getField(field);
       const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
-      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
+      const primitiveValueInJsonbField = (fieldType?.toConcrete() instanceof JsonType) && (typeof value !== "object" || value instanceof Date);
+      const typeForArg = (arrayValueInNonArrayJsonbField || primitiveValueInJsonbField) ? new JsonType() : undefined;
       const updateValue = this.compileUpdateExpression(value, { jsonType: typeForArg });
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);

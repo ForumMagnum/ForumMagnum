@@ -292,22 +292,21 @@ export const postgresFunctions: PostgresFunction[] = [
     ],
   },
   {
-    // Calculate the last date user updated their profile. This is very slow - you
-    // should generally use the denormalized value in the user's `profileUpdatedAt`
-    // field. This function is just used for updating that value.
+    // Calculate the last date user updated their profile. This may be slow (it
+    // used to use LWEvents, but now uses FieldChanges). You should generally
+    // use the denormalized value in the user's `profileUpdatedAt` field. This
+    // function is just used for updating that value.
     source: `
       CREATE OR REPLACE FUNCTION fm_get_user_profile_updated_at(userid TEXT)
         RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
           SELECT COALESCE(
             (SELECT "createdAt"
-            FROM (
-              SELECT JSONB_OBJECT_KEYS("properties"->'after') AS "key", "createdAt"
-              FROM "LWEvents"
-              WHERE "documentId" = userid AND "name" = 'fieldChanges'
-            ) q
-            WHERE "key" IN (${allUserProfileFields.map((f) => `'${f}'`).join(", ")})
-            ORDER BY "createdAt" DESC
-            LIMIT 1),
+              FROM "FieldChanges"
+              WHERE "documentId" = userid
+                AND "fieldName" IN (${allUserProfileFields.map((f) => `'${f}'`).join(", ")})
+              ORDER BY "createdAt" DESC
+              LIMIT 1
+            ),
             (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
             TO_TIMESTAMP(0)
           )

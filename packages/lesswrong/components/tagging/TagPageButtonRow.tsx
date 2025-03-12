@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDialog } from '../common/withDialog';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
+import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';

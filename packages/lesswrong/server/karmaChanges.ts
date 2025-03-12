@@ -1,4 +1,4 @@
-import { Tags } from '../lib/collections/tags/collection';
+import { Tags } from '../server/collections/tags/collection';
 import {
   KarmaChangeSettingsType,
   KarmaChangeUpdateFrequency,
@@ -16,7 +16,7 @@ import type {
   TagRevisionKarmaChange,
   AnyKarmaChange,
   KarmaChangesSimple,
-} from '../lib/collections/users/karmaChangesGraphQL';
+} from './collections/users/karmaChangesGraphQL';
 import { isFriendlyUI } from '../themes/forumTheme';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly

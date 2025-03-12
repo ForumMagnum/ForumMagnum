@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Tweets from "../../lib/collections/tweets/collection";
+import Tweets from "../../server/collections/tweets/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewablePostsSelector } from "./helpers";
 

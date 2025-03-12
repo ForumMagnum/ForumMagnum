@@ -10,7 +10,7 @@ import { useTagBySlug } from '../useTag';
 import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
 import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import qs from "qs";
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';

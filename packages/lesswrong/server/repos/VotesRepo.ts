@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import Votes from "../../lib/collections/votes/collection";
+import Votes from "../../server/collections/votes/collection";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
@@ -13,7 +13,7 @@ import type {
   PostKarmaChange,
   ReactionChange,
   TagRevisionKarmaChange,
-} from "../../lib/collections/users/karmaChangesGraphQL";
+} from "../collections/users/karmaChangesGraphQL";
 
 export const RECENT_CONTENT_COUNT = 20
 

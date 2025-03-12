@@ -9,7 +9,7 @@ import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentMultiQuery } from "./vulcan-lib/query";
-import Users from "@/lib/collections/users/collection";
+import Users from "@/server/collections/users/collection";
 import { clientIdMiddleware } from "./clientIdMiddleware";
 
 

@@ -42,3 +42,5 @@ export const schema: SchemaType<"PostViews"> = {
     nullable: false
   },
 }
+
+export default schema;

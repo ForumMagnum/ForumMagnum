@@ -1,4 +1,4 @@
-import ForumEvents from "@/lib/collections/forumEvents/collection";
+import ForumEvents from "@/server/collections/forumEvents/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { FORUM_EVENT_STICKER_VERSION, ForumEventSticker } from "@/lib/collections/forumEvents/types";

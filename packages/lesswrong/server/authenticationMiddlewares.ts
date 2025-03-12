@@ -2,7 +2,7 @@ import passport, { Profile } from 'passport'
 import { createAndSetToken } from './vulcan-lib/apollo-server/authentication';
 import { Strategy as CustomStrategy } from 'passport-custom'
 import { getUser } from './vulcan-lib/apollo-server/context';
-import { Users } from '../lib/collections/users/collection';
+import { Users } from '../server/collections/users/collection';
 import { getCookieFromReq } from './utils/httpUtil';
 import { Strategy as GoogleOAuthStrategy, Profile as GoogleProfile, VerifyCallback as GoogleVerifyCallback } from 'passport-google-oauth20';
 import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'passport-facebook';

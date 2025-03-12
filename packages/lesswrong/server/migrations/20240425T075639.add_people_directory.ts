@@ -1,4 +1,4 @@
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { addField, dropField, installExtensions, updateFunctions } from "./meta/utils";
 
 export const acceptsSchemaHash = "c192cfffc5d07ae27caf1477da048644";

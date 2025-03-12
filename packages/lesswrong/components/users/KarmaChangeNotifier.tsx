@@ -13,7 +13,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
-import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
+import type { ReactionChange } from '../../server/collections/users/karmaChangesGraphQL';
 import { getKarmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';

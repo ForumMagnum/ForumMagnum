@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../hooks/useOptimisticToggle";
-import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
+import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 
 type NotifyMeToggleDropdownItemInternalProps = {

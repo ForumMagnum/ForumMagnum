@@ -1,16 +1,16 @@
 import React from 'react';
-import { Notifications } from '../lib/collections/notifications/collection';
+import { Notifications } from '../server/collections/notifications/collection';
 import { getNotificationTypes } from '../lib/notificationTypes';
 import { getNotificationTypeByNameServer } from './notificationTypesServer';
 import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
 import { createAnonymousContext } from './vulcan-lib/query';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 
