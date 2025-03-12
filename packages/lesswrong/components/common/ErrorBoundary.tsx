@@ -1,16 +1,18 @@
 import React, { ErrorInfo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { configureScope, captureException }from '@sentry/core';
-import { withLocation } from '../../lib/routeUtil';
 
-interface ErrorBoundaryExternalProps {
+interface ErrorBoundaryProps {
   children: React.ReactNode,
 }
 
-interface ErrorBoundaryProps extends ErrorBoundaryExternalProps, WithLocationProps {}
-
 interface ErrorBoundaryState {
   error: string | false,
+
+  /**
+   * The current page URL when the error occurred. Used to clear errors in
+   * components that persist across page navigation on the client.
+   */
   errorLocation?: string,
 }
 
@@ -24,7 +26,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     props: ErrorBoundaryProps,
     state: ErrorBoundaryState,
   ) {
-    if (state.error && state.errorLocation !== props.location.url) {
+    if (!bundleIsServer && state.error && state.errorLocation !== window.location.href) {
       return {error: false};
     }
     return null;
@@ -33,7 +35,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   componentDidCatch(error: Error, info: ErrorInfo) {
     this.setState({
       error: error.toString(),
-      errorLocation: this.props.location.url,
+      errorLocation: bundleIsServer ? "" : window.location.href,
     });
     configureScope(scope => {
       Object.keys(info).forEach((key: keyof ErrorInfo) => {
@@ -54,11 +56,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const ErrorBoundaryComponent = registerComponent<ErrorBoundaryExternalProps>(
-  "ErrorBoundary",
-  ErrorBoundary,
-  {hocs: [withLocation]},
-);
+const ErrorBoundaryComponent = registerComponent("ErrorBoundary", ErrorBoundary);
 
 declare global {
   interface ComponentTypes {

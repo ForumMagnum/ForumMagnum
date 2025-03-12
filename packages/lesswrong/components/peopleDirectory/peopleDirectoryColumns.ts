@@ -34,9 +34,9 @@ export type PeopleDirectoryColumn<
   defaultSort?: "asc" | "desc",
   columnWidth?: string,
   componentName: T,
-  props?: Omit<ComponentProps<ComponentTypes[T]>, "user">,
+  props?: Omit<ComponentProps<ComponentTypes[T]>, "user"|"ref">,
   skeletonComponentName?: S,
-  skeletonProps?: Omit<ComponentProps<ComponentTypes[S]>, "user">,
+  skeletonProps?: Omit<ComponentProps<ComponentTypes[S]>, "user"|"ref">,
 } & PeopleDirectoryColumnState;
 
 export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] = [
