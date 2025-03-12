@@ -332,7 +332,11 @@ export const setPostContent = async (page: Page, {
     // eslint-disable-next-line no-console
     console.log(page.getByPlaceholder(titlePlaceholder))
     await page.getByPlaceholder(titlePlaceholder).fill("");
+    // eslint-disable-next-line no-console
+    console.log(page.getByPlaceholder(titlePlaceholder))
     await page.getByPlaceholder(titlePlaceholder).fill(title);
+    // eslint-disable-next-line no-console
+    console.log(page.getByPlaceholder(titlePlaceholder))
   }
 
   if (body) {

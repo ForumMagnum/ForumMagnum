@@ -110,7 +110,6 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
-  await page.waitForTimeout(1000);
   await page.getByText("Publish").click();
 
   // Submitting navigates to the post page - check our new post is there
