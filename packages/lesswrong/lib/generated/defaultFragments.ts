@@ -453,8 +453,17 @@ export const FeaturedResourcesDefaultFragment = `
   }
 `;
 
+export const FeedItemServingsDefaultFragment = `
+  fragment FeedItemServingsDefaultFragment on undefined {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+  }
+`;
+
 export const FieldChangesDefaultFragment = `
-  fragment FieldChangesDefaultFragment on undefined {
+  fragment FieldChangesDefaultFragment on FieldChange {
     _id
     schemaVersion
     createdAt
@@ -556,6 +565,21 @@ export const JargonTermsDefaultFragment = `
   }
 `;
 
+export const LWEventsDefaultFragment = `
+  fragment LWEventsDefaultFragment on LWEvent {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    name
+    documentId
+    important
+    properties
+    intercom
+  }
+`;
+
 export const LegacyDataDefaultFragment = `
   fragment LegacyDataDefaultFragment on LegacyData {
     _id
@@ -618,21 +642,6 @@ export const LocalgroupsDefaultFragment = `
     bannerImageId
     inactive
     deleted
-  }
-`;
-
-export const LWEventsDefaultFragment = `
-  fragment LWEventsDefaultFragment on LWEvent {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    name
-    documentId
-    important
-    properties
-    intercom
   }
 `;
 
@@ -1045,6 +1054,24 @@ export const PostsDefaultFragment = `
   }
 `;
 
+export const RSSFeedsDefaultFragment = `
+  fragment RSSFeedsDefaultFragment on RSSFeed {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    ownedByUser
+    displayFullContent
+    nickname
+    url
+    status
+    rawFeed
+    setCanonicalUrl
+    importAsDraft
+  }
+`;
+
 export const ReadStatusesDefaultFragment = `
   fragment ReadStatusesDefaultFragment on ReadStatus {
     _id
@@ -1160,24 +1187,6 @@ export const RevisionsDefaultFragment = `
     afBaseScore
     afExtendedScore
     afVoteCount
-  }
-`;
-
-export const RSSFeedsDefaultFragment = `
-  fragment RSSFeedsDefaultFragment on RSSFeed {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-    status
-    rawFeed
-    setCanonicalUrl
-    importAsDraft
   }
 `;
 
@@ -1474,6 +1483,15 @@ export const TypingIndicatorsDefaultFragment = `
   }
 `;
 
+export const UserActivitiesDefaultFragment = `
+  fragment UserActivitiesDefaultFragment on UserActivity {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+  }
+`;
+
 export const UserEAGDetailsDefaultFragment = `
   fragment UserEAGDetailsDefaultFragment on UserEAGDetail {
     _id
@@ -1543,15 +1561,6 @@ export const UserTagRelsDefaultFragment = `
     subforumShowUnreadInSidebar
     subforumEmailNotifications
     subforumHideIntroPost
-  }
-`;
-
-export const UserActivitiesDefaultFragment = `
-  fragment UserActivitiesDefaultFragment on UserActivity {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
   }
 `;
 

@@ -1085,6 +1085,8 @@ importComponent("LocalgroupPageTitle", () => require("../../components/titles/Lo
 importComponent("PostsPageHeaderTitle", () => require("../../components/titles/PostsPageHeaderTitle.tsx"));
 importComponent("SequencesPageTitle", () => require("../../components/titles/SequencesPageTitle.tsx"));
 importComponent("UserPageTitle", () => require("../../components/titles/UserPageTitle.tsx"));
+importComponent("FeedItemWrapper", () => require("../../components/ultraFeed/FeedItemWrapper.tsx"));
+importComponent("UltraFeed", () => require("../../components/ultraFeed/UltraFeed.tsx"));
 importComponent("BannedNotice", () => require("../../components/users/BannedNotice.tsx"));
 importComponent("CrosspostLoginPage", () => require("../../components/users/CrosspostLoginPage.tsx"));
 importComponent("EAUserTooltipContent", () => require("../../components/users/EAUserTooltipContent.tsx"));
@@ -1202,5 +1204,4 @@ importComponent("WalledGardenHome", () => require("../../components/walledGarden
 importComponent("WalledGardenMessage", () => require("../../components/walledGarden/WalledGardenMessage.tsx"));
 importComponent("WalledGardenPortal", () => require("../../components/walledGarden/WalledGardenPortal.tsx"));
 importComponent("WalledGardenPortalBar", () => require("../../components/walledGarden/WalledGardenPortalBar.tsx"));
-importComponent("UltraFeed", () => require("../../components/ultraFeed/UltraFeed.tsx"));
-importComponent("FeedItemWrapper", () => require("../../components/ultraFeed/FeedItemWrapper.tsx"));
+

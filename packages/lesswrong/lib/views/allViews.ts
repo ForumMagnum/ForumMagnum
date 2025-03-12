@@ -19,6 +19,7 @@ import { DigestsViews } from '../collections/digests/views';
 import { ElectionCandidatesViews } from '../collections/electionCandidates/views';
 import { ElectionVotesViews } from '../collections/electionVotes/views';
 import { FeaturedResourcesViews } from '../collections/featuredResources/views';
+import { FeedItemServingsViews } from '../collections/feedItemServings/views';
 import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { ForumEventsViews } from '../collections/forumEvents/views';
 import { GardenCodesViews } from '../collections/gardencodes/views';
@@ -86,6 +87,7 @@ export const allViews = {
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
   FeaturedResources: FeaturedResourcesViews,
+  FeedItemServings: FeedItemServingsViews,
   FieldChanges: FieldChangesViews,
   ForumEvents: ForumEventsViews,
   GardenCodes: GardenCodesViews,

@@ -34,6 +34,7 @@ import { default as ElicitQuestionPredictions } from '../collections/elicitQuest
 import { default as ElicitQuestions } from '../collections/elicitQuestions/schema';
 import { default as EmailTokens } from '../collections/emailTokens/schema';
 import { default as FeaturedResources } from '../collections/featuredResources/schema';
+import { default as FeedItemServings } from '../collections/feedItemServings/schema';
 import { default as FieldChanges } from '../collections/fieldChanges/schema';
 import { default as ForumEvents } from '../collections/forumEvents/schema';
 import { default as GardenCodes } from '../collections/gardencodes/schema';
@@ -105,24 +106,15 @@ if (isAnyTest || isCodegen) {
 }
 
 export const allSchemas = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books,
-  Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
-  Comments, Conversations, CronHistories, CurationEmails, CurationNotices,
-  DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
-  DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions,
-  ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents, GardenCodes,
-  GoogleServiceAccountSessions, Images, JargonTerms, LegacyData, LlmConversations,
-  LlmMessages, Localgroups, LWEvents, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
-  PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
-  PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
-  Posts, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes,
-  ReviewWinnerArts, ReviewWinners, Revisions, RSSFeeds,
-  Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
-  Spotlights, Subscriptions, SurveyQuestions, SurveyResponses,
-  SurveySchedules, Surveys, TagFlags, TagRels, Tags,
-  Tweets, TypingIndicators, UserEAGDetails, UserJobAds,
-  UserMostValuablePosts, UserRateLimits, UserTagRels, UserActivities,
+  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
+  Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences, DigestPosts,
+  Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FeedItemServings, FieldChanges, ForumEvents,
+  GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups, ManifoldProbabilitiesCaches,
+  Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes,
+  Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches,
+  Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights,
+  Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators,
+  UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, SchemaType<CollectionNameString>>;
 
