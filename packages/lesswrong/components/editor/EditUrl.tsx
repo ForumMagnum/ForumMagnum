@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib/components';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import classNames from 'classnames'
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 

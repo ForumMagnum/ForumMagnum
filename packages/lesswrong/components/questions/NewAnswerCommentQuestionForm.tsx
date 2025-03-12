@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useState} from 'react';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";

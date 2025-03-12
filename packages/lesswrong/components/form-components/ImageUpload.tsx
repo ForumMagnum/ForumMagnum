@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';

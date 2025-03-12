@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
 
 const styles = (theme: ThemeType) => ({
   moreReactions: {

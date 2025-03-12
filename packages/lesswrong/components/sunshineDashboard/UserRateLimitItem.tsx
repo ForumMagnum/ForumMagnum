@@ -1,4 +1,4 @@
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/schema';

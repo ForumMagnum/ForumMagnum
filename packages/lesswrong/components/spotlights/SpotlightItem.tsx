@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import PublishIcon from '@material-ui/icons/Publish';
 import MoreVertIcon from '@material-ui/icons/MoreVert';

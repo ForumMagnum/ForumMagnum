@@ -1,10 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import Badge from '@material-ui/core/Badge';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
+import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer';
+import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';

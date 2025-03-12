@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';

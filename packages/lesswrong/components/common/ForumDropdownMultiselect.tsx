@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Menu from '@material-ui/core/Menu';
+import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';

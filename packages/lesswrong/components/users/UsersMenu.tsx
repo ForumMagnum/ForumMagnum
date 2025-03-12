@@ -5,8 +5,8 @@ import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved }
 import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
 import EyeIcon from '@material-ui/icons/Visibility';
 
@@ -24,7 +24,7 @@ import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequenc
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType) => ({

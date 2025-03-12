@@ -1,17 +1,17 @@
 import React, { useCallback, useState } from 'react';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import classNames from 'classnames'
-import Divider from '@material-ui/core/Divider';
+import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import VisibilityIcon from '@material-ui/icons/VisibilityOff';
 import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
 import RoomIcon from '@material-ui/icons/Room';
 import StarIcon from '@material-ui/icons/Star';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'

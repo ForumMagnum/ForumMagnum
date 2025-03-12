@@ -5,9 +5,9 @@ import {
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
+import FormControlLabel from "@/lib/vendor/@material-ui/core/src/FormControlLabel";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";

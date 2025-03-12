@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import WebIcon from '@material-ui/icons/Web';
 import ForumIcon from '@material-ui/icons/Forum';

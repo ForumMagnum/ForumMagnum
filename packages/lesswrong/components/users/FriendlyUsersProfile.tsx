@@ -23,7 +23,7 @@ import { getUserFromResults } from './UsersProfile';
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';

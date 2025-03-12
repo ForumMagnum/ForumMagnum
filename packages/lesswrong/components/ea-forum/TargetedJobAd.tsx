@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button'
+import Button from '@/lib/vendor/@material-ui/core/src/Button'
 import CloseIcon from '@material-ui/icons/Close'
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';

@@ -13,7 +13,7 @@ import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';

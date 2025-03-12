@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@material-ui/core/Card"
+import Paper from "@/lib/vendor/@material-ui/core/src/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import Fullscreen from '@material-ui/icons/Fullscreen';
 import FullscreenExit from '@material-ui/icons/FullscreenExit';

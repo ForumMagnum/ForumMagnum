@@ -5,7 +5,7 @@ import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/col
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES } from '../../../lib/collections/users/schema';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';

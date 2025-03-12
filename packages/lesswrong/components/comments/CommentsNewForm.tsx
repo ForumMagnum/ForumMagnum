@@ -1,5 +1,5 @@
 import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'

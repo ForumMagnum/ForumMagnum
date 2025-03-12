@@ -3,9 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import CheckIcon from '@material-ui/icons/Check';
 
 const styles = (theme: ThemeType) => ({

@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, useCallback, useContext } from 'rea
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useMessages } from '../common/withMessages';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
 import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';

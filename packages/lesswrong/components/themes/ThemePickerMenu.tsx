@@ -6,7 +6,7 @@ import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF }
 import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
-import Paper from '@material-ui/core/Paper';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
 

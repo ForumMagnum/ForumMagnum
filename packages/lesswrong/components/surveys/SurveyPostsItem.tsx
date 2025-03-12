@@ -9,7 +9,7 @@ import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { CLIENT_ID_COOKIE, HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Collapse from "@material-ui/core/Collapse";
+import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import range from "lodash/range";
 import {
   SurveyQuestionFormat,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';

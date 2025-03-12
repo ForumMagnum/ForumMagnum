@@ -4,7 +4,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';

@@ -5,10 +5,10 @@ import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';
 import {
@@ -22,7 +22,7 @@ import {
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
 } from '../../lib/search/searchUtil';
-import Modal from '@material-ui/core/Modal';
+import Modal from '@/lib/vendor/@material-ui/core/src/Modal';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';

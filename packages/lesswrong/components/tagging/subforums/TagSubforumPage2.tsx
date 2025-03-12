@@ -7,8 +7,8 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useTagBySlug } from '../useTag';
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
+import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
+import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import qs from "qs";
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';

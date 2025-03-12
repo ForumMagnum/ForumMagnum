@@ -6,7 +6,7 @@ import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'

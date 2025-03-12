@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';

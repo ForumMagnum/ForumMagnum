@@ -14,7 +14,7 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
-import Input from "@material-ui/core/Input";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 

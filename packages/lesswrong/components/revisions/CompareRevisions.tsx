@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import Menu from '@material-ui/core/Menu';
+import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';

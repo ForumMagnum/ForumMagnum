@@ -5,7 +5,7 @@ import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
-import Badge from '@material-ui/core/Badge';
+import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
 import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';

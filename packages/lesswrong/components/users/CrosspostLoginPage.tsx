@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Button from "@material-ui/core/Button";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from "../common/Header";
 import { gql, useMutation } from "@apollo/client";

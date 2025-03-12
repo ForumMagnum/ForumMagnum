@@ -1,6 +1,6 @@
 import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { createGenerateClassName, jssPreset } from '@material-ui/core/styles';
+import { createGenerateClassName, jssPreset } from '@/lib/vendor/@material-ui/core/src/styles';
 import { create } from 'jss';
 import type { AbstractThemeOptions } from '../themes/themeNames';
 import { ThemeContextProvider } from '../components/themes/useTheme';

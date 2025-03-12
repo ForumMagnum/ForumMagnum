@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import TextField from "@material-ui/core/TextField";
+import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({

@@ -7,14 +7,14 @@ import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { randInt } from '../../lib/random';
 import SimpleSchema from 'simpl-schema';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import MailOutline from '@material-ui/icons/MailOutline'
 import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 // mailchimp link to sign up for the EA Forum's digest

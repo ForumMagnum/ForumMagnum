@@ -5,8 +5,8 @@ import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import RssFeed from "@material-ui/icons/RssFeed";
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({

@@ -1,4 +1,4 @@
-import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
+import { createGenerateClassName, MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';

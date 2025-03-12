@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/server';
 // Adds selected MUI components to global styles.
 // import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';

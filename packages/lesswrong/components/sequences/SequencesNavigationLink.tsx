@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import IconButton from '@material-ui/core/IconButton'
-import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton'
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
