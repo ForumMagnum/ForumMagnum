@@ -110,11 +110,11 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
-  await page.waitForTimeout(10000);
   await page.getByText("Publish").click();
 
   // Submitting navigates to the post page - check our new post is there
-  await page.waitForURL(`/posts/**/test-post-${n}**`);
+  // This will have a slug derived from the initial title, rather than the one we just set.
+  await page.waitForURL(`/posts/**/untitled-draft**`);
   await expect(page.getByText(title)).toBeVisible();
   await expect(page.getByText(body)).toBeVisible();
 

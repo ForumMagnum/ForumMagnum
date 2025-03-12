@@ -329,14 +329,8 @@ export const setPostContent = async (page: Page, {
   // Clear and fill the editor in two separate steps, because Playwright's .fill()
   // fails in Firefox (but not other browsers) if these are one step
   if (title) {
-    // eslint-disable-next-line no-console
-    console.log(await page.getByPlaceholder(titlePlaceholder).inputValue());
     await page.getByPlaceholder(titlePlaceholder).fill("");
-    // eslint-disable-next-line no-console
-    console.log(await page.getByPlaceholder(titlePlaceholder).inputValue());
     await page.getByPlaceholder(titlePlaceholder).fill(title);
-    // eslint-disable-next-line no-console
-    console.log(await page.getByPlaceholder(titlePlaceholder).inputValue());
   }
 
   if (body) {
