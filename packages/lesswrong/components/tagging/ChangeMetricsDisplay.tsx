@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
+import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

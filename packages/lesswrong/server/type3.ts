@@ -1,9 +1,9 @@
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
-import { Posts } from "@/lib/collections/posts/collection.ts";
+import { Posts } from "@/server/collections/posts/collection.ts";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { isTagAllowedType3Audio, tagGetUrl } from "@/lib/collections/tags/helpers";
-import { Tags } from "@/lib/collections/tags/collection";
+import { Tags } from "@/server/collections/tags/collection";
 
 /* Currently unused
 const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)

@@ -4,8 +4,8 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import LockIcon from '@material-ui/icons/Lock'
-import LockOpenIcon from '@material-ui/icons/LockOpen'
+import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock'
+import LockOpenIcon from '@/lib/vendor/@material-ui/icons/src/LockOpen'
 import flatMap from 'lodash/flatMap';
 
 const styles = (theme: ThemeType) => ({

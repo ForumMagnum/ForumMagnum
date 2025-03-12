@@ -6,7 +6,7 @@ import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import FormLabel from '@material-ui/core/FormLabel';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css

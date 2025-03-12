@@ -33,7 +33,7 @@
  */
 export const acceptsSchemaHash = "01bf8045d376a34b6a5c7d0d8bfddcaa";
 
-import Users from "../../lib/collections/users/collection"
+import Users from "../../server/collections/users/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

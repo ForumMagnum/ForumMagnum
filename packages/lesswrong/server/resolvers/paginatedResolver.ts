@@ -1,6 +1,6 @@
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
-import { getCollectionByTypeName } from "../../lib/vulcan-lib/getCollection";
+import { getCollectionByTypeName } from "../collections/allCollections";
 
 /**
  * Checks if a graphql type passed in as a string literal is one of those that corresponds a collection's DbObject type
@@ -76,7 +76,7 @@ export const createPaginatedResolver = <
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
         const accessFilterFunction = collection
-          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!, records as AnyBecauseHard[], context)
+          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!.collectionName, records as AnyBecauseHard[], context)
           : undefined;
 
         const limit = args.limit;

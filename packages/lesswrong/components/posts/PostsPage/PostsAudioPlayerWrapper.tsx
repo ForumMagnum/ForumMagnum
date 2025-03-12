@@ -13,7 +13,8 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) => {
-  return post.podcastEpisode || isPostAllowedType3Audio(post);
+  return (('podcastEpisode' in post) && post.podcastEpisode)
+    || isPostAllowedType3Audio(post);
 }
 
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
@@ -25,7 +26,7 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
   const { PostsPodcastPlayer, T3AudioPlayer } = Components;
 
   return <>
-    {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+    {('podcastEpisode' in post) && post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
     </div>}
     {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}

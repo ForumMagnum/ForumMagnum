@@ -3,7 +3,6 @@ import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, tagUrlBaseSetting } from "../../instanceSettings";
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
@@ -85,10 +84,6 @@ export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, ac
   if (user.isAdmin) return true
   if ((user.karma) >= tagMinimumKarmaPermissions[action]) return true
   return false
-}
-
-export const subforumGetSubscribedUsers = async ({tagId}: {tagId: string}): Promise<DbUser[]> => {
-  return await Users.find({profileTagIds: tagId}).fetch()
 }
 
 export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag: { subforumModeratorIds: string[] }) => {

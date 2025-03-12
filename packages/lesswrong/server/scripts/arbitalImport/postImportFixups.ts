@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 
-import Tags from "@/lib/collections/tags/collection"
-import Revisions from "@/lib/collections/revisions/collection"
+import Tags from "@/server/collections/tags/collection"
+import Revisions from "@/server/collections/revisions/collection"
 import { connectAndLoadArbitalDatabase } from "./arbitalImport";
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { runSqlQuery } from "@/server/sql/sqlClient";
 import keyBy from "lodash/keyBy";
 import reverse from "lodash/reverse";

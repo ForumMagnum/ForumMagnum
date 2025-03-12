@@ -36,7 +36,7 @@
 export const acceptsSchemaHash = "ee6df59dfe7fc9440ca415ce5cb2d762";
 
 import { addField, dropField } from "./meta/utils";
-import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
+import ElectionCandidates from "../../server/collections/electionCandidates/collection";
 
 export const up = async ({db}: MigrationContext) => {
   await addField(db, ElectionCandidates, "gwwcId");

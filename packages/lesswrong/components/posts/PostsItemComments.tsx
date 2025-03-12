@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import CommentIcon from '@material-ui/icons/ModeComment';
+import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 
 const styles = (theme: ThemeType) => ({
   commentsIconSmall: {

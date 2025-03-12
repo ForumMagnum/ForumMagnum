@@ -1,7 +1,7 @@
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 
 defineFeedResolver<Date>({
   name: "AllTagsActivityFeed",

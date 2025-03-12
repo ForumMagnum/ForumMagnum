@@ -31,7 +31,7 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import { throwError } from './errors';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import clone from 'lodash/clone';
@@ -48,8 +48,9 @@ import type {
   runUpdateAfterEditableCallbacks as runUpdateAfterEditableCallbacksType,
   runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
 } from '../editor/make_editable_callbacks';
-import { runCountOfReferenceCallbacks } from '../callbacks/countOfReferenceCallbacks';
-import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from '../utils/slugUtil';
+import type { runCountOfReferenceCallbacks as runCountOfReferenceCallbacksType } from '../callbacks/countOfReferenceCallbacks';
+import type { runSlugCreateBeforeCallback as runSlugCreateBeforeCallbackType, runSlugUpdateBeforeCallback as runSlugUpdateBeforeCallbackType } from '../utils/slugUtil';
+
 import { isElasticEnabled } from '@/lib/instanceSettings';
 import { searchIndexedCollectionNamesSet } from '@/lib/search/searchUtil';
 // This needs to be import type to avoid a dependency cycle
@@ -64,7 +65,7 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
     document
   } = createMutatorParams;
 
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
 
   return {
     currentUser, collection,
@@ -130,12 +131,17 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const context = createMutatorParams.context ?? require('./query').createAnonymousContext();
 
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const schema = getSchema(collectionName);
 
   const hooks = getCollectionHooks(collectionName);
 
   // There are some functions we need to run in various mutator stages which themselves call mutators somewhere,
   // so to avoid dependency cycles we need to dynamically import them.
+
+  const { runSlugCreateBeforeCallback }: {
+    runSlugCreateBeforeCallback: typeof runSlugCreateBeforeCallbackType,
+  } = require('../utils/slugUtil');
+
   const { runCreateBeforeEditableCallbacks, runCreateAfterEditableCallbacks, runNewAsyncEditableCallbacks }: {
     runCreateBeforeEditableCallbacks: typeof runCreateBeforeEditableCallbacksType,
     runCreateAfterEditableCallbacks: typeof runCreateAfterEditableCallbacksType,
@@ -145,6 +151,10 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const { elasticSyncDocument }: {
     elasticSyncDocument: typeof elasticSyncDocumentType,
   } = require('../search/elastic/elasticCallbacks');
+
+  const { runCountOfReferenceCallbacks }: {
+    runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,
+  } = require('../callbacks/countOfReferenceCallbacks');
 
   /*
 
@@ -347,7 +357,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   document: oldDocument,
 }: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const schema = getSchema(collectionName);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
   logger('updateMutator() begin')
 
@@ -366,6 +376,10 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   const hooks = getCollectionHooks(collectionName);
 
+  const { runSlugUpdateBeforeCallback }: {
+    runSlugUpdateBeforeCallback: typeof runSlugUpdateBeforeCallbackType,
+  } = require('../utils/slugUtil');
+
   const { runUpdateBeforeEditableCallbacks, runUpdateAfterEditableCallbacks, runEditAsyncEditableCallbacks }: {
     runUpdateBeforeEditableCallbacks: typeof runUpdateBeforeEditableCallbacksType,
     runUpdateAfterEditableCallbacks: typeof runUpdateAfterEditableCallbacksType,
@@ -375,6 +389,10 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   const { elasticSyncDocument }: {
     elasticSyncDocument: typeof elasticSyncDocumentType,
   } = require('../search/elastic/elasticCallbacks');
+
+  const { runCountOfReferenceCallbacks }: {
+    runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,
+  } = require('../callbacks/countOfReferenceCallbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -595,7 +613,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   document,
 }: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const schema = getSchema(collectionName);
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
 
@@ -604,6 +622,10 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
   const context = maybeContext ?? require('./query').createAnonymousContext();
+
+  const { runCountOfReferenceCallbacks }: {
+    runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,
+  } = require('../callbacks/countOfReferenceCallbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
