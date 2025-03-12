@@ -1,5 +1,5 @@
 import { addField, dropField } from "./meta/utils";
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 
 /**
  * Generated on 2023-11-17T21:54:06.721Z by `yarn makemigrations`

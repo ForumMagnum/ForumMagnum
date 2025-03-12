@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
-import GoogleServiceAccountSessions from '../../lib/collections/googleServiceAccountSessions/collection';
+import GoogleServiceAccountSessions from '../../server/collections/googleServiceAccountSessions/collection';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { drive } from '@googleapis/drive';
 

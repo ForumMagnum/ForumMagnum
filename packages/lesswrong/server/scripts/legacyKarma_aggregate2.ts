@@ -1,4 +1,4 @@
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 export const fixLegacyKarma = async () => {
   const response = await Users.aggregate(

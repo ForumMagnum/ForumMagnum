@@ -1,12 +1,12 @@
 import { pluralize } from '../vulcan-lib/pluralize';
-import { typeNameToCollectionName } from '../vulcan-lib/getCollection';
+import { typeNameToCollectionName } from '../generated/collectionTypeNames';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import { viewTermsToQuery } from '../utils/viewUtils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 import { loggerConstructor } from '../utils/logging';
 import { mingoAddToSet, mingoBelongsToSet, MingoDocument, mingoIsInSet, MingoQueryResult, mingoRemoveFromSet, mingoReorderSet, mingoUpdateInSet } from "./mingoUpdates";
 
-export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
+export const updateCacheAfterCreate = (typeName: keyof typeof typeNameToCollectionName, client: ApolloClient<any>) => {
   const mutationName = getCreateMutationName(typeName);
   return (store: ApolloCache<any>, mutationResult: any) => {
     const { data: { [mutationName]: {data: document} } } = mutationResult
@@ -15,7 +15,7 @@ export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<an
   }
 }
 
-export const updateCacheAfterUpdate = (typeName: string) => {
+export const updateCacheAfterUpdate = (typeName: keyof typeof typeNameToCollectionName) => {
   const mutationName = getUpdateMutationName(typeName);
   return (store: ApolloCache<any>, mutationResult: any) => {
     const { data: { [mutationName]: {data: document} } } = mutationResult
@@ -23,7 +23,7 @@ export const updateCacheAfterUpdate = (typeName: string) => {
   }
 }
 
-export const updateCacheAfterDelete = (typeName: string) => {
+export const updateCacheAfterDelete = (typeName: keyof typeof typeNameToCollectionName) => {
   const mutationName = getDeleteMutationName(typeName);
   return (store: ApolloCache<any>, { data: { [mutationName]: {data: document} } }: any) => {
     updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
@@ -32,7 +32,7 @@ export const updateCacheAfterDelete = (typeName: string) => {
 
 export const updateEachQueryResultOfType = ({ store, typeName, func, document }: {
   store: ApolloCache<any>,
-  typeName: string,
+  typeName: keyof typeof typeNameToCollectionName,
   func: (props: {document: any, results: MingoQueryResult, parameters: any, typeName: string}) => MingoQueryResult,
   document: MingoDocument,
 }) => {
@@ -41,7 +41,7 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document }:
     const { input: { terms } } = variables
     const data: any = store.readQuery({query, variables})
     const multiResolverName = getMultiResolverName(typeName);
-    const collectionName = typeNameToCollectionName(typeName);
+    const collectionName = typeNameToCollectionName[typeName];
     const parameters = viewTermsToQuery(collectionName, terms);
     const results = data[multiResolverName]
 
@@ -57,7 +57,7 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document }:
 export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, typeName, document }: {
   client: ApolloClient<any>
   store: ApolloCache<any>
-  typeName: string
+  typeName: keyof typeof typeNameToCollectionName
   document: any
 }) => {
   const mingoLogger = loggerConstructor(`mingo-${pluralize(typeName.toLowerCase())}`)
@@ -65,7 +65,7 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
   const watchesToCheck = findWatchesByTypeName(store, typeName)
   watchesToCheck.forEach(({query, variables}: {query: any, variables: any}) => {
     const { input: { terms } } = variables
-    const collectionName = typeNameToCollectionName(typeName);
+    const collectionName = typeNameToCollectionName[typeName];
     const parameters = viewTermsToQuery(collectionName, terms);
     mingoLogger('parameters', parameters);
     mingoLogger('document', document);

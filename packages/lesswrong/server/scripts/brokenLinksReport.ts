@@ -1,4 +1,4 @@
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
 import { URL } from 'url';

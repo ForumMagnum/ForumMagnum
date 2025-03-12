@@ -1,7 +1,7 @@
 import { wrapVulcanAsyncScript } from './utils'
-import Users from '../../lib/collections/users/collection'
+import Users from '../../server/collections/users/collection'
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
-import Tags from '../../lib/collections/tags/collection';
+import Tags from '../../server/collections/tags/collection';
 import { FilterMode } from '../../lib/filterSettings';
 
 /**

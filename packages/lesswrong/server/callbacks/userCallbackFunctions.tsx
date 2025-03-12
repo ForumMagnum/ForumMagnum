@@ -1,8 +1,8 @@
 import React from "react";
 import { hasDigests } from "@/lib/betas";
-import Conversations from "@/lib/collections/conversations/collection";
-import Messages from "@/lib/collections/messages/collection";
-import Users from "@/lib/collections/users/collection";
+import Conversations from "@/server/collections/conversations/collection";
+import Messages from "@/server/collections/messages/collection";
+import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
@@ -36,7 +36,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
-import { FieldChanges } from "@/lib/collections/fieldChanges/collection";
+import { FieldChanges } from "@/server/collections/fieldChanges/collection";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -525,12 +525,12 @@ export function updateUserMayTriggerReview({document, data}: UpdateCallbackPrope
 }
 
 // updateAsync
-export async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}: UpdateCallbackProperties<"Users">) {
+export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
-    void userDeleteContent(newDocument, currentUser);
+    void userDeleteContent(newDocument, currentUser, context);
   }
 }
 

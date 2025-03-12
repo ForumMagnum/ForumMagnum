@@ -1,4 +1,4 @@
-import ReadStatuses from "../../lib/collections/readStatus/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
 import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";

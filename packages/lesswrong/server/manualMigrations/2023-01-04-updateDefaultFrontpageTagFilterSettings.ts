@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 const COVID_TAG_ID = 'tNsqhzTibgGJKPEWB';
 const RATIONALITY_TAG_ID = 'Ng8Gice9KNkncxqcj';

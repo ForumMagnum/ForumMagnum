@@ -4,7 +4,7 @@ import { updateCacheAfterCreate } from './cacheUpdates';
 import { loggerConstructor } from '../utils/logging';
 import { useCallback, useMemo } from 'react';
 import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
-import { collectionNameToTypeName } from "../vulcan-lib/getCollection";
+import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 
 /**
  * Create mutation query used on the client. Eg:
@@ -60,7 +60,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   }, [collectionName]);
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   
   const query = gql`
     ${createClientTemplate({ typeName, fragmentName })}

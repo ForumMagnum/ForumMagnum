@@ -1,6 +1,6 @@
 import { registerMigration, fillDefaultValues } from "./migrationUtils";
-import UserTagRels from "../../lib/collections/userTagRels/collection";
-import Users from "../../lib/collections/users/collection";
+import UserTagRels from "../../server/collections/userTagRels/collection";
+import Users from "../../server/collections/users/collection";
 
 export default registerMigration({
   name: "fillSubforumNotificationsSettings",

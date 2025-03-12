@@ -16,7 +16,7 @@
  */
 export const acceptsSchemaHash = "224c974d441de3727845f2dec5ba8aac";
 
-import RecommendationsCaches from "../../lib/collections/recommendationsCaches/collection"
+import RecommendationsCaches from "../../server/collections/recommendationsCaches/collection"
 import { createTable, dropTable, updateIndexes } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

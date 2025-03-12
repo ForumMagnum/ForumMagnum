@@ -1,4 +1,4 @@
-import { FieldChanges } from "@/lib/collections/fieldChanges/collection"
+import { FieldChanges } from "@/server/collections/fieldChanges/collection"
 import { createTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

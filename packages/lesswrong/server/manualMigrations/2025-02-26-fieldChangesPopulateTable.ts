@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { bulkRawInsert, registerMigration } from "./migrationUtils";
-import LWEvents from "@/lib/collections/lwevents/collection";
+import LWEvents from "@/server/collections/lwevents/collection";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import chunk from 'lodash/chunk';
 import { randomId } from "@/lib/random";
