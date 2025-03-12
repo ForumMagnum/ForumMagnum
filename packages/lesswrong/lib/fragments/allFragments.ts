@@ -23,6 +23,7 @@ import * as electionCandidatesFragments from '../collections/electionCandidates/
 import * as electionVotesFragments from '../collections/electionVotes/fragments';
 import * as elicitQuestionsFragments from '../collections/elicitQuestions/fragments';
 import * as featuredResourcesFragments from '../collections/featuredResources/fragments';
+import * as fieldChangesFragments from '../collections/fieldChanges/fragments';
 import * as forumEventsFragments from '../collections/forumEvents/fragments';
 import * as gardencodesFragments from '../collections/gardencodes/fragments';
 import * as googleServiceAccountSessionsFragments from '../collections/googleServiceAccountSessions/fragments';
@@ -158,6 +159,7 @@ const staticFragments = {
   ...electionVotesFragments,
   ...elicitQuestionsFragments,
   ...featuredResourcesFragments,
+  ...fieldChangesFragments,
   ...forumEventsFragments,
   ...gardencodesFragments,
   ...googleServiceAccountSessionsFragments,
