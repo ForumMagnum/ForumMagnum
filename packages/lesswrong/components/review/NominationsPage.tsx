@@ -2,8 +2,8 @@ import React from 'react';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'

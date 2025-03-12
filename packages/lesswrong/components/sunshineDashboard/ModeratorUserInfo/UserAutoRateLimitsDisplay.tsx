@@ -4,9 +4,9 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import { getDownvoteRatio } from '../UsersReviewInfoCard';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
+import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 
 const styles = (theme: ThemeType) => ({
   padding: {

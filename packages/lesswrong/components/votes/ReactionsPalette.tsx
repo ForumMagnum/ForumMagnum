@@ -3,13 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
-import AppsIcon from '@material-ui/icons/Apps';
-import ViewListIcon from '@material-ui/icons/ViewList';
+import AppsIcon from '@/lib/vendor/@material-ui/icons/src/Apps';
+import ViewListIcon from '@/lib/vendor/@material-ui/icons/src/ViewList';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
 
 const styles = (theme: ThemeType) => ({
   moreReactions: {

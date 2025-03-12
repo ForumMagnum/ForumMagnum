@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import TagHistory from '@material-ui/icons/History';
+import TagHistory from '@/lib/vendor/@material-ui/icons/src/History';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
