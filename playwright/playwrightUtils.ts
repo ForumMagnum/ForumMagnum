@@ -329,9 +329,10 @@ export const setPostContent = async (page: Page, {
   // Clear and fill the editor in two separate steps, because Playwright's .fill()
   // fails in Firefox (but not other browsers) if these are one step
   if (title) {
-    const titleInput = await page.waitForSelector(`.form-component-EditTitle [placeholder="${titlePlaceholder}"]`);
-    await titleInput.fill("");
-    await titleInput.fill(title);
+    // eslint-disable-next-line no-console
+    console.log(page.getByPlaceholder(titlePlaceholder))
+    await page.getByPlaceholder(titlePlaceholder).fill("");
+    await page.getByPlaceholder(titlePlaceholder).fill(title);
   }
 
   if (body) {
