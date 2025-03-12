@@ -9,9 +9,11 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
-import { updateMutator } from '@/server/vulcan-lib/mutators';
 import { editableFields } from '@/lib/editor/make_editable';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import { publicScoreOptions } from './voting';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -28,6 +30,10 @@ export const alignmentOptionsGroup = {
 };
 
 const schema: SchemaType<"Comments"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['admins']},
+  }),
+  
   ...editableFields("Comments", {
     commentEditor: true,
     commentStyles: true,
@@ -390,25 +396,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
-      data: Partial<DbComment>,
-      currentUser: DbUser|null,
-      document: DbComment,
-      oldDocument: DbComment,
-      context: ResolverContext,
-    }) => {
-      if (data?.promoted && !oldDocument.promoted && document.postId) {
-        void updateMutator({
-          collection: context.Posts,
-          context,
-          documentId: document.postId,
-          data: { lastCommentPromotedAt: new Date() },
-          currentUser,
-          validate: false
-        })
-        return currentUser!._id
-      }
-    }
+    // onUpdate defined in `commentResolvers.ts` to avoid dependency cycle
   },
 
   promotedAt: {
@@ -929,7 +917,9 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-  } 
+  },
+
+  ...getVoteableSchemaFields('Comments', { publicScoreOptions }),
 };
 
 export default schema;

@@ -42,7 +42,7 @@
  */
 export const acceptsSchemaHash = "af39464b13d09507b438054d15aba060";
 
-import ForumEvents from "@/lib/collections/forumEvents/collection";
+import ForumEvents from "@/server/collections/forumEvents/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

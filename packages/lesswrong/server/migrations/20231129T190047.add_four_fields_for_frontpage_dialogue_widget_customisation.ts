@@ -39,7 +39,7 @@
  */
 export const acceptsSchemaHash = "5cb40349b3ff94014c31fb0418ffa6ea";
 
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { addField, dropField } from "./meta/utils";
 
 

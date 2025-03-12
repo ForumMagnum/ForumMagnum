@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import DebouncerEvents from "../../lib/collections/debouncerEvents/collection";
+import DebouncerEvents from "../../server/collections/debouncerEvents/collection";
 import { randomId } from "../../lib/random";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

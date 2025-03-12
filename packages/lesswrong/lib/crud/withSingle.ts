@@ -1,7 +1,7 @@
 import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import * as _ from 'underscore';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
-import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
+import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
 import type { PrimitiveGraphQLType } from './types';
@@ -45,7 +45,7 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
   let extraVariablesString = ''
@@ -69,7 +69,7 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
  * not be changed.
  */
 export function getResolverNameFromOptions(collectionName: CollectionNameString): string {
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   return camelCaseify(typeName);
 }
 

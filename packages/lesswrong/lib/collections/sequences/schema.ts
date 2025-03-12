@@ -3,6 +3,7 @@ import { getWithCustomLoader } from '../../loaders';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userOwns } from '../../vulcan-users/permissions';
 import { editableFields } from '@/lib/editor/make_editable';
+import { universalFields } from '../../collectionUtils';
 
 const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
   adminOptions: {
@@ -20,6 +21,8 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
 };
 
 const schema: SchemaType<"Sequences"> = {
+  ...universalFields({}),
+  
   ...editableFields("Sequences", {
     order: 20,
   }),
@@ -164,7 +167,7 @@ const schema: SchemaType<"Sequences"> = {
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
-        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
+        return await accessFilterSingle(context.currentUser, 'Collections', collection, context);
       }
     }
   },
@@ -249,7 +252,7 @@ const schema: SchemaType<"Sequences"> = {
           {sequenceId: sequence._id},
           {sort: {number: 1}},
         ).fetch();
-        return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+        return await accessFilterMultiple(context.currentUser, 'Chapters', chapters, context);
       }
     }
   },

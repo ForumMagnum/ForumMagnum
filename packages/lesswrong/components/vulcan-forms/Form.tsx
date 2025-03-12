@@ -20,7 +20,6 @@ import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
-import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
@@ -36,7 +35,7 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
-  'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
+  'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   // `prefilledProps` is handled slightly differently - all the other props
   // trigger a full reset of the form, but changed to `prefilledProps` are
@@ -62,10 +61,9 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
 };
 
 const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
-  const collection = nextProps.collection;
-  const schema = nextProps.schema
-    ? new SimpleSchema(nextProps.schema)
-    : getSimpleSchema(collection);
+  // TODO: figure out why it doesn't like the type assignment
+  // In practice, it was working fine before I fixed the type of the schema field in the props
+  const schema = new SimpleSchema(nextProps.schema as AnyBecauseHard);
   const convertedSchema = convertSchema(schema as any)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
@@ -1085,7 +1083,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
 (Form as any).propTypes = {
   // main options
-  collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
   typeName: PropTypes.string.isRequired,
   document: PropTypes.object, // if a document is passed, this will be an edit form

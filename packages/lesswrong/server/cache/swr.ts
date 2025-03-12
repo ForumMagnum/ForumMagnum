@@ -1,4 +1,4 @@
-import { Posts } from "../../lib/collections/posts/collection";
+import { Posts } from "../../server/collections/posts/collection";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";

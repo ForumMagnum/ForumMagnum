@@ -1,4 +1,4 @@
-import PostRelations from "../../lib/collections/postRelations/collection";
+import PostRelations from "../../server/collections/postRelations/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

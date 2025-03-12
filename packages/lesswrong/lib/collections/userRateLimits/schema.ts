@@ -1,4 +1,5 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
+import { universalFields } from "../../collectionUtils";
 
 const dictionaryToSelectOptions = <T extends Record<string, string>>(dictionary: T) => {
   return Object.entries(dictionary).map(([value, label]) => ({ value, label }));
@@ -17,6 +18,7 @@ const INTERVAL_UNITS = {
 };
 
 const schema: SchemaType<"UserRateLimits"> = {
+  ...universalFields({}),
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

@@ -8,7 +8,7 @@ import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions'
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';

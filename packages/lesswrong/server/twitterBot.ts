@@ -1,11 +1,11 @@
 import { addCronJob } from "./cron/cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { Posts } from "@/lib/collections/posts/collection.ts";
-import Tweets from "@/lib/collections/tweets/collection";
+import { Posts } from "@/server/collections/posts/collection.ts";
+import Tweets from "@/server/collections/tweets/collection";
 import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import Users from "@/lib/collections/users/collection";
+import Users from "@/server/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { createMutator } from "./vulcan-lib/mutators";

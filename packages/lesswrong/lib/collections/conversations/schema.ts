@@ -3,8 +3,13 @@ import * as _ from 'underscore';
 import { isLWorAF } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Conversations"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['members']},
+  }),
+  
   title: {
     type: String,
     canRead: ['members'],
@@ -113,7 +118,7 @@ const schema: SchemaType<"Conversations"> = {
           return await context.repos.conversations.getLatestMessages(conversationIds);
         }
       );
-      const filteredMessage = await accessFilterSingle(currentUser, context.Messages, message, context)
+      const filteredMessage = await accessFilterSingle(currentUser, 'Messages', message, context)
       return filteredMessage;
     },
     sqlResolver: ({field, join}) => join({

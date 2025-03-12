@@ -1,7 +1,7 @@
 import { isAnyTest, isDevelopment } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { getCommandLineArguments } from './commandLine';
-import { CronHistories } from '../lib/collections/cronHistories/collection';
+import { CronHistories } from '../server/collections/cronHistories/collection';
 
 SyncedCron.options = {
   log: !isDevelopment,

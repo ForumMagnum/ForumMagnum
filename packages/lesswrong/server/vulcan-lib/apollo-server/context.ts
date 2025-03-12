@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { getCollectionsByName } from '../../../lib/vulcan-lib/getCollection';
+import { allCollections } from '../../collections/allCollections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import * as _ from 'underscore';
@@ -21,7 +21,7 @@ import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
-import UserActivities from '../../../lib/collections/useractivities/collection';
+import UserActivities from '../../../server/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
@@ -80,7 +80,7 @@ export const generateDataLoaders = (): {
   loaders: Record<CollectionNameString, DataLoader<string,any>>
   extraLoaders: Record<string,any>
 } => {
-  const loaders = _.mapObject(getCollectionsByName(), (collection,name) =>
+  const loaders = _.mapObject(allCollections, (collection,name) =>
     new DataLoader(
       (ids: Array<string>) => findByIds(collection, ids),
       { cache: true, }
@@ -117,7 +117,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   }
   
   let context: ResolverContext = {
-    ...getCollectionsByName(),
+    ...allCollections,
     ...generateDataLoaders(),
     req: req as any,
     res,

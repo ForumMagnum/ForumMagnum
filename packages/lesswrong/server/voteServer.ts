@@ -1,5 +1,5 @@
 import { createMutator } from './vulcan-lib/mutators';
-import Votes from '../lib/collections/votes/collection';
+import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
@@ -8,7 +8,7 @@ import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSy
 import { createAdminContext, createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
-import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
+import { ModeratorActions } from '../server/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/schema';
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
@@ -20,16 +20,15 @@ import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import VotesRepo from './repos/VotesRepo';
 import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
-import { getCollection } from '@/lib/vulcan-lib/getCollection';
-import Users from '@/lib/collections/users/collection';
+import { getCollection, getVoteableCollections } from '@/server/collections/allCollections';
+import Users from '@/server/collections/users/collection';
 import { capitalize } from '@/lib/vulcan-lib/utils';
-import { getVoteableCollections } from '@/lib/make_voteable';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -193,6 +192,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 
     await onVoteCancel(newDocument, vote, collection, user);
   }
+  // TODO: it seems possible we could do an early return here if we have zero vote cancellations, but I want to test it more thoroughly before doing that
   const newScores = await recalculateDocumentScores(document, collection.collectionName, context);
   await collection.rawUpdateOne(
     {_id: document._id},

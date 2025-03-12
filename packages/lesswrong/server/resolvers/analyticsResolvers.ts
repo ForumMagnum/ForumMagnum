@@ -5,7 +5,7 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../li
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
-import Posts from "../../lib/collections/posts/collection";
+import Posts from "../../server/collections/posts/collection";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import moment from "moment";
 import groupBy from "lodash/groupBy";

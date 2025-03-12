@@ -40,7 +40,7 @@
  */
 export const acceptsSchemaHash = "94df20dba53ef11f79930cbb2c17442c";
 
-import Images from "@/lib/collections/images/collection";
+import Images from "@/server/collections/images/collection";
 import { addField, dropField, updateIndexes } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

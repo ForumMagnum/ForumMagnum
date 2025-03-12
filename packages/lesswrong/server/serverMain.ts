@@ -17,8 +17,8 @@ import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 import type { CommandLineArguments } from './commandLine';
+import { captureEvent } from '@/lib/analyticsEvents';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -59,9 +59,9 @@ export async function runServerOnStartupFunctions() {
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
-  registerElasticCallbacks();
 
   startSyncedCron();
+  captureEvent("serverStarted", {});
 }
 
 

@@ -1,7 +1,7 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
 import { ApiError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";

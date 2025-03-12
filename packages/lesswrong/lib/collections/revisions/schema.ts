@@ -3,6 +3,8 @@ import SimpleSchema from 'simpl-schema'
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
+import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 /**
  * This covers the type of originalContents for all editor types. 
@@ -58,6 +60,13 @@ export const getOriginalContents = <N extends CollectionNameString>(
 }
 
 const schema: SchemaType<"Revisions"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
+    }
+  }),
   documentId: {
     type: String,
     canRead: ['guests'],
@@ -261,7 +270,7 @@ const schema: SchemaType<"Revisions"> = {
       if (!revision.documentId)
         return null;
       const tag = await context.loaders.Tags.load(revision.documentId);
-      return await accessFilterSingle(currentUser, Tags, tag, context);
+      return await accessFilterSingle(currentUser, 'Tags', tag, context);
     }
   }),
   post: resolverOnlyField({
@@ -275,7 +284,7 @@ const schema: SchemaType<"Revisions"> = {
       if (!revision.documentId)
         return null;
       const post = await context.loaders.Posts.load(revision.documentId);
-      return await accessFilterSingle(currentUser, Posts, post, context);
+      return await accessFilterSingle(currentUser, 'Posts', post, context);
     }
   }),
   lens: resolverOnlyField({
@@ -294,7 +303,7 @@ const schema: SchemaType<"Revisions"> = {
       if (lens.fieldName !== "description" || lens.collectionName !== "Tags") {
         return null;
       }
-      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+      return await accessFilterSingle(currentUser, 'MultiDocuments', lens, context);
     },
     sqlResolver: ({ field, join }) => join({
       table: 'MultiDocuments',
@@ -323,9 +332,11 @@ const schema: SchemaType<"Revisions"> = {
       if (lens.fieldName !== "summary") {
         return null;
       }
-      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+      return await accessFilterSingle(currentUser, 'MultiDocuments', lens, context);
     },
   }),
+
+  ...getVoteableSchemaFields('Revisions'),
 };
 
 export default schema;

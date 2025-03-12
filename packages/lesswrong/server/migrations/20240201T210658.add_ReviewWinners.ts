@@ -40,7 +40,7 @@
  */
 export const acceptsSchemaHash = "f3add36e62e14d409e005ef7ed969bb2";
 
-import ReviewWinners from "../../lib/collections/reviewWinners/collection"
+import ReviewWinners from "../../server/collections/reviewWinners/collection"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

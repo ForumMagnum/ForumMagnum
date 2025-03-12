@@ -1,5 +1,5 @@
-import { Posts } from '../../../lib/collections/posts/collection';
-import { Tags } from '../../../lib/collections/tags/collection';
+import { Posts } from '../../../server/collections/posts/collection';
+import { Tags } from '../../../server/collections/tags/collection';
 import { postStatuses } from '../../../lib/collections/posts/constants';
 import { getOpenAI, wikiSlugToTemplate } from '../../languageModels/languageModelIntegration';
 import { postToPrompt, checkTags, getAutoAppliedTags, generatePostBodyCache, PostBodyCache } from '../../languageModels/autoTagCallbacks';

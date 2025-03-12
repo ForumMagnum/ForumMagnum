@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import TimerIcon from '@material-ui/icons/Timer';
+import TimerIcon from '@/lib/vendor/@material-ui/icons/src/Timer';
 
 const styles = (theme: ThemeType) => ({
   root: {

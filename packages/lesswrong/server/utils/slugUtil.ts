@@ -1,6 +1,6 @@
 import { randomLowercaseId } from "@/lib/random";
-import { getCollection } from "@/lib/vulcan-lib/getCollection";
-import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from "../mutationCallbacks";
+import { getCollection } from "@/server/collections/allCollections";
+import type { CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { slugify } from "@/lib/utils/slugify";
 
 
@@ -101,112 +101,145 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
   return false;
 }
 
-export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs}: {
-  collection: CollectionBase<N>
-  collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
-  getTitle: (obj: ObjectsByCollectionName[N]|DbInsertion<ObjectsByCollectionName[N]>) => string,
-  onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
-  includesOldSlugs: boolean
-}) {
-  const collectionName = collection.collectionName;
+type CollectionWithSlug<N extends CollectionNameWithSlug> = CollectionBase<N> & {
+  _schemaFields: SchemaType<N> & {
+    slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions }
+  }
+};
 
-  const slugCreateBeforeCallbackFunction = async function (doc: DbInsertion<ObjectsByCollectionName[N]>, createProps: CreateCallbackProperties<N>) {
-    const {newDocument} = createProps;
-    const title = getTitle(newDocument);
-    const titleSlug = doc.slug ?? slugify(title);
-    const deconflictedTitleSlug = await getUnusedSlug({
-      collectionsToCheck: collectionsToAvoidCollisionsWith,
+type ValidSlugCreateCallbackProps<N extends CollectionNameWithSlug> = CreateCallbackProperties<N> & {
+  collection: CollectionWithSlug<N>,
+  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
+  document: DbInsertion<ObjectsByCollectionName[N]>,
+}
+
+type ValidSlugUpdateCallbackProps<N extends CollectionNameWithSlug> = UpdateCallbackProperties<N> & {
+  collection: CollectionWithSlug<N>,
+  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
+  oldDocument: ObjectsByCollectionName[N],
+  newDocument: ObjectsByCollectionName[N],
+  data: Partial<ObjectsByCollectionName[N]>,
+};
+
+function isCreateBeforeCallbackForSlugCollection<
+  N extends CollectionNameString,
+  Props extends CreateCallbackProperties<N>
+>(props: Props): props is Props & ValidSlugCreateCallbackProps<CollectionNameWithSlug> {
+  return !!props.schema.slug?.slugCallbackOptions;
+}
+
+function isUpdateBeforeCallbackForSlugCollection<
+  N extends CollectionNameString,
+  Props extends UpdateCallbackProperties<N>
+>(props: Props): props is Props & ValidSlugUpdateCallbackProps<CollectionNameWithSlug> {
+  return !!props.schema.slug?.slugCallbackOptions;
+}
+
+export async function runSlugCreateBeforeCallback<N extends CollectionNameString>(createProps: CreateCallbackProperties<N>) {
+  if (!isCreateBeforeCallbackForSlugCollection(createProps)) {
+    return createProps.document;
+  }
+
+  const { schema, document } = createProps;
+  const slugField = schema.slug;
+
+  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = slugField.slugCallbackOptions;
+
+  const title = getTitle(document);
+  const titleSlug = document.slug ?? slugify(title);
+  const deconflictedTitleSlug = await getUnusedSlug({
+    collectionsToCheck: collectionsToAvoidCollisionsWith,
+    slug: titleSlug,
+    useOldSlugs: includesOldSlugs,
+  });
+
+  if (deconflictedTitleSlug !== titleSlug) {
+    switch (onCollision) {
+      case "rejectIfExplicit":
+      case "newDocumentGetsSuffix":
+        return {
+          ...document,
+          slug: deconflictedTitleSlug,
+        };
+      case "rejectNewDocument":
+        throw new Error(`Slug ${titleSlug} is already taken`);
+    }
+  } else {
+    // TODO If slug is in another document's oldSlugs, remove it from there
+    return {
+      ...document,
       slug: titleSlug,
-      useOldSlugs: includesOldSlugs,
-    });
+    };
+  }
+}
 
-    if (deconflictedTitleSlug !== titleSlug) {
-      switch (onCollision) {
-        case "rejectIfExplicit":
-        case "newDocumentGetsSuffix":
-          return {
-            ...doc,
-            slug: deconflictedTitleSlug,
-          };
-        case "rejectNewDocument":
-          throw new Error(`Slug ${titleSlug} is already taken`);
+export async function runSlugUpdateBeforeCallback<N extends CollectionNameString>(updateProps: UpdateCallbackProperties<N>) {
+  if (!isUpdateBeforeCallbackForSlugCollection(updateProps)) {
+    return updateProps.data;
+  }
+  
+  const slugField = updateProps.schema.slug;
+
+  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = slugField.slugCallbackOptions;
+
+  const {oldDocument, newDocument, data} = updateProps;
+  const oldTitle = getTitle(oldDocument);
+  const newTitle = getTitle(newDocument);
+  let changedSlug: string|null = null;
+  let changeWasExplicit = false;
+  const isAPlausibleAutoGeneratedSlug = (oldSlug: string, oldTitle: string) => oldSlug.indexOf(slugify(oldTitle)) === 0;
+  
+  if (data.slug && data.slug !== oldDocument.slug) {
+    changedSlug = data.slug;
+    changeWasExplicit = true;
+  } else if (newTitle && newTitle !== oldTitle && isAPlausibleAutoGeneratedSlug(oldDocument.slug ?? '', oldTitle)) {
+    changedSlug = slugify(newTitle);
+  }
+
+  if (!changedSlug) {
+    return data;
+  }
+
+  const deconflictedSlug = await getUnusedSlug({
+    collectionsToCheck: collectionsToAvoidCollisionsWith,
+    slug: changedSlug,
+    useOldSlugs: includesOldSlugs,
+    documentId: newDocument._id
+  });
+  if (deconflictedSlug === changedSlug) {
+    return {
+      ...data,
+      slug: deconflictedSlug,
+      ...(includesOldSlugs && {
+        oldSlugs: [
+          // The type signature above didn't capture the fact that
+          // includesOldSlugs implies that the document has an oldSlugs field, so
+          // @ts-ignore
+          ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
+          oldDocument.slug
+        ],
+      })
+    };
+  }
+  switch (onCollision) {
+    case "rejectIfExplicit":
+      if (changeWasExplicit) {
+        throw new Error(`Slug ${changedSlug} is already taken`);
       }
-    } else {
-      // TODO If slug is in another document's oldSlugs, remove it from there
+      // FALLTHROUGH
+    case "newDocumentGetsSuffix":
       return {
-        ...doc,
-        slug: titleSlug,
-      };
-    }
-  };
-
-  Object.defineProperty(slugCreateBeforeCallbackFunction, 'name', { value: `slugCreateBeforeCallbackFunction-${collectionName}`, writable: false });
-
-  getCollectionHooks(collectionName).createBefore.add(slugCreateBeforeCallbackFunction);
-
-  const slugUpdateBeforeCallbackFunction = async function (doc: Partial<ObjectsByCollectionName[N]>, updateProps: UpdateCallbackProperties<N>) {
-    const {oldDocument, newDocument, data} = updateProps;
-    const oldTitle = getTitle(oldDocument);
-    const newTitle = getTitle(newDocument);
-    let changedSlug: string|null = null;
-    let changeWasExplicit = false;
-    
-    if (data.slug && data.slug !== oldDocument.slug) {
-      changedSlug = data.slug;
-      changeWasExplicit = true;
-    } else if (newTitle && newTitle !== oldTitle && oldDocument.slug === slugify(oldTitle)) {
-      changedSlug = slugify(newTitle);
-    }
-
-    if (!changedSlug) {
-      return doc;
-    }
-
-    const deconflictedSlug = await getUnusedSlug({
-      collectionsToCheck: collectionsToAvoidCollisionsWith,
-      slug: changedSlug,
-      useOldSlugs: includesOldSlugs,
-      documentId: newDocument._id
-    });
-    if (deconflictedSlug === changedSlug) {
-      return {
-        ...newDocument,
+        ...data,
         slug: deconflictedSlug,
         ...(includesOldSlugs && {
           oldSlugs: [
-            // The type signature above didn't capture the fact that
-            // includesOldSlugs implies that the document has an oldSlugs field, so
-            // @ts-ignore
+            //@ts-ignore
             ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
             oldDocument.slug
           ],
-        })
+        }),
       };
-    }
-    switch (onCollision) {
-      case "rejectIfExplicit":
-        if (changeWasExplicit) {
-          throw new Error(`Slug ${changedSlug} is already taken`);
-        }
-        // FALLTHROUGH
-      case "newDocumentGetsSuffix":
-        return {
-          ...newDocument,
-          slug: deconflictedSlug,
-          ...(includesOldSlugs && {
-            oldSlugs: [
-              //@ts-ignore
-              ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
-              oldDocument.slug
-            ],
-          }),
-        };
-      case "rejectNewDocument":
-        throw new Error(`Slug ${changedSlug} is already taken`);
-    }
+    case "rejectNewDocument":
+      throw new Error(`Slug ${changedSlug} is already taken`);
   }
-
-  Object.defineProperty(slugUpdateBeforeCallbackFunction, 'name', { value: `slugUpdateBeforeCallbackFunction-${collectionName}`, writable: false });
-
-  getCollectionHooks(collectionName).updateBefore.add(slugUpdateBeforeCallbackFunction);
 }

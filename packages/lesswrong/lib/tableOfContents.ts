@@ -38,6 +38,13 @@ export interface ToCSection {
    * section
    */
   scale?: number,
+  
+  /**
+   * Flag to indicate this is a spacer section, not an actual ToC entry.
+   * Used to add spacing without showing a dot or label.
+   * Introduced so the first heading is probably spaced even when it's not at the top of the page.
+   */
+  spacer?: boolean,
 }
 
 export interface ToCSectionWithOffset extends ToCSection {

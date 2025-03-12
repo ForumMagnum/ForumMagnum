@@ -1,5 +1,5 @@
 import { registerMigration, migrateDocuments } from './migrationUtils'
-import Users from '../../lib/collections/users/collection'
+import Users from '../../server/collections/users/collection'
 import * as _ from 'underscore';
 
 export default registerMigration({

@@ -1,4 +1,4 @@
-import Tags from "../../lib/collections/tags/collection";
+import Tags from "../../server/collections/tags/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const acceptsSchemaHash = "e7d890dadc54453234507be13698b7b7";

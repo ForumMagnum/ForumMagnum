@@ -10,9 +10,9 @@ import DropIndexQuery from "./DropIndexQuery";
 import Pipeline from "./Pipeline";
 import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
-import { getVoteableSchemaFields } from "@/lib/make_voteable";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import TableIndex from "./TableIndex";
+import { getSchema } from "@/lib/schema/allSchemas";
 
 let executingQueries = 0;
 
@@ -51,17 +51,7 @@ class PgCollection<
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
-  _schemaFields: SchemaType<N>;
 
-  /**
-   * Schema fields, but converted into the format used by the simple-schema
-   * library. This is a cache of the conversion; when _schemaFields changes it
-   * should be invalidated by setting it to null. Do not access directly; use
-   * getSimpleSchema.
-   */
-  _simpleSchema: any;
-
-  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
   private table: Table<ObjectsByCollectionName[N]>;
 
   constructor(options: CollectionOptions<N>) {
@@ -69,16 +59,6 @@ class PgCollection<
     this.typeName = options.typeName;
     this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
-
-    const votingFields: SchemaType<N> = options.voteable
-      ? getVoteableSchemaFields(options.collectionName as N&VoteableCollectionName, options.voteable) as SchemaType<N>
-      : {};
-    // Schema fields, passed as the schema option to createCollection or added
-    // later with addFieldsDict. Do not access directly; use getSchema.
-    this._schemaFields = {
-      ...options.schema,
-      ...votingFields,
-    };
   }
 
   isConnected() {
@@ -90,7 +70,8 @@ class PgCollection<
   }
 
   hasSlug(): this is PgCollection<CollectionNameWithSlug> {
-    return !!this._schemaFields.slug;
+    const schema = getSchema(this.collectionName);
+    return !!getSchema(this.collectionName).slug;
   }
 
   getTable() {

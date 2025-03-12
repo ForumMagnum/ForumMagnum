@@ -1,7 +1,7 @@
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/schema";
-import Users from "@/lib/collections/users/collection";
+import Users from "@/server/collections/users/collection";
 
 /**
  * For A/B testing: When running locally this will be set to a control group of ~40
