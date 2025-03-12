@@ -1,17 +1,16 @@
-import { useMessages } from '../common/withMessages';
-import Posts, { userCanPost } from '@/lib/collections/posts/collection';
-import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
+import Posts from '@/lib/collections/posts/schema';
+import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
-import { useDialog } from "../common/withDialog";
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
 import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
-import { getSchema } from '@/lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 const prefillFromTemplate = (template: PostsEdit) => {
   return pick(
