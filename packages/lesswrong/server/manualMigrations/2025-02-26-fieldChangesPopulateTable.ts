@@ -22,7 +22,7 @@ export default registerMigration({
     const oldestFieldChange = (await LWEvents.findOne(
       {name: "fieldChanges"},
       {sort: {createdAt: 1}}
-    )).createdAt;
+    ))!.createdAt;
     const totalTimespan = new Date().getTime() - oldestFieldChange.getTime();
     const numBuckets = 10;
     const cutoffs: Date[] = range(0,numBuckets).map(i => new Date(
