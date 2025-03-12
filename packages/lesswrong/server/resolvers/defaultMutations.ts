@@ -5,6 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '@/lib/utils/logging';
 import { createMutator, deleteMutator, updateMutator } from '../vulcan-lib/mutators';
 import { performCheck } from '../vulcan-lib/utils';
+import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
@@ -16,7 +17,7 @@ export interface MutationOptions<T extends DbObject> {
   delete?: boolean,
 }
 
-const defaultOptions = { create: true, update: true, upsert: true, delete: true };
+const defaultOptions = { create: true, update: true, upsert: false, delete: false, removeCheck: () => false };
 
 const getCreateMutationName = (typeName: string): string => `create${typeName}`;
 const getUpdateMutationName = (typeName: string): string => `update${typeName}`;
@@ -57,7 +58,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       check,
 
       async mutation(root: void, { data }: AnyBecauseTodo, context: ResolverContext) {
-        const startMutate = Date.now()
         logger('create mutation()')
         const collection = context[collectionName];
 
@@ -80,10 +80,10 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           validate: true,
           context,
         });
-        const timeElapsed = Date.now() - startMutate
-        // Temporarily disabled to investigate performance issues
-        // captureEvent("mutationCompleted", {mutationName, timeElapsed, documentId: returnValue.data._id}, true)
-        return returnValue;
+
+        // There are some fields that users who have permission to create a document don't have permission to read.
+        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection.collectionName, returnValue.data, context);
+        return { data: filteredReturnValue };
       },
     };
   }
@@ -151,7 +151,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           collectionName
         );
 
-        return await updateMutator({
+        const returnValue = await updateMutator({
           collection,
           selector,
           data,
@@ -160,6 +160,10 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           context,
           document,
         });
+
+        // There are some fields that users who have permission to edit a document don't have permission to read.
+        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection.collectionName, returnValue.data, context);
+        return { data: filteredReturnValue };
       },
     };
 
@@ -253,7 +257,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         // TODO: A problem with deleteMutator types means that it demands a
         // documentId instead of a selector
         // @ts-ignore
-        return await deleteMutator({
+        const returnValue = await deleteMutator({
           collection,
           selector,
           currentUser: context.currentUser,
@@ -261,6 +265,10 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           context,
           document,
         });
+
+        // There are some fields that users who have permission to delete a document don't have permission to read.
+        const filteredReturnValue = await accessFilterSingle(context.currentUser, collection.collectionName, returnValue.data, context);
+        return { data: filteredReturnValue };
       },
     };
   }

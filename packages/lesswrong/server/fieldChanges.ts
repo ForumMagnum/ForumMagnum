@@ -1,6 +1,7 @@
-import { LWEvents } from '../server/collections/lwevents/collection';
+import { FieldChanges } from '@/server/collections/fieldChanges/collection';
 import { getSchema } from '@/lib/schema/allSchemas';
-import { createMutator } from './vulcan-lib/mutators';
+import { randomId } from '@/lib/random';
+import { captureException } from '@sentry/core';
 
 export const logFieldChanges = async <
   N extends CollectionNameString
@@ -41,21 +42,24 @@ export const logFieldChanges = async <
   }
   
   if (Object.keys(loggedChangesAfter).length > 0) {
-    void createMutator({
-      collection: LWEvents,
-      currentUser,
-      document: {
-        name: 'fieldChanges',
-        documentId: oldDocument._id,
-        userId: currentUser?._id,
-        important: true,
-        properties: {
-          before: loggedChangesBefore,
-          after: loggedChangesAfter,
-        }
-      },
-      validate: false,
-    })
+    const changeGroup = randomId();
+
+    try {
+      await Promise.all(Object.keys(loggedChangesAfter).map(key =>
+        FieldChanges.rawInsert({
+          userId: currentUser?._id,
+          changeGroup,
+          documentId: oldDocument._id,
+          fieldName: key,
+          oldValue: loggedChangesBefore[key],
+          newValue: loggedChangesAfter[key],
+        })
+      ));  
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error logging field changes', error);
+      captureException(error);
+    }
   }
 }
 

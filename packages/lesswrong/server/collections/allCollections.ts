@@ -33,6 +33,7 @@ import { ElicitQuestionPredictions } from './elicitQuestionPredictions/collectio
 import { ElicitQuestions } from './elicitQuestions/collection';
 import { EmailTokens } from './emailTokens/collection';
 import { FeaturedResources } from './featuredResources/collection';
+import { FieldChanges } from './fieldChanges/collection';
 import { ForumEvents } from './forumEvents/collection';
 import { GardenCodes } from './gardencodes/collection';
 import { GoogleServiceAccountSessions } from './googleServiceAccountSessions/collection';
@@ -104,7 +105,7 @@ if (isAnyTest && !isIntegrationTest && !isMigrations) {
 const allCollections = {
   AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
   Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
-  DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, ForumEvents,
+  DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
   GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LegacyData, LlmConversations, LlmMessages, Localgroups, LWEvents, ManifoldProbabilitiesCaches,
   Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
   PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,

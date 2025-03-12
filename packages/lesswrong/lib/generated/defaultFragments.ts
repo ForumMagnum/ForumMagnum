@@ -453,6 +453,21 @@ export const FeaturedResourcesDefaultFragment = `
   }
 `;
 
+export const FieldChangesDefaultFragment = `
+  fragment FieldChangesDefaultFragment on undefined {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    changeGroup
+    documentId
+    fieldName
+    oldValue
+    newValue
+  }
+`;
+
 export const ForumEventsDefaultFragment = `
   fragment ForumEventsDefaultFragment on ForumEvent {
     _id

@@ -83,9 +83,22 @@ export const testSchema4: SchemaType<CollectionNameString> = {
   },
 };
 
+export const testSchema5: SchemaType<CollectionNameString> = {
+  _id: {
+    type: String,
+  },
+  jsonField: {
+    type: Object,
+  },
+  schemaVersion: {
+    type: Number,
+  },
+};
+
 export const testSchemas = {
   TestCollection: testSchema,
   TestCollection2: testSchema2,
   TestCollection3: testSchema3,
   TestCollection4: testSchema4,
+  TestCollection5: testSchema5,
 };

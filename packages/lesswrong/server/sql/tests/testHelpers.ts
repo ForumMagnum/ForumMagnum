@@ -1,7 +1,7 @@
 import Table from "../Table";
 import Query from "../Query";
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { testSchema, testSchema2, testSchema3, testSchema4 } from "./testSchemas";
+import { testSchema, testSchema2, testSchema3, testSchema4, testSchema5 } from "./testSchemas";
 
 export type DbTestObject = {
   _id: string,
@@ -70,12 +70,30 @@ export const TestCollection4 = createCollection({
 export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
 (TestCollection4 as any).getTable = () => testTable4;
 
+
+export type DbTestObject5 = {
+  _id: string,
+  schemaVersion: number,
+  jsonField: AnyBecauseHard,
+};
+
+export const TestCollection5 = createCollection({
+  collectionName: "TestCollection5" as CollectionNameString,
+  typeName: "TestCollection5",
+  schema: testSchema5
+});
+
+export const testTable5 = Table.fromCollection<CollectionNameString, DbTestObject5>(TestCollection5);
+(TestCollection5 as any).getTable = () => testTable5;
+
 export const testCollections = {
   TestCollection,
   TestCollection2,
   TestCollection3,
   TestCollection4,
+  TestCollection5,
 };
+
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

@@ -61,6 +61,9 @@ import './collections/lwevents/views';
 // import './collections/tagFlags/collection';
 import './collections/tagFlags/views';
 
+// FieldChanges
+import '../server/collections/fieldChanges/collection';
+
 // GardenCodes
 // import "./collections/gardencodes/collection";
 import './collections/gardencodes/views'
