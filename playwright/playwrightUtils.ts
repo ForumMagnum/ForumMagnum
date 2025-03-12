@@ -330,13 +330,13 @@ export const setPostContent = async (page: Page, {
   // fails in Firefox (but not other browsers) if these are one step
   if (title) {
     // eslint-disable-next-line no-console
-    console.log(page.getByPlaceholder(titlePlaceholder))
+    console.log(await page.getByPlaceholder(titlePlaceholder).inputValue());
     await page.getByPlaceholder(titlePlaceholder).fill("");
     // eslint-disable-next-line no-console
-    console.log(page.getByPlaceholder(titlePlaceholder))
+    console.log(await page.getByPlaceholder(titlePlaceholder).inputValue());
     await page.getByPlaceholder(titlePlaceholder).fill(title);
     // eslint-disable-next-line no-console
-    console.log(page.getByPlaceholder(titlePlaceholder))
+    console.log(await page.getByPlaceholder(titlePlaceholder).inputValue());
   }
 
   if (body) {
