@@ -159,7 +159,7 @@ const staticFragments = {
   ...electionVotesFragments,
   ...elicitQuestionsFragments,
   ...featuredResourcesFragments,
-  ...fieldChangesFragments ,
+  ...fieldChangesFragments,
   ...forumEventsFragments,
   ...gardencodesFragments,
   ...googleServiceAccountSessionsFragments,
