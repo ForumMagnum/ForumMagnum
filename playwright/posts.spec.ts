@@ -106,7 +106,6 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
 
   // Create a post with a title and body
   await page.goto("/newPost");
-  await page.waitForURL("/editPost**");
   const n = uniqueId.get();
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
@@ -120,7 +119,6 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
 
   // Create another post with the same title
   await page.goto("/newPost");
-  await page.waitForURL("/editPost**");
   await setPostContent(page, {title, body});
   await page.getByText("Publish").click();
 
