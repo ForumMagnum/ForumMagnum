@@ -2,7 +2,7 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import schema from '@/lib/collections/googleServiceAccountSessions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 
 const options: MutationOptions<DbGoogleServiceAccountSession> = {
   newCheck: (user: DbUser|null, document: DbGoogleServiceAccountSession|null) => {

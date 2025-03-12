@@ -3,7 +3,7 @@ import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
 import schema from "@/lib/collections/electionVotes/schema";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const ElectionVotes: ElectionVotesCollection = createCollection({

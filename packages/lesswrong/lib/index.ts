@@ -202,7 +202,6 @@ import './collections/revisions/views'
 import './collections/users/helpers';
 import './collections/users/schema';
 import './collections/users/recommendationSettings';
-import '../server/collections/users/karmaChangesGraphQL';
 import './collections/users/views';
 import './collections/users/fragments';
 
