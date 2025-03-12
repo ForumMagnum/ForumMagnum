@@ -7,7 +7,6 @@ import { parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
-import { BestOfLWPostsPageSplashImage } from './BestOfLWPostsPageSplashImage';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -130,15 +129,21 @@ const styles = (theme: ThemeType) => ({
   },
   splashPageTitle: {
     '&&': {
-      fontSize: '5.5rem',
+      fontSize: '6rem',
+      marginRight: -100
     }
   },
   splashPageTitleLong: {
     '&&': {
-      fontSize: '4.5rem',
+      fontSize: '6rem',
+      marginRight: -100
     }
   },
   titleSectionWithSplashPageHeader: {
+    marginBottom: 140,
+  },
+  rootWithSplashPageHeader: {
+    paddingTop: 350,
     marginBottom: 140,
   }
 }); 
@@ -156,7 +161,7 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showSplashPageHeader?: boolean
 }) => {
-  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount, BestOfLWPostsPageSplashImage } = Components;
+  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
@@ -188,7 +193,7 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
   </LWTooltip> : null;
 
   const splashPageTitleClass = post.title.length > 100 ? classes.splashPageTitleLong : classes.splashPageTitle;
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer})}>
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>

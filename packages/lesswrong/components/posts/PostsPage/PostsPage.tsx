@@ -368,6 +368,15 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "center",
   },
+  splashPageHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '100vh',
+    width: '100vw',
+  },
   secondSplashPageHeader: {
     ...theme.typography.postStyle,
     fontSize: '46px',
@@ -764,6 +773,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     }
   }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
+  const splashPageHeader = fullPost && <BestOfLWPostsPageSplashImage post={fullPost} />
+
   const header = <>
     {fullPost && !linkedCommentId && <>
       <HeadTags
@@ -850,6 +861,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // components. When the forum gating is removed, each of these variables should have only a single usage,
   // so inline it back into place. See also the forum gating in PostsCommentsSection, which must be removed at
   // the same time.
+
 
   const postBodySection =
     <div id="postBody" className={classNames(
@@ -990,16 +1002,16 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       />
     : undefined
 
-  const splashPageHeader = showSplashPageHeader && fullPost && <BestOfLWPostsPageSplashImage post={fullPost} />
-
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
-    {splashPageHeader}
     <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    <div className={classes.splashPageHeader}>
+      {splashPageHeader}
+    </div>
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
