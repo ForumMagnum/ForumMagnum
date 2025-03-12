@@ -36,6 +36,7 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
+import { FieldChanges } from "@/server/collections/fieldChanges/collection";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -144,14 +145,28 @@ const utils = {
     if (!isEAForum) return;
   
     const sinceDaysAgo = sinceDaysAgoSetting.get();
+    const MS_PER_DAY = 24*60*60*1000;
+    const sinceDate = new Date(new Date().getTime() - (sinceDaysAgo*MS_PER_DAY))
     const changesAllowed = changesAllowedSetting.get();
   
-    const nameChangeCount = await repos.lwEvents.countDisplayNameChanges({
-      userId: userToUpdate._id,
-      sinceDaysAgo,
-    });
+    // Count username changes in the relevant timeframe
+    const nameChangeCount = await FieldChanges.find({
+      documentId: userToUpdate._id,
+      fieldName: "displayName",
+      userId: userToUpdate._id, // Only count changes the user made themself (ie, not changes by admins)
+      createdAt: {$gt: sinceDate},
+    }).count();
+    
+    // If `usernameUnset` changed, that means one of the changes was setting
+    // your displayName for the first time, which doesn't count towards the limit
+    const changesThatWereSettingForTheFirstTime = await FieldChanges.find({
+      documentId: userToUpdate._id,
+      fieldName: "usernameUnset",
+      createdAt: {$gt: sinceDate},
+      newValue: "false",
+    }).count();
   
-    if (nameChangeCount >= changesAllowed) {
+    if (nameChangeCount - changesThatWereSettingForTheFirstTime >= changesAllowed) {
       const times = changesAllowed === 1 ? 'time' : 'times';
       throw new Error(`You can only change your display name ${changesAllowed} ${times} every ${sinceDaysAgo} days. Please contact support if you would like to change it again`);
     }

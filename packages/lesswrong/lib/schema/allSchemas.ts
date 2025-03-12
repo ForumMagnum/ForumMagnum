@@ -34,6 +34,7 @@ import { default as ElicitQuestionPredictions } from '../collections/elicitQuest
 import { default as ElicitQuestions } from '../collections/elicitQuestions/schema';
 import { default as EmailTokens } from '../collections/emailTokens/schema';
 import { default as FeaturedResources } from '../collections/featuredResources/schema';
+import { default as FieldChanges } from '../collections/fieldChanges/schema';
 import { default as ForumEvents } from '../collections/forumEvents/schema';
 import { default as GardenCodes } from '../collections/gardencodes/schema';
 import { default as GoogleServiceAccountSessions } from '../collections/googleServiceAccountSessions/schema';
@@ -109,7 +110,7 @@ export const allSchemas = {
   Comments, Conversations, CronHistories, CurationEmails, CurationNotices,
   DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
   DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions,
-  ElicitQuestions, EmailTokens, FeaturedResources, ForumEvents, GardenCodes,
+  ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents, GardenCodes,
   GoogleServiceAccountSessions, Images, JargonTerms, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LWEvents, ManifoldProbabilitiesCaches, Messages,
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,

@@ -473,7 +473,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar
+    disabled: disableProgressBar,
+    useFixedToCScrollCalculation: false
   });
   
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
