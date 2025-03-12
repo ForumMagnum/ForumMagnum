@@ -114,7 +114,7 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
 
   // Submitting navigates to the post page - check our new post is there
   // This will have a slug derived from the initial title, rather than the one we just set.
-  await page.waitForURL(`/posts/**/untitled-draft**`);
+  await page.waitForURL(`/posts/**/test-post-${n}**`);
   await expect(page.getByText(title)).toBeVisible();
   await expect(page.getByText(body)).toBeVisible();
 
