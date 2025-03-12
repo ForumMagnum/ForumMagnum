@@ -7,7 +7,6 @@ import { userHasUltraFeed } from '../../lib/betas';
 import { useMulti } from '../../lib/crud/withMulti';
 import type { ObservableQuery } from '@apollo/client';
 import classNames from 'classnames';
-import { recentDisucssionFeedComponents } from '../recentDiscussion/RecentDiscussionFeed';
 
 const styles = (theme: ThemeType) => ({
   toggleContainer: {
@@ -27,16 +26,28 @@ const styles = (theme: ThemeType) => ({
   },
   feedComementItem: {
     marginBottom: 16
+  },
+  titleContainer: {
+    display: 'flex',
+    alignItems: 'baseline',
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
+  refreshText: {
+    marginLeft: 8,
+    fontSize: '0.65em',
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.sansSerifStack
   }
 });
 
 export const UltraFeed = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, FeedItemWrapper } = Components;
-  
-  // Get components used in RecentDiscussionFeed for rendering
-  const { ThreadComponent } = recentDisucssionFeedComponents();
+  const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, 
+    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -49,6 +60,14 @@ export const UltraFeed = ({classes}: {
       void refetchSubscriptionContentRef.current();
     }
   }, [refetchSubscriptionContentRef]);
+
+  // Ref for the loadMoreAtTop function
+  const loadMoreAtTopRef = useRef<null | (() => void)>(null);
+  const loadMoreAtTop = useCallback(() => {
+    if (loadMoreAtTopRef.current) {
+      loadMoreAtTopRef.current();
+    }
+  }, [loadMoreAtTopRef]);
 
   // Get user subscriptions
   const { results: userSubscriptions } = useMulti({
@@ -87,6 +106,14 @@ export const UltraFeed = ({classes}: {
       Show
     </span>
   );
+  
+  // Custom title with refresh button
+  const customTitle = (
+    <div className={classes.titleContainer} onClick={loadMoreAtTop}>
+      <span>Update Feed </span>
+      <span className={classes.refreshText}>click to refresh</span>
+    </div>
+  );
 
   return (
     <div>
@@ -100,37 +127,58 @@ export const UltraFeed = ({classes}: {
       </div>
       
       {ultraFeedEnabled && <>
-        <SuggestedFeedSubscriptions
-          refetchFeed={refetchSubscriptionContent}
-          settingsButton={suggestedUsersSettingsButton}
-          existingSubscriptions={userSubscriptions}
-        />
-        
-        <div className={classes.feedContainer}>
-          <MixedTypeFeed
-            resolverName="UltraFeed"
-            sortKeyType="Date"
-            firstPageSize={15}
-            pageSize={10}
-            refetchRef={refetchSubscriptionContentRef}
-            renderers={{
-              feedComment: {
-                fragmentName: 'FeedCommentFragment',
-                render: (feedComment) => {
-                  const comment = feedComment.comment;
-                  return (
-                    <FeedItemWrapper sources={feedComment.sources}>
-                      <QuickTakesListItem 
-                        key={comment._id}
-                        quickTake={comment}
-                      />
-                    </FeedItemWrapper>
-                  );
+        <SingleColumnSection>
+          <SectionTitle title={customTitle} />
+          {/* <SuggestedFeedSubscriptions
+            refetchFeed={refetchSubscriptionContent}
+            settingsButton={suggestedUsersSettingsButton}
+            existingSubscriptions={userSubscriptions}
+          /> */}
+          
+          <div className={classes.feedContainer}>
+            <MixedTypeFeed
+              resolverName="UltraFeed"
+              sortKeyType="Date"
+              firstPageSize={50}
+              pageSize={25}
+              refetchRef={refetchSubscriptionContentRef}
+              loadMoreRef={loadMoreAtTopRef}
+              prependedLoadMore={true}
+              renderers={{
+                feedComment: {
+                  fragmentName: 'FeedCommentFragment',
+                  render: (feedComment) => {
+                    const comment = feedComment.comment;
+                    return (
+                      <FeedItemWrapper sources={feedComment.sources}>
+                        <QuickTakesListItem 
+                          key={comment._id}
+                          quickTake={comment}
+                        />
+                      </FeedItemWrapper>
+                    );
+                  }
+                },
+                feedPost: {
+                  fragmentName: 'FeedPostFragment',
+                  render: (feedPost) => {
+                    return (
+                      <FeedItemWrapper sources={feedPost.sources}>
+                        <FeedPostCommentsCard
+                          key={feedPost.post._id}
+                          post={feedPost.post}
+                          comments={feedPost.comments || []}
+                          maxCollapsedLengthWords={200}
+                          refetch={refetch}
+                        />
+                      </FeedItemWrapper>
+                    );
+                  }
                 }
-              }
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+        </SingleColumnSection>
       </>}
     </div>
   );

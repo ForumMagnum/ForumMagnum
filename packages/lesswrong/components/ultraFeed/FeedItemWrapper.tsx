@@ -5,6 +5,8 @@ const styles = (theme: ThemeType) => ({
   wrapper: {
     marginBottom: 24,
     gap: 4,
+    paddingLeft: 8,
+    borderRadius: 2,
   },
   sourceLabel: {
     display: 'flex',
@@ -20,7 +22,8 @@ const styles = (theme: ThemeType) => ({
 // Map source codes to human-readable labels
 const sourceLabels: Record<string, string> = {
   'quickTakes': 'Quick Take',
-  'popularComments': 'Popular Comment'
+  'popularComments': 'Popular Comment',
+  'subscribed': 'Subscribed Content'
 };
 
 const FeedItemWrapper = ({classes, sources, children}: {

@@ -12,3 +12,16 @@ export const FeedCommentFragment = `
     sources
   }
 `; 
+
+export const FeedPostFragment = `
+  fragment FeedPostFragment on FeedPost {
+    _id
+    post {
+      ...PostsList
+    }
+    comments {
+      ...CommentsList
+    }
+    sources
+  }
+`; 
