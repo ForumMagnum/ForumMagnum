@@ -10,7 +10,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
 import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
-import { getSchema } from '@/lib/schema/allSchemas';
 
 const prefillFromTemplate = (template: PostsEdit) => {
   return pick(
@@ -161,7 +160,7 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        const insertableFields = getInsertableFields(getSchema(Posts), currentUser);
+        const insertableFields = getInsertableFields(Posts, currentUser);
         const { data, errors } = await createPost.create({
           data: {
             title: "Untitled Draft",
