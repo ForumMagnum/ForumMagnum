@@ -1,7 +1,7 @@
 import React, { CSSProperties, useRef, useState } from 'react'
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';

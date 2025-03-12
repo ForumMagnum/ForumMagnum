@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 
 import classNames from 'classnames';
 import { CommentTreeNode } from '../../lib/utils/unflatten';

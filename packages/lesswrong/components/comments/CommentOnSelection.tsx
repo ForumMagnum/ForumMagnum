@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";

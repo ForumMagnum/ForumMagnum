@@ -7,7 +7,7 @@ import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/u
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@/lib/vendor/@material-ui/core/src/Paper';

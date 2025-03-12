@@ -11,7 +11,7 @@ import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';

@@ -4,7 +4,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
 import sample from 'lodash/sample';

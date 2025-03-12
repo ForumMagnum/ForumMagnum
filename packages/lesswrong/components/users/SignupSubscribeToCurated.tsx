@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import Info from '@material-ui/icons/Info';
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { isLWorAF } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';

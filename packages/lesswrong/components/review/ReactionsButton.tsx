@@ -6,7 +6,7 @@ import * as _ from "underscore"
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import CheckIcon from '@material-ui/icons/Check';
+import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
 
 const styles = (theme: ThemeType) => ({
   root: {

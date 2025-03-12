@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import AddBoxIcon from '@material-ui/icons/AddBox'
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';

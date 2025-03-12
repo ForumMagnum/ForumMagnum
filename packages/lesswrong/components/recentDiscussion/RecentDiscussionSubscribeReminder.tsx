@@ -9,8 +9,8 @@ import { randInt } from '../../lib/random';
 import SimpleSchema from 'simpl-schema';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import MailOutline from '@material-ui/icons/MailOutline'
-import CheckRounded from '@material-ui/icons/CheckRounded'
+import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'
+import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';

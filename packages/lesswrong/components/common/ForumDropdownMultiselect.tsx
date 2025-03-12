@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropDownIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';

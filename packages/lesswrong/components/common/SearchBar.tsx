@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import Portal from '@/lib/vendor/@material-ui/core/src/Portal';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';

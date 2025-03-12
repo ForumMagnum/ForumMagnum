@@ -5,7 +5,7 @@ import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
 import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
-import EmailIcon from '@material-ui/icons/Email';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { CloseableComponent, OpenDialogContextType, useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';

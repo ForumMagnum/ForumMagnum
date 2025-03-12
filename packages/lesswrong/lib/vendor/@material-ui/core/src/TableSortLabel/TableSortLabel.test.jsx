@@ -2,7 +2,7 @@ import React from 'react';
 import { assert } from 'chai';
 import { createShallow, createMount, getClasses } from '../test-utils';
 import TableSortLabel from './TableSortLabel';
-import Sort from '@material-ui/icons/Sort';
+import Sort from '@/lib/vendor/@material-ui/icons/src/Sort';
 
 describe('<TableSortLabel />', () => {
   let shallow;

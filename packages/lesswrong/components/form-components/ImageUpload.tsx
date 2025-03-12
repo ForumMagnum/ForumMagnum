@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import ImageIcon from '@material-ui/icons/Image';
+import ImageIcon from '@/lib/vendor/@material-ui/icons/src/Image';
 import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';

@@ -10,7 +10,7 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useMessages } from '../common/withMessages';
 import { captureException } from '@sentry/core';
 import { tagGetHistoryUrl, tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
-import HistoryIcon from '@material-ui/icons/History';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {

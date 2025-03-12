@@ -27,26 +27,26 @@ yarn add @/lib/vendor/@material-ui/core/src
 
 You can use [material.io/tools/icons](https://material.io/tools/icons/?style=baseline) to find a specific icon.
 When importing an icon, keep in mind that the names of the icons are `PascalCase`, for instance:
-- [`delete`](https://material.io/tools/icons/?icon=delete&style=baseline) is exposed as `@material-ui/icons/Delete`
-- [`delete forever`](https://material.io/tools/icons/?icon=delete_forever&style=baseline) is exposed as `@material-ui/icons/DeleteForever`
+- [`delete`](https://material.io/tools/icons/?icon=delete&style=baseline) is exposed as `@/lib/vendor/@material-ui/icons/src/Delete`
+- [`delete forever`](https://material.io/tools/icons/?icon=delete_forever&style=baseline) is exposed as `@/lib/vendor/@material-ui/icons/src/DeleteForever`
 
 For *"themed"* icons, append the theme name to the icon name. For instance with the
-- The Outlined [`delete`](https://material.io/tools/icons/?icon=delete&style=outline) icon is exposed as `@material-ui/icons/DeleteOutlined`
-- The Rounded [`delete`](https://material.io/tools/icons/?icon=delete&style=rounded) icon is exposed as `@material-ui/icons/DeleteRounded`
-- The Two Tone [`delete`](https://material.io/tools/icons/?icon=delete&style=twotone) icon is exposed as `@material-ui/icons/DeleteTwoTone`
-- The Sharp [`delete`](https://material.io/tools/icons/?icon=delete&style=sharp) icon is exposed as `@material-ui/icons/DeleteSharp`
+- The Outlined [`delete`](https://material.io/tools/icons/?icon=delete&style=outline) icon is exposed as `@/lib/vendor/@material-ui/icons/src/DeleteOutlined`
+- The Rounded [`delete`](https://material.io/tools/icons/?icon=delete&style=rounded) icon is exposed as `@/lib/vendor/@material-ui/icons/src/DeleteRounded`
+- The Two Tone [`delete`](https://material.io/tools/icons/?icon=delete&style=twotone) icon is exposed as `@/lib/vendor/@material-ui/icons/src/DeleteTwoTone`
+- The Sharp [`delete`](https://material.io/tools/icons/?icon=delete&style=sharp) icon is exposed as `@/lib/vendor/@material-ui/icons/src/DeleteSharp`
 
 There are three exceptions to this rule:
-- [`3d_rotation`](https://material.io/tools/icons/?icon=3d_rotation&style=baseline) is exposed as `@material-ui/icons/ThreeDRotation`
-- [`4k`](https://material.io/tools/icons/?icon=4k&style=baseline) is exposed as `@material-ui/icons/FourK`
-- [`360`](https://material.io/tools/icons/?icon=360&style=baseline) is exposed as `@material-ui/icons/ThreeSixty`
+- [`3d_rotation`](https://material.io/tools/icons/?icon=3d_rotation&style=baseline) is exposed as `@/lib/vendor/@material-ui/icons/src/ThreeDRotation`
+- [`4k`](https://material.io/tools/icons/?icon=4k&style=baseline) is exposed as `@/lib/vendor/@material-ui/icons/src/FourK`
+- [`360`](https://material.io/tools/icons/?icon=360&style=baseline) is exposed as `@/lib/vendor/@material-ui/icons/src/ThreeSixty`
 
 ## Imports
 
 - If your environment doesn't support tree-shaking, the **recommended** way to import the icons is the following:
 ```jsx
-import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
-import ThreeDRotation from '@material-ui/icons/ThreeDRotation';
+import AccessAlarmIcon from '@/lib/vendor/@material-ui/icons/src/AccessAlarm';
+import ThreeDRotation from '@/lib/vendor/@material-ui/icons/src/ThreeDRotation';
 ```
 
 - If your environment support tree-shaking you can also import the icons this way:
@@ -59,6 +59,6 @@ Note: Importing named exports in this way will result in the code for *every ico
 ## Upgrading
 
 If you are upgrading an existing project from Material-UI 0.x.x, you will need to revise the import paths
-from `material-ui/svg-icons/<category>/<icon-name>` to `@material-ui/icons/<IconName>`.
+from `material-ui/svg-icons/<category>/<icon-name>` to `@/lib/vendor/@material-ui/icons/src/<IconName>`.
 
 [Here](https://github.com/mui-org/material-ui/tree/master/packages/material-ui-codemod#svg-icon-imports)'s a `jscodeshift` [codemod](https://github.com/facebook/codemod) to help you upgrade.

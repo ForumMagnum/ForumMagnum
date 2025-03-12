@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";

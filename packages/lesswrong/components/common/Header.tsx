@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import TocIcon from '@material-ui/icons/Toc';
+import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';

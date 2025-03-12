@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { truncatise } from '../../../lib/truncatise';
-import Edit from '@material-ui/icons/Edit';
+import Edit from '@/lib/vendor/@material-ui/icons/src/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';

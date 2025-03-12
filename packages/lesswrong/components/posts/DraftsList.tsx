@@ -7,8 +7,8 @@ import {useMulti} from "../../lib/crud/withMulti";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
-import DescriptionIcon from "@material-ui/icons/Description";
-import ListIcon from '@material-ui/icons/List';
+import DescriptionIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import ListIcon from '@/lib/vendor/@material-ui/icons/src/List';
 
 const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {

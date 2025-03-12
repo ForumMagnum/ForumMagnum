@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Card from '@/lib/vendor/@material-ui/core/src/Card'
-import EditIcon from '@material-ui/icons/Edit'
+import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({

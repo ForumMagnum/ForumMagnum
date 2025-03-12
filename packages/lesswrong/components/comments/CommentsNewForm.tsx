@@ -11,7 +11,7 @@ import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/c
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import ArrowForward from '@material-ui/icons/ArrowForward';
+import ArrowForward from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';

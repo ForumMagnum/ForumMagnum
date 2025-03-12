@@ -3,8 +3,8 @@ import { Components, ComponentsTable, DeferredComponentsTable, registerComponent
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import classNames from 'classnames'
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import LinkIcon from '@material-ui/icons/Link'
-import LinkOffIcon from '@material-ui/icons/LinkOff';
+import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link'
+import LinkOffIcon from '@/lib/vendor/@material-ui/icons/src/LinkOff';
 
 const styles = (theme: ThemeType) => ({
   root: {

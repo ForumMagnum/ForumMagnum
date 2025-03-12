@@ -5,8 +5,8 @@ import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATO
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sortBy } from 'underscore';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import DoneIcon from '@material-ui/icons/Done'
-import ClearIcon from '@material-ui/icons/Clear'
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 

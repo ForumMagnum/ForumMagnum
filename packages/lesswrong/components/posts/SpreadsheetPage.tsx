@@ -5,7 +5,7 @@ import Table from '@/lib/vendor/@material-ui/core/src/Table';
 import TableBody from '@/lib/vendor/@material-ui/core/src/TableBody';
 import TableCell from '@/lib/vendor/@material-ui/core/src/TableCell';
 import TableRow from '@/lib/vendor/@material-ui/core/src/TableRow';
-import StarIcon from '@material-ui/icons/Star';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery, gql } from '@apollo/client';

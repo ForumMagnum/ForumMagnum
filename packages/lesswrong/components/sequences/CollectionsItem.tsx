@@ -6,7 +6,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';

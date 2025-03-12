@@ -1,8 +1,8 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import EditIcon from '@material-ui/icons/Edit';
-import PublishIcon from '@material-ui/icons/Publish';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import CloseIcon from '@material-ui/icons/Close';
+import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit';
+import PublishIcon from '@/lib/vendor/@material-ui/icons/src/Publish';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';

@@ -7,8 +7,8 @@ import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
-import EyeIcon from '@material-ui/icons/Visibility';
+import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
 
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'

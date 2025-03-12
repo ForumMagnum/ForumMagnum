@@ -2,8 +2,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton'
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
-import NavigateBefore from '@material-ui/icons/NavigateBefore'
-import NavigateNext from '@material-ui/icons/NavigateNext'
+import NavigateBefore from '@/lib/vendor/@material-ui/icons/src/NavigateBefore'
+import NavigateNext from '@/lib/vendor/@material-ui/icons/src/NavigateNext'
 import React from 'react';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';

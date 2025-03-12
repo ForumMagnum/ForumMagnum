@@ -5,7 +5,7 @@ import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/sche
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import ClearIcon from '@material-ui/icons/Clear'
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({

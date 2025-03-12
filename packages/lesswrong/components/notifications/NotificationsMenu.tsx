@@ -5,10 +5,10 @@ import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer'
 import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
-import ClearIcon from '@material-ui/icons/Clear';
-import PostsIcon from '@material-ui/icons/Description';
-import CommentsIcon from '@material-ui/icons/ModeComment';
-import MailIcon from '@material-ui/icons/Mail';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
+import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
+import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';

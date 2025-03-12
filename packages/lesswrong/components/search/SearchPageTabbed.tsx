@@ -7,7 +7,7 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
-import InfoIcon from '@material-ui/icons/Info';
+import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';

@@ -5,12 +5,12 @@ import { useMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import classNames from 'classnames'
 import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
-import VisibilityIcon from '@material-ui/icons/VisibilityOff';
-import EmailIcon from '@material-ui/icons/Email';
-import AddIcon from '@material-ui/icons/Add';
-import RoomIcon from '@material-ui/icons/Room';
-import StarIcon from '@material-ui/icons/Star';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
+import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
+import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
