@@ -164,7 +164,7 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
       <div className={classes.toolbar}>
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={ev => {
+          <CommentIcon onClick={(ev: React.MouseEvent) => {
             captureEvent("commentOnSelectionClicked");
             onClickComment(ev);
           }}/>

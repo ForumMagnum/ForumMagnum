@@ -1,17 +1,15 @@
 import React from 'react';
-import pure from 'recompose/pure';
 import SvgIcon from '@/lib/vendor/@material-ui/core/src/SvgIcon';
 
-function createSvgIcon(path, displayName) {
-  let Icon = props => (
+function createSvgIcon(path: React.ReactNode, displayName: string) {
+  let Icon = (props: any) => (
     <SvgIcon {...props}>
       {path}
     </SvgIcon>
   );
 
-  Icon.displayName = `${displayName}Icon`;
-  Icon = pure(Icon);
-  Icon.muiName = 'SvgIcon';
+  (Icon as any).displayName = `${displayName}Icon`;
+  (Icon as any).muiName = 'SvgIcon';
 
   return Icon;
 };
