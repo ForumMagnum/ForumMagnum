@@ -212,10 +212,16 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     right: 0,
-    borderTopRightRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
-    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
+    ...(isFriendlyUI
+      ? {
+          borderRadius: theme.borderRadius.default,
+          width: "100%",
+          objectFit: "cover",
+        }
+      : {
+          borderTopRightRadius: theme.borderRadius.default,
+          borderBottomRightRadius: theme.borderRadius.default,
+        }),
   },
   imageFade: buildFadeMask([
     "transparent 0",
