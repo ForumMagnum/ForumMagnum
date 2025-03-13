@@ -105,14 +105,17 @@ export function fixedIndexSubquery<ResultType extends DbObject>({type, index, re
 
 export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
   name: string,
-  resolver: ({limit, cutoff, args, context}: {
+  resolver: ({limit, cutoff, offset, args, context, sessionId}: {
     limit?: number,
     cutoff?: CutoffType|null,
     offset?: number,
+    sessionId?: string,
     args: any, context: ResolverContext
   }) => Promise<{
     cutoff: CutoffType|null,
-    results: Array<any>
+    results: Array<any>,
+    endOffset: number,
+    sessionId?: string
   }>,
   args: string,
   cutoffTypeGraphQL: string,
@@ -123,6 +126,7 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
       cutoff: ${cutoffTypeGraphQL}
       endOffset: Int!
       results: [${name}EntryType!]
+      sessionId: String
     }
     type ${name}EntryType {
       type: String!
@@ -132,18 +136,19 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   addGraphQLQuery(`${name}(
     limit: Int,
     cutoff: ${cutoffTypeGraphQL},
-    offset: Int
+    offset: Int,
+    sessionId: String
     ${(args && args.length>0) ? ", " : ""}${args}
   ): ${name}QueryResults!`);
   
   addGraphQLResolvers({
     Query: {
       [name]: async (_root: void, args: any, context: ResolverContext) => {
-        const {limit, cutoff, offset, ...rest} = args;
+        const {limit, cutoff, offset, sessionId, ...rest} = args;
         return {
           __typename: `${name}QueryResults`,
           ...await resolver({
-            limit, cutoff, offset,
+            limit, cutoff, offset, sessionId,
             args: rest,
             context
           })

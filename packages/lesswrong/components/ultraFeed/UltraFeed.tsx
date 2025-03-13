@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -7,6 +7,8 @@ import { userHasUltraFeed } from '../../lib/betas';
 import { useMulti } from '../../lib/crud/withMulti';
 import type { ObservableQuery } from '@apollo/client';
 import classNames from 'classnames';
+import { randomId } from '../../lib/random';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType) => ({
   toggleContainer: {
@@ -65,7 +67,8 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const UltraFeed = ({classes}: {
+// Define the main component implementation
+const UltraFeedContent = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, 
@@ -74,6 +77,9 @@ export const UltraFeed = ({classes}: {
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
+  
+  // Generate a new session ID for each component mount
+  const [sessionId] = useState(() => randomId())
 
   // Setup refetch for subscribed content
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
@@ -133,7 +139,7 @@ export const UltraFeed = ({classes}: {
   const customTitle = <>
     <div className={classes.titleContainer} onClick={loadMoreAtTop}>
       <span className={classes.titleText}>Update Feed</span>
-      <span className={classes.refreshText}>click for new content</span>
+      <span className={classes.refreshText}>click for more content</span>
     </div>
     <div className={classes.settingsButtonContainer}>
       <SettingsButton 
@@ -170,40 +176,41 @@ export const UltraFeed = ({classes}: {
             <MixedTypeFeed
               resolverName="UltraFeed"
               sortKeyType="Date"
-              firstPageSize={50}
-              pageSize={25}
+              firstPageSize={10}
+              pageSize={5}
               refetchRef={refetchSubscriptionContentRef}
               loadMoreRef={loadMoreAtTopRef}
               prependedLoadMore={true}
+              resolverArgsValues={{ sessionId: sessionId ?? undefined }}
               renderers={{
-                feedComment: {
-                  fragmentName: 'FeedCommentFragment',
-                  render: (feedComment) => {
-                    const comment = feedComment.comment;
-                    return (
-                      <FeedItemWrapper sources={feedComment.sources}>
-                        <QuickTakesListItem 
-                          key={comment._id}
-                          quickTake={comment}
-                        />
-                      </FeedItemWrapper>
-                    );
-                  }
-                },
-                feedPost: {
-                  fragmentName: 'FeedPostFragment',
-                  render: (feedPost) => {
-                    return (
-                      <FeedItemWrapper sources={feedPost.sources}>
-                        <FeedPostCommentsCard
-                          key={feedPost.post._id}
-                          post={feedPost.post}
-                          comments={feedPost.comments || []}
-                          maxCollapsedLengthWords={200}
-                          refetch={refetch}
-                        />
-                      </FeedItemWrapper>
-                    );
+                ultraFeedItem: {
+                  fragmentName: 'UltraFeedItemFragment',
+                  render: (ultraFeedItem) => {
+                    // Handle based on renderAsType
+                    if (ultraFeedItem.renderAsType === 'feedComment') {
+                      const comment = ultraFeedItem.primaryComment;
+                      return (
+                        <FeedItemWrapper sources={ultraFeedItem.sources}>
+                          <QuickTakesListItem 
+                            key={comment._id}
+                            quickTake={comment}
+                          />
+                        </FeedItemWrapper>
+                      );
+                    } else {
+                      // Render as post
+                      return (
+                        <FeedItemWrapper sources={ultraFeedItem.sources}>
+                          <FeedPostCommentsCard
+                            key={ultraFeedItem.primaryPost._id}
+                            post={ultraFeedItem.primaryPost}
+                            comments={ultraFeedItem.secondaryComments || []}
+                            maxCollapsedLengthWords={200}
+                            refetch={refetch}
+                          />
+                        </FeedItemWrapper>
+                      );
+                    }
                   }
                 }
               }}
@@ -212,6 +219,18 @@ export const UltraFeed = ({classes}: {
         </SingleColumnSection>
       </>}
     </div>
+  );
+};
+
+// Create the wrapper component that uses DeferRender
+export const UltraFeed = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  return (
+    // TODO: possibly defer render shouldn't apply to the section title?
+    <DeferRender ssr={false}>
+      <UltraFeedContent classes={classes} />
+    </DeferRender>
   );
 };
 

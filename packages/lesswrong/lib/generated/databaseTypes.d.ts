@@ -481,6 +481,26 @@ interface DbFeaturedResource extends DbObject {
   title: string
 }
 
+type FeedItemServingsCollection = CollectionBase<"FeedItemServings">;
+
+interface DbFeedItemServing extends DbObject {
+  __collectionName?: "FeedItemServings"
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  mostRecentServingId: string | null
+  originalServingId: string | null
+  position: number
+  primaryDocumentCollectionName: CollectionNameString | null
+  primaryDocumentId: string | null
+  renderAsType: string
+  secondaryDocumentIds: Array<string> | null
+  secondaryDocumentsCollectionName: CollectionNameString | null
+  servedAt: Date
+  sessionId: string
+  sources: Array<string> | null
+  userId: string | null
+}
+
 type FieldChangesCollection = CollectionBase<"FieldChanges">;
 
 interface DbFieldChange extends DbObject {
@@ -2109,6 +2129,7 @@ interface CollectionsByName {
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
+  FeedItemServings: FeedItemServingsCollection
   FieldChanges: FieldChangesCollection
   ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
@@ -2199,6 +2220,7 @@ interface ObjectsByCollectionName {
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
+  FeedItemServings: DbFeedItemServing
   FieldChanges: DbFieldChange
   ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
@@ -2289,6 +2311,7 @@ interface ObjectsByTypeName {
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
+  FeedItemServing: DbFeedItemServing
   FieldChange: DbFieldChange
   ForumEvent: DbForumEvent
   GardenCode: DbGardenCode

@@ -26,11 +26,21 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   renderers: any,
 }) => {
   const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
-  const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
+  
+  const queryArgsList=[
+    "$limit: Int", 
+    `$cutoff: ${sortKeyType}`, 
+    "$offset: Int", 
+    "$sessionId: String", // Optional sessionId parameter
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
   ];
-  const resolverArgsList=["limit: $limit", "cutoff: $cutoff", "offset: $offset",
+  
+  const resolverArgsList=[
+    "limit: $limit", 
+    "cutoff: $cutoff", 
+    "offset: $offset", 
+    "sessionId: $sessionId", // Will be null if not provided
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
 
@@ -40,6 +50,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
         __typename
         cutoff
         endOffset
+        sessionId
         results {
           type
           ${Object.keys(renderers).map(rendererName =>
@@ -163,6 +174,7 @@ const MixedTypeFeed = (args: {
       cutoff: null,
       offset: 0,
       limit: firstPageSize,
+      sessionId: resolverArgsValues?.sessionId || null,
     },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
@@ -186,7 +198,8 @@ const MixedTypeFeed = (args: {
     cutoff: data?.[resolverName]?.cutoff,
     reachedEnd,
     hasResults,
-    resultsCount: data?.[resolverName]?.results?.length || 0
+    resultsCount: data?.[resolverName]?.results?.length || 0,
+    sessionId: resolverArgsValues?.sessionId 
   });
   
   const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
@@ -198,7 +211,8 @@ const MixedTypeFeed = (args: {
       reachedEnd, 
       isPending: queryIsPending.current,
       cutoff: data?.[resolverName]?.cutoff,
-      endOffset: data?.[resolverName]?.endOffset
+      endOffset: data?.[resolverName]?.endOffset,
+      sessionId: resolverArgsValues?.sessionId
     });
     
     if (!data || queryIsPending.current) return;
@@ -210,6 +224,7 @@ const MixedTypeFeed = (args: {
       cutoff: data[resolverName].cutoff,
       offset: data[resolverName].endOffset,
       limit: pageSize,
+      sessionId: resolverArgsValues?.sessionId // Only log the prop
     });
     
     void fetchMore({
@@ -219,6 +234,7 @@ const MixedTypeFeed = (args: {
         cutoff: data[resolverName].cutoff,
         offset: data[resolverName].endOffset,
         limit: pageSize,
+        sessionId: resolverArgsValues?.sessionId || null,
       },
       updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
         console.log("fetchMore updateQuery callback", { 
@@ -258,7 +274,7 @@ const MixedTypeFeed = (args: {
             __typename: fetchMoreResult[resolverName].__typename,
             cutoff: fetchMoreResult[resolverName].cutoff,
             endOffset: fetchMoreResult[resolverName].endOffset,
-            // When prepending, add new results at the beginning
+            sessionId: fetchMoreResult[resolverName]?.sessionId, // Keep sessionId from response
             results: [...deduplicatedResults, ...prev[resolverName].results],
           }
         };
@@ -294,6 +310,7 @@ const MixedTypeFeed = (args: {
             cutoff: data[resolverName].cutoff,
             offset: data[resolverName].endOffset,
             limit: pageSize,
+            sessionId: resolverArgsValues?.sessionId || null,
           },
           updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
             queryIsPending.current = false;
@@ -312,6 +329,7 @@ const MixedTypeFeed = (args: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
+                sessionId: fetchMoreResult[resolverName]?.sessionId, // Keep sessionId from response
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };

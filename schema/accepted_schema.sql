@@ -914,6 +914,44 @@ CREATE TABLE "FeaturedResources" (
 -- Index "idx_FeaturedResources_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedResources" USING btree ("schemaVersion");
 
+-- Table "FeedItemServings"
+CREATE TABLE "FeedItemServings" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "userId" VARCHAR(27),
+  "sessionId" TEXT NOT NULL,
+  "servedAt" TIMESTAMPTZ NOT NULL,
+  "renderAsType" TEXT NOT NULL,
+  "sources" TEXT[],
+  "primaryDocumentId" TEXT,
+  "primaryDocumentCollectionName" TEXT,
+  "secondaryDocumentIds" TEXT[],
+  "secondaryDocumentsCollectionName" TEXT,
+  "position" DOUBLE PRECISION NOT NULL,
+  "originalServingId" TEXT,
+  "mostRecentServingId" TEXT
+);
+
+-- Index "idx_FeedItemServings_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_schemaVersion" ON "FeedItemServings" USING btree ("schemaVersion");
+
+-- Index "idx_FeedItemServings_sessionId_position"
+CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_sessionId_position" ON "FeedItemServings" USING btree ("sessionId", "position");
+
+-- Index "idx_FeedItemServings_userId_servedAt"
+CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_userId_servedAt" ON "FeedItemServings" USING btree ("userId", "servedAt");
+
+-- Index "idx_FeedItemServings_primaryDocumentId_primaryDocumentCollectionName"
+CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_primaryDocumentId_primaryDocumentCollectionName" ON "FeedItemServings" USING btree (
+  "primaryDocumentId",
+  "primaryDocumentCollectionName"
+);
+
+-- Index "idx_FeedItemServings_servedAt"
+CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_servedAt" ON "FeedItemServings" USING btree ("servedAt");
+
 -- Table "FieldChanges"
 CREATE TABLE "FieldChanges" (
   _id VARCHAR(27) PRIMARY KEY,

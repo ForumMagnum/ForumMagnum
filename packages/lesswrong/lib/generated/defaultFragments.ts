@@ -454,11 +454,23 @@ export const FeaturedResourcesDefaultFragment = `
 `;
 
 export const FeedItemServingsDefaultFragment = `
-  fragment FeedItemServingsDefaultFragment on undefined {
+  fragment FeedItemServingsDefaultFragment on FeedItemServing {
     _id
     schemaVersion
     createdAt
     legacyData
+    userId
+    sessionId
+    servedAt
+    renderAsType
+    sources
+    primaryDocumentId
+    primaryDocumentCollectionName
+    secondaryDocumentIds
+    secondaryDocumentsCollectionName
+    position
+    originalServingId
+    mostRecentServingId
   }
 `;
 

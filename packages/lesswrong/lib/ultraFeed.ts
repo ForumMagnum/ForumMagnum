@@ -1,7 +1,10 @@
-export const FeedCommentFragment = `
-  fragment FeedCommentFragment on FeedComment {
+export const UltraFeedItemFragment = `
+  fragment UltraFeedItemFragment on UltraFeedItem {
     _id
-    comment {
+    type
+    renderAsType
+    sources
+    primaryComment {
       ...CommentsList
       parentCommentId
       topLevelCommentId
@@ -9,19 +12,15 @@ export const FeedCommentFragment = `
         _id
       }
     }
-    sources
+    primaryPost {
+      ...PostsList
+    }
+    secondaryComments {
+      ...CommentsList
+    }
   }
 `; 
 
-export const FeedPostFragment = `
-  fragment FeedPostFragment on FeedPost {
-    _id
-    post {
-      ...PostsList
-    }
-    comments {
-      ...CommentsList
-    }
-    sources
-  }
-`; 
+// Keep these for backward compatibility but make them use the new UltraFeedItemFragment
+export const FeedCommentFragment = UltraFeedItemFragment;
+export const FeedPostFragment = UltraFeedItemFragment;

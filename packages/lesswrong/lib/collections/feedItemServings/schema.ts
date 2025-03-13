@@ -33,11 +33,24 @@ export const schema: SchemaType<"FeedItemServings"> = {
     // This field is required (no optional:true) and must be provided when creating records
   },
 
-  // The source/type of the feed item (e.g., "quickTakes", "popularComments", "subscribed")
-  type: {
+  // E.g. feedComment, feedPost, 
+  renderAsType: {
     type: String,
     nullable: false,
     canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  // Sources, e.g. "quickTakes", "popularComments", "subscribed"
+  sources: {
+    type: Array,
+    optional: true,
+    nullable: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+  
+  'sources.$': {
+    type: String,
+    optional: true
   },
 
   // Primary document information (e.g., a post, comment, or wikitag)
@@ -83,6 +96,24 @@ export const schema: SchemaType<"FeedItemServings"> = {
     nullable: false,
     canRead: ['admins', 'sunshineRegiment'],
   },
+
+  // If this item was previously served, the id of the previous serving
+  originalServingId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+
+  // If this item was previously served, the id of the previous serving
+  mostRecentServingId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
 };
+
+
 
 export default schema;

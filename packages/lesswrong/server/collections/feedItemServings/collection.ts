@@ -38,8 +38,6 @@ export const FeedItemServings = createCollection({
     indexSet.addIndex('FeedItemServings', { primaryDocumentId: 1, primaryDocumentCollectionName: 1 });
     // Index for time-based queries
     indexSet.addIndex('FeedItemServings', { servedAt: -1 });
-    // Index for impression analytics
-    indexSet.addIndex('FeedItemServings', { hasImpression: 1, impressionAt: -1 });
     return indexSet;
   },
   resolvers: getDefaultResolvers('FeedItemServings'),
@@ -47,22 +45,3 @@ export const FeedItemServings = createCollection({
   logChanges: true,
 });
 
-// Add the collection to the global types
-declare global {
-  interface CollectionsByTypeName {
-    FeedItemServing: typeof FeedItemServings
-  }
-  
-  interface DbFeedItemServing extends DbObject {
-    _id: string;
-    userId: string;
-    sessionId: string;
-    servedAt: Date;
-    type: string;
-    primaryDocumentId?: string;
-    primaryDocumentCollectionName?: CollectionNameString;
-    secondaryDocumentIds?: Array<string>;
-    secondaryDocumentsCollectionName?: CollectionNameString;
-    position: number;
-  }
-}
