@@ -185,7 +185,11 @@ interface DbComment extends DbObject {
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   } | null
   hideAuthor: boolean
   hideKarma: boolean | null

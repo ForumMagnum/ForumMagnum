@@ -63,6 +63,21 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
       }
     }),
     optional: true,
+    nullable: true,
   },
+  poll: {
+    type: new SimpleSchema({
+      voteWhenPublished: {
+        type: Number,
+      },
+      latestVote: {
+        type: Number,
+        optional: true,
+        nullable: true
+      },
+    }),
+    optional: true,
+    nullable: true
+  }
 });
 

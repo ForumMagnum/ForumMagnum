@@ -677,6 +677,15 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
+  const commentPrefilledProps: Partial<DbComment> = !currentUserComment ? {
+    forumEventMetadata: {
+      eventFormat: "POLL",
+      poll: {
+        voteWhenPublished: currentUserVote
+      }
+    },
+  } : {};
+
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classes.root}>
@@ -793,6 +802,7 @@ export const ForumEventPoll = ({
                     <ForumEventCommentForm
                       open={commentFormOpen}
                       comment={currentUserComment}
+                      prefilledProps={commentPrefilledProps}
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEvent={event}
                       cancelCallback={() => setCommentFormOpen(false)}

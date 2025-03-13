@@ -454,7 +454,7 @@ export const FeaturedResourcesDefaultFragment = `
 `;
 
 export const FieldChangesDefaultFragment = `
-  fragment FieldChangesDefaultFragment on undefined {
+  fragment FieldChangesDefaultFragment on FieldChange {
     _id
     schemaVersion
     createdAt

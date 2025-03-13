@@ -11,6 +11,9 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { useCurrentForumEvent } from "@/components/hooks/useCurrentForumEvent";
+import isNumber from "lodash/isNumber";
+import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -132,7 +135,15 @@ const styles = (theme: ThemeType) => ({
     }
     : {
       opacity: 0.35,
-    }
+    },
+  agreePollVote: {
+    color: theme.palette.primary.main,
+    fontWeight: 600
+  },
+  disagreePollVote: {
+    color: theme.palette.warning.main,
+    fontWeight: 600
+  }
 });
 
 export const CommentsItemMeta = ({
@@ -225,16 +236,55 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-
-
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
+    ForumIcon, CommentsMenu, UserCommentMarkers, LWTooltip
   } = Components;
 
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
   const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+
+  const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
+  const latestVote = comment.forumEventMetadata?.poll?.latestVote;
+
+  const formatPollVote = ({ voteWhenPublished, latestVote }: { voteWhenPublished: number; latestVote?: number | null; }) => {
+    const isAgreement = (pollVote: number) => pollVote >= 0.5;
+    const voteToPercentage = (pollVote: number) => `${Math.round(Math.abs(pollVote - 0.5) * 200)}%`;
+
+    const endAgreement = isAgreement(latestVote ?? voteWhenPublished);
+    const startAgreement = isAgreement(voteWhenPublished);
+
+    const endPercentage = voteToPercentage(latestVote ?? voteWhenPublished);
+    const startPercentage = voteToPercentage(voteWhenPublished);
+
+    const showStartAgreement = startAgreement !== endAgreement;
+    const showStartPercentage = showStartAgreement || endPercentage !== startPercentage;
+
+    return (
+      <span>
+        {showStartPercentage && (
+          <span className={startAgreement ? classes.agreePollVote : classes.disagreePollVote}>
+            <LWTooltip title="Vote when comment was posted" placement="top">
+              <s>
+                {startPercentage}
+                {showStartAgreement && (startAgreement ? " agree" : " disagree")}
+              </s>
+            </LWTooltip>
+            &nbsp;&#10132;&nbsp;
+          </span>
+        )}
+        <span className={endAgreement ? classes.agreePollVote : classes.disagreePollVote}>
+          <LWTooltip title="Current vote" disabled={!showStartPercentage} placement="top">
+            {endPercentage}
+          </LWTooltip>
+          {endAgreement ? " agree" : " disagree"}
+        </span>
+      </span>
+    );
+  }
+
+  const forumEventVoteInfo = !!voteWhenPublished && formatPollVote({ voteWhenPublished, latestVote });
 
   return (
     <div className={classNames(
@@ -334,6 +384,7 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
+      {forumEventVoteInfo}
 
       <span className={classes.rightSection}>
         {rightSectionElements}
