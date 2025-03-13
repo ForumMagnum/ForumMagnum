@@ -106,11 +106,11 @@ function Dialog(props) {
     children,
     classes,
     className,
-    disableBackdropClick,
-    disableEscapeKeyDown,
-    fullScreen,
-    fullWidth,
-    maxWidth,
+    disableBackdropClick=false,
+    disableEscapeKeyDown=false,
+    fullScreen=false,
+    fullWidth=false,
+    maxWidth='sm',
     onBackdropClick,
     onClose,
     onEnter,
@@ -122,9 +122,9 @@ function Dialog(props) {
     onExiting,
     open,
     PaperProps,
-    scroll,
-    TransitionComponent,
-    transitionDuration,
+    scroll='paper',
+    TransitionComponent=Fade,
+    transitionDuration={ enter: duration.enteringScreen, exit: duration.leavingScreen },
     TransitionProps,
     ...other
   } = props;
@@ -281,17 +281,6 @@ Dialog.propTypes = {
    * Properties applied to the `Transition` element.
    */
   TransitionProps: PropTypes.object,
-};
-
-Dialog.defaultProps = {
-  disableBackdropClick: false,
-  disableEscapeKeyDown: false,
-  fullScreen: false,
-  fullWidth: false,
-  maxWidth: 'sm',
-  scroll: 'paper',
-  TransitionComponent: Fade,
-  transitionDuration: { enter: duration.enteringScreen, exit: duration.leavingScreen },
 };
 
 export default withStyles(styles, { name: 'MuiDialog' })(Dialog);

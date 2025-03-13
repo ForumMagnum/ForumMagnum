@@ -47,9 +47,9 @@ function TableRow(props, context) {
   const {
     classes,
     className: classNameProp,
-    component: Component,
-    hover,
-    selected,
+    component: Component='tr',
+    hover=false,
+    selected=false,
     ...other
   } = props;
   const { tablelvl2 } = context;
@@ -95,12 +95,6 @@ TableRow.propTypes = {
    * If `true`, the table row will have the selected shading.
    */
   selected: PropTypes.bool,
-};
-
-TableRow.defaultProps = {
-  component: 'tr',
-  hover: false,
-  selected: false,
 };
 
 TableRow.contextTypes = {

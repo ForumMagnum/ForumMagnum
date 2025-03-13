@@ -22,7 +22,7 @@ export const styles = {
  * For the `Radio`, you should be using the `RadioGroup` component instead of this one.
  */
 function FormGroup(props) {
-  const { classes, className, children, row, ...other } = props;
+  const { classes, className, children, row=false, ...other } = props;
 
   return (
     <div
@@ -58,10 +58,6 @@ FormGroup.propTypes = {
    * Display group of elements in a compact row.
    */
   row: PropTypes.bool,
-};
-
-FormGroup.defaultProps = {
-  row: false,
 };
 
 export default withStyles(styles, { name: 'MuiFormGroup' })(FormGroup);

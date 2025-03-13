@@ -119,7 +119,7 @@ export const styles = theme => {
 };
 
 function FilledInput(props) {
-  const { classes, ...other } = props;
+  const { fullWidth=false, inputComponent="input", multiline=false, type="text", classes, ...other } = props;
 
   return (
     <InputBase
@@ -128,6 +128,10 @@ function FilledInput(props) {
         root: classNames(classes.root, classes.underline, {}),
         underline: null,
       }}
+      fullWidth={fullWidth}
+      inputComponent={inputComponent}
+      multiline={multiline}
+      type={type}
       {...other}
     />
   );
@@ -250,13 +254,6 @@ FilledInput.propTypes = {
     PropTypes.bool,
     PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])),
   ]),
-};
-
-InputBase.defaultProps = {
-  fullWidth: false,
-  inputComponent: 'input',
-  multiline: false,
-  type: 'text',
 };
 
 FilledInput.muiName = 'Input';

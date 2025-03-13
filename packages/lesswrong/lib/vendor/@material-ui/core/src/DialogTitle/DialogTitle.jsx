@@ -14,7 +14,7 @@ export const styles = {
 };
 
 function DialogTitle(props) {
-  const { children, classes, className, disableTypography, ...other } = props;
+  const { children, classes, className, disableTypography=false, ...other } = props;
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -42,10 +42,6 @@ DialogTitle.propTypes = {
    * For instance, this can be useful to render an h4 instead of the default h2.
    */
   disableTypography: PropTypes.bool,
-};
-
-DialogTitle.defaultProps = {
-  disableTypography: false,
 };
 
 export default withStyles(styles, { name: 'MuiDialogTitle' })(DialogTitle);

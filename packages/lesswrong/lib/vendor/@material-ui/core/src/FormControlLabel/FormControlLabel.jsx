@@ -51,7 +51,7 @@ function FormControlLabel(props, context) {
     disabled: disabledProp,
     inputRef,
     label,
-    labelPlacement,
+    labelPlacement="end",
     name,
     onChange,
     value,
@@ -149,10 +149,6 @@ FormControlLabel.propTypes = {
    * The value of the component.
    */
   value: PropTypes.string,
-};
-
-FormControlLabel.defaultProps = {
-  labelPlacement: 'end',
 };
 
 FormControlLabel.contextTypes = {

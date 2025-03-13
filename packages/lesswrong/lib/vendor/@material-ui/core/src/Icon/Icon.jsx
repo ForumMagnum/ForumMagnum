@@ -50,7 +50,7 @@ export const styles = theme => ({
 });
 
 function Icon(props) {
-  const { children, classes, className, color, component: Component, fontSize, ...other } = props;
+  const { children, classes, className, color="inherit", component: Component="span", fontSize="default", ...other } = props;
 
   return (
     <Component
@@ -98,12 +98,6 @@ Icon.propTypes = {
    * The fontSize applied to the icon. Defaults to 24px, but can be configure to inherit font size.
    */
   fontSize: PropTypes.oneOf(['inherit', 'default', 'small', 'large']),
-};
-
-Icon.defaultProps = {
-  color: 'inherit',
-  component: 'span',
-  fontSize: 'default',
 };
 
 Icon.muiName = 'Icon';

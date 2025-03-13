@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiToolbar", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'relative',
@@ -18,10 +18,11 @@ export const styles = theme => ({
   dense: {
     minHeight: 48,
   },
-});
+}));
 
 function Toolbar(props) {
-  const { children, classes, className: classNameProp, disableGutters, variant, ...other } = props;
+  const { children, className: classNameProp, disableGutters=false, variant="regular", ...other } = props;
+  const classes = useStyles(styles);
 
   const className = classNames(
     classes.root,
@@ -45,11 +46,6 @@ Toolbar.propTypes = {
    */
   children: PropTypes.node,
   /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
    * @ignore
    */
   className: PropTypes.string,
@@ -63,9 +59,4 @@ Toolbar.propTypes = {
   variant: PropTypes.oneOf(['regular', 'dense']),
 };
 
-Toolbar.defaultProps = {
-  disableGutters: false,
-  variant: 'regular',
-};
-
-export default withStyles(styles, { name: 'MuiToolbar' })(Toolbar);
+export default Toolbar;

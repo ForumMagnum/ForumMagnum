@@ -14,7 +14,7 @@ export const styles = {
 };
 
 function Card(props) {
-  const { classes, className, raised, ...other } = props;
+  const { classes, className, raised=false, ...other } = props;
 
   return (
     <Paper className={classNames(classes.root, className)} elevation={raised ? 8 : 1} {...other} />
@@ -35,10 +35,6 @@ Card.propTypes = {
    * If `true`, the card will use raised styling.
    */
   raised: PropTypes.bool,
-};
-
-Card.defaultProps = {
-  raised: false,
 };
 
 export default withStyles(styles, { name: 'MuiCard' })(Card);

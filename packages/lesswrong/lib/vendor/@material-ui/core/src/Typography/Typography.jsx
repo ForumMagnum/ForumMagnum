@@ -97,16 +97,26 @@ export const styles = theme => ({
 
 function Typography(props) {
   const {
-    align,
+    align='inherit',
     classes,
     className: classNameProp,
-    color,
+    color='default',
     component: componentProp,
-    gutterBottom,
-    headlineMapping,
-    noWrap,
-    paragraph,
-    variant,
+    gutterBottom=false,
+    headlineMapping={
+      display4: 'h1',
+      display3: 'h1',
+      display2: 'h1',
+      display1: 'h1',
+      headline: 'h1',
+      title: 'h2',
+      subheading: 'h3',
+      body2: 'aside',
+      body1: 'p',
+    },
+    noWrap=false,
+    paragraph=false,
+    variant='body1',
     ...other
   } = props;
 
@@ -200,26 +210,6 @@ Typography.propTypes = {
     'srOnly',
     'inherit',
   ]),
-};
-
-Typography.defaultProps = {
-  align: 'inherit',
-  color: 'default',
-  gutterBottom: false,
-  headlineMapping: {
-    display4: 'h1',
-    display3: 'h1',
-    display2: 'h1',
-    display1: 'h1',
-    headline: 'h1',
-    title: 'h2',
-    subheading: 'h3',
-    body2: 'aside',
-    body1: 'p',
-  },
-  noWrap: false,
-  paragraph: false,
-  variant: 'body1',
 };
 
 export default withStyles(styles, { name: 'MuiTypography' })(Typography);

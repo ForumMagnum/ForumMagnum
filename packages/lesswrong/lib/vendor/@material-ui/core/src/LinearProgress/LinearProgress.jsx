@@ -164,7 +164,7 @@ export const styles = theme => ({
  * attribute to `true` on that region until it has finished loading.
  */
 function LinearProgress(props) {
-  const { classes, className: classNameProp, color, value, valueBuffer, variant, ...other } = props;
+  const { classes, className: classNameProp, color="primary", value, valueBuffer, variant="indeterminate", ...other } = props;
 
   const className = classNames(
     classes.root,
@@ -263,11 +263,6 @@ LinearProgress.propTypes = {
    * Use indeterminate or query when there is no progress value.
    */
   variant: PropTypes.oneOf(['determinate', 'indeterminate', 'buffer', 'query']),
-};
-
-LinearProgress.defaultProps = {
-  color: 'primary',
-  variant: 'indeterminate',
 };
 
 export default withStyles(styles, { name: 'MuiLinearProgress' })(LinearProgress);

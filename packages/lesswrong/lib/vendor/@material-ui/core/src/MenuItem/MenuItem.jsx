@@ -25,7 +25,7 @@ export const styles = theme => ({
 });
 
 function MenuItem(props) {
-  const { classes, className, component, selected, role, ...other } = props;
+  const { classes, className, component='li', selected, role='menuitem', ...other } = props;
 
   return (
     <ListItem
@@ -67,11 +67,6 @@ MenuItem.propTypes = {
    * @ignore
    */
   selected: PropTypes.bool,
-};
-
-MenuItem.defaultProps = {
-  component: 'li',
-  role: 'menuitem',
 };
 
 export default withStyles(styles, { name: 'MuiMenuItem' })(MenuItem);

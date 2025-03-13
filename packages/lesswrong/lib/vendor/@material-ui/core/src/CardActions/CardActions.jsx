@@ -23,7 +23,7 @@ export const styles = theme => ({
 });
 
 function CardActions(props) {
-  const { disableActionSpacing, children, classes, className, ...other } = props;
+  const { disableActionSpacing=false, children, classes, className, ...other } = props;
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -50,10 +50,6 @@ CardActions.propTypes = {
    * If `true`, the card actions do not have additional margin.
    */
   disableActionSpacing: PropTypes.bool,
-};
-
-CardActions.defaultProps = {
-  disableActionSpacing: false,
 };
 
 export default withStyles(styles, { name: 'MuiCardActions' })(CardActions);

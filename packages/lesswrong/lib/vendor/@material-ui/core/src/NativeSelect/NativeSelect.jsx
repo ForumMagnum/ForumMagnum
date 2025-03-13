@@ -80,7 +80,7 @@ export const styles = theme => ({
  * An alternative to `<Select native />` with a much smaller bundle size footprint.
  */
 function NativeSelect(props, context) {
-  const { children, classes, IconComponent, input, inputProps, variant, ...other } = props;
+  const { children, classes, IconComponent=ArrowDropDownIcon, input = <Input />, inputProps, variant, ...other } = props;
   const fcs = formControlState({
     props,
     context,
@@ -142,11 +142,6 @@ NativeSelect.propTypes = {
    * The variant to use.
    */
   variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
-NativeSelect.defaultProps = {
-  IconComponent: ArrowDropDownIcon,
-  input: <Input />,
 };
 
 NativeSelect.contextTypes = {

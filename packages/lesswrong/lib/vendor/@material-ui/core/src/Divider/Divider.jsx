@@ -32,12 +32,12 @@ export const styles = theme => ({
 
 function Divider(props) {
   const {
-    absolute,
+    absolute=false,
     classes,
     className: classNameProp,
-    component: Component,
-    inset,
-    light,
+    component: Component='hr',
+    inset=false,
+    light=false,
     ...other
   } = props;
 
@@ -78,13 +78,6 @@ Divider.propTypes = {
    * If `true`, the divider will have a lighter color.
    */
   light: PropTypes.bool,
-};
-
-Divider.defaultProps = {
-  absolute: false,
-  component: 'hr',
-  inset: false,
-  light: false,
 };
 
 export default withStyles(styles, { name: 'MuiDivider' })(Divider);

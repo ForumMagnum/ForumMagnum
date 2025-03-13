@@ -15,7 +15,7 @@ export const styles = theme => ({
 });
 
 function CardContent(props) {
-  const { classes, className, component: Component, ...other } = props;
+  const { classes, className, component: Component = "div", ...other } = props;
 
   return <Component className={classNames(classes.root, className)} {...other} />;
 }
@@ -35,10 +35,6 @@ CardContent.propTypes = {
    * Either a string to use a DOM element or a component.
    */
   component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-};
-
-CardContent.defaultProps = {
-  component: 'div',
 };
 
 export default withStyles(styles, { name: 'MuiCardContent' })(CardContent);

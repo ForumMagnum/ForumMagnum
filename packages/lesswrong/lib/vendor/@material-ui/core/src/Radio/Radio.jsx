@@ -37,7 +37,7 @@ export const styles = theme => ({
 });
 
 function Radio(props) {
-  const { classes, color, ...other } = props;
+  const { classes, color="secondary", ...other } = props;
 
   return (
     <SwitchBase
@@ -112,10 +112,6 @@ Radio.propTypes = {
    * The value of the component.
    */
   value: PropTypes.string,
-};
-
-Radio.defaultProps = {
-  color: 'secondary',
 };
 
 export default withStyles(styles, { name: 'MuiRadio' })(Radio);

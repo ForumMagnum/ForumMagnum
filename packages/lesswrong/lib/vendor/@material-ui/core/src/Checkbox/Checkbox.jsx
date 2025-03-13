@@ -41,13 +41,13 @@ export const styles = theme => ({
 
 function Checkbox(props) {
   const {
-    checkedIcon,
+    checkedIcon=<CheckBoxIcon />,
     classes,
     className,
-    color,
-    icon,
-    indeterminate,
-    indeterminateIcon,
+    color='secondary',
+    icon=<CheckBoxOutlineBlankIcon />,
+    indeterminate=false,
+    indeterminateIcon=<IndeterminateCheckBoxIcon />,
     inputProps,
     ...other
   } = props;
@@ -150,14 +150,6 @@ Checkbox.propTypes = {
    * The value of the component.
    */
   value: PropTypes.string,
-};
-
-Checkbox.defaultProps = {
-  checkedIcon: <CheckBoxIcon />,
-  color: 'secondary',
-  icon: <CheckBoxOutlineBlankIcon />,
-  indeterminate: false,
-  indeterminateIcon: <IndeterminateCheckBoxIcon />,
 };
 
 export default withStyles(styles, { name: 'MuiCheckbox' })(Checkbox);

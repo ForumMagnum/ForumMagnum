@@ -46,7 +46,7 @@ function FormHelperText(props, context) {
   const {
     classes,
     className: classNameProp,
-    component: Component,
+    component: Component = "p",
     disabled,
     error,
     filled,
@@ -131,10 +131,6 @@ FormHelperText.propTypes = {
    * The variant to use.
    */
   variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
-FormHelperText.defaultProps = {
-  component: 'p',
 };
 
 FormHelperText.contextTypes = {

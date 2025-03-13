@@ -21,7 +21,7 @@ export const styles = {
 const MEDIA_COMPONENTS = ['video', 'audio', 'picture', 'iframe', 'img'];
 
 function CardMedia(props) {
-  const { classes, className, component: Component, image, src, style, ...other } = props;
+  const { classes, className, component: Component = "div", image, src, style, ...other } = props;
 
   warning(
     Boolean(image || src),
@@ -79,10 +79,6 @@ CardMedia.propTypes = {
    * @ignore
    */
   style: PropTypes.object,
-};
-
-CardMedia.defaultProps = {
-  component: 'div',
 };
 
 export default withStyles(styles, { name: 'MuiCardMedia' })(CardMedia);

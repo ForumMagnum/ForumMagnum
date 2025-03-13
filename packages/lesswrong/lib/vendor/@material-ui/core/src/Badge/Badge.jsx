@@ -58,8 +58,8 @@ function Badge(props) {
     children,
     classes,
     className: classNameProp,
-    color,
-    component: ComponentProp,
+    color="default",
+    component: ComponentProp = "span",
     ...other
   } = props;
 
@@ -102,11 +102,6 @@ Badge.propTypes = {
    * Either a string to use a DOM element or a component.
    */
   component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-};
-
-Badge.defaultProps = {
-  color: 'default',
-  component: 'span',
 };
 
 export default withStyles(styles, { name: 'MuiBadge' })(Badge);

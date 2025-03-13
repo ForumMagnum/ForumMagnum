@@ -77,7 +77,7 @@ export const styles = theme => ({
  * regarding the available icon options.
  */
 function IconButton(props) {
-  const { children, classes, className, color, disabled, ...other } = props;
+  const { children, classes, className, color="default", disabled=false, ...other } = props;
 
   return (
     <ButtonBase
@@ -125,11 +125,6 @@ IconButton.propTypes = {
    * If `true`, the ripple will be disabled.
    */
   disableRipple: PropTypes.bool,
-};
-
-IconButton.defaultProps = {
-  color: 'default',
-  disabled: false,
 };
 
 export default withStyles(styles, { name: 'MuiIconButton' })(IconButton);

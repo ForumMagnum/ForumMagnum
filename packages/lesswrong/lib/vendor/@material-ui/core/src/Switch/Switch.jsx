@@ -100,7 +100,7 @@ export const styles = theme => ({
 });
 
 function Switch(props) {
-  const { classes, className, color, ...other } = props;
+  const { classes, className, color="secondary", ...other } = props;
 
   return (
     <span className={classNames(classes.root, className)}>
@@ -186,10 +186,6 @@ Switch.propTypes = {
    * The value of the component.
    */
   value: PropTypes.string,
-};
-
-Switch.defaultProps = {
-  color: 'secondary',
 };
 
 export default withStyles(styles, { name: 'MuiSwitch' })(Switch);

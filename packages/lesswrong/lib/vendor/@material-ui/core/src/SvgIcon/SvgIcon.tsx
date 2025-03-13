@@ -57,12 +57,12 @@ function SvgIcon(props: any) {
     children,
     classes,
     className,
-    color,
-    component: Component,
-    fontSize,
+    color='inherit',
+    component: Component='svg',
+    fontSize='default',
     nativeColor,
     titleAccess,
-    viewBox,
+    viewBox='0 0 24 24',
     ...other
   } = props;
 
@@ -134,13 +134,6 @@ SvgIcon.propTypes = {
    * to bottom right (50,20) and each unit will be worth 10px.
    */
   viewBox: PropTypes.string,
-};
-
-SvgIcon.defaultProps = {
-  color: 'inherit',
-  component: 'svg',
-  fontSize: 'default',
-  viewBox: '0 0 24 24',
 };
 
 SvgIcon.muiName = 'SvgIcon';

@@ -31,10 +31,10 @@ export const styles = {
 function InputAdornment(props) {
   const {
     children,
-    component: Component,
+    component: Component = "div",
     classes,
     className,
-    disableTypography,
+    disableTypography=false,
     position,
     variant,
     ...other
@@ -93,11 +93,6 @@ InputAdornment.propTypes = {
    * The variant to use.
    */
   variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
-InputAdornment.defaultProps = {
-  component: 'div',
-  disableTypography: false,
 };
 
 export default withStyles(styles, { name: 'MuiInputAdornment' })(InputAdornment);

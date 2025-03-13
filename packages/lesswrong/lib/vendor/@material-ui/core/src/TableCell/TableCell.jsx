@@ -74,7 +74,7 @@ function TableCell(props, context) {
     className: classNameProp,
     component,
     sortDirection,
-    numeric,
+    numeric=false,
     padding: paddingProp,
     scope: scopeProp,
     variant,
@@ -162,10 +162,6 @@ TableCell.propTypes = {
    * By default, the TableHead, TableBody or TableFooter parent component set the value.
    */
   variant: PropTypes.oneOf(['head', 'body', 'footer']),
-};
-
-TableCell.defaultProps = {
-  numeric: false,
 };
 
 TableCell.contextTypes = {

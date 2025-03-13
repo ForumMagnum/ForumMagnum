@@ -89,7 +89,7 @@ export const styles = theme => {
 };
 
 function Input(props) {
-  const { disableUnderline, classes, ...other } = props;
+  const { disableUnderline, fullWidth=false, inputComponent="input", multiline=false, type="text" classes, ...other } = props;
 
   return (
     <InputBase
@@ -100,6 +100,10 @@ function Input(props) {
         }),
         underline: null,
       }}
+      fullWidth={fullWidth}
+      inputComponent={inputComponent}
+      multiline={multiline}
+      type={type}
       {...other}
     />
   );
@@ -226,13 +230,6 @@ Input.propTypes = {
     PropTypes.bool,
     PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])),
   ]),
-};
-
-InputBase.defaultProps = {
-  fullWidth: false,
-  inputComponent: 'input',
-  multiline: false,
-  type: 'text',
 };
 
 Input.muiName = 'Input';

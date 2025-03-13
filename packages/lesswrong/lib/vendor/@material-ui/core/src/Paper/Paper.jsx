@@ -29,9 +29,9 @@ function Paper(props) {
   const {
     classes,
     className: classNameProp,
-    component: Component,
-    square,
-    elevation,
+    component: Component = 'div',
+    square = false,
+    elevation = 2,
     ...other
   } = props;
 
@@ -80,12 +80,6 @@ Paper.propTypes = {
    * If `true`, rounded corners are disabled.
    */
   square: PropTypes.bool,
-};
-
-Paper.defaultProps = {
-  component: 'div',
-  elevation: 2,
-  square: false,
 };
 
 export default withStyles(styles, { name: 'MuiPaper' })(Paper);

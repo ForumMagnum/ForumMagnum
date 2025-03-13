@@ -20,7 +20,7 @@ export const styles = {
 };
 
 function DialogActions(props) {
-  const { disableActionSpacing, children, classes, className, ...other } = props;
+  const { disableActionSpacing=false, children, classes, className, ...other } = props;
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -47,10 +47,6 @@ DialogActions.propTypes = {
    * If `true`, the dialog actions do not have additional margin.
    */
   disableActionSpacing: PropTypes.bool,
-};
-
-DialogActions.defaultProps = {
-  disableActionSpacing: false,
 };
 
 export default withStyles(styles, { name: 'MuiDialogActions' })(DialogActions);

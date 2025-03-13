@@ -42,11 +42,11 @@ function ListSubheader(props) {
   const {
     classes,
     className,
-    color,
-    component: Component,
-    disableGutters,
-    disableSticky,
-    inset,
+    color='default',
+    component: Component='li',
+    disableGutters=false,
+    disableSticky=false,
+    inset=false,
     ...other
   } = props;
 
@@ -102,14 +102,6 @@ ListSubheader.propTypes = {
    * If `true`, the List Subheader will be indented.
    */
   inset: PropTypes.bool,
-};
-
-ListSubheader.defaultProps = {
-  color: 'default',
-  component: 'li',
-  disableGutters: false,
-  disableSticky: false,
-  inset: false,
 };
 
 ListSubheader.muiName = 'ListSubheader';

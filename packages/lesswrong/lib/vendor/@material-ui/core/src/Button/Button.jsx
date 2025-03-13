@@ -215,14 +215,16 @@ function Button(props) {
     children,
     classes,
     className: classNameProp,
-    color,
-    disabled,
-    disableFocusRipple,
-    fullWidth,
+    color='default',
+    disabled=false,
+    disableFocusRipple=false,
+    fullWidth=false,
     focusVisibleClassName,
-    mini,
-    size,
-    variant,
+    mini=false,
+    size='medium',
+    variant='text',
+    component='button',
+    type="button",
     ...other
   } = props;
 
@@ -264,6 +266,8 @@ function Button(props) {
       disabled={disabled}
       focusRipple={!disableFocusRipple}
       focusVisibleClassName={classNames(classes.focusVisible, focusVisibleClassName)}
+      component={component}
+      type={type}
       {...other}
     >
       <span className={classes.label}>{children}</span>
@@ -345,18 +349,6 @@ Button.propTypes = {
     'fab',
     'extendedFab',
   ]),
-};
-
-Button.defaultProps = {
-  color: 'default',
-  component: 'button',
-  disabled: false,
-  disableFocusRipple: false,
-  fullWidth: false,
-  mini: false,
-  size: 'medium',
-  type: 'button',
-  variant: 'text',
 };
 
 export default withStyles(styles, { name: 'MuiButton' })(Button);
