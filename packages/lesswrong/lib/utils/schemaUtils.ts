@@ -17,7 +17,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
   nullable: boolean,
 }) => {
   type DataType = ObjectsByCollectionName[CollectionName];
-  return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DataType>|null> => {
+  return async function idResolverSingle(doc: any, args: void, context: ResolverContext): Promise<Partial<DataType>|null> {
     if (!doc[fieldName]) return null
 
     const { currentUser } = context
@@ -46,7 +46,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 }) => {
   type DbType = ObjectsByCollectionName[CollectionName];
   
-  return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> => {
+  return async function idResolverMulti(doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> {
     if (!doc[fieldName]) return []
 
     const keys = doc[fieldName].map(getKey)
@@ -102,6 +102,8 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   return restrictedDocs;
 }
 
+
+
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
@@ -148,14 +150,24 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
       // to make SQL resolvers useable by arbitrary resolvers then we (probably)
       // need to add some permission checks here somehow.
       ...(autoJoin ? {
-        sqlResolver: ({field, join}: SqlResolverArgs<CollectionName>) => join<HasIdCollectionNames>({
-          table: collectionName,
-          type: nullable ? "left" : "inner",
-          on: {
-            _id: field(idFieldName as FieldName<CollectionName>),
-          },
-          resolver: (foreignField) => foreignField("*"),
-        })
+        sqlResolver: function getForeignKeySqlResolver<CollectionName extends CollectionNameString>({
+          collectionName, nullable, idFieldName
+        }: {
+          collectionName: CollectionName,
+          nullable: boolean,
+          idFieldName: string,
+        }) {
+          return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionName>) {
+            return join<HasIdCollectionNames>({
+              table: collectionName,
+              type: nullable ? "left" : "inner",
+              on: {
+                _id: field(idFieldName as FieldName<CollectionName>),
+              },
+              resolver: (foreignField) => foreignField("*"),
+            });
+          }
+        }
       } : {}),
       addOriginalField: true,
     },
@@ -352,12 +364,19 @@ export function denormalizedField<N extends CollectionNameString>({ needsUpdate,
   getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
 }): CollectionFieldSpecification<N> {
   return {
-    onUpdate: async ({data, document, context}) => {
+    onUpdate: async function denormalizedFieldOnUpdate({data, document, context}: {
+      data: Partial<ObjectsByCollectionName[N]>,
+      document: ObjectsByCollectionName[N],
+      context: ResolverContext,
+    }) {
       if (!needsUpdate || needsUpdate(data)) {
         return await getValue(document, context)
       }
     },
-    onCreate: async ({newDocument, context}) => {
+    onCreate: async function denormalizedFieldOnCreate({newDocument, context}: {
+      newDocument: ObjectsByCollectionName[N],
+      context: ResolverContext,
+    }) {
       if (!needsUpdate || needsUpdate(newDocument)) {
         return await getValue(newDocument, context)
       }
@@ -395,6 +414,8 @@ export function denormalizedCountOfReferences<
   resyncElastic?: boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
+
+  
   
   return {
     type: Number,
@@ -407,10 +428,7 @@ export function denormalizedCountOfReferences<
     denormalized: true,
     canAutoDenormalize: true,
     
-    getValue: async (
-      document: ObjectsByCollectionName[SourceCollectionName],
-      context: ResolverContext,
-    ): Promise<number> => {
+    getValue: async function denormalizedCountOfReferencesGetValue(doc: ObjectsByCollectionName[SourceCollectionName], context: ResolverContext) {
       if (!isServer) {
         throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
       }
@@ -421,7 +439,7 @@ export function denormalizedCountOfReferences<
         `denormalizedCount_${collectionName}.${fieldName}`,
         {},
         foreignFieldName,
-        document._id
+        doc._id
       );
       
       const docsThatCount = _.filter(docsThatMayCount, d=>filter(d));
@@ -431,7 +449,7 @@ export function denormalizedCountOfReferences<
     countOfReferences: {
       foreignCollectionName,
       foreignFieldName,
-      filterFn,
+      filterFn: filter,
       resyncElastic: (resyncElastic && !isAnyTest) ?? false,
     },
   }

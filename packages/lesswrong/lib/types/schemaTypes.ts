@@ -111,7 +111,7 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
 interface CountOfReferenceOptions {
   foreignCollectionName: CollectionNameString
   foreignFieldName: string
-  filterFn?: (obj: AnyBecauseHard) => boolean
+  filterFn: (obj: AnyBecauseHard) => boolean
   resyncElastic: boolean
 }
 
@@ -157,9 +157,9 @@ interface DatabaseFieldSpecification<N extends CollectionNameString> {
   type: string, 
   defaultValue?: any,
   typescriptType?: string,
-  denormalize?: boolean, 
+  denormalized?: boolean, 
   canAutoDenormalize?: boolean,
-  canAutoFillDefault?: boolean,
+  canAutofillDefault?: boolean,
   needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
   getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
   foreignKey?: any,
@@ -217,7 +217,7 @@ interface GraphQLBaseFieldSpecification {
   type: string | GraphQLScalarType,
   typescriptType?: string,
   blackbox?: boolean,
-  validation: {
+  validation?: {
     regEx?: any,
     allowedValues?: string[],
   },
@@ -246,9 +246,9 @@ interface FormFieldSpecification<N extends CollectionNameString> {
 }
 
 interface NewCollectionFieldSpecification<N extends CollectionNameString> {
-  database: DatabaseFieldSpecification<N>,
-  graphql: GraphQLFieldSpecification<N>,
-  form: FormFieldSpecification<N>,
+  database?: DatabaseFieldSpecification<N>,
+  graphql?: GraphQLFieldSpecification<N>,
+  form?: FormFieldSpecification<N>,
 }
 
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
