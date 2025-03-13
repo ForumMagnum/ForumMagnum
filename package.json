@@ -352,7 +352,7 @@
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.3",
     "diff": "^7.0.0",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.25.0",
     "esbuild-loader": "^2.6.1",
     "esbuild-visualizer": "^0.6.0",
     "eslint": "^8.41.0",
