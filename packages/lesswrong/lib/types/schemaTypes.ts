@@ -153,6 +153,104 @@ interface SlugCallbackOptions {
   includesOldSlugs: boolean,
 }
 
+interface DatabaseFieldSpecification<N extends CollectionNameString> {
+  type: string, 
+  defaultValue?: any,
+  typescriptType?: string,
+  denormalize?: boolean, 
+  canAutoDenormalize?: boolean,
+  canAutoFillDefault?: boolean,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+  foreignKey?: any,
+  logChanges?: boolean,
+  nullable?: boolean,
+}
+
+interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
+  inputType?: string,
+  canRead: FieldPermissions,
+  canUpdate: FieldPermissions,
+  canCreate: FieldCreatePermissions,
+  onCreate?: (args: {
+    data: DbInsertion<ObjectsByCollectionName[N]>,
+    currentUser: DbUser|null,
+    collection: CollectionBase<N>,
+    context: ResolverContext,
+    document: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+    fieldName: string
+  }) => any, 
+  onUpdate?: (args: {
+    data: Partial<ObjectsByCollectionName[N]>,
+    oldDocument: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+    document: ObjectsByCollectionName[N],
+    currentUser: DbUser|null,
+    collection: CollectionBase<N>,
+    context: ResolverContext,
+    fieldName: string
+    modifier: MongoModifier<ObjectsByCollectionName[N]>
+  }) => any, 
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>, 
+  countOfReferences?: CountOfReferenceOptions; 
+  editableFieldOptions?: EditableFieldOptions; 
+  slugCallbackOptions?: SlugCallbackOptions; 
+}
+
+interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> {
+  canRead: FieldPermissions,
+  arguments?: string|null,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver<N>,
+  /**
+   * `sqlPostProcess` is run on the result of the database call, in addition
+   * to the `sqlResolver`. It should return the value of this `field`, generally
+   * by performing some operation on the value returned by the `sqlResolver`.
+   * Most of the time this is an anti-pattern which should be avoided, but
+   * sometimes it's unavoidable.
+   */
+  sqlPostProcess?: SqlPostProcess<N>,
+}
+
+interface GraphQLBaseFieldSpecification {
+  type: string | GraphQLScalarType,
+  typescriptType?: string,
+  blackbox?: boolean,
+  validation: {
+    regEx?: any,
+    allowedValues?: string[],
+  },
+}
+
+type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (GraphQLWriteableFieldSpecification<N> | GraphQLResolverOnlyFieldSpecification<N>);
+
+interface FormFieldSpecification<N extends CollectionNameString> {
+  description?: string,
+  defaultValue?: any,
+  min?: number,
+  max?: number,
+  minCount?: number,
+  maxCount?: number,
+  options?: (props: SmartFormProps<N>) => any,
+  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
+  beforeComponent?: keyof ComponentTypes,
+  afterComponent?: keyof ComponentTypes,
+  order?: number,
+  label?: string,
+  tooltip?: string,
+  control?: FormInputType,
+  placeholder?: string,
+  hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
+  group?: FormGroupType<N>,     
+}
+
+interface NewCollectionFieldSpecification<N extends CollectionNameString> {
+  database: DatabaseFieldSpecification<N>,
+  graphql: GraphQLFieldSpecification<N>,
+  form: FormFieldSpecification<N>,
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
