@@ -136,6 +136,7 @@ export const useMultiPostAnalytics = ({
 export type UseAnalyticsSeriesProps = {
   userId?: string;
   postIds?: string[];
+  displayFields: AnalyticsField[];
   startDate: Date | null;
   endDate: Date;
 }
@@ -216,26 +217,33 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
 
   const fullSeries = fullSeriesRef.current;
   truncatedSeriesRef.current = useMemo(() => {
-    const truncated = fullSeries.filter((value) => {
+    // Find the first entry with non-zero values for any of the displayFields if no start date is given
+    const firstNonZeroIndex = utcPropsStartDate ? 0 : fullSeries.findIndex((entry) =>
+      props.displayFields.some((field) => (entry[field] ?? 0) > 0)
+    );
+
+    const truncated = firstNonZeroIndex >= 0 ? fullSeries.slice(firstNonZeroIndex).filter((value) => {
       const date = new Date(value.date);
       return (!utcPropsStartDate || date >= utcPropsStartDate) && date <= utcPropsEndDate;
-    });
+    }): [];
 
     // Now pad the series with 0 values for any missing dates
-    const truncatedStartDate = new Date(truncated[0]?.date ?? utcPropsStartDate);
-    const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? utcPropsEndDate);
+    const effectiveStartDate = utcPropsStartDate ?? (truncated[0]?.date ? new Date(truncated[0].date) : null);
+    const truncatedStartDate = new Date(truncated[0]?.date ?? effectiveStartDate);
+    const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? truncatedStartDate);
 
-    if (truncatedStartDate === utcPropsStartDate && truncatedEndDate === utcPropsEndDate) return truncated;
+    if (truncatedStartDate === effectiveStartDate && truncatedEndDate === utcPropsEndDate) return truncated;
 
-    const startPaddingLength = Math.floor(moment.duration(moment(truncatedStartDate).utc().diff(utcPropsStartDate)).asDays());
+    const startPaddingLength = effectiveStartDate ? Math.floor(moment.duration(moment(truncatedStartDate).utc().diff(effectiveStartDate)).asDays()) : 0;
     const endPaddingLength = Math.floor(moment.duration(moment(utcPropsEndDate).utc().diff(truncatedEndDate)).asDays());
 
-    const dateSeries = generateDateSeries(utcPropsStartDate ?? truncatedStartDate, utcPropsEndDate);
+    const dateSeries = generateDateSeries(effectiveStartDate ?? truncatedStartDate, utcPropsEndDate);
     const startSeries = dateSeries.slice(0, startPaddingLength).map((date) => ({ date: new Date(date), views: 0, reads: 0, karma: 0, comments: 0 }));
     const endSeries = dateSeries.slice(dateSeries.length - endPaddingLength).map((date) => ({ date: new Date(date), views: 0, reads: 0, karma: 0, comments: 0 }));
 
     return [...startSeries, ...truncated, ...endSeries];
-  }, [fullSeries, utcPropsEndDate, utcPropsStartDate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullSeries, utcPropsEndDate, utcPropsStartDate, stringify(props.displayFields)]);
 
   return {
     analyticsSeries: truncatedSeriesRef.current,
