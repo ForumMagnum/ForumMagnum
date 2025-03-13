@@ -29,33 +29,14 @@ const styles = (theme: ThemeType) => ({
   warning: {
     backgroundColor: `${theme.palette.error.main}10`,
     border: `3px solid ${theme.palette.error.main}`,
-    '& $title, & $date': {
-      color: theme.palette.error.main,
-    },
   },
   alert: {
     backgroundColor: `${theme.palette.error.main}15`,
     border: `4px solid ${theme.palette.error.main}`,
-    '& $title': {
-      color: theme.palette.error.main,
-      fontSize: '1.5rem',
-    },
-    '& $date': {
-      color: theme.palette.error.main,
-      fontWeight: 600,
-    },
   },
   urgent: {
     backgroundColor: `${theme.palette.error.main}30`,
     border: `10px solid ${theme.palette.error.main}`,
-    '& $title': {
-      color: theme.palette.error.main,
-      fontSize: '2.0rem',
-    },
-    '& $date': {
-      color: theme.palette.error.main,
-      fontWeight: 900,
-    },
   },
 });
 
