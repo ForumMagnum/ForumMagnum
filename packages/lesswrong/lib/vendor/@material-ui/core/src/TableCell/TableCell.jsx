@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
 import { darken, fade, lighten } from '../styles/colorManipulator';
+import { Tablelvl2context } from "../TableBody/TableBody";
+import { TableContext } from "../Table/Table";
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -67,7 +69,7 @@ export const styles = theme => ({
   },
 });
 
-function TableCell(props, context) {
+function TableCell(props) {
   const {
     children,
     classes,
@@ -81,7 +83,9 @@ function TableCell(props, context) {
     ...other
   } = props;
 
-  const { table, tablelvl2 } = context;
+  const { table } = useContext(TableContext);
+  const tablelvl2 = useContext(Tablelvl2context)
+
   let Component;
   if (component) {
     Component = component;
@@ -162,11 +166,6 @@ TableCell.propTypes = {
    * By default, the TableHead, TableBody or TableFooter parent component set the value.
    */
   variant: PropTypes.oneOf(['head', 'body', 'footer']),
-};
-
-TableCell.contextTypes = {
-  table: PropTypes.object,
-  tablelvl2: PropTypes.object,
 };
 
 export default withStyles(styles, { name: 'MuiTableCell' })(TableCell);

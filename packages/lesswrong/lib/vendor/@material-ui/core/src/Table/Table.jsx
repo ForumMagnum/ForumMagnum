@@ -14,21 +14,14 @@ export const styles = theme => ({
   },
 });
 
-class Table extends React.Component {
-  getChildContext() {
-    // eslint-disable-line class-methods-use-this
-    return {
-      table: {
-        padding: this.props.padding,
-      },
-    };
-  }
+export const TableContext = React.createContext();
 
-  render() {
-    const { classes, className, component: Component, padding, ...other } = this.props;
+const Table = (props) => {
+  const { classes, className, component: Component, padding, ...other } = props;
 
-    return <Component className={classNames(classes.root, className)} {...other} />;
-  }
+  return <TableContext.Provider value={{table: {padding: props.padding}}}>
+    <Component className={classNames(classes.root, className)} {...other} />
+  </TableContext.Provider>;
 }
 
 Table.propTypes = {
@@ -59,10 +52,6 @@ Table.propTypes = {
 Table.defaultProps = {
   component: 'table',
   padding: 'default',
-};
-
-Table.childContextTypes = {
-  table: PropTypes.object,
 };
 
 export default withStyles(styles, { name: 'MuiTable' })(Table);

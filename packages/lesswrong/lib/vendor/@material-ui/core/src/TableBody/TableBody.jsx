@@ -10,21 +10,14 @@ export const styles = {
   },
 };
 
-class TableBody extends React.Component {
-  getChildContext() {
-    // eslint-disable-line class-methods-use-this
-    return {
-      tablelvl2: {
-        variant: 'body',
-      },
-    };
-  }
+export const Tablelvl2context = React.createContext(null);
 
-  render() {
-    const { classes, className, component: Component, ...other } = this.props;
+const TableBody = (props) => {
+  const { classes, className, component: Component='tbody', ...other } = props;
 
-    return <Component className={classNames(classes.root, className)} {...other} />;
-  }
+  return <Tablelvl2context.Provider value={{variant: "body"}}>
+    <Component className={classNames(classes.root, className)} {...other} /
+  </Tablelvl2context.Provider>;
 }
 
 TableBody.propTypes = {
@@ -46,14 +39,6 @@ TableBody.propTypes = {
    * Either a string to use a DOM element or a component.
    */
   component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-};
-
-TableBody.defaultProps = {
-  component: 'tbody',
-};
-
-TableBody.childContextTypes = {
-  tablelvl2: PropTypes.object,
 };
 
 export default withStyles(styles, { name: 'MuiTableBody' })(TableBody);

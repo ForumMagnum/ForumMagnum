@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
+import { Tablelvl2context } from "../TableBody/TableBody";
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -52,7 +53,7 @@ function TableRow(props, context) {
     selected=false,
     ...other
   } = props;
-  const { tablelvl2 } = context;
+  const tablelvl2 = useContext(Tablelvl2context)
 
   const className = classNames(
     classes.root,
@@ -95,10 +96,6 @@ TableRow.propTypes = {
    * If `true`, the table row will have the selected shading.
    */
   selected: PropTypes.bool,
-};
-
-TableRow.contextTypes = {
-  tablelvl2: PropTypes.object,
 };
 
 export default withStyles(styles, { name: 'MuiTableRow' })(TableRow);
