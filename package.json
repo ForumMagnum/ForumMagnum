@@ -78,7 +78,7 @@
     "@anthropic-ai/sdk": "^0.30.1",
     "@apollo/client": "^3.2.0",
     "@aws-sdk/client-cloudfront": "^3.577.0",
-    "@babel/runtime": "^7.12.1",
+    "@babel/runtime": "^7.26.10",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
     "@ckeditor/ckeditor5-theme-lark": "^43.1.0",
     "@ckeditor/vite-plugin-ckeditor5": "^0.1.3",
