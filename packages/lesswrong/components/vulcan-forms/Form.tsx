@@ -561,31 +561,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     this.setState(fn);
   };
 
-  // pass on context to all child components
-  getChildContext = () => {
-    return {
-      throwError: this.throwError,
-      clearForm: this.clearForm,
-      refetchForm: this.refetchForm,
-      isChanged: this.isChanged,
-      submitForm: this.submitForm, //Change in name because we already have a function
-      // called submitForm, but no reason for the user to know
-      // about that
-      addToDeletedValues: this.addToDeletedValues,
-      updateCurrentValues: this.updateCurrentValues,
-      getDocument: this.getDocument,
-      getLabel: this.getLabel,
-      initialDocument: this.state.initialDocument,
-      setFormState: this.setFormState,
-      addToSubmitForm: this.addToSubmitForm,
-      addToSuccessForm: this.addToSuccessForm,
-      addToFailureForm: this.addToFailureForm,
-      errors: this.state.errors,
-      currentValues: this.state.currentValues,
-      deletedValues: this.state.deletedValues
-    };
-  };
-
   // --------------------------------------------------------------------- //
   // ------------------------------ Lifecycle ---------------------------- //
   // --------------------------------------------------------------------- //
@@ -1030,6 +1005,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       >
         <Components.FormErrors
           errors={this.state.errors}
+          getLabel={this.getLabel}
         />
 
         {this.getFieldGroups().map((group, i) => (
@@ -1047,12 +1023,18 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
             disabled={this.state.disabled}
             formComponents={this.props.formComponents}
             formProps={this.props.formProps}
+            submitForm={this.submitForm}
+            addToSubmitForm={this.addToSubmitForm}
+            addToSuccessForm={this.addToSuccessForm}
+            getLabel={this.getLabel}
+            getDocument={this.getDocument}
             key={`${i}-${group.name}`}
           />
         ))}
 
         {this.props.repeatErrors && <Components.FormErrors
           errors={this.state.errors}
+          getLabel={this.getLabel}
         />}
 
         {!this.props.autoSubmit && <FormSubmit
@@ -1075,6 +1057,9 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
           currentValues={this.state.currentValues}
           deletedValues={this.state.deletedValues}
           errors={this.state.errors}
+          addToSubmitForm={this.addToSubmitForm}
+          addToSuccessForm={this.addToSuccessForm}
+          addToDeletedValues={this.addToDeletedValues}
         />}
       </form>
     );
@@ -1111,24 +1096,4 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   ...callbackProps,
 
   currentUser: PropTypes.object,
-};
-
-(Form as any).childContextTypes = {
-  addToDeletedValues: PropTypes.func,
-  deletedValues: PropTypes.array,
-  addToSubmitForm: PropTypes.func,
-  addToFailureForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
-  setFormState: PropTypes.func,
-  throwError: PropTypes.func,
-  clearForm: PropTypes.func,
-  refetchForm: PropTypes.func,
-  isChanged: PropTypes.func,
-  initialDocument: PropTypes.object,
-  getDocument: PropTypes.func,
-  getLabel: PropTypes.func,
-  submitForm: PropTypes.func,
-  errors: PropTypes.array,
-  currentValues: PropTypes.object
 };

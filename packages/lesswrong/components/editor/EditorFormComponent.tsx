@@ -7,7 +7,6 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
   EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
-import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -81,6 +80,9 @@ export const EditorFormComponent = ({
   formVariant,
   commentStyles,
   updateCurrentValues,
+  submitForm,
+  addToSubmitForm,
+  addToSuccessForm,
   classes,
 }: FormComponentProps<any> & {
   form: any,
@@ -91,10 +93,9 @@ export const EditorFormComponent = ({
   formVariant?: "default" | "grey",
   commentStyles: boolean,
   classes: ClassesType<typeof styles>,
-}, context: any) => {
+}) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
-  const { submitForm } = context;
   const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
@@ -388,7 +389,7 @@ export const EditorFormComponent = ({
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm(async (submission: any) => {
+      const cleanupSubmitForm = addToSubmitForm(async (submission: any) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current))
           return {
             ...submission,
@@ -397,7 +398,7 @@ export const EditorFormComponent = ({
         else
           return submission;
       });
-      const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
+      const cleanupSuccessForm = addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
@@ -442,7 +443,7 @@ export const EditorFormComponent = ({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
+  }, [!!editorRef.current, fieldName, initialEditorType, addToSuccessForm, addToSubmitForm]);
   
   const fieldHasCommitMessages = getEditableFieldInCollection(collectionName as CollectionNameString, fieldName)?.editableFieldOptions.clientOptions.revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
@@ -536,12 +537,6 @@ export const EditorFormComponent = ({
 export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {
   hocs: [withErrorBoundary], styles
 });
-
-(EditorFormComponent as any).contextTypes = {
-  addToSubmitForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  submitForm: PropTypes.func,
-};
 
 declare global {
   interface ComponentTypes {
