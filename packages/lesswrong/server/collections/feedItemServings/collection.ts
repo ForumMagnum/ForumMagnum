@@ -34,6 +34,8 @@ export const FeedItemServings = createCollection({
     indexSet.addIndex('FeedItemServings', { sessionId: 1, position: 1 });
     // Index to efficiently retrieve items by user
     indexSet.addIndex('FeedItemServings', { userId: 1, servedAt: -1 });
+    // Updated index to efficiently retrieve and sort user's history
+    indexSet.addIndex('FeedItemServings', { userId: 1, servedAt: -1, position: 1 });
     // Index for analytics and lookups by primary document
     indexSet.addIndex('FeedItemServings', { primaryDocumentId: 1, primaryDocumentCollectionName: 1 });
     // Index for time-based queries

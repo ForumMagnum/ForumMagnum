@@ -132,6 +132,9 @@ const MixedTypeFeed = (args: {
   // Load more content at the top instead of bottom (with a button instead of infinite scroll)
   prependedLoadMore?: boolean,
   
+  // Callback when the feed has reached the end of results
+  onReachedEnd?: (isAtEnd: boolean) => void,
+  
   className?: string,
 }) => {
   const {
@@ -150,6 +153,7 @@ const MixedTypeFeed = (args: {
     hideLoading,
     disableLoadMore,
     prependedLoadMore=false,
+    onReachedEnd,
     className,
   } = args;
 
@@ -360,6 +364,12 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+  
+  useEffect(() => {
+    if (onReachedEnd) {
+      onReachedEnd(reachedEnd);
+    }
+  }, [onReachedEnd, reachedEnd]);
   
   return <div className={className}>
     {/* Loading indicator at the top when loading more in prepended mode */}

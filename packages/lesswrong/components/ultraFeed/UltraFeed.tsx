@@ -9,6 +9,7 @@ import type { ObservableQuery } from '@apollo/client';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   toggleContainer: {
@@ -23,14 +24,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8
     }
   },
-  feedContainer: {
-    marginTop: 16
-  },
   feedComementItem: {
     marginBottom: 16
   },
   sectionTitle: {
     marginTop: 60,
+    marginBottom: 16,
     display: 'flex',
     width: '100%',
     alignItems: 'center',
@@ -53,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   },
   refreshText: {
     // margin: '0 auto',
-    fontSize: '0.65em',
+    fontSize: '1.5rem',
     fontStyle: 'italic',
     fontFamily: theme.palette.fonts.sansSerifStack,
     pointerEvents: 'none',
@@ -64,6 +63,47 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center'
+  },
+  ultraFeedNewContentContainer: {
+    borderLeft: `4px solid ${theme.palette.lwTertiary.main}`,
+    // marginTop: 50,
+    // paddingTop: 30,
+    // borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
+  historyContainer: {
+    borderLeft: `4px solid ${theme.palette.grey[400]}`,
+    // marginTop: 50,
+    // paddingTop: 30,
+  },
+  endOfFeedContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  endOfFeedButtonText: {
+    fontSize: '2rem',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    cursor: 'pointer',
+    border: 'none',
+    fontWeight: 500,
+    transition: 'background-color 0.2s ease',
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
+  endOfFeedButtonPostScriptText: {
+    marginTop: 32,
+    fontSize: '1rem',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    width: 500,
+    opacity: 0.8,
   }
 });
 
@@ -79,7 +119,13 @@ const UltraFeedContent = ({classes}: {
   const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
   
   // Generate a new session ID for each component mount
-  const [sessionId] = useState(() => randomId())
+  const [sessionId] = useState(() => randomId());
+  
+  // State to track if the history feed has reached the end
+  const [reachedEndOfHistory, setReachedEndOfHistory] = useState(false);
+  
+  // Ref for the top section to scroll to
+  const topSectionRef = useRef<HTMLDivElement>(null);
 
   // Setup refetch for subscribed content
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
@@ -96,6 +142,22 @@ const UltraFeedContent = ({classes}: {
       loadMoreAtTopRef.current();
     }
   }, [loadMoreAtTopRef]);
+
+  // Function to handle end of feed button click
+  const handleEndOfFeedClick = useCallback(() => {
+    // Start loading more content immediately
+    loadMoreAtTop();
+    
+    // Then scroll to the top of the feed
+    if (topSectionRef.current) {
+      topSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [loadMoreAtTop]);
+
+  // Callback for MixedTypeFeed to notify when it has reached the end
+  const onReachedEnd = useCallback((isAtEnd: boolean) => {
+    setReachedEndOfHistory(isAtEnd);
+  }, []);
 
   // Get user subscriptions
   const { results: userSubscriptions } = useMulti({
@@ -152,6 +214,50 @@ const UltraFeedContent = ({classes}: {
     </div>
   </>;
 
+  // Feed item renderer for both feeds
+  const ultraFeedRenderer = {
+    ultraFeedItem: {
+      fragmentName: 'UltraFeedItemFragment',
+      render: (ultraFeedItem: any) => {
+        // Handle based on renderAsType
+        if (ultraFeedItem.renderAsType === 'feedComment') {
+          const comment = ultraFeedItem.primaryComment;
+          return (
+            <FeedItemWrapper sources={ultraFeedItem.sources}>
+              <QuickTakesListItem 
+                key={comment._id}
+                quickTake={comment}
+              />
+            </FeedItemWrapper>
+          );
+        } else {
+          // Render as post
+          return (
+            <FeedItemWrapper sources={ultraFeedItem.sources}>
+              <FeedPostCommentsCard
+                key={ultraFeedItem.primaryPost._id}
+                post={ultraFeedItem.primaryPost}
+                comments={ultraFeedItem.secondaryComments || []}
+                maxCollapsedLengthWords={200}
+                refetch={refetch}
+              />
+            </FeedItemWrapper>
+          );
+        }
+      }
+    }
+  };
+
+  const postScriptText = `The primary thing when you take your device in your hands is your intention to cut the OP, what whatever that means. When you scroll, click, zoom, vote, comment, or otherwise read the author's content, you must cut the OP in the same movement. It is essential to attain. If you think only of scrolling, clicking, zooming, voting or otherwise reading, you will not be able to actually cut them.`;
+
+  // Component to render when we reach the end of the feed
+  const EndOfFeedButton = <div className={classes.endOfFeedContainer}>
+      <div className={classes.endOfFeedButtonText} onClick={handleEndOfFeedClick}>this is the end of your history – click for new content</div>
+      <div className={classes.endOfFeedButtonPostScriptText}>
+        <Link to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
+      </div>
+  </div>
+
   return (
     <div>
       <div className={classes.toggleContainer}>
@@ -166,56 +272,33 @@ const UltraFeedContent = ({classes}: {
       {ultraFeedEnabled && <>
         <SingleColumnSection>
           <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-          {/* <SuggestedFeedSubscriptions
-            refetchFeed={refetchSubscriptionContent}
-            settingsButton={suggestedUsersSettingsButton}
-            existingSubscriptions={userSubscriptions}
-          /> */}
-          
-          <div className={classes.feedContainer}>
+          {/* New Content Section */}
+          <div ref={topSectionRef} className={classes.ultraFeedNewContentContainer}>
             <MixedTypeFeed
               resolverName="UltraFeed"
               sortKeyType="Date"
-              firstPageSize={10}
+              firstPageSize={5}
               pageSize={5}
               refetchRef={refetchSubscriptionContentRef}
               loadMoreRef={loadMoreAtTopRef}
               prependedLoadMore={true}
-              resolverArgsValues={{ sessionId: sessionId ?? undefined }}
-              renderers={{
-                ultraFeedItem: {
-                  fragmentName: 'UltraFeedItemFragment',
-                  render: (ultraFeedItem) => {
-                    // Handle based on renderAsType
-                    if (ultraFeedItem.renderAsType === 'feedComment') {
-                      const comment = ultraFeedItem.primaryComment;
-                      return (
-                        <FeedItemWrapper sources={ultraFeedItem.sources}>
-                          <QuickTakesListItem 
-                            key={comment._id}
-                            quickTake={comment}
-                          />
-                        </FeedItemWrapper>
-                      );
-                    } else {
-                      // Render as post
-                      return (
-                        <FeedItemWrapper sources={ultraFeedItem.sources}>
-                          <FeedPostCommentsCard
-                            key={ultraFeedItem.primaryPost._id}
-                            post={ultraFeedItem.primaryPost}
-                            comments={ultraFeedItem.secondaryComments || []}
-                            maxCollapsedLengthWords={200}
-                            refetch={refetch}
-                          />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  }
-                }
-              }}
+              resolverArgsValues={{ sessionId }}
+              renderers={ultraFeedRenderer}
             />
           </div>
+          {/* History Feed Section */}
+          <div className={classes.historyContainer}>
+            <MixedTypeFeed
+              resolverName="UltraFeedHistory"
+              sortKeyType="Date"
+              firstPageSize={5}
+              pageSize={5}
+              renderers={ultraFeedRenderer}
+              resolverArgsValues={{ sessionId }}
+              onReachedEnd={onReachedEnd}
+            />
+          </div>
+          {reachedEndOfHistory && EndOfFeedButton}
         </SingleColumnSection>
       </>}
     </div>
