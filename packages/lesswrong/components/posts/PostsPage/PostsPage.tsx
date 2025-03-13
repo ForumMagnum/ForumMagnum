@@ -42,7 +42,8 @@ import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
-import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
+import { BestOfLWPostsPageSplashImage } from './BestOfLWPostsPageSplashImage';
+import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -366,6 +367,15 @@ export const styles = (theme: ThemeType) => ({
     borderRadius: 5,
     display: "flex",
     justifyContent: "center",
+  },
+  splashPageHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '100vh',
+    width: '100vw',
   },
   secondSplashPageHeader: {
     ...theme.typography.postStyle,
@@ -763,6 +773,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     }
   }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
+  const splashPageHeader = fullPost && <BestOfLWPostsPageSplashImage post={fullPost} />
+
   const header = <>
     {fullPost && !linkedCommentId && <>
       <HeadTags
@@ -794,15 +806,17 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+          {isBookUI && <LWPostsPageHeader
             post={post}
+            fullPost={fullPost}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
+            showSplashPageHeader={showSplashPageHeader}
             />}
-          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
+          {!isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
@@ -848,6 +862,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // so inline it back into place. See also the forum gating in PostsCommentsSection, which must be removed at
   // the same time.
 
+
   const postBodySection =
     <div id="postBody" className={classNames(
       classes.centralColumn,
@@ -855,9 +870,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
       {isBookUI && header}
-      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
-        {post.title}
-      </h1>}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
@@ -997,13 +1009,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
-      // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
-      // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
-      post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
-      showEmbeddedPlayer={showEmbeddedPlayer}
-      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-    />}
+    <div className={classes.splashPageHeader}>
+      {splashPageHeader}
+    </div>
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
