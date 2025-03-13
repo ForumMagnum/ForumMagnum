@@ -1,5 +1,5 @@
 import { fillDefaultValues, registerMigration } from './migrationUtils';
-import Sequences from '../../lib/collections/sequences/collection';
+import Sequences from '../../server/collections/sequences/collection';
 
 
 export default registerMigration({

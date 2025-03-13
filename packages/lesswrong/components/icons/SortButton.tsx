@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import SwapVert from '@material-ui/icons/SwapVert';
+import SwapVert from '@/lib/vendor/@material-ui/icons/src/SwapVert';
 
 const styles = (theme: ThemeType) => ({
   icon: {

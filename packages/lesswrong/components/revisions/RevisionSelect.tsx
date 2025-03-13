@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
-import Radio from '@material-ui/core/Radio';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

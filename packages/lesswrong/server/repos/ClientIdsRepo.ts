@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { ClientIds } from "../../lib/collections/clientIds/collection";
+import { ClientIds } from "../../server/collections/clientIds/collection";
 import { randomId } from "../../lib/random";
 
 class ClientIdsRepo extends AbstractRepo<"ClientIds"> {

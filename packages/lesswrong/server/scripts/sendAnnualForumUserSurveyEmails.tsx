@@ -4,7 +4,7 @@ import { loggerConstructor } from "@/lib/utils/logging";
 import UsersRepo from "../repos/UsersRepo";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import './../emailComponents/EmailAnnualForumUserSurvey';
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
 import { Components } from "@/lib/vulcan-lib/components.tsx";
 
 /**

@@ -1,11 +1,11 @@
 import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/schema";
-import { Posts } from "@/lib/collections/posts/collection";
+import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
@@ -685,12 +685,13 @@ export function postsNewPostRelation(post: DbPost, callbackProperties: AfterCrea
 
 // Use the first image in the post as the social preview image
 export async function extractSocialPreviewImage(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
-  const { context: { Posts } } = callbackProperties;
+  const { context } = callbackProperties;
+  const { Posts } = context;
   
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
-  const contents = await getLatestContentsRevision(post);
+  const contents = await getLatestContentsRevision(post, context);
   if (!contents) {
     return post;
   }
@@ -1047,11 +1048,11 @@ export function sendPostApprovalNotifications(post: DbPost, oldPost: DbPost) {
   }
 }
 
-export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPost, oldPost: DbPost) {
+export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
   if (newPost.collabEditorDialogue) {
     const [oldIds, newIds] = await Promise.all([
-      getDialogueResponseIds(oldPost),
-      getDialogueResponseIds(newPost),
+      getDialogueResponseIds(oldPost, context),
+      getDialogueResponseIds(newPost, context),
     ]);
     const uniqueNewIds = _.difference(newIds, oldIds);
     

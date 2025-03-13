@@ -1,7 +1,7 @@
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from '../../lib/editor/make_editable'
-import { collectionNameToTypeName } from '../../lib/vulcan-lib/getCollection'
+import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
 import { CallbackHook } from '../utils/callbackHooks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
@@ -339,7 +339,7 @@ async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionName
 ) {
   const { pingbacks = false, collectionName } = options;
 
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
     await notifyUsersAboutMentions(currentUser, typeName, newDocument)

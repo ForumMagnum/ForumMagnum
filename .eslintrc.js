@@ -3,18 +3,18 @@ const restrictedImportsPaths = [
   { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
   { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
   { name: "@material-ui", message: "Don't import all of material-ui/icons" },
-  { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
-  { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
+  { name: "@/lib/vendor/@material-ui/core/src", message: "Don't import all of material-ui/core" },
+  { name: "@/lib/vendor/@material-ui/core/src/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
   { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
-  { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
-  { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
-  { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
-  { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
-  { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
-  { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
+  { name: "@/lib/vendor/@material-ui/core/src/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
+  { name: "@/lib/vendor/@material-ui/core/src/NoSsr", importNames: ["Popper"], message: "Don't use @/lib/vendor/@material-ui/core/src/NoSsr/NoSsr; use react-no-ssr instead" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
-  { name: "@material-ui/core/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
+  { name: "@/lib/vendor/@material-ui/core/src/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
@@ -154,7 +154,7 @@ module.exports = {
     "no-restricted-imports": ["error", {
       "paths": restrictedImportsPaths,
       patterns: [
-        "@material-ui/core/colors/*"
+        "@/lib/vendor/@material-ui/core/src/colors/*"
       ]
     }],
 
@@ -336,5 +336,6 @@ module.exports = {
     "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
+    "packages/lesswrong/lib/vendor/@material-ui"
   ]
 }

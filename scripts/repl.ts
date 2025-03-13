@@ -1,11 +1,11 @@
-import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, isForumType } from "./scriptUtil";
+import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isCodegen, isEnvironmentType, isForumType } from "./scriptUtil";
 import * as tsNode from 'ts-node';
 import omit from "lodash/omit";
 
 interface CommandLineOptions {
   environment: EnvironmentType|null
   forumType: ForumType|null
-
+  codegen: boolean|null
   file: string|null
   command: string|null
 }
@@ -15,6 +15,7 @@ function parseCommandLine(): CommandLineOptions {
   let result: CommandLineOptions = {
     environment: null,
     forumType: null,
+    codegen: null,
     file: null,
     command: null,
   }
@@ -30,6 +31,8 @@ function parseCommandLine(): CommandLineOptions {
           result.forumType = arg;
         } else if (isEnvironmentType(arg)) {
           result.environment = arg;
+        } else if (isCodegen(arg)) {
+          result.codegen = true;
         } else {
           if (!result.file) {
             result.file = arg;
@@ -100,7 +103,7 @@ export async function initRepl(commandLineOptions: CommandLineOptions) {
     throw new Error('Unable to run migration without a mode or environment (PG_URL and SETTINGS_FILE)');
   }
 
-  initGlobals(args, mode==="prod");
+  initGlobals(args, mode==="prod", { bundleIsCodegen: commandLineOptions.codegen });
 
   const {initServer} = require("../packages/lesswrong/server/serverStartup");
   await initServer(args);
@@ -129,13 +132,19 @@ async function replMain() {
       repl.evalCode(`const {${Object.keys(importsExceptDefault).join(", ")}} = __repl_import;\n`);
     }
     if (commandLineOptions.command) {
-      const result = await repl.evalCode(commandLineOptions.command);
-      console.log(result);
-      process.exit(0);
+      try {
+        const result = await repl.evalCode(commandLineOptions.command);
+        console.log(result);
+      } finally {
+        process.exit(0);
+      }
     } else if (defaultExport && typeof defaultExport==='function') {
-      const result = await defaultExport();
-      console.log(result);
-      process.exit(0);
+      try {
+        const result = await defaultExport();
+        console.log(result);
+      } finally {
+        process.exit(0);
+      }
     }
   })();
 }

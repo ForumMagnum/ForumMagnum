@@ -3,7 +3,7 @@ import React from 'react';
 import { useSingle } from '../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { getUserEmail } from "../lib/collections/users/helpers";
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {

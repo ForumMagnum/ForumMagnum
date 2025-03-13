@@ -4,7 +4,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { PetrovDayActionType } from '@/lib/collections/petrovDayActions/schema';
 
 const styles = (theme: ThemeType) => ({

@@ -1,4 +1,4 @@
-import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
+import { spamRiskScoreThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';

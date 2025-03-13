@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import LocationIcon from '@material-ui/icons/LocationOn'
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import {

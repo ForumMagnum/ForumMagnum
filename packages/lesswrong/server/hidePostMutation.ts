@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import Users from '../lib/collections/users/collection';
+import Users from '../server/collections/users/collection';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import { updateMutator } from './vulcan-lib/mutators';
 import some from 'lodash/some'
@@ -39,7 +39,7 @@ addGraphQLResolvers({
       });
       
       const updatedUser = await Users.findOne(currentUser._id)!;
-      return (await accessFilterSingle(currentUser, Users, updatedUser, context))!;
+      return (await accessFilterSingle(currentUser, 'Users', updatedUser, context))!;
     }
   }
 });

@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

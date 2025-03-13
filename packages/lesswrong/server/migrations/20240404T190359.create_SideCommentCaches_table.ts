@@ -1,7 +1,7 @@
 import { createTable, addRemovedField, dropRemovedField, dropTable } from "./meta/utils";
 import { JsonType } from "@/server/sql/Type";
-import SideCommentCaches from "../../lib/collections/sideCommentCaches/collection";
-import Posts from "../../lib/collections/posts/collection";
+import SideCommentCaches from "../../server/collections/sideCommentCaches/collection";
+import Posts from "../../server/collections/posts/collection";
 
 export const acceptsSchemaHash = "ca5281426ba6c737b2621d88156ea1c6";
 

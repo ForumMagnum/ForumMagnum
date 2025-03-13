@@ -7,7 +7,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { separatorBulletStyles } from "../../common/SectionFooter";
 import CopyToClipboard from "react-copy-to-clipboard";
-import CopyIcon from "@material-ui/icons/FileCopy";
+import CopyIcon from "@/lib/vendor/@material-ui/icons/src/FileCopy";
 
 const styles = (theme: ThemeType) => ({
   links: {

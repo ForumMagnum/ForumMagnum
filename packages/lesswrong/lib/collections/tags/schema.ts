@@ -6,8 +6,6 @@ import moment from 'moment';
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
-import Comments from '../comments/collection';
-import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
@@ -16,10 +14,11 @@ import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
 import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
-import { LikesList } from '@/lib/voting/reactionsAndLikes';
+import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
 import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -348,7 +347,7 @@ const schema: SchemaType<"Tags"> = {
         limit: tagCommentsLimit ?? 5,
         sort: {postedAt:-1}
       }).fetch();
-      return await accessFilterMultiple(currentUser, Comments, comments, context);
+      return await accessFilterMultiple(currentUser, 'Comments', comments, context);
     }
   }),
   'recentComments.$': {
@@ -571,7 +570,8 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       if (!tag.isSubforum) return null;
-      const userTagRel = context.currentUser ? await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}) : null;
+      const { Comments, UserTagRels, currentUser } = context;
+      const userTagRel = currentUser ? await UserTagRels.findOne({userId: currentUser._id, tagId: tag._id}) : null;
       // This is when this field was added, so assume all messages before then have been read
       const earliestDate = new Date('2022-09-30T15:07:34.026Z');
       
@@ -758,7 +758,7 @@ const schema: SchemaType<"Tags"> = {
         contents: revisionsById.get(md._id),
       }));
 
-      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+      return await accessFilterMultiple(context.currentUser, 'MultiDocuments', unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -846,7 +846,7 @@ const schema: SchemaType<"Tags"> = {
         contents: revisionsById.get(md._id),
       }));
 
-      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+      return await accessFilterMultiple(context.currentUser, 'MultiDocuments', unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -975,6 +975,8 @@ const schema: SchemaType<"Tags"> = {
     label: "Force Allow T3 Audio",
     ...schemaDefaultValue(false),
   },
+
+  ...getVoteableSchemaFields('Tags'),
 }
 
 export default schema;

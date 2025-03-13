@@ -6,9 +6,13 @@ const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
   return !comment.hideKarma || userCanDo(user, 'posts.moderate.all')
 }
 
+export const publicScoreOptions = {
+  canRead: customBaseScoreReadAccess,
+};
+
 export const commentVotingOptions: CollectionVoteOptions = {
   timeDecayScoresCronjob: true,
-  customBaseScoreReadAccess,
+  publicScoreOptions,
   userCanVoteOn: (user: DbUser|null, comment: DbComment, voteType: string, extendedVote: any) => {
     if (!user) {
       return {fail: true, reason: 'You must be logged in to vote.'};

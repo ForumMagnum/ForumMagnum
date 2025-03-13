@@ -1,8 +1,8 @@
-import Messages from '../../lib/collections/messages/collection';
-import { ModeratorActions } from '../../lib/collections/moderatorActions/collection';
+import Messages from '../../server/collections/messages/collection';
+import { ModeratorActions } from '../../server/collections/moderatorActions/collection';
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/schema';
 import { loggerConstructor } from '../../lib/utils/logging';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';

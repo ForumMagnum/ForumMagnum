@@ -2,20 +2,20 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanPost } from '../../lib/collections/posts/collection';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
-import EmailIcon from '@material-ui/icons/Email';
-import LocationIcon from '@material-ui/icons/LocationOn';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import Person from '@material-ui/icons/Person';
+import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 
 
 const styles = (theme: ThemeType) => ({
