@@ -73,90 +73,82 @@ export const styles = theme => ({
   selected: {},
 });
 
-class ListItem extends React.Component {
-  getChildContext() {
-    return {
-      dense: this.props.dense || this.context.dense || false,
-    };
-  }
+const ListItem = (props) => {
+  const {
+    button=false,
+    children: childrenProp,
+    classes,
+    className: classNameProp,
+    component: componentProp,
+    ContainerComponent='li',
+    ContainerProps: { className: ContainerClassName, ...ContainerProps } = {},
+    dense=false,
+    disabled=false,
+    disableGutters=false,
+    divider=false,
+    focusVisibleClassName,
+    selected=false,
+    ...other
+  } = props;
 
-  render() {
-    const {
-      button,
-      children: childrenProp,
-      classes,
-      className: classNameProp,
-      component: componentProp,
-      ContainerComponent,
-      ContainerProps: { className: ContainerClassName, ...ContainerProps } = {},
-      dense,
-      disabled,
-      disableGutters,
-      divider,
+  const isDense = dense;
+  const children = React.Children.toArray(childrenProp);
+  const hasAvatar = false;
+  const hasSecondaryAction =
+    children.length && isMuiElement(children[children.length - 1], ['ListItemSecondaryAction']);
+
+  const className = classNames(
+    classes.root,
+    classes.default,
+    {
+      [classes.dense]: isDense || hasAvatar,
+      [classes.gutters]: !disableGutters,
+      [classes.divider]: divider,
+      [classes.disabled]: disabled,
+      [classes.button]: button,
+      [classes.secondaryAction]: hasSecondaryAction,
+      [classes.selected]: selected,
+    },
+    classNameProp,
+  );
+
+  const componentProps = { className, disabled, ...other };
+  let Component = componentProp || 'li';
+
+  if (button) {
+    componentProps.component = componentProp || 'div';
+    componentProps.focusVisibleClassName = classNames(
+      classes.focusVisible,
       focusVisibleClassName,
-      selected,
-      ...other
-    } = this.props;
-
-    const isDense = dense || this.context.dense || false;
-    const children = React.Children.toArray(childrenProp);
-    const hasAvatar = false;
-    const hasSecondaryAction =
-      children.length && isMuiElement(children[children.length - 1], ['ListItemSecondaryAction']);
-
-    const className = classNames(
-      classes.root,
-      classes.default,
-      {
-        [classes.dense]: isDense || hasAvatar,
-        [classes.gutters]: !disableGutters,
-        [classes.divider]: divider,
-        [classes.disabled]: disabled,
-        [classes.button]: button,
-        [classes.secondaryAction]: hasSecondaryAction,
-        [classes.selected]: selected,
-      },
-      classNameProp,
     );
-
-    const componentProps = { className, disabled, ...other };
-    let Component = componentProp || 'li';
-
-    if (button) {
-      componentProps.component = componentProp || 'div';
-      componentProps.focusVisibleClassName = classNames(
-        classes.focusVisible,
-        focusVisibleClassName,
-      );
-      Component = ButtonBase;
-    }
-
-    if (hasSecondaryAction) {
-      // Use div by default.
-      Component = !componentProps.component && !componentProp ? 'div' : Component;
-
-      // Avoid nesting of li > li.
-      if (ContainerComponent === 'li') {
-        if (Component === 'li') {
-          Component = 'div';
-        } else if (componentProps.component === 'li') {
-          componentProps.component = 'div';
-        }
-      }
-
-      return (
-        <ContainerComponent
-          className={classNames(classes.container, ContainerClassName)}
-          {...ContainerProps}
-        >
-          <Component {...componentProps}>{children}</Component>
-          {children.pop()}
-        </ContainerComponent>
-      );
-    }
-
-    return <Component {...componentProps}>{children}</Component>;
+    Component = ButtonBase;
   }
+
+  if (hasSecondaryAction) {
+    // Use div by default.
+    Component = !componentProps.component && !componentProp ? 'div' : Component;
+
+    // Avoid nesting of li > li.
+    if (ContainerComponent === 'li') {
+      if (Component === 'li') {
+        Component = 'div';
+      } else if (componentProps.component === 'li') {
+        componentProps.component = 'div';
+      }
+    }
+
+    return (
+      <ContainerComponent
+        className={classNames(classes.container, ContainerClassName)}
+        {...ContainerProps}
+      >
+        <Component {...componentProps}>{children}</Component>
+        {children.pop()}
+      </ContainerComponent>
+    );
+  }
+
+  return <Component {...componentProps}>{children}</Component>;
 }
 
 ListItem.propTypes = {
@@ -216,24 +208,6 @@ ListItem.propTypes = {
    * Use to apply selected styling.
    */
   selected: PropTypes.bool,
-};
-
-ListItem.defaultProps = {
-  button: false,
-  ContainerComponent: 'li',
-  dense: false,
-  disabled: false,
-  disableGutters: false,
-  divider: false,
-  selected: false,
-};
-
-ListItem.contextTypes = {
-  dense: PropTypes.bool,
-};
-
-ListItem.childContextTypes = {
-  dense: PropTypes.bool,
 };
 
 export default withStyles(styles, { name: 'MuiListItem' })(ListItem);

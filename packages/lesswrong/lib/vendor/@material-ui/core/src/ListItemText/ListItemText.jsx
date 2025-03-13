@@ -40,7 +40,7 @@ export const styles = theme => ({
   textDense: {},
 });
 
-function ListItemText(props, context) {
+function ListItemText(props) {
   const {
     children,
     classes,
@@ -53,14 +53,13 @@ function ListItemText(props, context) {
     secondaryTypographyProps,
     ...other
   } = props;
-  const { dense } = context;
 
   let primary = primaryProp != null ? primaryProp : children;
   if (primary != null && primary.type !== Typography && !disableTypography) {
     primary = (
       <Typography
         variant="subheading"
-        className={classNames(classes.primary, { [classes.textDense]: dense })}
+        className={classes.primary}
         component="span"
         {...primaryTypographyProps}
       >
@@ -147,10 +146,6 @@ ListItemText.propTypes = {
    * (as long as disableTypography is not `true`).
    */
   secondaryTypographyProps: PropTypes.object,
-};
-
-ListItemText.contextTypes = {
-  dense: PropTypes.bool,
 };
 
 export default withStyles(styles, { name: 'MuiListItemText' })(ListItemText);

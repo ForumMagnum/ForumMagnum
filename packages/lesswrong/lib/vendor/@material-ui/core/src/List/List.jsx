@@ -27,41 +27,33 @@ export const styles = {
   },
 };
 
-class List extends React.Component {
-  getChildContext() {
-    return {
-      dense: this.props.dense,
-    };
-  }
+const List = (props) => {
+  const {
+    children,
+    classes,
+    className: classNameProp,
+    component: Component = 'ul',
+    dense=false,
+    disablePadding=false,
+    subheader,
+    ...other
+  } = props;
+  const className = classNames(
+    classes.root,
+    {
+      [classes.dense]: dense && !disablePadding,
+      [classes.padding]: !disablePadding,
+      [classes.subheader]: subheader,
+    },
+    classNameProp,
+  );
 
-  render() {
-    const {
-      children,
-      classes,
-      className: classNameProp,
-      component: Component,
-      dense,
-      disablePadding,
-      subheader,
-      ...other
-    } = this.props;
-    const className = classNames(
-      classes.root,
-      {
-        [classes.dense]: dense && !disablePadding,
-        [classes.padding]: !disablePadding,
-        [classes.subheader]: subheader,
-      },
-      classNameProp,
-    );
-
-    return (
-      <Component className={className} {...other}>
-        {subheader}
-        {children}
-      </Component>
-    );
-  }
+  return (
+    <Component className={className} {...other}>
+      {subheader}
+      {children}
+    </Component>
+  );
 }
 
 List.propTypes = {
@@ -97,16 +89,6 @@ List.propTypes = {
    * The content of the subheader, normally `ListSubheader`.
    */
   subheader: PropTypes.node,
-};
-
-List.defaultProps = {
-  component: 'ul',
-  dense: false,
-  disablePadding: false,
-};
-
-List.childContextTypes = {
-  dense: PropTypes.bool,
 };
 
 export default withStyles(styles, { name: 'MuiList' })(List);

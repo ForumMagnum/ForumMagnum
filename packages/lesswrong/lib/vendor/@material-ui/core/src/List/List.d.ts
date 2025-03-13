@@ -4,7 +4,6 @@ import { StandardProps } from '..';
 export interface ListProps
   extends StandardProps<React.HTMLAttributes<HTMLUListElement>, ListClassKey> {
   component?: React.ReactType<ListProps>;
-  dense?: boolean;
   disablePadding?: boolean;
   subheader?: React.ReactElement<any>;
 }
