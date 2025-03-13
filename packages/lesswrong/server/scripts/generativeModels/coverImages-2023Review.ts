@@ -170,12 +170,13 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
         negative_prompt: "text, writing, words, low quality, blurry",
         num_inference_steps: 25,
         guidance_scale: 7.5,
+        aspect_ratio: "1:1",
         image_size: {
-          width: 1600,
+          width: 1200,
           height: 1200
         },
         image_url: imageUrl,
-        image_strength: 2
+        image_strength: 3
       }
     }
     const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
@@ -192,7 +193,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `Aquarelle artwork of ${lowerCased}, in the style of ethereal watercolor washes, juxtaposition of hard and soft lines, muted colors, textured paper drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps`
+  return `Aquarelle artwork fading out to the left of ${lowerCased}, in the style of ethereal watercolor washes, juxtaposition of hard and soft lines, muted colors, textured paper drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white right side has a visceral motif, left fade right intense, image fades to white on left, left side white`
 }
 
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
