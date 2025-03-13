@@ -100,7 +100,7 @@ class ListItem extends React.Component {
 
     const isDense = dense || this.context.dense || false;
     const children = React.Children.toArray(childrenProp);
-    const hasAvatar = children.some(value => isMuiElement(value, ['ListItemAvatar']));
+    const hasAvatar = false;
     const hasSecondaryAction =
       children.length && isMuiElement(children[children.length - 1], ['ListItemSecondaryAction']);
 
