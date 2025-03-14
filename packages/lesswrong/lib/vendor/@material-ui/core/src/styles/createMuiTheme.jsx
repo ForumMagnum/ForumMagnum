@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge'; // < 1kb payload overhead when lodash/merge is > 3kb.
-import isPlainObject from 'is-plain-object';
+import { isPlainObject } from 'is-plain-object';
 import warning from 'warning';
 import createBreakpoints from './createBreakpoints';
 import createMixins from './createMixins';
