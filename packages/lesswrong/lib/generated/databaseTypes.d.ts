@@ -185,7 +185,11 @@ interface DbComment extends DbObject {
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   } | null
   hideAuthor: boolean
   hideKarma: boolean | null
@@ -516,6 +520,7 @@ interface DbForumEvent extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number
+  pollQuestion_latest: string | null
   postId: string | null
   postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null

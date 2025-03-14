@@ -299,7 +299,11 @@ interface CommentsDefaultFragment { // fragment on Comments
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
@@ -480,6 +484,21 @@ interface CommentsList { // fragment on Comments
   readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
   readonly originalDialogueId: string | null,
+  readonly forumEventId: string,
+  readonly forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
+  },
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -930,17 +949,17 @@ interface FieldChangeFragment { // fragment on FieldChanges
   readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface FieldChangesDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
-  readonly userId: any,
-  readonly changeGroup: any,
-  readonly documentId: any,
-  readonly fieldName: any,
-  readonly oldValue: any,
-  readonly newValue: any,
+interface FieldChangesDefaultFragment { // fragment on FieldChanges
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly userId: string,
+  readonly changeGroup: string,
+  readonly documentId: string,
+  readonly fieldName: string,
+  readonly oldValue: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents
@@ -951,6 +970,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly frontpageDescription_latest: string,
   readonly frontpageDescriptionMobile_latest: string,
   readonly postPageDescription_latest: string,
+  readonly pollQuestion_latest: string,
   readonly title: string,
   readonly startDate: Date,
   readonly endDate: Date,
@@ -977,6 +997,7 @@ interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on For
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
   readonly frontpageDescriptionMobile: ForumEventsDisplay_frontpageDescriptionMobile|null,
   readonly postPageDescription: ForumEventsDisplay_postPageDescription|null,
+  readonly pollQuestion: ForumEventsDisplay_pollQuestion|null,
 }
 
 interface ForumEventsDisplay_frontpageDescription { // fragment on Revisions
@@ -994,10 +1015,16 @@ interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
   readonly html: string,
 }
 
+interface ForumEventsDisplay_pollQuestion { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
 interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly frontpageDescription: RevisionEdit|null,
   readonly frontpageDescriptionMobile: RevisionEdit|null,
   readonly postPageDescription: RevisionEdit|null,
+  readonly pollQuestion: RevisionEdit|null,
 }
 
 interface ForumEventsMinimumInfo { // fragment on ForumEvents
@@ -5357,7 +5384,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"|"ElicitQuestionsDefaultFragment"
   EmailTokenses: "EmailTokensDefaultFragment"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
-  FieldChanges: "FieldChangeFragment"
+  FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionAdminInfo"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionsDefaultFragment"
@@ -5418,7 +5445,6 @@ interface FragmentTypesByCollection {
   UserTagRels: "UserTagRelDetails"|"UserTagRelsDefaultFragment"
   Users: "SharedUserBooleans"|"SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersAdmin"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"VotesDefaultFragment"
-  undefineds: "FieldChangesDefaultFragment"
 }
 
 interface CollectionNamesByFragmentName {
@@ -5491,7 +5517,7 @@ interface CollectionNamesByFragmentName {
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
   FieldChangeFragment: "FieldChanges"
-  FieldChangesDefaultFragment: never
+  FieldChangesDefaultFragment: "FieldChanges"
   ForumEventsDefaultFragment: "ForumEvents"
   ForumEventsDisplay: "ForumEvents"
   ForumEventsEdit: "ForumEvents"

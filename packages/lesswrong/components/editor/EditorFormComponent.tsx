@@ -109,6 +109,25 @@ export const EditorFormComponent = ({
       getLSKeyPrefix(editorType)
     );
   }, [document, name, editableFieldOptions.clientOptions.getLocalStorageId]);
+
+
+  const getNewPostLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
+    // It would be nice to check that it's a post and not a comment, but it should be fine
+    // in comments as well, because there should always be content when editing a comment
+    // (which we check later).
+    if (formType !== "edit" || document.contents_latest || document.title !== 'Untitled Draft') {
+      return {
+        get: () => null,
+        set: () => {},
+        reset: () => {},
+      };
+    }
+    // pass in {_id: null} to getLocalStorageId to treat this like a new post, without having to change how makeEditableOptions works
+    const getLocalStorageId = (_: any, name: string) => editableFieldOptions.clientOptions.getLocalStorageId?.({_id: null}, name);
+    return getLSHandlers(getLocalStorageId, document, name,
+      getLSKeyPrefix(editorType)
+    );
+  }, [document, name, editableFieldOptions.clientOptions, formType]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
@@ -264,19 +283,11 @@ export const EditorFormComponent = ({
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
       autosaveContentsRef.current = newContents;
-      if (updatedFormType === 'new') {
-        setUpdatedFormType('edit');
-        const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
-        await updateCurrentValues({ draft: true, ...defaultTitle });
-        // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
-        await submitForm(null, { noReload: true });
-      } else {
-        await autosaveRevision({ 
-          variables: { postId: document._id, contents: newContents }
-        });
-      }
+      await autosaveRevision({
+        variables: { postId: document._id, contents: newContents }
+      });
     }
-  }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
+  }, [currentUser, collectionName, fieldName, document._id, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -385,6 +396,18 @@ export const EditorFormComponent = ({
       // TODO: Focus editor
     }
   }, [wrappedSetContents, flash, isCollabEditor]);
+
+  const onRestoreNewPostLegacy = useCallback((newState: EditorContents) => {
+    if (isCollabEditor) {
+      // If in collab editing mode, we can't edit the editor contents.
+      flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
+    } else {
+      wrappedSetContents({contents: newState, autosave: false});
+      getNewPostLocalStorageHandlers(currentEditorType).reset();
+      // TODO: Focus editor
+    }
+  }, [wrappedSetContents, flash, isCollabEditor, currentEditorType, getNewPostLocalStorageHandlers]);
+  
   
   useEffect(() => {
     if (editorRef.current) {
@@ -485,6 +508,8 @@ export const EditorFormComponent = ({
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
+      onRestoreNewPostLegacy={onRestoreNewPostLegacy}
+      getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
     <Components.Editor

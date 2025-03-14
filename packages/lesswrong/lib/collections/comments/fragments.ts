@@ -74,6 +74,9 @@ export const CommentsList = `
     rejectedReason
     modGPTRecommendation
     originalDialogueId
+
+    forumEventId
+    forumEventMetadata
   }
 `
 

@@ -454,7 +454,7 @@ export const FeaturedResourcesDefaultFragment = `
 `;
 
 export const FieldChangesDefaultFragment = `
-  fragment FieldChangesDefaultFragment on undefined {
+  fragment FieldChangesDefaultFragment on FieldChange {
     _id
     schemaVersion
     createdAt
@@ -477,6 +477,7 @@ export const ForumEventsDefaultFragment = `
     frontpageDescription_latest
     frontpageDescriptionMobile_latest
     postPageDescription_latest
+    pollQuestion_latest
     title
     startDate
     endDate
