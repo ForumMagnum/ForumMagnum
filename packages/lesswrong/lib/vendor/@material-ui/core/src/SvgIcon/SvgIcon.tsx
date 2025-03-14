@@ -72,7 +72,9 @@ function SvgIcon(props: any) {
       className={classNames(
         classes.root,
         {
+          // @ts-ignore
           [classes[`color${capitalize(color)}`]]: color !== 'inherit',
+          // @ts-ignore
           [classes[`fontSize${capitalize(fontSize)}`]]: fontSize !== 'default',
         },
         className,
