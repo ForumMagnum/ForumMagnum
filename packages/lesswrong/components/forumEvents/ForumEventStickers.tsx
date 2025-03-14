@@ -237,7 +237,8 @@ const ForumEventStickers: FC<{
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker as ForumEventStickerInput // Validated on the server
+      sticker: draftSticker as ForumEventStickerInput, // Validated on the server
+      poll: null
     },
   };
 

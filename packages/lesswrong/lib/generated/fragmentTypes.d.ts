@@ -299,7 +299,11 @@ interface CommentsDefaultFragment { // fragment on Comments
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
@@ -480,6 +484,21 @@ interface CommentsList { // fragment on Comments
   readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
   readonly originalDialogueId: string | null,
+  readonly forumEventId: string,
+  readonly forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
+  },
 }
 
 interface CommentsList_tag { // fragment on Tags

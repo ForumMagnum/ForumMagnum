@@ -64,6 +64,7 @@ importComponent("CommentBottomCaveats", () => require("../../components/comments
 importComponent("CommentDeletedMetadata", () => require("../../components/comments/CommentsItem/CommentDeletedMetadata.tsx"));
 importComponent("CommentDiscussionIcon", () => require("../../components/comments/CommentsItem/CommentDiscussionIcon.tsx"));
 importComponent("CommentOutdatedWarning", () => require("../../components/comments/CommentsItem/CommentOutdatedWarning.tsx"));
+importComponent("CommentPollVote", () => require("../../components/comments/CommentsItem/CommentPollVote.tsx"));
 importComponent("CommentShortformIcon", () => require("../../components/comments/CommentsItem/CommentShortformIcon.tsx"));
 importComponent("CommentUserName", () => require("../../components/comments/CommentsItem/CommentUserName.tsx"));
 importComponent("CommentsItem", () => require("../../components/comments/CommentsItem/CommentsItem.tsx"));
