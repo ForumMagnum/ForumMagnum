@@ -11,9 +11,6 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
-import { useCurrentForumEvent } from "@/components/hooks/useCurrentForumEvent";
-import isNumber from "lodash/isNumber";
-import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -135,18 +132,7 @@ const styles = (theme: ThemeType) => ({
     }
     : {
       opacity: 0.35,
-    },
-  agreePollVote: {
-    color: theme.palette.primary.main,
-    fontWeight: 600
-  },
-  disagreePollVote: {
-    color: theme.palette.warning.main,
-    fontWeight: 600
-  },
-  tooltip: {
-    marginBottom: 6
-  }
+    }
 });
 
 export const CommentsItemMeta = ({
