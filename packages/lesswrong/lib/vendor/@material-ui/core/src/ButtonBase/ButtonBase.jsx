@@ -304,7 +304,7 @@ class ButtonBase extends React.Component {
       >
         {children}
         {!disableRipple && !disabled ? (
-          <TouchRipple innerRef={this.onRippleRef} center={centerRipple} {...TouchRippleProps} />
+          <TouchRipple ref={this.onRippleRef} center={centerRipple} {...TouchRippleProps} />
         ) : null}
       </ComponentProp>
     );
