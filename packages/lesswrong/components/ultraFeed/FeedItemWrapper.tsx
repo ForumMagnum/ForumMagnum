@@ -1,9 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
-    marginBottom: 24,
+    marginBottom: 48,
     gap: 4,
     paddingLeft: 8,
     borderRadius: 2,
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
     marginBottom: 4
   }
-});
+}));
 
 // Map source codes to human-readable labels
 const sourceLabels: Record<string, string> = {
@@ -26,11 +27,12 @@ const sourceLabels: Record<string, string> = {
   'subscribed': 'Subscribed Content'
 };
 
-const FeedItemWrapper = ({classes, sources, children}: {
-  classes: ClassesType<typeof styles>,
+const FeedItemWrapper = ({sources, children}: {
   sources: string[],
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
+  
   // Get human-readable labels for the sources
   const labels = sources.map(source => sourceLabels[source] || source);
   
@@ -44,7 +46,7 @@ const FeedItemWrapper = ({classes, sources, children}: {
   );
 };
 
-const FeedItemWrapperComponent = registerComponent('FeedItemWrapper', FeedItemWrapper, {styles});
+const FeedItemWrapperComponent = registerComponent('FeedItemWrapper', FeedItemWrapper);
 
 declare global {
   interface ComponentTypes {

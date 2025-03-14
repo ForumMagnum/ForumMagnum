@@ -4,11 +4,11 @@ import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
+import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType } from "../utils/feedItemUtils";
+import FeedItemServingsRepo from "../repos/FeedItemServingsRepo";
 
-/**
- * 1) Define a unified GraphQL type for our feed items:
- *    Each item has a renderAsType and sources at the top level
- */
+const TESTING_DATE_CUTOFF = new Date('2025-01-01');
+
 addGraphQLSchema(`
   type UltraFeedItem {
     _id: String!
@@ -29,22 +29,13 @@ addGraphQLSchema(`
     secondaryComments: [Comment]
   }
 
-  # UltraFeedResponse now uses the unified UltraFeedItem type
-  type UltraFeedResponse {
-    cutoff: Date
-    endOffset: Int!
-    results: [UltraFeedItem!]!
-    sessionId: String!
-  }
 `);
-
-type feedItemRenderAsType = "feedComment" | "feedPost";
 
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
   popularComments: 5,
   quickTakes: 5,
-  subscribed: 10
+  subscribed: 5
 };
 
 // Helper function to perform weighted sampling
@@ -100,6 +91,217 @@ function weightedSample(sources: Record<string, { weight: number, items: any[] }
   return finalFeed;
 }
 
+// Interfaces for feed items
+interface FeedItemBase {
+  _id: string;
+  sources: string[];
+  renderAsType: FeedItemRenderType;
+}
+
+interface FeedCommentItem extends FeedItemBase {
+  comment: DbComment;
+}
+
+interface FeedPostItem extends FeedItemBase {
+  post: DbPost;
+  comments?: DbComment[];
+}
+
+// Union type for our different feed item types
+type FeedItem = FeedCommentItem | FeedPostItem;
+
+// Helper to check if an item is a FeedCommentItem
+function isFeedCommentItem(item: FeedItem): item is FeedCommentItem {
+  return item.renderAsType === "feedComment";
+}
+
+// Helper to check if an item is a FeedPostItem
+function isFeedPostItem(item: FeedItem): item is FeedPostItem {
+  return item.renderAsType === "feedPost";
+}
+
+/**
+ * Fetches quick takes (shortform posts) for the feed
+ */
+async function fetchQuickTakes({
+  context,
+  currentUser,
+  servedCommentIds
+}: {
+  context: ResolverContext;
+  currentUser: DbUser;
+  servedCommentIds: Set<string>;
+}): Promise<FeedCommentItem[]> {
+  console.log("Fetching quick takes...");
+  
+  const quickTakesRaw = await context.Comments.find(
+    {
+      shortform: true,
+      deleted: { $ne: true },
+      // Exclude comments that have been recently served to this user
+      _id: { $nin: Array.from(servedCommentIds) },
+      postedAt: { $lt: TESTING_DATE_CUTOFF }
+    },
+    { limit: 20, sort: { postedAt: -1 } }
+  ).fetch();
+  
+  const quickTakes = await accessFilterMultiple(
+    currentUser,
+    "Comments",
+    quickTakesRaw,
+    context
+  );
+
+  console.log(`Found ${quickTakes.length} quick takes after filtering already served items`);
+
+  // Map to FeedCommentItem format
+  return quickTakes.map((doc: DbComment) => {
+    // Make sure we have no circular references
+    const comment = {...doc};
+    if (comment.parentCommentId === comment._id) {
+      comment.parentCommentId = null;
+    }
+    
+    return {
+      _id: doc._id,
+      comment,
+      sources: ["quickTakes"],
+      renderAsType: "feedComment"
+    };
+  });
+}
+
+/**
+ * Fetches popular comments for the feed
+ */
+async function fetchPopularComments({
+  context,
+  currentUser,
+  servedCommentIds
+}: {
+  context: ResolverContext;
+  currentUser: DbUser;
+  servedCommentIds: Set<string>;
+}): Promise<FeedCommentItem[]> {
+  console.log("Fetching popular comments...");
+  
+  const popularCommentsRaw = await context.Comments.find(
+    {
+      deleted: { $ne: true },
+      baseScore: { $gt: 10 },
+      postedAt: { $lt: TESTING_DATE_CUTOFF, $gte: new Date(Date.now() - (180 * 24 * 60 * 60 * 1000)) },
+      ...(servedCommentIds.size > 0 ? { _id: { $nin: Array.from(servedCommentIds) } } : {})
+    },
+    { limit: 50, sort: { baseScore: -1 } }
+  ).fetch();
+  
+  const popularComments = await accessFilterMultiple(
+    currentUser,
+    "Comments",
+    popularCommentsRaw,
+    context
+  );
+
+  console.log(`Found ${popularComments.length} popular comments after filtering already served items`);
+
+  // Map to FeedCommentItem format
+  return popularComments.map((doc: DbComment) => {
+    const comment = {...doc};
+    if (comment.parentCommentId === comment._id) {
+      comment.parentCommentId = null;
+    }
+    
+    return {
+      _id: doc._id,
+      comment,
+      sources: ["popularComments"],
+      renderAsType: "feedComment"
+    };
+  });
+}
+
+/**
+ * Fetches subscribed content for the feed
+ */
+async function fetchSubscribedContent({
+  context,
+  currentUser,
+  servedPostIds,
+  servedPostCommentCombos
+}: {
+  context: ResolverContext;
+  currentUser: DbUser;
+  servedPostIds: Set<string>;
+  servedPostCommentCombos: Set<string>;
+}): Promise<FeedPostItem[]> {
+  console.log("Fetching subscribed content...");
+  
+  // Get posts and comments from subscriptions
+  const postsAndCommentsAll = await context.repos.posts.getPostsAndCommentsFromSubscriptions(
+    currentUser._id, 
+    50 + 90
+  );
+  
+  console.log(`Found ${postsAndCommentsAll.length} subscribed items before filtering`);
+  
+  // Filter out subscribed items based on our custom rule:
+  // Exclude if both the postId and first two commentIds are identical to a previously served item
+  const filteredPostsAndComments = postsAndCommentsAll.filter(item => {
+    // If no commentIds, just check if the post has been served before
+    if (!item.commentIds || item.commentIds.length === 0) {
+      return !servedPostIds.has(item.postId);
+    }
+
+    // Get the first two comment IDs (or fewer if not enough exist)
+    const firstComments = item.commentIds.slice(0, 2);
+    
+    // Create a combo key with the post ID and first two comment IDs
+    const comboKey = `${item.postId}:${firstComments.sort().join(':')}`;
+    
+    // Only filter out if this exact combination has been served before
+    return !servedPostCommentCombos.has(comboKey);
+  });
+  
+  console.log(`${postsAndCommentsAll.length - filteredPostsAndComments.length} subscribed items filtered out as already served`);
+  
+  if (!filteredPostsAndComments.length) {
+    return [];
+  }
+  
+  // Load posts and comments
+  const postIds = filterNonnull(filteredPostsAndComments.map(row => row.postId));
+  const commentIds = filterNonnull(filteredPostsAndComments.flatMap(row => row.fullCommentTreeIds ?? []));
+  
+  console.log(`Loading ${postIds.length} posts and ${commentIds.length} comments for subscribed content (after filtering)`);
+  
+  const [posts, comments] = await Promise.all([
+    loadByIds(context, "Posts", postIds)
+      .then(posts => accessFilterMultiple(currentUser, "Posts", posts, context))
+      .then(filterNonnull),
+    loadByIds(context, "Comments", commentIds)
+      .then(comments => accessFilterMultiple(currentUser, "Comments", comments, context))
+      .then(filterNonnull)
+  ]);
+
+  console.log(`Successfully loaded ${posts.length} posts and ${comments.length} comments`);
+
+  const postsById = keyBy(posts, p => p._id);
+  const commentsById = keyBy(comments, c => c._id);
+  
+  // Map to FeedPostItem format
+  return filteredPostsAndComments
+    .filter(item => postsById[item.postId]) // Skip items where post is missing
+    .map(item => {
+      return {
+        _id: item.postId,
+        post: postsById[item.postId] as DbPost,
+        comments: (item.commentIds?.map(id => commentsById[id]).filter(Boolean) || []) as DbComment[],
+        sources: ["subscribed"],
+        renderAsType: "feedPost"
+      };
+    });
+}
+
 /**
  * 2) Create the feed resolver. We'll call it "UltraFeed" for now, but you can rename
  *    it in defineFeedResolver if you prefer something like "CommentsComboFeed".
@@ -143,154 +345,65 @@ defineFeedResolver<Date>({
       throw new Error("Must be logged in to fetch UltraFeed.");
     }
 
-    // Updated interfaces to match our new UltraFeedItem GraphQL type
-    interface FeedItemBase {
-      _id: string;
-      sources: string[];
-      renderAsType: feedItemRenderAsType;
+    // Fetch recently served items to avoid duplicates using the SQL-powered repo method
+    const feedItemServingsRepo = new FeedItemServingsRepo();
+    const recentlyServedDocs = await feedItemServingsRepo.loadRecentlyServedDocumentsForUser(
+      currentUser._id,
+      30, // look back 30 days
+      1000 // max 1000 items
+    );
+    
+    console.log(`Retrieved ${recentlyServedDocs.length} previously served unique documents`);
+    
+    // Create sets for O(1) lookups
+    const servedCommentIds = new Set<string>();
+    const servedPostIds = new Set<string>();
+    const servedPostCommentCombos = new Set<string>();
+    
+    // Populate the sets from the SQL results
+    for (const item of recentlyServedDocs) {
+      if (item.collectionName === 'Comments' && item.documentId) {
+        servedCommentIds.add(item.documentId);
+      } else if (item.collectionName === 'Posts' && item.documentId) {
+        servedPostIds.add(item.documentId);
+        
+        // If this is a post with associated comments, the combo is already created by the SQL
+        if (item.firstTwoCommentIds?.length) {
+          // Create a combo key of post ID + first comment IDs (sorted to ensure consistent comparison)
+          const comboKey = `${item.documentId}:${[...item.firstTwoCommentIds].sort().join(':')}`;
+          servedPostCommentCombos.add(comboKey);
+        }
+      }
     }
     
-    interface FeedCommentItem extends FeedItemBase {
-      comment: DbComment;
-    }
-
-    interface FeedPostItem extends FeedItemBase {
-      post: DbPost;
-      comments?: DbComment[];
-    }
-
-    // Union type for our different feed item types
-    type FeedItem = FeedCommentItem | FeedPostItem;
-
-    // Helper to check if an item is a FeedCommentItem
-    function isFeedCommentItem(item: FeedItem): item is FeedCommentItem {
-      return item.renderAsType === "feedComment";
-    }
-
-    // Helper to check if an item is a FeedPostItem
-    function isFeedPostItem(item: FeedItem): item is FeedPostItem {
-      return item.renderAsType === "feedPost";
-    }
-
-    const sources: Record<string, { weight: number, items: FeedItem[] }> = {
-      quickTakes: { weight: SOURCE_WEIGHTS.quickTakes, items: [] },
-      popularComments: { weight: SOURCE_WEIGHTS.popularComments, items: [] },
-      subscribed: { weight: SOURCE_WEIGHTS.subscribed, items: [] }
-    };
+    console.log(`Set up lookups for ${servedCommentIds.size} comments, ${servedPostIds.size} posts, and ${servedPostCommentCombos.size} post+comment combinations`);
 
     try {
-      // 1. FETCH QUICK TAKES
-      console.log("Fetching quick takes...");
-      const quickTakesRaw = await context.Comments.find(
-        {
-          shortform: true,
-          deleted: { $ne: true },
+      // Fetch all content sources in parallel
+      // TODO: think through that we're not deduping or failing to dedup correctly across content types
+
+      const [quickTakesItems, popularCommentsItems, subscribedItems] = await Promise.all([
+        fetchQuickTakes({ context, currentUser, servedCommentIds }),
+        fetchPopularComments({ context, currentUser, servedCommentIds }),
+        fetchSubscribedContent({ context, currentUser, servedPostIds, servedPostCommentCombos })
+      ]);
+      
+      // Create sources object for weighted sampling
+      const sources = {
+        quickTakes: { 
+          weight: SOURCE_WEIGHTS.quickTakes, 
+          items: quickTakesItems 
         },
-        { limit: 50, sort: { postedAt: -1 } }
-      ).fetch();
-      
-      const quickTakes = await accessFilterMultiple(
-        currentUser,
-        "Comments",
-        quickTakesRaw,
-        context
-      );
-
-      console.log(`Found ${quickTakes.length} quick takes`);
-
-      // Add quick takes to sources
-      sources.quickTakes.items = quickTakes.map((doc: DbComment) => {
-        // Make sure we have no circular references
-        const comment = {...doc};
-        if (comment.parentCommentId === comment._id) {
-          comment.parentCommentId = null;
-        }
-        return {
-          _id: doc._id,
-          comment,
-          sources: ["quickTakes"],
-          renderAsType: "feedComment"
-        };
-      });
-
-      // 2. FETCH POPULAR COMMENTS
-      console.log("Fetching popular comments...");
-      const popularCommentsRaw = await context.Comments.find(
-        {
-          deleted: { $ne: true },
-          baseScore: { $gt: 10 },
-          postedAt: { $gte: new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)) },
+        popularComments: { 
+          weight: SOURCE_WEIGHTS.popularComments, 
+          items: popularCommentsItems 
         },
-        { limit: 50, sort: { baseScore: -1 } }
-      ).fetch();
-      
-      const popularComments = await accessFilterMultiple(
-        currentUser,
-        "Comments",
-        popularCommentsRaw,
-        context
-      );
-
-      console.log(`Found ${popularComments.length} popular comments`);
-
-      // Add popular comments to sources
-      sources.popularComments.items = popularComments.map((doc: DbComment) => {
-        const comment = {...doc};
-        if (comment.parentCommentId === comment._id) {
-          comment.parentCommentId = null;
+        subscribed: { 
+          weight: SOURCE_WEIGHTS.subscribed, 
+          items: subscribedItems 
         }
-        return {
-          _id: doc._id,
-          comment,
-          sources: ["popularComments"],
-          renderAsType: "feedComment"
-        };
-      });
+      };
 
-      // 3. FETCH SUBSCRIBED CONTENT
-      console.log("Fetching subscribed content...");
-      // Note: This is simplified and would need to be adjusted based on your actual subscription logic
-      const postsAndCommentsAll = await context.repos.posts.getPostsAndCommentsFromSubscriptions(currentUser._id, 50);
-      
-      console.log(`Found ${postsAndCommentsAll.length} subscribed items`);
-      
-      if (postsAndCommentsAll && postsAndCommentsAll.length > 0) {
-        const postIds = filterNonnull(postsAndCommentsAll.map(row => row.postId));
-        const commentIds = filterNonnull(postsAndCommentsAll.flatMap(row => row.fullCommentTreeIds ?? []));
-        
-        console.log(`Loading ${postIds.length} posts and ${commentIds.length} comments for subscribed content`);
-        
-        const [posts, comments] = await Promise.all([
-          loadByIds(context, "Posts", postIds)
-            .then(posts => accessFilterMultiple(currentUser, "Posts", posts, context))
-            .then(filterNonnull),
-          loadByIds(context, "Comments", commentIds)
-            .then(comments => accessFilterMultiple(currentUser, "Comments", comments, context))
-            .then(filterNonnull)
-        ]);
-
-        console.log(`Successfully loaded ${posts.length} posts and ${comments.length} comments`);
-
-        const postsById = keyBy(posts, p => p._id);
-        const commentsById = keyBy(comments, c => c._id);
-        
-        // Add subscribed content to sources
-        sources.subscribed.items = postsAndCommentsAll
-          .filter(item => postsById[item.postId]) // Skip items where post is missing
-          .map(item => {
-            return {
-              _id: item.postId,
-              post: postsById[item.postId] as DbPost, // Add type assertion
-              comments: (item.commentIds?.map(id => commentsById[id]).filter(Boolean) || []) as DbComment[],
-              sources: ["subscribed"],
-              renderAsType: "feedPost"
-            };
-          });
-          
-        console.log(`Added ${sources.subscribed.items.length} subscribed items to sources`);
-      }
-
-      // 4. PERFORM WEIGHTED SAMPLING
       console.log("Performing weighted sampling with:", {
         quickTakesCount: sources.quickTakes.items.length,
         popularCommentsCount: sources.popularComments.items.length,
@@ -298,10 +411,11 @@ defineFeedResolver<Date>({
         requestedLimit: limit
       });
       
+      // Perform weighted sampling to get final items
       const sampledItems: FeedItem[] = weightedSample(sources, limit);
       console.log(`Sampled ${sampledItems.length} items for feed`);
       
-      // 5. TRANSFORM RESULTS FOR THE FEED
+      // Transform results for the feed
       const results = sampledItems.map((item) => {
         // Use our type guards to determine the item type
         if (isFeedCommentItem(item)) {
@@ -316,8 +430,10 @@ defineFeedResolver<Date>({
               // Other fields set to null or empty arrays
               primaryPost: null,
               secondaryPosts: [],
-              secondaryComments: []
-            }
+              secondaryComments: [],
+              originalServingId: null,
+              mostRecentServingId: null
+            } as HydratedFeedItem
           };
         } else if (isFeedPostItem(item)) {
           return {
@@ -331,76 +447,30 @@ defineFeedResolver<Date>({
               secondaryComments: item.comments || [],
               // Other fields set to null or empty arrays
               primaryComment: null,
-              secondaryPosts: []
-            }
+              secondaryPosts: [],
+              originalServingId: null,
+              mostRecentServingId: null
+            } as HydratedFeedItem
           };
         }
         // Default fallback (shouldn't reach here in normal operation)
         return null;
       }).filter(Boolean);
 
-      // 6. SAVE ITEMS TO FEEDITEMSERVINGS COLLECTION
+      // Save items to FeedItemServings collection
       console.log("Saving feed items to FeedItemServings collection...");
       
-      const now = new Date();
-      const feedItemServings = results
-        .filter((result): result is NonNullable<typeof result> => result !== null)
-        .map((result, index) => {
-          // Base document with common properties
-          const baseDoc = {
-            userId: currentUser._id,
-            sessionId,
-            servedAt: now,
-            position: index,
-            renderAsType: result.ultraFeedItem.renderAsType,
-            sources: result.ultraFeedItem.sources,
-            // Add nullable fields with default values
-            primaryDocumentId: null,
-            primaryDocumentCollectionName: null,
-            secondaryDocumentIds: null,
-            secondaryDocumentsCollectionName: null,
-            originalServingId: null,
-            mostRecentServingId: null,
-          } as DbFeedItemServing;
-
-          if (result.ultraFeedItem.renderAsType === "feedComment" && result.ultraFeedItem.primaryComment) {
-            return {
-              ...baseDoc,
-              primaryDocumentId: result.ultraFeedItem.primaryComment._id,
-              primaryDocumentCollectionName: "Comments" as CollectionNameString,
-            };
-          } else if (result.ultraFeedItem.renderAsType === "feedPost" && result.ultraFeedItem.primaryPost) {
-            const commentIds = result.ultraFeedItem.secondaryComments?.map((c: DbComment) => c._id) || [];
-            return {
-              ...baseDoc,
-              primaryDocumentId: result.ultraFeedItem.primaryPost._id,
-              primaryDocumentCollectionName: "Posts" as CollectionNameString,
-              secondaryDocumentIds: commentIds.length > 0 ? commentIds : null,
-              secondaryDocumentsCollectionName: commentIds.length > 0 ? "Comments" as CollectionNameString : null,
-            };
-          }
-          return null;
-        }).filter((item): item is NonNullable<typeof item> => item !== null);
-      
-      // Insert all feed item servings
-      if (feedItemServings.length > 0) {
-        try {
-          const bulkWriteOperations = feedItemServings.map(item => ({
-            insertOne: { document: item }
-          }));
-          await context.FeedItemServings.rawCollection().bulkWrite(bulkWriteOperations, { ordered: false });
-          console.log(`Successfully saved ${feedItemServings.length} feed item servings`);
-        } catch (err) {
-          console.error("Error saving feed item servings:", err);
-          // Continue execution even if saving fails
-        }
-      }
-
-      // In a real implementation with pagination, you would use the cutoff to determine
-      // where to start the next page. For now, we'll just return a simple response.
+      // Use the shared helper function to log feed item servings - fire and forget
+      void logFeedItemServings({
+        context,
+        userId: currentUser._id,
+        sessionId,
+        results: results.map(r => r?.ultraFeedItem ?? null),
+        isHistoryView: false // This is a normal feed view, not history
+      });
+      console.log("Triggered feed item servings logging");
       
       // Determine if there are likely more results that could be returned
-      // For this implementation, if we got fewer than the requested limit, we'll say there are no more
       const hasMoreResults = sampledItems.length >= limit;
       
       const response = {

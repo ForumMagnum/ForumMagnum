@@ -64,15 +64,8 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center'
   },
   ultraFeedNewContentContainer: {
-    borderLeft: `4px solid ${theme.palette.lwTertiary.main}`,
-    // marginTop: 50,
-    // paddingTop: 30,
-    // borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
   historyContainer: {
-    borderLeft: `4px solid ${theme.palette.grey[400]}`,
-    // marginTop: 50,
-    // paddingTop: 30,
   },
   endOfFeedContainer: {
     display: 'flex',
