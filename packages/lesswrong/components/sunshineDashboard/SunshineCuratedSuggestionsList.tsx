@@ -108,13 +108,15 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
     }
   }
 
+  const needsDraftsText = !timeForCuration && !hasDrafts ? " (No drafts!)" : "";
+
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate,
     LoadMore, LWTooltip, ForumIcon } = Components
 
   return (
     <div className={classNames(classes.root, statusClass)}>
       <SunshineListTitle>
-        <Link to={`/admin/curation`}>Suggestions for Curated</Link>
+        <Link to={`/admin/curation`}>Suggestions for Curated{needsDraftsText}</Link>
         <MetaInfo>
           <FormatDate date={curatedDate}/>
         </MetaInfo>
