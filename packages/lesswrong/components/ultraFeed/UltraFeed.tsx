@@ -271,9 +271,11 @@ const UltraFeedContent = ({classes}: {
       
       {ultraFeedEnabled && <>
         <SingleColumnSection>
+          {/* place this higher than top feed so it properly scrolls into view */}
+          <div ref={topSectionRef} />
           <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
           {/* New Content Section */}
-          <div ref={topSectionRef} className={classes.ultraFeedNewContentContainer}>
+          <div className={classes.ultraFeedNewContentContainer}>
             <MixedTypeFeed
               resolverName="UltraFeed"
               sortKeyType="Date"

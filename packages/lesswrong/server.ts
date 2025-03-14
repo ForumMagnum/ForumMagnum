@@ -135,6 +135,7 @@ import './server/resolvers/multiDocumentResolvers';
 import './server/resolvers/importUrlAsDraftPost';
 import './server/resolvers/lightcone2024FundraiserResolvers';
 import './server/resolvers/ultraFeedResolver';
+import './server/resolvers/ultraFeedHistoryResolver';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
