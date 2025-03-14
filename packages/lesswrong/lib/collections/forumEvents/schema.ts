@@ -185,7 +185,7 @@ const schema: SchemaType<"ForumEvents"> = {
     ...schemaDefaultValue(1),
     type: Number,
     optional: true,
-    group: formGroups.stickerEventOptions
+    group: () => formGroups.stickerEventOptions
   },
   customComponent: {
     ...defaultProps(true),

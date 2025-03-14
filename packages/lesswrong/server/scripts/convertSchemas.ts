@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { allSchemas, getSchema, getSimpleSchema } from '../../lib/schema/allSchemas';
 import { augmentSchemas } from '../resolvers/allFieldAugmentations';
+import { capitalize } from '@/lib/vulcan-lib/utils';
 
 // Run the augmentSchemas function to make sure all schemas are properly augmented
 augmentSchemas();
@@ -31,8 +32,8 @@ const databaseProps = [
 // Extract GraphQL field properties
 const graphqlProps = [
   'canRead',
-  ['canUpdate', []],
-  ['canCreate', []],
+  'canUpdate',
+  'canCreate',
   'onCreate',
   'onUpdate',
   'onDelete',
@@ -132,18 +133,28 @@ function spaces(n: number) {
   return ' '.repeat(n);
 }
 
+function getFillIfMissingInlineRepresentation(defaultValue: any) {
+  if (typeof defaultValue === 'string') {
+    return `"${defaultValue}"`;
+  }
+
+  if (Array.isArray(defaultValue) && defaultValue.length === 0) {
+    return '[]';
+  }
+
+  return defaultValue;
+}
+
 const defaultFieldValueSubstitutions = {
   onCreate: (context: FieldValueSubstitutionProps) => {
-    const { func, field } = context;
+    const { func, field, collectionName } = context;
     switch (func.name) {
       case 'fillIfMissing':
         const defaultValue = field.defaultValue;
         // TODO: some of these are evaluated constants; seems bad to lose the references.  What to do?
-        const inlineRepresentation = typeof defaultValue === 'string'
-          ? `"${defaultValue}"`
-          : defaultValue;
+        const inlineRepresentation = getFillIfMissingInlineRepresentation(defaultValue);
 
-        return `${func.name}(${inlineRepresentation})`;
+        return `get${capitalize(func.name)}(${inlineRepresentation})`;
 
       case 'denormalizedFieldOnCreate':
         // TODO: we should probably hoist these to named functions at the top level of the generated code
@@ -158,13 +169,13 @@ const defaultFieldValueSubstitutions = {
           ? `needsUpdate: ${formatValue(needsUpdate, context, 'needsUpdate')}`
           : '';
 
-        return `${func.name}({ ${getValuePart}${needsUpdatePart} })`;
+        return `get${capitalize(func.name)}<'${collectionName}'>({ ${getValuePart}${needsUpdatePart} })`;
       default:
         return func;
     }
   },
   onUpdate: (context: FieldValueSubstitutionProps) => {
-    const { func, field } = context;
+    const { func, field, collectionName } = context;
     switch (func.name) {
       case 'throwIfSetToNull':
         return func.name;
@@ -181,7 +192,7 @@ const defaultFieldValueSubstitutions = {
           ? `needsUpdate: ${formatValue(needsUpdate, context, 'needsUpdate')}`
           : '';
 
-        return `${func.name}({ ${getValuePart}${needsUpdatePart} })`;
+        return `get${capitalize(func.name)}<'${collectionName}'>({ ${getValuePart}${needsUpdatePart} })`;
       default:
         return func;
     }
@@ -192,13 +203,14 @@ const defaultFieldValueSubstitutions = {
       case 'normalizedEditableResolver':
       case 'revisionsResolver':
       case 'versionResolver':
-        return `${func.name}('${fieldName}')`;
+        return `get${capitalize(func.name)}('${fieldName}')`;
       case 'denormalizedEditableResolver':
-        return `${func.name}('${collectionName}', '${fieldName}')`;
+        return `get${capitalize(func.name)}('${collectionName}', '${fieldName}')`;
       case 'idResolverSingle':
-        return `generateIdResolverSingle('${collectionName}', '${fieldName}', ${field.nullable})`;
+        return `generateIdResolverSingle({ collectionName: '${collectionName}', fieldName: '${fieldName}', nullable: ${!!field.nullable} })`;
       case 'idResolverMulti':
-        return `generateIdResolverMulti('${collectionName}', '${fieldName}', /* getKey - only needed for bookmarkedPostsMetadata and hiddenPostsMetadata */)`;
+        const getKeyPart = fieldName === 'bookmarkedPostsMetadata' || fieldName === 'hiddenPostsMetadata' ? ', getKey: FILL_THIS_IN' : '';
+        return `generateIdResolverMulti({ collectionName: '${collectionName}', fieldName: '${fieldName}'${getKeyPart} })`;
       default:
         return func;
     }
@@ -206,14 +218,14 @@ const defaultFieldValueSubstitutions = {
   sqlResolver: ({ func, fieldName, collectionName, field }: FieldValueSubstitutionProps) => {
     switch (func.name) {
       case 'normalizedEditableSqlResolver':
-        return `${func.name}('${fieldName}')`;
+        return `get${capitalize(func.name)}('${fieldName}')`;
       case 'foreignKeySqlResolver':
         return `getForeignKeySqlResolver({ collectionName: '${collectionName}', nullable: ${field.nullable}, idFieldName: '${fieldName}' })`;
       default:
         return func;
     }
   },
-  sqlPostProcess: ({ func, fieldName }: FieldValueSubstitutionProps) => func,
+  sqlPostProcess: ({ func }: FieldValueSubstitutionProps) => func,
   getValue: (context: FieldValueSubstitutionProps) => {
     const { func, fieldName, collectionName, field } = context;
     switch (func.name) {
@@ -222,16 +234,46 @@ const defaultFieldValueSubstitutions = {
           throw new Error(`Count of references not found for field ${fieldName} in collection ${collectionName}`);
         }
         const { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } = field.countOfReferences;
-        const collectionNamePart = `\n${spaces(8)}collectionName: '${collectionName}',`;
-        const fieldNamePart = `\n${spaces(8)}fieldName: '${fieldName}',`;
-        const foreignCollectionNamePart = `\n${spaces(8)}foreignCollectionName: '${foreignCollectionName}',`;
-        const foreignFieldNamePart = `\n${spaces(8)}foreignFieldName: '${foreignFieldName}',`;
-        const filterFnPart = filterFn ? `\n${spaces(8)}filterFn: ${stringifyFunctionWithProperImports(filterFn)},` : '';
-        const resyncElasticPart = resyncElastic ? `\n${spaces(8)}resyncElastic: ${resyncElastic},` : '';
-        return `denormalizedCountOfReferencesGetValue({${collectionNamePart}${fieldNamePart}${foreignCollectionNamePart}${foreignFieldNamePart}${filterFnPart}${resyncElasticPart}\n${spaces(6)}})`;
+
+        const prefix = `\n${spaces(8)}`;
+        const collectionNamePart = `${prefix}collectionName: '${collectionName}',`;
+        const fieldNamePart = `${prefix}fieldName: '${fieldName}',`;
+        const foreignCollectionNamePart = `${prefix}foreignCollectionName: '${foreignCollectionName}',`;
+        const foreignFieldNamePart = `${prefix}foreignFieldName: '${foreignFieldName}',`;
+        const filterFnPart = filterFn ? `${prefix}filterFn: ${formatFunctionValue(filterFn, context, 'filterFn')},` : '';
+
+        const allParts = [
+          'getDenormalizedCountOfReferencesGetValue({',
+          collectionNamePart,
+          fieldNamePart,
+          foreignCollectionNamePart,
+          foreignFieldNamePart,
+          filterFnPart,
+          `\n${spaces(6)}})`,
+        ];
+
+        return allParts.join('');
       default:
         return func;
     }
+  },
+  getLocalStorageId: (context: FieldValueSubstitutionProps) => {
+    const { func, collectionName } = context;
+    switch (func.name) {
+      case 'defaultLocalStorageIdGenerator':
+        return `getDefaultLocalStorageIdGenerator('${collectionName}')`;
+      default:
+        return func;
+    }
+  },
+  filterFn: (context: FieldValueSubstitutionProps) => {
+    const { func, fieldName, collectionName, field } = context;
+    if (fieldName === 'voteCount') {
+      const originalFilterFnString = stringifyFunctionWithProperImports(func);
+      return originalFilterFnString.replace('=== collectionName', `=== '${collectionName}'`);
+    }
+    
+    return func;
   }
 }
 
@@ -245,7 +287,26 @@ function formatFunctionValue(value: Function, context: FieldValueSubstitutionPro
   }
 
   // Special case for function fields that should preserve their implementation
-  const functionImplementationFields = ['onCreate', 'onUpdate', 'onDelete', 'getValue', 'resolver', 'sqlResolver', 'sqlPostProcess', 'needsUpdate', 'hidden', 'options', 'filterFn'];
+  const functionImplementationFields = [
+    'onCreate',
+    'onUpdate',
+    'onDelete',
+    'getValue',
+    // TODO: figure out why this isn't replacing the `resolver` inside of sqlResolver
+    'resolver',
+    'sqlResolver',
+    'sqlPostProcess',
+    'needsUpdate',
+    'hidden',
+    'options',
+    'group',
+    'hintText',
+    'filterFn',
+    'getLocalStorageId',
+    'getTitle',
+    'canCreate',
+    'canUpdate',
+  ];
   const shouldPreserveFunctionImpl = propertyName && functionImplementationFields.includes(propertyName);
   
   if (value === String) return '"String"';
@@ -423,9 +484,7 @@ ${graphqlResolveAsContent.join('\n')}
 function convertDatabaseField(
   typeString: string,
   field: CollectionFieldSpecification<CollectionNameString>,
-  isArrayField: boolean,
   fieldName: string,
-  schema: SchemaType<CollectionNameString>,
   collectionName: CollectionNameString,
 ) {
   const context = { field, fieldName, collectionName };
@@ -434,7 +493,6 @@ function convertDatabaseField(
   const formSection = buildSection(formProps, 'form', field, context);
 
   const databaseContent = typeString ? [typeString, ...databaseSection] : databaseSection;
-  // const typeValueForGraphQL = getFieldTypeString(field, isArrayField, fieldName, schema, context);
   const simpleSchema = getSimpleSchema(collectionName)._schema;
   const typeValueForGraphQL = getGraphQLTypeString(simpleSchema, fieldName);
 
@@ -465,7 +523,6 @@ function checkIfArrayField(field: CollectionFieldSpecification<CollectionNameStr
 
 function convertResolverOnlyField(
   field: FieldWithResolveAs,
-  isArrayField: boolean,
   fieldName: string,
   collectionName: CollectionNameString,
 ) {
@@ -487,8 +544,8 @@ function convertResolverOnlyField(
     graphqlContent.push(`    sqlPostProcess: ${convertResolveAsFunction(context, 'sqlPostProcess')},`);
   }
 
-  const typeValue = field.type !== undefined ?
-    (isArrayField ? `    type: [${formatValue(field.type, context)}],` : `    type: ${formatValue(field.type, context)},`) : '';
+  const simpleSchema = getSimpleSchema(collectionName)._schema;
+  const typeValue = getGraphQLTypeString(simpleSchema, fieldName);
 
   const content = `  ${fieldName}: {
     graphql: {
@@ -563,11 +620,11 @@ function convertFieldToNewFormat(
 
   // Handle resolver-only fields
   if (fieldHasResolveAs(field) && !field.resolveAs.addOriginalField) {
-    return convertResolverOnlyField(field, isArrayField, fieldName, collectionName);
+    return convertResolverOnlyField(field, fieldName, collectionName);
   }
 
   // Handle regular field (without resolveAs or with resolveAs.addOriginalField=true)
-  const baseField = convertDatabaseField(typeString, field, isArrayField, fieldName, schema, collectionName);
+  const baseField = convertDatabaseField(typeString, field, fieldName, collectionName);
   
   result.push(baseField);
 
@@ -596,6 +653,8 @@ function convertSchemaToNewFormat(collectionName: CollectionNameString): void {
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+$REPLACE
+
 const schema: Record<string, NewCollectionFieldSpecification<'${collectionName}'>> = {
 `;
 
@@ -622,6 +681,35 @@ export default schema;
     console.warn(`Could not find collection directory for ${collectionName}, skipping...`);
     return;
   }
+
+  const originalSchemaPath = path.join(collectionDir, 'schema.ts');
+  const originalTsxSchemaPath = path.join(collectionDir, 'schema.tsx');
+  let originalSchemaContent;
+  if (fs.existsSync(originalSchemaPath)) {
+    originalSchemaContent = fs.readFileSync(originalSchemaPath, 'utf8');
+  } else if (fs.existsSync(originalTsxSchemaPath)) {
+    originalSchemaContent = fs.readFileSync(originalTsxSchemaPath, 'utf8');
+  } else {
+    console.warn(`Could not find original schema file for ${collectionName}, skipping...`);
+    return;
+  }
+
+  // Delete all instances of the strings '_formGroups.', '_instanceSettings.', '_betas.', '_constants.', and '_forumTheme.' from the new schema
+  newSchemaContent = newSchemaContent.replace(/_formGroups\./g, '');
+  newSchemaContent = newSchemaContent.replace(/_instanceSettings\./g, '');
+  newSchemaContent = newSchemaContent.replace(/_betas\./g, '');
+  newSchemaContent = newSchemaContent.replace(/_constants\./g, '');
+  newSchemaContent = newSchemaContent.replace(/_forumTheme\./g, '');
+
+  const originalSchemaLines = originalSchemaContent.split('\n');
+  const lineOfSchemaDeclaration = originalSchemaLines.findIndex(line => line.includes('const schema: SchemaType<'));
+  if (lineOfSchemaDeclaration === -1) {
+    console.warn(`Could not find schema declaration in ${originalSchemaPath}`);
+  }
+
+  const linesAboveSchemaDeclaration = lineOfSchemaDeclaration > 0 ? originalSchemaLines.slice(0, lineOfSchemaDeclaration) : [];
+  const linesAboveSchemaDeclarationString = linesAboveSchemaDeclaration.join('\n');
+  newSchemaContent = newSchemaContent.replace('$REPLACE', linesAboveSchemaDeclarationString);
 
   const outputPath = path.join(collectionDir, 'newSchema.ts');
   

@@ -36,7 +36,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
   }
 }
 
-const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
+export const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   collectionName, fieldName,
   getKey = ((a: any)=>a)
 }: {
@@ -102,7 +102,22 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   return restrictedDocs;
 }
 
-
+export function getForeignKeySqlResolver<CollectionName extends CollectionNameString>({ collectionName, nullable, idFieldName }: {
+  collectionName: CollectionName,
+  nullable: boolean,
+  idFieldName: string,
+}) {
+  return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionName>) {
+    return join<HasIdCollectionNames>({
+      table: collectionName,
+      type: nullable ? "left" : "inner",
+      on: {
+        _id: field(idFieldName as FieldName<CollectionName>),
+      },
+      resolver: (foreignField) => foreignField("*"),
+    });
+  }
+}
 
 /**
  * This field is stored in the database as a string, but resolved as the
@@ -150,24 +165,7 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
       // to make SQL resolvers useable by arbitrary resolvers then we (probably)
       // need to add some permission checks here somehow.
       ...(autoJoin ? {
-        sqlResolver: function getForeignKeySqlResolver<CollectionName extends CollectionNameString>({
-          collectionName, nullable, idFieldName
-        }: {
-          collectionName: CollectionName,
-          nullable: boolean,
-          idFieldName: string,
-        }) {
-          return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionName>) {
-            return join<HasIdCollectionNames>({
-              table: collectionName,
-              type: nullable ? "left" : "inner",
-              on: {
-                _id: field(idFieldName as FieldName<CollectionName>),
-              },
-              resolver: (foreignField) => foreignField("*"),
-            });
-          }
-        }
+        sqlResolver: getForeignKeySqlResolver({ collectionName, nullable, idFieldName }),
       } : {}),
       addOriginalField: true,
     },
@@ -353,6 +351,49 @@ SimpleSchema.extendOptions([
    'vectorSize'
 ]);
 
+type DenormalizedFieldOnCreate<N extends CollectionNameString> = (
+  { newDocument, context }: {
+    newDocument: ObjectsByCollectionName[N],
+    context: ResolverContext,
+  }
+) => any;
+
+type DenormalizedFieldOnUpdate<N extends CollectionNameString> = (
+  { data, document, context }: {
+    data: Partial<ObjectsByCollectionName[N]>,
+    document: ObjectsByCollectionName[N],
+    context: ResolverContext,
+  }
+) => any;
+
+export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ needsUpdate, getValue }: {
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+}): DenormalizedFieldOnCreate<N> {
+  return async function denormalizedFieldOnCreate({newDocument, context}: {
+    newDocument: ObjectsByCollectionName[N],
+    context: ResolverContext,
+  }) {
+    if (!needsUpdate || needsUpdate(newDocument)) {
+      return await getValue(newDocument, context)
+    }
+  }
+}
+
+export function getDenormalizedFieldOnUpdate<N extends CollectionNameString>({ needsUpdate, getValue }: {
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+}): DenormalizedFieldOnUpdate<N> {
+  return async function denormalizedFieldOnUpdate({data, document, context}: {
+    data: Partial<ObjectsByCollectionName[N]>,
+    document: ObjectsByCollectionName[N],
+    context: ResolverContext,
+  }) {
+    if (!needsUpdate || needsUpdate(data)) {
+      return await getValue(document, context)
+    }
+  }
+}
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of
@@ -364,28 +405,48 @@ export function denormalizedField<N extends CollectionNameString>({ needsUpdate,
   getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
 }): CollectionFieldSpecification<N> {
   return {
-    onUpdate: async function denormalizedFieldOnUpdate({data, document, context}: {
-      data: Partial<ObjectsByCollectionName[N]>,
-      document: ObjectsByCollectionName[N],
-      context: ResolverContext,
-    }) {
-      if (!needsUpdate || needsUpdate(data)) {
-        return await getValue(document, context)
-      }
-    },
-    onCreate: async function denormalizedFieldOnCreate({newDocument, context}: {
-      newDocument: ObjectsByCollectionName[N],
-      context: ResolverContext,
-    }) {
-      if (!needsUpdate || needsUpdate(newDocument)) {
-        return await getValue(newDocument, context)
-      }
-    },
+    onUpdate: getDenormalizedFieldOnUpdate({ needsUpdate, getValue }),
+    onCreate: getDenormalizedFieldOnCreate({ needsUpdate, getValue }),
     denormalized: true,
     canAutoDenormalize: true,
     optional: true,
     needsUpdate,
     getValue
+  }
+}
+
+export function getDenormalizedCountOfReferencesGetValue<
+  SourceCollectionName extends CollectionNameString,
+  TargetCollectionName extends CollectionNameString
+>({
+  collectionName,
+  fieldName,
+  foreignCollectionName,
+  foreignFieldName,
+  filterFn,
+}: {
+  collectionName: SourceCollectionName,
+  fieldName: string,
+  foreignCollectionName: TargetCollectionName,
+  foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
+  filterFn: (doc: ObjectsByCollectionName[TargetCollectionName]) => boolean,
+}) {
+  return async function denormalizedCountOfReferencesGetValue(doc: ObjectsByCollectionName[SourceCollectionName], context: ResolverContext) {
+    if (!isServer) {
+      throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
+    }
+    const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
+    const docsThatMayCount = await getWithLoader<TargetCollectionName>(
+      context,
+      foreignCollection,
+      `denormalizedCount_${collectionName}.${fieldName}`,
+      {},
+      foreignFieldName,
+      doc._id
+    );
+    
+    const docsThatCount = _.filter(docsThatMayCount, d=>filterFn(d));
+    return docsThatCount.length;
   }
 }
 
@@ -414,8 +475,6 @@ export function denormalizedCountOfReferences<
   resyncElastic?: boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
-
-  
   
   return {
     type: Number,
@@ -428,23 +487,13 @@ export function denormalizedCountOfReferences<
     denormalized: true,
     canAutoDenormalize: true,
     
-    getValue: async function denormalizedCountOfReferencesGetValue(doc: ObjectsByCollectionName[SourceCollectionName], context: ResolverContext) {
-      if (!isServer) {
-        throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
-      }
-      const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
-      const docsThatMayCount = await getWithLoader<TargetCollectionName>(
-        context,
-        foreignCollection,
-        `denormalizedCount_${collectionName}.${fieldName}`,
-        {},
-        foreignFieldName,
-        doc._id
-      );
-      
-      const docsThatCount = _.filter(docsThatMayCount, d=>filter(d));
-      return docsThatCount.length;
-    },
+    getValue: getDenormalizedCountOfReferencesGetValue({
+      collectionName,
+      fieldName,
+      foreignCollectionName,
+      foreignFieldName,
+      filterFn: filter,
+    }),
     
     countOfReferences: {
       foreignCollectionName,
@@ -461,34 +510,40 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]
   }
 }
-export function schemaDefaultValue<N extends CollectionNameString>(
-  defaultValue: any,
-): Partial<CollectionFieldSpecification<N>> {
-  const isForumSpecific = defaultValue instanceof DeferredForumSelect;
 
-  // Used for both onCreate and onUpdate
-  const fillIfMissing = ({ newDocument, fieldName }: {
+export function getFillIfMissing(defaultValue: any) {
+  return function fillIfMissing<N extends CollectionNameString>({ newDocument, fieldName }: {
     newDocument: ObjectsByCollectionName[N];
     fieldName: string;
-  }) => {
+  }) {
     if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
+      const isForumSpecific = defaultValue instanceof DeferredForumSelect;
       return isForumSpecific ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
     }
   };
-  const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
-    oldDocument: ObjectsByCollectionName[N];
-    document: ObjectsByCollectionName[N];
-    fieldName: string;
-  }) => {
-    const typedName = fieldName as keyof ObjectsByCollectionName[N];
-    const wasValid = oldDocument[typedName] !== undefined && oldDocument[typedName] !== null;
-    const isValid = document[typedName] !== undefined && document[typedName] !== null;
-    if (wasValid && !isValid) {
-      throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
-    }
-  };
+}
+
+export function throwIfSetToNull<N extends CollectionNameString>({ oldDocument, document, fieldName }: {
+  oldDocument: ObjectsByCollectionName[N];
+  document: ObjectsByCollectionName[N];
+  fieldName: string;
+}) {
+  const typedName = fieldName as keyof ObjectsByCollectionName[N];
+  const wasValid = oldDocument[typedName] !== undefined && oldDocument[typedName] !== null;
+  const isValid = document[typedName] !== undefined && document[typedName] !== null;
+  if (wasValid && !isValid) {
+    throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
+  }
+};
+
+export function schemaDefaultValue<N extends CollectionNameString>(
+  defaultValue: any,
+): Partial<CollectionFieldSpecification<N>> {
+  const isForumSpecific = defaultValue instanceof DeferredForumSelect;
+
+  const fillIfMissing = getFillIfMissing(defaultValue);
 
   return {
     defaultValue: isForumSpecific ? defaultValue.getDefault() : defaultValue,
@@ -554,7 +609,7 @@ export function slugFields<N extends CollectionNameWithSlug>(collectionName: N, 
   // If no collectionsToAvoidCollisionsWith are provided, just check for collisions within the same collection.
   collectionsToAvoidCollisionsWith ??= [collectionName];
 
-  const slugCallbackOptions: SlugCallbackOptions = {
+  const slugCallbackOptions: SlugCallbackOptions<N> = {
     collectionsToAvoidCollisionsWith,
     getTitle,
     onCollision,

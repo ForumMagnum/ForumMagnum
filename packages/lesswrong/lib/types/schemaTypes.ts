@@ -115,7 +115,7 @@ interface CountOfReferenceOptions {
   resyncElastic: boolean
 }
 
-interface SlugCallbackOptions {
+interface SlugCallbackOptions<N extends CollectionNameString> {
   /**
    * The collection to add slug fields to.
    */
@@ -131,7 +131,7 @@ interface SlugCallbackOptions {
    * Returns the title that will be used to generate slugs. (This does not have
    * to already be slugified.)
    */
-  getTitle: (obj: ObjectsByCollectionName[CollectionNameString] | DbInsertion<ObjectsByCollectionName[CollectionNameString]>) => string,
+  getTitle: (obj: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>) => string,
   
   /**
    * How to handle it when a newly created document's slug, or the new slug in
@@ -170,8 +170,8 @@ interface DatabaseFieldSpecification<N extends CollectionNameString> {
 interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
   inputType?: string,
   canRead: FieldPermissions,
-  canUpdate: FieldPermissions,
-  canCreate: FieldCreatePermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
   onCreate?: (args: {
     data: DbInsertion<ObjectsByCollectionName[N]>,
     currentUser: DbUser|null,
@@ -195,7 +195,7 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>, 
   countOfReferences?: CountOfReferenceOptions; 
   editableFieldOptions?: EditableFieldOptions; 
-  slugCallbackOptions?: SlugCallbackOptions; 
+  slugCallbackOptions?: SlugCallbackOptions<N>; 
 }
 
 interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> {
@@ -242,7 +242,7 @@ interface FormFieldSpecification<N extends CollectionNameString> {
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: FormGroupType<N>,     
+  group?: () => FormGroupType<N> | undefined,     
 }
 
 interface NewCollectionFieldSpecification<N extends CollectionNameString> {
@@ -319,7 +319,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: FormGroupType<N>,
+  group?: () => FormGroupType<N> | undefined,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
@@ -353,7 +353,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
 
   countOfReferences?: CountOfReferenceOptions;
   editableFieldOptions?: EditableFieldOptions;
-  slugCallbackOptions?: SlugCallbackOptions;
+  slugCallbackOptions?: SlugCallbackOptions<N>;
 }
 
 /** Field specification for a Form field, created from the collection schema */

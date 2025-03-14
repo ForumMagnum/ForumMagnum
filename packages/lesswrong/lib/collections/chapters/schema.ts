@@ -29,7 +29,7 @@ const schema: SchemaType<"Chapters"> = {
     canCreate: ['admins'],
     placeholder:"Title",
     order: 10,
-    group: formGroups.chapterDetails
+    group: () => formGroups.chapterDetails
   },
 
   subtitle: {
@@ -40,7 +40,7 @@ const schema: SchemaType<"Chapters"> = {
     canCreate: ['admins'],
     placeholder:"Subtitle",
     order: 20,
-    group: formGroups.chapterDetails
+    group: () => formGroups.chapterDetails
   },
 
   number: {
@@ -49,7 +49,7 @@ const schema: SchemaType<"Chapters"> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
-    group: formGroups.chapterDetails
+    group: () => formGroups.chapterDetails
   },
 
   sequenceId: {

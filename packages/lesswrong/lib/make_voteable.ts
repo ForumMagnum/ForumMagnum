@@ -182,7 +182,7 @@ export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
   };
 }
 
-async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
+export async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   if (!currentUser) return [];
   const votes = await getWithLoader(context, Votes,
@@ -198,7 +198,7 @@ async function getCurrentUserVotes<T extends DbVoteableType>(document: T, contex
   return await accessFilterMultiple(currentUser, 'Votes', votes, context);
 }
 
-async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
+export async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   const votes = await getWithLoader(context, Votes,
     "votesByDocument",
