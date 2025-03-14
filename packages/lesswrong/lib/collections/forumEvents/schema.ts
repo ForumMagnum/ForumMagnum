@@ -69,7 +69,7 @@ const schema: SchemaType<"ForumEvents"> = {
     },
     ...defaultEditableProps,
   }),
-  
+
   title: {
     ...defaultProps(),
     type: String,
@@ -180,6 +180,19 @@ const schema: SchemaType<"ForumEvents"> = {
     type: String,
     options: () => EVENT_FORMATS.map(ef => ({value: ef, label: ef}))
   },
+  ...editableFields("ForumEvents", {
+    fieldName: "pollQuestion",
+    label: "Poll question",
+    hintText: 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:pollQuestion:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    normalized: true,
+    ...defaultEditableProps,
+  }),
   maxStickersPerUser: {
     ...defaultProps(),
     ...schemaDefaultValue(1),

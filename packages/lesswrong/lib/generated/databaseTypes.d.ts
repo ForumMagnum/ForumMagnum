@@ -516,6 +516,7 @@ interface DbForumEvent extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number
+  pollQuestion_latest: string | null
   postId: string | null
   postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null
