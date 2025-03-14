@@ -25,7 +25,7 @@ export const PostsMinimumInfo = `
 
 export const PostsTopItemInfo = `
   fragment PostsTopItemInfo on Post {
-    ...PostsMinimumInfo
+    ...PostsListWithVotes
     ...PostsAuthors
     isRead
     contents {

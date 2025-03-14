@@ -760,6 +760,7 @@ importComponent("RecommendationsSamplePage", () => require("../../components/rec
 importComponent("SideRecommendation", () => require("../../components/recommendations/SideRecommendation.tsx"));
 importComponent("WelcomePostItem", () => require("../../components/recommendations/WelcomePostItem.tsx"));
 importComponent("AnnualReviewPage", () => require("../../components/review/AnnualReviewPage.tsx"));
+importComponent("BestOfLessWrongAdmin", () => require("../../components/review/BestOfLessWrongAdmin.tsx"));
 importComponent("BookCheckout", () => require("../../components/review/BookCheckout.tsx"));
 importComponent("FrontpageBestOfLWWidget", () => require("../../components/review/FrontpageBestOfLWWidget.tsx"));
 importComponent("FrontpageNominationPhase", () => require("../../components/review/FrontpageNominationPhaseDeprecated.tsx"));

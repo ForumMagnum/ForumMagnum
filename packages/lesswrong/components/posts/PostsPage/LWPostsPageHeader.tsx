@@ -140,11 +140,10 @@ const styles = (theme: ThemeType) => ({
     }
   },
   titleSectionWithSplashPageHeader: {
-    marginBottom: 140,
+    // marginBottom: 100,
   },
   rootWithSplashPageHeader: {
-    paddingTop: 350,
-    marginBottom: 140,
+    paddingTop: 450,
   }
 }); 
 

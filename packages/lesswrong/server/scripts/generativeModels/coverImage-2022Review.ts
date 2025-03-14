@@ -41,6 +41,7 @@ Here are some bad examples:
 1. A quill writing the word 'honor'
 2. A pile of resources dwindling
 3. A collection of books about Zen Buddhism
+4. A labryinth of choices
 
 Please generate 3 visual metaphors for the essay that will appear on Lesswrong. The essay will appear after the "===".
 

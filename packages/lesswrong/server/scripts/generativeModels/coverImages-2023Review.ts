@@ -14,15 +14,25 @@ import type { RunOptions, Result } from '@fal-ai/client';
 import { createAdminContext } from '../../vulcan-lib/query.ts';
 import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
+import SplashArtCoordinates from '../../../lib/collections/splashArtCoordinates/collection.ts';
 
 
 const promptImageUrls = [
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705201417/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_xvecay.png"
-  // "https://s.mj.run/W91s58GkTUs",
-  // "https://s.mj.run/D5okH4Ak-mw",
-  // "https://s.mj.run/1aM-y0W73aA",
-  //"https://s.mj.run/JAlgYmUiOdc", this is no longer available
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705201417/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_xvecay.png",
+
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915943/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_jwacbe.png",
+
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915926/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_zybtog.png",
+
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915911/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_j57fgb.png",
+
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915911/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_j57fgb.png"
 ]
+
+const prompter = (el: string) => {
+  const lowerCased = el[0].toLowerCase() + el.slice(1)
+  return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point, juxtaposition of hard and soft lines, muted colors, textured paper drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
+}
 
 export const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
 
@@ -88,6 +98,34 @@ const saveImage = async (prompt: string, essay: Essay, url: string) => {
       splashArtImageUrl: newUrl
     }
   })
+
+  // Add coordinates for the new art
+  if (reviewWinnerArt.data) {
+    await createMutator({
+      collection: SplashArtCoordinates,
+      context: createAdminContext(),
+      document: {
+        reviewWinnerArtId: reviewWinnerArt.data._id,
+        // These are example values - you may want to adjust these based on your needs
+        leftXPct: 0,
+        leftYPct: 0,
+        leftHeightPct: 100,
+        leftWidthPct: 33.33,
+        leftFlipped: false,
+        middleXPct: 33.33,
+        middleYPct: 0,
+        middleHeightPct: 100,
+        middleWidthPct: 33.33,
+        middleFlipped: false,
+        rightXPct: 66.66,
+        rightYPct: 0,
+        rightHeightPct: 100,
+        rightWidthPct: 33.33,
+        rightFlipped: false
+      }
+    });
+  }
+  
   return reviewWinnerArt
 }
 
@@ -167,16 +205,16 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
     const runOptions = {
       input: {
         prompt: prompt,
-        negative_prompt: "text, writing, words, low quality, blurry",
+        negative_prompt: "text, writing, words, low quality, blurry, abstract, pattern, labyrinth, maze, circles, orbs",
         num_inference_steps: 25,
         guidance_scale: 7.5,
-        aspect_ratio: "1:1",
+        aspect_ratio: "4:3" as const,
         image_size: {
-          width: 1200,
-          height: 1200
+          width: 2048,
+          height: 1536
         },
         image_url: imageUrl,
-        image_strength: 3
+        image_strength: 1
       }
     }
     const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
@@ -189,11 +227,6 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
     console.error('Error generating image:', error);
     throw error;
   }
-}
-
-const prompter = (el: string) => {
-  const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `Aquarelle artwork fading out to the left of ${lowerCased}, in the style of ethereal watercolor washes, juxtaposition of hard and soft lines, muted colors, textured paper drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white right side has a visceral motif, left fade right intense, image fades to white on left, left side white`
 }
 
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
@@ -214,7 +247,7 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
   const prompts = await getPrompts(openAiClient, essay)
 
   const results = Promise.all(prompts.map(async (prompt) => {
-    const image = await generateImage(prompt, promptImageUrls[0])
+    const image = await generateImage(prompt, sample(promptImageUrls)!)
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))
@@ -223,7 +256,7 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
 
 export const getReviewWinnerArts = async () => {
   console.log("Running getReviewWinnerArts")
-  const essays = (await getEssaysWithoutEnoughArt()).slice(0, 1)
+  const essays = (await getEssaysWithoutEnoughArt())
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');
@@ -232,8 +265,10 @@ export const getReviewWinnerArts = async () => {
   const results: EssayResult[][] = await Promise.all(essays.map(async (essay) => {
     return getArtForEssay(openAiClient, essay)
   }))
+
+
   // eslint-disable-next-line no-console
   console.log("\n\nResults:")
   // eslint-disable-next-line no-console
-  console.log(results)
+  console.log(results.map(r => r.map(r => r.reviewWinnerArt)))
 }

@@ -455,7 +455,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         <em> (#{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount})</em>
       </Link>
     </div>
-  );
+  ); 
 
   const imagePreviewAndCrop = (userIsAdminOrMod(currentUser) &&
     <div className={classes.rightSectionBelowBottomRow}>

@@ -2284,7 +2284,7 @@ interface PostsRevisionsList { // fragment on Posts
   readonly revisions: Array<RevisionMetadata>,
 }
 
-interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment on Posts
+interface PostsTopItemInfo extends PostsListWithVotes, PostsAuthors { // fragment on Posts
   readonly isRead: boolean|null,
   readonly contents: PostsTopItemInfo_contents|null,
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,

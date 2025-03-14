@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { useImageContext } from './ImageContext';
 import { useMulti } from '../../../lib/crud/withMulti';
 
@@ -14,6 +14,7 @@ const styles = (theme: ThemeType) => ({
     width: '200px',
     height: 'auto',
     cursor: 'pointer',
+    paddingRight: 5,
   },
   image: { 
     maxWidth: '100%',
@@ -25,8 +26,8 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
-
   const { setImageInfo } = useImageContext();
+  const { LWTooltip } = Components;
 
   const { results: images } = useMulti({
     collectionName: 'ReviewWinnerArts',
@@ -46,12 +47,13 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
         key={index}
         onClick={() => setImageInfo(image)}
       >
-        <img
-          src={image.splashArtImageUrl}
-          alt={`Selectable ${index}`}
-          className={classes.image}
-          title={`Prompt: ${image.splashArtImagePrompt || 'No prompt'}`}
-        />
+        <LWTooltip title={`Prompt: ${image.splashArtImagePrompt || 'No prompt found'}`} placement="left-start">
+          <img
+            src={image.splashArtImageUrl}
+            alt={`Selectable ${index}`}
+            className={classes.image}
+          />
+        </LWTooltip>
       </div>
       ))}
     </div>
