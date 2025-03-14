@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { Tablelvl2context } from "../TableBody/TableBody";
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiTableRow", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: 'inherit',
@@ -38,7 +38,7 @@ export const styles = theme => ({
   footer: {
     height: 56,
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Will automatically set dynamic row height
@@ -46,13 +46,14 @@ export const styles = theme => ({
  */
 function TableRow(props, context) {
   const {
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: Component='tr',
     hover=false,
     selected=false,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
   const tablelvl2 = useContext(Tablelvl2context)
 
   const className = classNames(
@@ -78,7 +79,7 @@ TableRow.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -98,4 +99,4 @@ TableRow.propTypes = {
   selected: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiTableRow' })(TableRow);
+export default TableRow;

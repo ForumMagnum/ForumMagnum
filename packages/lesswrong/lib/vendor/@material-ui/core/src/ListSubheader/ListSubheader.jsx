@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListSubheader", theme => ({
   /* Styles applied to the root element. */
   root: {
     boxSizing: 'border-box',
@@ -36,11 +36,11 @@ export const styles = theme => ({
     zIndex: 1,
     backgroundColor: 'inherit',
   },
-});
+}), {stylePriority: -10});
 
 function ListSubheader(props) {
   const {
-    classes,
+    classes: classesOverrides,
     className,
     color='default',
     component: Component='li',
@@ -49,6 +49,7 @@ function ListSubheader(props) {
     inset=false,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Component
@@ -76,7 +77,7 @@ ListSubheader.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -106,4 +107,4 @@ ListSubheader.propTypes = {
 
 ListSubheader.muiName = 'ListSubheader';
 
-export default withStyles(styles, { name: 'MuiListSubheader' })(ListSubheader);
+export default ListSubheader;

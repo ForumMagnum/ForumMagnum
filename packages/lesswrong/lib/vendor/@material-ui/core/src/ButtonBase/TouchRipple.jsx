@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import TransitionGroup from 'react-transition-group/TransitionGroup';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import Ripple from './Ripple';
 
 const DURATION = 550;
 export const DELAY_RIPPLE = 80;
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiTouchRipple", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'block',
@@ -92,7 +92,7 @@ export const styles = theme => ({
       transform: 'scale(1)',
     },
   },
-});
+}), {stylePriority: -10});
 
 class TouchRipple extends React.PureComponent {
   // Used to filter out mouse emulated events on mobile.
@@ -277,7 +277,7 @@ TouchRipple.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -288,4 +288,4 @@ TouchRipple.defaultProps = {
   center: false,
 };
 
-export default withStyles(styles, { flip: false, name: 'MuiTouchRipple' })(TouchRipple);
+export default withStyles(styles, TouchRipple);

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = {
+export const styles = defineStyles("MuiDialogContent", theme => ({
   /* Styles applied to the root element. */
   root: {
     flex: '1 1 auto',
@@ -14,10 +14,11 @@ export const styles = {
       paddingTop: 24,
     },
   },
-};
+}), {stylePriority: -10});
 
 function DialogContent(props) {
-  const { classes, children, className, ...other } = props;
+  const { classes: classesOverrides, children, className, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -35,11 +36,11 @@ DialogContent.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
   className: PropTypes.string,
 };
 
-export default withStyles(styles, { name: 'MuiDialogContent' })(DialogContent);
+export default DialogContent;

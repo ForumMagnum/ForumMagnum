@@ -4,7 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import getScrollbarSize from 'dom-helpers/util/scrollbarSize';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import Popover from '../Popover';
 import MenuList from '../MenuList';
 
@@ -18,7 +19,7 @@ const LTR_ORIGIN = {
   horizontal: 'left',
 };
 
-export const styles = {
+export const styles = defineStyles("MuiMenu", theme => ({
   /* Styles applied to the `Paper` component. */
   paper: {
     // specZ: The maximum height of a simple menu should be one or more rows less than the view
@@ -28,7 +29,7 @@ export const styles = {
     // Add iOS momentum scrolling.
     WebkitOverflowScrolling: 'touch',
   },
-};
+}), {stylePriority: -10});
 
 class Menu extends React.Component {
   componentDidMount() {
@@ -146,7 +147,7 @@ Menu.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * If `true`, the selected / first menu item will not be auto focused.
    */
@@ -216,4 +217,4 @@ Menu.defaultProps = {
   transitionDuration: 'auto',
 };
 
-export default withStyles(styles, { name: 'MuiMenu', withTheme: true })(Menu);
+export default withTheme(Menu);

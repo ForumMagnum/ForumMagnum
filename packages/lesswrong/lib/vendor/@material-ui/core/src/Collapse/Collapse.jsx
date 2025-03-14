@@ -4,11 +4,12 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Transition from 'react-transition-group/Transition';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import { duration } from '../styles/transitions';
 import { getTransitionProps } from '../transitions/utils';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiCollapse", theme => ({
   /* Styles applied to the container element. */
   container: {
     height: 0,
@@ -28,7 +29,7 @@ export const styles = theme => ({
   wrapperInner: {
     width: '100%',
   },
-});
+}), {stylePriority: -10});
 
 /**
  * The Collapse transition is used by the
@@ -189,7 +190,7 @@ Collapse.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -256,7 +257,4 @@ Collapse.defaultProps = {
 
 Collapse.muiSupportAuto = true;
 
-export default withStyles(styles, {
-  withTheme: true,
-  name: 'MuiCollapse',
-})(Collapse);
+export default withTheme(withStyles(styles, Collapse));

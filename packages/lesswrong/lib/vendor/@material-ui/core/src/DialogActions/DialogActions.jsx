@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { cloneChildrenWithClassName } from '../utils/reactHelpers';
 
-export const styles = {
+export const styles = defineStyles("MuiDialogActions", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'flex',
@@ -17,10 +17,11 @@ export const styles = {
   action: {
     margin: '0 4px',
   },
-};
+}), {stylePriority: -10});
 
 function DialogActions(props) {
-  const { disableActionSpacing=false, children, classes, className, ...other } = props;
+  const { disableActionSpacing=false, children, classes: classesOverrides, className, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -38,7 +39,7 @@ DialogActions.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -49,4 +50,4 @@ DialogActions.propTypes = {
   disableActionSpacing: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiDialogActions' })(DialogActions);
+export default DialogActions;

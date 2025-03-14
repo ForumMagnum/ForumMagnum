@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Typography from '../Typography';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiCardHeader", theme => ({
   /* Styles applied to the root element. */
   root: theme.mixins.gutters({
     display: 'flex',
@@ -35,13 +35,13 @@ export const styles = theme => ({
   title: {},
   /* Styles applied to the subheader Typography element. */
   subheader: {},
-});
+}), {stylePriority: -10});
 
 function CardHeader(props) {
   const {
     action,
     avatar,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: Component = "div",
     disableTypography=false,
@@ -51,6 +51,7 @@ function CardHeader(props) {
     titleTypographyProps,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   let title = titleProp;
   if (title != null && title.type !== Typography && !disableTypography) {
@@ -106,7 +107,7 @@ CardHeader.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -143,4 +144,4 @@ CardHeader.propTypes = {
   titleTypographyProps: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiCardHeader' })(CardHeader);
+export default CardHeader;

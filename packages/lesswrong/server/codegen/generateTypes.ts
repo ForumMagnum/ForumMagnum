@@ -29,43 +29,64 @@ function enumerateFiles(dirPath: string): string[] {
   return fileList;
 }
 
+const componentsDirs = [
+  'packages/lesswrong/components', 'packages/lesswrong/lib/vendor/@material-ui'
+];
 function generateAllComponentsVite(): string {
   return `// Generated file - run "yarn generate" to update\n` +
-    enumerateFiles("packages/lesswrong/components")
-      .filter(f => f.endsWith(".tsx"))
+    componentsDirs.flatMap(dir => enumerateFiles(dir))
+      .filter(f => f.endsWith(".tsx") || f.endsWith(".jsx"))
       .map(f => {
-        const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
-        return `import "${relativePath}"`;
+        const content = fs.readFileSync(f, 'utf-8');
+        const relativePath = path.relative('packages/lesswrong/lib/generated', f);
+        
+        if (shouldImportInAllComponents(content)) {
+          return `import "${relativePath}"`;
+        } else {
+          return null;
+        }
       })
+      .filter(l => l !== null)
       .join("\n")
       + "\n\n";
 }
 
 function generateAllComponents(): string {
-  const componentsDir = "packages/lesswrong/components";
   const header = `// Generated file - run "yarn generate" to update
 import { importComponent } from '../vulcan-lib/components';
 
 `;
 
-  return header + enumerateFiles(componentsDir)
-    .filter(f => f.endsWith(".tsx"))
-    .map(f => {
-      const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
-      const content = fs.readFileSync(f, 'utf-8');
-      const components = extractComponentNames(content);
-      
-      if (components.length === 0) return null;
-      
-      const componentArg = components.length === 1 
-        ? `"${components[0]}"` 
-        : `[${components.map(c => `"${c}"`).join(', ')}]`;
-      
-      return `importComponent(${componentArg}, () => require("${relativePath}"));`;
-    })
-    .filter(line => line !== null)
-    .join("\n")
-    + "\n\n";
+  return header +
+    componentsDirs.flatMap(dir => enumerateFiles(dir))
+      .filter(f => f.endsWith(".tsx") || f.endsWith(".jsx"))
+      .map(f => {
+        const relativePath = path.relative('packages/lesswrong/lib/generated', f);
+        const content = fs.readFileSync(f, 'utf-8');
+        if (!shouldImportInAllComponents(content)) {
+          return null;
+        }
+        const components = extractComponentNames(content);
+        
+        const componentArg = components.length === 1 
+          ? `"${components[0]}"` 
+          : `[${components.map(c => `"${c}"`).join(', ')}]`;
+        
+        return `importComponent(${componentArg}, () => require("${relativePath}"));`;
+      })
+      .filter(line => line !== null)
+      .join("\n")
+      + "\n\n";
+}
+
+function shouldImportInAllComponents(content: string): boolean {
+  const registerComponentRegex = /registerComponent\s*(<\s*\w*\s*>)?\s*\(\s*["'](\w+)["']/gm;
+  if (registerComponentRegex.exec(content) !== null)
+    return true;
+  const defineStylesRegex = /defineStyles\s*\(/;
+  if (defineStylesRegex.exec(content) !== null)
+    return true;
+  return false;
 }
 
 function extractComponentNames(content: string): string[] {

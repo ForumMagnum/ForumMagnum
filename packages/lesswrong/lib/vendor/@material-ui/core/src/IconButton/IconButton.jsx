@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiIconButton", theme => ({
   /* Styles applied to the root element. */
   root: {
     textAlign: 'center',
@@ -70,14 +70,15 @@ export const styles = theme => ({
     alignItems: 'inherit',
     justifyContent: 'inherit',
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Refer to the [Icons](/style/icons) section of the documentation
  * regarding the available icon options.
  */
 function IconButton(props) {
-  const { children, classes, className, color="default", disabled=false, ...other } = props;
+  const { children, classes: classesOverrides, className, color="default", disabled=false, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <ButtonBase
@@ -108,7 +109,7 @@ IconButton.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -127,4 +128,4 @@ IconButton.propTypes = {
   disableRipple: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiIconButton' })(IconButton);
+export default IconButton;

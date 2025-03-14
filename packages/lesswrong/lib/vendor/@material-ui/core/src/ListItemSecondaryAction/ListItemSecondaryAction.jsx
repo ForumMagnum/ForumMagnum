@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = {
+export const styles = defineStyles("MuiListItemSecondaryAction", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'absolute',
@@ -11,10 +11,11 @@ export const styles = {
     top: '50%',
     transform: 'translateY(-50%)',
   },
-};
+}), {stylePriority: -10});
 
 function ListItemSecondaryAction(props) {
-  const { children, classes, className, ...other } = props;
+  const { children, classes: classesOverrides, className, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -32,7 +33,7 @@ ListItemSecondaryAction.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -41,4 +42,4 @@ ListItemSecondaryAction.propTypes = {
 
 ListItemSecondaryAction.muiName = 'ListItemSecondaryAction';
 
-export default withStyles(styles, { name: 'MuiListItemSecondaryAction' })(ListItemSecondaryAction);
+export default ListItemSecondaryAction;

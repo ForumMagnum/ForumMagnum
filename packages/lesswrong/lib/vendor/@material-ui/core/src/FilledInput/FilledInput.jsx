@@ -4,9 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import InputBase from '../InputBase';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => {
+export const styles = defineStyles("MuiFilledInput", theme => {
   const light = theme.palette.type === 'light';
   const bottomLineColor = light ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.7)';
 
@@ -116,7 +116,7 @@ export const styles = theme => {
       paddingRight: 0,
     },
   };
-};
+}, {stylePriority: -10});
 
 function FilledInput(props) {
   const { fullWidth=false, inputComponent="input", multiline=false, type="text", classes, ...other } = props;
@@ -153,7 +153,7 @@ FilledInput.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The CSS class name of the wrapper element.
    */
@@ -258,4 +258,4 @@ FilledInput.propTypes = {
 
 FilledInput.muiName = 'Input';
 
-export default withStyles(styles, { name: 'MuiFilledInput' })(FilledInput);
+export default withStyles(styles, FilledInput);

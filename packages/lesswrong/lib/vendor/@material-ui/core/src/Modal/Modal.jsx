@@ -8,7 +8,7 @@ import ownerDocument from '../utils/ownerDocument';
 import RootRef from '../RootRef';
 import Portal from '../Portal';
 import { createChainedFunction } from '../utils/helpers';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import ModalManager from './ModalManager';
 import Backdrop from '../Backdrop';
 
@@ -21,7 +21,7 @@ function getHasTransition(props) {
   return props.children ? props.children.props.hasOwnProperty('in') : false;
 }
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiModal", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'fixed',
@@ -35,7 +35,7 @@ export const styles = theme => ({
   hidden: {
     visibility: 'hidden',
   },
-});
+}), {stylePriority: -10});
 
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== 'production' && !React.createContext) {
@@ -326,7 +326,7 @@ Modal.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -427,4 +427,4 @@ Modal.defaultProps = {
   BackdropComponent: Backdrop,
 };
 
-export default withStyles(styles, { flip: false, name: 'MuiModal' })(Modal);
+export default withStyles(styles, Modal);

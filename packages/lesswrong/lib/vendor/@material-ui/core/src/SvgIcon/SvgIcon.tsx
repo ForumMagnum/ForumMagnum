@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 
-export const styles = (theme: any) => ({
+export const styles = defineStyles("MuiSvgIcon", (theme: any) => ({
   /* Styles applied to the root element. */
   root: {
     userSelect: 'none',
@@ -50,12 +50,12 @@ export const styles = (theme: any) => ({
   fontSizeLarge: {
     fontSize: 36,
   },
-});
+}), {stylePriority: -10});
 
 function SvgIcon(props: any) {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className,
     color='inherit',
     component: Component='svg',
@@ -65,6 +65,7 @@ function SvgIcon(props: any) {
     viewBox='0 0 24 24',
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Component
@@ -98,7 +99,7 @@ SvgIcon.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -138,4 +139,4 @@ SvgIcon.propTypes = {
 
 SvgIcon.muiName = 'SvgIcon';
 
-export default withStyles(styles as any, { name: 'MuiSvgIcon' })(SvgIcon);
+export default SvgIcon;

@@ -4,12 +4,12 @@ import classNames from 'classnames';
 import keycode from 'keycode';
 import warning from 'warning';
 import CancelIcon from '../internal/svg-icons/Cancel';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { emphasize, fade } from '../styles/colorManipulator';
 import unsupportedProp from '../utils/unsupportedProp';
 import { capitalize } from '../utils/helpers';
 
-export const styles = theme => {
+export const styles = defineStyles("MuiChip", theme => {
   const height = 32;
   const backgroundColor =
     theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700];
@@ -216,7 +216,7 @@ export const styles = theme => {
       },
     },
   };
-};
+}, {stylePriority: -10});
 
 /**
  * Chips represent complex entities in small blocks, such as a contact.
@@ -400,7 +400,7 @@ Chip.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -466,4 +466,4 @@ Chip.defaultProps = {
   variant: 'default',
 };
 
-export default withStyles(styles, { name: 'MuiChip' })(Chip);
+export default withStyles(styles, Chip);

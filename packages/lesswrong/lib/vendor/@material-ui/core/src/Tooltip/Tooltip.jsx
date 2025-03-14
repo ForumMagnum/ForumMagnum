@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import warning from 'warning';
 import classNames from 'classnames';
 import RootRef from '../RootRef';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import { capitalize } from '../utils/helpers';
 import exactProp from '../utils/exactProp';
 import Grow from '../Grow';
 import Popper from '../Popper';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiTooltip", theme => ({
   /* Styles applied to the Popper component. */
   popper: {
     zIndex: theme.zIndex.tooltip,
@@ -64,7 +65,7 @@ export const styles = theme => ({
       margin: '14px 0',
     },
   },
-});
+}), {stylePriority: -10});
 
 class Tooltip extends React.Component {
   ignoreNonTouchEvents = false;
@@ -345,7 +346,7 @@ Tooltip.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * Do not respond to focus events.
    */
@@ -451,4 +452,4 @@ Tooltip.defaultProps = {
   TransitionComponent: Grow,
 };
 
-export default withStyles(styles, { name: 'MuiTooltip', withTheme: true })(Tooltip);
+export default withTheme(withStyles(styles, Tooltip));

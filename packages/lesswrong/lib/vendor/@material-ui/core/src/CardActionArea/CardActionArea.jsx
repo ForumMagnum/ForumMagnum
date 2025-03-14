@@ -3,10 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ButtonBase from '../ButtonBase';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiCardActionArea", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'block',
@@ -34,10 +34,11 @@ export const styles = theme => ({
       duration: theme.transitions.duration.short,
     }),
   },
-});
+}), {stylePriority: -10});
 
 function CardActionArea(props) {
-  const { children, classes, className, focusVisibleClassName, ...other } = props;
+  const { children, classes: classesOverrides, className, focusVisibleClassName, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <ButtonBase
@@ -60,7 +61,7 @@ CardActionArea.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -71,4 +72,4 @@ CardActionArea.propTypes = {
   focusVisibleClassName: PropTypes.string,
 };
 
-export default withStyles(styles, { name: 'MuiCardActionArea' })(CardActionArea);
+export default CardActionArea;

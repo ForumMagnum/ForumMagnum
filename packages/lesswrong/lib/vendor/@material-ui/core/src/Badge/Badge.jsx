@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 
 const RADIUS = 11;
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiBadge", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'relative',
@@ -50,18 +50,19 @@ export const styles = theme => ({
     backgroundColor: theme.palette.error.main,
     color: theme.palette.error.contrastText,
   },
-});
+}), {styleProprity: -10});
 
 function Badge(props) {
   const {
     badgeContent,
     children,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     color="default",
     component: ComponentProp = "span",
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const badgeClassName = classNames(classes.badge, {
     [classes[`color${capitalize(color)}`]]: color !== 'default',
@@ -88,7 +89,7 @@ Badge.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -104,4 +105,4 @@ Badge.propTypes = {
   component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
 };
 
-export default withStyles(styles, { name: 'MuiBadge' })(Badge);
+export default Badge;

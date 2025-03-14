@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { formControlState } from '../InputBase/InputBase';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiFormHelperText", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: theme.palette.text.secondary,
@@ -40,11 +40,11 @@ export const styles = theme => ({
   filled: {},
   /* Styles applied to the root element if `required={true}`. */
   required: {},
-});
+}), {stylePriority: -10});
 
 function FormHelperText(props, context) {
   const {
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: Component = "p",
     disabled,
@@ -56,6 +56,7 @@ function FormHelperText(props, context) {
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const fcs = formControlState({
     props,
@@ -92,7 +93,7 @@ FormHelperText.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -137,4 +138,4 @@ FormHelperText.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormHelperText' })(FormHelperText);
+export default FormHelperText;

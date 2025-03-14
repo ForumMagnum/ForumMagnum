@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isFilled, isAdornedStart } from '../InputBase/utils';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 import { isMuiElement } from '../utils/reactHelpers';
 
-export const styles = {
+export const styles = defineStyles("MuiFormControl", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -33,7 +33,7 @@ export const styles = {
   fullWidth: {
     width: '100%',
   },
-};
+}), {stylePriority: -10});
 
 /**
  * Provides context such as filled/focused/error/required for form inputs.
@@ -158,7 +158,7 @@ FormControl.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -208,4 +208,4 @@ FormControl.childContextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormControl' })(FormControl);
+export default withStyles(styles, FormControl);

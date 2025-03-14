@@ -6,9 +6,9 @@ import CheckBoxOutlineBlankIcon from '../internal/svg-icons/CheckBoxOutlineBlank
 import CheckBoxIcon from '../internal/svg-icons/CheckBox';
 import IndeterminateCheckBoxIcon from '../internal/svg-icons/IndeterminateCheckBox';
 import { capitalize } from '../utils/helpers';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiCheckbox", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: theme.palette.text.secondary,
@@ -37,12 +37,12 @@ export const styles = theme => ({
       color: theme.palette.action.disabled,
     },
   },
-});
+}), {stylePriority: -10});
 
 function Checkbox(props) {
   const {
     checkedIcon=<CheckBoxIcon />,
-    classes,
+    classes: classesOverrides,
     className,
     color='secondary',
     icon=<CheckBoxOutlineBlankIcon />,
@@ -51,6 +51,7 @@ function Checkbox(props) {
     inputProps,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <SwitchBase
@@ -90,7 +91,7 @@ Checkbox.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -152,4 +153,4 @@ Checkbox.propTypes = {
   value: PropTypes.string,
 };
 
-export default withStyles(styles, { name: 'MuiCheckbox' })(Checkbox);
+export default Checkbox;

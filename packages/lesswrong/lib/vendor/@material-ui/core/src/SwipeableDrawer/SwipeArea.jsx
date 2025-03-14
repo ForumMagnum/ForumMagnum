@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 import { isHorizontal } from '../Drawer/Drawer';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiSwipeArea", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'fixed',
@@ -30,13 +30,14 @@ export const styles = theme => ({
     bottom: 0,
     right: 0,
   },
-});
+}), {stylePriority: -10});
 
 /**
  * @ignore - internal component.
  */
 function SwipeArea(props) {
-  const { anchor, classes, width, ...other } = props;
+  const { anchor, classes: classesOverrides, width, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <div
@@ -57,7 +58,7 @@ SwipeArea.propTypes = {
   /**
    * @ignore
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The width of the left most (or right most) area in pixels where the
    * drawer can be swiped open from.
@@ -65,4 +66,4 @@ SwipeArea.propTypes = {
   width: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(SwipeArea);
+export default SwipeArea;

@@ -3,22 +3,23 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import KeyboardArrowLeft from '../internal/svg-icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '../internal/svg-icons/KeyboardArrowRight';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ButtonBase from '../ButtonBase';
 
-export const styles = {
+export const styles = defineStyles("MuiTabScrollButton", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: 'inherit',
     flex: '0 0 56px',
   },
-};
+}), {stylePriority: -10});
 
 /**
  * @ignore - internal component.
  */
 function TabScrollButton(props) {
-  const { classes, className: classNameProp, direction, onClick, visible, ...other } = props;
+  const { classes: classesOverrides, className: classNameProp, direction, onClick, visible, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const className = classNames(classes.root, classNameProp);
 
@@ -38,7 +39,7 @@ TabScrollButton.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -61,4 +62,4 @@ TabScrollButton.defaultProps = {
   visible: true,
 };
 
-export default withStyles(styles, { name: 'MuiTabScrollButton' })(TabScrollButton);
+export default TabScrollButton;

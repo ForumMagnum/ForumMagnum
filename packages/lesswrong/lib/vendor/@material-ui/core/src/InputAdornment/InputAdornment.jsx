@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Typography from '../Typography';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = {
+export const styles = defineStyles("MuiInputAdornment", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'flex',
@@ -26,19 +26,20 @@ export const styles = {
   positionEnd: {
     marginLeft: 8,
   },
-};
+}), {stylePriority: -10});
 
 function InputAdornment(props) {
   const {
     children,
     component: Component = "div",
-    classes,
+    classes: classesOverrides,
     className,
     disableTypography=false,
     position,
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Component
@@ -71,7 +72,7 @@ InputAdornment.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -95,4 +96,4 @@ InputAdornment.propTypes = {
   variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
 };
 
-export default withStyles(styles, { name: 'MuiInputAdornment' })(InputAdornment);
+export default InputAdornment;

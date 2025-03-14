@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiButton", theme => ({
   /* Styles applied to the root element. */
   root: {
     ...theme.typography.button,
@@ -208,12 +208,12 @@ export const styles = theme => ({
   fullWidth: {
     width: '100%',
   },
-});
+}), {stylePriority: -10});
 
 function Button(props) {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     color='default',
     disabled=false,
@@ -227,6 +227,7 @@ function Button(props) {
     type="button",
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const fab = variant === 'fab' || variant === 'extendedFab';
   const contained = variant === 'contained' || variant === 'raised';
@@ -284,7 +285,7 @@ Button.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -351,4 +352,4 @@ Button.propTypes = {
   ]),
 };
 
-export default withStyles(styles, { name: 'MuiButton' })(Button);
+export default Button;

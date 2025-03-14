@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 
-export const styles = theme => ({
+export const styles = defineStyles("Typography", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'block',
@@ -93,12 +93,12 @@ export const styles = theme => ({
   colorError: {
     color: theme.palette.error.main,
   },
-});
+}), {stylePriority: -10});
 
 function Typography(props) {
   const {
     align='inherit',
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     color='default',
     component: componentProp,
@@ -119,6 +119,7 @@ function Typography(props) {
     variant='body1',
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const className = classNames(
     classes.root,
@@ -151,7 +152,7 @@ Typography.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -212,4 +213,4 @@ Typography.propTypes = {
   ]),
 };
 
-export default withStyles(styles, { name: 'MuiTypography' })(Typography);
+export default withStyles(styles, Typography);

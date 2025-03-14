@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = {
+export const styles = defineStyles("MuiList", theme => ({
   /* Styles applied to the root element. */
   root: {
     listStyle: 'none',
@@ -25,12 +25,12 @@ export const styles = {
   subheader: {
     paddingTop: 0,
   },
-};
+}), {stylePriority: -10});
 
 const List = (props) => {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: Component = 'ul',
     dense=false,
@@ -38,6 +38,7 @@ const List = (props) => {
     subheader,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
   const className = classNames(
     classes.root,
     {
@@ -65,7 +66,7 @@ List.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -91,4 +92,4 @@ List.propTypes = {
   subheader: PropTypes.node,
 };
 
-export default withStyles(styles, { name: 'MuiList' })(List);
+export default List;

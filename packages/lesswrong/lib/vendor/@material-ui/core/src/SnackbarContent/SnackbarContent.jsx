@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Paper from '../Paper';
 import Typography from '../Typography';
 import { emphasize } from '../styles/colorManipulator';
 
-export const styles = theme => {
+export const styles = defineStyles("MuiSnackbarContent", theme => {
   const emphasis = theme.palette.type === 'light' ? 0.8 : 0.98;
   const backgroundColor = emphasize(theme.palette.background.default, emphasis);
 
@@ -43,10 +43,11 @@ export const styles = theme => {
       marginRight: -8,
     },
   };
-};
+}, {stylePriority: -10});
 
 function SnackbarContent(props) {
-  const { action, classes, className, message, ...other } = props;
+  const { action, classes: classesOverrides, className, message, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Paper
@@ -75,7 +76,7 @@ SnackbarContent.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -86,4 +87,4 @@ SnackbarContent.propTypes = {
   message: PropTypes.node,
 };
 
-export default withStyles(styles, { name: 'MuiSnackbarContent' })(SnackbarContent);
+export default SnackbarContent;

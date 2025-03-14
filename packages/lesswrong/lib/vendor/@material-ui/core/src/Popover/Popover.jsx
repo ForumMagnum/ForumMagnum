@@ -8,7 +8,7 @@ import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce 
 import EventListener from 'react-event-listener';
 import ownerDocument from '../utils/ownerDocument';
 import ownerWindow from '../utils/ownerWindow';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import Modal from '../Modal';
 import Grow from '../Grow';
 import Paper from '../Paper';
@@ -65,7 +65,7 @@ function getAnchorEl(anchorEl) {
   return typeof anchorEl === 'function' ? anchorEl() : anchorEl;
 }
 
-export const styles = {
+export const styles = defineStyles("MuiPopover", theme => ({
   /* Styles applied to the `Paper` component. */
   paper: {
     position: 'absolute',
@@ -80,7 +80,7 @@ export const styles = {
     // We disable the focus ring for mouse, touch and keyboard users.
     outline: 'none',
   },
-};
+}), {stylePriority: -10});
 
 class Popover extends React.Component {
   handleGetOffsetTop = getOffsetTop;
@@ -400,7 +400,7 @@ Popover.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * A node, component instance, or function that returns either.
    * The `container` will passed to the Modal component.
@@ -521,4 +521,4 @@ Popover.defaultProps = {
   transitionDuration: 'auto',
 };
 
-export default withStyles(styles, { name: 'MuiPopover' })(Popover);
+export default withStyles(styles, Popover);

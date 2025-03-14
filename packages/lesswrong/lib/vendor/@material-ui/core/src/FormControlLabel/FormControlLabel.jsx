@@ -3,10 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Typography from '../Typography';
 
-export const styles = theme => ({
+export const styles = defineStyles("FormControlLabel", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -36,7 +36,7 @@ export const styles = theme => ({
       color: theme.palette.text.disabled,
     },
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Drop in replacement of the `Radio`, `Switch` and `Checkbox` component.
@@ -45,7 +45,7 @@ export const styles = theme => ({
 function FormControlLabel(props, context) {
   const {
     checked,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     control,
     disabled: disabledProp,
@@ -57,6 +57,7 @@ function FormControlLabel(props, context) {
     value,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
   const { muiFormControl } = context;
 
   let disabled = disabledProp;
@@ -108,7 +109,7 @@ FormControlLabel.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -155,4 +156,4 @@ FormControlLabel.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormControlLabel' })(FormControlLabel);
+export default FormControlLabel;

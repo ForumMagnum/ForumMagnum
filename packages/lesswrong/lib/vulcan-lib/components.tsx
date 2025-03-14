@@ -71,6 +71,7 @@ const PreparedComponents: Record<string,any> = {};
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
 export const DeferredComponentsTable: Record<string,() => void> = {};
+let stylesheetOnlyComponentFileImports: Array<() => void> = [];
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -148,8 +149,12 @@ const debugComponentImports = false;
 
 export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
   if (Array.isArray(componentName)) {
-    for (let name of componentName) {
-      DeferredComponentsTable[name] = importFn;
+    if (componentName.length > 0) {
+      for (let name of componentName) {
+        DeferredComponentsTable[name] = importFn;
+      }
+    } else {
+      stylesheetOnlyComponentFileImports.push(importFn)
     }
   } else {
     DeferredComponentsTable[componentName] = importFn;
@@ -159,6 +164,10 @@ export function importComponent(componentName: keyof ComponentTypes|Array<keyof 
 export function importAllComponents() {
   for (let componentName of Object.keys(DeferredComponentsTable)) {
     prepareComponent(componentName);
+  }
+  for (const importFn of stylesheetOnlyComponentFileImports) {
+    importFn();
+    stylesheetOnlyComponentFileImports = [];
   }
 }
 

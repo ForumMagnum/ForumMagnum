@@ -2,16 +2,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Typography from '../Typography';
 
-export const styles = {
+export const styles = defineStyles("MuiDialogContentText", theme => ({
   /* Styles applied to the root element. */
   root: {},
-};
+}), {stylePriority: -10});
 
 function DialogContentText(props) {
-  return <Typography component="p" variant="subheading" color="textSecondary" {...props} />;
+  const classes = useStyles(styles, props.classes);
+  return <Typography component="p" variant="subheading" color="textSecondary" classes={classes} {...props} />;
 }
 
 DialogContentText.propTypes = {
@@ -23,7 +24,7 @@ DialogContentText.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiDialogContentText' })(DialogContentText);
+export default DialogContentText;

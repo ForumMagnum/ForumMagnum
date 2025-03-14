@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Fade from '../Fade';
 
-export const styles = {
+export const styles = defineStyles("MuiBackdrop", (theme) => ({
   /* Styles applied to the root element. */
   root: {
     zIndex: -1,
@@ -23,10 +23,11 @@ export const styles = {
   invisible: {
     backgroundColor: 'transparent',
   },
-};
+}), {stylePriority: -10});
 
 function Backdrop(props) {
-  const { classes, className, invisible=false, open, transitionDuration, ...other } = props;
+  const { classes: classesOverrides, className, invisible=false, open, transitionDuration, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Fade in={open} timeout={transitionDuration} {...other}>
@@ -46,11 +47,6 @@ function Backdrop(props) {
 }
 
 Backdrop.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
   /**
    * @ignore
    */
@@ -74,4 +70,4 @@ Backdrop.propTypes = {
   ]),
 };
 
-export default withStyles(styles, { name: 'MuiBackdrop' })(Backdrop);
+export default Backdrop;

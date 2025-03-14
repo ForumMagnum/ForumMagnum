@@ -7,7 +7,7 @@ import EventListener from 'react-event-listener';
 import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
 import Transition from 'react-transition-group/Transition';
 import ownerWindow from '../utils/ownerWindow';
-import withTheme from '../styles/withTheme';
+import { withTheme } from '@/components/themes/useTheme';
 import { duration } from '../styles/transitions';
 import { reflow, getTransitionProps } from '../transitions/utils';
 
@@ -281,4 +281,4 @@ Slide.defaultProps = {
   },
 };
 
-export default withTheme()(Slide);
+export default withTheme(Slide);

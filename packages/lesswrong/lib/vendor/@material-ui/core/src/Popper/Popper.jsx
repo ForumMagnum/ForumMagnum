@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import PopperJS from 'popper.js';
-import withTheme from '../styles/withTheme';
+import { withTheme } from '@/components/themes/useTheme';
 import Portal from '../Portal';
 
 function flipPlacement(theme, placement) {
@@ -274,4 +274,4 @@ Popper.defaultProps = {
   transition: false,
 };
 
-export default withTheme()(Popper);
+export default withTheme(Popper);

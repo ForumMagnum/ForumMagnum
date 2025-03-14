@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Transition from 'react-transition-group/Transition';
 import { duration } from '../styles/transitions';
-import withTheme from '../styles/withTheme';
+import { withTheme } from '@/components/themes/useTheme';
 import { reflow, getTransitionProps } from '../transitions/utils';
 
 const styles = {
@@ -117,4 +117,4 @@ Fade.defaultProps = {
   },
 };
 
-export default withTheme()(Fade);
+export default withTheme(Fade);

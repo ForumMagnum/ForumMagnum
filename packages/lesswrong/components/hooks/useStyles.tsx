@@ -37,6 +37,12 @@ export const defineStyles = <T extends string>(
   styles: (theme: ThemeType) => JssStyles<T>,
   options?: StyleOptions
 ): StyleDefinition<T> => {
+  if (typeof name !== 'string') {
+    throw new Error("defineStyles first argument is not a string");
+  }
+  if (!styles) {
+    throw new Error("defineStyles second argument is not a stylesheet");
+  }
   const definition: StyleDefinition<T> = {
     name,
     styles,
@@ -94,7 +100,7 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
   }
 }
 
-export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyles<T> => {
+export const useStyles = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
@@ -114,7 +120,19 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyl
   if (!styles.nameProxy) {
     styles.nameProxy = classNameProxy(styles.name+"-");
   }
-  return styles.nameProxy;
+  if (overrideClasses) {
+    return overrideClassesProxy(styles.name+"-", overrideClasses);
+  } else {
+    return styles.nameProxy;
+  }
+}
+
+export const withStyles = (styles: StyleDefinition, Component: AnyBecauseHard) => {
+  return function WithStylesHoc(props: AnyBecauseHard) {
+    const { classes: classesOverrides } = props;
+    const classes = useStyles(styles, classesOverrides);
+    return <Component {...props} classes={classes} />
+  }
 }
 
 export const withAddClasses = (
@@ -145,6 +163,22 @@ export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy
         return prefix+prop;
       else
         return prefix+'invalid';
+    }
+  });
+}
+
+export const overrideClassesProxy = <T extends string>(prefix: string, overrideClasses: Partial<JssStyles<T>>): ClassNameProxy<T> => {
+  return new Proxy({}, {
+    get: function(obj: any, prop: any) {
+      if (typeof prop === "string") {
+        if (prop in overrideClasses) {
+          return `${prefix}${prop} ${overrideClasses[prop as T]!}`;
+        } else {
+          return prefix+prop;
+        }
+      } else {
+        return prefix+'invalid';
+      }
     }
   });
 }

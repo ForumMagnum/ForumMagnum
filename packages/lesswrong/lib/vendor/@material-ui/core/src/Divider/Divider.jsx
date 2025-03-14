@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { fade } from '../styles/colorManipulator';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiDivider", theme => ({
   /* Styles applied to the root element. */
   root: {
     height: 1,
@@ -28,18 +28,19 @@ export const styles = theme => ({
   light: {
     backgroundColor: fade(theme.palette.divider, 0.08),
   },
-});
+}), {stylePriority: -10});
 
 function Divider(props) {
   const {
     absolute=false,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: Component='hr',
     inset=false,
     light=false,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const className = classNames(
     classes.root,
@@ -60,7 +61,7 @@ Divider.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -80,4 +81,4 @@ Divider.propTypes = {
   light: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiDivider' })(Divider);
+export default Divider;

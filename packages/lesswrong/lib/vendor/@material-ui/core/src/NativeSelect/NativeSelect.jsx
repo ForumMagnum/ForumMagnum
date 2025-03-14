@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import NativeSelectInput from './NativeSelectInput';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { formControlState } from '../InputBase/InputBase';
 import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
 import Input from '../Input';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiNativeSelect", theme => ({
   /* Styles applied to the `Input` component `root` class. */
   root: {
     position: 'relative',
@@ -74,13 +74,14 @@ export const styles = theme => ({
     color: theme.palette.action.active,
     'pointer-events': 'none', // Don't block pointer events on the select under the icon.
   },
-});
+}), {stylePriority: -10});
 
 /**
  * An alternative to `<Select native />` with a much smaller bundle size footprint.
  */
 function NativeSelect(props, context) {
-  const { children, classes, IconComponent=ArrowDropDownIcon, input = <Input />, inputProps, variant, ...other } = props;
+  const { children, classes: classesOverrides, IconComponent=ArrowDropDownIcon, input = <Input />, inputProps, variant, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
   const fcs = formControlState({
     props,
     context,
@@ -114,7 +115,7 @@ NativeSelect.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The icon that displays the arrow.
    */
@@ -150,4 +151,4 @@ NativeSelect.contextTypes = {
 
 NativeSelect.muiName = 'Select';
 
-export default withStyles(styles, { name: 'MuiNativeSelect' })(NativeSelect);
+export default NativeSelect;

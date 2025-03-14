@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withStyles } from '../styles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import { capitalize } from '../utils/helpers';
 
-export const styles = theme => {
+export const styles = defineStyles("MuiNotchedOutline", theme => {
   const light = theme.palette.type === 'light';
   const align = theme.direction === 'rtl' ? 'right' : 'left';
 
@@ -59,7 +60,7 @@ export const styles = theme => {
       borderColor: theme.palette.action.disabled,
     },
   };
-};
+}, {stylePriority: -10});
 
 /**
  * @ignore - internal component.
@@ -67,7 +68,7 @@ export const styles = theme => {
 function NotchedOutline(props) {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className,
     disabled,
     error,
@@ -78,6 +79,7 @@ function NotchedOutline(props) {
     theme,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const align = theme.direction === 'rtl' ? 'right' : 'left';
   const labelWidth = labelWidthProp > 0 ? labelWidthProp * 0.75 + 8 : 0;
@@ -153,4 +155,4 @@ NotchedOutline.propTypes = {
   theme: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiNotchedOutline', withTheme: true })(NotchedOutline);
+export default withTheme(NotchedOutline);

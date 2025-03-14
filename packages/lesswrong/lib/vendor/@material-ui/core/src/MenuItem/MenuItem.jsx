@@ -3,10 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ListItem from '../ListItem';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiMenuItem", theme => ({
   /* Styles applied to the root element. */
   root: {
     ...theme.typography.subheading,
@@ -22,10 +22,11 @@ export const styles = theme => ({
   },
   /* Styles applied to the root element if `selected={true}`. */
   selected: {},
-});
+}), {stylePriority: -10});
 
 function MenuItem(props) {
-  const { classes, className, component='li', selected, role='menuitem', ...other } = props;
+  const { classes: classesOverrides, className, component='li', selected, role='menuitem', ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <ListItem
@@ -49,7 +50,7 @@ MenuItem.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -69,4 +70,4 @@ MenuItem.propTypes = {
   selected: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiMenuItem' })(MenuItem);
+export default MenuItem;

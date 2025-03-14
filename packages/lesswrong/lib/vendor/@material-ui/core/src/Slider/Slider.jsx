@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import keycode from 'keycode';
 import classNames from 'classnames';
-import withStyles from '@/lib/vendor/@material-ui/core/src/styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
 import { fade } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
 import clamp from '../utils/clamp';
 
-export const styles = theme => {
+export const styles = defineStyles("MuiSlider", theme => {
   const commonTransitionsOptions = {
     duration: theme.transitions.duration.shortest,
     easing: theme.transitions.easing.easeOut,
@@ -135,7 +136,7 @@ export const styles = theme => {
     /* Class applied to the root, track and container to trigger JSS nested styles if `vertical`. */
     vertical: {},
   };
-};
+}, {stylePriority: -10});
 
 function percentToValue(percent, min, max) {
   return ((max - min) * percent) / 100 + min;
@@ -498,7 +499,7 @@ Slider.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -563,4 +564,4 @@ Slider.defaultProps = {
   component: 'div',
 };
 
-export default withStyles(styles, { name: 'MuiSlider', withTheme: true })(Slider);
+export default withTheme(withStyles(styles, Slider));

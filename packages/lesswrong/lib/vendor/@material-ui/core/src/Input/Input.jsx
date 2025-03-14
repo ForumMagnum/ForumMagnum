@@ -4,9 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import InputBase from '../InputBase';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => {
+export const styles = defineStyles("MuiInput", theme => {
   const light = theme.palette.type === 'light';
   const bottomLineColor = light ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.7)';
 
@@ -86,10 +86,11 @@ export const styles = theme => {
     /* Styles applied to the `input` element if `type="search"`. */
     inputTypeSearch: {},
   };
-};
+}, {stylePriority: -10});
 
 function Input(props) {
-  const { disableUnderline, fullWidth=false, inputComponent="input", multiline=false, type="text" classes, ...other } = props;
+  const { disableUnderline, fullWidth=false, inputComponent="input", multiline=false, type="text", classes: classesOverrides, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <InputBase
@@ -125,7 +126,7 @@ Input.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The CSS class name of the wrapper element.
    */
@@ -234,4 +235,4 @@ Input.propTypes = {
 
 Input.muiName = 'Input';
 
-export default withStyles(styles, { name: 'MuiInput' })(Input);
+export default Input;

@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ButtonBase from '../ButtonBase';
 import { isMuiElement } from '../utils/reactHelpers';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListItem", theme => ({
   /* Styles applied to the (normally root) `component` element. May be wrapped by a `container`. */
   root: {
     display: 'flex',
@@ -71,13 +71,13 @@ export const styles = theme => ({
   },
   /* Styles applied to the root element if `selected={true}`. */
   selected: {},
-});
+}), {stylePriority: -10});
 
 const ListItem = (props) => {
   const {
     button=false,
     children: childrenProp,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: componentProp,
     ContainerComponent='li',
@@ -90,6 +90,7 @@ const ListItem = (props) => {
     selected=false,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const isDense = dense;
   const children = React.Children.toArray(childrenProp);
@@ -164,7 +165,7 @@ ListItem.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -210,4 +211,4 @@ ListItem.propTypes = {
   selected: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiListItem' })(ListItem);
+export default ListItem;

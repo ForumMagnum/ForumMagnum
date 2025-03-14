@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Typography from '../Typography';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListItemText", theme => ({
   /* Styles applied to the root element. */
   root: {
     flex: '1 1 auto',
@@ -38,12 +38,12 @@ export const styles = theme => ({
   },
   /* Styles applied to the `Typography` components if `context.dense` is `true`. */
   textDense: {},
-});
+}), {stylePriority: -10});
 
 function ListItemText(props) {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     disableTypography=false,
     inset=false,
@@ -53,6 +53,7 @@ function ListItemText(props) {
     secondaryTypographyProps,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   let primary = primaryProp != null ? primaryProp : children;
   if (primary != null && primary.type !== Typography && !disableTypography) {
@@ -111,7 +112,7 @@ ListItemText.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -148,4 +149,4 @@ ListItemText.propTypes = {
   secondaryTypographyProps: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiListItemText' })(ListItemText);
+export default ListItemText;

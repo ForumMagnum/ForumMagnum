@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
 import unsupportedProp from '../utils/unsupportedProp';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiTab", theme => ({
   /* Styles applied to the root element. */
   root: {
     ...theme.typography.button,
@@ -97,7 +97,7 @@ export const styles = theme => ({
       fontSize: theme.typography.pxToRem(12),
     },
   },
-});
+}), {stylePriority: -10});
 
 class Tab extends React.Component {
   state = {
@@ -217,7 +217,7 @@ Tab.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -271,4 +271,4 @@ Tab.defaultProps = {
   textColor: 'inherit',
 };
 
-export default withStyles(styles, { name: 'MuiTab' })(Tab);
+export default withStyles(styles, Tab);

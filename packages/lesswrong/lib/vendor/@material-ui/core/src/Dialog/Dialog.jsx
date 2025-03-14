@@ -3,14 +3,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 import Modal from '../Modal';
 import Fade from '../Fade';
 import { duration } from '../styles/transitions';
 import Paper from '../Paper';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiDialog", theme => ({
   /* Styles applied to the root element. */
   root: {},
   /* Styles applied to the root element if `scroll="paper"`. */
@@ -95,7 +95,7 @@ export const styles = theme => ({
       margin: 0,
     },
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Dialogs are overlaid modal paper based components with a backdrop.
@@ -104,7 +104,7 @@ function Dialog(props) {
   const {
     BackdropProps,
     children,
-    classes,
+    classes: classesOverrides,
     className,
     disableBackdropClick=false,
     disableEscapeKeyDown=false,
@@ -128,6 +128,7 @@ function Dialog(props) {
     TransitionProps,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Modal
@@ -186,7 +187,7 @@ Dialog.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -283,4 +284,4 @@ Dialog.propTypes = {
   TransitionProps: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiDialog' })(Dialog);
+export default Dialog;

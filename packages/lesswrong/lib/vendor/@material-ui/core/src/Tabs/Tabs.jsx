@@ -9,11 +9,12 @@ import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce 
 import { getNormalizedScrollLeft, detectScrollType } from 'normalize-scroll-left';
 import animate from '../internal/animate';
 import ScrollbarSize from './ScrollbarSize';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import TabIndicator from './TabIndicator';
 import TabScrollButton from './TabScrollButton';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiTabs", theme => ({
   /* Styles applied to the root element. */
   root: {
     overflow: 'hidden',
@@ -54,7 +55,7 @@ export const styles = theme => ({
   },
   /* Styles applied to the `TabIndicator` component. */
   indicator: {},
-});
+}), {stylePriority: -10});
 
 class Tabs extends React.Component {
   valueToIndex = new Map();
@@ -401,7 +402,7 @@ Tabs.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -473,4 +474,4 @@ Tabs.defaultProps = {
   textColor: 'inherit',
 };
 
-export default withStyles(styles, { name: 'MuiTabs', withTheme: true })(Tabs);
+export default withTheme(withStyles(styles, Tabs));

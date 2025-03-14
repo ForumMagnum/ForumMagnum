@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
 import EventListener from 'react-event-listener';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { setRef } from '../utils/reactHelpers';
 
 const ROWS_HEIGHT = 19;
 
-export const styles = {
+export const styles = defineStyles("MuiTextarea", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'relative', // because the shadow has position: 'absolute',
@@ -37,7 +37,7 @@ export const styles = {
     height: 'auto',
     whiteSpace: 'pre-wrap',
   },
-};
+}), {stylePriority: -10});
 
 /**
  * @ignore - internal component.
@@ -192,7 +192,7 @@ Textarea.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -231,4 +231,4 @@ Textarea.defaultProps = {
   rows: 1,
 };
 
-export default withStyles(styles)(Textarea);
+export default withStyles(styles, Textarea);

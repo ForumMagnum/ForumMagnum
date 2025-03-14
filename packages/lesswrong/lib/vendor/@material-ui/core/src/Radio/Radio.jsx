@@ -5,9 +5,9 @@ import SwitchBase from '../internal/SwitchBase';
 import RadioButtonUncheckedIcon from '../internal/svg-icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '../internal/svg-icons/RadioButtonChecked';
 import { capitalize } from '../utils/helpers';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiRadio", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: theme.palette.text.secondary,
@@ -34,10 +34,11 @@ export const styles = theme => ({
       color: theme.palette.action.disabled,
     },
   },
-});
+}), {stylePriority: -10});
 
 function Radio(props) {
-  const { classes, color="secondary", ...other } = props;
+  const { classes: classesOverrides, color="secondary", ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <SwitchBase
@@ -67,7 +68,7 @@ Radio.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The color of the component. It supports those theme colors that make sense for this component.
    */
@@ -114,4 +115,4 @@ Radio.propTypes = {
   value: PropTypes.string,
 };
 
-export default withStyles(styles, { name: 'MuiRadio' })(Radio);
+export default Radio;

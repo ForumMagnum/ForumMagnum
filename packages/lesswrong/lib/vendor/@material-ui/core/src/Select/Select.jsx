@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import SelectInput from './SelectInput';
-import withStyles from '../styles/withStyles';
+import { useStyles } from "@/components/hooks/useStyles";
 import mergeClasses from '../styles/mergeClasses';
 import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
 // To replace with InputBase in v4.0.0
@@ -18,7 +18,7 @@ function Select(props, context) {
   const {
     autoWidth,
     children,
-    classes,
+    classes: classesOverrides,
     displayEmpty,
     IconComponent,
     input,
@@ -34,6 +34,7 @@ function Select(props, context) {
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const inputComponent = native ? NativeSelectInput : SelectInput;
   const fcs = formControlState({
@@ -93,7 +94,7 @@ Select.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * If `true`, the selected item is displayed even if its value is empty.
    * You can only use it when the `native` property is `false` (default).
@@ -195,4 +196,4 @@ Select.contextTypes = {
 
 Select.muiName = 'Select';
 
-export default withStyles(nativeSelectStyles, { name: 'MuiSelect' })(Select);
+export default Select;

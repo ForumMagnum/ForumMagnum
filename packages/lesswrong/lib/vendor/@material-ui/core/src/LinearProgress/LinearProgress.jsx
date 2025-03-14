@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import warning from 'warning';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { lighten } from '../styles/colorManipulator';
 
 const TRANSITION_DURATION = 4; // seconds
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiLinearProgress", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'relative',
@@ -154,7 +154,7 @@ export const styles = theme => ({
       backgroundPosition: '-200px -23px',
     },
   },
-});
+}), {stylePriority: -10});
 
 /**
  * ## ARIA
@@ -164,7 +164,8 @@ export const styles = theme => ({
  * attribute to `true` on that region until it has finished loading.
  */
 function LinearProgress(props) {
-  const { classes, className: classNameProp, color="primary", value, valueBuffer, variant="indeterminate", ...other } = props;
+  const { classes: classesOverrides, className: classNameProp, color="primary", value, valueBuffer, variant="indeterminate", ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const className = classNames(
     classes.root,
@@ -239,7 +240,7 @@ LinearProgress.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -265,4 +266,4 @@ LinearProgress.propTypes = {
   variant: PropTypes.oneOf(['determinate', 'indeterminate', 'buffer', 'query']),
 };
 
-export default withStyles(styles, { name: 'MuiLinearProgress' })(LinearProgress);
+export default withStyles(styles, LinearProgress);

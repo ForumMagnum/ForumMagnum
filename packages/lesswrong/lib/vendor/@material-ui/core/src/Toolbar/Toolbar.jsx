@@ -18,7 +18,7 @@ export const styles = defineStyles("MuiToolbar", theme => ({
   dense: {
     minHeight: 48,
   },
-}));
+}), {stylePriority: -10});
 
 function Toolbar(props) {
   const { children, className: classNameProp, disableGutters=false, variant="regular", ...other } = props;

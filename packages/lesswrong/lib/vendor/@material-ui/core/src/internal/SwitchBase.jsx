@@ -3,10 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import IconButton from '../IconButton';
 
-export const styles = {
+export const styles = defineStyles("MuiSwitchBase", theme => ({
   root: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -29,7 +29,7 @@ export const styles = {
     margin: 0,
     padding: 0,
   },
-};
+}), {stylePriority: -10});
 
 /**
  * @ignore - internal component.
@@ -174,7 +174,7 @@ SwitchBase.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -254,4 +254,4 @@ SwitchBase.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiSwitchBase' })(SwitchBase);
+export default withStyles(styles, SwitchBase);

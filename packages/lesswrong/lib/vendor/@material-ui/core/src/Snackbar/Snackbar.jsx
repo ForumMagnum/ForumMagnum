@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import EventListener from 'react-event-listener';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { duration } from '../styles/transitions';
 import ClickAwayListener from '../ClickAwayListener';
 import { capitalize, createChainedFunction } from '../utils/helpers';
 import Slide from '../Slide';
 import SnackbarContent from '../SnackbarContent';
 
-export const styles = theme => {
+export const styles = defineStyles("MuiSnackbar", theme => {
   const gutter = 24;
   const top = { top: 0 };
   const bottom = { bottom: 0 };
@@ -91,7 +91,7 @@ export const styles = theme => {
       },
     },
   };
-};
+}, {stylePriority: -10});
 
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== 'production' && !React.createContext) {
@@ -300,7 +300,7 @@ Snackbar.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -413,4 +413,4 @@ Snackbar.defaultProps = {
   },
 };
 
-export default withStyles(styles, { flip: false, name: 'MuiSnackbar' })(Snackbar);
+export default withStyles(styles, Snackbar);

@@ -1,20 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import Typography from '../Typography';
 
-export const styles = {
+export const styles = defineStyles("MuiDialogTitle", theme => ({
   /* Styles applied to the root element. */
   root: {
     margin: 0,
     padding: '24px 24px 20px',
     flex: '0 0 auto',
   },
-};
+}), {stylePriority: -10});
 
 function DialogTitle(props) {
-  const { children, classes, className, disableTypography=false, ...other } = props;
+  const { children, classes: classesOverrides, className, disableTypography=false, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -32,7 +33,7 @@ DialogTitle.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -44,4 +45,4 @@ DialogTitle.propTypes = {
   disableTypography: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiDialogTitle' })(DialogTitle);
+export default DialogTitle;

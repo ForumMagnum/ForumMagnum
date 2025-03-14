@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { setRef } from '../utils/reactHelpers';
 import Textarea from './Textarea';
 import { isFilled } from './utils';
 
-export const styles = theme => {
+export const styles = defineStyles("MuiInputBase", theme => {
   const light = theme.palette.type === 'light';
   const placeholder = {
     color: 'currentColor',
@@ -132,7 +132,7 @@ export const styles = theme => {
     /* Styles applied to the `input` element if `endAdornment` is provided. */
     inputAdornedEnd: {},
   };
-};
+}, {stylePriority: -10});
 
 export function formControlState({ props, states, context }) {
   return states.reduce((acc, state) => {
@@ -471,7 +471,7 @@ InputBase.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The CSS class name of the wrapper element.
    */
@@ -617,4 +617,4 @@ InputBase.childContextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiInputBase' })(InputBase);
+export default withStyles(styles, InputBase);

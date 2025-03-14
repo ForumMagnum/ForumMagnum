@@ -1,7 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-// Adds selected MUI components to global styles.
-// import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
@@ -12,7 +10,6 @@ import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
@@ -68,10 +65,6 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
-    {Object.keys(usedMuiStyles).map((componentName: string) => {
-      const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
-      return <StyledComponent key={componentName}/>
-    })}
     {stylesByNameAndPriority.map((name: string) => {
       const styles = allStyles[name]!.styles
       const StyledComponent = withStyles(styles as any, {name})(DummyComponent)

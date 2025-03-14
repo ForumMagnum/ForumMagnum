@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiTable", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'table',
@@ -12,12 +12,13 @@ export const styles = theme => ({
     borderCollapse: 'collapse',
     borderSpacing: 0,
   },
-});
+}), {stylePriority: -10});
 
 export const TableContext = React.createContext();
 
 const Table = (props) => {
-  const { classes, className, component: Component, padding, ...other } = props;
+  const { classes: classesOverrides, className, component: Component, padding, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return <TableContext.Provider value={{table: {padding: props.padding}}}>
     <Component className={classNames(classes.root, className)} {...other} />
@@ -33,7 +34,7 @@ Table.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -54,4 +55,4 @@ Table.defaultProps = {
   padding: 'default',
 };
 
-export default withStyles(styles, { name: 'MuiTable' })(Table);
+export default Table;

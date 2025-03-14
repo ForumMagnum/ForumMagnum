@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Modal from '../Modal';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { withTheme } from "@/components/themes/useTheme";
 import Slide from '../Slide';
 import Paper from '../Paper';
 import { capitalize } from '../utils/helpers';
@@ -25,7 +26,7 @@ export function getAnchor(props) {
     : props.anchor;
 }
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiDrawer", theme => ({
   /* Styles applied to the root element if `variant="permanent or persistent"`. */
   docked: {
     flex: '0 0 auto',
@@ -93,7 +94,7 @@ export const styles = theme => ({
   },
   /* Styles applied to the `Modal` component. */
   modal: {},
-});
+}), {stylePriority: -10});
 
 /**
  * The properties of the [Modal](/api/modal) component are available
@@ -203,7 +204,7 @@ Drawer.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -260,4 +261,4 @@ Drawer.defaultProps = {
   variant: 'temporary', // Mobile first.
 };
 
-export default withStyles(styles, { name: 'MuiDrawer', flip: false, withTheme: true })(Drawer);
+export default withTheme(withStyles(styles, Drawer));

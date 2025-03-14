@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { capitalize } from '../utils/helpers';
 import SwitchBase from '../internal/SwitchBase';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiSwitch", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -97,10 +97,11 @@ export const styles = theme => ({
       theme.palette.type === 'light' ? theme.palette.common.black : theme.palette.common.white,
     opacity: theme.palette.type === 'light' ? 0.38 : 0.3,
   },
-});
+}), {stylePriority: -10});
 
 function Switch(props) {
-  const { classes, className, color="secondary", ...other } = props;
+  const { classes: classesOverrides, className, color="secondary", ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <span className={classNames(classes.root, className)}>
@@ -133,7 +134,7 @@ Switch.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -188,4 +189,4 @@ Switch.propTypes = {
   value: PropTypes.string,
 };
 
-export default withStyles(styles, { name: 'MuiSwitch' })(Switch);
+export default Switch;

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import warning from 'warning';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = {
+export const styles = defineStyles("MuiCardMeta", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'block',
@@ -16,12 +16,13 @@ export const styles = {
   media: {
     width: '100%',
   },
-};
+}), {stylePriority: -10});
 
 const MEDIA_COMPONENTS = ['video', 'audio', 'picture', 'iframe', 'img'];
 
 function CardMedia(props) {
-  const { classes, className, component: Component = "div", image, src, style, ...other } = props;
+  const { classes: classesOverrides, className, component: Component = "div", image, src, style, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   warning(
     Boolean(image || src),
@@ -53,7 +54,7 @@ CardMedia.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -81,4 +82,4 @@ CardMedia.propTypes = {
   style: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiCardMedia' })(CardMedia);
+export default CardMedia;

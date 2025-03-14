@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Transition from 'react-transition-group/Transition';
-import withTheme from '../styles/withTheme';
+import { withTheme } from '@/components/themes/useTheme';
 import { reflow, getTransitionProps } from '../transitions/utils';
 
 function getScale(value) {
@@ -179,4 +179,4 @@ Grow.defaultProps = {
 
 Grow.muiSupportAuto = true;
 
-export default withTheme()(Grow);
+export default withTheme(Grow);

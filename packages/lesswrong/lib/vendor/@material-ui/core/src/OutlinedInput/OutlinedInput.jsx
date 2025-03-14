@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import InputBase from '../InputBase';
 import NotchedOutline from './NotchedOutline';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => {
+export const styles = defineStyles("MuiOutlinedInput", theme => {
   return {
     /* Styles applied to the root element. */
     root: {
@@ -59,10 +59,11 @@ export const styles = theme => {
       paddingRight: 0,
     },
   };
-};
+}, {stylePriority: -10});
 
 function OutlinedInput(props) {
-  const { classes, labelWidth, notched, ...other } = props;
+  const { classes: classesOverrides, labelWidth, notched, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <InputBase
@@ -106,7 +107,7 @@ OutlinedInput.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * The CSS class name of the wrapper element.
    */
@@ -226,4 +227,4 @@ InputBase.defaultProps = {
 
 OutlinedInput.muiName = 'Input';
 
-export default withStyles(styles, { name: 'MuiOutlinedInput' })(OutlinedInput);
+export default OutlinedInput;

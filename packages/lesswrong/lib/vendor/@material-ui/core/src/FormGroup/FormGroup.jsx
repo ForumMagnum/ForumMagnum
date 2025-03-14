@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = {
+export const styles = defineStyles("MuiFormGroup", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'flex',
@@ -14,7 +14,7 @@ export const styles = {
   row: {
     flexDirection: 'row',
   },
-};
+}), {stylePriority: -10});
 
 /**
  * `FormGroup` wraps controls such as `Checkbox` and `Switch`.
@@ -22,7 +22,8 @@ export const styles = {
  * For the `Radio`, you should be using the `RadioGroup` component instead of this one.
  */
 function FormGroup(props) {
-  const { classes, className, children, row=false, ...other } = props;
+  const { classes: classesOverrides, className, children, row=false, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <div
@@ -49,7 +50,7 @@ FormGroup.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -60,4 +61,4 @@ FormGroup.propTypes = {
   row: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiFormGroup' })(FormGroup);
+export default FormGroup;

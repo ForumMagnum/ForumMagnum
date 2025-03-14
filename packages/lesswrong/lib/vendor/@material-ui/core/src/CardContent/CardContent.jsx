@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiCardContent", theme => ({
   /* Styles applied to the root element. */
   root: theme.mixins.gutters({
     paddingTop: 16,
@@ -12,10 +12,11 @@ export const styles = theme => ({
       paddingBottom: 24,
     },
   }),
-});
+}), {stylePriority: -10});
 
 function CardContent(props) {
-  const { classes, className, component: Component = "div", ...other } = props;
+  const { classes: classesOverrides, className, component: Component = "div", ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return <Component className={classNames(classes.root, className)} {...other} />;
 }
@@ -25,7 +26,7 @@ CardContent.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -37,4 +38,4 @@ CardContent.propTypes = {
   component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
 };
 
-export default withStyles(styles, { name: 'MuiCardContent' })(CardContent);
+export default CardContent;

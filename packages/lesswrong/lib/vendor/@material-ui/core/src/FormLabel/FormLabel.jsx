@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { formControlState } from '../InputBase/InputBase';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiFormLabel", theme => ({
   /* Styles applied to the root element. */
   root: {
     fontFamily: theme.typography.fontFamily,
@@ -37,12 +37,12 @@ export const styles = theme => ({
       color: theme.palette.error.main,
     },
   },
-});
+}), {stylePriority: -10});
 
 function FormLabel(props, context) {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     component: Component = "label",
     disabled,
@@ -52,6 +52,7 @@ function FormLabel(props, context) {
     required,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const fcs = formControlState({
     props,
@@ -98,7 +99,7 @@ FormLabel.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -134,4 +135,4 @@ FormLabel.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormLabel' })(FormLabel);
+export default FormLabel;

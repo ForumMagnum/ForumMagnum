@@ -4,12 +4,12 @@ import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import keycode from 'keycode';
 import ownerWindow from '../utils/ownerWindow';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import { listenForFocusKeys, detectFocusVisible } from './focusVisible';
 import TouchRipple from './TouchRipple';
 import createRippleHandler from './createRippleHandler';
 
-export const styles = {
+export const styles = defineStyles("MuiButtonBase", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -45,7 +45,7 @@ export const styles = {
   disabled: {},
   /* Styles applied to the root element if keyboard focused. */
   focusVisible: {},
-};
+}), {stylePriority: -10});
 
 /* istanbul ignore if */
 if (process.env.NODE_ENV !== 'production' && !React.createContext) {
@@ -338,7 +338,7 @@ ButtonBase.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -451,4 +451,4 @@ ButtonBase.defaultProps = {
   type: 'button',
 };
 
-export default withStyles(styles, { name: 'MuiButtonBase' })(ButtonBase);
+export default withStyles(styles, ButtonBase);

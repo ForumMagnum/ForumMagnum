@@ -3,11 +3,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 import FormLabel from '../FormLabel';
 import { formControlState } from '../InputBase/InputBase';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiInputLabel", theme => ({
   /* Styles applied to the root element. */
   root: {
     transformOrigin: 'top left',
@@ -69,12 +69,12 @@ export const styles = theme => ({
       transform: 'translate(14px, -6px) scale(0.75)',
     },
   },
-});
+}), {stylePriority: -10});
 
 function InputLabel(props, context) {
   const {
     children,
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
     disableAnimation,
     FormLabelClasses,
@@ -83,6 +83,7 @@ function InputLabel(props, context) {
     variant: variantProp,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   const { muiFormControl } = context;
 
@@ -126,7 +127,7 @@ InputLabel.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -178,4 +179,4 @@ InputLabel.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiInputLabel' })(InputLabel);
+export default withStyles(styles, InputLabel);
