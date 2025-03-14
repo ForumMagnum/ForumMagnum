@@ -51,9 +51,8 @@ const styles = (theme: ThemeType) => ({
     // No custom styling to preserve original appearance
   },
   refreshText: {
-    // margin: '0 auto',
-    fontSize: '1.5rem',
-    fontStyle: 'italic',
+    color: theme.palette.primary.dark,
+    fontSize: '1.4rem',
     fontFamily: theme.palette.fonts.sansSerifStack,
     pointerEvents: 'none',
     marginRight: -60
@@ -83,27 +82,28 @@ const styles = (theme: ThemeType) => ({
     marginTop: 20,
     marginBottom: 20,
   },
-  endOfFeedButtonText: {
-    fontSize: '2rem',
+  newContentButton: {
+    display: 'flex',
+    justifySelf: 'center',
+    justifyContent: 'center',
+    color: theme.palette.primary.dark,
+    padding: '20px 20px',
+    width: 200,
+    fontSize: '1.2rem',
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontStyle: 'italic',
     textAlign: 'center',
     cursor: 'pointer',
-    border: 'none',
     fontWeight: 500,
-    transition: 'background-color 0.2s ease',
     '&:hover': {
       opacity: 0.8
     }
   },
   endOfFeedButtonPostScriptText: {
-    marginTop: 32,
     fontSize: '1rem',
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontStyle: 'italic',
     textAlign: 'center',
-    width: 500,
-    opacity: 0.8,
+    opacity: 0.6,
   }
 });
 
@@ -112,7 +112,7 @@ const UltraFeedContent = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, 
-    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton } = Components;
+    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, Divider } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -248,16 +248,12 @@ const UltraFeedContent = ({classes}: {
     }
   };
 
-  const postScriptText = `The primary thing when you take your device in your hands is your intention to cut the OP, what whatever that means. When you scroll, click, zoom, vote, comment, or otherwise read the author's content, you must cut the OP in the same movement. It is essential to attain. If you think only of scrolling, clicking, zooming, voting or otherwise reading, you will not be able to actually cut them.`;
+  const newContentButton = <div className={classes.newContentButton} onClick={handleEndOfFeedClick}>click for new content</div>
+
+  const postScriptText = `The primary thing when you take your device in your hands is your intention to cut the OP, what whatever that means. When you scroll, click, zoom, vote, comment, or otherwise read the author's content, you must cut the OP in the same movement. It is essential to attain. 
+  If you think only of scrolling, clicking, zooming, voting or otherwise reading, you will not be able to actually cut them.`;
 
   // Component to render when we reach the end of the feed
-  const EndOfFeedButton = <div className={classes.endOfFeedContainer}>
-      <div className={classes.endOfFeedButtonText} onClick={handleEndOfFeedClick}>this is the end of your history – click for new content</div>
-      <div className={classes.endOfFeedButtonPostScriptText}>
-        <Link to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
-      </div>
-  </div>
-
   return (
     <div>
       <div className={classes.toggleContainer}>
@@ -279,8 +275,8 @@ const UltraFeedContent = ({classes}: {
             <MixedTypeFeed
               resolverName="UltraFeed"
               sortKeyType="Date"
-              firstPageSize={5}
-              pageSize={5}
+              firstPageSize={30}
+              pageSize={15}
               refetchRef={refetchSubscriptionContentRef}
               loadMoreRef={loadMoreAtTopRef}
               prependedLoadMore={true}
@@ -288,19 +284,24 @@ const UltraFeedContent = ({classes}: {
               renderers={ultraFeedRenderer}
             />
           </div>
+          {newContentButton}
           {/* History Feed Section */}
           <div className={classes.historyContainer}>
             <MixedTypeFeed
               resolverName="UltraFeedHistory"
               sortKeyType="Date"
-              firstPageSize={5}
-              pageSize={5}
+              firstPageSize={20}
+              pageSize={10}
               renderers={ultraFeedRenderer}
               resolverArgsValues={{ sessionId }}
               onReachedEnd={onReachedEnd}
             />
           </div>
-          {reachedEndOfHistory && EndOfFeedButton}
+          {reachedEndOfHistory && <div className={classes.endOfFeedContainer}>
+            {newContentButton}
+            <Divider />
+            <Link className={classes.endOfFeedButtonPostScriptText} to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
+          </div>}
         </SingleColumnSection>
       </>}
     </div>
