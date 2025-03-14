@@ -677,11 +677,13 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
-  const commentPrefilledProps: Partial<DbComment> = !currentUserComment ? {
+  const commentPrefilledProps: Partial<DbComment> = !currentUserComment && currentUserVote !== null ? {
     forumEventMetadata: {
       eventFormat: "POLL",
+      sticker: null,
       poll: {
-        voteWhenPublished: currentUserVote
+        voteWhenPublished: currentUserVote,
+        latestVote: null
       }
     },
   } : {};
