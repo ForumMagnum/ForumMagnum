@@ -110,6 +110,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
             <Components.FieldErrors
               key="form-nested-errors"
               errors={nestedArrayErrors}
+              getLabel={this.props.getLabel}
             />
           ) : null
         ]}

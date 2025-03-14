@@ -7,7 +7,6 @@ import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
 
 class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>> {
-  declare context: AnyBecauseTodo
 
   constructor(props: FormComponentWrapperProps<T>) {
     super(props);
@@ -84,12 +83,11 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
   };
 
   // Get value from Form state through document and currentValues props
-  getValue = (props?: any, context?: any) => {
+  getValue = (props?: any) => {
     const p = props || this.props;
-    const c = context || this.context;
     const { locale, defaultValue, deletedValues, formType, datatype } = p;
     const path = locale ? `${this.getPath(p)}.value` : this.getPath(p);
-    const currentDocument = c.getDocument();
+    const currentDocument = p.getDocument();
     let value = get(currentDocument, path);
     // note: force intl fields to be treated like strings
     const nullValue = locale ? '' : getNullValue(datatype);
@@ -224,7 +222,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         {...this.props}
         value={this.getValue()}
         errors={this.getErrors()}
-        document={this.context.getDocument()}
+        document={this.props.getDocument()}
         onChange={this.handleChange}
         clearField={this.clearField}
         formInput={this.getFormInput()}
@@ -242,10 +240,6 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
     }
   }
 }
-
-(FormComponent as any).contextTypes = {
-  getDocument: PropTypes.func.isRequired
-};
 
 const FormComponentComponent = registerComponent('FormComponent', FormComponent);
 
