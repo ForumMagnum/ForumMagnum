@@ -5,7 +5,6 @@ import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
-import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
@@ -307,10 +306,6 @@ export function startWebserver() {
     }
   }))
   
-  // Voyager is a GraphQL schema visual explorer
-  app.use("/graphql-voyager", voyagerMiddleware({
-    endpointUrl: config.path,
-  }));
   // Setup GraphiQL
   app.use("/graphiql", graphiqlMiddleware({
     endpointURL: config.path,
