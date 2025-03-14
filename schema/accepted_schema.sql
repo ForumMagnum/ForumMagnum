@@ -914,6 +914,29 @@ CREATE TABLE "FeaturedResources" (
 -- Index "idx_FeaturedResources_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedResources" USING btree ("schemaVersion");
 
+-- Table "FieldChanges"
+CREATE TABLE "FieldChanges" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "userId" VARCHAR(27),
+  "changeGroup" TEXT,
+  "documentId" TEXT,
+  "fieldName" TEXT,
+  "oldValue" JSONB,
+  "newValue" JSONB
+);
+
+-- Index "idx_FieldChanges_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_schemaVersion" ON "FieldChanges" USING btree ("schemaVersion");
+
+-- Index "idx_FieldChanges_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_documentId_createdAt" ON "FieldChanges" USING btree ("documentId", "createdAt");
+
+-- Index "idx_FieldChanges_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_userId_createdAt" ON "FieldChanges" USING btree ("userId", "createdAt");
+
 -- Table "ForumEvents"
 CREATE TABLE "ForumEvents" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -926,6 +949,7 @@ CREATE TABLE "ForumEvents" (
   "frontpageDescriptionMobile_latest" TEXT,
   "postPageDescription" JSONB,
   "postPageDescription_latest" TEXT,
+  "pollQuestion_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
   "endDate" TIMESTAMPTZ NOT NULL,
@@ -3979,14 +4003,12 @@ CREATE OR
 REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
           SELECT COALESCE(
             (SELECT "createdAt"
-            FROM (
-              SELECT JSONB_OBJECT_KEYS("properties"->'after') AS "key", "createdAt"
-              FROM "LWEvents"
-              WHERE "documentId" = userid AND "name" = 'fieldChanges'
-            ) q
-            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
-            ORDER BY "createdAt" DESC
-            LIMIT 1),
+              FROM "FieldChanges"
+              WHERE "documentId" = userid
+                AND "fieldName" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
+              ORDER BY "createdAt" DESC
+              LIMIT 1
+            ),
             (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
             TO_TIMESTAMP(0)
           )

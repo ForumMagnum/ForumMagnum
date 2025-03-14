@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { ForumIconName } from "../common/ForumIcon";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";

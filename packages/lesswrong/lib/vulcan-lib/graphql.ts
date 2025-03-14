@@ -3,7 +3,6 @@
 // handing them to graphql libraries.
 
 import deepmerge from 'deepmerge';
-import './config';
 
 // additional schemas
 let schemas: string[] = [];

@@ -18,6 +18,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import type { CommandLineArguments } from './commandLine';
+import { captureEvent } from '@/lib/analyticsEvents';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -60,6 +61,7 @@ export async function runServerOnStartupFunctions() {
   initGraphQL();
 
   startSyncedCron();
+  captureEvent("serverStarted", {});
 }
 
 

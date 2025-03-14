@@ -1,6 +1,6 @@
 import compose from 'lodash/flowRight';
 import React, { forwardRef } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';

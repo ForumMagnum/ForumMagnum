@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
-import PersonIcon from '@material-ui/icons/PersonPin';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
 import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';

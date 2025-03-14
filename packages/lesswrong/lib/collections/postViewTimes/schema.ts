@@ -45,3 +45,5 @@ export const schema: SchemaType<"PostViewTimes"> = {
     nullable: false
   }
 }
+
+export default schema;

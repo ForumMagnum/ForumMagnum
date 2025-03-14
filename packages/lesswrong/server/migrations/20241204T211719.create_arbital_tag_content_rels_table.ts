@@ -1,4 +1,4 @@
-import { ArbitalTagContentRels } from "../../lib/collections/arbitalTagContentRels/collection"
+import { ArbitalTagContentRels } from "../../server/collections/arbitalTagContentRels/collection"
 import { createTable, dropTable, updateIndexes } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

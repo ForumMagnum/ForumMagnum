@@ -1,6 +1,13 @@
+// Note: this file is modified by the `create-collection` codegen script.
+// Keep that in mind if changing the structure.
+
+// Helper imports
+import { CollectionViewSet } from './collectionViewSet';
+
+// Collection imports
 import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
 import { ChaptersViews } from '../collections/chapters/views';
-import { ClientIdsViews } from '../collections/clientIds/collection';
+import { ClientIdsViews } from '../collections/clientIds/views';
 import { CollectionsViews } from '../collections/collections/views';
 import { CommentsViews } from '../collections/comments/views';
 import { CommentModeratorActionsViews } from '../collections/commentModeratorActions/views';
@@ -12,6 +19,7 @@ import { DigestsViews } from '../collections/digests/views';
 import { ElectionCandidatesViews } from '../collections/electionCandidates/views';
 import { ElectionVotesViews } from '../collections/electionVotes/views';
 import { FeaturedResourcesViews } from '../collections/featuredResources/views';
+import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { ForumEventsViews } from '../collections/forumEvents/views';
 import { GardenCodesViews } from '../collections/gardencodes/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
@@ -49,7 +57,6 @@ import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
 import { VotesViews } from '../collections/votes/views';
-import { CollectionViewSet } from './collectionViewSet';
 
 export const allViews = {
   AdvisorRequests: AdvisorRequestsViews,
@@ -79,6 +86,7 @@ export const allViews = {
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
   FeaturedResources: FeaturedResourcesViews,
+  FieldChanges: FieldChangesViews,
   ForumEvents: ForumEventsViews,
   GardenCodes: GardenCodesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,

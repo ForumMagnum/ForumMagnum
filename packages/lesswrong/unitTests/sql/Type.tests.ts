@@ -12,7 +12,7 @@ import {
   UnknownType,
   VectorType,
 } from "@/server/sql/Type";
-import { Posts } from "../../lib/collections/posts/collection";
+import { Posts } from "../../server/collections/posts/collection";
 
 describe("SQL Type", () => {
   describe("StringType", () => {
@@ -95,14 +95,14 @@ describe("SQL Type", () => {
   });
   describe("IdType", () => {
     it("Is Postgres string of length 27", () => {
-      const pgType = new IdType(Posts).toString();
+      const pgType = new IdType().toString();
       expect(pgType).toBe(`VARCHAR(27)`);
     });
     it("Is scalar", () => {
-      expect(new IdType(Posts).isArray()).toBe(false);
+      expect(new IdType().isArray()).toBe(false);
     });
     it("Is concrete", () => {
-      const type = new IdType(Posts);
+      const type = new IdType();
       expect(type.toConcrete()).toBe(type);
     });
   });

@@ -192,18 +192,6 @@ export const PostsListWithVotes = `
     ...PostsList
     currentUserVote
     currentUserExtendedVote
-    podcastEpisode {
-      _id
-      title
-      podcast {
-        _id
-        title
-        applePodcastLink
-        spotifyPodcastLink
-      }
-      episodeLink
-      externalEpisodeId
-    }
   }
 `
 

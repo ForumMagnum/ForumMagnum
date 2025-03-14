@@ -1,16 +1,13 @@
-import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
-export function isMultiDocument(document: ObjectsByCollectionName[CollectionNameString]): document is DbMultiDocument {
+export function isMultiDocument(document: DbTag | DbMultiDocument): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
 
-export async function getRootDocument(multiDocument: DbMultiDocument, context: ResolverContext|null) {
+export async function getRootDocument(multiDocument: DbMultiDocument, context: ResolverContext) {
   const visitedDocumentIds = new Set<string>([multiDocument._id]);
-  let parentCollection = getCollection(multiDocument.collectionName);
-  const parentDocumentOrNull = context
-    ? await context.loaders[multiDocument.collectionName].load(multiDocument.parentDocumentId)
-    : await parentCollection.findOne({ _id: multiDocument.parentDocumentId });
+  let parentCollectionName = multiDocument.collectionName;
+  const parentDocumentOrNull = await context.loaders[parentCollectionName].load(multiDocument.parentDocumentId);
   if (!parentDocumentOrNull) {
     return null;
   }
@@ -19,8 +16,8 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
   visitedDocumentIds.add(parentDocument._id);
 
   while (isMultiDocument(parentDocument)) {
-    parentCollection = getCollection(parentDocument.collectionName);
-    const nextDocument = await parentCollection.findOne({ _id: parentDocument.parentDocumentId });
+    parentCollectionName = parentDocument.collectionName;
+    const nextDocument = await context.loaders[parentCollectionName].load(parentDocument.parentDocumentId);
     if (!nextDocument) {
       return null;
     }
@@ -35,7 +32,7 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
     parentDocument = nextDocument;
   }
 
-  return { document: parentDocument, collection: parentCollection };
+  return { document: parentDocument, parentCollectionName: 'Tags' as const };
 }
 
 /**
@@ -51,16 +48,17 @@ export async function canMutateParentDocument(user: DbUser | null, multiDocument
     return true;
   }
 
-  const rootDocumentInfo = await getRootDocument(multiDocument, null);
+  const rootDocumentInfo = await getRootDocument(multiDocument, context);
   if (!rootDocumentInfo) {
     return false;
   }
 
-  const { document: parentDocument, collection: parentDocumentCollection } = rootDocumentInfo;
-  const check = parentDocumentCollection.options.mutations?.[mutation]?.check;
+  const { document: parentDocument, parentCollectionName } = rootDocumentInfo;
+  const parentCollection = context[parentCollectionName];
+  const check = parentCollection.options.mutations?.[mutation]?.check;
   if (!check) {
     // eslint-disable-next-line no-console
-    console.error(`No check for ${mutation} mutation on parent collection ${parentDocumentCollection.collectionName} when trying to ${mutation} MultiDocument for parent with id ${parentDocument._id}`);
+    console.error(`No check for ${mutation} mutation on parent collection ${parentCollectionName} when trying to ${mutation} MultiDocument for parent with id ${parentDocument._id}`);
     return false;
   }
 

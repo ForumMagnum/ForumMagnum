@@ -3,7 +3,7 @@ import moment from "moment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { randomId } from "../../lib/random";
 import chunk from "lodash/chunk";
-import PostViewTimes from "../../lib/collections/postViewTimes/collection";
+import PostViewTimes from "../../server/collections/postViewTimes/collection";
 import IncrementalViewRepo, { IncrementalViewDataType } from "./IncrementalViewRepo";
 import { isE2E } from "../../lib/executionEnvironment";
 

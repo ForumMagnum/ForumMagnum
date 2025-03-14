@@ -1,5 +1,5 @@
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import Migrations from '../../lib/collections/migrations/collection';
+import Migrations from '../../server/collections/migrations/collection';
 import { availableMigrations } from './migrationUtils';
 import * as _ from 'underscore';
 import moment from 'moment';

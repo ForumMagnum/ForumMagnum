@@ -1,6 +1,6 @@
 import type { Express, Response } from 'express';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
-import { Notifications } from "../lib/collections/notifications/collection";
+import { Notifications } from "../server/collections/notifications/collection";
 import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';

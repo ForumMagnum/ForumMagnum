@@ -1,4 +1,4 @@
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
 

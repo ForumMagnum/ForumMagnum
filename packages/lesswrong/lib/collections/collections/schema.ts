@@ -57,7 +57,7 @@ const schema: SchemaType<"Collections"> = {
         {collectionId: collection._id},
         {sort: {number: 1}}
       ).fetch();
-      return await accessFilterMultiple(currentUser, Books, books, context);
+      return await accessFilterMultiple(currentUser, 'Books', books, context);
     }
   }),
 

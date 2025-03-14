@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import Divider from '@material-ui/core/Divider';
+import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'

@@ -3,10 +3,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
+import LinearProgress from "@/lib/vendor/@material-ui/core/src/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
 

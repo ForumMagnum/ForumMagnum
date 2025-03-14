@@ -1,8 +1,9 @@
-import Migrations from '../../lib/collections/migrations/collection';
+import Migrations from '../../server/collections/migrations/collection';
 import * as _ from 'underscore';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../server/sql/sqlClient';
+import { getCollection } from '@/server/collections/allCollections';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -20,8 +21,7 @@ interface RegisterMigrationProps {
   action: () => Promise<void>;
 }
 
-export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps)
-{
+export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps) {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)
     throw new Error(`Migration ${name} is missing required field: dateWritten`);
@@ -47,8 +47,7 @@ export function registerMigration({ name, dateWritten, idempotent, action }: Reg
   return runner;
 }
 
-export async function runMigration(name: string)
-{
+export async function runMigration(name: string) {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
   // eslint-disable-next-line no-unused-vars
@@ -94,8 +93,7 @@ export async function runMigration(name: string)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor: number, func: () => Promise<void>)
-{
+export async function runThenSleep(loadFactor: number, func: () => Promise<void>) {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
 
@@ -122,11 +120,10 @@ export async function fillDefaultValues<N extends CollectionNameString>({ collec
   fieldName: string,
   batchSize?: number,
   loadFactor?: number
-})
-{
+}) {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
   if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
   const defaultValue = schema[fieldName].defaultValue;
   if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
@@ -515,8 +512,7 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   filter?: MongoSelector<ObjectsByCollectionName[N]>
   bucketSize?: number
   fn: (selector: MongoSelector<ObjectsByCollectionName[N]>) => Promise<void>
-})
-{
+}) {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();
 
@@ -574,3 +570,18 @@ export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
     END;
   $$;`)
 }
+
+export async function bulkRawInsert<N extends CollectionNameString>(
+  collectionName: N,
+  objects: Array<ObjectsByCollectionName[N]>
+): Promise<void> {
+  const collection = getCollection(collectionName);
+  await collection.rawCollection().bulkWrite(
+    objects.map(obj => ({
+      insertOne: {
+        document: obj
+      }
+    }))
+  );
+}
+

@@ -1,4 +1,4 @@
-import Comments from "../../lib/collections/comments/collection";
+import Comments from "../../server/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
@@ -451,6 +451,19 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     
     const commentsByPost = groupBy(comments, c=>c.postId);
     return postIds.map(postId => commentsByPost[postId] ?? []);
+  }
+
+  async setLatestPollVote(forumEventId: string, latestVote: number | null): Promise<void> {
+    await this.getRawDb().none(`
+      -- CommentsRepo.setLatestPollVote
+      UPDATE "Comments"
+      SET "forumEventMetadata" = jsonb_set("forumEventMetadata", '{poll,latestVote}',
+        CASE
+          WHEN $2 IS NULL THEN 'null'::jsonb
+          ELSE to_jsonb($2::float)
+        END)
+      WHERE "forumEventId" = $1
+    `, [forumEventId, latestVote]);
   }
 }
 

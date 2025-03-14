@@ -1,5 +1,5 @@
 import React from 'react';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({

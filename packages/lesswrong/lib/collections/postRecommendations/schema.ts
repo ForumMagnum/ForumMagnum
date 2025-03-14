@@ -106,3 +106,5 @@ export const schema: SchemaType<"PostRecommendations"> = {
     canCreate: ["admins"],
   },
 };
+
+export default schema;
