@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { useImageContext } from './ImageContext';
 import { useMulti } from '../../../lib/crud/withMulti';
 
@@ -8,12 +8,14 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.splashHeaderImageOptions,
     marginBottom: '40px', 
     height: '80vh',
-    overflow: 'scroll'
+    overflow: 'scroll',
+    width: 200
   },
   imageContainer: {
     width: '200px',
     height: 'auto',
     cursor: 'pointer',
+    paddingRight: 5,
   },
   image: { 
     maxWidth: '100%',
@@ -25,10 +27,10 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
-
   const { setImageInfo } = useImageContext();
+  const { LWTooltip, Loading } = Components;
 
-  const { results: images } = useMulti({
+  const { results: images, loading } = useMulti({
     collectionName: 'ReviewWinnerArts',
     fragmentName: 'ReviewWinnerArtImages',
     terms: {
@@ -46,14 +48,16 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
         key={index}
         onClick={() => setImageInfo(image)}
       >
-        <img
-          src={image.splashArtImageUrl}
-          alt={`Selectable ${index}`}
-          className={classes.image}
-          title={`Prompt: ${image.splashArtImagePrompt || 'No prompt'}`}
-        />
+        <LWTooltip title={`Prompt: ${image.splashArtImagePrompt.split(", aquarelle artwork fading")[0] || 'No prompt found'}`} placement="left-start">
+          <img
+            src={image.splashArtImageUrl}
+            alt={`Selectable ${index}`}
+            className={classes.image}
+          />
+        </LWTooltip>
       </div>
       ))}
+      {loading && <Loading />}
     </div>
   );
 };

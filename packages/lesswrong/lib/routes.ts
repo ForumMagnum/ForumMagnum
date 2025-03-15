@@ -924,6 +924,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/tag/site-meta`,
     },
     {
+      name: 'bestOfLessWrongAdmin',
+      path: '/bestoflesswrongadmin',
+      componentName: 'BestOfLessWrongAdmin',
+      title: "Best of LessWrong Admin",
+    },
+    {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
       componentName: 'TopPostsPage',
