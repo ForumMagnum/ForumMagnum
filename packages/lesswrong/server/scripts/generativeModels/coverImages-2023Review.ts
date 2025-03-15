@@ -3,8 +3,8 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
-import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
-import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
+import ReviewWinners from '@/server/collections/reviewWinners/collection.ts';
+import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import shuffle from 'lodash/shuffle';
 import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
@@ -14,7 +14,7 @@ import type { RunOptions, Result } from '@fal-ai/client';
 import { createAdminContext } from '../../vulcan-lib/query.ts';
 import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
-import SplashArtCoordinates from '../../../lib/collections/splashArtCoordinates/collection.ts';
+import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection.ts';
 
 
 const promptImageUrls = [
@@ -31,14 +31,16 @@ const promptImageUrls = [
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point, juxtaposition of hard and soft lines, muted colors, textured paper drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
+  return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
 }
 
 export const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
 
 The visual metaphor should be concrete and specific, and should be something that can be depicted in a single image. The metaphor should be something that is both visually striking and that captures the essence of the essay in a way that is likely to be interesting. It should be 5 - 15 words long.
 
-The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but they should be concrete images).
+If the essay specifically mentions a visual metaphor, use that metaphor. 
+
+The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but you should figure out the specific concrete images to represent that thing). Do NOT use "mazes", or "labryinth" or "neural net".
 
 If the essay contains any particular images or visual metaphors, feel free to use those in the answers.
 
@@ -55,6 +57,7 @@ Here are some bad examples:
 1. A quill writing the word 'honor'
 2. A pile of resources dwindling
 3. A collection of books about Zen Buddhism
+4. A labyrinth of forking paths
 
 Please generate 3 visual metaphors for the essay that will appear on Lesswrong. The essay will appear after the "===".
 
@@ -131,7 +134,7 @@ const saveImage = async (prompt: string, essay: Essay, url: string) => {
 
 const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   const postIds = await ReviewWinners
-    .find({}, { projection: { postId: 1 }, sort: { reviewRanking: 1 } })
+    .find({reviewYear: 2023}, { projection: { postId: 1, reviewYear: 1 }, sort: { reviewRanking: 1 } })
     .fetch();
   const reviewArts = await ReviewWinnerArts
     .find({})
@@ -200,7 +203,7 @@ fal.config({
 
 const generateImage = async (prompt: string, imageUrl: string): Promise<string> => {
   // eslint-disable-next-line no-console
-  console.log(`generating image for ${prompt}`)
+  console.log(`generating image for ${prompt.split(", aquarelle artwork fading")[0]}`)
   try {
     const runOptions = {
       input: {
@@ -214,13 +217,13 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
           height: 1536
         },
         image_url: imageUrl,
-        image_strength: 1
+        image_strength: .1
       }
     }
     const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
 
     // eslint-disable-next-line no-console
-    console.log(result)
+    // console.log(result)
     return result.data.images[0].url;
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -256,7 +259,9 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
 
 export const getReviewWinnerArts = async () => {
   console.log("Running getReviewWinnerArts")
-  const essays = (await getEssaysWithoutEnoughArt())
+  const totalEssays = (await getEssaysWithoutEnoughArt())
+  const essays = totalEssays.slice(0, 3)
+  console.log(`${essays.length} essays to generate art for`)
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');
@@ -270,5 +275,19 @@ export const getReviewWinnerArts = async () => {
   // eslint-disable-next-line no-console
   console.log("\n\nResults:")
   // eslint-disable-next-line no-console
-  console.log(results.map(r => r.map(r => r.reviewWinnerArt)))
+  const uniqueResults = results.map(r => {
+    const uniqueResults = r.reduce((acc, curr) => {
+      if (!acc.find(item => item.title === curr.title)) {
+        acc.push({
+          title: curr.title,
+          prompt: curr.prompt,
+          url: curr.reviewWinnerArt?.splashArtImageUrl,
+          artId: curr.reviewWinnerArt?._id
+        });
+      }
+      return acc;
+    }, [] as Array<{title: string, prompt: string, url?: string, artId?: string}>);
+    return uniqueResults;
+  })
+  console.log(`${results.length} cover images generated for ${uniqueResults.length} essays`)
 }

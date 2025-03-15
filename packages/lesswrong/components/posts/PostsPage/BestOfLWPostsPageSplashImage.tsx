@@ -10,21 +10,29 @@ import { useHover } from '@/components/common/withHover';
 import { useImageContext } from './ImageContext';
 import { Coordinates } from './ImageCropPreview';
 
-const IMAGE_START_Y = -300;
-
 const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
   root: {
     position: 'relative',
   },
   backgroundImageWrapper: {
     position: 'fixed',
-    top: IMAGE_START_Y,
+    top: -100,
+    [theme.breakpoints.up('sm')]: {
+      top: -200,
+    },
     right: -100
   },
   backgroundImage: {
     position: 'relative',
-    width: '100%',
     objectFit: 'cover',
+    height: '60vh',
+    [theme.breakpoints.up('sm')]: {
+      height: "100vh"
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: '90%',
+      height: 'unset'
+    }
   },
   overlay: {
     position: 'absolute',
@@ -33,15 +41,29 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     width: '100%',
     height: '100%',
     // background: 'red',
-    background: 'linear-gradient(180deg,rgba(255,255,255,.87) 400px,transparent 45%, transparent 48%,#fff 87%)',
+    background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
+    [theme.breakpoints.up('sm')]: {
+      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 45%, transparent 48%,#fff 87%)',
+    },
+    [theme.breakpoints.up('lg')]: {
+      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 300px,transparent 45%, transparent 48%,#fff 87%)',
+    },
     pointerEvents: 'none',
+  },
+  overlay2: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
   },
   diagonalOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
+    width: '100vw',
+    height: '100vh',
     background: 'linear-gradient(-130deg, transparent 30%, white 85%)',
     pointerEvents: 'none',
   },
@@ -164,8 +186,9 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     <div className={classes.backgroundImageWrapper} style={{opacity}}>
       <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
       <div className={classes.overlay} />
-      <div className={classes.diagonalOverlay} />
     </div>
+    <div className={classes.overlay2} />
+    <div className={classes.diagonalOverlay} />
     {userIsAdminOrMod(currentUser) && imagePreviewAndCrop}
   </div>
 }

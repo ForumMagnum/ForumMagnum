@@ -129,21 +129,41 @@ const styles = (theme: ThemeType) => ({
   },
   splashPageTitle: {
     '&&': {
-      fontSize: '6rem',
-      marginRight: -100
-    }
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '4rem',
+      },
+      fontSize: '5rem',
+      [theme.breakpoints.up('md')]: {
+        marginRight: -50,
+        fontSize: '6rem',
+      },
+      [theme.breakpoints.up('lg')]: {
+        marginRight: -100,
+      },
+    },
   },
   splashPageTitleLong: {
     '&&': {
-      fontSize: '6rem',
-      marginRight: -100
-    }
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '3.5rem',
+      },
+      [theme.breakpoints.down('md')]: {
+        fontSize: '5rem',
+        marginRight: -25,
+      },
+      [theme.breakpoints.up('lg')]: {
+        marginRight: -100,
+      },
+    },
   },
   titleSectionWithSplashPageHeader: {
     // marginBottom: 100,
   },
   rootWithSplashPageHeader: {
-    paddingTop: 450,
+    paddingTop: '40vh',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: '30vh',
+    },
   }
 }); 
 
@@ -192,6 +212,7 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
   </LWTooltip> : null;
 
   const splashPageTitleClass = post.title.length > 100 ? classes.splashPageTitleLong : classes.splashPageTitle;
+
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">

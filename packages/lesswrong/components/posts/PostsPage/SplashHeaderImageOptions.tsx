@@ -8,7 +8,8 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.splashHeaderImageOptions,
     marginBottom: '40px', 
     height: '80vh',
-    overflow: 'scroll'
+    overflow: 'scroll',
+    width: 200
   },
   imageContainer: {
     width: '200px',
@@ -27,9 +28,9 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const { setImageInfo } = useImageContext();
-  const { LWTooltip } = Components;
+  const { LWTooltip, Loading } = Components;
 
-  const { results: images } = useMulti({
+  const { results: images, loading } = useMulti({
     collectionName: 'ReviewWinnerArts',
     fragmentName: 'ReviewWinnerArtImages',
     terms: {
@@ -47,7 +48,7 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
         key={index}
         onClick={() => setImageInfo(image)}
       >
-        <LWTooltip title={`Prompt: ${image.splashArtImagePrompt || 'No prompt found'}`} placement="left-start">
+        <LWTooltip title={`Prompt: ${image.splashArtImagePrompt.split(", aquarelle artwork fading")[0] || 'No prompt found'}`} placement="left-start">
           <img
             src={image.splashArtImageUrl}
             alt={`Selectable ${index}`}
@@ -56,6 +57,7 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
         </LWTooltip>
       </div>
       ))}
+      {loading && <Loading />}
     </div>
   );
 };
