@@ -10,11 +10,22 @@ export type StylesContextType = {
   mountedStyles: Map<string, {
     refcount: number
     styleDefinition: StyleDefinition<any>
-    styleNode: HTMLStyleElement
+    styleNode?: HTMLStyleElement
   }>
 }
 
 export const StylesContext = createContext<StylesContextType|null>(null);
+
+export function createStylesContext(theme: ThemeType): StylesContextType {
+  return {
+    theme,
+    mountedStyles: new Map<string, {
+      refcount: number
+      styleDefinition: StyleDefinition<any>
+      styleNode?: HTMLStyleElement
+    }>()
+  };
+}
 
 /**
  * _clientMountedStyles: Client-side-only global variable that contains the
@@ -54,7 +65,7 @@ export const defineStyles = <T extends string>(
   if (isClient && _clientMountedStyles) {
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
     if (mountedStyles) {
-      mountedStyles.styleNode.remove();
+      mountedStyles.styleNode?.remove();
       mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.theme, definition);
     }
   }
@@ -78,7 +89,7 @@ function addStyleUsage<T extends string>(context: StylesContextType, styleDefini
     if (mountedStyleNode.styleDefinition !== styleDefinition) {
       // Style is mounted by that name, but it doesn't match? Replace it, keeping
       // the ref count
-      mountedStyleNode.styleNode.remove();
+      mountedStyleNode.styleNode?.remove();
       mountedStyleNode.styleNode = createAndInsertStyleNode(theme, styleDefinition);
       context.mountedStyles.get(name)!.refcount++;
     } else {
@@ -94,7 +105,7 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
     const mountedStyle = context.mountedStyles.get(name)!
     const newRefcount = --mountedStyle.refcount;
     if (!newRefcount) {
-      mountedStyle.styleNode.remove();
+      mountedStyle.styleNode?.remove();
       context.mountedStyles.delete(name);
     }
   }
@@ -104,9 +115,18 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
-    // If we're rendering server-side, we just return a classes object and
-    // don't need to mount any style nodes/etc, because the SSR will use the
-    // static stylesheet.
+    // If we're rendering server-side, we might or might not have
+    // StylesContext. If we do, use it to record which styles were used during
+    // the render. This is used when rendering emails, or if you want to server
+    // an SSR with styles inlined rather than in a static stlyesheet.
+    if (stylesContext) {
+      if (!stylesContext.mountedStyles.has(styles.name)) {
+        stylesContext.mountedStyles.set(styles.name, {
+          refcount: 1,
+          styleDefinition: styles,
+        });
+      }
+    }
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
@@ -203,16 +223,13 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
   })
   const sheet = jss.createStyleSheet(
     styleDefinition.styles(theme), {
-      classNamePrefix: styleDefinition.name,
-      generateClassName: (r,s) => {
-        return `${styleDefinition.name}-${(r as any).key}`
-      }
+      generateId: (rule,sheet) => {
+        return `${styleDefinition.name}-${rule.key}`;
+      },
     }
   );
   sheets.add(sheet)
-  sheet.attach();
-  const str = sheets.toString();
-  return str;
+  return sheets.toString();
 }
 
 

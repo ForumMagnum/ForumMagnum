@@ -1,21 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { useTheme } from "../themes/useTheme";
 import type { StyleDefinition } from "@/server/styleGeneration";
-import { setClientMountedStyles, StylesContext, StylesContextType } from "./useStyles";
+import { createStylesContext, setClientMountedStyles, StylesContext, StylesContextType } from "./useStyles";
 import { isClient } from "@/lib/executionEnvironment";
 
-export const FMJssProvider = ({children}: {
+export const FMJssProvider = ({stylesContext, children}: {
+  stylesContext?: StylesContextType,
   children: React.ReactNode
 }) => {
   const theme = useTheme();
-  const [mountedStyles] = useState(() => new Map<string, {
-    refcount: number
-    styleDefinition: StyleDefinition,
-    styleNode: HTMLStyleElement
-  }>());
-  const jssState = useMemo<StylesContextType>(() => ({
-    theme, mountedStyles: mountedStyles
-  }), [theme, mountedStyles]);
+  const [jssState] = useState(() => stylesContext ?? createStylesContext(theme));
   
   if (isClient) {
     setClientMountedStyles(jssState);

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import warning from 'warning';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import contextTypes from 'react-jss/lib/contextTypes';
+//import { contextTypes } from 'react-jss';
 import { create } from 'jss';
-import * as ns from 'react-jss/lib/ns';
+import * as ns from 'react-jss';
 import jssPreset from './jssPreset';
 import mergeClasses from './mergeClasses';
 import createMuiTheme from './createMuiTheme';
@@ -298,11 +298,11 @@ const withStyles = (stylesOrCreator, options = {}) => Component => {
     innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   };
 
-  WithStyles.contextTypes = {
+  /*WithStyles.contextTypes = {
     muiThemeProviderOptions: PropTypes.object,
     ...contextTypes,
     ...(listenToTheme ? themeListener.contextTypes : {}),
-  };
+  };*/
 
   hoistNonReactStatics(WithStyles, Component);
 

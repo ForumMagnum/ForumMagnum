@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import warning from 'warning';
-import createBroadcast from 'brcast';
+//import createBroadcast from 'brcast';
 import themeListener, { CHANNEL } from './themeListener';
 import exactProp from '../utils/exactProp';
 
@@ -11,7 +11,7 @@ import exactProp from '../utils/exactProp';
  * This component should preferably be used at **the root of your component tree**.
  */
 class MuiThemeProvider extends React.Component {
-  broadcast = createBroadcast();
+  //broadcast = createBroadcast();
 
   // We are not using the React state in order to avoid unnecessary rerender.
   constructor(props, context) {
@@ -19,7 +19,7 @@ class MuiThemeProvider extends React.Component {
     // Get the outer theme from the context, can be null
     this.outerTheme = themeListener.initial(context);
     // Propagate the theme so it can be accessed by the children
-    this.broadcast.setState(this.mergeOuterLocalTheme(props.theme));
+    //this.broadcast.setState(this.mergeOuterLocalTheme(props.theme));
   }
 
   getChildContext() {
@@ -35,7 +35,7 @@ class MuiThemeProvider extends React.Component {
     }
 
     return {
-      [CHANNEL]: this.broadcast,
+      //[CHANNEL]: this.broadcast,
       muiThemeProviderOptions,
     };
   }
@@ -45,14 +45,14 @@ class MuiThemeProvider extends React.Component {
     this.unsubscribeId = themeListener.subscribe(this.context, outerTheme => {
       this.outerTheme = outerTheme;
       // Forward the parent theme update to the children
-      this.broadcast.setState(this.mergeOuterLocalTheme(this.props.theme));
+      //this.broadcast.setState(this.mergeOuterLocalTheme(this.props.theme));
     });
   }
 
   componentDidUpdate(prevProps) {
     // Propagate a local theme update
     if (this.props.theme !== prevProps.theme) {
-      this.broadcast.setState(this.mergeOuterLocalTheme(this.props.theme));
+      //this.broadcast.setState(this.mergeOuterLocalTheme(this.props.theme));
     }
   }
 

@@ -84,7 +84,7 @@ const addClassnames = (componentName: string, styles: any) => {
   return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
-      const withStylesHoc = withStyles(styles, {name: componentName})
+      const withStylesHoc = withStyles(styles, {name: componentName}) //TODO
       const StylesWrappedComponent = withStylesHoc(WrappedComponent)
       return <StylesWrappedComponent {...props}/>
     }

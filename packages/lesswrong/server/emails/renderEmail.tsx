@@ -6,8 +6,6 @@ import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
 import { renderToString } from 'react-dom/server';
-import { SheetsRegistry } from 'react-jss/lib/jss';
-import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../server/collections/lwevents/collection';
@@ -23,6 +21,9 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { createStylesContext, type StylesContextType } from '@/components/hooks/useStyles';
+import { generateEmailStylesheet } from '../styleGeneration';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -137,8 +138,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   subject: string,
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
-}): Promise<RenderedEmail>
-{
+}): Promise<RenderedEmail> {
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
@@ -146,10 +146,8 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
-  const sheetsRegistry = new SheetsRegistry();
-  const generateClassName = createGenerateClassName({
-    dangerouslyUseGlobalCSS: true
-  });
+  const theme = getForumTheme({name: "default", siteThemeOverride: {}});
+  const stylesContext = createStylesContext(theme);
   
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
@@ -159,7 +157,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+    <FMJssProvider stylesContext={stylesContext}>
     <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
@@ -167,7 +165,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     </TimezoneContext.Provider>
     </UserContext.Provider>
     </MuiThemeProvider>
-    </JssProvider>
+    </FMJssProvider>
     </ApolloProvider>
     </EmailRenderContext.Provider>
   );
@@ -176,14 +174,14 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // accordingly.
   await getDataFromTree(wrappedBodyComponent);
   
-  validateSheets(sheetsRegistry);
+  validateSheets(stylesContext);
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
-  const css = sheetsRegistry.toString();
+  const css = generateEmailStylesheet([...stylesContext.mountedStyles.keys()], theme);
   const html = boilerplateGenerator({ css, body, title:subject })
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
@@ -266,9 +264,9 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   }
 }
 
-function validateSheets(sheetsRegistry: typeof SheetsRegistry)
+function validateSheets(stylesContext: StylesContextType)
 {
-  let styleValidator = new StyleValidator();
+  /*let styleValidator = new StyleValidator();
   
   for (let sheet of sheetsRegistry.registry) {
     for (let rule of sheet.rules.index) {
@@ -276,7 +274,7 @@ function validateSheets(sheetsRegistry: typeof SheetsRegistry)
         styleValidator.validate(rule.style, rule.selectorText);
       }
     }
-  }
+  }*/
 }
 
 

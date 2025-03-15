@@ -1,8 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/server';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
-import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
-import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
@@ -17,6 +14,9 @@ import { brotliCompressResource, CompressedCacheResource } from './utils/bundleU
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
+import { create as jssCreate, SheetsRegistry } from 'jss';
+import jssPreset from '@/lib/vendor/@material-ui/core/src/styles/jssPreset';
+import pick from 'lodash/pick';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string> = {
@@ -38,13 +38,16 @@ export type StyleOptions = {
   stylePriority?: number,
 }
 
-const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
-  importAllComponents();
-  
-  const context: any = {};
-  
+/**
+ * Return a mapping from component-name to style definition, for components
+ * that defined their styles by passing them to `registerComponent`.
+ *
+ * Precondition: all components (that you want to be included) have been
+ * imported, eg with importAllComponents.
+ */
+function getComponentStyles(): Record<string,StyleDefinition> {
   // Sort components by stylePriority, tiebroken by name (alphabetical)
-  const componentStyles: Record<string,StyleDefinition> = keyBy(
+  return keyBy(
     Object.keys(ComponentsTable)
       .filter(componentName => !!ComponentsTable[componentName].options?.styles)
       .map(componentName => ({
@@ -55,27 +58,43 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
       })),
     c=>c.name
   );
-  const allStyles = {
-    ...componentStyles,
+}
+
+function getAllStylesByName() {
+  importAllComponents();
+  return {
+    ...getComponentStyles(),
     ...topLevelStyleDefinitions,
   };
-  
+}
+
+function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType): string {
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
   
-  const DummyComponent = (props: any) => <div/>
-  const DummyTree = <div>
-    {stylesByNameAndPriority.map((name: string) => {
-      const styles = allStyles[name]!.styles
-      const StyledComponent = withStyles(styles as any, {name})(DummyComponent)
-      return <StyledComponent key={name}/>
-    })}
-  </div>
-  const WrappedTree = wrapWithMuiTheme(DummyTree, context, themeOptions);
+  const sheetsRegistry = new SheetsRegistry();
   
-  ReactDOM.renderToString(WrappedTree);
-  const jssStylesheet = context.sheetsRegistry.toString()
+  const _jss = jssCreate({
+    ...jssPreset(),
+    virtual: true,
+  });
+
+  stylesByNameAndPriority.map(name => {
+    const styles = allStyles[name].styles(theme);
+    const sheet = _jss.createStyleSheet(styles, {
+      generateId: (rule) => {
+        return `${name}-${rule.key}`;
+      },
+    });
+    sheetsRegistry.add(sheet);
+  }).join("\n");
+  return sheetsRegistry.toString();
+}
+
+const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
+  const allStyles = getAllStylesByName()
   const theme = getForumTheme(themeOptions);
+  const jssStylesheet = stylesToStylesheet(allStyles, theme);
   const cssVars = requestedCssVarsToString(theme);
   
   const mergedCSS = [
@@ -88,6 +107,12 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
 
   const minifiedCSS = minify(mergedCSS).css;
   return Buffer.from(minifiedCSS, "utf8");
+}
+
+export function generateEmailStylesheet(styleNamesUsed: string[], theme: ThemeType): string {
+  const allStyles = getAllStylesByName();
+  const usedStyles = pick(allStyles, styleNamesUsed);
+  return stylesToStylesheet(usedStyles, theme);
 }
 
 type StylesheetAndHash = {
