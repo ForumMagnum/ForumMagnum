@@ -16,21 +16,24 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   },
   backgroundImageWrapper: {
     position: 'fixed',
-    top: -100,
+    width: '100vw',
+    top: 0,
     [theme.breakpoints.up('sm')]: {
-      top: -200,
+      top: 0
     },
-    right: -100
+    right: -300
   },
   backgroundImage: {
-    position: 'relative',
+    position: 'absolute',
     objectFit: 'cover',
-    height: '60vh',
+    top: 0,
+    right: 0,
+
     [theme.breakpoints.up('sm')]: {
       height: "100vh"
     },
     [theme.breakpoints.up('lg')]: {
-      width: '90%',
+      width: '70%',
       height: 'unset'
     }
   },
@@ -38,33 +41,33 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
+    width: '100vw',
+    height: '100vh',
     // background: 'red',
     background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
     [theme.breakpoints.up('sm')]: {
-      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 45%, transparent 48%,#fff 87%)',
+      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 25%, transparent 48%,#fff 87%)',
     },
     [theme.breakpoints.up('lg')]: {
-      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 300px,transparent 45%, transparent 48%,#fff 87%)',
+      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 35%, transparent 48%,#fff 87%)',
     },
     pointerEvents: 'none',
   },
-  overlay2: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
-  },
+  // overlay2: {
+  //   position: 'absolute',
+  //   top: 0,
+  //   left: 0,
+  //   width: '100vw',
+  //   height: '100vh',
+  //   background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
+  // },
   diagonalOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: 'linear-gradient(-130deg, transparent 30%, white 85%)',
+    background: 'radial-gradient(circle at 100% 0%, transparent 50%, white 85%)',
     pointerEvents: 'none',
   },
   rightSectionBelowBottomRow: {
@@ -186,9 +189,8 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     <div className={classes.backgroundImageWrapper} style={{opacity}}>
       <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
       <div className={classes.overlay} />
+      <div className={classes.diagonalOverlay} />
     </div>
-    <div className={classes.overlay2} />
-    <div className={classes.diagonalOverlay} />
     {userIsAdminOrMod(currentUser) && imagePreviewAndCrop}
   </div>
 }

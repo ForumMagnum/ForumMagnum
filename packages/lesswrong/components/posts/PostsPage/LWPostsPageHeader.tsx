@@ -157,13 +157,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   titleSectionWithSplashPageHeader: {
-    // marginBottom: 100,
+    marginBottom: 175,
   },
   rootWithSplashPageHeader: {
-    paddingTop: '40vh',
-    [theme.breakpoints.down('md')]: {
-      paddingTop: '30vh',
-    },
+    paddingTop: 175,
+    // [theme.breakpoints.down('md')]: {
+    //   paddingTop: 150,
+    // },
   }
 }); 
 

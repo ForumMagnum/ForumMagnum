@@ -6,11 +6,7 @@ import { fetchFragment } from '../../fetchFragment.ts';
 import ReviewWinners from '@/server/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
-import shuffle from 'lodash/shuffle';
-import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import { fal } from '@fal-ai/client';
-import { falApiKey } from '@/lib/instanceSettings.ts';  
-import type { RunOptions, Result } from '@fal-ai/client';
 import { createAdminContext } from '../../vulcan-lib/query.ts';
 import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
@@ -211,7 +207,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
         negative_prompt: "text, writing, words, low quality, blurry, abstract, pattern, labyrinth, maze, circles, orbs",
         num_inference_steps: 25,
         guidance_scale: 7.5,
-        aspect_ratio: "4:3" as const,
+        // aspect_ratio: "4:3" as const, 
         image_size: {
           width: 2048,
           height: 1536
