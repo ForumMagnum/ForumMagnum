@@ -245,3 +245,42 @@ export const CommentsForAutocompleteWithParents = `
     })(10)}
   }
 `
+
+export const FeedCommentItemFragment = `
+  fragment FeedCommentItemFragment on Comment {
+    _id
+    postId
+    topLevelCommentId
+    parentCommentId
+    parentAnswerId
+    postedAt
+    baseScore
+    deleted
+    deletedPublic
+    retracted
+    hideAuthor
+    authorIsUnreviewed
+    currentUserVote
+    currentUserExtendedVote
+    extendedScore
+    score
+    voteCount
+    emojiReactors
+    af
+    afDate
+    moveToAlignmentUserId
+    afBaseScore
+    afExtendedScore
+    contents {
+      _id
+      html
+      plaintextMainText
+    }
+    post {
+      ...PostsMinimumInfo
+    }
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`

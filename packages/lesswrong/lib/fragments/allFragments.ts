@@ -35,6 +35,7 @@ import * as electionCandidatesFragments from '../collections/electionCandidates/
 import * as electionVotesFragments from '../collections/electionVotes/fragments';
 import * as elicitQuestionsFragments from '../collections/elicitQuestions/fragments';
 import * as featuredResourcesFragments from '../collections/featuredResources/fragments';
+import * as feedItemServingsFragments from '../collections/feedItemServings/fragments';
 import * as fieldChangesFragments from '../collections/fieldChanges/fragments';
 import * as forumEventsFragments from '../collections/forumEvents/fragments';
 import * as gardencodesFragments from '../collections/gardencodes/fragments';
@@ -121,6 +122,7 @@ const staticFragments = {
   ...electionVotesFragments,
   ...elicitQuestionsFragments,
   ...featuredResourcesFragments,
+  ...feedItemServingsFragments,
   ...fieldChangesFragments,
   ...forumEventsFragments,
   ...gardencodesFragments,
@@ -153,8 +155,8 @@ const staticFragments = {
   ...subscriptionsFragments,
   ...surveyQuestionsFragments,
   ...surveyResponsesFragments,
-  ...surveySchedulesFragments,
   ...surveysFragments,
+  ...surveySchedulesFragments,
   ...tagFlagsFragments,
   ...tagRelsFragments,
   ...tagsFragments,
@@ -163,8 +165,8 @@ const staticFragments = {
   ...userJobAdsFragments,
   ...userMostValuablePostsFragments,
   ...userRateLimitsFragments,
-  ...userTagRelsFragments,
   ...usersFragments,
+  ...userTagRelsFragments,
   ...votesFragments,
 
   // Non-collection fragments

@@ -1,5 +1,14 @@
-// This file is a currently a stub,
-// but it's fine to leave it in place so that nobody is confused about whether fragments exist for this collection or not.
+/**
+ * Fragment for loading comments with their associated post information
+ * This is specifically designed for efficient loading of comments with
+ * the minimal post information needed for display in UltraFeed
+ */
 
-// Delete this line once you add a fragment for this collection.
-export default {};
+export const UltraFeedCommentWithPostFragment = `
+  fragment UltraFeedCommentWithPostFragment on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+  }
+`;

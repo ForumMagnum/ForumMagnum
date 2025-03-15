@@ -1,3 +1,9 @@
+/**
+ * Fragment for UltraFeed items.
+ * IMPORTANT: The post reference inside primaryComment MUST include the full PostsMinimumInfo 
+ * fragment, not just _id. Components like UltraFeedCollapsedCommentItem need the full post
+ * information, including title, for proper display.
+ */
 export const UltraFeedItemFragment = `
   fragment UltraFeedItemFragment on UltraFeedItem {
     _id
@@ -9,7 +15,7 @@ export const UltraFeedItemFragment = `
       parentCommentId
       topLevelCommentId
       post {
-        _id
+        ...PostsMinimumInfo
       }
     }
     primaryPost {
@@ -21,6 +27,3 @@ export const UltraFeedItemFragment = `
   }
 `; 
 
-// Keep these for backward compatibility but make them use the new UltraFeedItemFragment
-export const FeedCommentFragment = UltraFeedItemFragment;
-export const FeedPostFragment = UltraFeedItemFragment;

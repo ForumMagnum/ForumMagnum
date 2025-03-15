@@ -919,10 +919,39 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly expiresAt: Date | null,
 }
 
-interface FeedCommentFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly comment: any,
-  readonly sources: any,
+interface FeedCommentItemFragment { // fragment on Comments
+  readonly _id: string,
+  readonly postId: string,
+  readonly topLevelCommentId: string,
+  readonly parentCommentId: string,
+  readonly parentAnswerId: string,
+  readonly postedAt: Date,
+  readonly baseScore: number,
+  readonly deleted: boolean,
+  readonly deletedPublic: boolean,
+  readonly retracted: boolean,
+  readonly hideAuthor: boolean,
+  readonly authorIsUnreviewed: boolean,
+  readonly currentUserVote: string|null,
+  readonly currentUserExtendedVote: any,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly score: number,
+  readonly voteCount: number,
+  readonly emojiReactors: any,
+  readonly af: boolean,
+  readonly afDate: Date,
+  readonly moveToAlignmentUserId: string,
+  readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly contents: FeedCommentItemFragment_contents|null,
+  readonly post: PostsMinimumInfo|null,
+  readonly user: UsersMinimumInfo|null,
+}
+
+interface FeedCommentItemFragment_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+  readonly plaintextMainText: string,
 }
 
 interface FeedItemServingsDefaultFragment { // fragment on FeedItemServings
@@ -942,13 +971,6 @@ interface FeedItemServingsDefaultFragment { // fragment on FeedItemServings
   readonly position: number,
   readonly originalServingId: string | null,
   readonly mostRecentServingId: string | null,
-}
-
-interface FeedPostFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly post: any,
-  readonly comments: any,
-  readonly sources: any,
 }
 
 interface FieldChangeFragment { // fragment on FieldChanges
@@ -3636,6 +3658,20 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
+interface UltraFeedCommentWithPostFragment extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+}
+
+interface UltraFeedItemFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly type: any,
+  readonly renderAsType: any,
+  readonly sources: any,
+  readonly primaryComment: any,
+  readonly primaryPost: any,
+  readonly secondaryComments: any,
+}
+
 interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
@@ -5101,9 +5137,8 @@ interface FragmentTypes {
   ExplorePageTagFragment: ExplorePageTagFragment
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
-  FeedCommentFragment: FeedCommentFragment
+  FeedCommentItemFragment: FeedCommentItemFragment
   FeedItemServingsDefaultFragment: FeedItemServingsDefaultFragment
-  FeedPostFragment: FeedPostFragment
   FieldChangeFragment: FieldChangeFragment
   FieldChangesDefaultFragment: FieldChangesDefaultFragment
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
@@ -5305,6 +5340,8 @@ interface FragmentTypes {
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  UltraFeedCommentWithPostFragment: UltraFeedCommentWithPostFragment
+  UltraFeedItemFragment: UltraFeedItemFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserActivitiesDefaultFragment: UserActivitiesDefaultFragment
   UserAltAccountsFragment: UserAltAccountsFragment
@@ -5375,7 +5412,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"FeedCommentItemFragment"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedCommentWithPostFragment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -5392,9 +5429,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"|"ElicitQuestionsDefaultFragment"
   EmailTokenses: "EmailTokensDefaultFragment"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
-  FeedComments: "FeedCommentFragment"
   FeedItemServings: "FeedItemServingsDefaultFragment"
-  FeedPosts: "FeedPostFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
@@ -5448,6 +5483,7 @@ interface FragmentTypesByCollection {
   Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailedPreviewFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"TagsDefaultFragment"|"UserOnboardingTag"|"WithVoteTag"
   Tweets: "TweetsDefaultFragment"
   TypingIndicators: "TypingIndicatorInfo"|"TypingIndicatorsDefaultFragment"
+  UltraFeedItems: "UltraFeedItemFragment"
   UserActivities: "UserActivitiesDefaultFragment"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -5527,9 +5563,8 @@ interface CollectionNamesByFragmentName {
   ExplorePageTagFragment: "Tags"
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
-  FeedCommentFragment: never
+  FeedCommentItemFragment: "Comments"
   FeedItemServingsDefaultFragment: "FeedItemServings"
-  FeedPostFragment: never
   FieldChangeFragment: "FieldChanges"
   FieldChangesDefaultFragment: "FieldChanges"
   ForumEventsDefaultFragment: "ForumEvents"
@@ -5731,6 +5766,8 @@ interface CollectionNamesByFragmentName {
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  UltraFeedCommentWithPostFragment: "Comments"
+  UltraFeedItemFragment: never
   UnclaimedReportsList: "Reports"
   UserActivitiesDefaultFragment: "UserActivities"
   UserAltAccountsFragment: "Users"

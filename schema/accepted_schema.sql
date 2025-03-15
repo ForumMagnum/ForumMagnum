@@ -943,6 +943,9 @@ CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_sessionId_position" ON "FeedIte
 -- Index "idx_FeedItemServings_userId_servedAt"
 CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_userId_servedAt" ON "FeedItemServings" USING btree ("userId", "servedAt");
 
+-- Index "idx_FeedItemServings_userId_servedAt_position"
+CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_userId_servedAt_position" ON "FeedItemServings" USING btree ("userId", "servedAt", "position");
+
 -- Index "idx_FeedItemServings_primaryDocumentId_primaryDocumentCollectionName"
 CREATE INDEX IF NOT EXISTS "idx_FeedItemServings_primaryDocumentId_primaryDocumentCollectionName" ON "FeedItemServings" USING btree (
   "primaryDocumentId",
