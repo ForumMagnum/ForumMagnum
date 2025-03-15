@@ -21,8 +21,6 @@ const promptImageUrls = [
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915926/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_zybtog.png",
 
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915911/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_j57fgb.png",
-
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915911/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_j57fgb.png"
 ]
 
 const prompter = (el: string) => {
