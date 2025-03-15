@@ -5,6 +5,7 @@ import keyBy from "lodash/keyBy";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { loadByIds } from "../../lib/loaders";
+import { fetchFragment } from "../fetchFragment";
 
 /** For feed items, we typically render them as a post or a comment. */
 export const feedItemRenderTypes = ["feedComment", "feedPost"] as const;
@@ -51,7 +52,7 @@ export interface HydratedFeedItem {
   _id: string;
   type: string; // "ultraFeedItem" (needed for GraphQL schema)
   renderAsType: FeedItemRenderType;
-  sources: string[] | null;
+  sources: string[];
   primaryDocumentId?: string | null;
   primaryDocumentCollectionName?: string | null;
   primaryComment: DbComment | null;
@@ -100,13 +101,10 @@ export async function hydrateFeedItems(
     }
   });
 
-  // Load all relevant documents
-  const [posts, comments, secondaryPosts, secondaryComments] = await Promise.all([
+  // Load all relevant documents - using better approaches for comments
+  const [posts, secondaryPosts, secondaryComments] = await Promise.all([
     loadByIds(context, "Posts", Array.from(postIds))
       .then(list => accessFilterMultiple(currentUser, "Posts", list, context))
-      .then(filterNonnull),
-    loadByIds(context, "Comments", Array.from(commentIds))
-      .then(list => accessFilterMultiple(currentUser, "Comments", list, context))
       .then(filterNonnull),
     loadByIds(context, "Posts", Array.from(secondaryPostIds))
       .then(list => accessFilterMultiple(currentUser, "Posts", list, context))
@@ -116,9 +114,21 @@ export async function hydrateFeedItems(
       .then(filterNonnull),
   ]);
 
+  // Use fetchFragment to load comments with their post information in one efficient query
+  const commentIds_array = Array.from(commentIds);
+  const commentsWithPosts = commentIds_array.length > 0 
+    ? await fetchFragment({
+      collectionName: "Comments",
+      fragmentName: "ShortformComments",
+      currentUser,
+      selector: { _id: { $in: commentIds_array } },
+      context
+    })
+    : [];
+
   // Build dictionaries
   const postsById = keyBy(posts, p => p._id) as Record<string, DbPost>;
-  const commentsById = keyBy(comments, c => c._id) as Record<string, DbComment>;
+  const commentsById = keyBy(commentsWithPosts, c => c._id) as Record<string, DbComment>;
   const secondaryPostsById = keyBy(secondaryPosts, p => p._id) as Record<string, DbPost>;
   const secondaryCommentsById = keyBy(secondaryComments, c => c._id) as Record<string, DbComment>;
 
@@ -131,7 +141,7 @@ export async function hydrateFeedItems(
       _id: item._id,
       type: "ultraFeedItem", // Required for GraphQL schema
       renderAsType: validRenderAsType,
-      sources: item.sources || [],
+      sources: item.sources ?? [],
       primaryDocumentId: item.primaryDocumentId,
       primaryDocumentCollectionName: item.primaryDocumentCollectionName,
       primaryComment: null,

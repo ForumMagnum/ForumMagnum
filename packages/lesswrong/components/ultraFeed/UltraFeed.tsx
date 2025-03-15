@@ -10,6 +10,8 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
+import { HydratedFeedItem } from '@/server/utils/feedItemUtils';
+import { isCommentFeedItem, isPostFeedItem, getUltraFeedComment, getPostForFeed, getCommentsForFeed } from './ultraFeedTypes';
 
 const styles = (theme: ThemeType) => ({
   toggleContainer: {
@@ -104,7 +106,7 @@ const styles = (theme: ThemeType) => ({
 const UltraFeedContent = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, QuickTakesListItem, 
+  const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
     FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, Divider } = Components;
   
   const currentUser = useCurrentUser();
@@ -211,32 +213,40 @@ const UltraFeedContent = ({classes}: {
   const ultraFeedRenderer = {
     ultraFeedItem: {
       fragmentName: 'UltraFeedItemFragment',
-      render: (ultraFeedItem: any) => {
-        // Handle based on renderAsType
-        if (ultraFeedItem.renderAsType === 'feedComment') {
-          const comment = ultraFeedItem.primaryComment;
+      render: (ultraFeedItem: HydratedFeedItem) => {
+        // Use type guards to handle each case
+        if (isCommentFeedItem(ultraFeedItem)) {
+          // Now TypeScript knows primaryComment is not null and has the right type
+          const comment = getUltraFeedComment(ultraFeedItem);
           return (
             <FeedItemWrapper sources={ultraFeedItem.sources}>
-              <QuickTakesListItem 
+              <UltraFeedCommentItem 
                 key={comment._id}
-                quickTake={comment}
+                comment={comment}
               />
             </FeedItemWrapper>
           );
-        } else {
-          // Render as post
+        } else if (isPostFeedItem(ultraFeedItem)) {
+          // Now TypeScript knows primaryPost is not null
+          const post = getPostForFeed(ultraFeedItem);
+          const comments = getCommentsForFeed(ultraFeedItem);
+          
           return (
             <FeedItemWrapper sources={ultraFeedItem.sources}>
               <FeedPostCommentsCard
-                key={ultraFeedItem.primaryPost._id}
-                post={ultraFeedItem.primaryPost}
-                comments={ultraFeedItem.secondaryComments || []}
+                key={post._id}
+                post={post}
+                comments={comments}
                 maxCollapsedLengthWords={200}
                 refetch={refetch}
               />
             </FeedItemWrapper>
           );
         }
+        
+        // If we don't recognize the type, return null
+        console.log("Unknown feed item type:", ultraFeedItem);
+        return null;
       }
     }
   };

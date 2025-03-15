@@ -15,17 +15,9 @@ addGraphQLSchema(`
     type: String!                     # The type of the item, e.g., "ultraFeedItem"
     renderAsType: String!              # e.g., "feedPost", "feedComment"
     sources: [String!]!                # e.g., ["quickTakes", "subscribed"]
-    
-    # If the primary document is a Post, store it here. Otherwise null.
     primaryPost: Post
-    
-    # If the item includes multiple secondary posts, store them here. 
     secondaryPosts: [Post]
-    
-    # If the primary document is a Comment, store it here instead.
     primaryComment: Comment
-    
-    # If there are multiple related comments, store them here, if desired.
     secondaryComments: [Comment]
   }
 
@@ -35,7 +27,7 @@ addGraphQLSchema(`
 const SOURCE_WEIGHTS = {
   popularComments: 5,
   quickTakes: 5,
-  subscribed: 5
+  subscribed: 0
 };
 
 // Helper function to perform weighted sampling
