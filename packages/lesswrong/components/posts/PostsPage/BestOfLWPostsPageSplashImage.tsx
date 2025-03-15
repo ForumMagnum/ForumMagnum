@@ -20,7 +20,8 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     [theme.breakpoints.up('sm')]: {
       top: -200,
     },
-    right: -100
+    display: 'flex',
+    justifyContent: 'flex-end'
   },
   backgroundImage: {
     position: 'relative',
