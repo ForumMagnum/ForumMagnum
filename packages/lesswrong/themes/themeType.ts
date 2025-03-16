@@ -577,10 +577,25 @@ declare global {
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
-  type ThemeType = {
+  /**
+   * Theme settings that identify which site/site-theme this is (LW, AF,
+   * EA Forum, etc). For styles, prefer to use these from the theme, rather
+   * than imported, because that way you can override the site-theme in
+   * development to test what the other sites will look like.
+   */
+  type WhichSiteThemeSettings = {
     forumType: ForumTypeString,
-    themeOptions: ThemeOptions,
+    isFriendlyUI: boolean
+    isBookUI: boolean
+    isLW: boolean
+    isAF: boolean
+    isLWorAF: boolean
+    isEAForum: boolean
+  };
 
+  type ThemeType = WhichSiteThemeSettings & {
+    themeOptions: ThemeOptions,
+    
     baseFontSize: number,
     
     breakpoints: {
@@ -652,8 +667,8 @@ declare global {
     
     rawCSS: string[],
   };
-
-  type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
+  
+  type NativeThemeType = Omit<ThemeType,"palette"|"themeOptions"|"breakpoints"|keyof WhichSiteThemeSettings> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
   
   type BaseThemeSpecification = {
     shadePalette: ThemeShadePalette,

@@ -7,13 +7,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
-import { isBookUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...(isBookUI ? {
+    ...(theme.isBookUI ? {
       marginTop: 64
     } : {}),
   },

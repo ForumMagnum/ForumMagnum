@@ -15,7 +15,6 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 
 export const highlightSelectorClassName = "highlighted-substring";
@@ -58,9 +57,9 @@ const styles = (theme: ThemeType) => ({
   replyLink: {
     marginRight: 8,
     display: "inline",
-    fontWeight: isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
+    fontWeight: theme.isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
-    fontSize: isFriendlyUI ? "1.1rem" : undefined,
+    fontSize: theme.isFriendlyUI ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
@@ -73,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
   },
   replyFormMinimalist: {
     borderRadius: theme.borderRadius.small,
@@ -89,7 +88,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: isFriendlyUI
+  pinnedIcon: theme.isFriendlyUI
     ? {
       width: 16,
       height: 16,

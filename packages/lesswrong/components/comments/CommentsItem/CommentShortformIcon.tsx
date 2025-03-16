@@ -3,10 +3,9 @@ import React from 'react';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isEAForum } from '../../../lib/instanceSettings';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
-  icon: isFriendlyUI ? {
+  icon: theme.isFriendlyUI ? {
     cursor: "pointer",
     color: theme.palette.grey[1000],
     height: 16,

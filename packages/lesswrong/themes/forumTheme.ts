@@ -82,13 +82,48 @@ const buildTheme = (
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
   let themeWithPalette = {
-    forumType,
+    ...forumTypeToWhichSiteThemeSettings(forumType),
     ...combinedTheme,
     palette
   };
   const theme = createMuiTheme(themeWithPalette as any) as any;
   theme.themeOptions = themeOptions;
   return theme;
+}
+
+function forumTypeToWhichSiteThemeSettings(forumType: ForumTypeString): WhichSiteThemeSettings {
+  switch (forumType) {
+    case "LessWrong":
+      return {
+        forumType,
+        isFriendlyUI: false,
+        isBookUI: true,
+        isLW: true,
+        isAF: false,
+        isLWorAF: true,
+        isEAForum: false,
+      };
+    case "AlignmentForum":
+      return {
+        forumType,
+        isFriendlyUI: false,
+        isBookUI: true,
+        isLW: false,
+        isAF: true,
+        isLWorAF: true,
+        isEAForum: false,
+      };
+    case "EAForum":
+      return {
+        forumType,
+        isFriendlyUI: true,
+        isBookUI: false,
+        isLW: false,
+        isAF: false,
+        isLWorAF: false,
+        isEAForum: true,
+      };
+  }
 }
 
 /**

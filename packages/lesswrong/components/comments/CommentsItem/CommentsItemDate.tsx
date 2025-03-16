@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -14,7 +13,7 @@ const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
 
 const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       marginLeft: 2,
       marginRight: 7,
     } : {
