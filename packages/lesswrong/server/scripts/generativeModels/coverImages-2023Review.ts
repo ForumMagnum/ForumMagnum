@@ -36,6 +36,8 @@ If the essay specifically mentions a visual metaphor, use that metaphor.
 
 The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but you should figure out the specific concrete images to represent that thing). Do NOT use "mazes", or "labryinth" or "neural net".
 
+If the essay only really talks about learning, metalearning, or other abstract concepts, please choose a metaphor that is not a maze/labryinth/
+
 If the essay contains any particular images or visual metaphors, feel free to use those in the answers.
 
 Here are some examples:
@@ -53,7 +55,7 @@ Here are some bad examples:
 3. A collection of books about Zen Buddhism
 4. A labyrinth of forking paths
 
-Please generate 3 visual metaphors for the essay that will appear on Lesswrong. The essay will appear after the "===".
+Please generate 10 visual metaphors for the essay that will appear on Lesswrong, then select the best 3. The essay will appear after the "===".
 
 Please format your response as follows:
 
@@ -254,7 +256,7 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
 export const getReviewWinnerArts = async () => {
   console.log("Running getReviewWinnerArts")
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays.slice(0, 3)
+  const essays = totalEssays
   console.log(`${essays.length} essays to generate art for`)
   const openAiClient = await getOpenAI()
   if (!openAiClient) {

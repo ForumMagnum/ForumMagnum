@@ -23,6 +23,9 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     },
     right: -300
   },
+  backgroundImageWrapperInner: {
+    position: 'relative',
+  },
   backgroundImage: {
     position: 'absolute',
     objectFit: 'cover',
@@ -37,30 +40,48 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
       height: 'unset'
     }
   },
-  overlay: {
+  overlayY: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    // background: 'red',
-    background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
-    [theme.breakpoints.up('sm')]: {
-      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 25%, transparent 48%,#fff 87%)',
-    },
-    [theme.breakpoints.up('lg')]: {
-      background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 35%, transparent 48%,#fff 87%)',
-    },
+    right: 0,
+    width: 'auto',
+    height: 'auto',
+    background: 'red',
+    // background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
+    // [theme.breakpoints.up('sm')]: {
+    //   background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 25%, transparent 48%,#fff 87%)',
+    // },
+    // [theme.breakpoints.up('lg')]: {
+    //   background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 35%, transparent 48%,#fff 87%)',
+    // },
     pointerEvents: 'none',
+    bottom: 0,
+    left: 'auto',
+    [theme.breakpoints.up('lg')]: {
+      width: '70%',
+    }
   },
-  // overlay2: {
-  //   position: 'absolute',
-  //   top: 0,
-  //   left: 0,
-  //   width: '100vw',
-  //   height: '100vh',
-  //   background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
-  // },
+  overlayX: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 'auto',
+    height: 'auto',
+    background: 'red',
+    // background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
+    // [theme.breakpoints.up('sm')]: {
+    //   background: 'linear-gradient(90deg,rgba(255,255,255,.87) 100px,transparent 25%, transparent 48%,#fff 87%)',
+    // },
+    // [theme.breakpoints.up('lg')]: {
+    //   background: 'linear-gradient(90deg,rgba(255,255,255,.87) 100px,transparent 35%, transparent 48%,#fff 87%)',
+    // },
+    pointerEvents: 'none',
+    bottom: 0,
+    left: 'auto',
+    [theme.breakpoints.up('lg')]: {
+      width: '70%',
+    }
+  },
   diagonalOverlay: {
     position: 'absolute',
     top: 0,
@@ -187,9 +208,11 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
       <img src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
     </div> */}
     <div className={classes.backgroundImageWrapper} style={{opacity}}>
-      <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
-      <div className={classes.overlay} />
-      <div className={classes.diagonalOverlay} />
+      <div className={classes.backgroundImageWrapperInner}>
+        <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
+        <div className={classes.overlayY} />
+        <div className={classes.overlayX} />
+      </div>
     </div>
     {userIsAdminOrMod(currentUser) && imagePreviewAndCrop}
   </div>
