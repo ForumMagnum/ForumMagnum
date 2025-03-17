@@ -23,6 +23,8 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
+import { cheerioParse } from '../utils/htmlUtil';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -186,12 +188,15 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const css = sheetsRegistry.toString();
   const html = boilerplateGenerator({ css, body, title:subject })
   
+  // Find any relative links, and convert them to absolute
+  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
+  
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
-  const inlinedHTML = Juice(html, { preserveMediaQueries: true });
+  const inlinedHTML = Juice(htmlWithAbsoluteUrls, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText(html, {
+  const plaintext = htmlToText(htmlWithAbsoluteUrls, {
     wordwrap: plainTextWordWrap
   });
   
@@ -344,4 +349,29 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
     return "Setting 'Do not send me any emails' is checked";
   
   return null;
+}
+
+function makeAllUrlsAbsolute(html: string, relativeTo: string): string {
+  const $ = cheerioParse(html);
+  
+  $('a').each((_, element) => {
+    const href = $(element).attr('href');
+    
+    // Skip if there's no href attribute or it's already absolute, empty, or just a hash
+    if (!href || href.startsWith('http://') || href.startsWith('https://')
+      || href === '' || href === '#' || href.startsWith('mailto:') || href.startsWith('tel:')
+    ) {
+      return;
+    }
+    
+    try {
+      const absoluteUrl = new URL(href, relativeTo).href;
+      $(element).attr('href', absoluteUrl);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`Could not convert URL "${href}" to absolute: ${error}`);
+    }
+  });
+  
+  return $.html();
 }
