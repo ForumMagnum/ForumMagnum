@@ -970,7 +970,6 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly frontpageDescription_latest: string,
   readonly frontpageDescriptionMobile_latest: string,
   readonly postPageDescription_latest: string,
-  readonly pollQuestion_latest: string,
   readonly title: string,
   readonly startDate: Date,
   readonly endDate: Date,
@@ -983,6 +982,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly pollQuestion_latest: string,
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
@@ -2802,10 +2802,7 @@ interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlig
   readonly description: SpotlightDisplay_description|null,
 }
 
-interface SpotlightDisplay_post { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
+interface SpotlightDisplay_post extends PostsMinimumInfo { // fragment on Posts
   readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
