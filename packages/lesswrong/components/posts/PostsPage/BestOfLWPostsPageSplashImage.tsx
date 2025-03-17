@@ -46,7 +46,7 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     width: '100vw',
     height: '100vh',
     // background: 'red',
-    background: 'linear-gradient(180deg, #ffffff 160px,  transparent 48%, #fff 87%)',
+    background: 'linear-gradient(180deg, #ffffff 140px,  transparent 40%, #fff 87%)',
     pointerEvents: 'none',
     bottom: 0,
     left: 'auto',

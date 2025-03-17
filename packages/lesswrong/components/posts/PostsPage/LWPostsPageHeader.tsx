@@ -161,7 +161,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   rootWithSplashPageHeader: {
-    paddingTop: 'calc(100vh - 500px)',
+    paddingTop: 'calc(100vh - 560px)',
     [theme.breakpoints.down('md')]: {
       paddingTop: 'calc(100vh - 300px)',
     },
