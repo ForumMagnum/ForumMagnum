@@ -28,7 +28,7 @@ addGraphQLResolvers({
       }
       await Promise.all([
         repos.forumEvents.addVote(forumEventId, currentUser._id, voteData),
-        repos.comments.setLatestPollVote(forumEventId, x)
+        repos.comments.setLatestPollVote({ forumEventId, latestVote: x, userId: currentUser._id })
       ]);
       captureEvent("addForumEventVote", {
         forumEventId,
@@ -45,7 +45,7 @@ addGraphQLResolvers({
       }
       await Promise.all([
         repos.forumEvents.removeVote(forumEventId, currentUser._id),
-        repos.comments.setLatestPollVote(forumEventId, null)
+        repos.comments.setLatestPollVote({ forumEventId, latestVote: null, userId: currentUser._id })
       ]);
       captureEvent("removeForumEventVote", {
         forumEventId,

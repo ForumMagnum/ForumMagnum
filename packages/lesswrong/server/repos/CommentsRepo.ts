@@ -453,7 +453,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return postIds.map(postId => commentsByPost[postId] ?? []);
   }
 
-  async setLatestPollVote(forumEventId: string, latestVote: number | null): Promise<void> {
+  async setLatestPollVote({ forumEventId, latestVote, userId }: { forumEventId: string; latestVote: number | null; userId: string; }): Promise<void> {
     await this.getRawDb().none(`
       -- CommentsRepo.setLatestPollVote
       UPDATE "Comments"
@@ -462,8 +462,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHEN $2 IS NULL THEN 'null'::jsonb
           ELSE to_jsonb($2::float)
         END)
-      WHERE "forumEventId" = $1
-    `, [forumEventId, latestVote]);
+      WHERE "forumEventId" = $1 AND "userId" = $3
+    `, [forumEventId, latestVote, userId]);
   }
 }
 
