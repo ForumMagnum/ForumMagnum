@@ -816,7 +816,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 // can call its methods, which means it can't have any HoCs. In particular, it
 // can't have 'styles' (since that would add a HoC); instead, it exports its
 // styles, and has classes provided by whatever wraps it.
-export const EditorComponent = registerComponent('Editor', Editor);
+export const EditorComponent = registerComponent('Editor', Editor, {
+  allowRef: true,
+});
 
 declare global {
   interface ComponentTypes {
