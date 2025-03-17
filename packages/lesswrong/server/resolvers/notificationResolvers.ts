@@ -124,11 +124,11 @@ createPaginatedResolver({
   graphQLType: "JSON",
   args: {
     type: "String",
-  },
+  } as const,
   callback: async (
     context: ResolverContext,
     limit: number,
-    args?: {type?: string | null},
+    args,
   ): Promise<NotificationDisplay[]> => {
     const {repos, currentUser} = context;
     if (!currentUser) {
