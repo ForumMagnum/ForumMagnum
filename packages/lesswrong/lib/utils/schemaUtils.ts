@@ -1,5 +1,5 @@
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
-import SimpleSchema from 'simpl-schema'
+import SimpleSchema from 'simpl-schema';
 import { loadByIds, getWithLoader } from "../loaders";
 import { isAnyTest, isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
@@ -172,6 +172,15 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
   }
 }
 
+export function arrayOfForeignKeysOnCreate<CollectionName extends CollectionNameString>({newDocument, fieldName}: {
+  newDocument: ObjectsByCollectionName[CollectionName],
+  fieldName: string,
+}) {
+  if (newDocument[fieldName as keyof DbObject] === undefined) {
+    return [];
+  }
+}
+
 export function arrayOfForeignKeysField<CollectionName extends keyof CollectionsByName>({idFieldName, resolverName, collectionName, type, getKey}: {
   idFieldName: string,
   resolverName: string,
@@ -186,14 +195,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
     type: Array,
 
     defaultValue: [],
-    onCreate: ({newDocument, fieldName}: {
-      newDocument: DbObject,
-      fieldName: string,
-    }) => {
-      if (newDocument[fieldName as keyof DbObject] === undefined) {
-        return [];
-      }
-    },
+    onCreate: arrayOfForeignKeysOnCreate,
     canAutofillDefault: true,
     nullable: false,
     resolveAs: {

@@ -66,7 +66,7 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
     canCreate: ['members']
   },
   order: 0,
-  hintText: defaultEditorPlaceholder,
+  hintText: () => defaultEditorPlaceholder,
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }

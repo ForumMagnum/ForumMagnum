@@ -38,7 +38,7 @@ const schema: SchemaType<"Localgroups"> = {
       canUpdate: ['members'],
       canCreate: ['members']
     },
-    hintText: "Short description"
+    hintText: () => "Short description"
   }),
   
   name: {

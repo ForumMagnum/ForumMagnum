@@ -42,7 +42,7 @@ const schema: SchemaType<"Comments"> = {
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
-    hintText: isFriendlyUI ? 'Write a new comment...' : undefined,
+    hintText: () => isFriendlyUI ? 'Write a new comment...' : undefined,
     order: 25,
     pingbacks: true,
   }),

@@ -4,7 +4,7 @@ import type { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import type { permissionGroups } from "../permissions";
 import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
-import type { EditableFieldOptions } from '../editor/makeEditableOptions';
+import type { EditableFieldClientOptions, EditableFieldOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -154,7 +154,7 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
 }
 
 interface DatabaseFieldSpecification<N extends CollectionNameString> {
-  type: string, 
+  type: string,
   defaultValue?: any,
   typescriptType?: string,
   denormalized?: boolean, 
@@ -213,17 +213,20 @@ interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> 
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
+interface NotAGraphQLFieldSpecification {}
+
 interface GraphQLBaseFieldSpecification {
   type: string | GraphQLScalarType,
   typescriptType?: string,
   blackbox?: boolean,
   validation?: {
+    simpleSchema?: SimpleSchema,
     regEx?: any,
     allowedValues?: string[],
   },
 }
 
-type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (GraphQLWriteableFieldSpecification<N> | GraphQLResolverOnlyFieldSpecification<N>);
+type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (GraphQLWriteableFieldSpecification<N> | GraphQLResolverOnlyFieldSpecification<N> | NotAGraphQLFieldSpecification);
 
 interface FormFieldSpecification<N extends CollectionNameString> {
   description?: string,
@@ -242,7 +245,8 @@ interface FormFieldSpecification<N extends CollectionNameString> {
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: () => FormGroupType<N> | undefined,     
+  group?: () => FormGroupType<N> | undefined,
+  editableFieldOptions?: EditableFieldClientOptions,
 }
 
 interface NewCollectionFieldSpecification<N extends CollectionNameString> {

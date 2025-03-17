@@ -2,8 +2,8 @@ import { Posts } from '../../server/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../server/collections/comments/collection';
 import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { denormalizedField, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils'
-import { getLocalTime } from '../mapsUtils'
+import { denormalizedField, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { getLocalTime } from '../mapsUtils';
 import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
@@ -21,7 +21,6 @@ import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarket
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
-import SideCommentCaches from '../../server/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc, dataToMarkdown } from '../editor/conversionUtils';
 import Revisions from '../../server/collections/revisions/collection';
@@ -33,7 +32,7 @@ import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombe
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
+import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { createMutator } from "../vulcan-lib/mutators";
 import { fetchFragmentSingle } from '../fetchFragment';
@@ -137,6 +136,7 @@ export const postResolvers = {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, _args: void, context: ResolverContext): Promise<SideCommentsResolverResult|null> => {
+        const { SideCommentCaches } = context;
         if (!hasSideComments || isNotHostedHere(post)) {
           return null;
         }

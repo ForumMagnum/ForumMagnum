@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
+import { userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -9,7 +9,7 @@ import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfRefer
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
-import uniqBy from 'lodash/uniqBy'
+import uniqBy from 'lodash/uniqBy';
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
@@ -88,6 +88,13 @@ export type NotificationTypeSettings = {
 
 export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   channel: "onsite",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
+export const multiChannelDefaultNotificationTypeSettings: NotificationTypeSettings = {
+  channel: "both",
   batchingFrequency: "realtime",
   timeOfDayGMT: 12,
   dayOfWeekGMT: "Monday",
@@ -313,10 +320,6 @@ export const PROGRAM_PARTICIPATION = [
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
-type LatLng = {
-  lat: number
-  lng: number
-};
 const latLng = new SimpleSchema({
   lat: {
     type: Number,
@@ -361,7 +364,7 @@ const schema: SchemaType<"Users"> = {
     order: 7,
     label: "How others can help me",
     formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Ex: I am looking for opportunities to do...",
+    hintText: () => "Ex: I am looking for opportunities to do...",
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -378,7 +381,7 @@ const schema: SchemaType<"Users"> = {
     order: 8,
     label: "How I can help others",
     formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Ex: Reach out to me if you have questions about...",
+    hintText: () => "Ex: Reach out to me if you have questions about...",
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -411,7 +414,7 @@ const schema: SchemaType<"Users"> = {
     formGroup: () => isEAForum ? formGroups.aboutMe : formGroups.default,
     label: "Bio",
     formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Tell us about yourself",
+    hintText: () => "Tell us about yourself",
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],

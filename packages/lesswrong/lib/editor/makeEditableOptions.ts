@@ -42,7 +42,7 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
   formVariant?: "default" | "grey",
   order?: number,
   hideControls?: boolean,
-  hintText?: string,
+  hintText?: () => string | undefined,
   pingbacks?: boolean,
   revisionsHaveCommitMessages?: boolean,
   hidden?: boolean,

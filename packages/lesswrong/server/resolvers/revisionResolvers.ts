@@ -8,7 +8,7 @@ import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
-import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
+import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { afterCreateRevisionCallback, buildRevision } from '../editor/make_editable_callbacks';
@@ -22,7 +22,7 @@ import { extractTableOfContents } from '../../lib/tableOfContents';
 import { htmlContainsFootnotes } from '../utils/htmlUtil';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
-const htmlToTextPlaintextDescription = compileHtmlToText({
+export const htmlToTextPlaintextDescription = compileHtmlToText({
   wordwrap: false,
   selectors: [
     { selector: "img", format: "skip" },
