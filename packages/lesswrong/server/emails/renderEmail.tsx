@@ -15,7 +15,6 @@ import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/u
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
-import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -178,8 +177,6 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // accordingly.
   await getDataFromTree(wrappedBodyComponent);
   
-  validateSheets(sheetsRegistry);
-  
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
   
@@ -270,20 +267,6 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
     return false;
   }
 }
-
-function validateSheets(sheetsRegistry: typeof SheetsRegistry)
-{
-  let styleValidator = new StyleValidator();
-  
-  for (let sheet of sheetsRegistry.registry) {
-    for (let rule of sheet.rules.index) {
-      if (rule.style) {
-        styleValidator.validate(rule.style, rule.selectorText);
-      }
-    }
-  }
-}
-
 
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
