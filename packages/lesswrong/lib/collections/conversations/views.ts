@@ -37,7 +37,7 @@ function moderatorConversations(terms: ConversationsViewTerms) {
 function userConversations(terms: ConversationsViewTerms) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
   return {
-    selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter},
+    selector: {moderator: {$ne: true}, participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter},
     options: {sort: {latestActivity: -1}}
   };
 }
