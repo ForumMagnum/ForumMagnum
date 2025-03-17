@@ -105,18 +105,17 @@ const saveImage = async (prompt: string, essay: Essay, url: string) => {
       context: createAdminContext(),
       document: {
         reviewWinnerArtId: reviewWinnerArt.data._id,
-        // These are example values - you may want to adjust these based on your needs
-        leftXPct: 0,
+        leftXPct: 16.67,
         leftYPct: 0,
         leftHeightPct: 100,
         leftWidthPct: 33.33,
         leftFlipped: false,
-        middleXPct: 33.33,
+        middleXPct: 50,
         middleYPct: 0,
         middleHeightPct: 100,
         middleWidthPct: 33.33,
         middleFlipped: false,
-        rightXPct: 66.66,
+        rightXPct: 83.33,
         rightYPct: 0,
         rightHeightPct: 100,
         rightWidthPct: 33.33,
@@ -199,7 +198,6 @@ fal.config({
 
 const generateImage = async (prompt: string, imageUrl: string): Promise<string> => {
   // eslint-disable-next-line no-console
-  console.log(`generating image for ${prompt.split(", aquarelle artwork fading")[0]}`)
   try {
     const runOptions = {
       input: {
@@ -228,6 +226,34 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
   }
 }
 
+const generateHighResImage = async (prompt: string, imageUrl: string): Promise<string> => {
+  // First pass: Generate high-quality image with flux-pro
+  const fluxResult = await generateImage(prompt, imageUrl);
+  
+  // Second pass: Upscale with CCSR
+  try {
+    const upscaleOptions = {
+      input: {
+        image_url: fluxResult,
+        // CCSR specific settings for best quality
+        scale: 1.35
+      }
+    };
+    
+    const result = await fal.subscribe("fal-ai/esrgan", upscaleOptions);
+    console.log("prompt", prompt.split(", aquarelle artwork fading")[0])
+    console.log("fluxResult", fluxResult)
+    console.log("upscaled result", result.data.image.url)
+    return result.data.image.url;
+    
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error upscaling image:', error);
+    // Fall back to the flux-pro result if upscaling fails
+    return fluxResult;
+  }
+}
+
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const promptElements = await getPromptTextElements(openAiClient, essay)
   return promptElements.map(el => prompter(el))
@@ -242,11 +268,10 @@ type EssayResult = {
 
 const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
-  console.log(`getting art for ${essay.title}`)
   const prompts = await getPrompts(openAiClient, essay)
 
   const results = Promise.all(prompts.map(async (prompt) => {
-    const image = await generateImage(prompt, sample(promptImageUrls)!)
+    const image = await generateHighResImage(prompt, sample(promptImageUrls)!)
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))
@@ -254,9 +279,10 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
 }
 
 export const getReviewWinnerArts = async () => {
+  console.time('getReviewWinnerArts');
   console.log("Running getReviewWinnerArts")
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays
+  const essays = totalEssays.slice(0,1)
   console.log(`${essays.length} essays to generate art for`)
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
@@ -266,7 +292,6 @@ export const getReviewWinnerArts = async () => {
   const results: EssayResult[][] = await Promise.all(essays.map(async (essay) => {
     return getArtForEssay(openAiClient, essay)
   }))
-
 
   // eslint-disable-next-line no-console
   console.log("\n\nResults:")
@@ -286,4 +311,5 @@ export const getReviewWinnerArts = async () => {
     return uniqueResults;
   })
   console.log(`${results.length} cover images generated for ${uniqueResults.length} essays`)
+  console.timeEnd('getReviewWinnerArts');
 }

@@ -9,6 +9,7 @@ import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 
 export const LW_POST_PAGE_PADDING = 110;
+const splashPageRight = true
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -157,13 +158,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   titleSectionWithSplashPageHeader: {
-    marginBottom: 175,
+    marginBottom: 0,
   },
   rootWithSplashPageHeader: {
-    paddingTop: 175,
-    // [theme.breakpoints.down('md')]: {
-    //   paddingTop: 150,
-    // },
+    paddingTop: 'calc(100vh - 500px)',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: 'calc(100vh - 300px)',
+    },
   }
 }); 
 
