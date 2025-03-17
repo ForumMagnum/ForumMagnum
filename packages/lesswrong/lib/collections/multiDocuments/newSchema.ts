@@ -189,6 +189,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       canUpdate: ["members"],
       canCreate: ["members"],
     },
+    form: {
+      order: 5,
+      hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== "description",
+    },
   },
   preview: {
     database: {
@@ -225,6 +229,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+    },
+    form: {
+      order: 20,
+      hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== "description",
     },
   },
   userId: {

@@ -3,9 +3,9 @@
 // The original schema is still in use, this is just for reference.
 
 import {
-    accessFilterSingle, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
-    getDenormalizedCountOfReferencesGetValue,
-    getFillIfMissing
+  accessFilterSingle, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
+  getDenormalizedCountOfReferencesGetValue,
+  getFillIfMissing
 } from "../../utils/schemaUtils";
 import * as _ from "underscore";
 import { getWithCustomLoader } from "../../loaders";

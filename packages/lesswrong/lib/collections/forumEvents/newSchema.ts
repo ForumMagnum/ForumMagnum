@@ -38,7 +38,7 @@ const defaultEditableProps: Pick<
   },
 };
 
-const hA4DeF = () => defaultEditorPlaceholder;
+const hMkjFt = () => defaultEditorPlaceholder;
 
 const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
   _id: {
@@ -102,7 +102,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
     form: {
       form: {
         label: "Frontpage description",
-        hintText: hA4DeF,
+        hintText: hMkjFt,
         fieldName: "frontpageDescription",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -160,7 +160,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
     form: {
       form: {
         label: "Frontpage description (mobile)",
-        hintText: hA4DeF,
+        hintText: hMkjFt,
         fieldName: "frontpageDescriptionMobile",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -218,7 +218,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
     form: {
       form: {
         label: "Post page description",
-        hintText: hA4DeF,
+        hintText: hMkjFt,
         fieldName: "postPageDescription",
         collectionName: "ForumEvents",
         commentEditor: true,

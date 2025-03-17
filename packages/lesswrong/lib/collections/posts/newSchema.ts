@@ -5,25 +5,25 @@
 import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
-    schemaDefaultValue, googleLocationToMongoLocation, accessFilterMultiple,
-    accessFilterSingle, arrayOfForeignKeysOnCreate,
-    generateIdResolverMulti,
-    generateIdResolverSingle,
-    getDenormalizedCountOfReferencesGetValue,
-    getDenormalizedFieldOnCreate,
-    getDenormalizedFieldOnUpdate,
-    getFillIfMissing,
-    getForeignKeySqlResolver,
-    throwIfSetToNull
+  schemaDefaultValue, googleLocationToMongoLocation, accessFilterMultiple,
+  accessFilterSingle, arrayOfForeignKeysOnCreate,
+  generateIdResolverMulti,
+  generateIdResolverSingle,
+  getDenormalizedCountOfReferencesGetValue,
+  getDenormalizedFieldOnCreate,
+  getDenormalizedFieldOnUpdate,
+  getFillIfMissing,
+  getForeignKeySqlResolver,
+  throwIfSetToNull
 } from "../../utils/schemaUtils";
 import {
-    postCanEditHideCommentKarma,
-    postGetPageUrl,
-    postGetEmailShareUrl,
-    postGetTwitterShareUrl,
-    postGetFacebookShareUrl,
-    postGetDefaultStatus,
-    getSocialPreviewImage, isNotHostedHere
+  postCanEditHideCommentKarma,
+  postGetPageUrl,
+  postGetEmailShareUrl,
+  postGetTwitterShareUrl,
+  postGetFacebookShareUrl,
+  postGetDefaultStatus,
+  getSocialPreviewImage, isNotHostedHere
 } from "./helpers";
 import { postStatuses, postStatusLabels, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -34,35 +34,38 @@ import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { getVotingSystems } from "../../voting/votingSystems";
 import {
-    eaFrontpageDateDefault, isEAForum,
-    isLWorAF, reviewUserBotSetting
+  eaFrontpageDateDefault, fmCrosspostSiteNameSetting, isEAForum,
+  isLWorAF, reviewUserBotSetting
 } from "../../instanceSettings";
 import { forumSelect } from "../../forumTypeUtils";
 import * as _ from "underscore";
+import { localGroupTypeFormOptions } from "../localgroups/groupTypes";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
-    sequenceGetNextPostID,
-    sequenceGetPrevPostID,
-    sequenceContainsPost,
-    getPrevPostIdFromPrevSequence,
-    getNextPostIdFromNextSequence,
+  sequenceGetNextPostID,
+  sequenceGetPrevPostID,
+  sequenceContainsPost,
+  getPrevPostIdFromPrevSequence,
+  getNextPostIdFromNextSequence,
 } from "../sequences/helpers";
 import { crosspostKarmaThreshold } from "../../publicSettings";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import {
-    hasAuthorModeration,
-    hasSideComments, userCanViewJargonTerms
+  hasAuthorModeration,
+  hasSideComments, userCanCreateAndEditJargonTerms,
+  userCanViewJargonTerms
 } from "../../betas";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 import { stableSortTags } from "../tags/helpers";
 import { getLatestContentsRevision } from "../../../server/collections/revisions/helpers";
 import { marketInfoLoader } from "./annualReviewMarkets";
 import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
 import {
-    documentIsNotDeleted,
-    userIsAdminOrMod,
-    userOverNKarmaFunc, userOwns
+  documentIsNotDeleted,
+  userIsAdminOrMod,
+  userOverNKarmaFunc, userOwns
 } from "../../vulcan-users/permissions";
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
@@ -80,6 +83,7 @@ import { getToCforPost } from "@/server/tableOfContents";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 import { captureException } from "@sentry/core";
 import { keyBy } from "lodash";
+import { props } from "lodash/fp";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -216,29 +220,30 @@ const userHasModerationGuidelines = (currentUser: DbUser | null): boolean => {
   );
 };
 
-const huchKc = () => {
+const hD3sLF = () => {
   return new Date();
 };
-const heDoLp = (data) => "startTime" in data || "googleLocation" in data;
-const heX2Sc = async (post) => {
+const howovS = (props) => !props.eventForm;
+const hdKQmq = (data) => "startTime" in data || "googleLocation" in data;
+const hDvqQw = async (post) => {
   if (!post.startTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation;
   if (!googleLocation) return null;
   return await getLocalTime(post.startTime, googleLocation);
 };
-const hejsTi = (data) => "endTime" in data || "googleLocation" in data;
-const hgjeKM = async (post) => {
+const hcogHp = (data) => "endTime" in data || "googleLocation" in data;
+const hsgbwC = async (post) => {
   if (!post.endTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation;
   if (!googleLocation) return null;
   return await getLocalTime(post.endTime, googleLocation);
 };
-const hMsiDo = (data) => "googleLocation" in data;
-const hwPeci = async (post) => {
+const hftf5n = (data) => "googleLocation" in data;
+const hLdMhh = async (post) => {
   if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation);
   return null;
 };
-const hbioTq = async (post, context) => {
+const h6XNay = async (post, context) => {
   if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
   const messageTimestamps = await getDialogueMessageTimestamps(post, context);
   if (messageTimestamps.length === 0) {
@@ -499,13 +504,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      getValue: huchKc,
+      getValue: hD3sLF,
     },
     graphql: {
       type: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: huchKc }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: huchKc }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hD3sLF }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hD3sLF }),
     },
   },
   url: {
@@ -517,6 +522,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      max: 500,
+      form: { labels: { inactive: "Link-post?", active: "Add a linkpost URL" }, hintText: () => urlHintText },
+      order: 12,
+      control: "EditLinkpostUrl",
+      hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
+      group: () => formGroups.options,
     },
   },
   postCategory: {
@@ -536,6 +549,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         allowedValues: ["post", "linkpost", "question"],
       },
+    },
+    form: {
+      order: 9,
+      control: "EditPostCategory",
+      hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
+      group: () => formGroups.category,
     },
   },
   title: {
@@ -1386,6 +1405,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       LIMIT 1
     )`,
     },
+    form: {
+      control: "GlossaryEditFormWrapper",
+      hidden: ({ currentUser }) => !userCanCreateAndEditJargonTerms(currentUser),
+      group: () => formGroups.glossary,
+    },
   },
   reviewVoteScoreAF: {
     database: {
@@ -1629,6 +1653,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      control: "FormComponentPostEditorTagging",
+      hidden: ({ eventForm, document }) => eventForm || (isLWorAF && !!document?.collabEditorDialogue),
+      group: () => formGroups.tags,
+    },
   },
   lastPromotedComment: {
     graphql: {
@@ -1739,6 +1768,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      label: "Enable RSVPs for this event",
+      tooltip: "RSVPs are public, but the associated email addresses are only visible to organizers.",
+      control: "checkbox",
+      hidden: howovS,
+      group: () => formGroups.event,
     },
   },
   nextDayReminderSent: {
@@ -2351,6 +2387,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         simpleSchema: FILL_THIS_IN,
       },
     },
+    form: {
+      order: 4,
+      label: "Social Preview Image",
+      control: "SocialPreviewUpload",
+      hidden: ({ document }) => (isLWorAF && !!document?.collabEditorDialogue) || (isEAForum && !!document?.isEvent),
+      group: () => formGroups.socialPreview,
+    },
   },
   socialPreviewData: {
     graphql: {
@@ -2405,6 +2448,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         simpleSchema: FILL_THIS_IN,
       },
+    },
+    form: {
+      order: 3,
+      control: "FMCrosspostControl",
+      hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
+      group: () => formGroups.advancedOptions,
     },
   },
   canonicalSequenceId: {
@@ -2952,6 +3001,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      order: 1,
+      label: "Group",
+      control: "SelectLocalgroup",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   group: {
     graphql: {
@@ -2972,6 +3028,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+    },
+    form: {
+      form: { options: () => EVENT_TYPES },
+      order: 2,
+      label: "Event Format",
+      control: "select",
+      hidden: howovS || isLWorAF,
+      group: () => formGroups.event,
     },
   },
   isEvent: {
@@ -3049,20 +3113,27 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      label: "Start Time",
+      tooltip: "For courses/programs, this is the application deadline.",
+      control: "datetime",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   localStartTime: {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: heDoLp,
-      getValue: heX2Sc,
+      needsUpdate: hdKQmq,
+      getValue: hDvqQw,
     },
     graphql: {
       type: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: heX2Sc, needsUpdate: heDoLp }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: heX2Sc, needsUpdate: heDoLp }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hDvqQw, needsUpdate: hdKQmq }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hDvqQw, needsUpdate: hdKQmq }),
     },
   },
   endTime: {
@@ -3076,20 +3147,26 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      label: "End Time",
+      control: "datetime",
+      hidden: howovS || props.document?.eventType === "course",
+      group: () => formGroups.event,
+    },
   },
   localEndTime: {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hejsTi,
-      getValue: hgjeKM,
+      needsUpdate: hcogHp,
+      getValue: hsgbwC,
     },
     graphql: {
       type: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hgjeKM, needsUpdate: hejsTi }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hgjeKM, needsUpdate: hejsTi }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hsgbwC, needsUpdate: hcogHp }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hsgbwC, needsUpdate: hcogHp }),
     },
   },
   eventRegistrationLink: {
@@ -3105,6 +3182,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         regEx: {},
       },
     },
+    form: {
+      label: "Event Registration Link",
+      tooltip: "https://...",
+      control: "MuiTextField",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   joinEventLink: {
     database: {
@@ -3118,6 +3202,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         regEx: {},
       },
+    },
+    form: {
+      label: "Join Online Event Link",
+      tooltip: "https://...",
+      control: "MuiTextField",
+      hidden: howovS,
+      group: () => formGroups.event,
     },
   },
   onlineEvent: {
@@ -3135,6 +3226,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       onCreate: getFillIfMissing(false),
       onUpdate: throwIfSetToNull,
     },
+    form: {
+      order: 0,
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   globalEvent: {
     database: {
@@ -3151,20 +3247,27 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       onCreate: getFillIfMissing(false),
       onUpdate: throwIfSetToNull,
     },
+    form: {
+      label: "This event is intended for a global audience",
+      tooltip:
+        "By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere.",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   mongoLocation: {
     database: {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hMsiDo,
-      getValue: hwPeci,
+      needsUpdate: hftf5n,
+      getValue: hLdMhh,
     },
     graphql: {
       type: "JSON",
       canRead: [documentIsNotDeleted],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hwPeci, needsUpdate: hMsiDo }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hwPeci, needsUpdate: hMsiDo }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hLdMhh, needsUpdate: hftf5n }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hLdMhh, needsUpdate: hftf5n }),
     },
   },
   googleLocation: {
@@ -3176,6 +3279,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: [documentIsNotDeleted],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      form: { stringVersionFieldName: "location" },
+      label: "Event Location",
+      control: "LocationFormComponent",
+      hidden: howovS,
+      group: () => formGroups.event,
     },
   },
   location: {
@@ -3199,6 +3309,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
+    form: {
+      label: "Contact Info",
+      control: "MuiTextField",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   facebookLink: {
     database: {
@@ -3212,6 +3328,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         regEx: {},
       },
+    },
+    form: {
+      label: "Facebook Event",
+      tooltip: "https://www.facebook.com/events/...",
+      control: "MuiTextField",
+      hidden: howovS,
+      group: () => formGroups.event,
     },
   },
   meetupLink: {
@@ -3227,6 +3350,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         regEx: {},
       },
     },
+    form: {
+      label: "Meetup.com Event",
+      tooltip: "https://www.meetup.com/...",
+      control: "MuiTextField",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   website: {
     database: {
@@ -3241,6 +3371,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         regEx: {},
       },
     },
+    form: {
+      tooltip: "https://...",
+      control: "MuiTextField",
+      hidden: howovS,
+      group: () => formGroups.event,
+    },
   },
   eventImageId: {
     database: {
@@ -3252,6 +3388,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
+    form: {
+      label: "Event Image",
+      tooltip: "Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)",
+      control: "ImageUpload",
+      hidden: howovS || !isEAForum,
+      group: () => formGroups.event,
+    },
   },
   types: {
     database: {
@@ -3262,6 +3405,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      form: { options: () => localGroupTypeFormOptions },
+      label: "Group Type:",
+      control: "MultiSelectButtons",
+      hidden: (props) => !isLWorAF || !props.eventForm,
+      group: () => formGroups.event,
     },
   },
   metaSticky: {
@@ -3303,6 +3453,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      order: 15,
+      label: "Sharing Settings",
+      control: "PostSharingSettings",
+      hidden: (props) => !!props.debateForm,
+      group: () => formGroups.category,
     },
   },
   shareWithUsers: {
@@ -3587,6 +3744,35 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
     },
+    form: {
+      form: {
+        options: function () {
+          return [
+            {
+              value: "",
+              label: "No Moderation",
+            },
+            {
+              value: "easy-going",
+              label: "Easy Going - I just delete obvious spam and trolling.",
+            },
+            {
+              value: "norm-enforcing",
+              label: "Norm Enforcing - I try to enforce particular rules (see below)",
+            },
+            {
+              value: "reign-of-terror",
+              label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
+            },
+          ];
+        },
+      },
+      order: 55,
+      label: "Style",
+      control: "select",
+      hidden: ({ document }) => isFriendlyUI || !!document?.collabEditorDialogue,
+      group: () => formGroups.moderationGroup,
+    },
   },
   ignoreRateLimits: {
     database: {
@@ -3598,6 +3784,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+    },
+    form: {
+      order: 60,
+      tooltip: "Allow rate-limited users to comment freely on this post",
+      hidden: ({ document }) => isEAForum || !!document?.collabEditorDialogue,
+      group: () => formGroups.moderationGroup,
     },
   },
   hideCommentKarma: {
@@ -3805,14 +3997,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      getValue: hbioTq,
+      getValue: h6XNay,
       nullable: true,
     },
     graphql: {
       type: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hbioTq }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hbioTq }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: h6XNay }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: h6XNay }),
     },
   },
   unreadDebateResponseCount: {

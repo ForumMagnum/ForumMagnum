@@ -4,20 +4,21 @@
 
 import { documentIsNotDeleted, userCanDo, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
 import {
-    arrayOfForeignKeysOnCreate,
-    generateIdResolverMulti,
-    generateIdResolverSingle,
-    getDenormalizedCountOfReferencesGetValue,
-    getDenormalizedFieldOnCreate,
-    getDenormalizedFieldOnUpdate,
-    getFillIfMissing,
-    throwIfSetToNull
+  arrayOfForeignKeysOnCreate,
+  generateIdResolverMulti,
+  generateIdResolverSingle,
+  getDenormalizedCountOfReferencesGetValue,
+  getDenormalizedFieldOnCreate,
+  getDenormalizedFieldOnUpdate,
+  getFillIfMissing,
+  throwIfSetToNull
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isEAForum } from "../../instanceSettings";
-import { commentGetPageUrlFromDB } from "./helpers";
+import { isAF, isEAForum } from "../../instanceSettings";
+import { commentAllowTitle, commentGetPageUrlFromDB } from "./helpers";
 import { getVotingSystemNameForDocument } from "../../voting/votingSystems";
 import { viewTermsToQuery } from "../../utils/viewUtils";
+import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
@@ -38,8 +39,8 @@ export const alignmentOptionsGroup = {
   startCollapsed: true,
 };
 
-const hNcjPf = (data) => "postId" in data;
-const hkLfkr = async (comment, context) => {
+const hhZcRS = (data) => "postId" in data;
+const hu3ntX = async (comment, context) => {
   if (!comment.postId) return false;
   const post = await context.Posts.findOne({
     _id: comment.postId,
@@ -47,7 +48,7 @@ const hkLfkr = async (comment, context) => {
   if (!post) return false;
   return !!post.shortform;
 };
-const hAQGGK = async (comment, context) => {
+const hFRYvn = async (comment, context) => {
   if (!comment.postId) return false;
   const post = await context.Posts.findOne({
     _id: comment.postId,
@@ -568,16 +569,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hNcjPf,
-      getValue: hkLfkr,
+      needsUpdate: hhZcRS,
+      getValue: hu3ntX,
     },
     graphql: {
       type: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hkLfkr, needsUpdate: hNcjPf }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hkLfkr, needsUpdate: hNcjPf }),
+      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hu3ntX, needsUpdate: hhZcRS }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hu3ntX, needsUpdate: hhZcRS }),
     },
   },
   shortformFrontpage: {
@@ -728,16 +729,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hNcjPf,
-      getValue: hAQGGK,
+      needsUpdate: hhZcRS,
+      getValue: hFRYvn,
     },
     graphql: {
       type: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hAQGGK, needsUpdate: hNcjPf }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hAQGGK, needsUpdate: hNcjPf }),
+      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hFRYvn, needsUpdate: hhZcRS }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hFRYvn, needsUpdate: hhZcRS }),
     },
   },
   wordCount: {
@@ -1070,6 +1071,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      max: 500,
+      order: 10,
+      control: "EditCommentTitle",
+      placeholder: "Title (optional)",
+      hidden: (props) => {
+        // Currently only allow titles for top level subforum comments
+        const comment = props?.document;
+        return !!(comment && !commentAllowTitle(comment));
+      },
+    },
   },
   relevantTagIds: {
     database: {
@@ -1084,6 +1096,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members", "admins", "sunshineRegiment"],
       onCreate: arrayOfForeignKeysOnCreate,
+    },
+    form: {
+      control: "FormComponentQuickTakesTags",
+      hidden: ({ document }) => !quickTakesTagsEnabledSetting.get() || !document?.shortform,
     },
   },
   relevantTags: {
@@ -1106,6 +1122,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+    },
+    form: {
+      label: "Dialogue Response",
+      hidden: ({ currentUser, formProps }) => {
+        if (!currentUser || !formProps?.post?.debate) return true;
+        const { post } = formProps;
+        const debateParticipantsIds = [
+          post.userId,
+          ...(post.coauthorStatuses ?? []).map((coauthor) => coauthor.userId),
+        ];
+        return !debateParticipantsIds.includes(currentUser._id);
+      },
     },
   },
   rejected: {
@@ -1220,6 +1248,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       canCreate: ["alignmentForum", "admins"],
       onCreate: getFillIfMissing(false),
       onUpdate: throwIfSetToNull,
+    },
+    form: {
+      label: "AI Alignment Forum",
+      hidden: (props) => isAF || !props.alignmentForumPost,
     },
   },
   suggestForAlignmentUserIds: {

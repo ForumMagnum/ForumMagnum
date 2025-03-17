@@ -4,26 +4,26 @@
 
 import SimpleSchema from "simpl-schema";
 import {
-    userGetProfileUrl,
-    getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS,
-    getAuth0Provider
+  userGetProfileUrl,
+  getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS,
+  getAuth0Provider
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { getAllUserGroups, userOwns, userIsAdmin } from "../../vulcan-users/permissions";
 import { formGroups } from "./formGroups";
 import * as _ from "underscore";
 import {
-    isAF,
-    isEAForum, isLWorAF
+  isAF,
+  isEAForum, isLWorAF
 } from "../../instanceSettings";
 import {
-    accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
-    generateIdResolverSingle,
-    getDenormalizedCountOfReferencesGetValue,
-    getDenormalizedFieldOnCreate,
-    getDenormalizedFieldOnUpdate,
-    getFillIfMissing,
-    googleLocationToMongoLocation, schemaDefaultValue, throwIfSetToNull
+  accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
+  generateIdResolverSingle,
+  getDenormalizedCountOfReferencesGetValue,
+  getDenormalizedFieldOnCreate,
+  getDenormalizedFieldOnUpdate,
+  getFillIfMissing,
+  googleLocationToMongoLocation, schemaDefaultValue, throwIfSetToNull
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
 import { REVIEW_YEAR } from "../../reviewUtils";
@@ -31,6 +31,9 @@ import uniqBy from "lodash/uniqBy";
 import { userThemeSettings } from "../../../themes/themeNames";
 import type { ForumIconName } from "../../../components/common/ForumIcon";
 import { getCommentViewOptions } from "../../commentViewOptions";
+import {
+  userCanViewJargonTerms
+} from "../../betas";
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
@@ -378,25 +381,25 @@ addGraphQLSchema(`
  * @type {Object}
  */
 
-const hxAjft = (user, document) => {
+const hEAm3D = (user, document) => {
   return userOwns(user, document) || userIsAdmin(user);
 };
-const hbA7go = (data) => "googleLocation" in data;
-const hWeWSj = async (user) => {
+const hNE6JJ = (data) => "googleLocation" in data;
+const h7uukg = async (user) => {
   if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation);
   return null;
 };
-const hC7y9g = (data) => "mapLocation" in data;
-const hTEHnh = async (user) => {
+const hzrSET = (data) => "mapLocation" in data;
+const h3yBEz = async (user) => {
   return !!user.mapLocation;
 };
-const hAMKQj = (data) => "mapMarkerText" in data;
-const hNoJgQ = async (user) => {
+const hneryH = (data) => "mapMarkerText" in data;
+const h3yMbL = async (user) => {
   if (!user.mapMarkerText) return "";
   return await markdownToHtml(user.mapMarkerText);
 };
-const hmH9fS = (data) => "nearbyEventsNotificationsLocation" in data;
-const hRSXkr = async (user) => {
+const hjztHb = (data) => "nearbyEventsNotificationsLocation" in data;
+const hzJqLL = async (user) => {
   if (user.nearbyEventsNotificationsLocation)
     return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation);
 };
@@ -700,7 +703,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     },
     graphql: {
       type: "JSON",
-      canRead: hxAjft,
+      canRead: hEAm3D,
     },
   },
   hasAuth0Id: {
@@ -874,8 +877,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     },
     graphql: {
       type: "JSON",
-      canRead: hxAjft,
-      canUpdate: hxAjft,
+      canRead: hEAm3D,
+      canUpdate: hEAm3D,
       canCreate: ["members"],
       onCreate: getFillIfMissing({ name: "default" }),
       onUpdate: throwIfSetToNull,
@@ -1322,6 +1325,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       onCreate: getFillIfMissing(false),
       onUpdate: throwIfSetToNull,
+    },
+    form: {
+      order: 98,
+      label: "Pin glossaries on posts, and highlight all instances of each term",
+      hidden: (props) => userCanViewJargonTerms(props.currentUser),
+      group: () => formGroups.siteCustomizations,
     },
   },
   generateJargonForDrafts: {
@@ -3275,14 +3284,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hbA7go,
-      getValue: hWeWSj,
+      needsUpdate: hNE6JJ,
+      getValue: h7uukg,
     },
     graphql: {
       type: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hWeWSj, needsUpdate: hbA7go }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hWeWSj, needsUpdate: hbA7go }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h7uukg, needsUpdate: hNE6JJ }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h7uukg, needsUpdate: hNE6JJ }),
     },
   },
   googleLocation: {
@@ -3350,14 +3359,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hC7y9g,
-      getValue: hTEHnh,
+      needsUpdate: hzrSET,
+      getValue: h3yBEz,
     },
     graphql: {
       type: "Boolean",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hTEHnh, needsUpdate: hC7y9g }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hTEHnh, needsUpdate: hC7y9g }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h3yBEz, needsUpdate: hzrSET }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h3yBEz, needsUpdate: hzrSET }),
     },
   },
   mapMarkerText: {
@@ -3376,14 +3385,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hAMKQj,
-      getValue: hNoJgQ,
+      needsUpdate: hneryH,
+      getValue: h3yMbL,
     },
     graphql: {
       type: "String",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hNoJgQ, needsUpdate: hAMKQj }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hNoJgQ, needsUpdate: hAMKQj }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h3yMbL, needsUpdate: hneryH }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h3yMbL, needsUpdate: hneryH }),
     },
   },
   nearbyEventsNotifications: {
@@ -3418,14 +3427,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hmH9fS,
-      getValue: hRSXkr,
+      needsUpdate: hjztHb,
+      getValue: hzJqLL,
     },
     graphql: {
       type: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hRSXkr, needsUpdate: hmH9fS }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hRSXkr, needsUpdate: hmH9fS }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hzJqLL, needsUpdate: hjztHb }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hzJqLL, needsUpdate: hjztHb }),
     },
   },
   nearbyEventsNotificationsRadius: {

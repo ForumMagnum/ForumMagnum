@@ -498,7 +498,7 @@ function buildSection(
   context: Omit<FieldValueSubstitutionProps, 'func'>,
 ): string[] {
   // Don't bother with form section if the original field spec had it set to hidden, since it won't be present in the form
-  if (section === 'form' && field.hidden) {
+  if (section === 'form' && (typeof field.hidden === 'boolean' && field.hidden)) {
     return [];
   }
 

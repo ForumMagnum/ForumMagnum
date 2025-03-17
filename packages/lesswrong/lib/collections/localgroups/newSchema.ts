@@ -3,13 +3,13 @@
 // The original schema is still in use, this is just for reference.
 
 import {
-    googleLocationToMongoLocation,
-    arrayOfForeignKeysOnCreate,
-    generateIdResolverMulti,
-    getDenormalizedFieldOnCreate,
-    getDenormalizedFieldOnUpdate,
-    getFillIfMissing,
-    throwIfSetToNull
+  googleLocationToMongoLocation,
+  arrayOfForeignKeysOnCreate,
+  generateIdResolverMulti,
+  getDenormalizedFieldOnCreate,
+  getDenormalizedFieldOnUpdate,
+  getFillIfMissing,
+  throwIfSetToNull
 } from "../../utils/schemaUtils";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
@@ -35,8 +35,8 @@ const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
   },
 };
 
-const hrnXiz = (data) => "googleLocation" in data;
-const hiyd5J = async (localgroup) => {
+const hkyKyJ = (data) => "googleLocation" in data;
+const hjZByE = async (localgroup) => {
   if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation);
   return null;
 };
@@ -274,14 +274,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hrnXiz,
-      getValue: hiyd5J,
+      needsUpdate: hkyKyJ,
+      getValue: hjZByE,
     },
     graphql: {
       type: "JSON",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Localgroups">({ getValue: hiyd5J, needsUpdate: hrnXiz }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: hiyd5J, needsUpdate: hrnXiz }),
+      onCreate: getDenormalizedFieldOnCreate<"Localgroups">({ getValue: hjZByE, needsUpdate: hkyKyJ }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: hjZByE, needsUpdate: hkyKyJ }),
     },
   },
   googleLocation: {
@@ -293,6 +293,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+    },
+    form: {
+      form: { stringVersionFieldName: "location" },
+      label: "Group location",
+      control: "LocationFormComponent",
+      hidden: (data) => !!data.document?.isOnline,
     },
   },
   location: {
