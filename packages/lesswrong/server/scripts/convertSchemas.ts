@@ -9,6 +9,7 @@ import { sleep } from '@/lib/helpers';
 import SimpleSchema from 'simpl-schema';
 import { randomId } from '@/lib/random';
 import { defaultNotificationTypeSettings, multiChannelDefaultNotificationTypeSettings } from '@/lib/collections/users/schema';
+import { forumTypeSetting } from '@/lib/instanceSettings';
 
 // Run the augmentSchemas function to make sure all schemas are properly augmented
 augmentSchemas();
@@ -696,7 +697,7 @@ function getFieldTypeString(
   }
 
   const indexSchema = schema[`${fieldName}.$`];
-  const dbType = Type.fromSchema(collectionName, fieldName, field, indexSchema, 'LessWrong');
+  const dbType = Type.fromSchema(collectionName, fieldName, field, indexSchema, forumTypeSetting.get());
   return `${spaces(6)}type: '${dbType.toConcrete().toString()}',`;
 }
 
