@@ -2634,6 +2634,13 @@
   dependencies:
     googleapis-common "^7.0.0"
 
+"@googleapis/sheets@^9.5.0":
+  version "9.5.0"
+  resolved "https://registry.yarnpkg.com/@googleapis/sheets/-/sheets-9.5.0.tgz#31987b7feb83fa957af5ca2d4ee397e25198231b"
+  integrity sha512-Di3EI67IL6MzAdKwWmJiJbYkFrfiFQcU9sQJGced4b7QIUQnTcDSQGqPuyeOc/opuSZzhY8aszzH5pSqfgcF4A==
+  dependencies:
+    googleapis-common "^7.0.0"
+
 "@googlemaps/google-maps-services-js@^3.1.13":
   version "3.1.13"
   resolved "https://registry.yarnpkg.com/@googlemaps/google-maps-services-js/-/google-maps-services-js-3.1.13.tgz"
