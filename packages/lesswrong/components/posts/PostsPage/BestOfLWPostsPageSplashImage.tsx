@@ -29,25 +29,27 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   backgroundImage: {
     position: 'absolute',
     objectFit: 'cover',
-    top: 0,
+    top: "60vh",
+    transform: 'translateY(-50%)',
     right: 0,
 
     [theme.breakpoints.up('sm')]: {
       height: "100vh"
     },
     [theme.breakpoints.up('lg')]: {
-      width: '70%',
+      width: '70vw',
       height: 'unset'
     }
   },
   overlayY: {
     position: 'absolute',
-    top: 0,
+    top: '60vh',
+    transform: 'translateY(-50%)',
     right: 0,
-    width: 'auto',
-    height: 'auto',
-    background: 'red',
-    // background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
+    width: '70vw',
+    height: '71vh',
+    // background: 'rgba(255,0,0,.5)',
+    background: 'linear-gradient(180deg, #ffffff 0%, transparent 48%,#fff 87%)',
     // [theme.breakpoints.up('sm')]: {
     //   background: 'linear-gradient(180deg,rgba(255,255,255,.87) 100px,transparent 25%, transparent 48%,#fff 87%)',
     // },
@@ -63,12 +65,13 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   },
   overlayX: {
     position: 'absolute',
-    top: 0,
+    top: '60vh',
+    transform: 'translateY(-50%)',
     right: 0,
-    width: 'auto',
-    height: 'auto',
-    background: 'red',
-    // background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
+    width: '70vw',
+    height: '70vh',
+    background: 'rgba(255,0,0,.5)',
+    background: 'linear-gradient(180deg, transparent 48%,#fff 87%)',
     // [theme.breakpoints.up('sm')]: {
     //   background: 'linear-gradient(90deg,rgba(255,255,255,.87) 100px,transparent 25%, transparent 48%,#fff 87%)',
     // },
@@ -79,7 +82,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     bottom: 0,
     left: 'auto',
     [theme.breakpoints.up('lg')]: {
-      width: '70%',
+    width: '70%',
     }
   },
   diagonalOverlay: {
