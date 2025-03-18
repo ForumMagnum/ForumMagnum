@@ -486,6 +486,7 @@ type FeedItemServingsCollection = CollectionBase<"FeedItemServings">;
 interface DbFeedItemServing extends DbObject {
   __collectionName?: "FeedItemServings"
   createdAt: Date
+  itemContent: FeedItemContent
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   mostRecentServingId: string | null
   originalServingId: string | null

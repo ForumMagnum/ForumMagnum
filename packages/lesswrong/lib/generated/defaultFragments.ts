@@ -471,6 +471,7 @@ export const FeedItemServingsDefaultFragment = `
     position
     originalServingId
     mostRecentServingId
+    itemContent
   }
 `;
 

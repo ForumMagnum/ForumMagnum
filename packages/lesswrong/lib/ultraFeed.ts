@@ -10,20 +10,7 @@ export const UltraFeedItemFragment = `
     type
     renderAsType
     sources
-    primaryComment {
-      ...CommentsList
-      parentCommentId
-      topLevelCommentId
-      post {
-        ...PostsMinimumInfo
-      }
-    }
-    primaryPost {
-      ...PostsList
-    }
-    secondaryComments {
-      ...CommentsList
-    }
+    itemContent
   }
 `; 
 

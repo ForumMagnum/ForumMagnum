@@ -971,6 +971,7 @@ interface FeedItemServingsDefaultFragment { // fragment on FeedItemServings
   readonly position: number,
   readonly originalServingId: string | null,
   readonly mostRecentServingId: string | null,
+  readonly itemContent: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface FieldChangeFragment { // fragment on FieldChanges

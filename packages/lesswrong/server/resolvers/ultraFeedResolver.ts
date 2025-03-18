@@ -4,8 +4,10 @@ import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
-import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType } from "../utils/feedItemUtils";
+import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType, FeedCommentThreadItem } from "../utils/feedItemUtils";
 import FeedItemServingsRepo from "../repos/FeedItemServingsRepo";
+import UltraFeedRepo, {  } from "../../lib/ultraFeed/UltraFeedRepo";
+import { DisplayFeedCommentThread, DisplayFeedItem } from "@/components/ultraFeed/ultraFeedTypes";
 
 const TESTING_DATE_CUTOFF = new Date('2025-01-01');
 
@@ -13,21 +15,19 @@ addGraphQLSchema(`
   type UltraFeedItem {
     _id: String!
     type: String!                     # The type of the item, e.g., "ultraFeedItem"
-    renderAsType: String!              # e.g., "feedPost", "feedComment"
+    renderAsType: String!              # e.g., "feedPost", "feedComment", "feedCommentThread"
     sources: [String!]!                # e.g., ["quickTakes", "subscribed"]
-    primaryPost: Post
-    secondaryPosts: [Post]
-    primaryComment: Comment
-    secondaryComments: [Comment]
+    itemContent: JSON               # JSON representation of content for the item
   }
-
 `);
 
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
-  popularComments: 5,
-  quickTakes: 5,
-  subscribed: 0
+  commentThreads: 10,
+  // Commented out sources as requested
+  // popularComments: 5,
+  // quickTakes: 5,
+  // subscribed: 0
 };
 
 // Helper function to perform weighted sampling
@@ -83,38 +83,38 @@ function weightedSample(sources: Record<string, { weight: number, items: any[] }
   return finalFeed;
 }
 
-// Interfaces for feed items
-interface FeedItemBase {
-  _id: string;
-  sources: string[];
-  renderAsType: FeedItemRenderType;
-}
 
-interface FeedCommentItem extends FeedItemBase {
-  comment: DbComment;
-}
+/**
+ * Fetches comment threads for the feed
+ */
+async function fetchCommentThreads({
+  context,
+  currentUser,
+  servedCommentIds
+}: {
+  context: ResolverContext;
+  currentUser: DbUser;
+  servedCommentIds: Set<string>;
+}): Promise<DisplayFeedCommentThread[]> {
+  console.log("Fetching comment threads...");
+  
+  // Create UltraFeedRepo instance
+  const ultraFeedRepo = new UltraFeedRepo();
+  
+  // Get comment threads
+  const commentThreads = await ultraFeedRepo.getUltraFeedCommentThreads(50);
+  
+  console.log(`Found ${commentThreads.length} comment threads`);
 
-interface FeedPostItem extends FeedItemBase {
-  post: DbPost;
-  comments?: DbComment[];
-}
-
-// Union type for our different feed item types
-type FeedItem = FeedCommentItem | FeedPostItem;
-
-// Helper to check if an item is a FeedCommentItem
-function isFeedCommentItem(item: FeedItem): item is FeedCommentItem {
-  return item.renderAsType === "feedComment";
-}
-
-// Helper to check if an item is a FeedPostItem
-function isFeedPostItem(item: FeedItem): item is FeedPostItem {
-  return item.renderAsType === "feedPost";
+  
+  // Map to FeedCommentThreadItem format
+  return commentThreads;
 }
 
 /**
- * Fetches quick takes (shortform posts) for the feed
+ * COMMENTED OUT: Fetches quick takes (shortform posts) for the feed
  */
+/* 
 async function fetchQuickTakes({
   context,
   currentUser,
@@ -162,10 +162,12 @@ async function fetchQuickTakes({
     };
   });
 }
+*/
 
 /**
- * Fetches popular comments for the feed
+ * COMMENTED OUT: Fetches popular comments for the feed
  */
+/*
 async function fetchPopularComments({
   context,
   currentUser,
@@ -211,10 +213,12 @@ async function fetchPopularComments({
     };
   });
 }
+*/
 
 /**
- * Fetches subscribed content for the feed
+ * COMMENTED OUT: Fetches subscribed content for the feed
  */
+/*
 async function fetchSubscribedContent({
   context,
   currentUser,
@@ -293,6 +297,7 @@ async function fetchSubscribedContent({
       };
     });
 }
+*/
 
 /**
  * 2) Create the feed resolver. We'll call it "UltraFeed" for now, but you can rename
@@ -371,17 +376,30 @@ defineFeedResolver<Date>({
     console.log(`Set up lookups for ${servedCommentIds.size} comments, ${servedPostIds.size} posts, and ${servedPostCommentCombos.size} post+comment combinations`);
 
     try {
-      // Fetch all content sources in parallel
-      // TODO: think through that we're not deduping or failing to dedup correctly across content types
-
+      // Fetch comment threads
+      const commentThreadsItems = await fetchCommentThreads({
+        context,
+        currentUser,
+        servedCommentIds
+      });
+      
+      // Commented out other content sources
+      /*
       const [quickTakesItems, popularCommentsItems, subscribedItems] = await Promise.all([
         fetchQuickTakes({ context, currentUser, servedCommentIds }),
         fetchPopularComments({ context, currentUser, servedCommentIds }),
         fetchSubscribedContent({ context, currentUser, servedPostIds, servedPostCommentCombos })
       ]);
+      */
       
       // Create sources object for weighted sampling
       const sources = {
+        commentThreads: {
+          weight: SOURCE_WEIGHTS.commentThreads,
+          items: commentThreadsItems
+        }
+        // Commented out other sources
+        /*
         quickTakes: { 
           weight: SOURCE_WEIGHTS.quickTakes, 
           items: quickTakesItems 
@@ -394,73 +412,64 @@ defineFeedResolver<Date>({
           weight: SOURCE_WEIGHTS.subscribed, 
           items: subscribedItems 
         }
+        */
       };
 
       console.log("Performing weighted sampling with:", {
-        quickTakesCount: sources.quickTakes.items.length,
-        popularCommentsCount: sources.popularComments.items.length,
-        subscribedCount: sources.subscribed.items.length,
+        commentThreadsCount: sources.commentThreads.items.length,
+        // quickTakesCount: sources.quickTakes.items.length,
+        // popularCommentsCount: sources.popularComments.items.length,
+        // subscribedCount: sources.subscribed.items.length,
         requestedLimit: limit
       });
       
       // Perform weighted sampling to get final items
-      const sampledItems: FeedItem[] = weightedSample(sources, limit);
+      const sampledItems: DisplayFeedItem[] = weightedSample(sources, limit);
       console.log(`Sampled ${sampledItems.length} items for feed`);
       
+      // Log just the key properties, not the entire potentially large item
+      if (sampledItems.length > 0) {
+        const example = sampledItems[0];
+        console.log('Example item keys:', {
+          _id: example._id,
+          renderAsType: example.renderAsType,
+          sourceCount: example.sources?.length || 0
+        });
+      }
+      
       // Transform results for the feed
-      const results = sampledItems.map((item) => {
-        // Use our type guards to determine the item type
-        if (isFeedCommentItem(item)) {
-          return {
-            type: "ultraFeedItem",
-            ultraFeedItem: {
-              _id: item._id,
-              type: "ultraFeedItem",
-              renderAsType: "feedComment",
-              sources: item.sources,
-              primaryComment: item.comment,
-              // Other fields set to null or empty arrays
-              primaryPost: null,
-              secondaryPosts: [],
-              secondaryComments: [],
-              originalServingId: null,
-              mostRecentServingId: null
-            } as HydratedFeedItem
-          };
-        } else if (isFeedPostItem(item)) {
-          return {
-            type: "ultraFeedItem",
-            ultraFeedItem: {
-              _id: item._id,
-              type: "ultraFeedItem",
-              renderAsType: "feedPost", 
-              sources: item.sources,
-              primaryPost: item.post,
-              secondaryComments: item.comments || [],
-              // Other fields set to null or empty arrays
-              primaryComment: null,
-              secondaryPosts: [],
-              originalServingId: null,
-              mostRecentServingId: null
-            } as HydratedFeedItem
-          };
-        }
-        // Default fallback (shouldn't reach here in normal operation)
-        return null;
+      const results = sampledItems.map((item, index) => {
+        
+        // Structure the item correctly with the data nested under ultraFeedItem
+        const feedItem = {
+          _id: item._id || `temp_${index}`,
+          type: "ultraFeedItem",
+          renderAsType: item.renderAsType || "feedCommentThread",
+          sources: item.sources || [],
+          itemContent: item // Use itemContent instead of commentThread to match the schema
+        };
+        
+        // Create the return object with type and matching nested field
+        const result = {
+          type: "ultraFeedItem",
+          ultraFeedItem: feedItem // Nest under the same name as the type
+        };
+        
+        return result;
       }).filter(Boolean);
 
-      // Save items to FeedItemServings collection
-      console.log("Saving feed items to FeedItemServings collection...");
+      // // Save items to FeedItemServings collection
+      // console.log("Saving feed items to FeedItemServings collection...");
       
-      // Use the shared helper function to log feed item servings - fire and forget
-      void logFeedItemServings({
-        context,
-        userId: currentUser._id,
-        sessionId,
-        results: results.map(r => r?.ultraFeedItem ?? null),
-        isHistoryView: false // This is a normal feed view, not history
-      });
-      console.log("Triggered feed item servings logging");
+      // // Use the shared helper function to log feed item servings - fire and forget
+      // void logFeedItemServings({
+      //   context,
+      //   userId: currentUser._id,
+      //   sessionId,
+      //   results: results.map(r => r?.ultraFeedItem ?? null),
+      //   isHistoryView: false // This is a normal feed view, not history
+      // });
+      // console.log("Triggered feed item servings logging");
       
       // Determine if there are likely more results that could be returned
       const hasMoreResults = sampledItems.length >= limit;

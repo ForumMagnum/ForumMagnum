@@ -112,6 +112,15 @@ export const schema: SchemaType<"FeedItemServings"> = {
     nullable: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
+
+  itemContent: {
+    type: Object,
+    nullable: false,
+    blackbox: true,
+    typescriptType: "FeedItemContent",
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
 };
 
 

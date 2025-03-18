@@ -931,7 +931,8 @@ CREATE TABLE "FeedItemServings" (
   "secondaryDocumentsCollectionName" TEXT,
   "position" DOUBLE PRECISION NOT NULL,
   "originalServingId" TEXT,
-  "mostRecentServingId" TEXT
+  "mostRecentServingId" TEXT,
+  "itemContent" JSONB NOT NULL
 );
 
 -- Index "idx_FeedItemServings_schemaVersion"
