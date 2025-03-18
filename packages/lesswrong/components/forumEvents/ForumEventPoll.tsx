@@ -39,9 +39,9 @@ const styles = (theme: ThemeType) => ({
   },
   question: {
     fontSize: 32,
-    lineHeight: '110%',
+    lineHeight: '100%',
     fontWeight: 700,
-    maxWidth: 700,
+    maxWidth: 730,
     marginBottom: 13,
     marginLeft: "auto",
     marginRight: "auto"
