@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
-    marginBottom: 48,
+    marginBottom: 32,
     gap: 4,
     paddingLeft: 8,
     borderRadius: 2,
@@ -24,7 +24,8 @@ const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
 const sourceLabels: Record<string, string> = {
   'quickTakes': 'Quick Take',
   'popularComments': 'Popular Comment',
-  'subscribed': 'Subscribed Content'
+  'subscribed': 'Subscribed Content',
+  'commentThreads': 'Comment Thread'
 };
 
 const FeedItemWrapper = ({sources, children}: {
@@ -38,9 +39,9 @@ const FeedItemWrapper = ({sources, children}: {
   
   return (
     <div className={classes.wrapper}>
-      <div className={classes.sourceLabel}>
+      {/* <div className={classes.sourceLabel}>
         {labels.join(', ')}
-      </div>
+      </div> */}
       {children}
     </div>
   );

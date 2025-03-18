@@ -952,6 +952,7 @@ interface FeedCommentItemFragment_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
+  readonly wordCount: number,
 }
 
 interface FeedItemServingsDefaultFragment { // fragment on FeedItemServings
@@ -3668,9 +3669,7 @@ interface UltraFeedItemFragment { // fragment on non-collection type
   readonly type: any,
   readonly renderAsType: any,
   readonly sources: any,
-  readonly primaryComment: any,
-  readonly primaryPost: any,
-  readonly secondaryComments: any,
+  readonly itemContent: any,
 }
 
 interface UnclaimedReportsList { // fragment on Reports

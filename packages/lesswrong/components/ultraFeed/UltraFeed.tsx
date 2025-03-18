@@ -10,10 +10,10 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
-import { HydratedFeedItem } from '@/server/utils/feedItemUtils';
-import { isCommentFeedItem, isPostFeedItem, getUltraFeedComment, getPostForFeed, getCommentsForFeed } from './ultraFeedTypes';
+import { UltraFeedItemResolver } from './ultraFeedTypes';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   toggleContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -30,7 +30,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 16
   },
   sectionTitle: {
-    marginTop: 60,
     marginBottom: 16,
     display: 'flex',
     width: '100%',
@@ -52,12 +51,25 @@ const styles = (theme: ThemeType) => ({
   titleText: {
     // No custom styling to preserve original appearance
   },
+  titleTextDesktop: {
+    display: 'inline',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  titleTextMobile: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline',
+    },
+  },
   refreshText: {
     color: theme.palette.primary.dark,
     fontSize: '1.4rem',
     fontFamily: theme.palette.fonts.sansSerifStack,
     pointerEvents: 'none',
-    marginRight: -60
+    marginRight: -60,
+    whiteSpace: 'nowrap', // Prevent text from wrapping
   },
   settingsButtonContainer: {
     flex: '1 1 0',
@@ -100,14 +112,14 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     opacity: 0.6,
   }
-});
+}));
 
 // Define the main component implementation
-const UltraFeedContent = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const UltraFeedContent = () => {
+  const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
-    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, Divider } = Components;
+    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, 
+    Divider, UltraFeedThreadItem } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -195,8 +207,11 @@ const UltraFeedContent = ({classes}: {
   // Custom title with refresh button
   const customTitle = <>
     <div className={classes.titleContainer} onClick={loadMoreAtTop}>
-      <span className={classes.titleText}>Update Feed</span>
-      <span className={classes.refreshText}>click for more content</span>
+      <span className={classes.titleText}>
+        <span className={classes.titleTextDesktop}>Update Feed</span>
+        <span className={classes.titleTextMobile}>The Feed</span>
+      </span>
+      <span className={classes.refreshText}>click for more</span>
     </div>
     <div className={classes.settingsButtonContainer}>
       <SettingsButton 
@@ -213,40 +228,30 @@ const UltraFeedContent = ({classes}: {
   const ultraFeedRenderer = {
     ultraFeedItem: {
       fragmentName: 'UltraFeedItemFragment',
-      render: (ultraFeedItem: HydratedFeedItem) => {
-        // Use type guards to handle each case
-        if (isCommentFeedItem(ultraFeedItem)) {
-          // Now TypeScript knows primaryComment is not null and has the right type
-          const comment = getUltraFeedComment(ultraFeedItem);
-          return (
-            <FeedItemWrapper sources={ultraFeedItem.sources}>
-              <UltraFeedCommentItem 
-                key={comment._id}
-                comment={comment}
-              />
-            </FeedItemWrapper>
-          );
-        } else if (isPostFeedItem(ultraFeedItem)) {
-          // Now TypeScript knows primaryPost is not null
-          const post = getPostForFeed(ultraFeedItem);
-          const comments = getCommentsForFeed(ultraFeedItem);
-          
-          return (
-            <FeedItemWrapper sources={ultraFeedItem.sources}>
-              <FeedPostCommentsCard
-                key={post._id}
-                post={post}
-                comments={comments}
-                maxCollapsedLengthWords={200}
-                refetch={refetch}
-              />
-            </FeedItemWrapper>
-          );
+      render: (ultraFeedItem: UltraFeedItemResolver) => {
+        // Use renderAsType to determine how to render the item
+        if (!ultraFeedItem || !ultraFeedItem.itemContent) {
+          console.log("Missing item content:", ultraFeedItem);
+          return null;
         }
+
+        const { _id, renderAsType, sources, itemContent } = ultraFeedItem;
         
-        // If we don't recognize the type, return null
-        console.log("Unknown feed item type:", ultraFeedItem);
-        return null;
+        // Wrap all items in FeedItemWrapper
+        return (
+          <FeedItemWrapper sources={sources}>
+            {renderAsType === "feedCommentThread" && (
+              <UltraFeedThreadItem
+                key={_id}
+                thread={itemContent}
+              />
+            )}
+            {/* We're not handling other types for now as we're focusing on comment threads */}
+            {renderAsType !== "feedCommentThread" && (
+              <div>Unsupported item type: {renderAsType}</div>
+            )}
+          </FeedItemWrapper>
+        );
       }
     }
   };
@@ -288,7 +293,7 @@ const UltraFeedContent = ({classes}: {
             />
           </div>
           {newContentButton}
-          {/* History Feed Section */}
+          {/* History Feed Section
           <div className={classes.historyContainer}>
             <MixedTypeFeed
               resolverName="UltraFeedHistory"
@@ -304,7 +309,7 @@ const UltraFeedContent = ({classes}: {
             {newContentButton}
             <Divider />
             <Link className={classes.endOfFeedButtonPostScriptText} to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
-          </div>}
+          </div>} */}
         </SingleColumnSection>
       </>}
     </div>
@@ -312,18 +317,16 @@ const UltraFeedContent = ({classes}: {
 };
 
 // Create the wrapper component that uses DeferRender
-export const UltraFeed = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const UltraFeed = () => {
   return (
     // TODO: possibly defer render shouldn't apply to the section title?
     <DeferRender ssr={false}>
-      <UltraFeedContent classes={classes} />
+      <UltraFeedContent />
     </DeferRender>
   );
 };
 
-const UltraFeedComponent = registerComponent('UltraFeed', UltraFeed, {styles});
+const UltraFeedComponent = registerComponent('UltraFeed', UltraFeed);
 
 declare global {
   interface ComponentTypes {

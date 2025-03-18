@@ -275,6 +275,7 @@ export const FeedCommentItemFragment = `
       _id
       html
       plaintextMainText
+      wordCount
     }
     post {
       ...PostsMinimumInfo

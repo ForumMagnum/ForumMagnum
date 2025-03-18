@@ -424,7 +424,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
             baseScore: comment.baseScore,
             content: comment.contents?.html || '',
             sources: item.metaInfo.sources,
-            displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed'
+            displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
+            wordCount: comment.contents?.wordCount ?? null
           }
         })
     }

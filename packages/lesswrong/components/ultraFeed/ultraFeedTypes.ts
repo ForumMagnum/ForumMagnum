@@ -105,6 +105,7 @@ export interface DisplayFeedComment {
   postedAt: Date;
   baseScore: number;
   content: string; // HTML/text content
+  wordCount: number | null;
   // parentCommentId: string | null;
   // displayedChild: FeedCommentItemDisplay | null; // Child comment displayed in thread
   // numberOfTimesPreviouslySeen: number; // Whether currentUser has seen this comment
