@@ -8,7 +8,7 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {
   const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";
-  const html = `${styleTag}<body>${body}</body>`;
+  const html = `${styleTag}${body}`;
   return html;
 }
 
@@ -36,7 +36,7 @@ describe('renderEmail', () => {
       bodyComponent: <div>Hello</div>,
     });
     
-    (email.html as any).should.equal(emailDoctype+'<body><div>Hello</div></body>');
+    (email.html as any).should.equal(emailDoctype+'<div>Hello</div>');
   });
   
   it("Generates a textual representation of the body", async () => {
@@ -63,7 +63,7 @@ describe('renderEmail', () => {
       bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>,
     });
     
-    (email.html as any).should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
+    (email.html as any).should.equal(emailDoctype+'<div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div>');
   });
   
   it("Can use Apollo useSingle", async () => {
@@ -88,7 +88,7 @@ describe('renderEmail', () => {
     const email = await renderTestEmail({
       bodyComponent: <PostTitleComponent documentId={post._id}/>,
     });
-    (email.html as any).should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
+    (email.html as any).should.equal(emailDoctype+'<div>Email unit test post</div>');
   });
   
   it("Can use Apollo hooks", async () => {
@@ -113,7 +113,7 @@ describe('renderEmail', () => {
     const email = await renderTestEmail({
       bodyComponent: <PostTitleComponent documentId={post._id} />,
     });
-    (email.html as any).should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
+    (email.html as any).should.equal(emailDoctype+'<div>Email unit test post</div>');
   });
   
   /*it("Supports the withCurrentUser HoC", async () => {
@@ -126,7 +126,7 @@ describe('renderEmail', () => {
     const email = await renderTestEmail({
       bodyComponent: <MyEmailComponent/>,
     });
-    email.html.should.equal(emailDoctype+`<body><div>${user.email}</div></body>`);
+    email.html.should.equal(emailDoctype+`<div>${user.email}</div>`);
   });
   
   it("Restricts field accesses based on the current user", async () => {
@@ -156,7 +156,7 @@ describe('renderEmail', () => {
       bodyComponent: <ShowThePMComponent/>,
     });
     
-    permissionGrantedEmail.html.should.equal(emailDoctype+'<body><div><div>Message body</div></div></body>');
-    permissionDeniedEmail.html.should.equal(emailDoctype+'<body><div></div></body>');
+    permissionGrantedEmail.html.should.equal(emailDoctype+'<div><div>Message body</div></div>');
+    permissionDeniedEmail.html.should.equal(emailDoctype+'<div></div>');
   });*/
 });
