@@ -109,16 +109,17 @@ export type UserWithProfileImage = {
   profileImageId?: string,
 }
 
-const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
+const UsersProfileImage = ({user, size, fallback="initials", wrapperClassName, className, classes}: {
   user?: UserWithProfileImage|null,
   size: number,
   fallback?: ProfileImageFallback,
+  wrapperClassName?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   if (!user?.displayName) {
     return (
-      <picture className={classes.wrapper}>
+      <picture className={classNames(classes.wrapper, wrapperClassName)}>
         <div
           className={classNames(
             classes.root,
@@ -143,14 +144,14 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
           classes.loadingPlaceholder,
           className,
         )}
-        wrapperClassName={classes.wrapper}
+        wrapperClassName={classNames(classes.wrapper, wrapperClassName)}
       />
     );
   }
 
   if (fallback === "initials") {
     return (
-      <picture className={classes.wrapper}>
+      <picture className={classNames(classes.wrapper, wrapperClassName)}>
         <InitialFallback
           displayName={user.displayName}
           size={size}

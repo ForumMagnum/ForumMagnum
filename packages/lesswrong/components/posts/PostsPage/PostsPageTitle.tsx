@@ -15,26 +15,27 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginLeft: 0,
   marginBottom: isFriendlyUI ? 12 : 0,
   color: theme.palette.text.primary,
-  textWrap: isBookUI ? "balance" : undefined,
-  [theme.breakpoints.down('sm')]: isFriendlyUI
-    ? {
-      fontSize: '2.3rem',
-      marginTop: 20,
-    }
-    : {
-      fontSize: '3.5rem',
-    },
+  textWrap: isBookUI ? "balance" : "pretty",
   ...(isFriendlyUI
     ? {
-      fontSize: '3rem',
+      fontSize: '3.2rem',
+      lineHeight: '1.25',
     }
     : {
       fontSize: LW_POST_TITLE_FONT_SIZE,
       lineHeight: '1.1',
   }),
+  
+  [theme.breakpoints.down('sm')]: isFriendlyUI
+    ? {
+      fontSize: '2.5rem',
+    }
+    : {
+      fontSize: '3.5rem',
+    },
   [theme.breakpoints.down('xs')]: isFriendlyUI
     ? {
-      fontSize: '2.3rem',
+      fontSize: '2.5rem',
     }
     : {
       fontSize: '2.5rem',

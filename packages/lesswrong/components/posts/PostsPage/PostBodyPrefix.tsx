@@ -97,7 +97,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    {(isFriendlyUI || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />}
+    {!isFriendlyUI && ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD) && <LinkPostMessage post={post} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

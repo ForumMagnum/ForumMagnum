@@ -503,7 +503,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
             <div className={classes.interests}>
               <div>Interests:</div>
               {user.profileTags.map((tag) =>
-                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon hoverable={true} />
+                <FooterTag key={tag._id} tag={tag} neverCoreStyling hoverable={true} />
               )}
             </div>
           }

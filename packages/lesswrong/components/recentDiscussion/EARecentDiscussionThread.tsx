@@ -120,7 +120,7 @@ const EARecentDiscussionThread = ({
 
   const {
     EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
-    PostExcerpt, LinkPostMessage, EAKarmaDisplay, PostsTitle,
+    PostExcerpt, EAKarmaDisplay, PostsTitle,
   } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
@@ -144,9 +144,6 @@ const EARecentDiscussionThread = ({
           </Link>
         }
       </div>
-      {post.url &&
-        <LinkPostMessage post={post} />
-      }
       <PostExcerpt
         post={post}
         lines={comments?.length ? 3 : 10}

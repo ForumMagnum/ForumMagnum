@@ -1,34 +1,30 @@
-const titleStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
-  'Inter',
-  'Helvetica Neue',
-  'Helvetica',
-  'Arial',
-  'sans-serif'
-].join(',')
+const fontStacks = {
+  sans: [
+    'GreekFallback', // Ensures greek letters render consistently
+    'Inter',
+    'Helvetica Neue',
+    'Helvetica',
+    'Arial',
+    'sans-serif'
+  ],
+  serif: [
+    'Charis SIL',
+    'Libre Baskerville',
+    'Georgia',
+    'serif'
+  ]
+} as const;
 
-const serifStack = [
-  'Merriweather',
-  'Baskerville',
-  'Libre Baskerville',
-  'Georgia',
-  'serif'
-].join(',')
-
-// TODO why is SanSerifStack different from titleStack?
-const sansSerifStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
-  'Inter',
-  'Helvetica Neue',
-  'Helvetica',
-  'Arial',
-  'sans-serif'
-].join(',')
+const fonts = {
+  sans: fontStacks.sans.join(','),
+  serif: fontStacks.serif.join(','),
+  title: fontStacks.serif.join(','),
+}
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {
     primaryAlpha: (alpha: number) => `rgba(12, 134, 155,${alpha})`,
-    fonts: {sansSerifStack, serifStack},
+    fonts: {sansSerifStack: fonts.sans, serifStack: fonts.serif},
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
@@ -118,9 +114,9 @@ export const eaForumTheme: SiteThemeSpecification = {
     const basicText = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
-      lineHeight: '1.75em',
-      fontWeight: 450,
-      fontFamily: serifStack
+      lineHeight: '1.65em',
+      fontWeight: 400,
+      fontFamily: fonts.serif
     }
     return {
       spacing: {
@@ -133,20 +129,17 @@ export const eaForumTheme: SiteThemeSpecification = {
       },
       typography: {
         fontDownloads: [
-          "https://fonts.googleapis.com/css?family=Merriweather:300,300italic,400,400italic,500,500italic,600,600italic,700,700italic&subset=all",
-          "https://fonts.googleapis.com/css?family=Inter:300,300italic,400,400italic,450,450italic,500,500italic,600,600italic,700,700italic",
-          // TODO we need to find where this is used in material ui and remove
-          "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
+          "https://fonts.googleapis.com/css2?family=Charis+SIL:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,wght@0,300;0,400;0,450;0,500;0,600;0,700;1,300;1,400;1,450;1,500;1,600;1,700&display=swap"
         ],
         cloudinaryFont: {
           stack: "'Inter', sans-serif",
           url: "https://fonts.googleapis.com/css?family=Inter",
         },
-        fontFamily: sansSerifStack,
+        fontFamily: fonts.sans,
         body1: {
           ...basicText,
-          fontSize: 15.6,
-          fontFamily: serifStack,
+          fontSize: 17,
+          fontFamily: fonts.serif,
         },
         body2: {
           fontSize: 14.3,
@@ -168,32 +161,32 @@ export const eaForumTheme: SiteThemeSpecification = {
           ...basicText,
         },
         headerStyle: {
-          fontFamily: titleStack
+          fontFamily: fonts.title
         },
         commentStyle: {
-          fontFamily: sansSerifStack,
+          fontFamily: fonts.sans,
           fontWeight: 450
         },
         errorStyle: {
           color: palette.error.main,
-          fontFamily: sansSerifStack
+          fontFamily: fonts.sans
         },
         headline: {
-          fontFamily: serifStack,
+          fontFamily: fonts.serif,
         },
         subheading: {
-          fontFamily: titleStack
+          fontFamily: fonts.title
         },
         title: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: fonts.title,
           fontWeight: 500,
           marginBottom: 5,
         },
         // used by h3
         display0: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: fonts.title,
           fontWeight: 600,
           fontSize: 20.8,
           lineHeight: '1.25em',
@@ -201,7 +194,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         // used by h2
         display1: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: fonts.title,
           fontWeight: 650,
           fontSize: 26,
           lineHeight: '1.25em',
@@ -209,7 +202,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         // used by h1
         display2: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: fonts.title,
           fontWeight: 600,
           fontSize: 31.2,
           lineHeight: '1.25em',
@@ -217,18 +210,18 @@ export const eaForumTheme: SiteThemeSpecification = {
         // used by page title
         display3: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: fonts.title,
           fontWeight: 500,
           lineHeight: '1.25em'
         },
         uiSecondary: {
-          sansSerifStack
+          fontFamily: fonts.sans
         },
         chapterTitle: {
           fontStyle: "unset",
           textTransform: "unset",
           color: palette.grey[800],
-          fontFamily: sansSerifStack,
+          fontFamily: fonts.serif,
           fontWeight: 500,
         },
         largeChapterTitle: {
@@ -250,7 +243,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         MetaInfo: {
           root: {
-            fontFamily: sansSerifStack
+            fontFamily: fonts.sans
           }
         },
         PostsVoteDefault: {
@@ -260,7 +253,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             paddingLeft:1,
             paddingRight:0,
             fontSize: '50%',
-            fontFamily: sansSerifStack,
+            fontFamily: fonts.sans,
           },
         },
         PostsTopSequencesNav: {
@@ -303,12 +296,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             opacity: 1
           }
         },
-        PostsPageTitle: {
-          root: {
-            lineHeight: 1.25,
-            fontWeight: 700
-          }
-        },
         PostsTimeBlock: {
           divider: {
             display: 'none'
@@ -349,7 +336,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         MuiMenuItem: {
           root: {
-            fontFamily: sansSerifStack,
+            fontFamily: fonts.sans,
             fontWeight: 500,
             fontSize: 14.3,
             color: palette.grey[900],

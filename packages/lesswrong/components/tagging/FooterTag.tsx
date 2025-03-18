@@ -6,7 +6,6 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -80,20 +79,6 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
   core: {
     ...coreTagStyle(theme),
   },
-  coreIcon: {
-    position: "relative",
-    display: "inline-block",
-    minWidth: 20,
-    margin: isFriendlyUI ? "0 3px 0 6px" : undefined,
-    "& svg": {
-      position: "absolute",
-      top: -13,
-      left: -4,
-      width: 20,
-      height: 18,
-      fill: theme.palette.tag.coreTagText,
-    },
-  },
   score:  {
     paddingLeft: 5,
     color: theme.palette.text.slightlyDim2,
@@ -134,7 +119,6 @@ const FooterTag = ({
   tagRel,
   tag,
   hideScore=false,
-  hideIcon,
   smallText,
   PreviewWrapper,
   link=true,
@@ -147,7 +131,6 @@ const FooterTag = ({
 }: {
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
-  hideIcon?: boolean,
   smallText?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   link?: boolean
@@ -166,15 +149,12 @@ const FooterTag = ({
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug] && !hideIcon);
-
   const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name
     : tag.name;
 
-  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
+  const {TagsTooltip, ForumIcon} = Components;
   const renderedTag = <>
-    {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
