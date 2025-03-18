@@ -970,7 +970,6 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly frontpageDescription_latest: string,
   readonly frontpageDescriptionMobile_latest: string,
   readonly postPageDescription_latest: string,
-  readonly pollQuestion_latest: string,
   readonly title: string,
   readonly startDate: Date,
   readonly endDate: Date,
@@ -983,6 +982,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly pollQuestion_latest: string,
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
@@ -2465,6 +2465,16 @@ interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
   readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+}
+
+interface ReviewWinnerArtImagesForYear extends ReviewWinnerArtImages { // fragment on ReviewWinnerArts
+  readonly post: ReviewWinnerArtImagesForYear_post|null,
+}
+
+interface ReviewWinnerArtImagesForYear_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -5204,6 +5214,7 @@ interface FragmentTypes {
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerArtImages: ReviewWinnerArtImages
+  ReviewWinnerArtImagesForYear: ReviewWinnerArtImagesForYear
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
@@ -5418,7 +5429,7 @@ interface FragmentTypesByCollection {
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
-  ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
+  ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtImagesForYear"|"ReviewWinnerArtsDefaultFragment"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
@@ -5624,6 +5635,7 @@ interface CollectionNamesByFragmentName {
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
+  ReviewWinnerArtImagesForYear: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerTopPostsDisplay: "ReviewWinners"

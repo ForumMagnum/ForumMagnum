@@ -55,7 +55,7 @@ Here are some bad examples:
 3. A collection of books about Zen Buddhism
 4. A labyrinth of forking paths
 
-Please generate 10 visual metaphors for the essay that will appear on Lesswrong, then select the best 3. The essay will appear after the "===".
+Please generate 10 visual metaphors for the essay that will appear on Lesswrong. The essay will appear after the "===".
 
 Please format your response as follows:
 
@@ -67,7 +67,7 @@ METAPHORS: A JSON list of your final 3 visual metaphors.
 
 You must respond in valid JSON format with the following structure:
 {  
-  "metaphors": ["metaphor 1", "metaphor 2", "metaphor 3"]
+  "metaphors": ["metaphor 1", "metaphor 2", "metaphor 3", "metaphor 4", "metaphor 5", "metaphor 6", "metaphor 7", "metaphor 8", "metaphor 9", "metaphor 10"]
 }
 
 ===
@@ -256,6 +256,7 @@ const generateHighResImage = async (prompt: string, imageUrl: string): Promise<s
 
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const promptElements = await getPromptTextElements(openAiClient, essay)
+  console.log(essay.title, promptElements)
   return promptElements.map(el => prompter(el))
 }
 
@@ -269,8 +270,9 @@ type EssayResult = {
 const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
   const prompts = await getPrompts(openAiClient, essay)
+  const promptsX10 = prompts.flatMap(p => Array(10).fill(p))
 
-  const results = Promise.all(prompts.map(async (prompt) => {
+  const results = Promise.all(promptsX10.map(async (prompt) => {
     const image = await generateHighResImage(prompt, sample(promptImageUrls)!)
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
@@ -282,7 +284,7 @@ export const getReviewWinnerArts = async () => {
   console.time('getReviewWinnerArts');
   console.log("Running getReviewWinnerArts")
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays.slice(0,1)
+  const essays = totalEssays.slice(5,50)
   console.log(`${essays.length} essays to generate art for`)
   const openAiClient = await getOpenAI()
   if (!openAiClient) {

@@ -2524,7 +2524,7 @@ CREATE TABLE "ReviewWinnerArts" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "postId" TEXT NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
   "splashArtImagePrompt" TEXT NOT NULL,
   "splashArtImageUrl" TEXT NOT NULL
 );

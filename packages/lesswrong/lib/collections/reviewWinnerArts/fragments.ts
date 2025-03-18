@@ -9,3 +9,14 @@ export const ReviewWinnerArtImages = `
     }
   }
 `
+
+export const ReviewWinnerArtImagesForYear = `
+  fragment ReviewWinnerArtImagesForYear on ReviewWinnerArt {
+    ...ReviewWinnerArtImages
+    post {
+      _id
+      title
+      slug
+    }
+  }
+`

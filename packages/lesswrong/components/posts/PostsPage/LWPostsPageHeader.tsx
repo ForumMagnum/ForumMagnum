@@ -165,6 +165,12 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       paddingTop: 'calc(100vh - 300px)',
     },
+  },
+  rootWithSplashPageHeaderLong: {
+    paddingTop: 'calc(100vh - 360px)',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: 'calc(100vh - 200px)',
+    },
   }
 }); 
 
@@ -213,8 +219,9 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
   </LWTooltip> : null;
 
   const splashPageTitleClass = post.title.length > 100 ? classes.splashPageTitleLong : classes.splashPageTitle;
+  const rootWithSplashPageHeaderClass =  post.title.length > 80 ? classes.rootWithSplashPageHeaderLong : classes.rootWithSplashPageHeader;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[rootWithSplashPageHeaderClass]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
