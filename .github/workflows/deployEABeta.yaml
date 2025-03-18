@@ -3,6 +3,10 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
+    # Note: The beta site may be scaled down to 0 if we haven't used it for a while. To scale it
+    # back up, go to Elastic Beanstalk (https://us-east-1.console.aws.amazon.com/elasticbeanstalk/home?region=us-east-1#/environments)
+    # and set the "Min instances" and "Max instances" to 1 in the configuration for EAForum-Beta.
+    # Also please scale it back down if you think it won't be needed for > ~2 weeks
     branches: [ea-wrapped-2024]
 jobs:
   deploy:
