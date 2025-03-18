@@ -183,7 +183,7 @@ const UltraFeedCommentsItemMeta = ({comment, post, hideActionsMenu}: {
   return (
     <div className={classes.ufCommentsItemMeta}>
 
-      
+
 
 
       {!hideActionsMenu &&
@@ -228,16 +228,16 @@ const UltraFeedCollapsedCommentItem = ({comment, setExpanded}: {
     <div className={classes.collapsedRoot} onClick={handleClick}>
       <ContentStyles contentType="comment" className={classes.collapsedCommentInfo}>
         <span className={classes.karma}>
-          {comment.baseScore}
+          {comment.comment.baseScore}
         </span>
         <span className={classes.username}>
-          {comment.user?.displayName || "Anonymous"}
+          {comment.comment.user?.displayName || "Anonymous"}
         </span>
         {/* <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span> */}
         <ContentStyles contentType="comment" className={classes.truncatedContent}>
-          <div dangerouslySetInnerHTML={{ __html: comment.content }} />
+          <div dangerouslySetInnerHTML={{ __html: comment.comment.contents?.html || '' }} />
         </ContentStyles>
       </ContentStyles>
     </div>
@@ -259,26 +259,25 @@ const UltraFeedExpandedCommentItem = ({comment, setExpanded, shouldTruncate}: {
   }, []);
 
   // Create a simple comment object for SmallSideVote
-  const commentForVoting = {
-    _id: comment.commentId,
-    baseScore: comment.baseScore
-  };
+
+  const { baseScore, user, postedAt } = comment.comment;
+  
   
   return (
     <div className={classes.expandedRoot}>
       <div className={classes.expandedCommentHeader}>
         <span className={classes.expandedKarma}>
-          {comment.baseScore}
+          {baseScore}
         </span>
         <span className={classes.expandedUsername}>
-          {comment.user?.displayName || "Anonymous"}
+          {user?.displayName || "Anonymous"}
         </span>
         <span className={classes.expandedDate}>
-          <Components.FormatDate date={comment.postedAt} tooltip={false}/>
+          <Components.FormatDate date={postedAt} tooltip={false}/>
         </span>
         <span className={classes.voteContainer}>
           <SmallSideVote
-            document={commentForVoting as any}
+            document={comment.comment as any}
             collectionName="Comments"
           />
         </span>
@@ -295,7 +294,7 @@ const UltraFeedExpandedCommentItem = ({comment, setExpanded, shouldTruncate}: {
             contentTruncated && classes.truncatedExpandedContent
           )}
         >
-          <div dangerouslySetInnerHTML={{ __html: comment.content }} />
+          <div dangerouslySetInnerHTML={{ __html: comment.comment.contents?.html || '' }} />
         </ContentStyles>
       </div>
       
@@ -316,13 +315,13 @@ const UltraFeedCommentItem = ({comment}: {
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
 
-  const { wordCount, displayStatus } = comment;
-  const initialExpanded = displayStatus === "expanded";
+  const { comment: commentForVoting } = comment;
+  const initialExpanded = comment.metaInfo.displayStatus === "expanded";
   
   // Calculate if content should be truncated (over 500 words)
   const shouldTruncate = useMemo(() => {
-    return ((wordCount ?? 0 > 500) && displayStatus === 'collapsed') || (displayStatus === 'expanded');
-  }, [displayStatus, wordCount]);
+    return ((comment.comment.contents?.wordCount ?? 0 > 500) && comment.metaInfo.displayStatus === 'collapsed') || (comment.metaInfo.displayStatus === 'expanded');
+  }, [comment.metaInfo.displayStatus, comment.comment.contents?.wordCount]);
 
   const [expanded, setExpanded] = useState(initialExpanded);
   const wrappedSetExpanded = useCallback((value: boolean) => {

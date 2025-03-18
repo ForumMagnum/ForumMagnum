@@ -96,7 +96,7 @@ const UltraFeedThreadItem = ({thread}: {
 
   // Filter comments by display status - only show non-hidden comments
   const visibleComments = thread.comments.filter(
-    comment => comment.displayStatus !== "hidden"
+    comment => comment.metaInfo.displayStatus !== "hidden"
   );
 
   return (
@@ -109,12 +109,12 @@ const UltraFeedThreadItem = ({thread}: {
         <div className={classes.commentsContainer}>
           {visibleComments.length > 1 && <div className={classes.verticalLine}></div>}
           
-          {visibleComments.map((comment: DisplayFeedComment, index: number) => (
+          {visibleComments.map((item: DisplayFeedComment, index: number) => (
             <div 
-              key={comment.commentId} 
+              key={item.comment._id} 
               className={index === 0 ? classes.commentItem : classes.indentedCommentItem}
             >
-              <UltraFeedCommentItem comment={comment} />
+              <UltraFeedCommentItem comment={item} />
             </div>
           ))}
         </div>

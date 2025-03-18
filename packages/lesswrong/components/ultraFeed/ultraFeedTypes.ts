@@ -34,7 +34,7 @@ export interface FeedCommentMetaInfo {
   /** Whether the user has seen this comment before */
   alreadySeen: boolean | null;
   /** Display status (expanded/collapsed/hidden) */
-  status?: FeedItemDisplayStatus;
+  displayStatus?: FeedItemDisplayStatus;
 }
 
 /**
@@ -43,7 +43,7 @@ export interface FeedCommentMetaInfo {
  */
 export interface PreDisplayFeedComment {
   /** The comment itself with all its data */
-  comment: FeedCommentItemFragment;
+  comment: CommentsList;
   /** Metadata about the comment's context in the feed */
   metaInfo: Pick<FeedCommentMetaInfo, 'sources'>;
 }
@@ -99,20 +99,8 @@ export interface DisplayFeedItem {
  * Used in: UltraFeed component
  */
 export interface DisplayFeedComment {
-  commentId: string;
-  postId: string;
-  user: UsersMinimumInfo | null; // User who wrote the comment
-  postedAt: Date;
-  baseScore: number;
-  content: string; // HTML/text content
-  wordCount: number | null;
-  // parentCommentId: string | null;
-  // displayedChild: FeedCommentItemDisplay | null; // Child comment displayed in thread
-  // numberOfTimesPreviouslySeen: number; // Whether currentUser has seen this comment
-  // suggestInitiallyExpanded: boolean; // Whether comment should start expanded
-  sources: FeedItemSourceType[] | null; // Reasons why comment was selected
-  // nonDisplayedChildrenCount?: number; // Number of children not displayed
-  displayStatus: FeedItemDisplayStatus;
+  comment: CommentsList;
+  metaInfo: Pick<FeedCommentMetaInfo, 'sources' | 'displayStatus'>;
 }
 
 export interface DisplayFeedCommentThread {

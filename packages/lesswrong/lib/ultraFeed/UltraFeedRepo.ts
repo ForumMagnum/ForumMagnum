@@ -13,6 +13,10 @@ import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
 import groupBy from 'lodash/groupBy';
 import { runQuery, createAnonymousContext } from '@/server/vulcan-lib/query';
 import gql from 'graphql-tag';
+import { CommentsList } from '../../lib/collections/comments/fragments';
+import { PostsMinimumInfo } from '../../lib/collections/posts/fragments';
+import { TagPreviewFragment, TagBasicInfo } from '../../lib/collections/tags/fragments';
+import { UsersMinimumInfo } from '../../lib/collections/users/fragments';
 
 
 /**
@@ -127,66 +131,19 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       query GetFeedComments($commentIds: [String!]!) {
         comments(input: { terms: { view: "allRecentComments", commentIds: $commentIds, limit: 1000 } }) {
           results {
-            ...FeedCommentItemFragment
+            ...CommentsList
           }
         }
       }
       
-      fragment FeedCommentItemFragment on Comment {
-        _id
-        postId
-        topLevelCommentId
-        parentCommentId
-        contents {
-          html
-        }
-        postedAt
-        baseScore
-        user {
-          _id
-          slug
-          createdAt
-          username
-          displayName
-          profileImageId
-          previousDisplayName
-          fullName
-          karma
-          afKarma
-          deleted
-          isAdmin
-          htmlBio
-          jobTitle
-          organization
-          postCount
-          commentCount
-          sequenceCount
-        }
-        post {
-          _id
-          slug
-          title
-          draft
-          shortform
-          hideCommentKarma
-          af
-          currentUserReviewVote {
-            _id
-            qualitativeScore
-            quadraticScore
-          }
-          userId
-          coauthorStatuses
-          hasCoauthorPermission
-          rejected
-          debate
-          collabEditorDialogue
-        }
-      }
+      ${CommentsList}
+      ${TagPreviewFragment}
+      ${TagBasicInfo}
+      ${UsersMinimumInfo}
     `;
     
     const result = await runQuery(query, { commentIds: suggestedComments.map(c => c._id) }, context);
-    const comments = result.data?.comments?.results || [];
+    const comments: CommentsList[] = result.data?.comments?.results || [];
 
     console.log(`UltraFeedRepo: Preparing to fetch ${suggestedComments.length} comments via GraphQL`);
 
@@ -198,12 +155,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       console.log(`UltraFeedRepo: WARNING - No comments returned from GraphQL query!`);
     }
 
-    // Define interfaces for our data structures
-    interface CommentResult {
-      _id: string;
-      topLevelCommentId?: string;
-      [key: string]: any;
-    }
 
     interface CommentWithSource {
       _id: string;
@@ -211,9 +162,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     }
 
     // Merge comment data with source information
-    const commentsWithSources = comments.map((c: CommentResult) => ({
+    const commentsWithSources = comments.map((c: CommentsList) => ({
       comment: {...c, topLevelCommentId: c.topLevelCommentId ?? c._id},
-      metaInfo: { sources: suggestedComments.find((c2: CommentWithSource) => c2._id === c._id /* c from outer scope */)?.sources || [] }
+      metaInfo: { sources: suggestedComments.find((c2: CommentWithSource) => c2._id === c._id /* c from outer scope */)?.sources ?? [] }
     }));
 
     console.log(`UltraFeedRepo: After merging with sources, have ${commentsWithSources.length} comments`);
@@ -221,8 +172,40 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     return commentsWithSources;
   }
 
-  public getAllCommentThreads(candidates: PreDisplayFeedComment[]): PreDisplayFeedCommentThread[] {
+  public async getAllCommentThreads(candidates: PreDisplayFeedComment[]): Promise<PreDisplayFeedCommentThread[]> {
     console.log(`UltraFeedRepo.getAllCommentThreads called with ${candidates.length} candidates`);
+
+    // Get unique postIds from all comments
+    const uniquePostIds = [...new Set(candidates.map(candidate => candidate.comment.postId))].filter(Boolean);
+    //log comments missing postId, give their postIds
+    const commentsMissingPostId = candidates.filter(candidate => !candidate.comment.postId);
+    console.log(`UltraFeedRepo: ${commentsMissingPostId.length} comments missing postId, their postIds:`, commentsMissingPostId.map(c => c.comment.postId));
+
+    // If no valid postIds, return empty array
+    if (uniquePostIds.length === 0) {
+      console.log(`UltraFeedRepo: No valid postIds found in candidates`);
+      return [];
+    }
+
+    // Fetch posts data
+    const postsQuery = gql`
+      query GetPostsForComments($postIds: [String!]!) {
+        posts(input: { terms: { view: "postsByIDs", postIds: $postIds } }) {
+          results {
+            ...PostsMinimumInfo
+          }
+        }
+      }
+      
+      ${PostsMinimumInfo}
+    `;
+
+    const context = createAnonymousContext();
+    const postsResult = await runQuery(postsQuery, { postIds: uniquePostIds }, context);
+    const posts: PostsMinimumInfo[] = postsResult.data?.posts?.results || [];
+
+    // Create a map of postId to post for easy lookup
+    const postsById = new Map(posts.map((post: PostsMinimumInfo) => [post._id, post]));
 
     // Group by topLevelCommentId
     const groups: Record<string, PreDisplayFeedComment[]> = {};
@@ -244,20 +227,20 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
       // Convert each linear path of candidates into a FeedCommentThread
       for (const path of threads) {
-        // Use the first comment's "post" as the post for the entire thread
-        // (assuming they all share the same post)
-        const post = path[0].comment.post
+        // Get the post for this thread
+        const postId = path[0].comment.postId;
+        const post = postsById.get(postId);
         
         if (!post) {
           // eslint-disable-next-line no-console
-          console.error("UltraFeedRepo.getAllCommentThreads: No post found for thread with topLevelId", { topLevelId });
+          console.error("UltraFeedRepo.getAllCommentThreads: No post found for thread with topLevelId", { topLevelId, postId });
           continue;
         }
 
         // Create the FeedCommentThread
         allThreads.push({
-          post,
-          comments: path, // Use the candidates directly
+          post: post as PostsMinimumInfo,
+          comments: path,
           topLevelCommentId: topLevelId,
         });
       }
@@ -417,15 +400,11 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         comments: thread.comments.map((item: PreDisplayFeedComment, index: number) => {
           const { comment } = item;
           return {
-            commentId: comment._id,
-            postId: comment.postId,
-            user: comment.user,
-            postedAt: comment.postedAt,
-            baseScore: comment.baseScore,
-            content: comment.contents?.html || '',
-            sources: item.metaInfo.sources,
-            displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
-            wordCount: comment.contents?.wordCount ?? null
+            comment,
+            metaInfo: {
+              sources: item.metaInfo.sources,
+              displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
+            }
           }
         })
     }
@@ -439,7 +418,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     const candidates = await this.getCommentsForFeed(1000); // limit of how many comments to consider
     console.log(`UltraFeedRepo: Got ${candidates.length} candidates from getCommentsForFeed`);
     
-    const threads = this.getAllCommentThreads(candidates);
+    const threads = await this.getAllCommentThreads(candidates);
     console.log(`UltraFeedRepo: Got ${threads.length} threads from getAllCommentThreads`);
     
     const prioritizedThreads = this.prioritizeThreads(threads);
@@ -458,3 +437,4 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 recordPerfMetrics(UltraFeedRepo);
 
 export default UltraFeedRepo;
+
