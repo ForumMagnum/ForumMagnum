@@ -10,6 +10,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
 import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
+import { hasAuthorModeration } from '@/lib/betas';
 
 const prefillFromTemplate = (template: PostsEdit) => {
   return pick(
@@ -165,7 +166,8 @@ const PostsNewForm = () => {
             title: "Untitled Draft",
             draft: true,
             ...pick(prefilledProps, insertableFields),
-            ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents && {
+            ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents &&
+              hasAuthorModeration && {
               moderationGuidelines: {
                 originalContents: pick(currentUserWithModerationGuidelines.moderationGuidelines.originalContents, ["type","data"])
               }
