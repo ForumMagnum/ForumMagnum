@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import { getWithLoader } from "@/lib/loaders";
-import { accessFilterMultiple, getFillIfMissing } from "@/lib/utils/schemaUtils";
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
   _id: {
@@ -12,8 +12,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -24,10 +27,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -36,9 +41,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -47,10 +55,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   name: {
@@ -59,7 +70,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -67,7 +79,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
   },
   questions: {
     graphql: {
-      type: "[SurveyQuestion!]!",
+      outputType: "[SurveyQuestion!]!",
       canRead: ["guests"],
       resolver: async (survey, _args, context) => {
         const { currentUser, SurveyQuestions } = context;

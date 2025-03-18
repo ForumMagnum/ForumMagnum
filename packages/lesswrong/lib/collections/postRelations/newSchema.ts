@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> = {
   _id: {
@@ -11,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   type: {
@@ -58,10 +69,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   sourcePostId: {
@@ -71,23 +85,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   sourcePost: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "PostRelations",
-        fieldName: "sourcePostId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "sourcePostId" }),
     },
   },
   targetPostId: {
@@ -97,23 +105,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   targetPost: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "PostRelations",
-        fieldName: "targetPostId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "targetPostId" }),
     },
   },
   order: {
@@ -121,10 +123,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

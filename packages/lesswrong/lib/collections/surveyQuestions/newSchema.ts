@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
 const commonFields = ({
   nullable = false,
@@ -31,8 +31,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -43,10 +46,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -55,9 +60,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -66,10 +74,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   surveyId: {
@@ -79,7 +90,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -87,12 +99,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
   },
   survey: {
     graphql: {
-      type: "Survey!",
+      outputType: "Survey!",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "SurveyQuestions", fieldName: "surveyId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Surveys", fieldName: "surveyId" }),
     },
   },
   question: {
@@ -101,7 +110,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -113,7 +123,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -128,7 +139,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
+      inputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

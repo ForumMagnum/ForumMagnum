@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 
 const userEditableField = ({
@@ -24,8 +24,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -36,10 +39,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -48,9 +53,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -59,10 +67,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   surveyId: {
@@ -72,7 +83,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
@@ -80,12 +92,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
   },
   survey: {
     graphql: {
-      type: "Survey!",
+      outputType: "Survey!",
       canRead: [userOwns, "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "SurveyResponses", fieldName: "surveyId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Surveys", fieldName: "surveyId" }),
     },
   },
   surveyScheduleId: {
@@ -95,7 +104,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
@@ -103,16 +113,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
   },
   surveySchedule: {
     graphql: {
-      type: "SurveySchedule",
+      outputType: "SurveySchedule",
       canRead: [userOwns, "admins"],
-      resolver: generateIdResolverSingle({
-        collectionName: "SurveyResponses",
-        fieldName: "surveyScheduleId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "SurveySchedules", fieldName: "surveyScheduleId" }),
     },
   },
   userId: {
@@ -122,7 +125,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
@@ -130,12 +134,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: [userOwns, "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "SurveyResponses", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   clientId: {
@@ -145,7 +146,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
@@ -153,12 +155,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
   },
   client: {
     graphql: {
-      type: "ClientId",
+      outputType: "ClientId",
       canRead: [userOwns, "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "SurveyResponses", fieldName: "clientId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "ClientIds", fieldName: "clientId" }),
     },
   },
   response: {
@@ -167,7 +166,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
+      inputType: "JSON!",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],

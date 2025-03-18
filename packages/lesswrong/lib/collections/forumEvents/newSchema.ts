@@ -2,8 +2,8 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
 import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 
@@ -38,7 +38,7 @@ const defaultEditableProps: Pick<
   },
 };
 
-const hMkjFt = () => defaultEditorPlaceholder;
+const hRyJXH = () => defaultEditorPlaceholder;
 
 const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
   _id: {
@@ -47,8 +47,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -59,10 +62,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -71,9 +76,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -82,27 +90,29 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   frontpageDescription: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "frontpageDescription"),
     },
     form: {
       form: {
         label: "Frontpage description",
-        hintText: hMkjFt,
+        hintText: hRyJXH,
         fieldName: "frontpageDescription",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -128,39 +138,42 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   frontpageDescriptionRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("frontpageDescriptionRevisions"),
     },
   },
   frontpageDescriptionVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("frontpageDescriptionVersion"),
     },
   },
   frontpageDescriptionMobile: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "frontpageDescriptionMobile"),
     },
     form: {
       form: {
         label: "Frontpage description (mobile)",
-        hintText: hMkjFt,
+        hintText: hRyJXH,
         fieldName: "frontpageDescriptionMobile",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -186,39 +199,42 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   frontpageDescriptionMobileRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("frontpageDescriptionMobileRevisions"),
     },
   },
   frontpageDescriptionMobileVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("frontpageDescriptionMobileVersion"),
     },
   },
   postPageDescription: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "postPageDescription"),
     },
     form: {
       form: {
         label: "Post page description",
-        hintText: hMkjFt,
+        hintText: hRyJXH,
         fieldName: "postPageDescription",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -244,20 +260,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   postPageDescriptionRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("postPageDescriptionRevisions"),
     },
   },
   postPageDescriptionVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("postPageDescriptionVersion"),
     },
@@ -268,7 +288,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -283,7 +304,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -299,7 +321,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -317,12 +340,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing("#000000"),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       label: "Primary background color",
@@ -339,12 +361,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing("#ffffff"),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       label: "Secondary background color",
@@ -361,12 +382,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing("#ffffff"),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       tooltip:
@@ -380,10 +400,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Accent color (optional, used very rarely)",
@@ -397,10 +420,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Choose tag",
@@ -409,12 +435,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
   },
   tag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "ForumEvents", fieldName: "tagId", nullable: true }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
   postId: {
@@ -424,10 +447,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Choose post ID",
@@ -435,12 +461,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "ForumEvents", fieldName: "postId", nullable: true }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
   bannerImageId: {
@@ -449,10 +472,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       control: "ImageUpload",
@@ -466,12 +492,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   eventFormat: {
@@ -482,14 +509,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing("BASIC"),
-      onUpdate: throwIfSetToNull,
       validation: {
         allowedValues: ["BASIC", "POLL", "STICKERS"],
+        optional: true,
       },
     },
     form: {
@@ -509,12 +535,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(1),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.stickerEventOptions,
@@ -526,10 +553,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   commentPrompt: {
@@ -538,10 +568,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       tooltip: 'For events with comments, the title in the comment box (defaults to "Add your comment")',
@@ -553,14 +586,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   voteCount: {
     graphql: {
-      type: "Int!",
+      outputType: "Int!",
       canRead: ["guests"],
       resolver: ({ publicData }) => (publicData ? Object.keys(publicData).length : 0),
     },

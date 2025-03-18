@@ -5,8 +5,10 @@
 import SimpleSchema from "simpl-schema";
 import {
   userGetProfileUrl,
-  getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS,
-  getAuth0Provider
+  getUserEmail,
+  userOwnsAndInGroup,
+  SOCIAL_MEDIA_PROFILE_FIELDS,
+  getAuth0Provider,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { getAllUserGroups, userOwns, userIsAdmin } from "../../vulcan-users/permissions";
@@ -22,8 +24,7 @@ import {
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate,
-  getFillIfMissing,
-  googleLocationToMongoLocation, schemaDefaultValue, throwIfSetToNull
+  googleLocationToMongoLocation, schemaDefaultValue
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
 import { REVIEW_YEAR } from "../../reviewUtils";
@@ -40,7 +41,8 @@ import { getUserABTestKey } from "../../abTestImpl";
 import { DeferredForumSelect } from "../../forumTypeUtils";
 import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
-import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
@@ -381,25 +383,22 @@ addGraphQLSchema(`
  * @type {Object}
  */
 
-const hEAm3D = (user, document) => {
-  return userOwns(user, document) || userIsAdmin(user);
-};
-const hNE6JJ = (data) => "googleLocation" in data;
-const h7uukg = async (user) => {
+const hmGinK = (data) => "googleLocation" in data;
+const hjtvjR = async (user) => {
   if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation);
   return null;
 };
-const hzrSET = (data) => "mapLocation" in data;
-const h3yBEz = async (user) => {
+const hCSYZF = (data) => "mapLocation" in data;
+const h7EQ3h = async (user) => {
   return !!user.mapLocation;
 };
-const hneryH = (data) => "mapMarkerText" in data;
-const h3yMbL = async (user) => {
+const hhMzyC = (data) => "mapMarkerText" in data;
+const h2Ewjc = async (user) => {
   if (!user.mapMarkerText) return "";
   return await markdownToHtml(user.mapMarkerText);
 };
-const hjztHb = (data) => "nearbyEventsNotificationsLocation" in data;
-const hzJqLL = async (user) => {
+const hTcEov = (data) => "nearbyEventsNotificationsLocation" in data;
+const heeJHD = async (user) => {
   if (user.nearbyEventsNotificationsLocation)
     return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation);
 };
@@ -411,8 +410,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -423,10 +425,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -435,9 +439,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -446,21 +453,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moderationGuidelines: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: [userOwns, "sunshineRegiment", "admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      canCreate: ["sunshineRegiment", "admins"],
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "moderationGuidelines"),
     },
   },
@@ -469,33 +478,36 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moderationGuidelinesRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("moderationGuidelinesRevisions"),
     },
   },
   moderationGuidelinesVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("moderationGuidelinesVersion"),
     },
   },
   howOthersCanHelpMe: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: [userOwns, "sunshineRegiment", "admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      canCreate: ["sunshineRegiment", "admins"],
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "howOthersCanHelpMe"),
     },
   },
@@ -504,33 +516,36 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   howOthersCanHelpMeRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("howOthersCanHelpMeRevisions"),
     },
   },
   howOthersCanHelpMeVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("howOthersCanHelpMeVersion"),
     },
   },
   howICanHelpOthers: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: [userOwns, "sunshineRegiment", "admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      canCreate: ["sunshineRegiment", "admins"],
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "howICanHelpOthers"),
     },
   },
@@ -539,20 +554,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   howICanHelpOthersRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("howICanHelpOthersRevisions"),
     },
   },
   howICanHelpOthersVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("howICanHelpOthersVersion"),
     },
@@ -563,7 +582,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       slugCallbackOptions: {
@@ -571,6 +590,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         getTitle: (u) => u.displayName ?? createDisplayName(u),
         onCollision: "rejectIfExplicit",
         includesOldSlugs: true,
+      },
+      validation: {
+        optional: true,
       },
     },
     form: {
@@ -586,21 +608,21 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
-      onCreate: getFillIfMissing([]),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   biography: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: [userOwns, "sunshineRegiment", "admins"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      canCreate: ["sunshineRegiment", "admins"],
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "biography"),
     },
   },
@@ -609,20 +631,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   biographyRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("biographyRevisions"),
     },
   },
   biographyVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("biographyVersion"),
     },
@@ -632,7 +658,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -641,6 +667,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
           return user.services.twitter.screenName;
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   emails: {
@@ -648,7 +677,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB[]",
     },
     graphql: {
-      type: "[JSON]",
+      outputType: "[JSON]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       onCreate: ({ document: user }) => {
         const oAuthEmail =
@@ -665,6 +694,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
           ];
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   isAdmin: {
@@ -675,12 +707,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "realAdmins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Admin",
@@ -692,23 +725,22 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     database: {
       type: "JSONB",
     },
-    graphql: {
-      type: "JSON",
-      canCreate: ["members"],
-    },
   },
   services: {
     database: {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
-      canRead: hEAm3D,
+      outputType: "JSON",
+      canRead: ownsOrIsAdmin,
+      validation: {
+        optional: true,
+      },
     },
   },
   hasAuth0Id: {
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       resolver: (user) => {
         return getAuth0Provider(user) === "auth0";
@@ -720,12 +752,15 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins", "members"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: user }) => {
         return user.displayName || createDisplayName(user);
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -734,10 +769,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 11,
@@ -749,10 +787,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
-      canRead: (user, document) => {
-        return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes("sunshineRegiment") ?? false);
-      },
+      outputType: "String",
+      canRead: ownsOrIsMod,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       onCreate: ({ document: user }) => {
@@ -775,7 +811,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         return data.email;
       },
       validation: {
-        regEx: {},
+        regEx: SimpleSchema.RegEx.Email,
+        optional: true,
       },
     },
     form: {
@@ -793,11 +830,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 48,
@@ -811,10 +849,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: ["alignmentForumAdmins", "admins", "realAdmins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -834,7 +875,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   pageUrl: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
         return userGetProfileUrl(user, true);
@@ -843,7 +884,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   pagePath: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
         return userGetProfileUrl(user, false);
@@ -852,7 +893,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   editUrl: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
         return userGetEditUrl(user, true);
@@ -864,8 +905,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   theme: {
@@ -876,14 +920,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
-      canRead: hEAm3D,
-      canUpdate: hEAm3D,
+      outputType: "JSON",
+      canRead: ownsOrIsAdmin,
+      canUpdate: ownsOrIsAdmin,
       canCreate: ["members"],
-      onCreate: getFillIfMissing({ name: "default" }),
-      onUpdate: throwIfSetToNull,
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: userTheme,
+        optional: true,
       },
     },
     form: {
@@ -898,10 +941,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   whenConfirmationEmailSent: {
@@ -909,10 +955,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["members"],
       canUpdate: [],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 1,
@@ -928,12 +977,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   commentSorting: {
@@ -941,10 +991,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { options: () => getCommentViewOptions() },
@@ -958,9 +1011,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -991,13 +1047,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
-      onCreate: getFillIfMissing("listView"),
-      onUpdate: throwIfSetToNull,
       validation: {
         allowedValues: ["listView", "gridView"],
+        optional: true,
       },
     },
   },
@@ -1006,10 +1061,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 68,
@@ -1024,10 +1082,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
-      canUpdate: ["function:(user, document)=>{ return (0, _permissions.userOw...", "sunshineRegiment", "admins"],
+      canUpdate: [userOwnsAndInGroup("trustLevel1"), "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 69,
@@ -1042,10 +1103,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideIntercom: {
@@ -1056,12 +1120,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 71,
@@ -1078,11 +1143,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 72,
@@ -1099,11 +1165,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 80,
@@ -1120,11 +1187,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   noSingleLineComments: {
@@ -1135,12 +1203,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 91,
@@ -1157,12 +1226,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 92,
@@ -1179,12 +1249,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 93,
@@ -1201,12 +1272,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 93,
@@ -1222,12 +1294,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: expandedFrontpageSectionsSettings,
+        optional: true,
       },
     },
   },
@@ -1239,12 +1312,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 94,
@@ -1262,12 +1336,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 95,
@@ -1285,12 +1360,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   optedOutOfSurveys: {
@@ -1299,10 +1375,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 97,
@@ -1319,12 +1398,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 98,
@@ -1341,11 +1421,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: [userOwns],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   generateJargonForPublishedPosts: {
@@ -1356,11 +1437,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: [userOwns],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   acceptedTos: {
@@ -1371,12 +1453,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   hideNavigationSidebar: {
@@ -1384,29 +1467,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   currentFrontpageFilter: {
@@ -1414,29 +1481,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "String",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   frontpageSelectedTab: {
@@ -1445,29 +1496,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "String",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   frontpageFilterSettings: {
@@ -1475,29 +1510,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "JSON",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   hideFrontpageFilterSettingsDesktop: {
@@ -1505,40 +1524,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
       nullable: true,
     },
-    graphql: {
-      type: "Boolean",
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: "guests",
-    },
   },
   allPostsTimeframe: {
     database: {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "String",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsFilter: {
@@ -1546,29 +1544,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "String",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsSorting: {
@@ -1576,29 +1558,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "String",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsShowLowKarma: {
@@ -1606,29 +1572,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsIncludeEvents: {
@@ -1636,29 +1586,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsHideCommunity: {
@@ -1666,29 +1600,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsOpenSettings: {
@@ -1696,29 +1614,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   draftsListSorting: {
@@ -1726,29 +1628,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "String",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   draftsListShowArchived: {
@@ -1756,29 +1642,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   draftsListShowShared: {
@@ -1786,29 +1656,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "Boolean",
+      canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   lastNotificationsCheck: {
@@ -1817,29 +1671,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       logChanges: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, "admins"],
-      canUpdate: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      canUpdate: userOwns,
       canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   karma: {
@@ -1850,10 +1688,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   goodHeartTokens: {
@@ -1861,8 +1700,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moderationStyle: {
@@ -1870,10 +1712,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moderatorAssistance: {
@@ -1881,10 +1726,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   collapseModerationGuidelines: {
@@ -1892,10 +1740,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   bannedUserIds: {
@@ -1903,10 +1754,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "VARCHAR(27)[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
-      canUpdate: ["function:(user, document)=>{ return (0, _permissions.userOw...", "sunshineRegiment", "admins"],
+      canUpdate: [userOwnsAndInGroup("trustLevel1"), "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Banned Users (All)",
@@ -1919,10 +1773,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "VARCHAR(27)[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
-      canUpdate: ["function:(user, document)=>{ return (0, _permissions.userOw...", "sunshineRegiment", "admins"],
+      canUpdate: [userOwnsAndInGroup("canModeratePersonal"), "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Banned Users (Personal)",
@@ -1940,7 +1797,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "[JSON]",
+      outputType: "[JSON]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -1949,20 +1806,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
           return _.uniq(data?.bookmarkedPostsMetadata, "postId");
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   bookmarkedPosts: {
     graphql: {
-      type: "[Post!]!",
+      outputType: "[Post!]!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverMulti({
-        collectionName: "Users",
+        foreignCollectionName: "Posts",
         fieldName: "bookmarkedPostsMetadata",
-        getKey: FILL_THIS_IN,
+        getKey: (obj) => obj.postId,
       }),
-    },
-    form: {
-      hidden: true,
     },
   },
   hiddenPostsMetadata: {
@@ -1973,7 +1830,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "[JSON]",
+      outputType: "[JSON]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -1982,20 +1839,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
           return uniqBy(data?.hiddenPostsMetadata, "postId");
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   hiddenPosts: {
     graphql: {
-      type: "[Post!]!",
+      outputType: "[Post!]!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: generateIdResolverMulti({
-        collectionName: "Users",
-        fieldName: "hiddenPostsMetadata",
-        getKey: FILL_THIS_IN,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "hiddenPostsMetadata" }),
     },
   },
   legacyId: {
@@ -2003,10 +1856,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   deleted: {
@@ -2017,11 +1873,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   permanentDeletionRequestedAt: {
@@ -2030,7 +1887,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["members", "admins"],
       onUpdate: ({ data }) => {
@@ -2039,6 +1896,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         // can't work around the cooling off period
         return new Date();
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   voteBanned: {
@@ -2046,10 +1906,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   nullifyVotes: {
@@ -2057,10 +1920,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Nullify all past votes",
@@ -2073,10 +1939,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Delete all user content",
@@ -2089,10 +1958,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Ban user until",
@@ -2102,7 +1974,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   IPs: {
     graphql: {
-      type: "[String!]",
+      outputType: "[String!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         const { currentUser, LWEvents } = context;
@@ -2136,12 +2008,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       beforeComponent: "ManageSubscriptionsLink",
@@ -2158,12 +2031,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Auto-subscribe to replies to my comments",
@@ -2179,12 +2053,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Auto-subscribe to posts/events in groups I organize",
@@ -2201,14 +2076,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2225,14 +2099,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2249,14 +2122,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2273,14 +2145,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2297,7 +2168,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
@@ -2309,9 +2180,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
           };
         }
       },
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2328,14 +2199,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2353,19 +2223,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2383,14 +2247,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2407,19 +2270,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2437,19 +2294,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2466,19 +2317,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2495,19 +2340,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2519,19 +2358,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2549,14 +2382,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2568,19 +2400,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2598,19 +2424,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2628,19 +2448,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2657,19 +2471,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2681,19 +2489,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "onsite",
-        batchingFrequency: "daily",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2710,14 +2512,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2734,19 +2535,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2764,14 +2559,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2789,19 +2583,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
     form: {
@@ -2818,19 +2606,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "onsite",
-        batchingFrequency: "daily",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2842,14 +2624,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2861,19 +2642,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "both",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2885,19 +2660,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing({
-        channel: "none",
-        batchingFrequency: "realtime",
-        timeOfDayGMT: 12,
-        dayOfWeekGMT: "Monday",
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2909,14 +2678,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(defaultNotificationTypeSettings),
-      onUpdate: throwIfSetToNull,
       validation: {
         simpleSchema: notificationTypeSettings,
+        optional: true,
       },
     },
   },
@@ -2928,12 +2696,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   revealChecksToAdmins: {
@@ -2944,12 +2713,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   optedInToDialogueFacilitation: {
@@ -2960,12 +2730,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   showDialoguesList: {
@@ -2976,12 +2747,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
     },
   },
   showMyDialogues: {
@@ -2992,12 +2762,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
     },
   },
   showMatches: {
@@ -3008,12 +2777,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
     },
   },
   showRecommendedPartners: {
@@ -3024,12 +2792,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
     },
   },
   hideActiveDialogueUsers: {
@@ -3040,12 +2807,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   karmaChangeNotifierSettings: {
@@ -3056,19 +2824,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
-      onCreate: getFillIfMissing({
-        updateFrequency: "daily",
-        timeOfDayGMT: 11,
-        dayOfWeekGMT: "Saturday",
-        showNegativeKarma: false,
-      }),
-      onUpdate: throwIfSetToNull,
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: karmaChangeSettingsType,
+        optional: true,
       },
     },
     form: {
@@ -3082,10 +2844,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       logChanges: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   karmaChangeBatchStart: {
@@ -3094,10 +2859,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       logChanges: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   emailSubscribedToCurated: {
@@ -3105,10 +2873,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   subscribedToDigest: {
@@ -3119,12 +2890,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Subscribe to the EA Forum Digest emails",
@@ -3137,10 +2909,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Do not send me any emails (unsubscribe from all)",
@@ -3155,12 +2930,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   hideMeetupsPoke: {
@@ -3171,12 +2947,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   hideHomeRHS: {
@@ -3187,12 +2964,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   frontpagePostCount: {
@@ -3212,7 +2990,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -3220,6 +2998,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (post) => !!post.frontpageDate,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -3240,7 +3021,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -3248,6 +3029,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (sequence) => !sequence.draft && !sequence.isDeleted && !sequence.hideFromAuthorPage,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -3268,7 +3052,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -3277,6 +3061,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         filterFn: (sequence) => sequence.draft && !sequence.isDeleted,
         resyncElastic: false,
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   mongoLocation: {
@@ -3284,14 +3071,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hNE6JJ,
-      getValue: h7uukg,
+      needsUpdate: hmGinK,
+      getValue: hjtvjR,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h7uukg, needsUpdate: hNE6JJ }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h7uukg, needsUpdate: hNE6JJ }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hjtvjR, needsUpdate: hmGinK }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hjtvjR, needsUpdate: hmGinK }),
+      validation: {
+        optional: true,
+      },
     },
   },
   googleLocation: {
@@ -3299,10 +3089,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { stringVersionFieldName: "location" },
@@ -3318,10 +3111,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   mapLocation: {
@@ -3329,19 +3125,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   mapLocationLatLng: {
     graphql: {
-      type: "LatLng",
+      outputType: "LatLng",
       canRead: ["guests"],
-      validation: {
-        simpleSchema: FILL_THIS_IN,
-      },
       resolver: (user, _args, _context) => {
         const mapLocation = user.mapLocation;
         if (!mapLocation?.geometry?.location) return null;
@@ -3359,14 +3155,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hzrSET,
-      getValue: h3yBEz,
+      needsUpdate: hCSYZF,
+      getValue: h7EQ3h,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h3yBEz, needsUpdate: hzrSET }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h3yBEz, needsUpdate: hzrSET }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h7EQ3h, needsUpdate: hCSYZF }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h7EQ3h, needsUpdate: hCSYZF }),
+      validation: {
+        optional: true,
+      },
     },
   },
   mapMarkerText: {
@@ -3374,10 +3173,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   htmlMapMarkerText: {
@@ -3385,14 +3187,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hneryH,
-      getValue: h3yMbL,
+      needsUpdate: hhMzyC,
+      getValue: h2Ewjc,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h3yMbL, needsUpdate: hneryH }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h3yMbL, needsUpdate: hneryH }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h2Ewjc, needsUpdate: hhMzyC }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h2Ewjc, needsUpdate: hhMzyC }),
+      validation: {
+        optional: true,
+      },
     },
   },
   nearbyEventsNotifications: {
@@ -3403,12 +3208,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   nearbyEventsNotificationsLocation: {
@@ -3416,10 +3222,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   nearbyEventsNotificationsMongoLocation: {
@@ -3427,14 +3236,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hjztHb,
-      getValue: hzJqLL,
+      needsUpdate: hTcEov,
+      getValue: heeJHD,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hzJqLL, needsUpdate: hjztHb }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hzJqLL, needsUpdate: hjztHb }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: heeJHD, needsUpdate: hTcEov }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: heeJHD, needsUpdate: hTcEov }),
+      validation: {
+        optional: true,
+      },
     },
   },
   nearbyEventsNotificationsRadius: {
@@ -3442,10 +3254,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   nearbyPeopleNotificationThreshold: {
@@ -3453,10 +3268,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideFrontpageMap: {
@@ -3464,10 +3282,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideTaggingProgressBar: {
@@ -3475,10 +3296,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideFrontpageBookAd: {
@@ -3486,9 +3310,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideFrontpageBook2019Ad: {
@@ -3496,10 +3323,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideFrontpageBook2020Ad: {
@@ -3507,10 +3337,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   sunshineNotes: {
@@ -3521,11 +3354,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(""),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3539,11 +3373,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3557,11 +3392,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3575,11 +3411,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3590,9 +3427,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3604,10 +3444,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["sunshineRegiment", "admins", "guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3615,17 +3458,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   reviewedByUser: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["sunshineRegiment", "admins", "guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Users", fieldName: "reviewedByUserId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reviewedByUserId" }),
     },
   },
   isReviewed: {
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: (user, args, context) => !!user.reviewedByUserId,
     },
@@ -3635,9 +3475,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => formGroups.adminOptions,
@@ -3645,7 +3488,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   spamRiskScore: {
     graphql: {
-      type: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       resolver: (user, args, context) => {
         const isReviewed = !!user.reviewedByUserId;
@@ -3667,7 +3510,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   allVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["admins", "sunshineRegiment"],
       resolver: async (document, args, context) => {
         const { Votes, currentUser } = context;
@@ -3688,10 +3531,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Alignment Base Score",
@@ -3703,8 +3547,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Small Upvote Count",
@@ -3716,8 +3563,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   smallDownvoteCount: {
@@ -3726,8 +3576,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   bigUpvoteCount: {
@@ -3736,8 +3589,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   bigDownvoteCount: {
@@ -3746,8 +3602,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   voteReceivedCount: {
@@ -3756,8 +3615,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   smallUpvoteReceivedCount: {
@@ -3766,8 +3628,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   smallDownvoteReceivedCount: {
@@ -3776,8 +3641,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   bigUpvoteReceivedCount: {
@@ -3786,8 +3654,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   bigDownvoteReceivedCount: {
@@ -3796,8 +3667,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   usersContactedBeforeReview: {
@@ -3805,8 +3679,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   fullName: {
@@ -3814,9 +3691,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   shortformFeedId: {
@@ -3825,10 +3705,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       foreignKey: "Posts",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Quick takes feed ID",
@@ -3837,12 +3720,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   shortformFeed: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Users", fieldName: "shortformFeedId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "shortformFeedId" }),
     },
   },
   viewUnreviewedComments: {
@@ -3850,10 +3730,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 0,
@@ -3865,11 +3748,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB[]",
     },
     graphql: {
-      type: "[JSON]",
+      outputType: "[JSON]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: [partiallyReadSequenceItem],
+        optional: true,
       },
     },
   },
@@ -3878,9 +3762,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 70,
@@ -3894,9 +3781,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewVotesQuadratic2019: {
@@ -3904,14 +3794,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewVoteCount: {
     graphql: {
-      type: "Int!",
+      outputType: "Int!",
       canRead: ["admins", "sunshineRegiment"],
       resolver: async (document, args, context) => {
         const { ReviewVotes } = context;
@@ -3928,9 +3821,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   petrovPressedButtonDate: {
@@ -3938,9 +3834,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   petrovLaunchCodeDate: {
@@ -3948,9 +3847,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   defaultToCKEditor: {
@@ -3958,9 +3860,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Activate CKEditor by default",
@@ -3972,9 +3877,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
@@ -3989,12 +3897,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   postCount: {
@@ -4014,7 +3923,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4022,6 +3931,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (post) => !post.draft && !post.rejected && post.status === postStatuses.STATUS_APPROVED,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4042,22 +3954,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
       countOfReferences: {
         foreignCollectionName: "Posts",
         foreignFieldName: "userId",
         filterFn: (doc) => true,
         resyncElastic: false,
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   posts: {
     graphql: {
-      type: "[Post]",
+      outputType: "[Post]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: async (user, args, context) => {
         const { limit } = args;
         const { currentUser, Posts } = context;
@@ -4090,7 +4004,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4098,6 +4012,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (comment) => !comment.deleted && !comment.rejected,
         resyncElastic: true,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4118,15 +4035,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "userId",
         filterFn: (doc) => true,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4147,7 +4065,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4155,6 +4073,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (revision) => revision.collectionName === "Tags",
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4164,7 +4085,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["admins"],
       onCreate: ({ document, context }) => {
@@ -4173,6 +4094,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
             clientId: context.clientId ?? randomId(),
           });
         }
+      },
+      validation: {
+        optional: true,
       },
     },
     form: {
@@ -4184,9 +4108,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reenableDraftJs: {
@@ -4194,8 +4121,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 73,
@@ -4210,9 +4140,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideWalledGardenUI: {
@@ -4220,8 +4153,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   walledGardenPortalOnboarded: {
@@ -4229,9 +4165,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   taggingDashboardCollapsed: {
@@ -4239,9 +4178,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   usernameUnset: {
@@ -4252,11 +4194,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   paymentEmail: {
@@ -4264,9 +4207,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   paymentInfo: {
@@ -4274,9 +4220,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   profileUpdatedAt: {
@@ -4287,12 +4236,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(new Date(0)),
-      onUpdate: throwIfSetToNull,
     },
   },
   profileImageId: {
@@ -4300,9 +4248,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   jobTitle: {
@@ -4310,10 +4261,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   organization: {
@@ -4321,10 +4275,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   careerStage: {
@@ -4332,10 +4289,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   website: {
@@ -4343,15 +4303,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   bio: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, { Users }) => {
         const bio = user.biography?.originalContents;
@@ -4362,7 +4325,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   htmlBio: {
     graphql: {
-      type: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       resolver: (user, args, { Users }) => {
         const bio = user.biography;
@@ -4375,10 +4338,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   linkedinProfileURL: {
@@ -4386,10 +4352,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   facebookProfileURL: {
@@ -4397,10 +4366,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   blueskyProfileURL: {
@@ -4408,10 +4380,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   twitterProfileURL: {
@@ -4419,10 +4394,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   twitterProfileURLAdmin: {
@@ -4431,10 +4409,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -4453,10 +4434,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   profileTagIds: {
@@ -4467,21 +4451,21 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       onCreate: arrayOfForeignKeysOnCreate,
+      validation: {
+        optional: true,
+      },
     },
   },
   profileTags: {
     graphql: {
-      type: "[Tag!]!",
+      outputType: "[Tag!]!",
       canRead: ["guests"],
-      resolver: generateIdResolverMulti({ collectionName: "Users", fieldName: "profileTagIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Tags", fieldName: "profileTagIds" }),
     },
   },
   organizerOfGroupIds: {
@@ -4492,21 +4476,21 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       onCreate: arrayOfForeignKeysOnCreate,
+      validation: {
+        optional: true,
+      },
     },
   },
   organizerOfGroups: {
     graphql: {
-      type: "[Localgroup!]!",
+      outputType: "[Localgroup!]!",
       canRead: ["guests"],
-      resolver: generateIdResolverMulti({ collectionName: "Users", fieldName: "organizerOfGroupIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Localgroups", fieldName: "organizerOfGroupIds" }),
     },
   },
   programParticipation: {
@@ -4514,10 +4498,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   postingDisabled: {
@@ -4525,10 +4512,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 69,
@@ -4541,10 +4531,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 70,
@@ -4557,10 +4550,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 71,
@@ -4573,10 +4569,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 72,
@@ -4586,7 +4585,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   associatedClientId: {
     graphql: {
-      type: "ClientId",
+      outputType: "ClientId",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         return await context.ClientIds.findOne(
@@ -4604,7 +4603,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   associatedClientIds: {
     graphql: {
-      type: "[ClientId!]",
+      outputType: "[ClientId!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         return await context.ClientIds.find(
@@ -4623,7 +4622,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   altAccountsDetected: {
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         const clientIds = await context.ClientIds.find(
@@ -4651,15 +4650,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moderatorActions: {
     graphql: {
-      type: "[ModeratorAction]",
+      outputType: "[ModeratorAction]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
         const { ModeratorActions, loaders } = context;
@@ -4674,12 +4676,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
       validation: {
         allowedValues: ["card", "list"],
+        optional: true,
       },
     },
   },
@@ -4689,10 +4692,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   criticismTipsDismissed: {
@@ -4703,12 +4709,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   hideFromPeopleDirectory: {
@@ -4719,12 +4726,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Hide my profile from the People directory",
@@ -4740,12 +4748,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Allow Session Replay",
@@ -4772,7 +4781,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4780,6 +4789,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (post) => post.af && !post.draft && post.status === postStatuses.STATUS_APPROVED,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4800,7 +4812,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4808,6 +4820,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (comment) => comment.af,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4828,7 +4843,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4836,6 +4851,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         foreignFieldName: "userId",
         filterFn: (sequence) => sequence.af && !sequence.draft && !sequence.isDeleted,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -4856,7 +4874,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4865,6 +4883,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         filterFn: (sequence) => sequence.af && sequence.draft && !sequence.isDeleted,
         resyncElastic: false,
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewForAlignmentForumUserId: {
@@ -4872,10 +4893,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["alignmentForumAdmins", "admins"],
       canCreate: ["alignmentForumAdmins", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afApplicationText: {
@@ -4883,9 +4907,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "alignmentForumAdmins", "admins"],
       canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afSubmittedApplication: {
@@ -4893,16 +4920,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "alignmentForumAdmins", "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   rateLimitNextAbleToComment: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      arguments: "postId: String",
       resolver: async (user, args, context) => {
         return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
       },
@@ -4910,8 +4941,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   rateLimitNextAbleToPost: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      arguments: "eventForm: Boolean",
       resolver: async (user, args, context) => {
         const { eventForm } = args;
         if (eventForm) return null;
@@ -4926,7 +4958,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
   },
   recentKarmaInfo: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: async (user, args, context) => {
         return getRecentKarmaInfo(user._id);
@@ -4941,12 +4973,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   inactiveSurveyEmailSentAt: {
@@ -4955,10 +4988,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userSurveyEmailSentAt: {
@@ -4967,35 +5003,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   karmaChanges: {
     graphql: {
-      type: "KarmaChanges",
-      canRead: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      outputType: "KarmaChanges",
+      canRead: userOwns,
+      arguments: "startDate: Date, endDate: Date",
       resolver: async (document, { startDate, endDate }, context) => {
         const { currentUser, Users } = context;
         if (!currentUser) return null;
@@ -5044,11 +5065,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns],
       canUpdate: [userOwns],
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: recommendationSettingsSchema,
+        optional: true,
       },
     },
   },

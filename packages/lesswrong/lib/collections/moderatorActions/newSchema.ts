@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import { forumSelect } from "../../forumTypeUtils";
-import { generateIdResolverSingle, getFillIfMissing } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 
 export const RATE_LIMIT_ONE_PER_DAY = "rateLimitOnePerDay";
@@ -95,8 +95,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -107,10 +110,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -119,9 +124,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -130,10 +138,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -143,10 +154,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       control: "SearchSingleUser",
@@ -154,12 +168,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "ModeratorActions", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   type: {
@@ -168,7 +179,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -213,10 +225,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       control: "datetime",
@@ -224,7 +239,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModeratorActions">
   },
   active: {
     graphql: {
-      type: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
       resolver: (doc) => isActionActive(doc),
     },

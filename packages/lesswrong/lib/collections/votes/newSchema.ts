@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import { userOwns } from "../../vulcan-users/permissions";
-import { accessFilterSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { accessFilterSingle } from "../../utils/schemaUtils";
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
@@ -30,8 +30,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -42,10 +45,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -54,9 +59,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -65,10 +73,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   documentId: {
@@ -77,7 +88,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -88,7 +100,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -99,7 +112,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, docIsTagRel, "admins"],
     },
   },
@@ -108,13 +122,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       type: "VARCHAR(27)[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
+      inputType: "[String]!",
       canRead: ["guests"],
     },
   },
   authorId: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: (vote) => vote.authorIds?.[0],
     },
@@ -125,7 +140,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       validation: {
         allowedValues: ["bigDownvote", "bigUpvote", "neutral", "smallDownvote", "smallUpvote"],
@@ -137,8 +153,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   power: {
@@ -148,8 +167,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, docIsTagRel, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afPower: {
@@ -157,8 +179,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: [userOwns, docIsTagRel, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   cancelled: {
@@ -169,10 +194,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
     },
   },
   isUnvote: {
@@ -183,10 +207,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
     },
   },
   votedAt: {
@@ -195,13 +218,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, docIsTagRel, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   tagRel: {
     graphql: {
-      type: "TagRel",
+      outputType: "TagRel",
       canRead: [docIsTagRel, "admins"],
       resolver: async (vote, args, context) => {
         if (vote.collectionName === "TagRels") {
@@ -215,7 +241,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
   },
   comment: {
     graphql: {
-      type: "Comment",
+      outputType: "Comment",
       canRead: ["guests"],
       resolver: async (vote, args, context) => {
         if (vote.collectionName === "Comments") {
@@ -229,7 +255,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
       resolver: async (vote, args, context) => {
         if (vote.collectionName === "Posts") {
@@ -249,10 +275,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
     },
   },
   silenceNotification: {
@@ -263,10 +288,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
 };

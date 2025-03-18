@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
@@ -12,8 +12,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -24,10 +27,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -36,9 +41,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -47,10 +55,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   tagId: {
@@ -59,19 +70,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       foreignKey: "Tags",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   tag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "UserTagRels", fieldName: "tagId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
   userId: {
@@ -81,28 +90,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "UserTagRels", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   subforumLastVisitedAt: {
     database: {
       type: "TIMESTAMPTZ",
       nullable: true,
-    },
-    graphql: {
-      type: "Date",
     },
   },
   subforumShowUnreadInSidebar: {
@@ -113,12 +117,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   subforumEmailNotifications: {
@@ -129,12 +134,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Notify me of new discussions",
@@ -148,12 +154,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
 };

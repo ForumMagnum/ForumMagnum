@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import { userHasLlmChat } from "@/lib/betas";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { userVisibleMessageRoles } from "../llmMessages/schema";
@@ -15,8 +15,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -27,10 +30,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -39,9 +44,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -50,10 +58,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -63,7 +74,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: [userHasLlmChat, "admins"],
@@ -71,12 +83,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: [userOwns, "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "LlmConversations", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   title: {
@@ -85,7 +94,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: [userHasLlmChat, "admins"],
@@ -97,7 +107,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: [userHasLlmChat, "admins"],
@@ -109,15 +120,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: [userHasLlmChat, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   lastUpdatedAt: {
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns, "admins"],
       resolver: async (document, args, context) => {
         const { LlmMessages } = context;
@@ -143,7 +157,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
   },
   messages: {
     graphql: {
-      type: "[LlmMessage]",
+      outputType: "[LlmMessage]",
       canRead: [userOwns, "admins"],
       resolver: async (document, args, context) => {
         const { LlmMessages } = context;
@@ -178,17 +192,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   totalCharacterCount: {
     graphql: {
-      type: "Int",
+      outputType: "Int",
       canRead: [userOwns, "admins"],
       resolver: async (document, args, context) => {
         const { LlmMessages } = context;

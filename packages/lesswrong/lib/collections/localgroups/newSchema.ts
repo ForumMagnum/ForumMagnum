@@ -2,17 +2,16 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import SimpleSchema from "simpl-schema";
 import {
   googleLocationToMongoLocation,
   arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   getDenormalizedFieldOnCreate,
-  getDenormalizedFieldOnUpdate,
-  getFillIfMissing,
-  throwIfSetToNull
+  getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { isFriendlyUI } from "../../../themes/forumTheme";
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 
 export const GROUP_CATEGORIES = [
   { value: "national", label: "National" },
@@ -35,8 +34,8 @@ const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
   },
 };
 
-const hkyKyJ = (data) => "googleLocation" in data;
-const hjZByE = async (localgroup) => {
+const h3A2NF = (data) => "googleLocation" in data;
+const hrQe2n = async (localgroup) => {
   if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation);
   return null;
 };
@@ -48,8 +47,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -60,10 +62,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -72,9 +76,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -83,21 +90,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Localgroups", "contents"),
     },
     form: {
@@ -123,20 +132,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -146,7 +159,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -162,10 +176,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 11,
@@ -182,7 +199,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
+      inputType: "[String]!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -196,12 +214,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
   },
   organizers: {
     graphql: {
-      type: "[User!]!",
+      outputType: "[User!]!",
       canRead: ["guests"],
-      resolver: generateIdResolverMulti({ collectionName: "Localgroups", fieldName: "organizerIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "organizerIds" }),
     },
   },
   lastActivity: {
@@ -210,11 +225,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   types: {
@@ -225,12 +243,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
+      inputType: "[String]!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(["LW"]),
-      onUpdate: throwIfSetToNull,
     },
   },
   categories: {
@@ -238,10 +255,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT[]",
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { label: "Group type / intended audience", options: () => GROUP_CATEGORIES },
@@ -258,12 +278,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "This is an online group",
@@ -274,14 +295,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hkyKyJ,
-      getValue: hjZByE,
+      needsUpdate: h3A2NF,
+      getValue: hrQe2n,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Localgroups">({ getValue: hjZByE, needsUpdate: hkyKyJ }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: hjZByE, needsUpdate: hkyKyJ }),
+      onCreate: getDenormalizedFieldOnCreate<"Localgroups">({ getValue: hrQe2n, needsUpdate: h3A2NF }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: hrQe2n, needsUpdate: h3A2NF }),
+      validation: {
+        optional: true,
+      },
     },
   },
   googleLocation: {
@@ -289,10 +313,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { stringVersionFieldName: "location" },
@@ -306,10 +333,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contactInfo: {
@@ -317,10 +347,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Contact info",
@@ -332,12 +365,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: {},
+        regEx: SimpleSchema.RegEx.Url,
+        optional: true,
       },
     },
     form: {
@@ -351,12 +385,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: {},
+        regEx: SimpleSchema.RegEx.Url,
+        optional: true,
       },
     },
     form: {
@@ -370,12 +405,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: {},
+        regEx: SimpleSchema.RegEx.Url,
+        optional: true,
       },
     },
     form: {
@@ -389,12 +425,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: {},
+        regEx: SimpleSchema.RegEx.Url,
+        optional: true,
       },
     },
     form: {
@@ -408,12 +445,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: {},
+        regEx: SimpleSchema.RegEx.Url,
+        optional: true,
       },
     },
     form: {
@@ -426,10 +464,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { croppingAspectRatio: 1.91 },
@@ -446,12 +487,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   deleted: {
@@ -462,12 +504,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
@@ -478,9 +521,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
     database: {
       type: "TEXT",
       nullable: true,
-    },
-    graphql: {
-      type: "String",
     },
   },
 };

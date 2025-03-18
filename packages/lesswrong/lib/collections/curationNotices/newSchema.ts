@@ -2,8 +2,8 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">> = {
@@ -13,8 +13,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -25,10 +28,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -37,9 +42,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -48,21 +56,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("CurationNotices", "contents"),
     },
     form: {
@@ -88,20 +98,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -113,19 +127,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["sunshineRegiment", "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "CurationNotices", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   commentId: {
@@ -135,20 +147,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   comment: {
     graphql: {
-      type: "Comment",
+      outputType: "Comment",
       canRead: ["sunshineRegiment", "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "CurationNotices", fieldName: "commentId", nullable: true }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "commentId" }),
     },
   },
   postId: {
@@ -157,19 +169,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       foreignKey: "Posts",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["sunshineRegiment", "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "CurationNotices", fieldName: "postId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
   deleted: {
@@ -180,11 +190,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       control: "checkbox",

@@ -18,7 +18,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -30,10 +31,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   expires: {
@@ -42,10 +46,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   lastModified: {
@@ -54,10 +61,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

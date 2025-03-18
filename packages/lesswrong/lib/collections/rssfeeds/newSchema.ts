@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
   _id: {
@@ -11,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -59,20 +70,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "RSSFeeds", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   ownedByUser: {
@@ -83,12 +94,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 30,
@@ -103,12 +115,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 40,
@@ -121,10 +134,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 10,
@@ -136,10 +152,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 20,
@@ -150,9 +169,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   rawFeed: {
@@ -162,10 +184,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   setCanonicalUrl: {
@@ -176,12 +201,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Set the canonical url tag on crossposted posts",
@@ -196,12 +222,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Import posts as draft",

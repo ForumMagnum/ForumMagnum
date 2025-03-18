@@ -3,7 +3,6 @@
 // The original schema is still in use, this is just for reference.
 
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { getFillIfMissing } from "@/lib/utils/schemaUtils";
 
 const ACTION_TYPES = [
   "optIn",
@@ -27,8 +26,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -39,10 +41,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -51,9 +55,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -62,10 +69,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   actionType: {
@@ -74,7 +84,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -107,9 +118,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -117,7 +131,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },

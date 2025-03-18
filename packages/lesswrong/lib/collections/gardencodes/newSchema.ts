@@ -2,8 +2,8 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "@/lib/utils/schemaUtils";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 import moment from "moment";
 
@@ -35,8 +35,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -47,10 +50,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -59,9 +64,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -70,21 +78,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: true, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("GardenCodes", "contents"),
     },
     form: {
@@ -110,20 +120,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -134,8 +148,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       denormalized: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   slug: {
@@ -144,13 +161,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["GardenCodes"],
         getTitle: (gc) => gc.title,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -160,10 +180,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       onCreate: () => {
         return generateCode(4);
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -175,12 +198,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing("Guest Day Pass"),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       order: 10,
@@ -194,19 +216,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       onCreate: ({ currentUser }) => currentUser._id,
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "GardenCodes", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   startTime: {
@@ -214,11 +236,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 20,
@@ -232,11 +257,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins"],
       onCreate: ({ document: gardenCode }) => {
         return moment(gardenCode.startTime).add(12, "hours").toDate();
+      },
+      validation: {
+        optional: true,
       },
     },
     form: {
@@ -250,10 +278,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 25,
@@ -268,12 +299,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing("public"),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { options: () => eventTypes },
@@ -290,11 +322,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   deleted: {
@@ -305,11 +338,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 35,
@@ -323,12 +357,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["alignmentForum"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 36,

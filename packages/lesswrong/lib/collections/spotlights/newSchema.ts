@@ -5,12 +5,10 @@
 import range from "lodash/range";
 import {
     accessFilterSingle,
-    accessFilterMultiple,
-    getFillIfMissing,
-    throwIfSetToNull
+    accessFilterMultiple
 } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 
 const SPOTLIGHT_DOCUMENT_TYPES = ["Sequence", "Post", "Tag"] as const;
 
@@ -50,8 +48,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -62,10 +63,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -74,9 +77,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -85,21 +91,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   description: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Spotlights", "description"),
     },
     form: {
@@ -136,20 +144,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   descriptionRevisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("descriptionRevisions"),
     },
   },
   descriptionVersion: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("descriptionVersion"),
     },
@@ -160,7 +172,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -171,7 +184,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
   },
   document: {
     graphql: {
-      type: "Post!",
+      outputType: "Post!",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         switch (spotlight.documentType) {
@@ -190,13 +203,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
         }
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         if (spotlight.documentType !== "Post") {
@@ -209,7 +219,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
   },
   sequence: {
     graphql: {
-      type: "Sequence",
+      outputType: "Sequence",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         if (spotlight.documentType !== "Sequence") {
@@ -222,7 +232,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
   },
   tag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         if (spotlight.documentType !== "Tag") {
@@ -242,12 +252,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing("Sequence"),
-      onUpdate: throwIfSetToNull,
       validation: {
         allowedValues: ["Sequence", "Post", "Tag"],
       },
@@ -270,7 +279,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -346,6 +355,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
           return data.position;
         }
       },
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 30,
@@ -359,12 +371,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
+      inputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(3),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       order: 40,
@@ -376,10 +387,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 50,
@@ -391,10 +405,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 60,
@@ -406,10 +423,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 61,
@@ -421,10 +441,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 65,
@@ -436,10 +459,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 66,
@@ -451,10 +477,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 67,
@@ -468,12 +497,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(new Date(0)),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       order: 70,
@@ -486,10 +514,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 88,
@@ -505,12 +536,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
     },
     form: {
       order: 80,
@@ -524,11 +554,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 80,
@@ -543,12 +574,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 85,
@@ -562,11 +594,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
       onCreate: ({ document }) => document.imageFade ?? (isLWorAF ? false : true),
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 86,
@@ -578,10 +613,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 87,
@@ -594,10 +632,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 90,
@@ -610,10 +651,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 100,
@@ -622,7 +666,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
   },
   sequenceChapters: {
     graphql: {
-      type: "[Chapter]",
+      outputType: "[Chapter]",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         if (!spotlight.documentId || spotlight.documentType !== "Sequence") {

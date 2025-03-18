@@ -3,17 +3,15 @@
 // The original schema is still in use, this is just for reference.
 
 import {
-    accessFilterSingle, generateIdResolverSingle,
-    getDenormalizedCountOfReferencesGetValue,
-    getFillIfMissing,
-    throwIfSetToNull
+  accessFilterSingle, generateIdResolverSingle,
+  getDenormalizedCountOfReferencesGetValue
 } from "@/lib/utils/schemaUtils";
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPagesField";
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { defaultEditorPlaceholder, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { getToCforMultiDocument } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/server/utils/contributorsFieldHelper";
@@ -38,8 +36,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -50,10 +51,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -62,9 +65,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -73,21 +79,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: true, normalized: true },
+      arguments: "version: String",
       resolver: getNormalizedEditableResolver("contents"),
       sqlResolver: getNormalizedEditableSqlResolver("contents"),
     },
@@ -120,20 +128,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -144,8 +156,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       denormalized: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   slug: {
@@ -154,13 +169,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
         getTitle: (md) => md.title ?? md.tabTitle,
         onCollision: "rejectNewDocument",
         includesOldSlugs: true,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -172,10 +190,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
-      onCreate: getFillIfMissing([]),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   title: {
@@ -184,10 +203,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 5,
@@ -200,8 +222,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   tabTitle: {
@@ -210,7 +235,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -225,10 +251,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       order: 20,
@@ -242,20 +271,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       onCreate: ({ currentUser }) => currentUser._id,
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "MultiDocuments", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   parentDocumentId: {
@@ -264,14 +293,15 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   parentTag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
       resolver: async (multiDocument, _, context) => {
         const { loaders, currentUser, Tags } = context;
@@ -294,7 +324,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
   },
   parentLens: {
     graphql: {
-      type: "MultiDocument",
+      outputType: "MultiDocument",
       canRead: ["guests"],
       resolver: async (multiDocument, _, context) => {
         const { loaders, currentUser, MultiDocuments } = context;
@@ -321,7 +351,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -335,7 +366,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -349,7 +381,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["members"],
       onCreate: async ({ newDocument, context }) => {
@@ -369,12 +401,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
         const newIndex = otherSummaryIndexes.length > 0 ? Math.max(...otherSummaryIndexes) + 1 : 0;
         return newIndex;
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   tableOfContents: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      arguments: "version: String",
       resolver: async (document, { version }, context) => {
         return await getToCforMultiDocument({
           document,
@@ -386,8 +422,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
   },
   contributors: {
     graphql: {
-      type: "TagContributorsList",
+      outputType: "TagContributorsList",
       canRead: ["guests"],
+      arguments: "limit: Int, version: String",
       resolver: getContributorsFieldResolver({ collectionName: "MultiDocuments", fieldName: "contents" }),
     },
   },
@@ -397,13 +434,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       denormalized: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   arbitalLinkedPages: {
     graphql: {
-      type: "ArbitalLinkedPages",
+      outputType: "ArbitalLinkedPages",
       canRead: ["guests"],
       resolver: getArbitalLinkedPagesFieldResolver({ collectionName: "MultiDocuments" }),
     },
@@ -414,13 +454,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       denormalized: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   summaries: {
     graphql: {
-      type: "[MultiDocument!]!",
+      outputType: "[MultiDocument!]!",
       canRead: ["guests"],
       resolver: getSummariesFieldResolver("MultiDocuments"),
       sqlResolver: getSummariesFieldSqlResolver("MultiDocuments"),
@@ -432,7 +475,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
   },
   textLastUpdatedAt: {
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       resolver: getTextLastUpdatedAtFieldResolver("MultiDocuments"),
     },
@@ -446,16 +489,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userCanDeleteMultiDocument, "sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   currentUserVote: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -467,7 +511,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
   },
   currentUserExtendedVote: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -479,7 +523,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
   },
   currentUserVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         return await getCurrentUserVotes(document, context);
@@ -488,7 +532,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
   },
   allVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const { currentUser } = context;
@@ -517,7 +561,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -525,6 +569,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
         foreignFieldName: "documentId",
         filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "MultiDocuments",
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -536,10 +583,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   extendedScore: {
@@ -547,8 +595,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   score: {
@@ -559,10 +610,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   inactive: {
@@ -572,19 +624,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: {
-      type: "Boolean",
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
-    },
   },
   afBaseScore: {
     database: {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Alignment Base Score",
@@ -595,8 +645,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afVoteCount: {
@@ -604,8 +657,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

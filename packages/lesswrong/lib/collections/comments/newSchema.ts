@@ -2,16 +2,14 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { documentIsNotDeleted, userCanDo, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
+import { documentIsNotDeleted, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
 import {
   arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   generateIdResolverSingle,
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
-  getDenormalizedFieldOnUpdate,
-  getFillIfMissing,
-  throwIfSetToNull
+  getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { isAF, isEAForum } from "../../instanceSettings";
@@ -19,9 +17,11 @@ import { commentAllowTitle, commentGetPageUrlFromDB } from "./helpers";
 import { getVotingSystemNameForDocument } from "../../voting/votingSystems";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { quickTakesTagsEnabledSetting } from "../../publicSettings";
-import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
+import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
+import { customBaseScoreReadAccess } from "./voting";
 import { fetchFragmentSingle } from "@/server/fetchFragment";
 import { updateMutator } from "@/server/vulcan-lib/mutators";
 
@@ -39,8 +39,8 @@ export const alignmentOptionsGroup = {
   startCollapsed: true,
 };
 
-const hhZcRS = (data) => "postId" in data;
-const hu3ntX = async (comment, context) => {
+const hSpyBs = (data) => "postId" in data;
+const hQhmP9 = async (comment, context) => {
   if (!comment.postId) return false;
   const post = await context.Posts.findOne({
     _id: comment.postId,
@@ -48,7 +48,7 @@ const hu3ntX = async (comment, context) => {
   if (!post) return false;
   return !!post.shortform;
 };
-const hFRYvn = async (comment, context) => {
+const htKrvN = async (comment, context) => {
   if (!comment.postId) return false;
   const post = await context.Posts.findOne({
     _id: comment.postId,
@@ -64,8 +64,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -76,10 +79,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -88,9 +93,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -99,21 +107,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: true, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Comments", "contents"),
     },
     form: {
@@ -156,20 +166,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -180,8 +194,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       denormalized: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   parentCommentId: {
@@ -190,19 +207,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Comments",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   parentComment: {
     graphql: {
-      type: "Comment",
+      outputType: "Comment",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "parentCommentId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "parentCommentId" }),
     },
   },
   topLevelCommentId: {
@@ -212,23 +229,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Comments",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   topLevelComment: {
     graphql: {
-      type: "Comment",
+      outputType: "Comment",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "Comments",
-        fieldName: "topLevelCommentId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "topLevelCommentId" }),
     },
   },
   postedAt: {
@@ -237,9 +250,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   lastEditedAt: {
@@ -248,13 +264,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
       onUpdate: ({ oldDocument, newDocument }) => {
         if (oldDocument.contents?.html !== newDocument.contents?.html) {
           return new Date();
         }
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -263,7 +282,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [documentIsNotDeleted],
       onCreate: async ({ document, context }) => {
         // if userId is changing, change the author name too
@@ -277,6 +296,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
           return await userGetDisplayNameById(modifier.$set.userId, context);
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   postId: {
@@ -285,19 +307,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Posts",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "postId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
   tagId: {
@@ -306,19 +328,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Tags",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   tag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "tagId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
   forumEventId: {
@@ -327,19 +349,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "ForumEvents",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   forumEvent: {
     graphql: {
-      type: "ForumEvent",
+      outputType: "ForumEvent",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "forumEventId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "ForumEvents", fieldName: "forumEventId" }),
     },
   },
   forumEventMetadata: {
@@ -347,11 +369,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: ForumEventCommentMetadataSchema,
+        optional: true,
       },
     },
   },
@@ -363,13 +386,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing("DISCUSSION"),
-      onUpdate: throwIfSetToNull,
       validation: {
         allowedValues: ["SUBFORUM", "DISCUSSION"],
+        optional: true,
       },
     },
   },
@@ -379,10 +401,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -392,19 +417,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [documentIsNotDeleted],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: [documentIsNotDeleted],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   userIP: {
@@ -412,8 +437,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userAgent: {
@@ -421,8 +449,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   referrer: {
@@ -430,8 +461,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   authorIsUnreviewed: {
@@ -443,17 +477,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   pageUrl: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
         return await commentGetPageUrlFromDB(comment, context, true);
@@ -462,7 +497,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   pageUrlRelative: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
         return await commentGetPageUrlFromDB(comment, context, false);
@@ -477,12 +512,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   parentAnswerId: {
@@ -492,19 +528,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Comments",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   parentAnswer: {
     graphql: {
-      type: "Comment",
+      outputType: "Comment",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "parentAnswerId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "parentAnswerId" }),
     },
   },
   directChildrenCount: {
@@ -524,7 +560,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -532,6 +568,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         foreignFieldName: "parentCommentId",
         filterFn: (comment) => !comment.deleted && !comment.rejected,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -544,15 +583,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   latestChildren: {
     graphql: {
-      type: "[Comment]",
+      outputType: "[Comment]",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
         const { Comments } = context;
@@ -569,16 +609,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hhZcRS,
-      getValue: hu3ntX,
+      needsUpdate: hSpyBs,
+      getValue: hQhmP9,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hu3ntX, needsUpdate: hhZcRS }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hu3ntX, needsUpdate: hhZcRS }),
+      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hQhmP9, needsUpdate: hSpyBs }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hQhmP9, needsUpdate: hSpyBs }),
+      validation: {
+        optional: true,
+      },
     },
   },
   shortformFrontpage: {
@@ -589,12 +632,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(true),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   nominatedForReview: {
@@ -602,10 +646,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewingForReview: {
@@ -613,10 +660,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   lastSubthreadActivity: {
@@ -625,9 +675,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       denormalized: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   postVersion: {
@@ -635,7 +688,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       onCreate: async ({ newDocument }) => {
         if (!newDocument.postId) {
@@ -651,6 +704,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         });
         return (post && post.contents && post.contents.version) || "1.0.0";
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   promoted: {
@@ -658,9 +714,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Pinned",
@@ -672,7 +731,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -691,20 +750,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
           return currentUser._id;
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   promotedByUser: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "Comments",
-        fieldName: "promotedByUserId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "promotedByUserId" }),
     },
   },
   promotedAt: {
@@ -712,7 +767,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onUpdate: async ({ data, document, oldDocument }) => {
         if (data?.promoted && !oldDocument.promoted) {
@@ -722,6 +777,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
           return null;
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   hideKarma: {
@@ -729,21 +787,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hhZcRS,
-      getValue: hFRYvn,
+      needsUpdate: hSpyBs,
+      getValue: htKrvN,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hFRYvn, needsUpdate: hhZcRS }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hFRYvn, needsUpdate: hhZcRS }),
+      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: htKrvN, needsUpdate: hSpyBs }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: htKrvN, needsUpdate: hSpyBs }),
+      validation: {
+        optional: true,
+      },
     },
   },
   wordCount: {
     graphql: {
-      type: "Int",
+      outputType: "Int",
       canRead: ["guests"],
       resolver: (comment, args, context) => {
         const contents = comment.contents;
@@ -754,7 +815,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   htmlBody: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [documentIsNotDeleted],
       resolver: (comment, args, context) => {
         const contents = comment.contents;
@@ -765,7 +826,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   votingSystem: {
     graphql: {
-      type: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       resolver: (comment, args, context) => {
         return getVotingSystemNameForDocument(comment, "Comments", context);
@@ -780,12 +841,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyId: {
@@ -793,10 +855,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyPoll: {
@@ -807,12 +872,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyParentId: {
@@ -820,10 +886,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   retracted: {
@@ -834,12 +903,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   deleted: {
@@ -850,12 +920,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   deletedPublic: {
@@ -866,12 +937,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   deletedReason: {
@@ -879,10 +951,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   deletedDate: {
@@ -890,7 +965,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -898,6 +973,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted)) {
           return new Date();
         }
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -907,7 +985,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -916,16 +994,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
           return modifier.$set.deletedByUserId || currentUser._id;
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   deletedByUser: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Comments", fieldName: "deletedByUserId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "deletedByUserId" }),
     },
   },
   spam: {
@@ -936,12 +1014,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   repliesBlockedUntil: {
@@ -949,9 +1028,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       control: "datetime",
@@ -963,10 +1045,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewedByUserId: {
@@ -975,24 +1060,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewedByUser: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "Comments",
-        fieldName: "reviewedByUserId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reviewedByUserId" }),
     },
   },
   hideAuthor: {
@@ -1003,11 +1084,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       group: () => moderationOptionsGroup,
@@ -1021,12 +1103,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   hideModeratorHat: {
@@ -1035,13 +1118,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onUpdate: ({ newDocument }) => {
         if (!newDocument.moderatorHat) return null;
         return newDocument.hideModeratorHat;
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -1053,12 +1139,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   title: {
@@ -1066,10 +1153,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "VARCHAR(500)",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       max: 500,
@@ -1091,11 +1181,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members", "admins", "sunshineRegiment"],
       onCreate: arrayOfForeignKeysOnCreate,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       control: "FormComponentQuickTakesTags",
@@ -1104,12 +1197,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   relevantTags: {
     graphql: {
-      type: "[Tag!]!",
+      outputType: "[Tag!]!",
       canRead: ["guests"],
-      resolver: generateIdResolverMulti({ collectionName: "Comments", fieldName: "relevantTagIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Tags", fieldName: "relevantTagIds" }),
     },
   },
   debateResponse: {
@@ -1118,10 +1208,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Dialogue Response",
@@ -1144,12 +1237,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   modGPTAnalysis: {
@@ -1158,10 +1252,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   modGPTRecommendation: {
@@ -1170,10 +1267,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   rejectedReason: {
@@ -1182,10 +1282,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   rejectedByUserId: {
@@ -1194,7 +1297,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -1203,25 +1306,21 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
           return modifier.$set.rejectedByUserId || currentUser._id;
         }
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   rejectedByUser: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "Comments",
-        fieldName: "rejectedByUserId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "rejectedByUserId" }),
     },
   },
   emojiReactors: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: async (comment, _, context) => {
         const { extendedScore } = comment;
@@ -1242,12 +1341,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["alignmentForum", "admins"],
       canCreate: ["alignmentForum", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "AI Alignment Forum",
@@ -1262,20 +1362,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: ["members", "alignmentForum", "alignmentForumAdmins"],
       onCreate: arrayOfForeignKeysOnCreate,
+      validation: {
+        optional: true,
+      },
     },
   },
   suggestForAlignmentUsers: {
     graphql: {
-      type: "[User!]!",
+      outputType: "[User!]!",
       canRead: ["guests"],
-      resolver: generateIdResolverMulti({ collectionName: "Comments", fieldName: "suggestForAlignmentUserIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "suggestForAlignmentUserIds" }),
     },
   },
   reviewForAlignmentUserId: {
@@ -1283,9 +1383,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["alignmentForumAdmins", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afDate: {
@@ -1293,10 +1396,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["alignmentForum", "alignmentForumAdmins", "admins"],
       canCreate: ["alignmentForum", "alignmentForumAdmins", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moveToAlignmentUserId: {
@@ -1305,23 +1411,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["alignmentForum", "alignmentForumAdmins", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   moveToAlignmentUser: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "Comments",
-        fieldName: "moveToAlignmentUserId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "moveToAlignmentUserId" }),
     },
   },
   agentFoundationsId: {
@@ -1329,10 +1431,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   originalDialogueId: {
@@ -1342,29 +1447,25 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   originalDialogue: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "Comments",
-        fieldName: "originalDialogueId",
-        nullable: true,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "originalDialogueId" }),
     },
   },
   currentUserVote: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -1376,7 +1477,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   currentUserExtendedVote: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -1388,7 +1489,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   currentUserVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         return await getCurrentUserVotes(document, context);
@@ -1397,7 +1498,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   },
   allVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const { currentUser } = context;
@@ -1426,7 +1527,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -1434,6 +1535,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         foreignFieldName: "documentId",
         filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Comments",
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -1445,12 +1549,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
-      canRead: (user, comment) => {
-        return !comment.hideKarma || userCanDo(user, "posts.moderate.all");
+      outputType: "Float",
+      canRead: customBaseScoreReadAccess,
+      validation: {
+        optional: true,
       },
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
     },
   },
   extendedScore: {
@@ -1458,9 +1561,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
-      canRead: (user, comment) => {
-        return !comment.hideKarma || userCanDo(user, "posts.moderate.all");
+      outputType: "JSON",
+      canRead: customBaseScoreReadAccess,
+      validation: {
+        optional: true,
       },
     },
   },
@@ -1472,10 +1576,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   inactive: {
@@ -1485,19 +1590,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: {
-      type: "Boolean",
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
-    },
   },
   afBaseScore: {
     database: {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Alignment Base Score",
@@ -1508,8 +1611,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afVoteCount: {
@@ -1517,8 +1623,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

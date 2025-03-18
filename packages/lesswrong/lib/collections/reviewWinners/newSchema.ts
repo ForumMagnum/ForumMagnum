@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import { getWithCustomLoader } from "../../loaders";
-import { generateIdResolverSingle, getFillIfMissing, getForeignKeySqlResolver, throwIfSetToNull } from "../../utils/schemaUtils";
+import { generateIdResolverSingle, getForeignKeySqlResolver } from "../../utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> = {
   _id: {
@@ -12,8 +12,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -24,10 +27,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -36,9 +41,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -47,10 +55,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   postId: {
@@ -60,7 +71,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -68,22 +80,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
   },
   post: {
     graphql: {
-      type: "Post!",
+      outputType: "Post!",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "ReviewWinners", fieldName: "postId", nullable: false }),
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
       sqlResolver: getForeignKeySqlResolver({
         collectionName: "ReviewWinners",
         nullable: false,
         idFieldName: "postId",
       }),
     },
-    form: {
-      hidden: true,
-    },
   },
   reviewWinnerArt: {
     graphql: {
-      type: "ReviewWinnerArt",
+      outputType: "ReviewWinnerArt",
       canRead: ["guests"],
       resolver: async (reviewWinner, args, context) => {
         return getWithCustomLoader(context, "activeReviewWinnerArt", reviewWinner.postId, (postIds) =>
@@ -94,7 +103,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
   },
   competitorCount: {
     graphql: {
-      type: "Int",
+      outputType: "Int",
       canRead: ["guests"],
       resolver: async (reviewWinner, args, context) => {
         /* Calculated via:
@@ -127,7 +136,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
+      inputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -141,12 +151,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing("misc"),
-      onUpdate: throwIfSetToNull,
       validation: {
         allowedValues: ["rationality", "modeling", "optimization", "ai strategy", "ai safety", "practical"],
       },
@@ -158,10 +167,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   reviewRanking: {
@@ -170,7 +182,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
+      inputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -182,10 +195,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       nullable: true,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

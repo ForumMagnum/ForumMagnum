@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import SimpleSchema from "simpl-schema";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 const commonFields = (nullable: boolean) => ({
   hidden: true,
@@ -28,7 +28,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -36,7 +37,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
   },
   predictionId: {
     graphql: {
-      type: "String",
+      outputType: "String",
+      canRead: ["guests"],
       resolver: ({ _id }) => _id,
     },
   },
@@ -46,10 +48,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: true,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -58,7 +63,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -71,10 +77,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   creator: {
@@ -83,12 +92,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
+      inputType: "JSON!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: creatorSchema,
       },
     },
   },
@@ -99,24 +109,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "ElicitQuestionPredictions",
-        fieldName: "userId",
-        nullable: true,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   sourceUrl: {
@@ -125,10 +131,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   sourceId: {
@@ -137,10 +146,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   binaryQuestionId: {
@@ -150,7 +162,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -158,16 +171,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
   },
   question: {
     graphql: {
-      type: "ElicitQuestion!",
+      outputType: "ElicitQuestion!",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({
-        collectionName: "ElicitQuestionPredictions",
-        fieldName: "binaryQuestionId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "ElicitQuestions", fieldName: "binaryQuestionId" }),
     },
   },
   isDeleted: {
@@ -178,12 +184,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
     },
   },
 };

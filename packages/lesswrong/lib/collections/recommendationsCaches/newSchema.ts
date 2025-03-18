@@ -3,7 +3,6 @@
 // The original schema is still in use, this is just for reference.
 
 import { userOwns } from "../../vulcan-users/permissions";
-import { getFillIfMissing } from "@/lib/utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCaches">> = {
   _id: {
@@ -12,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -24,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -36,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -47,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -59,7 +69,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -71,7 +82,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -83,7 +95,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -98,7 +111,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -110,7 +124,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -122,7 +137,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
+      inputType: "Float!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

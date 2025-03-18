@@ -3,7 +3,6 @@
 // The original schema is still in use, this is just for reference.
 
 import SimpleSchema from "simpl-schema";
-import { getFillIfMissing } from "@/lib/utils/schemaUtils";
 
 // export type RenderResult = {
 //   ssrBody: string
@@ -85,8 +84,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -97,10 +99,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -109,9 +113,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -120,10 +127,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   path: {
@@ -131,17 +141,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-    },
   },
   abTestGroups: {
     database: {
       type: "JSONB",
       nullable: false,
-    },
-    graphql: {
-      type: "JSON",
     },
   },
   bundleHash: {
@@ -149,17 +153,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-    },
   },
   renderedAt: {
     database: {
       type: "TIMESTAMPTZ",
       nullable: false,
-    },
-    graphql: {
-      type: "Date",
     },
   },
   expiresAt: {
@@ -167,29 +165,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       type: "TIMESTAMPTZ",
       nullable: false,
     },
-    graphql: {
-      type: "Date",
-    },
   },
   ttlMs: {
     database: {
       type: "DOUBLE PRECISION",
       nullable: false,
     },
-    graphql: {
-      type: "Float",
-    },
   },
   renderResult: {
     database: {
       type: "JSONB",
       nullable: false,
-    },
-    graphql: {
-      type: "JSON",
-      validation: {
-        simpleSchema: FILL_THIS_IN,
-      },
     },
   },
 };

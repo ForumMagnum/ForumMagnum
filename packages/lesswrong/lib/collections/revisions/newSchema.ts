@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { accessFilterSingle, generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { accessFilterSingle, generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { userCanReadField, userIsAdminOrMod, userIsPodcaster, userOwns } from "../../vulcan-users/permissions";
@@ -80,8 +80,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -92,10 +95,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -104,9 +109,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -115,10 +123,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   documentId: {
@@ -126,7 +137,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -136,8 +148,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       typescriptType: "CollectionNameString",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   fieldName: {
@@ -145,7 +160,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -154,16 +170,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "TIMESTAMPTZ",
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   autosaveTimeoutStart: {
     database: {
       type: "TIMESTAMPTZ",
-    },
-    graphql: {
-      type: "Date",
     },
   },
   updateType: {
@@ -171,11 +187,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
         allowedValues: ["initial", "patch", "minor", "major"],
+        optional: true,
       },
     },
   },
@@ -185,8 +202,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   commitMessage: {
@@ -194,9 +214,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -205,18 +228,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       foreignKey: "Users",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Revisions", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   draft: {
@@ -224,17 +247,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   originalContents: {
     graphql: {
-      type: "ContentType",
+      outputType: "ContentType",
       canRead: ["guests"],
-      validation: {
-        simpleSchema: FILL_THIS_IN,
-      },
       resolver: async (document, args, context) => {
         // Original contents sometimes contains private data (ckEditor suggestions
         // via Track Changes plugin). In those cases the html field strips out the
@@ -254,13 +277,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   markdown: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: ({ originalContents }) =>
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
@@ -268,7 +294,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   draftJS: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: ({ originalContents }) =>
         originalContents ? dataToDraftJS(originalContents.data, originalContents.type) : null,
@@ -276,7 +302,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   ckEditorMarkup: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: ({ originalContents, html }) =>
         originalContents ? (originalContents.type === "ckEditorMarkup" ? originalContents.data : html) : null,
@@ -288,21 +314,25 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   htmlHighlight: {
     graphql: {
-      type: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       resolver: ({ html }) => highlightFromHTML(html),
     },
   },
   htmlHighlightStartingAtHash: {
     graphql: {
-      type: "String!",
+      outputType: "String!",
       canRead: ["guests"],
+      arguments: "hash: String",
       resolver: async (revision, args, context) => {
         const { hash } = args;
         const rawHtml = revision?.html;
@@ -320,7 +350,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   plaintextDescription: {
     graphql: {
-      type: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       resolver: ({ html }) => {
         if (!html) return "";
@@ -331,7 +361,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   plaintextMainText: {
     graphql: {
-      type: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       resolver: ({ html }) => {
         if (!html) return "";
@@ -353,7 +383,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   hasFootnotes: {
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       resolver: ({ html }) => {
         if (!html) return false;
@@ -367,7 +397,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
+      inputType: "JSON!",
       canRead: ["guests"],
     },
   },
@@ -377,8 +408,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   skipAttributions: {
@@ -389,16 +423,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   tag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
       resolver: async (revision, args, context) => {
         const { currentUser, Tags } = context;
@@ -411,7 +446,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
       resolver: async (revision, args, context) => {
         const { currentUser, Posts } = context;
@@ -424,7 +459,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   lens: {
     graphql: {
-      type: "MultiDocument",
+      outputType: "MultiDocument",
       canRead: ["guests"],
       resolver: async (revision, args, context) => {
         const { currentUser, MultiDocuments } = context;
@@ -455,7 +490,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   summary: {
     graphql: {
-      type: "MultiDocument",
+      outputType: "MultiDocument",
       canRead: ["guests"],
       resolver: async (revision, args, context) => {
         const { currentUser, MultiDocuments } = context;
@@ -475,7 +510,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   currentUserVote: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -487,7 +522,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   currentUserExtendedVote: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -499,7 +534,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   currentUserVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         return await getCurrentUserVotes(document, context);
@@ -508,7 +543,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
   },
   allVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const { currentUser } = context;
@@ -537,7 +572,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -545,6 +580,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
         foreignFieldName: "documentId",
         filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Revisions",
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -556,10 +594,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   extendedScore: {
@@ -567,8 +606,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   score: {
@@ -579,10 +621,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   inactive: {
@@ -592,19 +635,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: {
-      type: "Boolean",
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
-    },
   },
   afBaseScore: {
     database: {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Alignment Base Score",
@@ -615,8 +656,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afVoteCount: {
@@ -624,8 +668,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

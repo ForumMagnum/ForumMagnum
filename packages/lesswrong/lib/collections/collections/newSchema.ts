@@ -3,8 +3,8 @@
 // The original schema is still in use, this is just for reference.
 
 import { getWithCustomLoader } from "../../loaders";
-import { accessFilterMultiple, generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/schemaUtils";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
@@ -14,8 +14,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -26,10 +29,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -38,11 +43,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -51,21 +59,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Collections", "contents"),
     },
     form: {
@@ -91,20 +101,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -116,18 +130,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "Collections", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   title: {
@@ -135,7 +149,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -146,7 +161,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -154,7 +170,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
   },
   books: {
     graphql: {
-      type: "[Book]",
+      outputType: "[Book]",
       canRead: ["guests"],
       resolver: async (collection, args, context) => {
         const { currentUser, Books } = context;
@@ -174,7 +190,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
   },
   postsCount: {
     graphql: {
-      type: "Int!",
+      outputType: "Int!",
       canRead: ["guests"],
       resolver: async (collection, args, context) => {
         const count = await getWithCustomLoader(context, "collectionPostsCount", collection._id, (collectionIds) => {
@@ -186,7 +202,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
   },
   readPostsCount: {
     graphql: {
-      type: "Int!",
+      outputType: "Int!",
       canRead: ["guests"],
       resolver: async (collection, args, context) => {
         const currentUser = context.currentUser;
@@ -216,10 +232,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   firstPageLink: {
@@ -228,10 +247,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   hideStartReadingButton: {
@@ -239,10 +261,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   noindex: {
@@ -253,12 +278,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
 };

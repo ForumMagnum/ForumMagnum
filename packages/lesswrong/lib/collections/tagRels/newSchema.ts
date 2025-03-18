@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
-import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue, getFillIfMissing, throwIfSetToNull } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "@/lib/utils/schemaUtils";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { getTagBotUserId } from "@/server/languageModels/autoTagCallbacks";
@@ -15,8 +15,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -27,10 +30,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -39,9 +44,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -50,10 +58,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   tagId: {
@@ -63,19 +74,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   tag: {
     graphql: {
-      type: "Tag",
+      outputType: "Tag",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "TagRels", fieldName: "tagId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
   postId: {
@@ -85,19 +94,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
   },
   post: {
     graphql: {
-      type: "Post",
+      outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ collectionName: "TagRels", fieldName: "postId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
   deleted: {
@@ -108,11 +115,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -122,24 +130,22 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: generateIdResolverSingle({ collectionName: "TagRels", fieldName: "userId", nullable: true }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   currentUserCanVote: {
     graphql: {
-      type: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         // Return true for a null user so we can show them a login/signup prompt
@@ -152,7 +158,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
   },
   autoApplied: {
     graphql: {
-      type: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const tagBotUserId = await getTagBotUserId(context);
@@ -169,15 +175,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   currentUserVote: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -189,7 +196,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
   },
   currentUserExtendedVote: {
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const votes = await getCurrentUserVotes(document, context);
@@ -201,7 +208,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
   },
   currentUserVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         return await getCurrentUserVotes(document, context);
@@ -210,7 +217,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
   },
   allVotes: {
     graphql: {
-      type: "[Vote]",
+      outputType: "[Vote]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const { currentUser } = context;
@@ -239,7 +246,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -247,6 +254,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
         foreignFieldName: "documentId",
         filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "TagRels",
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -258,10 +268,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   extendedScore: {
@@ -269,8 +280,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   score: {
@@ -281,10 +295,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(0),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   inactive: {
@@ -294,19 +309,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: {
-      type: "Boolean",
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
-    },
   },
   afBaseScore: {
     database: {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Alignment Base Score",
@@ -317,8 +330,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   afVoteCount: {
@@ -326,8 +342,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       type: "DOUBLE PRECISION",
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

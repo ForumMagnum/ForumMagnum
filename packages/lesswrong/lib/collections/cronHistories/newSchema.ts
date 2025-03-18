@@ -18,7 +18,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -30,7 +31,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -42,7 +44,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -54,7 +57,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
+      inputType: "Date!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -66,10 +70,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   result: {
@@ -78,10 +85,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
 };

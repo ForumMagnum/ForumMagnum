@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> = {
   _id: {
@@ -11,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -59,19 +70,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["members"],
       onCreate: ({ currentUser }) => currentUser._id,
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User!",
+      outputType: "User!",
       canRead: ["members"],
-      resolver: generateIdResolverSingle({ collectionName: "Subscriptions", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   state: {
@@ -80,7 +91,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
       validation: {
@@ -93,7 +105,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
     },
@@ -105,7 +118,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
     },
@@ -118,10 +132,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   type: {
@@ -130,7 +145,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Subscriptions">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
       validation: {

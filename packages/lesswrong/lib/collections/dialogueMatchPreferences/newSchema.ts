@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 import SimpleSchema from "simpl-schema";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
 
 export const SYNC_PREFERENCE_VALUES = ["Yes", "Meh", "No"] as const;
@@ -31,8 +31,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -43,10 +46,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -55,9 +60,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -66,10 +74,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   dialogueCheckId: {
@@ -79,7 +90,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
@@ -87,16 +99,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
   },
   dialogueCheck: {
     graphql: {
-      type: "DialogueCheck",
+      outputType: "DialogueCheck",
       canRead: ["members", "admins"],
-      resolver: generateIdResolverSingle({
-        collectionName: "DialogueMatchPreferences",
-        fieldName: "dialogueCheckId",
-        nullable: false,
-      }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "DialogueChecks", fieldName: "dialogueCheckId" }),
     },
   },
   topicPreferences: {
@@ -107,14 +112,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "[JSON]",
+      outputType: "[JSON]",
+      inputType: "[JSON]!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing([]),
-      onUpdate: throwIfSetToNull,
       validation: {
-        simpleSchema: FILL_THIS_IN,
+        simpleSchema: [topicPreferenceSchema],
       },
     },
   },
@@ -126,12 +130,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(""),
-      onUpdate: throwIfSetToNull,
     },
   },
   syncPreference: {
@@ -140,7 +143,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
@@ -155,7 +159,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
@@ -172,12 +177,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getFillIfMissing(""),
-      onUpdate: throwIfSetToNull,
     },
   },
   calendlyLink: {
@@ -186,10 +190,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   generatedDialogueId: {
@@ -198,10 +205,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["members", "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   deleted: {
@@ -212,12 +222,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
 };

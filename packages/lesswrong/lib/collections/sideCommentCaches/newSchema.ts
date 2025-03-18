@@ -2,15 +2,15 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing } from "../../utils/schemaUtils";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 // Deny all permissions on these objects - they're only used internally
 const commonFields = () => ({
-  canRead: () => false,
-  canCreate: () => false,
-  canUpdate: () => false,
+  // canRead: () => false,
+  // canCreate: () => false,
+  // canUpdate: () => false,
   hidden: true,
-  optional: false,
+  // optional: false,
   nullable: false,
 });
 
@@ -21,8 +21,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -33,10 +36,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -45,9 +50,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -56,10 +64,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   postId: {
@@ -68,21 +79,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       foreignKey: "Posts",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-      canRead: () => false,
-      canUpdate: () => false,
-      canCreate: () => false,
-    },
   },
   post: {
     graphql: {
-      type: "Post!",
-      canRead: canRead,
-      resolver: generateIdResolverSingle({ collectionName: "SideCommentCaches", fieldName: "postId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      outputType: "Post!",
+      canRead: [],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
   annotatedHtml: {
@@ -90,35 +92,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-      canRead: () => false,
-      canUpdate: () => false,
-      canCreate: () => false,
-    },
   },
   commentsByBlock: {
     database: {
       type: "JSONB",
       nullable: false,
     },
-    graphql: {
-      type: "JSON",
-      canRead: () => false,
-      canUpdate: () => false,
-      canCreate: () => false,
-    },
   },
   version: {
     database: {
       type: "DOUBLE PRECISION",
       nullable: false,
-    },
-    graphql: {
-      type: "Float",
-      canRead: () => false,
-      canUpdate: () => false,
-      canCreate: () => false,
     },
   },
 };

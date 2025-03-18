@@ -4,8 +4,7 @@
 
 import {
   accessFilterSingle, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
-  getDenormalizedCountOfReferencesGetValue,
-  getFillIfMissing
+  getDenormalizedCountOfReferencesGetValue
 } from "../../utils/schemaUtils";
 import * as _ from "underscore";
 import { getWithCustomLoader } from "../../loaders";
@@ -17,8 +16,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -29,10 +31,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -41,9 +45,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["members"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -52,10 +59,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   title: {
@@ -63,10 +73,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["members"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Conversation title (visible to all)",
@@ -80,11 +93,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["members"],
       canUpdate: ["members"],
       canCreate: ["members"],
       onCreate: arrayOfForeignKeysOnCreate,
+      validation: {
+        optional: true,
+      },
     },
     form: {
       label: "Participants",
@@ -93,12 +109,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
   },
   participants: {
     graphql: {
-      type: "[User!]!",
+      outputType: "[User!]!",
       canRead: ["members"],
-      resolver: generateIdResolverMulti({ collectionName: "Conversations", fieldName: "participantIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "participantIds" }),
     },
   },
   latestActivity: {
@@ -107,10 +120,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       denormalized: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["members"],
       onCreate: () => {
         return new Date(); // if this is an insert, set latestActivity to current timestamp
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -119,10 +135,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       type: "BOOL",
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
   },
   messageCount: {
@@ -142,7 +161,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -150,6 +169,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
         foreignFieldName: "conversationId",
         filterFn: (doc) => true,
         resyncElastic: false,
+      },
+      validation: {
+        optional: true,
       },
     },
   },
@@ -159,10 +181,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: true,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
     },
   },
   archivedByIds: {
@@ -173,11 +198,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       nullable: false,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing([]),
       onUpdate: ({ data, currentUser, oldDocument }) => {
         if (data?.archivedByIds) {
           const changedIds = _.difference(oldDocument?.archivedByIds || [], data?.archivedByIds);
@@ -193,21 +217,21 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
         }
         return data.archivedByIds ?? [];
       },
+      validation: {
+        optional: true,
+      },
     },
   },
   archivedBy: {
     graphql: {
-      type: "[User!]!",
+      outputType: "[User!]!",
       canRead: ["guests"],
-      resolver: generateIdResolverMulti({ collectionName: "Conversations", fieldName: "archivedByIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "archivedByIds" }),
     },
   },
   latestMessage: {
     graphql: {
-      type: "Message",
+      outputType: "Message",
       canRead: ["members"],
       resolver: async (conversation, _args, context) => {
         const { currentUser } = context;
@@ -241,7 +265,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
   },
   hasUnreadMessages: {
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       resolver: async (conversation, _args, context) => {
         const { currentUser } = context;

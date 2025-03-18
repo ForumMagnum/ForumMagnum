@@ -2,7 +2,6 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { getFillIfMissing } from "@/lib/utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
   _id: {
@@ -11,8 +10,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +25,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +39,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +53,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   originalUrl: {
@@ -57,17 +67,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
       type: "TEXT",
       nullable: true,
     },
-    graphql: {
-      type: "String",
-    },
   },
   identifier: {
     database: {
       type: "TEXT",
       nullable: false,
-    },
-    graphql: {
-      type: "String",
     },
   },
   identifierType: {
@@ -75,20 +79,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Images">> = {
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-      validation: {
-        allowedValues: ["sha256Hash", "originalUrl"],
-      },
-    },
   },
   cdnHostedUrl: {
     database: {
       type: "TEXT",
       nullable: false,
-    },
-    graphql: {
-      type: "String",
     },
   },
 };

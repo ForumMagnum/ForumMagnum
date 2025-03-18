@@ -2,7 +2,6 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { getFillIfMissing } from "@/lib/utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> = {
   _id: {
@@ -11,8 +10,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +25,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +39,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +53,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   pageAlias: {
@@ -57,17 +67,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> =
       type: "TEXT",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-    },
   },
   title: {
     database: {
       type: "TEXT",
       nullable: false,
-    },
-    graphql: {
-      type: "String",
     },
   },
   fetchedAt: {
@@ -75,17 +79,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalCaches">> =
       type: "TIMESTAMPTZ",
       nullable: false,
     },
-    graphql: {
-      type: "Date",
-    },
   },
   sanitizedHtml: {
     database: {
       type: "TEXT",
       nullable: false,
-    },
-    graphql: {
-      type: "String",
     },
   },
 };

@@ -2,8 +2,9 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { generateIdResolverSingle, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
+import { userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
   _id: {
@@ -12,8 +13,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -24,10 +28,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -36,9 +42,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["members"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -47,40 +56,23 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   contents: {
     graphql: {
-      type: "Revision",
+      outputType: "Revision",
       canRead: ["members"],
-      canUpdate: function (user, document) {
-        if (!user) {
-          // not logged in
-          return false;
-        }
-        if (!document) {
-          // no document specified
-          return false;
-        }
-        if (document.userId) {
-          // case 1: document is a post or a comment, use userId to check
-          return user._id === document.userId;
-        } else {
-          // case 2: document is a user, use _id or slug to check
-          const documentUser = document;
-          const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
-          const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
-          return idsExistAndMatch || slugsExistAndMatch;
-        }
-      },
+      canUpdate: userOwns,
       canCreate: ["members"],
-      validation: {
-        simpleSchema: RevisionStorageType,
-      },
+      editableFieldOptions: { pingbacks: false, normalized: false },
+      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Messages", "contents"),
     },
     form: {
@@ -106,20 +98,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   revisions: {
     graphql: {
-      type: "[Revision]",
+      outputType: "[Revision]",
       canRead: ["guests"],
+      arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("revisions"),
     },
   },
   version: {
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
       resolver: getVersionResolver("version"),
     },
@@ -131,19 +127,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["members"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   user: {
     graphql: {
-      type: "User",
+      outputType: "User",
       canRead: ["members"],
-      resolver: generateIdResolverSingle({ collectionName: "Messages", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   conversationId: {
@@ -153,19 +149,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
     },
   },
   conversation: {
     graphql: {
-      type: "Conversation!",
+      outputType: "Conversation!",
       canRead: ["members"],
-      resolver: generateIdResolverSingle({ collectionName: "Messages", fieldName: "conversationId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Conversations", fieldName: "conversationId" }),
     },
   },
   noEmail: {
@@ -176,11 +170,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["admins"],
       canCreate: ["admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
 };

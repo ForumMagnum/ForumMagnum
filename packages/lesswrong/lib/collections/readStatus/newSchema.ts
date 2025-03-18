@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { generateIdResolverSingle, getFillIfMissing } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = {
   _id: {
@@ -11,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["guests"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   postId: {
@@ -57,17 +68,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       type: "VARCHAR(27)",
       foreignKey: "Posts",
     },
-    graphql: {
-      type: "String",
-    },
   },
   post: {
     graphql: {
-      type: "Post",
-      resolver: generateIdResolverSingle({ collectionName: "ReadStatuses", fieldName: "postId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      outputType: "Post",
+      canRead: [],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
   tagId: {
@@ -75,17 +81,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       type: "VARCHAR(27)",
       foreignKey: "Tags",
     },
-    graphql: {
-      type: "String",
-    },
   },
   tag: {
     graphql: {
-      type: "Tag",
-      resolver: generateIdResolverSingle({ collectionName: "ReadStatuses", fieldName: "tagId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      outputType: "Tag",
+      canRead: [],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
   userId: {
@@ -94,17 +95,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       foreignKey: "Users",
       nullable: false,
     },
-    graphql: {
-      type: "String",
-    },
   },
   user: {
     graphql: {
-      type: "User!",
-      resolver: generateIdResolverSingle({ collectionName: "ReadStatuses", fieldName: "userId", nullable: false }),
-    },
-    form: {
-      hidden: true,
+      outputType: "User!",
+      canRead: [],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   isRead: {
@@ -112,17 +108,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReadStatuses">> = 
       type: "BOOL",
       nullable: false,
     },
-    graphql: {
-      type: "Boolean",
-    },
   },
   lastUpdated: {
     database: {
       type: "TIMESTAMPTZ",
       nullable: false,
-    },
-    graphql: {
-      type: "Date",
     },
   },
 };

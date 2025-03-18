@@ -3,7 +3,6 @@
 // The original schema is still in use, this is just for reference.
 
 import { userOwns } from "../../vulcan-users/permissions";
-import { getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> = {
   _id: {
@@ -12,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -24,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -36,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: [userOwns],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -47,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   userId: {
@@ -60,8 +70,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   documentId: {
@@ -69,8 +82,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   documentType: {
@@ -78,8 +94,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   extraData: {
@@ -87,8 +106,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       type: "JSONB",
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   link: {
@@ -96,8 +118,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   title: {
@@ -105,8 +130,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   message: {
@@ -115,8 +143,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   type: {
@@ -125,8 +156,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: [userOwns],
+      validation: {
+        optional: true,
+      },
     },
   },
   deleted: {
@@ -137,10 +171,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: [userOwns],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   viewed: {
@@ -151,12 +186,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["members"],
       canUpdate: ["members"],
       canCreate: ["members"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   emailed: {
@@ -167,10 +203,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: [userOwns],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
     },
   },
   waitingForBatch: {
@@ -181,10 +216,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
+      inputType: "Boolean!",
       canRead: [userOwns],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
     },
   },
 };

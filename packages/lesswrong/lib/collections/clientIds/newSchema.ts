@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, getFillIfMissing, throwIfSetToNull } from "../../utils/schemaUtils";
+import { arrayOfForeignKeysOnCreate, generateIdResolverMulti } from "../../utils/schemaUtils";
 
 const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
   _id: {
@@ -11,8 +11,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
       canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
     },
   },
   schemaVersion: {
@@ -23,10 +26,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["guests"],
-      onCreate: getFillIfMissing(1),
       onUpdate: () => 1,
+      validation: {
+        optional: true,
+      },
     },
   },
   createdAt: {
@@ -35,9 +40,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["admins"],
       onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
     },
   },
   legacyData: {
@@ -46,10 +54,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: true,
     },
     graphql: {
-      type: "JSON",
+      outputType: "JSON",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   clientId: {
@@ -58,7 +69,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: false,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
     },
   },
@@ -68,7 +80,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: true,
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
     },
   },
@@ -77,7 +90,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       type: "TEXT",
     },
     graphql: {
-      type: "String",
+      outputType: "String",
+      inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
     },
   },
@@ -89,19 +103,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: true,
     },
     graphql: {
-      type: "[String]",
+      outputType: "[String]",
+      inputType: "[String]!",
       canRead: ["sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
     },
   },
   users: {
     graphql: {
-      type: "[User!]!",
+      outputType: "[User!]!",
       canRead: ["sunshineRegiment", "admins"],
-      resolver: generateIdResolverMulti({ collectionName: "ClientIds", fieldName: "userIds" }),
-    },
-    form: {
-      hidden: true,
+      resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "userIds" }),
     },
   },
   invalidated: {
@@ -112,10 +124,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Boolean",
+      outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(false),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
   lastSeenAt: {
@@ -124,8 +137,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: true,
     },
     graphql: {
-      type: "Date",
+      outputType: "Date",
       canRead: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   timesSeen: {
@@ -136,10 +152,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       nullable: false,
     },
     graphql: {
-      type: "Float",
+      outputType: "Float",
       canRead: ["sunshineRegiment", "admins"],
-      onCreate: getFillIfMissing(1),
-      onUpdate: throwIfSetToNull,
+      validation: {
+        optional: true,
+      },
     },
   },
 };
