@@ -71,7 +71,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   post: PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Button, ContentStyles, ContentItemBody, LWDialog, Loading } = Components;
+  const { ContentStyles, ContentItemBody, LWDialog, Loading } = Components;
   const client = useApolloClient();
   
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed
@@ -154,12 +154,12 @@ const ResyncRssDialog = ({onClose, post, classes}: {
     {isSaving && <Loading/>}
     <DialogActions>
       <div className={classes.buttons}>
-        <Button className={classes.button} onClick={cancel}>Cancel</Button>
-        <Button
+        <button className={classes.button} onClick={cancel}>Cancel</button>
+        <button
           className={classes.button}
           onClick={apply}
           disabled={loading || !!error}
-        >Apply</Button>
+        >Apply</button>
       </div>
     </DialogActions>
   </LWDialog>

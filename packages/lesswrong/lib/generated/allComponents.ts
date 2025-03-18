@@ -1187,7 +1187,6 @@ importComponent("FormNestedHead", () => require("../../components/vulcan-forms/F
 importComponent(["FormNestedItemLayout", "FormNestedItem"], () => require("../../components/vulcan-forms/FormNestedItem.tsx"));
 importComponent(["FormNestedObjectLayout", "FormNestedObject"], () => require("../../components/vulcan-forms/FormNestedObject.tsx"));
 importComponent("FormWrapper", () => require("../../components/vulcan-forms/FormWrapper.tsx"));
-importComponent("Button", () => require("../../components/vulcan-ui-bootstrap/ui/Button.tsx"));
 importComponent("FrontpageGcalEventItem", () => require("../../components/walledGarden/FrontpageGcalEventItem.tsx"));
 importComponent("GardenCodeWidget", () => require("../../components/walledGarden/GardenCodeWidget.tsx"));
 importComponent("GardenCodesEditForm", () => require("../../components/walledGarden/GardenCodesEditForm.tsx"));
