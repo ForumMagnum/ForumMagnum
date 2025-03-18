@@ -108,7 +108,7 @@ function replaceText(node: Node, replacements: ReplacementTuple[]) {
 
 export function useReplaceTextContent() {
   const replacements: ReplacementTuple[] = Object.entries(textReplacementsSetting.get());
-  const observerRef = useRef<MutationObserver | null>();
+  const observerRef = useRef<MutationObserver | null>(null);
 
   return () => {
     for (let node of textNodesUnder(document.body)) {

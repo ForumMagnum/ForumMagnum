@@ -42,11 +42,11 @@ const reformatTagPlaceholder = (
 
 const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
-  expandContainer: RefObject<HTMLDivElement>,
+  expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement|null>(null);
   const tags = post.tags;
 
   useEffect(() => {

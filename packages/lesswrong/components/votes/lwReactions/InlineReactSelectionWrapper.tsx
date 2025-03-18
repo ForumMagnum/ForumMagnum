@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, classes}: {
-  contentRef?: React.RefObject<ContentItemBody>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+  contentRef?: React.RefObject<ContentItemBody|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post"|"tag",
   children: React.ReactNode,
@@ -106,7 +106,7 @@ export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, chi
   );
 }
 
-function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
+function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement|null>) {
   const commentTextRect = commentTextRef.current?.getBoundingClientRect();
   if (!commentTextRect) return 0;
 

@@ -39,7 +39,7 @@ const EAOnboardingInput = ({
   placeholder: string,
   As?: "input" | "textarea",
   rows?: number,
-  inputRef?: RefObject<HTMLInputElement> | RefObject<HTMLTextAreaElement>,
+  inputRef?: RefObject<HTMLInputElement|null> | RefObject<HTMLTextAreaElement|null>,
   disabled?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,

@@ -45,7 +45,7 @@ const EditLinkpostUrl = ({
   placeholder?: string;
   updateCurrentValues<T extends {}>(values: T): void;
 }) => {
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { postCategory } = document;
   if (postCategory !== "linkpost") return null;

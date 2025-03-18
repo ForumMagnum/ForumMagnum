@@ -35,10 +35,10 @@ export const useObserver = <T extends Element>({
   onExit,
   threshold = 0.8,
   maxTriggers = -1,
-}: UseObserverProps): RefObject<T> => {
+}: UseObserverProps): RefObject<T|null> => {
   const enterTriggerCount = useRef(0);
   const exitTriggerCount = useRef(0);
-  const ref = useRef<T>(null);
+  const ref = useRef<T|null>(null);
   useEffect(() => {
     const target = ref.current;
     if (target) {

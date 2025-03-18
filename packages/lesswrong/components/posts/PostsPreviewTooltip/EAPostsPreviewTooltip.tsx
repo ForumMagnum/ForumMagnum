@@ -61,7 +61,7 @@ const EAPostsPreviewTooltip = ({
   comment,
   classes,
 }: EAPostsPreviewTooltipProps) => {
-  const tagsRef = useRef(null);
+  const tagsRef = useRef<HTMLDivElement|null>(null);
 
   if (!post) {
     return null;

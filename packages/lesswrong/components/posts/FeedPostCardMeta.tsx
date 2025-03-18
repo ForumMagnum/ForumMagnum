@@ -75,7 +75,7 @@ const FeedPostCardMeta = ({post, className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const authorExpandContainer = useRef(null);
+  const authorExpandContainer = useRef<HTMLDivElement|null>(null);
 
   const {
     TruncatedAuthorsList, ForumIcon, LWTooltip, FormatDate
