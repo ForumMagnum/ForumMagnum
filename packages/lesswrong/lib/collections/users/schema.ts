@@ -351,7 +351,7 @@ const schema: SchemaType<"Users"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     }
   }),
 
@@ -368,7 +368,7 @@ const schema: SchemaType<"Users"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     },
   }),
 
@@ -385,7 +385,7 @@ const schema: SchemaType<"Users"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     },
   }),
 
@@ -418,7 +418,7 @@ const schema: SchemaType<"Users"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     },
   }),
   

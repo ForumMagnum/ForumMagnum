@@ -4,7 +4,7 @@ import type { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import type { permissionGroups } from "../permissions";
 import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
-import type { EditableFieldClientOptions, EditableFieldOptions } from '../editor/makeEditableOptions';
+import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -191,11 +191,12 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
     context: ResolverContext,
     fieldName: string
     modifier: MongoModifier<ObjectsByCollectionName[N]>
-  }) => any, 
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>, 
-  countOfReferences?: CountOfReferenceOptions; 
-  editableFieldOptions?: EditableFieldOptions; 
-  slugCallbackOptions?: SlugCallbackOptions<N>; 
+  }) => any,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
+  countOfReferences?: CountOfReferenceOptions;
+  editableFieldOptions?: EditableFieldCallbackOptions,
+  slugCallbackOptions?: SlugCallbackOptions<N>;
+  resolver?: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
 }
 
 interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> {
@@ -213,20 +214,25 @@ interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> 
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
-interface NotAGraphQLFieldSpecification {}
+type NotAGraphQLFieldSpecification = Record<string, never>;
 
 interface GraphQLBaseFieldSpecification {
-  type: string | GraphQLScalarType,
+  outputType: string | GraphQLScalarType,
   typescriptType?: string,
   blackbox?: boolean,
   validation?: {
-    simpleSchema?: SimpleSchema,
+    optional?: boolean,
+    simpleSchema?: SimpleSchema | [SimpleSchema],
     regEx?: any,
     allowedValues?: string[],
   },
 }
 
-type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (GraphQLWriteableFieldSpecification<N> | GraphQLResolverOnlyFieldSpecification<N> | NotAGraphQLFieldSpecification);
+type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (
+  | GraphQLWriteableFieldSpecification<N>
+  | GraphQLResolverOnlyFieldSpecification<N>
+  | NotAGraphQLFieldSpecification
+);
 
 interface FormFieldSpecification<N extends CollectionNameString> {
   description?: string,

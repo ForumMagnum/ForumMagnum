@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import net from 'net';
+import GraphQLJSON from 'graphql-type-json';
 import { allSchemas, getSchema, getSimpleSchema } from '../../lib/schema/allSchemas';
 import { augmentSchemas } from '../resolvers/allFieldAugmentations';
 import { capitalize } from '@/lib/vulcan-lib/utils';
@@ -38,6 +39,7 @@ const databaseProps = [
 
 // Extract GraphQL field properties
 const graphqlProps = [
+  'optional',
   'canRead',
   'canUpdate',
   'canCreate',
@@ -45,6 +47,7 @@ const graphqlProps = [
   'onUpdate',
   'onDelete',
   'countOfReferences',
+  'editableFieldOptions',
   'slugCallbackOptions',
 ] as const;
 
@@ -73,16 +76,22 @@ const socketPath = process.env.AUTODEBUG_IPC_HANDLE;
 
 const hoistMap: Partial<Record<CollectionNameString, Record<string, number>>> = {};
 
-function getGraphQLType<N extends CollectionNameString>(
-  schema: SchemaType<N>,
-  fieldName: string,
-  _isInput = false,
-): string|null {
-  const field = schema[fieldName];
-  const type = field.type.singleType;
-  const typeName =
-    typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
+function getArrayItemType(schema: SchemaType<CollectionNameString>, fieldName: string) {
+  const arrayItemFieldName = `${fieldName}.$`;
+  // note: make sure field has an associated array
+  if (schema[arrayItemFieldName]) {
+    // try to get array type from associated array
+    const arrayItemType = getGraphQLType(schema, arrayItemFieldName);
+    return arrayItemType ? `[${arrayItemType}]` : null;
+  }
+  return null;
+}
 
+function getBaseGraphQLType(
+  typeName: string,
+  schema: SchemaType<CollectionNameString>,
+  fieldName: string,
+) {
   switch (typeName) {
     case 'String':
       return 'String';
@@ -98,14 +107,7 @@ function getGraphQLType<N extends CollectionNameString>(
 
     // for arrays, look for type of associated schema field or default to [String]
     case 'Array':
-      const arrayItemFieldName = `${fieldName}.$`;
-      // note: make sure field has an associated array
-      if (schema[arrayItemFieldName]) {
-        // try to get array type from associated array
-        const arrayItemType = getGraphQLType(schema, arrayItemFieldName);
-        return arrayItemType ? `[${arrayItemType}]` : null;
-      }
-      return null;
+      return getArrayItemType(schema, fieldName);
 
     case 'Object':
       return 'JSON';
@@ -116,6 +118,26 @@ function getGraphQLType<N extends CollectionNameString>(
     default:
       return null;
   }
+}
+
+function getGraphQLType<N extends CollectionNameString>(
+  schema: SchemaType<N>,
+  fieldName: string,
+  isInput = false,
+): string|null {
+  const field = schema[fieldName];
+  const type = field.type.singleType;
+  const typeName =
+    typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
+
+  const required = isInput && !field.optional;
+
+  const baseType = getBaseGraphQLType(typeName, schema, fieldName);
+  if (baseType) {
+    return required ? `${baseType}!` : baseType;
+  }
+
+  return null;
 };
 
 function stringifyFunctionWithProperImports(func: Function): string {
@@ -173,11 +195,12 @@ const defaultFieldValueSubstitutions = {
     const { func, field, collectionName } = context;
     switch (func.name) {
       case 'fillIfMissing':
-        const defaultValue = field.defaultValue;
+        return undefined;
+        // const defaultValue = field.defaultValue;
         // TODO: some of these are evaluated constants; seems bad to lose the references.  What to do?
-        const inlineRepresentation = getFillIfMissingInlineRepresentation(defaultValue, context);
+        // const inlineRepresentation = getFillIfMissingInlineRepresentation(defaultValue, context);
 
-        return `get${capitalize(func.name)}(${inlineRepresentation})`;
+        // return `get${capitalize(func.name)}(${inlineRepresentation})`;
 
       case 'denormalizedFieldOnCreate':
         // TODO: we should probably hoist these to named functions at the top level of the generated code
@@ -203,7 +226,8 @@ const defaultFieldValueSubstitutions = {
     const { func, field, fieldName, collectionName } = context;
     switch (func.name) {
       case 'throwIfSetToNull':
-        return func.name;
+        return undefined;
+        // return func.name;
       case 'denormalizedFieldOnUpdate':
         // TODO: we should probably hoist these to named functions at the top level of the generated code
         // and then refer to them by name here.
@@ -234,11 +258,26 @@ const defaultFieldValueSubstitutions = {
         return `get${capitalize(func.name)}('${fieldName}')`;
       case 'denormalizedEditableResolver':
         return `get${capitalize(func.name)}('${collectionName}', '${fieldName}')`;
-      case 'idResolverSingle':
-        return `generateIdResolverSingle({ collectionName: '${collectionName}', fieldName: '${fieldName}', nullable: ${!!field.nullable} })`;
-      case 'idResolverMulti':
-        const getKeyPart = fieldName === 'bookmarkedPostsMetadata' || fieldName === 'hiddenPostsMetadata' ? ', getKey: FILL_THIS_IN' : '';
-        return `generateIdResolverMulti({ collectionName: '${collectionName}', fieldName: '${fieldName}'${getKeyPart} })`;
+      case 'idResolverSingle': {
+        if (!('foreignCollectionName' in func)) {
+          throw new Error(`foreignCollectionName not found in func for idResolverSingle in ${collectionName}.${fieldName}`);
+        }
+        
+        const foreignCollectionName = func.foreignCollectionName;
+        return `generateIdResolverSingle({ foreignCollectionName: '${foreignCollectionName}', fieldName: '${fieldName}' })`;
+      }
+      case 'idResolverMulti': {
+        if (!('foreignCollectionName' in func)) {
+          throw new Error(`foreignCollectionName not found in func for idResolverMulti in ${collectionName}.${fieldName}`);
+        }
+
+        const foreignCollectionName = func.foreignCollectionName;
+        const getKeyPart = fieldName === ('bookmarkedPostsMetadata' || fieldName === 'hiddenPostsMetadata')
+          ? ', getKey: (obj) => obj.postId'
+          : '';
+
+        return `generateIdResolverMulti({ foreignCollectionName: '${foreignCollectionName}', fieldName: '${fieldName}'${getKeyPart} })`;
+      }
       case 'contributorsFieldResolver':
         const fieldNameValue = collectionName === 'Tags' ? 'description' : 'contents';
         return `getContributorsFieldResolver({ collectionName: '${collectionName}', fieldName: '${fieldNameValue}' })`;
@@ -318,7 +357,38 @@ const defaultFieldValueSubstitutions = {
     }
     
     return func;
-  }
+  },
+  canCreate: (context: FieldValueSubstitutionProps) => {
+    const { func, fieldName } = context;
+    switch (fieldName) {
+      case 'coauthorStatuses':
+        return 'userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)';
+      case 'commentsLocked':
+      case 'commentsLockedToAccountsCreatedAfter':
+        return stringifyFunctionWithProperImports(func);
+      default:
+        return func;
+    }
+  },
+  canUpdate: (context: FieldValueSubstitutionProps) => {
+    const { func, fieldName } = context;
+    switch (fieldName) {
+      case 'coauthorStatuses':
+        return 'userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)';
+      case 'fmCrosspost':
+        return 'allOf(userOwns, userPassesCrosspostingKarmaThreshold)';
+      case 'showHideKarmaOption':
+      case 'bannedUserIds':
+        return `userOwnsAndInGroup('trustLevel1')`;
+      case 'bannedPersonalUserIds':
+        return `userOwnsAndInGroup('canModeratePersonal')`;
+      case 'commentsLocked':
+      case 'commentsLockedToAccountsCreatedAfter':
+        return stringifyFunctionWithProperImports(func);
+      default:
+        return func;
+    }
+  },
 }
 
 const skipPropertiesForHoistMap = new Set([
@@ -338,12 +408,14 @@ function addToHoistMap(context: FieldValueSubstitutionProps, value: string, prop
   hoistMapForCollection![value]++;
 }
 
-function formatFunctionValue(value: Function, context: FieldValueSubstitutionProps, propertyName?: string): string {
+function formatFunctionValue(value: Function, context: FieldValueSubstitutionProps, propertyName?: string): string | undefined {
   if (propertyName && propertyName in defaultFieldValueSubstitutions) {
     const substitution = defaultFieldValueSubstitutions[propertyName as keyof typeof defaultFieldValueSubstitutions];
     const substitutedValue = substitution({ ...context, func: value });
-    if (substitutedValue !== value && typeof substitutedValue === 'string') {
-      addToHoistMap(context, substitutedValue, propertyName);
+    if (!substitutedValue || (substitutedValue !== value && typeof substitutedValue === 'string')) {
+      if (substitutedValue) {
+        addToHoistMap(context, substitutedValue, propertyName);
+      }
 
       return substitutedValue;
     }
@@ -369,9 +441,9 @@ function formatFunctionValue(value: Function, context: FieldValueSubstitutionPro
     'filterFn',
     'getLocalStorageId',
     'getTitle',
-    'canRead',
-    'canCreate',
-    'canUpdate',
+    // 'canRead',
+    // 'canCreate',
+    // 'canUpdate',
   ];
   const shouldPreserveFunctionImpl = propertyName && functionImplementationFields.includes(propertyName);
   
@@ -406,7 +478,7 @@ function formatFunctionValue(value: Function, context: FieldValueSubstitutionPro
 }
 
 // Helper function to properly format a value
-function formatValue(value: any, context: Omit<FieldValueSubstitutionProps, 'func'>, propertyName?: string): string {
+function formatValue(value: any, context: Omit<FieldValueSubstitutionProps, 'func'>, propertyName: string): string | undefined {
   if (value === undefined || value === null) {
     return '';
   }
@@ -414,7 +486,7 @@ function formatValue(value: any, context: Omit<FieldValueSubstitutionProps, 'fun
   // Handle arrays specially to properly handle functions within arrays
   if (Array.isArray(value)) {
     // For array items, we don't have property names, so always use simplified function format
-    const formattedElements = value.map(element => formatValue(element, context));
+    const formattedElements = value.map(element => formatValue(element, context, propertyName));
     return `[${formattedElements.join(', ')}]`;
   }
   
@@ -427,9 +499,34 @@ function formatValue(value: any, context: Omit<FieldValueSubstitutionProps, 'fun
   if (value && typeof value === 'object' && value._constructorOptions) {
     return '"SimpleSchema"';
   }
+
+  if (value && value instanceof RegExp) {
+    switch (context.fieldName) {
+      case 'ip':
+        return 'SimpleSchema.RegEx.IP';
+      case 'facebookLink':
+      case 'facebookPageLink':
+      case 'meetupLink':
+      case 'slackLink':
+      case 'website':
+      case 'eventRegistrationLink':
+      case 'joinEventLink':
+        return 'SimpleSchema.RegEx.Url';
+      case 'email':
+        return 'SimpleSchema.RegEx.Email';
+      case 'emails':
+        return '[new SimpleSchema({ address: { type: String, regEx: SimpleSchema.RegEx.Email, optional: true }, verified: { type: Boolean, optional: true } })]';
+      default:
+        throw new Error(`Unknown field ${context.fieldName} in ${context.collectionName} when handling RegExp`);
+    }
+  }
   
   // For regular objects, try to handle them better by inspecting properties
   if (value && typeof value === 'object' && !Array.isArray(value)) {
+    if (value === GraphQLJSON) {
+      return 'GraphQLJSON';
+    }
+
     if (propertyName && isUserNotificationSettingsField(context) && JSON.stringify(value) === JSON.stringify(defaultNotificationTypeSettings)) {
       if (JSON.stringify(value) === JSON.stringify(defaultNotificationTypeSettings)) {
         return `defaultNotificationTypeSettings`;
@@ -445,7 +542,7 @@ function formatValue(value: any, context: Omit<FieldValueSubstitutionProps, 'fun
       
       const props = keys.map(key => {
         const propValue = formatValue(value[key], context, key);
-        if (propValue.length > 0) {
+        if (propValue && propValue.length > 0) {
           return `"${key}": ${propValue}`;
         }
         return undefined;
@@ -487,6 +584,39 @@ function getSimpleSchemaRepresentation(context: Omit<FieldValueSubstitutionProps
     return 'notificationTypeSettings';
   }
 
+  switch (fieldName) {
+    case 'karmaChangeNotifierSettings':
+      return 'karmaChangeSettingsType';
+    case 'expandedFrontpageSections':
+      return 'expandedFrontpageSectionsSettings';
+    case 'partiallyReadSequences':
+      return '[partiallyReadSequenceItem]';
+    case 'theme':
+      return 'userTheme';
+    case 'originalContents':
+      return 'ContentType';
+    case 'renderResult':
+      return 'RenderResultSchemaType';
+    case 'creator':
+      return 'creatorSchema';
+    case 'topicPreferences':
+      return '[topicPreferenceSchema]';
+    case 'jobAds':
+      return '[jobAdsType]';
+    case 'rsvps':
+      return '[rsvpType]';
+    case 'coauthorStatuses':
+      return '[coauthorStatusSchema]';
+    case 'socialPreview':
+      return 'socialPreviewSchema';
+    case 'fmCrosspost':
+      return 'crosspostSchema';
+    case 'forumEventMetadata':
+      return 'ForumEventCommentMetadataSchema';
+    case 'recommendationSettings':
+      return 'recommendationSettingsSchema';
+  }
+
   return 'FILL_THIS_IN';
 }
 
@@ -496,9 +626,14 @@ function buildSection(
   section: 'database' | 'graphql' | 'form',
   field: CollectionFieldSpecification<CollectionNameString>,
   context: Omit<FieldValueSubstitutionProps, 'func'>,
+  isResolverOnlyField = false,
 ): string[] {
   // Don't bother with form section if the original field spec had it set to hidden, since it won't be present in the form
   if (section === 'form' && (typeof field.hidden === 'boolean' && field.hidden)) {
+    return [];
+  }
+
+  if (section === 'graphql' && !field.canRead) {
     return [];
   }
 
@@ -516,24 +651,37 @@ function buildSection(
     if (section === 'form' && field.editableFieldOptions && propName === 'editableFieldOptions') {
       const { editableFieldOptions: { clientOptions } } = field;
       lines.push(`${spaces(6)}editableFieldOptions: ${formatValue(clientOptions, context, 'clientOptions')},`);
+    } else if (section === 'graphql' && field.editableFieldOptions && propName === 'editableFieldOptions') {
+      const { editableFieldOptions: { callbackOptions } } = field;
+      lines.push(`${spaces(6)}editableFieldOptions: ${formatValue(callbackOptions, context, 'callbackOptions')},`);
+    } else if (section === 'graphql' && propName === 'optional') {
+      // Skip this here, since we're relocating it to the validation subsection
     } else if (value !== undefined) {
       // Pass the property name to formatValue so it can make context-specific decisions
-      lines.push(`${spaces(6)}${propName}: ${formatValue(value, context, propName)},`);
+      const formattedValue = formatValue(value, context, propName);
+      if (formattedValue) {
+        lines.push(`${spaces(6)}${propName}: ${formattedValue},`);
+      }
     }
   }
 
-  if (section === 'graphql' && (field.allowedValues || field.regEx || hasSimpleSchemaType(context))) {
+  if (!isResolverOnlyField && section === 'graphql' && (field.allowedValues || field.regEx || hasSimpleSchemaType(context) || field.optional)) {
     lines.push(`${spaces(6)}validation: {`);
     if (field.allowedValues) {
       lines.push(`${spaces(8)}allowedValues: ${formatValue(field.allowedValues, context, 'allowedValues')},`);
     }
     if (field.regEx) {
+      if (context.collectionName === 'Posts') {
+        console.log(` ${context.fieldName} when handling regEx: ${field}`);
+      }
       lines.push(`${spaces(8)}regEx: ${formatValue(field.regEx, context, 'regEx')},`);
     }
     if (hasSimpleSchemaType(context)) {
       const simpleSchemaRepresentation = getSimpleSchemaRepresentation(context);
-
       lines.push(`${spaces(8)}simpleSchema: ${simpleSchemaRepresentation},`);
+    }
+    if (field.optional) {
+      lines.push(`${spaces(8)}optional: true,`);
     }
     lines.push(`${spaces(6)}},`);
   }
@@ -575,15 +723,17 @@ function extractAdditionalResolverField(context: Omit<FieldValueSubstitutionProp
   const graphqlResolveAsContent = [];
 
   if (field.resolveAs.type) {
-    graphqlResolveAsContent.push(`    type: ${formatValue(field.resolveAs.type, context)},`);
+    graphqlResolveAsContent.push(`    outputType: ${formatValue(field.resolveAs.type, context, 'resolveAs')},`);
   }
 
   if (field.canRead) {
-    graphqlResolveAsContent.push(`    canRead: ${formatValue(field.canRead, context)},`);
+    graphqlResolveAsContent.push(`    canRead: ${formatValue(field.canRead, context, 'canRead')},`);
+  } else {
+    graphqlResolveAsContent.push(`    canRead: [],`);
   }
 
-  if (field.resolveAs.arguments !== undefined) {
-    graphqlResolveAsContent.push(`    arguments: ${formatValue(field.resolveAs.arguments, context)},`);
+  if (field.resolveAs.arguments) {
+    graphqlResolveAsContent.push(`    arguments: ${formatValue(field.resolveAs.arguments, context, 'resolveAs')},`);
   }
 
   graphqlResolveAsContent.push(`    resolver: ${convertResolveAsFunction(context, 'resolver')},`);
@@ -599,9 +749,6 @@ function extractAdditionalResolverField(context: Omit<FieldValueSubstitutionProp
   const resolveAsField = `  ${resolveAsFieldName}: {
     graphql: {
 ${graphqlResolveAsContent.join('\n')}
-    },
-    form: {
-      hidden: true,
     },
   },`;
   return resolveAsField;
@@ -619,15 +766,19 @@ function convertDatabaseField(
   const formSection = buildSection(formProps, 'form', field, context);
 
   const databaseContent = typeString ? [typeString, ...databaseSection] : databaseSection;
+
   const simpleSchema = getSimpleSchema(collectionName)._schema;
-  const typeValueForGraphQL = getGraphQLTypeString(simpleSchema, fieldName);
+  const outputTypeValueForGraphQL = getGraphQLTypeString(simpleSchema, fieldName, false);
+  const inputTypeValue = getGraphQLTypeString(simpleSchema, fieldName, true);
+  const includeInputType = outputTypeValueForGraphQL.split(':')[1] !== inputTypeValue.split(':')[1];
 
   const baseField = `  ${fieldName}: {${databaseContent.length > 0 ? `
     database: {
 ${databaseContent.join('\n')}
-    },` : ''}${graphqlSection.length > 0 || typeValueForGraphQL ? `
+    },` : ''}${graphqlSection.length > 0 ? `
     graphql: {
-${typeValueForGraphQL}
+${outputTypeValueForGraphQL}${includeInputType ? `
+${inputTypeValue}` : ''}
 ${graphqlSection.join('\n')}
     },` : ''}${formSection.length > 0 ? `
     form: {
@@ -645,8 +796,12 @@ function convertResolverOnlyField(
 ) {
   const context = { field, fieldName, collectionName };
   const result: string[] = [];
-  const graphqlSection = buildSection(graphqlProps, 'graphql', field, context);
-  const formSection = buildSection(formProps, 'form', field, context);
+  const graphqlSection = buildSection(graphqlProps, 'graphql', field, context, true);
+  const formSection = buildSection(formProps, 'form', field, context, true);
+
+  if (field.resolveAs.arguments) {
+    graphqlSection.push(`    arguments: ${formatValue(field.resolveAs.arguments, context, 'resolveAs')},`);
+  }
 
   const graphqlContent = [
     ...graphqlSection,
@@ -662,13 +817,14 @@ function convertResolverOnlyField(
   }
 
   const simpleSchema = getSimpleSchema(collectionName)._schema;
-  const typeValue = field.resolveAs.type
-    ? `${spaces(6)}type: '${field.resolveAs.type}',`
-    : getGraphQLTypeString(simpleSchema, fieldName);
+  const outputTypeValue = field.resolveAs.type
+    ? `${spaces(6)}outputType: '${field.resolveAs.type}',`
+    : getGraphQLTypeString(simpleSchema, fieldName, false);
+
 
   const content = `  ${fieldName}: {
     graphql: {
-${typeValue}
+${outputTypeValue}
 ${graphqlContent.join('\n')}
     },${formSection.length > 0 ? `
     form: {
@@ -681,9 +837,10 @@ ${formSection.join('\n')}
   return result;
 }
 
-function getGraphQLTypeString(schema: SchemaType<CollectionNameString>, fieldName: string) {
-  const graphqlType = getGraphQLType(schema, fieldName);
-  return `${spaces(6)}type: '${graphqlType}',`;
+function getGraphQLTypeString(schema: SchemaType<CollectionNameString>, fieldName: string, isInput: boolean) {
+  const graphqlType = getGraphQLType(schema, fieldName, isInput);
+  const typePolarity = isInput ? 'inputType' : 'outputType';
+  return `${spaces(6)}${typePolarity}: '${graphqlType}',`;
 }
 
 function getFieldTypeString(
@@ -818,8 +975,6 @@ export default schema;
           const hoistedFunctionString = `${prefix}${key}`;
           hoistedFunctions.push(hoistedFunctionString);
           newSchemaContent = newSchemaContent.split(key).join(placeholderName);;
-        } else {
-          console.warn(`${key} in ${collectionName} doesn't start with '('`);
         }
       }
     }

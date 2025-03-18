@@ -24,6 +24,7 @@ const schema: SchemaType<"ElicitQuestionPredictions"> = {
   },
   predictionId: resolverOnlyField({
     type: String,
+    canRead: ['guests'],
     resolver: ({ _id }) => _id,
   }),
   prediction: {

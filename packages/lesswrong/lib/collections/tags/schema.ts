@@ -91,7 +91,7 @@ const schema: SchemaType<"Tags"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
-      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     },
   }),
 
@@ -105,7 +105,7 @@ const schema: SchemaType<"Tags"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
-      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     },
   }),
 

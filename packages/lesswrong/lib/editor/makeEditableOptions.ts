@@ -36,7 +36,7 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
     canRead?: FieldPermissions,
     canUpdate?: FieldPermissions,
     // TODO: This should be FieldCreatePermissions, but there are some collections where we were passing in functions that relied on the existing object, which is a bit nonsensical
-    canCreate?: AnyBecauseTodo,
+    canCreate?: FieldCreatePermissions,
   },
   label?: string,
   formVariant?: "default" | "grey",

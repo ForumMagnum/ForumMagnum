@@ -1,12 +1,12 @@
 import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils'
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils';
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { loadByIds, getWithLoader, getWithCustomLoader } from '../../loaders';
 import { formGroups } from './formGroups';
-import SimpleSchema from 'simpl-schema'
+import SimpleSchema from 'simpl-schema';
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
@@ -19,14 +19,14 @@ import {
   isLWorAF,
   requireReviewToFrontpagePostsSetting,
   reviewUserBotSetting,
-} from '../../instanceSettings'
+} from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { allOf } from '../../utils/functionUtils';
-import {crosspostKarmaThreshold} from '../../publicSettings'
+import { crosspostKarmaThreshold } from '../../publicSettings';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
@@ -41,6 +41,7 @@ import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, use
 import { editableFields } from '@/lib/editor/make_editable';
 import { universalFields } from "../../collectionUtils";
 import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import { SmartFormProps } from '@/components/vulcan-forms/propTypes';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -100,6 +101,25 @@ const rsvpType = new SimpleSchema({
   },
 })
 
+const coauthorStatusSchema = new SimpleSchema({
+  userId: String,
+  confirmed: Boolean,
+  requested: Boolean,
+});
+
+const socialPreviewSchema = new SimpleSchema({
+  imageId: {
+    type: String,
+    optional: true,
+    nullable: true
+  },
+  text: {
+    type: String,
+    optional: true,
+    nullable: true
+  },
+});
+
 addGraphQLSchema(`
   type SocialPreviewType {
     _id: String
@@ -108,6 +128,12 @@ addGraphQLSchema(`
     text: String
   }
 `)
+
+const crosspostSchema = new SimpleSchema({
+  isCrosspost: Boolean,
+  hostedHere: { type: Boolean, optional: true, nullable: true },
+  foreignPostId: { type: String, optional: true, nullable: true },
+});
 
 export const MINIMUM_COAUTHOR_KARMA = 1;
 
@@ -169,6 +195,10 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
     return false;
   }
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
+}
+
+function shouldHideEndTime(props: SmartFormProps<"Posts">): boolean {
+  return !props.eventForm || props.document?.eventType === 'course';
 }
 
 const schema: SchemaType<"Posts"> = {
@@ -1626,12 +1656,7 @@ const schema: SchemaType<"Posts"> = {
     group: () => formGroups.coauthors
   },
   'coauthorStatuses.$': {
-    type: new SimpleSchema({
-      userId: String,
-      confirmed: Boolean,
-      requested: Boolean,
-
-    }),
+    type: coauthorStatusSchema,
     optional: true,
   },
 
@@ -1672,18 +1697,7 @@ const schema: SchemaType<"Posts"> = {
   },
 
   socialPreview: {
-    type: new SimpleSchema({
-      imageId: {
-        type: String,
-        optional: true,
-        nullable: true
-      },
-      text: {
-        type: String,
-        optional: true,
-        nullable: true
-      },
-    }),
+    type: socialPreviewSchema,
     resolveAs: {
       type: "SocialPreviewType",
       fieldName: "socialPreviewData",
@@ -1711,11 +1725,7 @@ const schema: SchemaType<"Posts"> = {
   },
 
   fmCrosspost: {
-    type: new SimpleSchema({
-      isCrosspost: Boolean,
-      hostedHere: { type: Boolean, optional: true, nullable: true },
-      foreignPostId: { type: String, optional: true, nullable: true },
-    }),
+    type: crosspostSchema,
     optional: true,
     canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
@@ -2313,7 +2323,7 @@ const schema: SchemaType<"Posts"> = {
 
   endTime: {
     type: Date,
-    hidden: (props) => !props.eventForm || props.document?.eventType === 'course',
+    hidden: (props) => shouldHideEndTime(props),
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -3196,3 +3206,4 @@ const schema: SchemaType<"Posts"> = {
 };
 
 export default schema;
+

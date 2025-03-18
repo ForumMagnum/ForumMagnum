@@ -9,53 +9,61 @@ import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
-export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
-  collectionName, fieldName, nullable
+export const generateIdResolverSingle = <ForeignCollectionName extends CollectionNameString>({
+  foreignCollectionName, fieldName, nullable = true
 }: {
-  collectionName: CollectionName,
+  foreignCollectionName: ForeignCollectionName,
   fieldName: string,
-  nullable: boolean,
+  nullable?: boolean,
 }) => {
-  type DataType = ObjectsByCollectionName[CollectionName];
-  return async function idResolverSingle(doc: any, args: void, context: ResolverContext): Promise<Partial<DataType>|null> {
+  type DataType = ObjectsByCollectionName[ForeignCollectionName];
+  async function idResolverSingle(doc: AnyBecauseHard, args: void, context: ResolverContext): Promise<Partial<DataType>|null> {
     if (!doc[fieldName]) return null
 
     const { currentUser } = context
 
-    const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
-    const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
+    const loader = context.loaders[foreignCollectionName] as DataLoader<string,DataType>;
+    const resolvedDoc: DataType|null = await loader.load(doc[fieldName] as string)
     if (!resolvedDoc) {
       if (!nullable) {
         // eslint-disable-next-line no-console
-        console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
+        console.error(`Broken foreign key reference: ${foreignCollectionName}.${fieldName}=${doc[fieldName]}`);
       }
       return null;
     }
 
-    return await accessFilterSingle(currentUser, collectionName, resolvedDoc, context);
+    return await accessFilterSingle(currentUser, foreignCollectionName, resolvedDoc, context);
   }
+
+  idResolverSingle.foreignCollectionName = foreignCollectionName;
+  
+  return idResolverSingle;
 }
 
-export const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
-  collectionName, fieldName,
+export const generateIdResolverMulti = <ForeignCollectionName extends CollectionNameString>({
+  foreignCollectionName, fieldName,
   getKey = ((a: any)=>a)
 }: {
-  collectionName: CollectionName,
+  foreignCollectionName: ForeignCollectionName,
   fieldName: string,
-  getKey?: (key: string) => string,
+  getKey?: (key: any) => string,
 }) => {
-  type DbType = ObjectsByCollectionName[CollectionName];
+  type DbType = ObjectsByCollectionName[ForeignCollectionName];
   
-  return async function idResolverMulti(doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> {
+  async function idResolverMulti(doc: AnyBecauseHard, args: void, context: ResolverContext): Promise<Partial<DbType>[]> {
     if (!doc[fieldName]) return []
 
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
 
-    const resolvedDocs: Array<DbType|null> = await loadByIds(context, collectionName, keys)
-    return await accessFilterMultiple(currentUser, collectionName, resolvedDocs, context);
+    const resolvedDocs: Array<DbType|null> = await loadByIds(context, foreignCollectionName, keys)
+    return await accessFilterMultiple(currentUser, foreignCollectionName, resolvedDocs, context);
   }
+
+  idResolverMulti.foreignCollectionName = foreignCollectionName;
+
+  return idResolverMulti;
 }
 
 // Apply both document-level and field-level permission checks to a single document.
@@ -123,7 +131,7 @@ export function getForeignKeySqlResolver<CollectionName extends CollectionNameSt
  * This field is stored in the database as a string, but resolved as the
  * referenced document
  */
-export const foreignKeyField = <CollectionName extends CollectionNameString>({
+export const foreignKeyField = <const CollectionName extends CollectionNameString>({
   idFieldName,
   resolverName,
   collectionName,
@@ -156,7 +164,7 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
       fieldName: resolverName,
       type: nullable ? type : `${type}!`,
       resolver: generateIdResolverSingle({
-        collectionName,
+        foreignCollectionName: collectionName,
         fieldName: idFieldName,
         nullable,
       }),
@@ -165,7 +173,7 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
       // to make SQL resolvers useable by arbitrary resolvers then we (probably)
       // need to add some permission checks here somehow.
       ...(autoJoin ? {
-        sqlResolver: getForeignKeySqlResolver({ collectionName, nullable, idFieldName }),
+        sqlResolver: getForeignKeySqlResolver<CollectionNameString>({ collectionName, nullable, idFieldName }),
       } : {}),
       addOriginalField: true,
     },
@@ -202,7 +210,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
       fieldName: resolverName,
       type: `[${type}!]!`,
       resolver: generateIdResolverMulti({
-        collectionName,
+        foreignCollectionName: collectionName,
         fieldName: idFieldName,
         getKey
       }),
