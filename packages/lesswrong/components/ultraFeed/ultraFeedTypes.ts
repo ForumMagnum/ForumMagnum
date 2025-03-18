@@ -1,21 +1,176 @@
 /**
- * Type definitions for UltraFeed components
+ * UltraFeed Type Definitions
+ * 
+ * This file contains all the type definitions for the UltraFeed system,
+ * organized by where they appear in the data pipeline:
+ * 
+ * 1. RAW DATA: Types for raw data from the database
+ * 2. PROCESSING: Types used during thread construction and enrichment
+ * 3. DISPLAY: Types used when sending data to the client
+ * 4. STORAGE: Types used when storing data in FeedItemServings
+ * 5. REHYDRATION: Types used when retrieving stored items for display
  */
 
+
+//-----------------------------------------------------------------------------
+// 2. PROCESSING & ENRICHMENT TYPES
+//-----------------------------------------------------------------------------
+
 /**
- * The type of comments used in UltraFeed components.
- * This extends CommentsList to include the post field that's needed
- * for proper rendering in the UltraFeed components.
+ * The type of source where a comment came from.
+ * Used in: Various feed item candidates and display types
  */
-export interface UltraFeedComment extends CommentsList {
-  post: PostsMinimumInfo | null;
+export type FeedItemSourceType = 'QuickTake' | 'PopularComment' | string;
+
+/**
+ * Metadata for feed comments, including sources and sibling information.
+ * Used in: FeedCommentCandidate
+ */
+export interface FeedCommentMetaInfo {
+  /** Sources where this comment came from */
+  sources: FeedItemSourceType[] | null;
+  /** Number of siblings (comments with the same parent) */
+  siblingCount: number;
+  /** Whether the user has seen this comment before */
+  alreadySeen: boolean | null;
+  /** Display status (expanded/collapsed/hidden) */
+  status?: FeedItemDisplayStatus;
 }
 
 /**
- * Type for feed items containing a comment
- * This is a specialization of HydratedFeedItem where we know:
- * - renderAsType is 'feedComment'
- * - primaryComment is not null
+ * A comment that's a candidate for inclusion in the feed.
+ * Used in: UltraFeedRepo.getAllCommentThreads(), buildDistinctLinearThreads()
+ */
+export interface PreDisplayFeedComment {
+  /** The comment itself with all its data */
+  comment: FeedCommentItemFragment;
+  /** Metadata about the comment's context in the feed */
+  metaInfo: Pick<FeedCommentMetaInfo, 'sources'>;
+}
+
+
+
+/**
+ * A linear thread of comments for display in the feed.
+ * Used in: UltraFeedRepo.getAllCommentThreads(), prioritizeThreads()
+ */
+export interface PreDisplayFeedCommentThread {
+  /** Post the comments belong to */
+  post: PostsMinimumInfo; 
+  /** List of comments in the thread */
+  comments: PreDisplayFeedComment[]; 
+  /** ID of the root comment in the thread */
+  topLevelCommentId: string; 
+  /** ID for tracking analytics */
+}
+
+/**
+ * Same as FeedCommentThread but without analytics ID.
+ * Used in: UltraFeedRepo functions before assigning a servingId
+ */
+// export type FeedCommentThreadWithoutServingId = Omit<PreDisplayFeedCommentThread, 'servingId'>;
+
+/**
+ * Statistics about a thread, used for prioritization.
+ * Used in: UltraFeedRepo.getThreadStatistics(), prioritizeThreads()
+ */
+export interface LinearCommentThreadStatistics {
+  commentCount: number;
+  maxKarma: number;
+  sumKarma: number;
+  sumKarmaSquared: number;
+  averageKarma: number;
+  averageTop3Comments: number;
+}
+
+//-----------------------------------------------------------------------------
+// 3. DISPLAY TYPES - For Client/GraphQL
+//-----------------------------------------------------------------------------
+
+export interface DisplayFeedItem {
+  _id: string;
+  item: FeedItemContent;
+  renderAsType: FeedItemRenderType;
+  sources: FeedItemSourceType[] | null;
+}
+
+/**
+ * Data structure for displaying a comment in the feed.
+ * Used in: UltraFeed component
+ */
+export interface DisplayFeedComment {
+  commentId: string;
+  postId: string;
+  user: UsersMinimumInfo | null; // User who wrote the comment
+  postedAt: Date;
+  baseScore: number;
+  content: string; // HTML/text content
+  // parentCommentId: string | null;
+  // displayedChild: FeedCommentItemDisplay | null; // Child comment displayed in thread
+  // numberOfTimesPreviouslySeen: number; // Whether currentUser has seen this comment
+  // suggestInitiallyExpanded: boolean; // Whether comment should start expanded
+  sources: FeedItemSourceType[] | null; // Reasons why comment was selected
+  // nonDisplayedChildrenCount?: number; // Number of children not displayed
+  displayStatus: FeedItemDisplayStatus;
+}
+
+export interface DisplayFeedCommentThread {
+  post: PostsMinimumInfo; // TODO: maybe want fragment with post contents?
+  comments: DisplayFeedComment[];
+  topLevelCommentId: string;
+}
+
+
+/** 
+ * The valid render types for feed items.
+ * Used in: Various feed item related types and functions
+ */
+export type FeedItemRenderType = "feedComment" | "feedPost" | "feedCommentThread";
+
+
+/**
+ * Feed item containing a comment (final hydrated version).
+ * Used in: feedItemUtils.ts, ultraFeedResolver.ts
+ */
+export interface FeedCommentItem {
+  _id: string;
+  type: string;
+  renderAsType: "feedComment";
+  primaryComment: DbComment;
+  secondaryComments: DbComment[];
+  primaryPost: DbPost | null;
+  secondaryPosts: DbPost[];
+  sources: string[];
+  originalServingId: string | null;
+  mostRecentServingId: string | null;
+}
+
+/**
+ * Feed item containing a post (final hydrated version).
+ * Used in: feedItemUtils.ts, ultraFeedResolver.ts
+ */
+export interface FeedPostItem {
+  _id: string;
+  type: string;
+  renderAsType: "feedPost";
+  primaryPost: DbPost;
+  secondaryPosts: DbPost[];
+  primaryComment: DbComment | null;
+  secondaryComments: DbComment[];
+  sources: string[];
+  originalServingId: string | null;
+  mostRecentServingId: string | null;
+}
+
+/**
+ * Union type for all final hydrated feed items.
+ * Used in: feedItemUtils.ts, ultraFeedResolver.ts
+ */
+export type HydratedFeedItem = FeedCommentItem | FeedPostItem;
+
+/**
+ * Type for feed items containing a comment (client-side version).
+ * Used in: UltraFeed component
  */
 export interface CommentFeedItem {
   _id: string;
@@ -30,10 +185,8 @@ export interface CommentFeedItem {
 }
 
 /**
- * Type for feed items containing a post
- * This is a specialization of HydratedFeedItem where we know:
- * - renderAsType is 'feedPost'
- * - primaryPost is not null
+ * Type for feed items containing a post (client-side version).
+ * Used in: UltraFeed component
  */
 export interface PostFeedItem {
   _id: string;
@@ -48,14 +201,16 @@ export interface PostFeedItem {
 }
 
 /**
- * Type guard to check if a HydratedFeedItem is a CommentFeedItem
+ * Type guard to check if a HydratedFeedItem is a CommentFeedItem.
+ * Used in: UltraFeed component
  */
 export function isCommentFeedItem(item: any): item is CommentFeedItem {
   return item?.renderAsType === 'feedComment' && item?.primaryComment != null;
 }
 
 /**
- * Type guard to check if a HydratedFeedItem is a PostFeedItem
+ * Type guard to check if a HydratedFeedItem is a PostFeedItem.
+ * Used in: UltraFeed component
  */
 export function isPostFeedItem(item: any): item is PostFeedItem {
   return item?.renderAsType === 'feedPost' && item?.primaryPost != null;
@@ -63,25 +218,26 @@ export function isPostFeedItem(item: any): item is PostFeedItem {
 
 /**
  * Ensures the primaryComment from a HydratedFeedItem has the correct shape
- * for use in UltraFeed components
+ * for use in UltraFeed components.
+ * Used in: UltraFeed component
  * 
  * @param feedItem A CommentFeedItem validated with isCommentFeedItem
  * @returns A properly typed UltraFeedComment
  */
-export function getUltraFeedComment(feedItem: CommentFeedItem): UltraFeedComment {
+export function getUltraFeedComment(feedItem: CommentFeedItem): DisplayFeedComment {
   const comment = feedItem.primaryComment;
   
   // After our server-side hydration process, the comment should have
   // the post field populated. We use a type assertion here because
   // the comment already has all the CommentsList fields plus the post
   // field, which matches the UltraFeedComment interface.
-  return comment as unknown as UltraFeedComment;
+  return comment as unknown as DisplayFeedComment;
 }
 
-//TODO: get rid of this eventually
 /**
  * Converts a DbPost to PostsRecentDiscussion 
- * This is needed because FeedPostCommentsCard expects PostsRecentDiscussion
+ * This is needed because FeedPostCommentsCard expects PostsRecentDiscussion.
+ * Used in: UltraFeed component
  * 
  * @param feedItem A PostFeedItem validated with isPostFeedItem
  * @returns The post cast to the expected type for FeedPostCommentsCard
@@ -92,10 +248,10 @@ export function getPostForFeed(feedItem: PostFeedItem): PostsRecentDiscussion {
   return feedItem.primaryPost as unknown as PostsRecentDiscussion;
 }
 
-//TODO: get rid of this eventually
 /**
  * Converts DbComment[] to CommentsList[]
- * This is needed because FeedPostCommentsCard expects CommentsList[]
+ * This is needed because FeedPostCommentsCard expects CommentsList[].
+ * Used in: UltraFeed component
  * 
  * @param feedItem A PostFeedItem validated with isPostFeedItem
  * @returns The comments cast to the expected type for FeedPostCommentsCard
@@ -106,45 +262,89 @@ export function getCommentsForFeed(feedItem: PostFeedItem): CommentsList[] {
   return (feedItem.secondaryComments || []) as unknown as CommentsList[];
 }
 
-/**
- * Type representing a source/reason why a comment was selected
- * to potentially be shown in the feed
- */
-export type FeedItemSourceType = 'QuickTake' | 'PopularComment' | string;
+
+//-----------------------------------------------------------------------------
+// 4. STORAGE TYPES - For FeedItemServings
+//-----------------------------------------------------------------------------
 
 /**
- * Interface for a candidate comment that might be displayed in the feed
+ * DB-oriented representation with only IDs.
+ * Used in: feedItemUtils.ts (dehydrateFeedItem)
  */
-export interface FeedCommentCandidate {
-  comment: FeedCommentItemFragment;
-  sources: FeedItemSourceType[] | null;
+export type DehydratedFeedItem = {
+  _id: string;
+  renderAsType: FeedItemRenderType;
+  sources: string[];
+  primaryDocumentId: string | null;
+  primaryDocumentCollectionName: string | null;
+  secondaryDocumentIds: string[] | null;
+  secondaryDocumentsCollectionName: string | null;
+  originalServingId: string | null;
+  mostRecentServingId: string | null;
+};
+
+//-----------------------------------------------------------------------------
+// 5. NEW ITEM CONTENT TYPES - For FeedItemServings.itemContent
+//-----------------------------------------------------------------------------
+
+/**
+ * Display status for feed items.
+ * Used in: itemContent field types
+ */
+export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden";
+
+/**
+ * Base interface for all item content types.
+ * Used in: itemContent field in FeedItemServings
+ */
+export interface BaseFeedItemContent {
+  type: string; // Discriminator field to determine the concrete type
 }
 
 /**
- * Interface for a comment item that will be displayed in the feed
- * TODO: just extend existing Comment type??
+ * Simple display item for comments in a thread.
+ * Used in: itemContent field types
  */
-export interface FeedCommentItemDisplay {
+export interface FeedCommentDisplayItem {
   commentId: string;
-  postId: string;
-  user: UsersMinimumInfo; // User who wrote the comment
-  postedAt: Date;
-  baseScore: number;
-  content: string; // HTML/text content
-  parentCommentId: string | null;
-  displayedChild: FeedCommentItemDisplay | null; // Child comment displayed in thread
-  numberOfTimesPreviouslySeen: number; // Whether currentUser has seen this comment
-  suggestInitiallyExpanded: boolean; // Whether comment should start expanded
-  sources: FeedItemSourceType[] | null; // Reasons why comment was selected
-  nonDisplayedChildrenCount?: number; // Number of children not displayed
+  status: FeedItemDisplayStatus;
 }
 
 /**
- * Interface for a linear thread of comments to be displayed in the feed
+ * Comment thread item type.
+ * Used in: itemContent field in FeedItemServings
  */
-export interface FeedCommentThread {
-  post: PostsMinimumInfo; // Contains what's needed to display a post card
-  comments: FeedCommentCandidate[]; // List of comments in the thread
-  topLevelCommentId: string; // ID of the first comment in the thread
-  servingId: string; // Used for setting up analytics
+export interface CommentThreadFeedItemContent extends BaseFeedItemContent {
+  type: "commentThread";
+  comments: FeedCommentDisplayItem[];
+  topLevelCommentId: string;
+}
+
+/**
+ * Post item type.
+ * Used in: itemContent field in FeedItemServings
+ */
+export interface PostFeedItemContent extends BaseFeedItemContent {
+  type: "post";
+  postId: string;
+  status: Omit<FeedItemDisplayStatus, 'hidden'>;
+  comments: FeedCommentDisplayItem[];
+}
+
+/**
+ * Union type for all possible item content types.
+ * Used in: itemContent field in FeedItemServings
+ */
+export type FeedItemContent = CommentThreadFeedItemContent | PostFeedItemContent;
+
+/**
+ * New feed item structure as defined in the UltraFeed schema.
+ * This replaces the older types that had separate fields for different content types.
+ */
+export interface UltraFeedItemResolver {
+  _id: string;
+  type: string;
+  renderAsType: FeedItemRenderType;
+  sources: string[];
+  itemContent: any; // Any JSON content appropriate for the renderAsType
 }
