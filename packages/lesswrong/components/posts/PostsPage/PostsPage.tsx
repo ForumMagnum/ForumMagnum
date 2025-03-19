@@ -42,7 +42,7 @@ import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
-import { BestOfLWPostsPageSplashImage } from './BestOfLWPostsPageSplashImage';
+import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300

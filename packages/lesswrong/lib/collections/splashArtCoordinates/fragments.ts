@@ -17,6 +17,12 @@ export const SplashArtCoordinates = `
     rightHeightPct
     rightWidthPct
     rightFlipped
+  }
+`
+
+export const SplashArtCoordinatesEdit = `
+  fragment SplashArtCoordinatesEdit on SplashArtCoordinate {
+    ...SplashArtCoordinates
     createdAt
   }
 `

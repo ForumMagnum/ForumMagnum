@@ -56,7 +56,6 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
   postWrapper: {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'flex-end',
     gap: '10px'
   },
   image: {
@@ -80,15 +79,13 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const { LWTooltip } = Components;
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { selectedImageInfo, setImageInfo } = useImageContext();
-  // const [currentImage, setCurrentImage] = useState<ReviewWinnerArtImages | undefined>(undefined);
 
   const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
     collectionName: 'SplashArtCoordinates',
-    fragmentName: 'SplashArtCoordinates'
+    fragmentName: 'SplashArtCoordinatesEdit'
   });   
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
-    console.log('image', image);
     const { errors } = await createSplashArtCoordinateMutation({ data: {
       reviewWinnerArtId: image._id,
       leftXPct: 0,
@@ -108,6 +105,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
       rightFlipped: false,
     } });
     if (errors) {
+      // eslint-disable-next-line no-console
       console.error('Error saving coordinates', errors);
     } else {
       setImageInfo(image);
@@ -136,13 +134,14 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const currentImageUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo?.splashArtImageUrl, 800) : null
 
   return <div key={post._id}>
-    {currentImageThumbnailUrl && currentImageUrl && <div>
+
+    {!defaultExpanded && <div><button onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</button></div>}
+
+    {expanded && currentImageThumbnailUrl && currentImageUrl && <div>
       <LWTooltip title={<img src={currentImageUrl} />} tooltip={false}>
         <img src={currentImageThumbnailUrl} />
       </LWTooltip>
     </div>}
-    
-    {!defaultExpanded && <div><button onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</button></div>}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, images]) => {
       return <div key={prompt}>
@@ -168,8 +167,7 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
-  const { setImageInfo } = useImageContext();
-  const { LWTooltip, Loading } = Components;
+  const { Loading } = Components;
 
   const { results: images, loading } = useMulti({
     collectionName: 'ReviewWinnerArts',

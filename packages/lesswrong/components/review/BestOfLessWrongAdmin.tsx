@@ -35,8 +35,20 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
 
 export const BestOfLessWrongAdmin = () => { 
   const classes = useStyles(styles);
+  const { Loading } = Components;
 
-  const { results: images, loading } = useMulti({
+  const { data, loading: reviewWinnersLoading } = useQuery(gql`
+    query GetAllReviewWinners {
+      GetAllReviewWinners {
+        ...PostsTopItemInfo
+      }
+    }
+    ${fragmentTextForQuery('PostsTopItemInfo')}
+  `);
+  const reviewWinners = data?.GetAllReviewWinners ?? [];
+  const reviewWinnersWithoutArt = reviewWinners.filter((reviewWinner: PostsTopItemInfo) => !reviewWinner.reviewWinner?.reviewWinnerArt);
+
+  const { results: images, loading: imagesLoading } = useMulti({
     collectionName: 'ReviewWinnerArts',
     fragmentName: 'ReviewWinnerArtImagesForYear',
     terms: {
@@ -47,15 +59,29 @@ export const BestOfLessWrongAdmin = () => {
   const groupedImages = groupBy(images, (image) => image.post?.title);
 
   return <div className={classes.root}>
-      {Object.entries(groupedImages).map(([title, images]) => {
+      {(reviewWinnersLoading || imagesLoading) && <Loading/>}
+      <div>
+        <div>{Object.entries(groupedImages).length} Posts with art</div>
+        <div>{reviewWinnersWithoutArt.length} Posts without art</div>
+      </div>
+      <div>
+        {Object.entries(groupedImages).map(([title, images]) => {
         const post = images[0].post;
         return post && <div key={title} className={classes.post}>
-          <h3><Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link></h3>
+          <h2><Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link></h2>
           <ImageProvider>
             <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
           </ImageProvider>
-        </div>
-      })}
+        </div>  
+        })}
+      </div>
+      <div>
+        {reviewWinnersWithoutArt.map((reviewWinner: PostsTopItemInfo) => {
+          return <div key={reviewWinner._id} className={classes.post}>
+            <h2><Link target="_blank" to={postGetPageUrl(reviewWinner)}>{reviewWinner.title}</Link></h2>
+          </div>
+        })}
+      </div>
   </div>
 }
 

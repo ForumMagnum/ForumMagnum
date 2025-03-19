@@ -137,9 +137,9 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
     .find({})
     .fetch();
   const postIdsWithoutLotsOfArt = postIds
-  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 9)
+  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 90)
   const postIdsWithoutEnoughArt = postIds
-  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 10)
+  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 100)
 
   const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
 
@@ -213,7 +213,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
           height: 1536
         },
         image_url: imageUrl,
-        image_strength: .025
+        image_strength: .2
       }
     }
     const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
@@ -228,7 +228,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
   }
 }
 
-const generateHighResImage = async (prompt: string, imageUrl: string): Promise<string> => {
+const generateHighResImage = async (essay: Essay, prompt: string, imageUrl: string): Promise<string> => {
   // First pass: Generate high-quality image with flux-pro
   const fluxResult = await generateImage(prompt, imageUrl);
   
@@ -243,9 +243,10 @@ const generateHighResImage = async (prompt: string, imageUrl: string): Promise<s
     };
     
     const result = await fal.subscribe("fal-ai/esrgan", upscaleOptions);
-    console.log("prompt", prompt.split(", aquarelle artwork fading")[0])
-    console.log("fluxResult", fluxResult)
-    console.log("upscaled result", result.data.image.url)
+    // eslint-disable-next-line no-console
+    console.log("result", essay.title, prompt.split(", aquarelle artwork fading")[0])
+    // eslint-disable-next-line no-console
+    console.log("upscaled", result.data.image.url)
     return result.data.image.url;
     
   } catch (error) {
@@ -258,7 +259,6 @@ const generateHighResImage = async (prompt: string, imageUrl: string): Promise<s
 
 const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const promptElements = await getPromptTextElements(openAiClient, essay)
-  console.log(essay.title, promptElements)
   return promptElements.map(el => prompter(el))
 }
 
@@ -272,10 +272,10 @@ type EssayResult = {
 const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
   const prompts = await getPrompts(openAiClient, essay)
-  const promptsX10 = prompts.flatMap(p => Array(10).fill(p))
+  const promptsX5 = prompts.flatMap(p => Array(5).fill(p))
 
-  const results = Promise.all(promptsX10.map(async (prompt) => {
-    const image = await generateHighResImage(prompt, sample(promptImageUrls)!)
+  const results = Promise.all(promptsX5.map(async (prompt) => {
+    const image = await generateHighResImage(essay, prompt, sample(promptImageUrls)!)
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))
@@ -283,10 +283,11 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
 }
 
 export const getReviewWinnerArts = async () => {
-  console.time('getReviewWinnerArts');
+  // eslint-disable-next-line no-console
+  console.time('running getReviewWinnerArts');
 
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays.slice(7,8)
+  const essays = totalEssays.slice(8,9)
 
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
@@ -314,6 +315,6 @@ export const getReviewWinnerArts = async () => {
     }, [] as Array<{title: string, prompt: string, url?: string, artId?: string}>);
     return uniqueResults;
   })
+  // eslint-disable-next-line no-console
   console.log(`${results.length} cover images generated for ${uniqueResults.length} essays`)
-  console.timeEnd('getReviewWinnerArts');
 }
