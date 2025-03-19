@@ -18,14 +18,14 @@ export const GROUP_CATEGORIES = [
   {value: 'affiliation', label: 'Affiliation'},
 ]
 
-const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
+const formGroups = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
     label: isFriendlyUI ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Localgroups">>>;
 
 const schema: SchemaType<"Localgroups"> = {
   ...universalFields({}),

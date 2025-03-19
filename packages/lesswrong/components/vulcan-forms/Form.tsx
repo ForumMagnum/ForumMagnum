@@ -23,7 +23,7 @@ import { convertSchema, formProperties, getEditableFields, getInsertableFields }
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
-import { isFunction } from '../../lib/utils/typeGuardUtils';
+import { filterNonnull, isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import classNames from 'classnames';
 import { runCallbacksList } from './runCallbacksList';
@@ -246,10 +246,14 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     fields = _.sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g) => g && g.name));
+    const fieldGroupGetters = filterNonnull(fields.map(field => field.group));
+    const deduplicatedGroups = uniqBy(
+      fieldGroupGetters.map(group => group()),
+      (group) => group.name
+    );
 
     // for each group, add relevant fields
-    groups = groups.map(group => {
+    const groups = deduplicatedGroups.map(group => {
       group.label = group.label || formatMessage({ id: group.name });
       group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
@@ -268,9 +272,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     });
 
     // sort by order
-    groups = _.sortBy(groups, 'order');
-
-    return groups;
+    return _.sortBy(groups, 'order');
   };
 
   /**

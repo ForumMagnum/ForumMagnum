@@ -329,7 +329,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: () => FormGroupType<N> | undefined,
+  group?: () => FormGroupType<N>,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup

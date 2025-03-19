@@ -224,7 +224,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onCreate: ({ currentUser }) => currentUser._id,
+      onCreate: ({ currentUser }) => currentUser?._id,
       validation: {
         optional: true,
       },

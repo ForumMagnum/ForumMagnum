@@ -39,16 +39,20 @@ export const alignmentOptionsGroup = {
   startCollapsed: true,
 };
 
-const hSpyBs = (data) => "postId" in data;
-const hQhmP9 = async (comment, context) => {
+function isCommentOnPost(data: Partial<DbComment>) {
+  return "postId" in data;
+}
+
+async function isParentPostShortform(comment: DbComment, context: ResolverContext) {
   if (!comment.postId) return false;
   const post = await context.Posts.findOne({
     _id: comment.postId,
   });
   if (!post) return false;
   return !!post.shortform;
-};
-const htKrvN = async (comment, context) => {
+}
+
+async function isParentPostKarmaHidden(comment: DbComment, context: ResolverContext) {
   if (!comment.postId) return false;
   const post = await context.Posts.findOne({
     _id: comment.postId,
@@ -610,16 +614,16 @@ const schema = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hSpyBs,
-      getValue: hQhmP9,
+      needsUpdate: isCommentOnPost,
+      getValue: isParentPostShortform,
     },
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: hQhmP9, needsUpdate: hSpyBs }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: hQhmP9, needsUpdate: hSpyBs }),
+      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: isParentPostShortform, needsUpdate: isCommentOnPost }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: isParentPostShortform, needsUpdate: isCommentOnPost }),
       validation: {
         optional: true,
       },
@@ -748,7 +752,7 @@ const schema = {
             currentUser,
             validate: false,
           });
-          return currentUser._id;
+          return currentUser?._id;
         }
       },
       validation: {
@@ -788,16 +792,16 @@ const schema = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hSpyBs,
-      getValue: htKrvN,
+      needsUpdate: isCommentOnPost,
+      getValue: isParentPostKarmaHidden,
     },
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: htKrvN, needsUpdate: hSpyBs }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: htKrvN, needsUpdate: hSpyBs }),
+      onCreate: getDenormalizedFieldOnCreate<"Comments">({ getValue: isParentPostKarmaHidden, needsUpdate: isCommentOnPost }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Comments">({ getValue: isParentPostKarmaHidden, needsUpdate: isCommentOnPost }),
       validation: {
         optional: true,
       },
@@ -1221,7 +1225,7 @@ const schema = {
       label: "Dialogue Response",
       hidden: ({ currentUser, formProps }) => {
         if (!currentUser || !formProps?.post?.debate) return true;
-        const { post } = formProps;
+        const { post }: { post: PostsDetails } = formProps;
         const debateParticipantsIds = [
           post.userId,
           ...(post.coauthorStatuses ?? []).map((coauthor) => coauthor.userId),

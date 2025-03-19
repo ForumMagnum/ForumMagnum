@@ -103,19 +103,19 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
 
 type CollectionWithSlug<N extends CollectionNameWithSlug> = CollectionBase<N> & {
   _schemaFields: SchemaType<N> & {
-    slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions }
+    slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions<N> }
   }
 };
 
 type ValidSlugCreateCallbackProps<N extends CollectionNameWithSlug> = CreateCallbackProperties<N> & {
   collection: CollectionWithSlug<N>,
-  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
+  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions<N> } },
   document: DbInsertion<ObjectsByCollectionName[N]>,
 }
 
 type ValidSlugUpdateCallbackProps<N extends CollectionNameWithSlug> = UpdateCallbackProperties<N> & {
   collection: CollectionWithSlug<N>,
-  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
+  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions<N> } },
   oldDocument: ObjectsByCollectionName[N],
   newDocument: ObjectsByCollectionName[N],
   data: Partial<ObjectsByCollectionName[N]>,

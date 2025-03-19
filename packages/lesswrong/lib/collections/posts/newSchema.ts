@@ -83,7 +83,8 @@ import { matchSideComments } from "@/server/sideComments";
 import { getToCforPost } from "@/server/tableOfContents";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 import { captureException } from "@sentry/core";
-import { keyBy } from "lodash";
+import keyBy from "lodash/keyBy";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -249,31 +250,50 @@ function shouldHideEndTime(props: SmartFormProps<"Posts">): boolean {
   return !props.eventForm || props.document?.eventType === "course";
 }
 
-const hq3cSx = () => defaultEditorPlaceholder;
-const h4eSQo = () => {
+function getDefaultEditorPlaceholder() {
+  return defaultEditorPlaceholder;
+}
+
+function getCurrentDate() {
   return new Date();
-};
-const hxjPay = (props) => !props.eventForm;
-const hQrRp7 = (data) => "startTime" in data || "googleLocation" in data;
-const hjM6A7 = async (post) => {
+}
+
+function isNotEventForm(props: SmartFormProps<"Posts">) {
+  return !props.eventForm;
+}
+
+function postHasStartTimeOrGoogleLocation(data: Partial<DbPost>) {
+  return "startTime" in data || "googleLocation" in data;
+}
+
+async function getUpdatedLocalStartTime(post: DbPost) {
   if (!post.startTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation;
   if (!googleLocation) return null;
   return await getLocalTime(post.startTime, googleLocation);
-};
-const hKNgTF = (data) => "endTime" in data || "googleLocation" in data;
-const haJvcc = async (post) => {
+}
+
+function postHasEndTimeOrGoogleLocation(data: Partial<DbPost>) {
+  return "endTime" in data || "googleLocation" in data;
+}
+
+async function getUpdatedLocalEndTime(post: DbPost) {
   if (!post.endTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation;
   if (!googleLocation) return null;
   return await getLocalTime(post.endTime, googleLocation);
-};
-const h9LCpv = (data) => "googleLocation" in data;
-const hEpEiL = async (post) => {
+}
+
+function postHasGoogleLocation(data: Partial<DbPost>) {
+  return "googleLocation" in data;
+}
+
+function convertGoogleToMongoLocation(post: DbPost) {
   if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation);
   return null;
-};
-const hxrFo8 = async (post, context) => {
+}
+
+async function getLastPublishedDialogueMessageTimestamp(post: DbPost, context: ResolverContext) {
   if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
   const messageTimestamps = await getDialogueMessageTimestamps(post, context);
   if (messageTimestamps.length === 0) {
@@ -355,7 +375,7 @@ const schema = {
     },
     form: {
       form: {
-        hintText: hq3cSx,
+        hintText: getDefaultEditorPlaceholder,
         fieldName: "contents",
         collectionName: "Posts",
         commentEditor: false,
@@ -426,7 +446,7 @@ const schema = {
     },
     form: {
       form: {
-        hintText: hq3cSx,
+        hintText: getDefaultEditorPlaceholder,
         fieldName: "moderationGuidelines",
         collectionName: "Posts",
         commentEditor: true,
@@ -482,7 +502,7 @@ const schema = {
     },
     form: {
       form: {
-        hintText: hq3cSx,
+        hintText: getDefaultEditorPlaceholder,
         fieldName: "customHighlight",
         collectionName: "Posts",
         commentEditor: false,
@@ -557,7 +577,7 @@ const schema = {
       canCreate: ["admins"],
       onCreate: ({ document: post, currentUser }) => {
         // Set the post's postedAt if it's going to be approved
-        if (!post.postedAt && postGetDefaultStatus(currentUser) === postStatuses.STATUS_APPROVED) {
+        if (!post.postedAt && postGetDefaultStatus(currentUser!) === postStatuses.STATUS_APPROVED) {
           return new Date();
         }
       },
@@ -581,13 +601,13 @@ const schema = {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      getValue: h4eSQo,
+      getValue: getCurrentDate,
     },
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: h4eSQo }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: h4eSQo }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: getCurrentDate }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: getCurrentDate }),
       validation: {
         optional: true,
       },
@@ -737,13 +757,13 @@ const schema = {
       canCreate: ["admins"],
       onCreate: ({ document, currentUser }) => {
         if (!document.status) {
-          return postGetDefaultStatus(currentUser);
+          return postGetDefaultStatus(currentUser!);
         }
       },
       onUpdate: ({ modifier, document, currentUser }) => {
         // if for some reason post status has been removed, give it default status
         if (modifier.$unset && modifier.$unset.status) {
-          return postGetDefaultStatus(currentUser);
+          return postGetDefaultStatus(currentUser!);
         }
       },
       validation: {
@@ -1065,7 +1085,8 @@ const schema = {
       outputType: "Int!",
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
-        const normalizeValue = (value) => Math.max(1, Math.round(value));
+        const normalizeValue = (value: number) => Math.max(1, Math.round(value));
+
         if (typeof post.readTimeMinutesOverride === "number") {
           return normalizeValue(post.readTimeMinutesOverride);
         }
@@ -1802,7 +1823,7 @@ const schema = {
         const { currentUser } = context;
         const tagRelevanceRecord = post.tagRelevance || {};
         const tagIds = Object.keys(tagRelevanceRecord).filter((id) => tagRelevanceRecord[id] > 0);
-        const tags = (await loadByIds(context, "Tags", tagIds)).filter((tag) => !!tag);
+        const tags = filterNonnull(await loadByIds(context, "Tags", tagIds));
         const tagInfo = tags.map((tag) => ({
           tag: tag,
           tagRel: {
@@ -1954,7 +1975,7 @@ const schema = {
       label: "Enable RSVPs for this event",
       tooltip: "RSVPs are public, but the associated email addresses are only visible to organizers.",
       control: "checkbox",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -2141,7 +2162,7 @@ const schema = {
       form: {
         options: ({ currentUser }) => {
           const votingSystems = getVotingSystems();
-          const filteredVotingSystems = currentUser.isAdmin
+          const filteredVotingSystems = currentUser?.isAdmin
             ? votingSystems
             : votingSystems.filter((votingSystem) => votingSystem.userCanActivate);
           return filteredVotingSystems.map((votingSystem) => ({
@@ -3293,7 +3314,7 @@ const schema = {
       order: 1,
       label: "Group",
       control: "SelectLocalgroup",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3417,7 +3438,7 @@ const schema = {
       label: "Start Time",
       tooltip: "For courses/programs, this is the application deadline.",
       control: "datetime",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3426,14 +3447,14 @@ const schema = {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hQrRp7,
-      getValue: hjM6A7,
+      needsUpdate: postHasStartTimeOrGoogleLocation,
+      getValue: getUpdatedLocalStartTime,
     },
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hjM6A7, needsUpdate: hQrRp7 }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hjM6A7, needsUpdate: hQrRp7 }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: getUpdatedLocalStartTime, needsUpdate: postHasStartTimeOrGoogleLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: getUpdatedLocalStartTime, needsUpdate: postHasStartTimeOrGoogleLocation }),
       validation: {
         optional: true,
       },
@@ -3465,14 +3486,14 @@ const schema = {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hKNgTF,
-      getValue: haJvcc,
+      needsUpdate: postHasEndTimeOrGoogleLocation,
+      getValue: getUpdatedLocalEndTime,
     },
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: haJvcc, needsUpdate: hKNgTF }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: haJvcc, needsUpdate: hKNgTF }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: getUpdatedLocalEndTime, needsUpdate: postHasEndTimeOrGoogleLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: getUpdatedLocalEndTime, needsUpdate: postHasEndTimeOrGoogleLocation }),
       validation: {
         optional: true,
       },
@@ -3496,7 +3517,7 @@ const schema = {
       label: "Event Registration Link",
       tooltip: "https://...",
       control: "MuiTextField",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3518,7 +3539,7 @@ const schema = {
       label: "Join Online Event Link",
       tooltip: "https://...",
       control: "MuiTextField",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3540,7 +3561,7 @@ const schema = {
     },
     form: {
       order: 0,
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3564,7 +3585,7 @@ const schema = {
       label: "This event is intended for a global audience",
       tooltip:
         "By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere.",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3573,14 +3594,14 @@ const schema = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: h9LCpv,
-      getValue: hEpEiL,
+      needsUpdate: postHasGoogleLocation,
+      getValue: convertGoogleToMongoLocation,
     },
     graphql: {
       outputType: "JSON",
       canRead: [documentIsNotDeleted],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hEpEiL, needsUpdate: h9LCpv }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hEpEiL, needsUpdate: h9LCpv }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: convertGoogleToMongoLocation, needsUpdate: postHasGoogleLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: convertGoogleToMongoLocation, needsUpdate: postHasGoogleLocation }),
       validation: {
         optional: true,
         blackbox: true,
@@ -3605,7 +3626,7 @@ const schema = {
       form: { stringVersionFieldName: "location" },
       label: "Event Location",
       control: "LocationFormComponent",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3639,7 +3660,7 @@ const schema = {
     form: {
       label: "Contact Info",
       control: "MuiTextField",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3661,7 +3682,7 @@ const schema = {
       label: "Facebook Event",
       tooltip: "https://www.facebook.com/events/...",
       control: "MuiTextField",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3683,7 +3704,7 @@ const schema = {
       label: "Meetup.com Event",
       tooltip: "https://www.meetup.com/...",
       control: "MuiTextField",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3704,7 +3725,7 @@ const schema = {
     form: {
       tooltip: "https://...",
       control: "MuiTextField",
-      hidden: hxjPay,
+      hidden: isNotEventForm,
       group: () => formGroups.event,
     },
   },
@@ -3947,7 +3968,7 @@ const schema = {
         // If the post was fetched with a SQL resolver then we will already
         // have the side comments cache available (even though the type system
         // doesn't know about it), otherwise we have to fetch it from the DB.
-        const sqlFetchedPost = post;
+        const sqlFetchedPost = post as unknown as PostSideComments;
         // `undefined` means we didn't run a SQL resolver. `null` means we ran
         // a SQL resolver, but no relevant cache record was found.
         const cache =
@@ -3957,28 +3978,42 @@ const schema = {
                 version: sideCommentCacheVersion,
               })
             : sqlFetchedPost.sideCommentsCache;
+
         const cachedAt = new Date(cache?.createdAt ?? 0);
         const editedAt = new Date(post.modifiedAt ?? 0);
-        const cacheIsValid = cache && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt) && cachedAt > editedAt;
-        const comments = await Comments.find(
-          {
-            ...getDefaultViewSelector("Comments"),
-            postId: post._id,
-            ...(cacheIsValid && {
-              _id: {
-                $in: Object.values(cache.commentsByBlock).flat(),
-              },
-            }),
-          },
-          {
-            projection: {
-              userId: 1,
-              baseScore: 1,
-              contents: cacheIsValid ? 0 : 1,
+
+        const cacheIsValid = cache
+          && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt)
+          && cachedAt > editedAt;
+
+        // Here we fetch the comments for the post. For the sake of speed, we
+        // project as few fields as possible. If the cache is invalid then we
+        // need to fetch _all_ of the comments on the post complete with contents.
+        // If the cache is valid then we only need the comments referenced in
+        // the cache, and we don't need the contents.
+        type CommentForSideComments =
+          Pick<DbComment, "_id" | "userId" | "baseScore"> &
+          Partial<Pick<DbComment, "contents">>;
+
+        const comments: CommentForSideComments[] = await Comments.find({
+          ...getDefaultViewSelector("Comments"),
+          postId: post._id,
+          ...(cacheIsValid && {
+            _id: {
+              $in: Object.values(cache.commentsByBlock).flat(),
             },
-          }
-        ).fetch();
-        let unfilteredResult = null;
+          }),
+        }, {}, {
+          userId: 1,
+          baseScore: 1,
+          contents: cacheIsValid ? 0 : 1,
+        }).fetch();
+
+        let unfilteredResult: {
+          annotatedHtml: string,
+          commentsByBlock: Record<string, string[]>
+        } | null = null;
+
         if (cacheIsValid) {
           unfilteredResult = {
             annotatedHtml: cache.annotatedHtml,
@@ -3998,49 +4033,64 @@ const schema = {
               html: comment.contents?.html ?? "",
             })),
           });
+
           void context.repos.sideComments.saveSideCommentCache(
             post._id,
             sideCommentMatches.html,
             sideCommentMatches.sideCommentsByBlock
           );
+
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,
             commentsByBlock: sideCommentMatches.sideCommentsByBlock,
           };
         }
-        const alwaysShownIds = new Set([]);
+
+        const alwaysShownIds = new Set<string>([]);
         alwaysShownIds.add(post.userId);
         if (post.coauthorStatuses) {
           for (let { userId } of post.coauthorStatuses) {
             alwaysShownIds.add(userId);
           }
         }
+
         const commentsById = keyBy(comments, (comment) => comment._id);
-        let highKarmaCommentsByBlock = {};
-        let nonnegativeKarmaCommentsByBlock = {};
+        let highKarmaCommentsByBlock: Record<string, string[]> = {};
+        let nonnegativeKarmaCommentsByBlock: Record<string, string[]> = {};
+
         for (let blockID of Object.keys(unfilteredResult.commentsByBlock)) {
           const commentIdsHere = unfilteredResult.commentsByBlock[blockID];
           const highKarmaCommentIdsHere = commentIdsHere.filter((commentId) => {
             const comment = commentsById[commentId];
-            if (!comment) return false;
-            else if (comment.baseScore >= sideCommentFilterMinKarma) return true;
-            else if (alwaysShownIds.has(comment.userId)) return true;
-            else return false;
+            if (!comment)
+                return false;
+            else if (comment.baseScore >= sideCommentFilterMinKarma)
+              return true;
+            else if (alwaysShownIds.has(comment.userId))
+              return true;
+            else
+              return false;
           });
           if (highKarmaCommentIdsHere.length > 0) {
             highKarmaCommentsByBlock[blockID] = highKarmaCommentIdsHere;
           }
+
           const nonnegativeKarmaCommentIdsHere = commentIdsHere.filter((commentId) => {
             const comment = commentsById[commentId];
-            if (!comment) return false;
-            else if (alwaysShownIds.has(comment.userId)) return true;
-            else if (comment.baseScore <= sideCommentAlwaysExcludeKarma) return false;
-            else return true;
+            if (!comment)
+              return false;
+            else if (alwaysShownIds.has(comment.userId))
+              return true;
+            else if (comment.baseScore <= sideCommentAlwaysExcludeKarma)
+              return false;
+            else
+              return true;
           });
           if (nonnegativeKarmaCommentIdsHere.length > 0) {
             nonnegativeKarmaCommentsByBlock[blockID] = nonnegativeKarmaCommentIdsHere;
           }
         }
+
         return {
           html: unfilteredResult.annotatedHtml,
           commentsByBlock: nonnegativeKarmaCommentsByBlock,
@@ -4288,7 +4338,7 @@ const schema = {
         const { currentUser, Comments } = context;
         const oneHourInMs = 60 * 60 * 1000;
         const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
-        const timeCutoff = new Date(lastCommentedOrNow.getTime() - maxAgeHours * oneHourInMs);
+        const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
           ...getDefaultViewSelector("Comments"),
@@ -4393,14 +4443,14 @@ const schema = {
       type: "TIMESTAMPTZ",
       denormalized: true,
       canAutoDenormalize: true,
-      getValue: hxrFo8,
+      getValue: getLastPublishedDialogueMessageTimestamp,
       nullable: true,
     },
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: hxrFo8 }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hxrFo8 }),
+      onCreate: getDenormalizedFieldOnCreate<"Posts">({ getValue: getLastPublishedDialogueMessageTimestamp }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: getLastPublishedDialogueMessageTimestamp }),
       validation: {
         optional: true,
       },

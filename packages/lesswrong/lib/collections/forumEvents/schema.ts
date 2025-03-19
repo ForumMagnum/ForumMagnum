@@ -4,14 +4,14 @@ import { EVENT_FORMATS } from "./types";
 import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 import { universalFields } from "../../collectionUtils";
 
-const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
+const formGroups = {
   stickerEventOptions: {
     name: "stickerEventOptions",
     order: 10,
     label: '"STICKER" Event Options',
     startCollapsed: true,
   },
-}
+} satisfies Partial<Record<string, FormGroupType<"ForumEvents">>>;
 
 const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: nullable,

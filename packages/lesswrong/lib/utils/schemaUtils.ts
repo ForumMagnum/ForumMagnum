@@ -361,25 +361,10 @@ SimpleSchema.extendOptions([
    'vectorSize'
 ]);
 
-type DenormalizedFieldOnCreate<N extends CollectionNameString> = (
-  { newDocument, context }: {
-    newDocument: ObjectsByCollectionName[N],
-    context: ResolverContext,
-  }
-) => any;
-
-type DenormalizedFieldOnUpdate<N extends CollectionNameString> = (
-  { data, document, context }: {
-    data: Partial<ObjectsByCollectionName[N]>,
-    document: ObjectsByCollectionName[N],
-    context: ResolverContext,
-  }
-) => any;
-
 export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ needsUpdate, getValue }: {
   needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
   getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
-}): DenormalizedFieldOnCreate<N> {
+}): Exclude<GraphQLWriteableFieldSpecification<N>['onCreate'], undefined> {
   return async function denormalizedFieldOnCreate({newDocument, context}: {
     newDocument: ObjectsByCollectionName[N],
     context: ResolverContext,
@@ -393,7 +378,7 @@ export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ n
 export function getDenormalizedFieldOnUpdate<N extends CollectionNameString>({ needsUpdate, getValue }: {
   needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
   getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
-}): DenormalizedFieldOnUpdate<N> {
+}): Exclude<GraphQLWriteableFieldSpecification<N>['onUpdate'], undefined> {
   return async function denormalizedFieldOnUpdate({data, document, context}: {
     data: Partial<ObjectsByCollectionName[N]>,
     document: ObjectsByCollectionName[N],

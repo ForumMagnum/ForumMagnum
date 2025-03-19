@@ -971,7 +971,7 @@ const schema: SchemaType<"Tags"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     control: "checkbox",
-    group: () => formGroups.adminOptions,
+    group: () => formGroups.advancedOptions,
     label: "Force Allow T3 Audio",
     ...schemaDefaultValue(false),
   },

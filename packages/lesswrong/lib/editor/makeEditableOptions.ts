@@ -31,7 +31,7 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
   commentStyles?: boolean,
   commentLocalStorage?: boolean,
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  formGroup?: () => FormGroupType<N> | undefined,
+  formGroup?: () => FormGroupType<N>,
   permissions?: {
     canRead?: FieldPermissions,
     canUpdate?: FieldPermissions,

@@ -11,7 +11,7 @@ import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 
-const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
+const formGroups = {
   adminOptions: {
     name: "adminOptions",
     order: 2,
@@ -24,7 +24,7 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
     label: preferredHeadingCase("Advanced Options"),
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Sequences">>>;
 
 const schema = {
   _id: {
@@ -432,8 +432,8 @@ const schema = {
       resolver: async (sequence, args, context) => {
         const currentUser = context.currentUser;
         if (!currentUser) return 0;
-        const createCompositeId = (sequenceId, userId) => `${sequenceId}-${userId}`;
-        const splitCompositeId = (compositeId) => {
+        const createCompositeId = (sequenceId: string, userId: string) => `${sequenceId}-${userId}`;
+        const splitCompositeId = (compositeId: string) => {
           const [sequenceId, userId] = compositeId.split("-");
           return {
             sequenceId,

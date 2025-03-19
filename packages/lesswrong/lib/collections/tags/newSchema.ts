@@ -547,7 +547,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      onCreate: ({ currentUser }) => currentUser._id,
+      onCreate: ({ currentUser }) => currentUser?._id,
       validation: {
         optional: true,
       },
@@ -1651,7 +1651,7 @@ const schema = {
     form: {
       label: "Force Allow T3 Audio",
       control: "checkbox",
-      group: () => formGroups.adminOptions,
+      group: () => formGroups.advancedOptions,
     },
   },
   currentUserVote: {

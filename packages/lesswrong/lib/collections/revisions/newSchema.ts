@@ -9,7 +9,7 @@ import { userCanReadField, userIsAdminOrMod, userIsPodcaster, userOwns } from ".
 import { SharableDocument, userIsSharedOn } from "../users/helpers";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { parseDocumentFromString } from "@/lib/domParser";
-import { highlightFromHTML } from "@/lib/editor/ellipsize";
+import { highlightFromHTML, truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { extractTableOfContents } from "@/lib/tableOfContents";
 import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
@@ -18,9 +18,9 @@ import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { htmlToTextPlaintextDescription } from "@/server/resolvers/revisionResolvers";
 import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
-import { truncate } from "fs";
 import _ from "underscore";
 import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
+import sanitizeHtml from "sanitize-html";
 
 /**
  * This covers the type of originalContents for all editor types.
@@ -365,7 +365,7 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ html }) => {
         if (!html) return "";
-        const mainTextHtml = sanitizehtml(html, {
+        const mainTextHtml = sanitizeHtml(html, {
           allowedTags: _.without(sanitizeAllowedTags, "blockquote", "img"),
           nonTextTags: ["blockquote", "img", "style"],
           exclusiveFilter: function (element) {

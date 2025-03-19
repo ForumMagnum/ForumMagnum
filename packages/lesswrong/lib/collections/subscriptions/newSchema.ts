@@ -72,7 +72,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["members"],
-      onCreate: ({ currentUser }) => currentUser._id,
+      onCreate: ({ currentUser }) => currentUser?._id,
       validation: {
         optional: true,
       },

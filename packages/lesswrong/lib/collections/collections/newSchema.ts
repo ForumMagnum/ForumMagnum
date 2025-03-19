@@ -207,8 +207,8 @@ const schema = {
       resolver: async (collection, args, context) => {
         const currentUser = context.currentUser;
         if (!currentUser) return 0;
-        const createCompositeId = (collectionId, userId) => `${collectionId}-${userId}`;
-        const splitCompositeId = (compositeId) => {
+        const createCompositeId = (collectionId: string, userId: string) => `${collectionId}-${userId}`;
+        const splitCompositeId = (compositeId: string) => {
           const [collectionId, userId] = compositeId.split("-");
           return {
             collectionId,

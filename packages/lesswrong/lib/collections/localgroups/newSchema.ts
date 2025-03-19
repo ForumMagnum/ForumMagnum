@@ -27,20 +27,23 @@ export const GROUP_CATEGORIES = [
   { value: "affiliation", label: "Affiliation" },
 ];
 
-const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
+const formGroups = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
     label: isFriendlyUI ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Localgroups">>>;
 
-const h3A2NF = (data) => "googleLocation" in data;
-const hrQe2n = async (localgroup) => {
+function groupHasGoogleLocation(data: Partial<DbLocalgroup>) {
+  return "googleLocation" in data;
+}
+
+function convertGoogleToMongoLocation(localgroup: DbLocalgroup) {
   if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation);
   return null;
-};
+}
 
 const schema = {
   _id: {
@@ -304,14 +307,14 @@ const schema = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: h3A2NF,
-      getValue: hrQe2n,
+      needsUpdate: groupHasGoogleLocation,
+      getValue: convertGoogleToMongoLocation,
     },
     graphql: {
       outputType: "JSON",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Localgroups">({ getValue: hrQe2n, needsUpdate: h3A2NF }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: hrQe2n, needsUpdate: h3A2NF }),
+      onCreate: getDenormalizedFieldOnCreate<"Localgroups">({ getValue: convertGoogleToMongoLocation, needsUpdate: groupHasGoogleLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: convertGoogleToMongoLocation, needsUpdate: groupHasGoogleLocation }),
       validation: {
         optional: true,
         blackbox: true,

@@ -107,19 +107,20 @@ const schema = {
       canRead: ["guests"],
       resolver: async (reviewWinner, args, context) => {
         /* Calculated via:
-      SELECT COUNT(DISTINCT "Posts"."_id")
-      FROM "Posts"
-      WHERE "postedAt" >= '{YEAR}-01-01'
-        AND "postedAt" < '{YEAR+1}-01-01'
-        AND "baseScore" > 0
-        AND "draft" is false
-      AND "Posts"."_id" IN (
-          SELECT "Votes"."documentId"
-          FROM "Votes"
-          GROUP BY "Votes"."documentId"
-          HAVING COUNT("Votes"."_id") > 1
-      );
-      */ const yearCompetitors = {
+        SELECT COUNT(DISTINCT "Posts"."_id")
+        FROM "Posts"
+        WHERE "postedAt" >= '{YEAR}-01-01'
+          AND "postedAt" < '{YEAR+1}-01-01'
+          AND "baseScore" > 0
+          AND "draft" is false
+        AND "Posts"."_id" IN (
+            SELECT "Votes"."documentId"
+            FROM "Votes"
+            GROUP BY "Votes"."documentId"
+            HAVING COUNT("Votes"."_id") > 1
+        );
+        */
+        const yearCompetitors: Record<number, number> = {
           2018: 1744,
           2019: 2147,
           2020: 3015,

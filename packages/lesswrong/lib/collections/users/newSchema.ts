@@ -378,6 +378,7 @@ const latLng = new SimpleSchema({
     type: Number,
   },
 });
+
 addGraphQLSchema(`
   type LatLng {
     lat: Float!
@@ -385,30 +386,40 @@ addGraphQLSchema(`
   }
 `);
 
-/**
- * @summary Users schema
- * @type {Object}
- */
+function userHasGoogleLocation(data: Partial<DbUser>) {
+  return "googleLocation" in data;
+}
 
-const hmGinK = (data) => "googleLocation" in data;
-const hjtvjR = async (user) => {
+function convertGoogleToMongoLocation(user: DbUser) {
   if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation);
   return null;
-};
-const hCSYZF = (data) => "mapLocation" in data;
-const h7EQ3h = async (user) => {
+}
+
+function userHasMapLocation(data: Partial<DbUser>) {
+  return "mapLocation" in data;
+}
+
+function getMapLocationSet(user: DbUser) {
   return !!user.mapLocation;
-};
-const hhMzyC = (data) => "mapMarkerText" in data;
-const h2Ewjc = async (user) => {
+}
+
+function userHasMapMarkerText(data: Partial<DbUser>) {
+  return "mapMarkerText" in data;
+}
+
+async function convertMapMarkerTextToHtml(user: DbUser) {
   if (!user.mapMarkerText) return "";
   return await markdownToHtml(user.mapMarkerText);
-};
-const hTcEov = (data) => "nearbyEventsNotificationsLocation" in data;
-const heeJHD = async (user) => {
+}
+
+function userHasNearbyEventsNotificationsLocation(data: Partial<DbUser>) {
+  return "nearbyEventsNotificationsLocation" in data;
+}
+
+function convertNearbyEventsNotificationsToMongoLocation(user: DbUser) {
   if (user.nearbyEventsNotificationsLocation)
     return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation);
-};
+}
 
 const schema = {
   _id: {
@@ -891,7 +902,7 @@ const schema = {
       },
     },
     form: {
-      form: { disabled: ({ document }) => isEAForum && !document.hasAuth0Id },
+      form: { disabled: ({ document }) => isEAForum && !(document as AnyBecauseHard)?.hasAuth0Id },
       order: 20,
       control: "text",
       group: () => formGroups.default,
@@ -3337,14 +3348,14 @@ const schema = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hmGinK,
-      getValue: hjtvjR,
+      needsUpdate: userHasGoogleLocation,
+      getValue: convertGoogleToMongoLocation,
     },
     graphql: {
       outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: hjtvjR, needsUpdate: hmGinK }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hjtvjR, needsUpdate: hmGinK }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: convertGoogleToMongoLocation, needsUpdate: userHasGoogleLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: convertGoogleToMongoLocation, needsUpdate: userHasGoogleLocation }),
       validation: {
         optional: true,
         blackbox: true,
@@ -3432,14 +3443,14 @@ const schema = {
       type: "BOOL",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hCSYZF,
-      getValue: h7EQ3h,
+      needsUpdate: userHasMapLocation,
+      getValue: getMapLocationSet,
     },
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h7EQ3h, needsUpdate: hCSYZF }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h7EQ3h, needsUpdate: hCSYZF }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: getMapLocationSet, needsUpdate: userHasMapLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: getMapLocationSet, needsUpdate: userHasMapLocation }),
       validation: {
         optional: true,
       },
@@ -3470,14 +3481,14 @@ const schema = {
       type: "TEXT",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hhMzyC,
-      getValue: h2Ewjc,
+      needsUpdate: userHasMapMarkerText,
+      getValue: convertMapMarkerTextToHtml,
     },
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: h2Ewjc, needsUpdate: hhMzyC }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: h2Ewjc, needsUpdate: hhMzyC }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: convertMapMarkerTextToHtml, needsUpdate: userHasMapMarkerText }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: convertMapMarkerTextToHtml, needsUpdate: userHasMapMarkerText }),
       validation: {
         optional: true,
       },
@@ -3524,14 +3535,14 @@ const schema = {
       type: "JSONB",
       denormalized: true,
       canAutoDenormalize: true,
-      needsUpdate: hTcEov,
-      getValue: heeJHD,
+      needsUpdate: userHasNearbyEventsNotificationsLocation,
+      getValue: convertNearbyEventsNotificationsToMongoLocation,
     },
     graphql: {
       outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: heeJHD, needsUpdate: hTcEov }),
-      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: heeJHD, needsUpdate: hTcEov }),
+      onCreate: getDenormalizedFieldOnCreate<"Users">({ getValue: convertNearbyEventsNotificationsToMongoLocation, needsUpdate: userHasNearbyEventsNotificationsLocation }),
+      onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: convertNearbyEventsNotificationsToMongoLocation, needsUpdate: userHasNearbyEventsNotificationsLocation }),
       validation: {
         optional: true,
         blackbox: true,

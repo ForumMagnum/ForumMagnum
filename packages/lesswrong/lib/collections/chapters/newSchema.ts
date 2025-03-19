@@ -6,14 +6,14 @@ import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisions
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
-export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
+export const formGroups = {
   chapterDetails: {
     name: "chapterDetails",
     order: 25,
     label: "Chapter Details",
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Chapters">>>;
 
 const schema = {
   _id: {

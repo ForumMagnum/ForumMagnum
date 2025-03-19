@@ -5,7 +5,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { editableFields } from '@/lib/editor/make_editable';
 import { universalFields } from '../../collectionUtils';
 
-const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
+const formGroups = {
   adminOptions: {
     name: "adminOptions",
     order: 2,
@@ -18,7 +18,7 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
     label: preferredHeadingCase("Advanced Options"),
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Sequences">>>;
 
 const schema: SchemaType<"Sequences"> = {
   ...universalFields({}),

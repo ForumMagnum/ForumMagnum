@@ -2,14 +2,14 @@ import { editableFields } from '@/lib/editor/make_editable'
 import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 import { universalFields } from '../../collectionUtils';
 
-export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
+export const formGroups = {
   chapterDetails: {
     name: "chapterDetails",
     order: 25,
     label: "Chapter Details",
     startCollapsed: true,
   },
-}
+} satisfies Partial<Record<string, FormGroupType<"Chapters">>>;
 
 const schema: SchemaType<"Chapters"> = {
   ...universalFields({}),
