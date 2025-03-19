@@ -55,9 +55,7 @@ export const SpotlightDisplay = `
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
-      _id
-      title
-      slug
+      ...PostsMinimumInfo
       user {
         _id
         displayName
