@@ -14,7 +14,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -343,7 +343,7 @@ const schema: SchemaType<"Users"> = {
     commentEditor: true,
     commentStyles: true,
     formGroup: formGroups.moderationGroup,
-    hidden: isFriendlyUI,
+    hidden: !hasAuthorModeration,
     order: 50,
     permissions: {
       canRead: ['guests'],

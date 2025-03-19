@@ -991,6 +991,7 @@ CREATE TABLE "ForumEvents" (
   "frontpageDescriptionMobile_latest" TEXT,
   "postPageDescription" JSONB,
   "postPageDescription_latest" TEXT,
+  "pollQuestion_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
   "endDate" TIMESTAMPTZ NOT NULL,

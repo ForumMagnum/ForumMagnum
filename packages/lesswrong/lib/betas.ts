@@ -137,4 +137,3 @@ export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
-

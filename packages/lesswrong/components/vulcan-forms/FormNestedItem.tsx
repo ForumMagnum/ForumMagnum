@@ -30,8 +30,6 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
   itemIndex: number
   formComponents: FormComponentOverridesType
   hideRemove: boolean
-}, { errors }: {
-  errors: any[]
 }) => {
   const isArray = typeof itemIndex !== 'undefined';
   return (
@@ -71,10 +69,6 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
       }
     />
   );
-};
-
-FormNestedItem.contextTypes = {
-  errors: PropTypes.array
 };
 
 const FormNestedItemComponent = registerComponent('FormNestedItem', FormNestedItem);

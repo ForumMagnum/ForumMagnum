@@ -499,6 +499,7 @@ export const ForumEventsDefaultFragment = `
     frontpageDescription_latest
     frontpageDescriptionMobile_latest
     postPageDescription_latest
+    pollQuestion_latest
     title
     startDate
     endDate

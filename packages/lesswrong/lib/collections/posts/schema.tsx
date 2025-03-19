@@ -409,12 +409,15 @@ const schema: SchemaType<"Posts"> = {
     order: 10,
     group: formGroups.adminOptions,
     onCreate: ({document: post}) => {
-      if(!post.sticky) {
+      if(!isEAForum && !post.sticky) {
         return false;
       }
     },
     onUpdate: ({modifier}) => {
-      if (!modifier.$set.sticky) {
+      // WH 2025-03-17: I think this is a bug in general, as a non-admin editing this post will cause
+      // sticky to be set to false. Forum-gating to EAF to speed up fixing this live bug for us, but
+      // I believe this function and `onCreate`
+      if (!isEAForum && !modifier.$set.sticky) {
         return false;
       }
     }
@@ -3150,6 +3153,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     canRead: ['members'],
+    canCreate: ['members'],
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
   },

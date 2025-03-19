@@ -43,6 +43,10 @@ export const ForumEventsDisplay = `
       _id
       html
     }
+    pollQuestion {
+      _id
+      html
+    }
   }
 `
 
@@ -56,6 +60,9 @@ export const ForumEventsEdit = `
       ...RevisionEdit
     }
     postPageDescription {
+      ...RevisionEdit
+    }
+    pollQuestion {
       ...RevisionEdit
     }
   }
