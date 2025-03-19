@@ -2779,6 +2779,7 @@ interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly rightHeightPct: number,
   readonly rightWidthPct: number,
   readonly rightFlipped: boolean,
+  readonly createdAt: Date,
 }
 
 interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordinates

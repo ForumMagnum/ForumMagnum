@@ -16,8 +16,8 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     position: 'fixed',
     width: '100vw',
     top: -100,
-    [theme.breakpoints.up('sm')]: {
-      top: -100
+    [theme.breakpoints.down('xs')]: {
+      top: -108
     },
     // right: -300
   },
@@ -31,13 +31,6 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     right: 0,
     height: "100vh",
     width: "100vw",
-    // [theme.breakpoints.up('sm')]: {
-    //   height: "100vh"
-    // },
-    // [theme.breakpoints.up('lg')]: {
-    //   width: '100vw',
-    //   height: 'unset'
-    // }
   },
   overlayY: {
     position: 'absolute',
@@ -45,7 +38,6 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     right: 0,
     width: '100vw',
     height: '100vh',
-    // background: 'red',
     background: 'linear-gradient(180deg, #ffffff 164px, rgba(255,255,255,.8) 165px,  transparent 40%, #fff 87%)',
     pointerEvents: 'none',
     bottom: 0,
@@ -63,9 +55,6 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     // background: 'red',
     background: 'linear-gradient(-90deg, transparent 48%,#fff 95%)',
     pointerEvents: 'none',
-    // [theme.breakpoints.up('lg')]: {
-    //   width: '100vw',
-    // }
   },
 })
 
@@ -122,9 +111,8 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
 }) => {
   const classes = useStyles(styles);
   const { SplashHeaderImageOptions, ImageCropPreview, LWPopper } = Components;
-  const imageContext = useImageContext();
+  const { selectedImageInfo, setImageInfo } = useImageContext();
 
-  const { selectedImageInfo } = imageContext;
   const [backgroundImage, setBackgroundImage] = useState(post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl);
   const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
   const [imageFlipped, setImageFlipped] = useState(false);
@@ -189,7 +177,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
         <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
           <div>
-            <SplashHeaderImageOptions post={post} />
+            <SplashHeaderImageOptions post={post}/>
           </div>
         </LWPopper>
       </div>
@@ -200,9 +188,6 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
   );
 
   return <div className={classes.root}>
-    {/* <div ref={backgroundImgWrapperRef}>
-      <img src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
-    </div> */}
     <div className={classes.backgroundImageWrapper} style={{opacity}}>
       <div className={classes.backgroundImageWrapperInner}>
         <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 

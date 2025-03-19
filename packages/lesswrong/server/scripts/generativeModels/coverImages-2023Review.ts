@@ -28,17 +28,19 @@ const prompter = (el: string) => {
   return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
 }
 
-export const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
+export const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear description of a visual illustration that captures the essence of the essay.
 
-The visual metaphor should be concrete and specific, and should be something that can be depicted in a single image. The metaphor should be something that is both visually striking and that captures the essence of the essay in a way that is likely to be interesting. It should be 5 - 15 words long.
+The illustration description should be concrete and specific, and should be something that can be depicted in a single image. The description should be something that is both visually striking and that captures the essence of the essay in a way that is likely to be interesting. It should be 5 - 15 words long.
 
-If the essay specifically mentions a visual metaphor, use that metaphor. 
+I want you to list 10 visual illustration descriptions for the essay.
 
-The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but you should figure out the specific concrete images to represent that thing). Do NOT use "mazes", or "labryinth" or "neural net".
+If the essay specifically mentions something you can easily visualize, use that as one of the illustrations. If the title of the essay lends itself to a clear visual illustration, include that.
 
-If the essay only really talks about learning, metalearning, or other abstract concepts, please choose a metaphor that is not a maze/labryinth/
+The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but you should figure out the specific concrete images to represent that thing). Do not use "mazes", or "labryinth" or "neural net" as your illustrations.
 
-If the essay contains any particular images or visual metaphors, feel free to use those in the answers.
+If the essay only really talks about learning, metalearning, or other abstract concepts, consider a wide variety of illustrations.
+
+If the essay contains any particular images or visual illustrations, feel free to use those in the answers.
 
 Here are some examples:
 
@@ -55,19 +57,19 @@ Here are some bad examples:
 3. A collection of books about Zen Buddhism
 4. A labyrinth of forking paths
 
-Please generate 10 visual metaphors for the essay that will appear on Lesswrong. The essay will appear after the "===".
+Please generate 10 visual illustrations for the essay that will appear on Lesswrong. The essay will appear after the "===".
 
 Please format your response as follows:
 
 SUMMARY: What is the main idea of the essay?
-IDEAS: A JSON list of 3 visual metaphors, like ["a sea of thousands of people, one of them zoomed in using a magnifying glass", "a set of scales with a heap of gold on one side and a heart on the other", "a tree with tangled roots and a single leaf"]
-CHECK: For each metaphor, write out the metaphor and answer (a) does the metaphor contain writing or refer to the content of written materials or say that words should appear in the image? (yes/no) (b) Does the metaphor ask for any symbols respresenting concepts? (yes/no) Is it 5 to 15 words long? (yes/no)
-CORRECTIONS: If any of the metaphors contain writing or refer to the content of written materials, please provide a corrected version of the metaphor.
-METAPHORS: A JSON list of your final 3 visual metaphors.
+IDEAS: A JSON list of 3 visual illustrations, like ["a sea of thousands of people, one of them zoomed in using a magnifying glass", "a set of scales with a heap of gold on one side and a heart on the other", "a tree with tangled roots and a single leaf"]
+CHECK: For each illustration, write out the illustration and answer (a) does the illustration contain writing or refer to the content of written materials or say that words should appear in the image? (yes/no) (b) Does the illustration ask for any symbols respresenting concepts? (yes/no) Is it 5 to 15 words long? (yes/no)
+CORRECTIONS: If any of the illustrations contain writing or refer to the content of written materials, please provide a corrected version of the illustration.
+ILLUSTRATIONS: A JSON list of your final 3 visual illustrations.
 
 You must respond in valid JSON format with the following structure:
 {  
-  "metaphors": ["metaphor 1", "metaphor 2", "metaphor 3", "metaphor 4", "metaphor 5", "metaphor 6", "metaphor 7", "metaphor 8", "metaphor 9", "metaphor 10"]
+  "illustrations": ["illustration 1", "illustration 2", "illustration 3", "illustration 4", "illustration 5", "illustration 6", "illustration 7", "illustration 8", "illustration 9", "illustration 10"]
 }
 
 ===
@@ -105,21 +107,21 @@ const saveImage = async (prompt: string, essay: Essay, url: string) => {
       context: createAdminContext(),
       document: {
         reviewWinnerArtId: reviewWinnerArt.data._id,
-        leftXPct: 16.67,
+        leftXPct: 0,
         leftYPct: 0,
-        leftHeightPct: 100,
-        leftWidthPct: 33.33,
+        leftWidthPct: .33,
+        leftHeightPct: 1,
         leftFlipped: false,
-        middleXPct: 50,
+        middleXPct: .33,
         middleYPct: 0,
-        middleHeightPct: 100,
-        middleWidthPct: 33.33,
+        middleWidthPct: .33,
+        middleHeightPct: 1,
         middleFlipped: false,
-        rightXPct: 83.33,
+        rightXPct: .66,
         rightYPct: 0,
-        rightHeightPct: 100,
-        rightWidthPct: 33.33,
-        rightFlipped: false
+        rightWidthPct: .33,
+        rightHeightPct: 1, 
+        rightFlipped: false,
       }
     });
   }
@@ -211,7 +213,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
           height: 1536
         },
         image_url: imageUrl,
-        image_strength: .1
+        image_strength: .025
       }
     }
     const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
@@ -282,10 +284,10 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<Essay
 
 export const getReviewWinnerArts = async () => {
   console.time('getReviewWinnerArts');
-  console.log("Running getReviewWinnerArts")
+
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays.slice(5,50)
-  console.log(`${essays.length} essays to generate art for`)
+  const essays = totalEssays.slice(7,8)
+
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');

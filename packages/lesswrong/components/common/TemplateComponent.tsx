@@ -9,7 +9,7 @@ const styles = defineStyles("TemplateComponent", (theme: ThemeType) => ({
   }
 }));
 
-export const TemplateComponent = ({}) => {
+export const TemplateComponent = () => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   return <div className={classes.root}>

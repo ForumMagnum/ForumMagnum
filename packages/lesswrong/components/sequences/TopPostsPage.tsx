@@ -695,6 +695,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
     ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
+  console.log(data?.GetAllReviewWinners.filter((post: PostsTopItemInfo) => post.title === 'Lessons On How To Get Things Right On The First Try'));
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);

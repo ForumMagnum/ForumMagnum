@@ -17,5 +17,6 @@ export const SplashArtCoordinates = `
     rightHeightPct
     rightWidthPct
     rightFlipped
+    createdAt
   }
 `

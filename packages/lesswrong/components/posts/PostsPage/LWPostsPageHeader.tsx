@@ -9,7 +9,6 @@ import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 
 export const LW_POST_PAGE_PADDING = 110;
-const splashPageRight = true
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -145,15 +144,22 @@ const styles = (theme: ThemeType) => ({
   },
   splashPageTitleLong: {
     '&&': {
-      [theme.breakpoints.down('sm')]: {
-        fontSize: '3.5rem',
-      },
       [theme.breakpoints.down('md')]: {
         fontSize: '5rem',
         marginRight: -25,
       },
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '4rem',
+      },
       [theme.breakpoints.up('lg')]: {
         marginRight: -100,
+      },
+    },
+  },
+  splashPageTitleLonger: {
+    '&&': {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '3.5rem',
       },
     },
   },
@@ -167,9 +173,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   rootWithSplashPageHeaderLong: {
-    paddingTop: 'calc(100vh - 360px)',
+    paddingTop: 'calc(100vh - 560px)',
     [theme.breakpoints.down('md')]: {
-      paddingTop: 'calc(100vh - 200px)',
+      paddingTop: 'calc(100vh - 500px)',
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 'calc(100vh - 320px)',
     },
   }
 }); 
@@ -218,8 +227,8 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
     </a>
   </LWTooltip> : null;
 
-  const splashPageTitleClass = post.title.length > 100 ? classes.splashPageTitleLong : classes.splashPageTitle;
-  const rootWithSplashPageHeaderClass =  post.title.length > 80 ? classes.rootWithSplashPageHeaderLong : classes.rootWithSplashPageHeader;
+  const splashPageTitleClass = post.title.length > 60 ? classes.splashPageTitleLong : classes.splashPageTitle;
+  const rootWithSplashPageHeaderClass =  post.title.length > 50 ? classes.rootWithSplashPageHeaderLong : classes.rootWithSplashPageHeader;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[rootWithSplashPageHeaderClass]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}

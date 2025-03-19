@@ -8,8 +8,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
-import { getCloudinaryThumbnail, PostWithArtRow, SplashHeaderImageOptions } from '../posts/PostsPage/SplashHeaderImageOptions';
+import { getCloudinaryThumbnail, PostWithArtGrid, SplashHeaderImageOptions } from '../posts/PostsPage/SplashHeaderImageOptions';
 import { defineStyles, useStyles } from '../hooks/useStyles'; 
+import { ImageProvider } from '../posts/PostsPage/ImageContext';
 
 const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
@@ -17,10 +18,12 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
     ...theme.typography.body2,
   },
   post: {
-    display: "flex",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    padding: 3
+    marginBottom: 30,
+    '& h3': {
+      marginBottom: 6,
+    }
   },
   postWrapper: {
     display: "flex",
@@ -38,16 +41,21 @@ export const BestOfLessWrongAdmin = () => {
     fragmentName: 'ReviewWinnerArtImagesForYear',
     terms: {
       view: 'allForYear',
-      limit: 100,
+      limit: 5000,
     }
   });
-
   const groupedImages = groupBy(images, (image) => image.post?.title);
 
   return <div className={classes.root}>
-    {Object.entries(groupedImages).map(([title, images]) => {
-      return images[0].post && <PostWithArtRow key={title} post={images[0].post} images={images} />
-    })}
+      {Object.entries(groupedImages).map(([title, images]) => {
+        const post = images[0].post;
+        return post && <div key={title} className={classes.post}>
+          <h3><Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link></h3>
+          <ImageProvider>
+            <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
+          </ImageProvider>
+        </div>
+      })}
   </div>
 }
 
