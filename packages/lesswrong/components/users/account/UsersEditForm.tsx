@@ -1,7 +1,7 @@
 import { useMessages } from '@/components/common/withMessages';
 import React from 'react';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '@/lib/collections/users/helpers';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { isEAForum } from '@/lib/instanceSettings';
@@ -11,7 +11,6 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
-import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,8 +94,8 @@ const UsersEditForm = ({terms, classes}: {
             navigate(userGetProfileUrl(user))
           }
         }}
-        queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersEdit')}
+        queryFragmentName={'UsersEdit'}
+        mutationFragmentName={'UsersEdit'}
         showRemove={false}
       />
     </div>

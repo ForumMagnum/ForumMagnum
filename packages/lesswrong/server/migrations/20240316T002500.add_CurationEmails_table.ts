@@ -55,7 +55,7 @@
  */
 export const acceptsSchemaHash = "5fb909476a7c6ef9567f7efb1abd005f";
 
-import CurationEmails from "../../lib/collections/curationEmails/collection"
+import CurationEmails from "../../server/collections/curationEmails/collection"
 import { createTable, dropTable, updateFunctions } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

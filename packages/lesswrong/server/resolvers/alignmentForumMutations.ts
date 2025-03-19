@@ -2,9 +2,8 @@ import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/gr
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { moveToAFUpdatesUserAFKarma } from '../callbacks/alignment-forum/callbacks';
-import { postsMoveToAFAddsAlignmentVoting } from '../callbacks/alignment-forum/alignmentPostCallbacks';
-import { commentsAlignmentEdit, recalculateAFCommentMetadata } from '../callbacks/alignment-forum/alignmentCommentCallbacks';
+import { moveToAFUpdatesUserAFKarma, postsMoveToAFAddsAlignmentVoting } from '../callbacks/alignment-forum/callbacks';
+import { commentsAlignmentEdit, recalculateAFCommentMetadata } from '../callbacks/commentCallbackFunctions';
 
 const alignmentCommentResolvers = {
   Mutation: {
@@ -17,9 +16,9 @@ const alignmentCommentResolvers = {
         await context.Comments.rawUpdateOne({_id: commentId}, modifier);
         const updatedComment = (await context.Comments.findOne(commentId))!
         await moveToAFUpdatesUserAFKarma(updatedComment, comment);
-        await recalculateAFCommentMetadata(comment.postId)
-        await commentsAlignmentEdit(updatedComment, comment);
-        return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
+        await recalculateAFCommentMetadata(comment.postId, context);
+        await commentsAlignmentEdit(updatedComment, comment, context);
+        return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
       } else {
         throw new Error({id: `app.user_cannot_edit_comment_alignment_forum_status`} as any);
       }
@@ -43,7 +42,7 @@ const alignmentPostResolvers = {
         const updatedPost = (await context.Posts.findOne(postId))!
         await moveToAFUpdatesUserAFKarma(updatedPost, post);
         void postsMoveToAFAddsAlignmentVoting(updatedPost, post);
-        return await accessFilterSingle(context.currentUser, context.Posts, updatedPost, context);
+        return await accessFilterSingle(context.currentUser, 'Posts', updatedPost, context);
       } else {
         throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);
       }

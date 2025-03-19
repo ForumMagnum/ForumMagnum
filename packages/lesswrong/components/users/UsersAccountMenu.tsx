@@ -1,7 +1,7 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Popover from '@material-ui/core/Popover';
-import Button from '@material-ui/core/Button';
+import Popover from '@/lib/vendor/@material-ui/core/src/Popover';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';

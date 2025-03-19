@@ -1,6 +1,7 @@
 import './server/databaseSettings'
 
 import './server/vulcan-lib/site';
+import './server/collections/allCollections';
 import './server/vulcan-lib/utils';
 import './server/vulcan-lib/apollo-server/authentication';
 
@@ -57,11 +58,11 @@ import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';
 import './server/recommendations/recommedationsCron';
-import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';
 import './server/prunePerfMetricsCron';
+import './server/collections/users/karmaChangesGraphQL';
 
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
@@ -85,11 +86,9 @@ import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
-import './server/callbacks/tagRelsCallbacks';
 import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
-import './server/callbacks/rateLimitCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
@@ -99,9 +98,6 @@ import './server/callbacks/jargonTermCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
-import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
-import './server/callbacks/alignment-forum/alignmentPostCallbacks';
-import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';
 import './server/callbacks/electionCandidateCallbacks';
 
@@ -111,7 +107,6 @@ import './server/resolvers/postResolvers';
 import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
-import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
 import './server/resolvers/arbitalPageData';
@@ -155,7 +150,6 @@ import './server/inactiveUserSurveyCron';
 
 import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';
-import './server/languageModels/postSummaryResolver';
 
 import './server/codegen/generateTypes';
 import './server/styleGeneration';
@@ -175,7 +169,5 @@ import './server/search/facetFieldSearch';
 
 // Incremental views
 import './server/analytics/analyticsCron';
-import './server/conversationUnreadMessages';
-import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';

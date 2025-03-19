@@ -1,6 +1,6 @@
 import uniq from "lodash/uniq";
-import ReadStatuses from "../../lib/collections/readStatus/collection";
-import Users from "../../lib/collections/users/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
+import Users from "../../server/collections/users/collection";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/hooks";
 

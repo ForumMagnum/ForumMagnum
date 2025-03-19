@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';

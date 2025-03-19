@@ -5,7 +5,6 @@ import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib/graphql';
 import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
-import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from '@/server/perfMetricsWriter/perfMetricsWriter';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -126,6 +125,15 @@ async function flushPerfMetrics() {
 
   const connection = getAnalyticsConnection();
   if (!connection) return;
+
+  // I really needed to break an import cycle involving `analyticsEvents.tsx` and `Table.ts`
+  // This seemed like the least-bad place to do it.
+  // TODO: If you can figure out a better way, please do.
+  const {
+    constructPerfMetricBatchInsertQuery,
+    insertAndCacheNormalizedDataInBatch,
+    perfMetricsColumnSet
+  }: typeof import('@/server/perfMetricsWriter/perfMetricsWriter') = require('@/server/perfMetricsWriter/perfMetricsWriter');
    
   const metricsToWrite = queuedPerfMetrics.splice(0);
   for (const batch of chunk(metricsToWrite, batchSize)) {

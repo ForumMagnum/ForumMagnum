@@ -1,11 +1,9 @@
 import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
-import { PostRelations } from "../postRelations/collection"
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, slugFields } from '../../utils/schemaUtils'
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { TagRels } from "../tagRels/collection";
 import { loadByIds, getWithLoader, getWithCustomLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
@@ -32,16 +30,17 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../betas';
+import { hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
-import { getLatestContentsRevision } from '../revisions/helpers';
+import { getLatestContentsRevision } from '../../../server/collections/revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, userOwns } from "../../vulcan-users/permissions";
+import { editableFields } from '@/lib/editor/make_editable';
+import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -161,11 +160,66 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+const schemaDefaultValueFmCrosspost = schemaDefaultValue<'Posts'>({
   isCrosspost: false,
 })
 
+const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
+  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
+}
+
 const schema: SchemaType<"Posts"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: ['admins']},
+  }),
+  
+  ...editableFields("Posts", {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+    permissions: {
+      canRead: ['guests'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
+    },
+    hasToc: true,
+    normalized: true,
+  }),
+
+  ...editableFields("Posts", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: [userHasModerationGuidelines]
+    },
+    normalized: true,
+  }),
+
+  ...editableFields("Posts", {
+    fieldName: "customHighlight",
+    formGroup: formGroups.highlight,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...slugFields("Posts", {
+    getTitle: (post) => post.title,
+    includesOldSlugs: false,
+  }),
+  
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
@@ -355,12 +409,15 @@ const schema: SchemaType<"Posts"> = {
     order: 10,
     group: formGroups.adminOptions,
     onCreate: ({document: post}) => {
-      if(!post.sticky) {
+      if(!isEAForum && !post.sticky) {
         return false;
       }
     },
     onUpdate: ({modifier}) => {
-      if (!modifier.$set.sticky) {
+      // WH 2025-03-17: I think this is a bug in general, as a non-admin editing this post will cause
+      // sticky to be set to false. Forum-gating to EAF to speed up fixing this live bug for us, but
+      // I believe this function and `onCreate`
+      if (!isEAForum && !modifier.$set.sticky) {
         return false;
       }
     }
@@ -404,10 +461,10 @@ const schema: SchemaType<"Posts"> = {
     denormalized: true,
     optional: true,
     canRead: [documentIsNotDeleted],
-    onUpdate: async ({modifier, document, currentUser}) => {
+    onUpdate: async ({modifier, document, currentUser, context}) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return await userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId, context)
       }
     }
   },
@@ -635,8 +692,9 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       if (!post.question) return [];
 
+      const { currentUser, PostRelations } = context;
       const result = await PostRelations.find({targetPostId: post._id}).fetch()
-      return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
+      return await accessFilterMultiple(currentUser, 'PostRelations', result, context);
     }
   }),
   'sourcePostRelations.$': {
@@ -651,10 +709,10 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       if (!post.question) return [];
 
-      const {currentUser, repos} = context;
+      const {currentUser, repos, PostRelations} = context;
       const postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
       if (!postRelations || postRelations.length < 1) return []
-      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
+      return await accessFilterMultiple(currentUser, 'PostRelations', postRelations, context);
     }
   }),
   'targetPostRelations.$': {
@@ -846,7 +904,7 @@ const schema: SchemaType<"Posts"> = {
 
       const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 }}).fetch();
 
-      return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
+      return await accessFilterMultiple(context.currentUser, 'JargonTerms', jargonTerms, context);
     },
     sqlResolver: ({ field, currentUserField }) => `(
       SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
@@ -988,7 +1046,7 @@ const schema: SchemaType<"Posts"> = {
     graphqlArguments: 'tagId: String',
     resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
       const { tagId } = args;
-      const { currentUser } = context;
+      const { currentUser, TagRels } = context;
       const tagRels = await getWithLoader(context, TagRels,
         "tagRelByDocument",
         {
@@ -996,7 +1054,7 @@ const schema: SchemaType<"Posts"> = {
         },
         'postId', post._id
       );
-      const filteredTagRels = await accessFilterMultiple(currentUser, TagRels, tagRels, context)
+      const filteredTagRels = await accessFilterMultiple(currentUser, 'TagRels', tagRels, context)
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
@@ -1030,7 +1088,7 @@ const schema: SchemaType<"Posts"> = {
 
       const sortedTags = sortedTagInfo.map(({ tag }) => tag);
 
-      return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
+      return await accessFilterMultiple(currentUser, 'Tags', sortedTags, context);
     }
   }),
   
@@ -1067,7 +1125,7 @@ const schema: SchemaType<"Posts"> = {
         const comment: DbComment|null = await getWithCustomLoader<DbComment|null,string>(context, "lastPromotedComments", post._id, async (postIds: string[]): Promise<Array<DbComment|null>> => {
           return await context.repos.comments.getPromotedCommentsOnPosts(postIds);
         });
-        return await accessFilterSingle(currentUser, Comments, comment, context)
+        return await accessFilterSingle(currentUser, 'Comments', comment, context)
       }
     }
   }),
@@ -1081,10 +1139,10 @@ const schema: SchemaType<"Posts"> = {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
-          return await accessFilterSingle(currentUser, Comments, comment, context)
+          return await accessFilterSingle(currentUser, 'Comments', comment, context)
         } else {
           const comment = await Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
-          return await accessFilterSingle(currentUser, Comments, comment, context)
+          return await accessFilterSingle(currentUser, 'Comments', comment, context)
         }
       }
     }
@@ -1203,7 +1261,7 @@ const schema: SchemaType<"Posts"> = {
         "postId", post._id
       );
       if (!votes.length) return null;
-      const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
+      const vote = await accessFilterSingle(currentUser, 'ReviewVotes', votes[0], context);
       return vote;
     },
     sqlResolver: ({field, currentUserField, join}) => join({
@@ -1217,19 +1275,12 @@ const schema: SchemaType<"Posts"> = {
     }),
   }),
 
-  reviewWinner: resolverOnlyField({
+  reviewWinner: {
     type: "ReviewWinner",
-    graphQLtype: "ReviewWinner",
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      if (!isLWorAF) {
-        return null;
-      }
-      const { currentUser, ReviewWinners } = context;
-      const winner = await getPostReviewWinnerInfo(post._id, context);
-      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
-    },
-  }),
+    optional: true,
+    // Implemented in server/resolvers/postResolvers.ts
+  },
 
   spotlight: resolverOnlyField({
     type: "Spotlight",
@@ -1246,7 +1297,7 @@ const schema: SchemaType<"Posts"> = {
         },
         "documentId", post._id
       );
-      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+      return accessFilterSingle(currentUser, 'Spotlights', spotlight[0], context);
     },
     sqlResolver: ({field, join}) => join({
       table: "Spotlights",
@@ -1564,7 +1615,7 @@ const schema: SchemaType<"Posts"> = {
         const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
         );
-        return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
+        return await accessFilterMultiple(context.currentUser, 'Users', resolvedDocs, context);
       },
       addOriginalField: true,
     },
@@ -1741,7 +1792,7 @@ const schema: SchemaType<"Posts"> = {
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!post.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
-        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
+        return await accessFilterSingle(context.currentUser, 'Collections', collection, context);
       }
     },
   },
@@ -1812,7 +1863,7 @@ const schema: SchemaType<"Posts"> = {
         const nextPostID = await sequenceGetNextPostID(sequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          return accessFilterSingle(currentUser, Posts, nextPost, context);
+          return accessFilterSingle(currentUser, 'Posts', nextPost, context);
         } else {
           const nextSequencePostIdTuple = await getNextPostIdFromNextSequence(sequenceId, post._id, context);
           if (!nextSequencePostIdTuple) {
@@ -1820,21 +1871,21 @@ const schema: SchemaType<"Posts"> = {
           }
 
           const nextPost = await context.loaders.Posts.load(nextSequencePostIdTuple.postId);
-          return accessFilterSingle(currentUser, Posts, nextPost, context);
+          return accessFilterSingle(currentUser, 'Posts', nextPost, context);
         }
       }
       if(post.canonicalSequenceId) {
         const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+          const nextPostFiltered = await accessFilterSingle(currentUser, 'Posts', nextPost, context);
           if (nextPostFiltered)
             return nextPostFiltered;
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+        const nextPostFiltered = await accessFilterSingle(currentUser, 'Posts', nextPost, context);
         if (nextPostFiltered)
           return nextPostFiltered;
       }
@@ -1862,7 +1913,7 @@ const schema: SchemaType<"Posts"> = {
         const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          return accessFilterSingle(currentUser, Posts, prevPost, context);
+          return accessFilterSingle(currentUser, 'Posts', prevPost, context);
         } else {
           const prevSequencePostIdTuple = await getPrevPostIdFromPrevSequence(sequenceId, post._id, context);
           if (!prevSequencePostIdTuple) {
@@ -1870,14 +1921,14 @@ const schema: SchemaType<"Posts"> = {
           }
 
           const prevPost = await context.loaders.Posts.load(prevSequencePostIdTuple.postId);
-          return accessFilterSingle(currentUser, Posts, prevPost, context);
+          return accessFilterSingle(currentUser, 'Posts', prevPost, context);
         }
       }
       if(post.canonicalSequenceId) {
         const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+          const prevPostFiltered = await accessFilterSingle(currentUser, 'Posts', prevPost, context);
           if (prevPostFiltered) {
             return prevPostFiltered;
           }
@@ -1885,7 +1936,7 @@ const schema: SchemaType<"Posts"> = {
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+        const prevPostFiltered = await accessFilterSingle(currentUser, 'Posts', prevPost, context);
         if (prevPostFiltered) {
           return prevPostFiltered;
         }
@@ -1928,7 +1979,7 @@ const schema: SchemaType<"Posts"> = {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
-      return await accessFilterSingle(currentUser, context.Sequences, sequence, context);
+      return await accessFilterSingle(currentUser, 'Sequences', sequence, context);
     }
   }),
 
@@ -2603,7 +2654,8 @@ const schema: SchemaType<"Posts"> = {
     type: "SideCommentCache",
     graphQLtype: "SideCommentCache",
     canRead: ["guests"],
-    resolver: ({_id}: DbPost) => {
+    resolver: ({_id}: DbPost, _, context: ResolverContext) => {
+      const { SideCommentCaches } = context;
       if (!hasSideComments) {
         return null;
       }
@@ -2769,7 +2821,7 @@ const schema: SchemaType<"Posts"> = {
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
         return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
       });
-      return await accessFilterMultiple(currentUser, Comments, comments, context);
+      return await accessFilterMultiple(currentUser, 'Comments', comments, context);
     }
   }),
   'recentComments.$': {
@@ -3101,6 +3153,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     canRead: ['members'],
+    canCreate: ['members'],
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
   },
@@ -3115,7 +3168,7 @@ const schema: SchemaType<"Posts"> = {
         postId: post._id,
         deleted: { $ne: true },
       }).fetch();
-      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
+      return await accessFilterMultiple(currentUser, 'CurationNotices', curationNotices, context);
     }
   }),
   'curationNotices.$': {
@@ -3135,13 +3188,15 @@ const schema: SchemaType<"Posts"> = {
         post._id,
         (postIds: string[]) => context.repos.comments.getPostReviews(postIds, 2, 10),
       );
-      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+      return await accessFilterMultiple(currentUser, 'Comments', reviews, context);
     }
   }),
   'reviews.$': {
     type: Object,
     foreignKey: 'Comments',
   },
+
+  ...getVoteableSchemaFields('Posts'),
 };
 
 export default schema;

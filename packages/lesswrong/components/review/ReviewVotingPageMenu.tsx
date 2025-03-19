@@ -2,17 +2,15 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
+import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward'
+import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward'
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { isLW, isLWorAF } from '@/lib/instanceSettings';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 

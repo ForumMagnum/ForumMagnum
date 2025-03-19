@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const CommentsList = `
   fragment CommentsList on Comment {
     _id
     postId
@@ -76,19 +74,22 @@ registerFragment(`
     rejectedReason
     modGPTRecommendation
     originalDialogueId
-  }
-`);
 
-registerFragment(`
+    forumEventId
+    forumEventMetadata
+  }
+`
+
+export const CommentsListWithTopLevelComment = `
   fragment CommentsListWithTopLevelComment on Comment {
     ...CommentsList
     topLevelComment {
       ...CommentsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const ShortformComments = `
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
@@ -98,9 +99,9 @@ registerFragment(`
       ...TagPreviewFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const CommentWithRepliesFragment = `
   fragment CommentWithRepliesFragment on Comment {
     ...CommentsList
     lastSubthreadActivity
@@ -114,9 +115,9 @@ registerFragment(`
       ...PostsBase
     }
   }
-`);
+`
 
-registerFragment(`
+export const CommentEdit = `
   fragment CommentEdit on Comment {
     ...CommentsList
     relevantTagIds
@@ -124,9 +125,9 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const DeletedCommentsMetaData = `
   fragment DeletedCommentsMetaData on Comment {
     _id
     deleted
@@ -138,9 +139,9 @@ registerFragment(`
     deletedReason
     deletedPublic
   }
-`)
+`
 
-registerFragment(`
+export const DeletedCommentsModerationLog = `
   fragment DeletedCommentsModerationLog on Comment {
     ...DeletedCommentsMetaData
     user {
@@ -152,9 +153,9 @@ registerFragment(`
       _id
     }
   }
-`)
+`
 
-registerFragment(`
+export const CommentsListWithParentMetadata = `
   fragment CommentsListWithParentMetadata on Comment {
     ...CommentsList
     post {
@@ -165,20 +166,20 @@ registerFragment(`
       ...TagBasicInfo
     }
   }
-`);
+`
 
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
-registerFragment(`
+export const StickySubforumCommentFragment = `
   fragment StickySubforumCommentFragment on Comment {
     ...CommentWithRepliesFragment
     tag {
       ...TagBasicInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const WithVoteComment = `
   fragment WithVoteComment on Comment {
     __typename
     _id
@@ -191,18 +192,18 @@ registerFragment(`
     afExtendedScore
     voteCount
   }
-`);
+`
 
-registerFragment(`
+export const CommentsListWithModerationMetadata = `
   fragment CommentsListWithModerationMetadata on Comment {
     ...CommentWithRepliesFragment
     allVotes {
       voteType
     }
   }
-`);
+`
 
-registerFragment(`
+export const CommentsListWithModGPTAnalysis = `
   fragment CommentsListWithModGPTAnalysis on Comment {
     ...CommentsList
     post {
@@ -210,9 +211,9 @@ registerFragment(`
     }
     modGPTAnalysis
   }
-`);
+`
 
-registerFragment(`
+export const CommentsForAutocomplete = `
   fragment CommentsForAutocomplete on Comment {
     _id
     postId
@@ -228,9 +229,9 @@ registerFragment(`
     post {
       ...PostsForAutocomplete
     }
-  }`)
+  }`
 
-registerFragment(`
+export const CommentsForAutocompleteWithParents = `
   fragment CommentsForAutocompleteWithParents on Comment {
     ...CommentsForAutocomplete
     ${/* We dynamically construct a fragment that gets the parentComment and its parentComment, etc. for up to 10 levels */ ''}
@@ -246,4 +247,4 @@ registerFragment(`
       }`.trim();
     })(10)}
   }
-`);
+`

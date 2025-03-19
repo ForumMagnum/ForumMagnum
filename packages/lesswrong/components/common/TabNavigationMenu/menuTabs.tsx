@@ -12,11 +12,11 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-import Home from '@material-ui/icons/Home'
-import LocalOffer from '@material-ui/icons/LocalOffer';
-import Sort from '@material-ui/icons/Sort'
-import Info from '@material-ui/icons/Info';
-import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import Home from '@/lib/vendor/@material-ui/icons/src/Home'
+import LocalOffer from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
+import Sort from '@/lib/vendor/@material-ui/icons/src/Sort'
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 
 // EA Forum menu icons
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";

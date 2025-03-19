@@ -7,22 +7,20 @@ import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema } from "../../../lib/vulcan-lib/graphql";
 import { getClientIP } from '@/server/utils/getClientIP';
-import { LWEvents } from "../../../lib/collections/lwevents/collection";
-import Users from "../../../lib/collections/users/collection";
+import { LWEvents } from "../../../server/collections/lwevents/collection";
+import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
-import { LegacyData } from '../../../lib/collections/legacyData/collection';
+import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
-import { getCookieFromReq, clearCookie } from '../../utils/httpUtil';
+import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
-import { mongoFindOne } from '../../../lib/mongoQueries';
 import {userFindOneByEmail} from "../../commonQueries";
-import { ClientIds } from "../../../lib/collections/clientIds/collection";
 import UsersRepo from '../../repos/UsersRepo';
 
 // Meteor hashed its passwords twice, once on the client
@@ -242,7 +240,7 @@ const authenticationResolvers = {
       if (await userFindOneByEmail(email)) {
         throw Error("Email address is already taken");
       }
-      if (await mongoFindOne("Users", { username })) {
+      if (await context.Users.findOne({ username })) {
         throw Error("Username is already taken");
       }
 

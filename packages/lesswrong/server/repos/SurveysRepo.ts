@@ -1,4 +1,4 @@
-import Surveys from "@/lib/collections/surveys/collection";
+import Surveys from "@/server/collections/surveys/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

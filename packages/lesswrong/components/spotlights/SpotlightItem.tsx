@@ -1,8 +1,8 @@
-import Button from '@material-ui/core/Button';
-import EditIcon from '@material-ui/icons/Edit';
-import PublishIcon from '@material-ui/icons/Publish';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import CloseIcon from '@material-ui/icons/Close';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit';
+import PublishIcon from '@/lib/vendor/@material-ui/icons/src/Publish';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
@@ -16,7 +16,6 @@ import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const TEXT_WIDTH = 350;
 
@@ -213,10 +212,16 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     right: 0,
-    borderTopRightRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
-    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
+    ...(isFriendlyUI
+      ? {
+          borderRadius: theme.borderRadius.default,
+          width: "100%",
+          objectFit: "cover",
+        }
+      : {
+          borderTopRightRadius: theme.borderRadius.default,
+          borderBottomRightRadius: theme.borderRadius.default,
+        }),
   },
   imageFade: buildFadeMask([
     "transparent 0",
@@ -526,8 +531,8 @@ export const SpotlightItem = ({
                     collectionName="Spotlights"
                     fields={['description']}
                     documentId={spotlight._id}
-                    mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                    queryFragment={getFragment('SpotlightEditQueryFragment')}
+                    mutationFragmentName={'SpotlightEditQueryFragment'}
+                    queryFragmentName={'SpotlightEditQueryFragment'}
                     successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
                   />
                 </div>
@@ -607,8 +612,8 @@ export const SpotlightItem = ({
             <WrappedSmartForm
               collectionName="Spotlights"
               documentId={spotlight._id}
-              mutationFragment={getFragment('SpotlightEditQueryFragment')}
-              queryFragment={getFragment('SpotlightEditQueryFragment')}
+              mutationFragmentName={'SpotlightEditQueryFragment'}
+              queryFragmentName={'SpotlightEditQueryFragment'}
               successCallback={onUpdate}
             />
             </SpotlightEditorStyles>

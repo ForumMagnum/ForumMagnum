@@ -5,8 +5,8 @@ import { truncate } from "../../lib/editor/ellipsize";
 import { getPostDescription } from "../posts/PostsPage/PostsPage";
 import {
   PLAINTEXT_DESCRIPTION_LENGTH,
-  PLAINTEXT_HTML_TRUNCATION_LENGTH,
-} from "../../lib/collections/revisions/collection";
+  PLAINTEXT_HTML_TRUNCATION_LENGTH
+} from '@/lib/collections/revisions/revisionConstants';
 import markdownIt from "markdown-it";
 import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
@@ -14,9 +14,10 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
-import Input from "@material-ui/core/Input";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
+
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 

@@ -1,5 +1,5 @@
-import { eventTypes, GardenCodes } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { eventTypes } from './schema';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface GardenCodesViewTerms extends ViewTermsBase {
@@ -10,8 +10,7 @@ declare global {
   }
 }
 
-
-GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
+function defaultView(terms: GardenCodesViewTerms) {
   let selector: any = {
     deleted: false,
   };
@@ -53,12 +52,9 @@ GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
       }
     }
   }
-})
+}
 
-ensureIndex(GardenCodes, {code:1, deleted: 1});
-ensureIndex(GardenCodes, {userId:1, deleted: 1});
-
-GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
+function usersPrivateGardenCodes(terms: GardenCodesViewTerms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: {
@@ -66,9 +62,9 @@ GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
       $or: [{startTime: {$gt: twoHoursAgo }}, {endTime: {$gt: new Date()}}]
     }
   }
-})
+}
 
-GardenCodes.addView("publicGardenCodes", function (terms: GardenCodesViewTerms) {
+function publicGardenCodes(terms: GardenCodesViewTerms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: { 
@@ -76,8 +72,14 @@ GardenCodes.addView("publicGardenCodes", function (terms: GardenCodesViewTerms) 
       $or: [{startTime: {$gt: twoHoursAgo }}, {endTime: {$gt: new Date()}}]
     }
   }
-})
+}
 
-ensureIndex(GardenCodes, {code: 1, deleted: 1, userId: 1, });
+function gardenCodeByCode(terms: GardenCodesViewTerms) {
+  return {}
+}
 
-GardenCodes.addView("gardenCodeByCode", (terms: GardenCodesViewTerms) => ({}));
+export const GardenCodesViews = new CollectionViewSet('GardenCodes', {
+  usersPrivateGardenCodes,
+  publicGardenCodes,
+  gardenCodeByCode
+}, defaultView);

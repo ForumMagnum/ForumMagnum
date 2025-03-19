@@ -1,10 +1,9 @@
-import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "@/lib/random";
 import { DeferredForumSelect } from "@/lib/forumTypeUtils";
 import { ForumTypeString } from "@/lib/instanceSettings";
-import { editableFieldIsNormalized } from "@/lib/editor/makeEditableOptions";
+import { editableFieldIsNormalized } from "@/lib/editor/make_editable";
 
 const forceNonResolverFields = [
   "contents",
@@ -22,11 +21,11 @@ const forceNonResolverFields = [
 ];
 
 export const isResolverOnly = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collectionName: N,
   fieldName: string,
   schema: CollectionFieldSpecification<N>,
 ) => {
-  if (editableFieldIsNormalized(collection.collectionName, fieldName)) {
+  if (editableFieldIsNormalized(collectionName, fieldName)) {
     return true;
   }
   return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
@@ -69,13 +68,13 @@ export abstract class Type {
   }
 
   static fromSchema<N extends CollectionNameString>(
-    collection: CollectionBase<N>,
+    collectionName: N,
     fieldName: string,
     schema: CollectionFieldSpecification<N>,
     indexSchema: CollectionFieldSpecification<N> | undefined,
     forumType: ForumTypeString,
   ): Type {
-    if (isResolverOnly(collection, fieldName, schema)) {
+    if (isResolverOnly(collectionName, fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }
 
@@ -85,7 +84,7 @@ export abstract class Type {
         ? defaultValue.get(forumType)
         : defaultValue;
       return new DefaultValueType(
-        Type.fromSchema(collection, fieldName, rest, indexSchema, forumType),
+        Type.fromSchema(collectionName, fieldName, rest, indexSchema, forumType),
         value,
       );
     }
@@ -93,14 +92,14 @@ export abstract class Type {
     if (schema.optional === false || schema.nullable === false) {
       const newSchema = {...schema, optional: true, nullable: true};
       return new NotNullType(
-        Type.fromSchema(collection, fieldName, newSchema, indexSchema, forumType),
+        Type.fromSchema(collectionName, fieldName, newSchema, indexSchema, forumType),
       );
     }
 
     switch (schema.type) {
       case String:
         return typeof schema.foreignKey === "string"
-          ? new IdType(getCollection(schema.foreignKey as CollectionNameString))
+          ? new IdType()
           : new StringType(typeof schema.max === "number" ? schema.max : undefined);
       case Boolean:
         return new BoolType();
@@ -125,7 +124,7 @@ export abstract class Type {
           return new VectorType(schema.vectorSize);
         }
         return new ArrayType(
-          Type.fromSchema(collection, fieldName + ".$", indexSchema, undefined, forumType),
+          Type.fromSchema(collectionName, fieldName + ".$", indexSchema, undefined, forumType),
         );
     }
 
@@ -222,12 +221,8 @@ export class VectorType extends Type {
  * right now.
  */
 export class IdType extends StringType {
-  constructor(private collection?: CollectionBase<any>) {
+  constructor() {
     super(ID_LENGTH + 10);
-  }
-
-  getCollection() {
-    return this.collection;
   }
 }
 

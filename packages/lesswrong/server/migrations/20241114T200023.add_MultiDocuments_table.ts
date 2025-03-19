@@ -1,4 +1,4 @@
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection"
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection"
 import { createTable, dropTable, updateIndexes } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

@@ -1,9 +1,8 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,7 +40,7 @@ const NewFeedButton = ({classes, user, closeModal}: {
         </div>)}
         <Components.WrappedSmartForm
           collectionName="RSSFeeds"
-          mutationFragment={getFragment('newRSSFeedFragment')}
+          mutationFragmentName={'newRSSFeedFragment'}
           prefilledProps={{userId: user._id}}
           successCallback={() => {
             closeModal();

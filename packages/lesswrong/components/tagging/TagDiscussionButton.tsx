@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from "../../lib/reactRouterWrapper";
-import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
+import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";

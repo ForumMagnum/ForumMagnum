@@ -20,7 +20,6 @@ import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
-import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
@@ -36,7 +35,7 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
-  'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
+  'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   // `prefilledProps` is handled slightly differently - all the other props
   // trigger a full reset of the form, but changed to `prefilledProps` are
@@ -62,10 +61,9 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
 };
 
 const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
-  const collection = nextProps.collection;
-  const schema = nextProps.schema
-    ? new SimpleSchema(nextProps.schema)
-    : getSimpleSchema(collection);
+  // TODO: figure out why it doesn't like the type assignment
+  // In practice, it was working fine before I fixed the type of the schema field in the props
+  const schema = new SimpleSchema(nextProps.schema as AnyBecauseHard);
   const convertedSchema = convertSchema(schema as any)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
@@ -563,31 +561,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     this.setState(fn);
   };
 
-  // pass on context to all child components
-  getChildContext = () => {
-    return {
-      throwError: this.throwError,
-      clearForm: this.clearForm,
-      refetchForm: this.refetchForm,
-      isChanged: this.isChanged,
-      submitForm: this.submitForm, //Change in name because we already have a function
-      // called submitForm, but no reason for the user to know
-      // about that
-      addToDeletedValues: this.addToDeletedValues,
-      updateCurrentValues: this.updateCurrentValues,
-      getDocument: this.getDocument,
-      getLabel: this.getLabel,
-      initialDocument: this.state.initialDocument,
-      setFormState: this.setFormState,
-      addToSubmitForm: this.addToSubmitForm,
-      addToSuccessForm: this.addToSuccessForm,
-      addToFailureForm: this.addToFailureForm,
-      errors: this.state.errors,
-      currentValues: this.state.currentValues,
-      deletedValues: this.state.deletedValues
-    };
-  };
-
   // --------------------------------------------------------------------- //
   // ------------------------------ Lifecycle ---------------------------- //
   // --------------------------------------------------------------------- //
@@ -1032,6 +1005,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       >
         <Components.FormErrors
           errors={this.state.errors}
+          getLabel={this.getLabel}
         />
 
         {this.getFieldGroups().map((group, i) => (
@@ -1049,12 +1023,18 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
             disabled={this.state.disabled}
             formComponents={this.props.formComponents}
             formProps={this.props.formProps}
+            submitForm={this.submitForm}
+            addToSubmitForm={this.addToSubmitForm}
+            addToSuccessForm={this.addToSuccessForm}
+            getLabel={this.getLabel}
+            getDocument={this.getDocument}
             key={`${i}-${group.name}`}
           />
         ))}
 
         {this.props.repeatErrors && <Components.FormErrors
           errors={this.state.errors}
+          getLabel={this.getLabel}
         />}
 
         {!this.props.autoSubmit && <FormSubmit
@@ -1077,6 +1057,9 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
           currentValues={this.state.currentValues}
           deletedValues={this.state.deletedValues}
           errors={this.state.errors}
+          addToSubmitForm={this.addToSubmitForm}
+          addToSuccessForm={this.addToSuccessForm}
+          addToDeletedValues={this.addToDeletedValues}
         />}
       </form>
     );
@@ -1085,7 +1068,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
 (Form as any).propTypes = {
   // main options
-  collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
   typeName: PropTypes.string.isRequired,
   document: PropTypes.object, // if a document is passed, this will be an edit form
@@ -1114,24 +1096,4 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   ...callbackProps,
 
   currentUser: PropTypes.object,
-};
-
-(Form as any).childContextTypes = {
-  addToDeletedValues: PropTypes.func,
-  deletedValues: PropTypes.array,
-  addToSubmitForm: PropTypes.func,
-  addToFailureForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
-  setFormState: PropTypes.func,
-  throwError: PropTypes.func,
-  clearForm: PropTypes.func,
-  refetchForm: PropTypes.func,
-  isChanged: PropTypes.func,
-  initialDocument: PropTypes.object,
-  getDocument: PropTypes.func,
-  getLabel: PropTypes.func,
-  submitForm: PropTypes.func,
-  errors: PropTypes.array,
-  currentValues: PropTypes.object
 };

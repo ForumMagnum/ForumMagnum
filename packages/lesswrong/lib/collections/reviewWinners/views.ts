@@ -1,5 +1,4 @@
-import ReviewWinners from "./collection";
-
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface PostReviewWinnersViewTerms extends ViewTermsBase {
   view?: 'reviewWinnerSingle';
@@ -12,7 +11,7 @@ declare global {
   type ReviewWinnersViewTerms = PostReviewWinnersViewTerms;
 }
 
-ReviewWinners.addView('reviewWinnerSingle', (terms: PostReviewWinnersViewTerms) => {
+function reviewWinnerSingle(terms: PostReviewWinnersViewTerms) {
   return {
     selector: {
       category: terms.category,
@@ -20,4 +19,8 @@ ReviewWinners.addView('reviewWinnerSingle', (terms: PostReviewWinnersViewTerms) 
       reviewRanking: terms.reviewRanking
     }
   };
+}
+
+export const ReviewWinnersViews = new CollectionViewSet('ReviewWinners', {
+  reviewWinnerSingle
 });

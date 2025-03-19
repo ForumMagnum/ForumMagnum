@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Votes from '../../lib/collections/votes/collection';
+import Votes from '../../server/collections/votes/collection';
 
 export default registerMigration({
   name: "removeVoteAuthorId",

@@ -1,7 +1,8 @@
 import { wrapVulcanAsyncScript } from './utils'
-import { userIPBanAndResetLoginTokens, userDeleteContent } from '../callbacks';
-import Users from '../../lib/collections/users/collection'
+import { userIPBanAndResetLoginTokens, userDeleteContent } from '../users/moderationUtils'
+import Users from '../../server/collections/users/collection'
 import moment from 'moment'
+import { createAdminContext } from '../vulcan-lib/query'
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {
   // this was not updated when we moved from the "bio" field to the "biography" field,
@@ -21,7 +22,7 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
     }
   }])
   void userIPBanAndResetLoginTokens(user);
-  void userDeleteContent(user, adminUser);
+  void userDeleteContent(user, adminUser, createAdminContext());
 }
 
 export const oneOffBanSpammers = wrapVulcanAsyncScript(

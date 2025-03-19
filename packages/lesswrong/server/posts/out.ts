@@ -1,6 +1,5 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
-import { Posts } from '../../lib/collections/posts/collection';
-import { ensureIndex } from '../../lib/collectionIndexUtils';
+import { Posts } from '../../server/collections/posts/collection';
 import type { ServerResponse } from 'http';
 
 const redirect = (res: ServerResponse, url: string, post: DbPost | null) => {
@@ -34,6 +33,3 @@ addStaticRoute('/out', async ({ query }, _req, res, _next) => {
     res.end("Please provide a URL");
   }
 });
-
-ensureIndex(Posts, {url:1, postedAt:-1});
-ensureIndex(Posts, {"fmCrosspost.foreignPostId":1, postedAt:-1});

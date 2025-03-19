@@ -1,11 +1,11 @@
-import { Revisions } from '@/lib/collections/revisions/collection';
+import { Revisions } from '@/server/collections/revisions/collection';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import { computeAttributions } from '../attributeEdits';
 import { compareVersionNumbers } from '@/lib/editor/utils';
 import VotesRepo from '../repos/VotesRepo';
 import toDictionary from '@/lib/utils/toDictionary';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import { isLWorAF } from '@/lib/instanceSettings';
 
 export type ContributorStats = {

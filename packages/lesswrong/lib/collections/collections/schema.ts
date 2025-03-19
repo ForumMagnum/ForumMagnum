@@ -1,7 +1,18 @@
 import { getWithCustomLoader } from '../../loaders';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple, schemaDefaultValue } from '../../utils/schemaUtils'
+import { editableFields } from '@/lib/editor/make_editable'
+import { universalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"Collections"> = {
+  ...universalFields({
+    createdAtOptions: {
+      canUpdate: ['admins'],
+      canCreate: ['admins'],
+    },
+  }),
+  ...editableFields("Collections", {
+    order: 20,
+  }),
 
   // default properties
   userId: {
@@ -46,7 +57,7 @@ const schema: SchemaType<"Collections"> = {
         {collectionId: collection._id},
         {sort: {number: 1}}
       ).fetch();
-      return await accessFilterMultiple(currentUser, Books, books, context);
+      return await accessFilterMultiple(currentUser, 'Books', books, context);
     }
   }),
 

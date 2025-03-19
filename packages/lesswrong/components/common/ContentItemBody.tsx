@@ -10,6 +10,7 @@ import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
+import type { ContentStyleType } from './ContentStyles';
 
 interface ExternalProps {
   /**
@@ -65,6 +66,11 @@ interface ExternalProps {
    * have been applied.
    */
   onContentReady?: (content: HTMLDivElement) => void;
+
+  /**
+   * If passed, will change the content style used in HoverPreviewLink.
+   */
+  contentStyleType?: ContentStyleType;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -78,7 +84,7 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
+interface ContentItemBodyProps extends ExternalProps, WithTrackingProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -357,6 +363,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         id={id}
         rel={rel}
         noPrefetch={this.props.noHoverPreviewPrefetch}
+        contentStyleType={this.props.contentStyleType}
       >
         <TagLinkContents/>
       </Components.HoverPreviewLink>
@@ -626,6 +633,9 @@ const addNofollowToHTML = (html: string): string => {
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   hocs: [withTracking],
   
+  // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
+  allowRef: true,
+
   // Memoization options. If this spuriously rerenders, then voting on a comment
   // that contains a YouTube embed causes that embed to visually flash and lose
   // its place.

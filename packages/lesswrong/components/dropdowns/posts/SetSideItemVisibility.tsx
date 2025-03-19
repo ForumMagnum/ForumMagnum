@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
-import Paper from '@material-ui/core/Paper';
-import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Check from '@material-ui/icons/Check';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import ChatBubbleOutline from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOutline';
+import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
+import Check from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
 

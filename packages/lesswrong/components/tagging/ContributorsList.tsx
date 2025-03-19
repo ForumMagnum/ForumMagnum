@@ -6,6 +6,7 @@ import { DocumentContributorWithStats, DocumentContributorsInfo } from '@/lib/ar
 
 const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
   contributorNameWrapper: {
+    display: 'inline',
     [theme.breakpoints.down('sm')]: {
       fontSize: '15px',
     },
@@ -60,7 +61,7 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: {
   const classes = useStyles(styles);
 
   return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-    <UsersNameDisplay user={user} tooltipPlacement="top" className={classes.contributorName} />
+    <UsersNameDisplay user={user} noTooltip={true} className={classes.contributorName} />
     {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
   </span>))}</>;
 }
@@ -82,16 +83,16 @@ function ToCContributorsList({
     <div className={classes.tocContributors}>
       {displayedContributors.map(({ user }, idx) => (
         <span key={user._id} className={classes.tocContributor} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
-          <UsersNameDisplay user={user} className={classes.contributorName} />
+          <UsersNameDisplay user={user} noTooltip={true} className={classes.contributorName} />
           {(idx < displayedContributors.length - 1) || (idx === displayedContributors.length - 1 && hiddenContributors.length > 0) ? ', ' : ''}
         </span>
       ))}
       {hiddenContributors.length > 0 && (
         <LWTooltip
-          title={hiddenContributors.map((c, i) => (
-            <span key={c.user._id}>
-              <UsersNameDisplay user={c.user} className={classes.contributorName} />
-              {i < hiddenContributors.length - 1 ? ', ' : ''}
+          title={hiddenContributors.map(( {user}, idx) => (
+            <span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
+              <UsersNameDisplay user={user} noTooltip={true} className={classes.contributorName} />
+              {idx < hiddenContributors.length - 1 ? ', ' : ''}
             </span>
           ))}
           clickable
@@ -112,7 +113,7 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
   const classes = useStyles(styles);
   const { LWTooltip } = Components;
 
-  return <div className={classes.contributorNameWrapper}>
+  return <span className={classes.contributorNameWrapper}>
     <span>Written by </span>
     <ContributorsList
       contributors={topContributors}
@@ -126,7 +127,7 @@ const HeadingContributorsList = ({topContributors, smallContributors, onHoverCon
     >
       et al.
     </LWTooltip>}
-  </div>
+  </span>
 }
 
 const ContributorsListComponent = registerComponent('ContributorsList', ContributorsList);

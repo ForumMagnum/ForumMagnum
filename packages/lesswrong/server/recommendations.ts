@@ -1,8 +1,7 @@
 import * as _ from 'underscore';
-import { Posts } from '../lib/collections/posts/collection';
-import { Sequences } from '../lib/collections/sequences/collection';
-import { Collections } from '../lib/collections/collections/collection';
-import { ensureIndex } from '../lib/collectionIndexUtils';
+import { Posts } from '../server/collections/posts/collection';
+import { Sequences } from '../server/collections/sequences/collection';
+import { Collections } from '../server/collections/collections/collection';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../lib/vulcan-lib/graphql';
@@ -16,7 +15,7 @@ import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
+import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/helpers';
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from './sql/PgCollection';
 
@@ -178,8 +177,6 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
     };
   }
 }
-
-ensureIndex(Posts, {defaultRecommendation: 1})
 
 // Return the set of all posts that are eligible for being recommended, with
 // scoreRelevantFields included (but other fields projected away). If
@@ -352,9 +349,9 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
       ]);
       
       return {
-        sequence: await accessFilterSingle(currentUser, Sequences, sequence, context),
-        collection: await accessFilterSingle(currentUser, Collections, collection, context),
-        nextPost: await accessFilterSingle(currentUser, Posts, nextPost, context),
+        sequence: await accessFilterSingle(currentUser, 'Sequences', sequence, context),
+        collection: await accessFilterSingle(currentUser, 'Collections', collection, context),
+        nextPost: await accessFilterSingle(currentUser, 'Posts', nextPost, context),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,
@@ -392,7 +389,7 @@ addGraphQLResolvers({
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");

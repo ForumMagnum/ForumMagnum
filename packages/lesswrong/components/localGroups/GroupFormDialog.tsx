@@ -1,10 +1,9 @@
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import DialogContent from '@material-ui/core/DialogContent';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   localGroupForm: {
@@ -53,8 +52,8 @@ const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
       <WrappedSmartForm
         collectionName="Localgroups"
         documentId={documentId}
-        queryFragment={getFragment('localGroupsEdit')}
-        mutationFragment={getFragment('localGroupsHomeFragment')}
+        queryFragmentName={'localGroupsEdit'}
+        mutationFragmentName={'localGroupsHomeFragment'}
         formComponents={{
           FormSubmit: GroupFormSubmit
         }}

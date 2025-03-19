@@ -1,5 +1,5 @@
-import Revisions from "@/lib/collections/revisions/collection";
-import { Tags } from "@/lib/collections/tags/collection";
+import Revisions from "@/server/collections/revisions/collection";
+import { Tags } from "@/server/collections/tags/collection";
 import { getLatestRev } from "@/server/editor/utils";
 import { forEachDocumentBatchInCollection , registerMigration } from "./migrationUtils";
 

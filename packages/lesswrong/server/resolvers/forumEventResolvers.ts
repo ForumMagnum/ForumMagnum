@@ -26,7 +26,10 @@ addGraphQLResolvers({
           voteData.points[postId] = Math.max(pointsPerPost, voteData.points?.[postId] ?? 0)
         })
       }
-      repos.forumEvents.addVote(forumEventId, currentUser._id, voteData)
+      await Promise.all([
+        repos.forumEvents.addVote(forumEventId, currentUser._id, voteData),
+        repos.comments.setLatestPollVote({ forumEventId, latestVote: x, userId: currentUser._id })
+      ]);
       captureEvent("addForumEventVote", {
         forumEventId,
         userId: currentUser._id,
@@ -36,11 +39,14 @@ addGraphQLResolvers({
       })
       return true
     },
-    RemoveForumEventVote: (_root: void, {forumEventId}: {forumEventId: string}, {currentUser, repos}: ResolverContext) => {
+    RemoveForumEventVote: async (_root: void, {forumEventId}: {forumEventId: string}, {currentUser, repos}: ResolverContext) => {
       if (!currentUser) {
         throw new Error("Not logged in");
       }
-      repos.forumEvents.removeVote(forumEventId, currentUser._id)
+      await Promise.all([
+        repos.forumEvents.removeVote(forumEventId, currentUser._id),
+        repos.comments.setLatestPollVote({ forumEventId, latestVote: null, userId: currentUser._id })
+      ]);
       captureEvent("removeForumEventVote", {
         forumEventId,
         userId: currentUser._id,

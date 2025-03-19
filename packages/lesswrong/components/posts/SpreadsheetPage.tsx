@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import StarIcon from '@material-ui/icons/Star';
+import Table from '@/lib/vendor/@material-ui/core/src/Table';
+import TableBody from '@/lib/vendor/@material-ui/core/src/TableBody';
+import TableCell from '@/lib/vendor/@material-ui/core/src/TableCell';
+import TableRow from '@/lib/vendor/@material-ui/core/src/TableRow';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery, gql } from '@apollo/client';

@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import IconButton from '@material-ui/core/IconButton';
+import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import { registerComponent } from '@/lib/vulcan-lib/components.tsx';

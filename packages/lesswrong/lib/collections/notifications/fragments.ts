@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const NotificationsList = `
   fragment NotificationsList on Notification {
     _id
     documentId
@@ -14,4 +12,4 @@ registerFragment(`
     viewed
     extraData
   }
-`);
+`

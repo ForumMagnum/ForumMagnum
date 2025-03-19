@@ -1,5 +1,5 @@
-import { Comments } from '../../lib/collections/comments/collection'
-import { Posts } from '../../lib/collections/posts/collection'
+import { Comments } from '../../server/collections/comments/collection'
+import { Posts } from '../../server/collections/posts/collection'
 import { wrapVulcanAsyncScript } from '../scripts/utils'
 import { batchUpdateScore } from '../updateScores';
 

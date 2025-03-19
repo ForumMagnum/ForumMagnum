@@ -1,9 +1,9 @@
 import fs from 'mz/fs';
 import { z } from "zod";
 import Papa from 'papaparse';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { wrapVulcanAsyncScript } from './utils';
-import UserEAGDetails from '../../lib/collections/userEAGDetails/collection';
+import UserEAGDetails from '../../server/collections/userEAGDetails/collection';
 import moment from 'moment';
 
 const csvSchema = z.object({

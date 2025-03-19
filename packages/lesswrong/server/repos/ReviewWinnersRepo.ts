@@ -1,7 +1,7 @@
-import ReviewWinners from "../../lib/collections/reviewWinners/collection";
+import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import type { ReviewWinnerWithPost } from "../../lib/collections/reviewWinners/cache";
+import type { ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "../../lib/reviewUtils";
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {

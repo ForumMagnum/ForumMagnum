@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
@@ -8,7 +8,6 @@ import moment from 'moment';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 export const gardenForm = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -127,8 +126,8 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType<typeof s
           <Components.WrappedSmartForm
             collectionName="GardenCodes"
             fields={fields}
-            mutationFragment={getFragment("GardenCodeFragment")}
-            queryFragment={getFragment("GardenCodeFragment")}
+            mutationFragmentName={'GardenCodeFragment'}
+            queryFragmentName={'GardenCodeFragment'}
             formComponents={{
               FormSubmit: SubmitComponent,
               FormGroupLayout: Components.FormGroupNoStyling

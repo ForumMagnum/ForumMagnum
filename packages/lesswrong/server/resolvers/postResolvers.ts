@@ -1,8 +1,8 @@
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
-import { Comments } from '../../lib/collections/comments/collection';
+import { Comments } from '../../server/collections/comments/collection';
 import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
+import { denormalizedField, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
@@ -21,14 +21,14 @@ import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarket
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
-import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
+import SideCommentCaches from '../../server/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
-import { convertImportedGoogleDoc } from '../editor/conversionUtils';
-import Revisions from '../../lib/collections/revisions/collection';
+import { convertImportedGoogleDoc, dataToMarkdown } from '../editor/conversionUtils';
+import Revisions from '../../server/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { GoogleDocMetadata, getLatestContentsRevision } from '../collections/revisions/helpers';
 import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
@@ -36,8 +36,11 @@ import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { createMutator } from "../vulcan-lib/mutators";
+import { fetchFragmentSingle } from '../fetchFragment';
+import { languageModelGenerateText } from '../languageModels/languageModelIntegration';
+import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
 
-augmentFieldsDict(Posts, {
+export const postResolvers = {
   // Compute a denormalized start/end time for events, accounting for the
   // timezone the event's location is in. This is subtly wrong: it computes a
   // correct timestamp, but then the timezone part of that timezone gets lost
@@ -352,7 +355,57 @@ augmentFieldsDict(Posts, {
       },
     },
   },
-})
+  languageModelSummary: {
+    resolveAs: {
+      type: "String!",
+      resolver: async (post: DbPost, _args: void, context: ResolverContext): Promise<string> => {
+        if (!post.contents_latest) {
+          return "";
+        }
+        const postWithContents = await fetchFragmentSingle({
+          collectionName: "Posts",
+          fragmentName: "PostsOriginalContents",
+          selector: {_id: post._id},
+          currentUser: context.currentUser,
+          context,
+        });
+        if (!postWithContents?.contents?.originalContents) {
+          return "";
+        }
+        const markdownPostBody = dataToMarkdown(
+          postWithContents.contents?.originalContents?.data,
+          postWithContents.contents?.originalContents?.type,
+        );
+        const authorName = "Authorname"; //TODO
+
+        return await languageModelGenerateText({
+          taskName: "summarize",
+          inputs: {
+            title: post.title,
+            author: authorName,
+            text: markdownPostBody,
+          },
+          maxTokens: 1000,
+          context
+        });
+      }
+    },
+  },
+
+  reviewWinner: {
+    resolveAs: {
+      type: 'ReviewWinner',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return null;
+        }
+        const { currentUser } = context;
+        const winner = await getPostReviewWinnerInfo(post._id, context);
+        return accessFilterSingle(currentUser, 'ReviewWinners', winner, context);
+      },
+    }
+  },
+} satisfies Record<string, CollectionFieldSpecification<"Posts">>;
 
 
 export type PostIsCriticismRequest = {
@@ -379,7 +432,7 @@ addGraphQLResolvers({
       }
 
       const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10, args.filter, args.sort)
-      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context)
+      const filteredPosts = accessFilterMultiple(currentUser, 'Posts', posts, context)
       return {
         posts: filteredPosts,
       }
@@ -400,7 +453,7 @@ addGraphQLResolvers({
 
       const posts = await repos.posts.getPostsUserCommentedOn(currentUser._id, limit ?? 20, filter, sort)
       return {
-        posts: await accessFilterMultiple(currentUser, Posts, posts, context)
+        posts: await accessFilterMultiple(currentUser, 'Posts', posts, context)
       }
     },
 
@@ -849,7 +902,7 @@ createPaginatedResolver({
 
     return await Promise.all(postsWithUnfilteredJargon.map(async ({ jargonTerms, ...post }) => ({
       post,
-      jargonTerms: await accessFilterMultiple(currentUser, JargonTerms, jargonTerms, context)
+      jargonTerms: await accessFilterMultiple(currentUser, 'JargonTerms', jargonTerms, context)
     })));
   }
 });

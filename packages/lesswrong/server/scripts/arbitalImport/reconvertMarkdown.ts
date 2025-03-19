@@ -1,22 +1,22 @@
 /* eslint-disable no-console */
 
-import Revisions from "@/lib/collections/revisions/collection";
+import Revisions from "@/server/collections/revisions/collection";
 import groupBy from "lodash/groupBy";
 import { ArbitalImportOptions, buildConversionContext, connectAndLoadArbitalDatabase, defaultArbitalImportOptions } from "./arbitalImport";
 import { createAdminContext } from "@/server/vulcan-lib/query.ts";
 import { arbitalMarkdownToCkEditorMarkup } from "./markdownService";
-import { Comments } from "@/lib/collections/comments/collection.ts";
-import Tags from "@/lib/collections/tags/collection";
+import { Comments } from "@/server/collections/comments/collection.ts";
+import Tags from "@/server/collections/tags/collection";
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
-import { editableCollectionsFieldOptions } from "@/lib/editor/makeEditableOptions";
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
 import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
 import { buildRevision } from "@/server/editor/make_editable_callbacks";
-import { Users } from "@/lib/collections/users/collection";
-import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
+import { Users } from "@/server/collections/users/collection";
+import { getCollection } from "@/server/collections/allCollections";
+import { getEditableFieldInCollection } from "@/lib/editor/make_editable";
 
 export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
@@ -123,9 +123,9 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
 }
 
 
-async function updateDenormalizedEditable(documentId: string, collectionName: CollectionNameString, fieldName: string) {
+async function updateDenormalizedEditable<N extends CollectionNameString>(documentId: string, collectionName: N, fieldName: string) {
   const collection = getCollection(collectionName);
-  if (!editableCollectionsFieldOptions[collectionName][fieldName].normalized) {
+  if (!getEditableFieldInCollection(collectionName, fieldName)?.editableFieldOptions.callbackOptions.normalized) {
     const latestRev = await getLatestRev(documentId, fieldName);
     if (!latestRev) throw new Error(`Could not get latest rev for ${collectionName}["${documentId}"].${fieldName}`);
     await collection.rawUpdateOne(

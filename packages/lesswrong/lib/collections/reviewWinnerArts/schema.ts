@@ -1,7 +1,7 @@
-import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
-import { getReviewWinnerArtCoordinates } from "../splashArtCoordinates/cache";
+import { universalFields } from "../../collectionUtils";
 
 export const schema: SchemaType<"ReviewWinnerArts"> = {
+  ...universalFields({}),
   postId: {
     type: String,
     nullable: false,
@@ -25,16 +25,12 @@ export const schema: SchemaType<"ReviewWinnerArts"> = {
     optional: false,
     nullable: false,
   },
-  activeSplashArtCoordinates: resolverOnlyField({
+  activeSplashArtCoordinates: {
     type: "SplashArtCoordinate",
-    graphQLtype: "SplashArtCoordinate",
     canRead: ['guests'],
-    resolver: async (reviewWinnerArt: DbReviewWinnerArt, args: void, context: ResolverContext) => {
-      const { currentUser, SplashArtCoordinates } = context;
-
-      const coordinates = await getReviewWinnerArtCoordinates(reviewWinnerArt._id, context);
-
-      return accessFilterSingle(currentUser, SplashArtCoordinates, coordinates, context);
-    },
-  }),
+    optional: true,
+    // Implemented in server/resolvers/reviewWinnerArtResolvers.ts
+  },
 }
+
+export default schema;

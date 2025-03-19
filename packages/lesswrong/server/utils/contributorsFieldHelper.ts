@@ -42,7 +42,7 @@ export function contributorsField(options: ContributorsFieldOptions) {
         const contributorUsersUnfiltered = await loadByIds(context, 'Users', contributorUserIds);
         const contributorUsers = await accessFilterMultiple(
           context.currentUser,
-          Users,
+          'Users',
           contributorUsersUnfiltered,
           context
         );

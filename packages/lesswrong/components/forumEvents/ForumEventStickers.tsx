@@ -237,7 +237,8 @@ const ForumEventStickers: FC<{
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker as ForumEventStickerInput // Validated on the server
+      sticker: draftSticker as ForumEventStickerInput, // Validated on the server
+      poll: null
     },
   };
 
@@ -261,7 +262,7 @@ const ForumEventStickers: FC<{
           <ForumEventSticker
             {...draftSticker}
             tooltipDisabled={commentFormOpen}
-            ref={setUserVoteRef}
+            setUserVoteRef={setUserVoteRef}
             onClear={() => clearSticker(null)}
           />
         )}

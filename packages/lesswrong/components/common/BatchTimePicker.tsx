@@ -3,7 +3,7 @@ import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
 

@@ -2,8 +2,8 @@ import "./integrationTestSetup";
 import { updateDenormalizedContributorsList } from '../server/utils/contributorsUtil';
 import { createDummyUser, createDummyTag, createDummyRevision, waitUntilCallbacksFinished } from './utils';
 import { performVoteServer } from '../server/voteServer';
-import Tags from '../lib/collections/tags/collection';
-import Revisions from '../lib/collections/revisions/collection'
+import Tags from '../server/collections/tags/collection';
+import Revisions from '../server/collections/revisions/collection'
 
 describe('Tagging', function() {
   describe('Contributors List', function() {

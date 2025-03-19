@@ -1,8 +1,8 @@
 import type { Request } from "express";
-import Posts from "../../lib/collections/posts/collection";
-import Users from "../../lib/collections/users/collection";
+import Posts from "../../server/collections/posts/collection";
+import Users from "../../server/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
-import { Utils } from "../../lib/vulcan-lib/utils";
+import { createMutator } from "../vulcan-lib/mutators";
 import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
 import { createAnonymousContext } from "../vulcan-lib/query";
 import { extractDenormalizedData } from "./denormalizedFields";
@@ -81,7 +81,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     ...denormalizedData,
   } as Partial<DbPost>;
 
-  const {data: post} = await Utils.createMutator({
+  const {data: post} = await createMutator({
     document,
     collection: Posts,
     validate: false,

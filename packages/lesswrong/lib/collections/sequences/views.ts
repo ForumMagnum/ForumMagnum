@@ -1,6 +1,5 @@
-import { ensureIndex } from '../../collectionIndexUtils';
 import { isAF, isLWorAF } from '../../instanceSettings';
-import Sequences from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface SequencesViewTerms extends ViewTermsBase {
@@ -13,7 +12,7 @@ declare global {
 /**
  * When changing this, also update getViewableSequencesSelector.
  */
-Sequences.addDefaultView((terms: SequencesViewTerms) => {
+function defaultView(terms: SequencesViewTerms) {
   const alignmentForum = isAF ? {af: true} : {}
   let params = {
     selector: {
@@ -23,14 +22,9 @@ Sequences.addDefaultView((terms: SequencesViewTerms) => {
     }
   }
   return params;
-})
-
-function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbSequence>): MongoIndexKeyObj<DbSequence>
-{
-  return { hidden:1, af:1, isDeleted:1, ...indexFields };
 }
 
-Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
+function userProfile(terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -45,10 +39,9 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
       }
     },
   };
-});
-ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
+}
 
-Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
+function userProfilePrivate(terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -66,9 +59,9 @@ Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
       }
     },
   };
-});
+}
 
-Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
+function userProfileAll(terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -83,10 +76,9 @@ Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
       }
     },
   };
-});
-ensureIndex(Sequences, augmentForDefaultView({ userId: 1, draft: 1, hideFromAuthorPage: 1, userProfileOrder: 1 }))
+}
 
-Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
+function curatedSequences(terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -102,10 +94,9 @@ Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
       }
     },
   };
-});
-ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
+}
 
-Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
+function communitySequences(terms: SequencesViewTerms) {
   const gridImageFilter = isLWorAF ? {gridImageId: {$ne: null}} : undefined
 
   return {
@@ -126,4 +117,12 @@ Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
       }
     },
   };
-});
+}
+
+export const SequencesViews = new CollectionViewSet('Sequences', {
+  userProfile,
+  userProfilePrivate,
+  userProfileAll,
+  curatedSequences,
+  communitySequences
+}, defaultView);

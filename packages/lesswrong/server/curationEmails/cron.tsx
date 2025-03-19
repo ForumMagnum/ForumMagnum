@@ -1,8 +1,8 @@
 import React from "react";
 import { useCurationEmailsCron } from "../../lib/betas";
-import CurationEmails from "../../lib/collections/curationEmails/collection";
-import { Posts } from "../../lib/collections/posts/collection";
-import Users from "../../lib/collections/users/collection";
+import CurationEmails from "../../server/collections/curationEmails/collection";
+import { Posts } from "../../server/collections/posts/collection";
+import Users from "../../server/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
 import { Components } from "../../lib/vulcan-lib/components";
@@ -54,7 +54,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
+      body: <Components.PostsEmail postIds={[post._id]} reason={reason}/>
     });
   }
 }

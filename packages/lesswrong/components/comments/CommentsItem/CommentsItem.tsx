@@ -10,7 +10,7 @@ import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
-import FlagIcon from '@material-ui/icons/Flag';
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';

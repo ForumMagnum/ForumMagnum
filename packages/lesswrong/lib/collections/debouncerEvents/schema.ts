@@ -1,5 +1,7 @@
+import { universalFields } from '../../collectionUtils';
 
 const schema = {
+  ...universalFields({}),
   name: {
     type: String,
     nullable: false

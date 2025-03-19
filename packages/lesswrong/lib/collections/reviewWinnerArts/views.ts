@@ -1,4 +1,4 @@
-import ReviewWinnerArts from "./collection";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface NoViewTerms extends ViewTermsBase {
   view?: undefined;
@@ -15,10 +15,14 @@ declare global {
     | PostReviewWinnerArtsViewTerms;
 }
 
-ReviewWinnerArts.addView('postArt', (terms: PostReviewWinnerArtsViewTerms) => {
+function postArt(terms: PostReviewWinnerArtsViewTerms) {
   return {
     selector: {
       postId: terms.postId
     }
   };
+}
+
+export const ReviewWinnerArtsViews = new CollectionViewSet('ReviewWinnerArts', {
+  postArt
 });

@@ -1,11 +1,17 @@
-import Comments from "../lib/collections/comments/collection";
-import Posts from "../lib/collections/posts/collection";
-import Users from "../lib/collections/users/collection";
-import { getAdminTeamAccount, noDeletionPmReason } from "./callbacks/commentCallbacks";
+import Comments from "../server/collections/comments/collection";
+import Posts from "../server/collections/posts/collection";
+import Users from "../server/collections/users/collection";
+import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
 import { sleep } from "../lib/utils/asyncUtils";
 import { createAdminContext } from "./vulcan-lib/query";
 import { updateMutator } from "./vulcan-lib/mutators";
+
+
+/**
+ * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
+ */
+export const noDeletionPmReason = 'Requested account deletion';
 
 /**
  * Please ensure that we know that the user is who they say they are!

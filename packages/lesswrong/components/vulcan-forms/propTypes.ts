@@ -87,8 +87,6 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   autoSubmit?: any
   formProps?: any
   
-  queryFragment?: any
-  mutationFragment?: any
   queryFragmentName?: FragmentName
   mutationFragmentName?: FragmentName
 
@@ -98,10 +96,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
    * Warning - passing in a prefetched document into a wrapped smart form might cause unexpected issues for anything using ckEditor, if the loaded document comes back with different data than what was prefetched.
    */
   prefetchedDocument?: T extends keyof FragmentTypesByCollection ? FragmentTypes[FragmentTypesByCollection[T]] : never
-  
-  // fragment: Used externally, but may be erroneous; the internals of the forms seem to only use queryFragment and mutationFragment
-  fragment?: any
-  
+    
   // version: Passed from PostsEditForm, but may be erroneous; does not seem to be used inside the forms code
   version?: "draft"
   
@@ -121,10 +116,9 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
 }
 
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
-  collection: CollectionBase<AnyBecauseHard>
   typeName: string
   document?: ObjectsByCollectionName[T]
-  schema?: any
+  schema: SchemaType<T>
   createMutation?: any
   updateMutation?: any
   removeMutation?: any
@@ -138,6 +132,7 @@ declare global {
 
   interface FormComponentWrapperProps<T> {
     document: any
+    getDocument: any
     name: string
     label?: string
     placeholder?: string
@@ -155,6 +150,7 @@ declare global {
     clearFieldErrors: any
     tooltip?: string
     formComponents?: FormComponentOverridesType
+    getLabel: (fieldName: string, fieldLocale?: any) => string,
     locale?: string
     max?: number
     nestedInput: any
@@ -162,6 +158,9 @@ declare global {
     formType: "new"|"edit"
     setFooterContent?: any
     hideClear?: boolean
+    submitForm: any
+    addToSubmitForm: any
+    addToSuccessForm: any
   }
   interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
     beforeComponent?: any
@@ -188,9 +187,8 @@ declare global {
     deletedValues?: any
     errors?: any[]
     formType: "edit"|"new"
-  }
-  interface FormComponentContext<T> {
-    updateCurrentValues: UpdateCurrentValues
-    addToDeletedValues: any
+    addToSubmitForm: any
+    addToSuccessForm: any;
+    addToDeletedValues: any;
   }
 }

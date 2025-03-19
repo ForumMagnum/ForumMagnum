@@ -6,7 +6,7 @@ import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
@@ -17,7 +17,7 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -232,7 +232,7 @@ const FooterTagList = ({
         ...TagRelMinimumFragment
       }
     }
-    ${getFragment("TagRelMinimumFragment")}
+    ${fragmentTextForQuery("TagRelMinimumFragment")}
   `);
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {

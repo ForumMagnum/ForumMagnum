@@ -1,5 +1,8 @@
+import { editableFields } from "@/lib/editor/make_editable";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
+import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
+import { universalFields } from "../../collectionUtils";
 
 const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
   stickerEventOptions: {
@@ -18,7 +21,55 @@ const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEven
   canCreate: ["admins"],
 });
 
+const defaultEditableProps: Pick<MakeEditableOptions<'ForumEvents'>, "commentEditor" | "commentStyles" | "hideControls" | "permissions"> = {
+  commentEditor: true,
+  commentStyles: true,
+  hideControls: true,
+  permissions: {
+    canRead: ["guests"],
+    canUpdate: ["admins"],
+    canCreate: ["admins"],
+  },
+};
+
 const schema: SchemaType<"ForumEvents"> = {
+  ...universalFields({}),
+  ...editableFields("ForumEvents", {
+    fieldName: "frontpageDescription",
+    label: "Frontpage description",
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:frontpageDescription:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    ...defaultEditableProps,
+  }),
+
+  ...editableFields("ForumEvents", {
+    fieldName: "frontpageDescriptionMobile",
+    label: "Frontpage description (mobile)",
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:frontpageDescriptionMobile:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    ...defaultEditableProps,
+  }),
+
+  ...editableFields("ForumEvents", {
+    fieldName: "postPageDescription",
+    label: "Post page description",
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:postPageDescription:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    ...defaultEditableProps,
+  }),
+
   title: {
     ...defaultProps(),
     type: String,
@@ -129,6 +180,19 @@ const schema: SchemaType<"ForumEvents"> = {
     type: String,
     options: () => EVENT_FORMATS.map(ef => ({value: ef, label: ef}))
   },
+  ...editableFields("ForumEvents", {
+    fieldName: "pollQuestion",
+    label: "Poll question",
+    hintText: 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:pollQuestion:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    normalized: true,
+    ...defaultEditableProps,
+  }),
   maxStickersPerUser: {
     ...defaultProps(),
     ...schemaDefaultValue(1),

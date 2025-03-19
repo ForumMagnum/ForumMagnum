@@ -1,4 +1,4 @@
-import Users from "@/lib/collections/users/collection";
+import Users from "../collections/users/collection";
 import { updateDefaultValue } from "./meta/utils";
 
 const notificationTypes = [

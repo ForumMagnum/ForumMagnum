@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import Select from '@material-ui/core/Select';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {
   DayOfWeek,
@@ -14,7 +15,6 @@ import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {

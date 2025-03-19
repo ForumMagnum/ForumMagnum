@@ -1,12 +1,12 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
-import JargonTerms from '@/lib/collections/jargonTerms/collection';
+import JargonTerms from '@/server/collections/jargonTerms/collection';
 import { initialGlossaryPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
-import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
+import { getAdminTeamAccount } from '@/server/utils/adminTeamAccount';
 import { z } from 'zod';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';

@@ -1,6 +1,8 @@
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
+import { universalFields } from "../../collectionUtils";
 
 export const schema: SchemaType<"SplashArtCoordinates"> = { 
+  ...universalFields({}),
   reviewWinnerArtId: {
     ...foreignKeyField({
       idFieldName: "reviewWinnerArtId",

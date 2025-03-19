@@ -1,9 +1,9 @@
 import { LanguageModelTemplate, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
-import { Tags } from '../../lib/collections/tags/collection';
+import { Tags } from '../../server/collections/tags/collection';
 import { autoFrontpageModelSetting, autoFrontpagePromptSetting, tagBotAccountSlug } from '../databaseSettings';
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
 import { FetchedFragment } from '../fetchFragment';
 

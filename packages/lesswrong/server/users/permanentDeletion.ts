@@ -1,7 +1,7 @@
-import Users from "@/lib/collections/users/collection";
+import Users from "@/server/collections/users/collection";
 import { addCronJob } from "../cron/cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { mailchimpAPIKeySetting } from "../serverSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "@/lib/publicSettings";

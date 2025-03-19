@@ -5,7 +5,7 @@ import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '.
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
-import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue, slugFields } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
@@ -14,14 +14,17 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { universalFields } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
 import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
+import { editableFields } from '@/lib/editor/make_editable';
+import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -346,7 +349,7 @@ const notificationTypeSettingsField = (overrideSettings?: DeepPartial<Notificati
     canRead: [userOwns, 'admins'] as FieldPermissions,
     canUpdate: [userOwns, 'admins'] as FieldPermissions,
     canCreate: ['members', 'admins'] as FieldCreatePermissions,
-    ...schemaDefaultValue(defaultValue),
+    ...schemaDefaultValue<'Users'>(defaultValue),
     ...migrationFields
   };
 };
@@ -488,6 +491,88 @@ addGraphQLSchema(`
  * @type {Object}
  */
 const schema: SchemaType<"Users"> = {
+  ...universalFields({}),
+  ...editableFields("Users", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    hidden: !hasAuthorModeration,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    }
+  }),
+
+  ...editableFields("Users", {
+    fieldName: 'howOthersCanHelpMe',
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 7,
+    label: "How others can help me",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  ...editableFields("Users", {
+    fieldName: 'howICanHelpOthers',
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 8,
+    label: "How I can help others",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+
+  ...slugFields("Users", {
+    getTitle: (u) => u.displayName ?? createDisplayName(u),
+    includesOldSlugs: true,
+    onCollision: "rejectIfExplicit",
+    slugOptions: {
+      canUpdate: ['admins'],
+      order: 40,
+      group: formGroups.adminOptions,
+    },
+  }),
+
+  // biography: Some text the user provides for their profile page and to display
+  // when people hover over their name.
+  //
+  // Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+  // which now exist as resolver-only fields for back-compatibility.
+  ...editableFields("Users", {
+    fieldName: "biography",
+    commentEditor: true,
+    commentStyles: true,
+    hidden: isEAForum,
+    order: isEAForum ? 6 : 40,
+    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
+    label: "Bio",
+    formVariant: isFriendlyUI ? "grey" : undefined,
+    hintText: "Tell us about yourself",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }),
+  
   username: {
     type: String,
     optional: true,
@@ -1511,7 +1596,7 @@ const schema: SchemaType<"Users"> = {
           sort: {createdAt: -1}
         }
       ).fetch()
-      const filteredEvents = await accessFilterMultiple(currentUser, LWEvents, events, context);
+      const filteredEvents = await accessFilterMultiple(currentUser, 'LWEvents', events, context);
       const IPs = filteredEvents.map(event => event.properties?.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
@@ -2285,7 +2370,7 @@ const schema: SchemaType<"Users"> = {
         cancelled: false,
       }).fetch();
       if (!votes.length) return [];
-      return await accessFilterMultiple(currentUser, Votes, votes, context);
+      return await accessFilterMultiple(currentUser, 'Votes', votes, context);
     },
   }),
 
@@ -2550,7 +2635,7 @@ const schema: SchemaType<"Users"> = {
         const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
-        return await accessFilterMultiple(currentUser, Posts, posts, context);
+        return await accessFilterMultiple(currentUser, 'Posts', posts, context);
       }
     }
   },
@@ -3292,6 +3377,14 @@ const schema: SchemaType<"Users"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
   },
+
+  karmaChanges: {
+    canRead: userOwns,
+    type: "KarmaChanges",
+    optional: true,
+  },
+
+  ...recommendationSettingsField,
 };
 
 export default schema;

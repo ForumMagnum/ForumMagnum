@@ -1,6 +1,10 @@
+import { universalFields } from "@/lib/collectionUtils";
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
+import { getVoteableSchemaFields } from "@/lib/make_voteable";
 
 const schema: SchemaType<"ElectionCandidates"> = {
+  ...universalFields({}),
+
   /** The name of the election this is a candidate in */
   electionName: {
     type: String,
@@ -174,6 +178,8 @@ const schema: SchemaType<"ElectionCandidates"> = {
     nullable: true,
     hidden: true,
   },
+
+  ...getVoteableSchemaFields('ElectionCandidates'),
 };
 
 export default schema;
