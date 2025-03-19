@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 
 
 const GatherTownIframeWrapper = ({iframeRef, classes}: {
-  iframeRef: React.RefObject<HTMLIFrameElement>,
+  iframeRef: React.RefObject<HTMLIFrameElement|null>,
   classes: ClassesType<typeof styles>,
 }) => {
   useEffect(() => {

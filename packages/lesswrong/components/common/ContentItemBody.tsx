@@ -24,7 +24,7 @@ interface ExternalProps {
    * methods. (Doing so is handled by React, not by anything inside of this
    * using the ref prop)
    */
-  ref?: React.RefObject<ContentItemBody>
+  ref?: React.RefObject<ContentItemBody|null>
 
   // className: Name of an additional CSS class to apply to this element.
   className?: string;
@@ -103,7 +103,7 @@ interface ContentItemBodyState {
 //      dangerouslySetInnerHTML on a div, ie, you set the HTML content of this
 //      by passing dangerouslySetInnerHTML={{__html: "<p>foo</p>"}}.
 export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyState> {
-  private bodyRef: React.RefObject<HTMLDivElement>
+  private bodyRef: React.RefObject<HTMLDivElement|null>
 
   private replacedElements: Array<{
     replacementElement: React.ReactNode
@@ -112,7 +112,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   
   constructor(props: ContentItemBodyProps) {
     super(props);
-    this.bodyRef = React.createRef<HTMLDivElement>();
+    this.bodyRef = React.createRef<HTMLDivElement|null>();
     this.replacedElements = [];
     this.state = {
       updatedElements:false,

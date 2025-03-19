@@ -39,7 +39,7 @@ const NotificationTypeSettingsWidget = ({ path, value, label, updateCurrentValue
     });
   }
   
-  const channelOptions: Record<NotificationChannelOption, React.ReactChild> = {
+  const channelOptions: Record<NotificationChannelOption, React.ReactNode> = {
     none: <MenuItem value="none" key="none">Don't notify</MenuItem>,
     onsite: <MenuItem value="onsite" key="onsite">Notify me on-site</MenuItem>,
     email: <MenuItem value="email" key="email">Notify me by email</MenuItem>,

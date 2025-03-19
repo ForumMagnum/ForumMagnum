@@ -32,8 +32,8 @@ type TruncationClasses = "more" | "scratch" | "placeholder" | "item";
  * example, '+ n more' where n is the number of excluded items.
  */
 export const recalculateTruncation = (
-  ref: RefObject<HTMLDivElement>,
-  expandContainer: RefObject<HTMLDivElement>,
+  ref: RefObject<HTMLDivElement|null>,
+  expandContainer: RefObject<HTMLDivElement|null>,
   classes: ClassesType<JssStylesCallback<TruncationClasses>>,
   reformatPlaceholder: (
     moreCount: number,

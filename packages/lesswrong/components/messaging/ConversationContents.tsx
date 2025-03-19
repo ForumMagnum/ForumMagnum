@@ -46,7 +46,7 @@ const ConversationContents = ({
 }: {
   conversation: ConversationsList;
   currentUser: UsersCurrent;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement|null>;
   classes: ClassesType<typeof styles>;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`

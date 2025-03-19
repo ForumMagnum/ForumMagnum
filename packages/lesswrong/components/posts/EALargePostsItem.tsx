@@ -111,7 +111,7 @@ const EALargePostsItem = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const authorExpandContainer = useRef(null);
+  const authorExpandContainer = useRef<HTMLDivElement|null>(null);
 
   const postLink = postGetPageUrl(post);
   const {onClick} = useClickableCell({href: postLink});

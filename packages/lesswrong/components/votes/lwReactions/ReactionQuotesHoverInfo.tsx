@@ -65,7 +65,7 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody|null>|null,
   classes: ClassesType<typeof styles>
 }) => {
   const { ReactOrAntireactVote, UsersWhoReacted } = Components;

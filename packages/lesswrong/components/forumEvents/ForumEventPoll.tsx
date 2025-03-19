@@ -815,7 +815,7 @@ export const ForumEventPoll = ({
                 {ticks.map((tickIndex) => (
                   <div
                     key={tickIndex}
-                    ref={(el) => (tickRefs.current[tickIndex] = el)}
+                    ref={(el) => {tickRefs.current[tickIndex] = el}}
                     className={classNames(
                       classes.tick,
                       isDragging.current && classes.tickDragging,

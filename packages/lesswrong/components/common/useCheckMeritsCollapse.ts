@@ -2,7 +2,7 @@ import { RefObject, useEffect, useRef, useState } from 'react';
 
 export function useCheckMeritsCollapse<T extends HTMLElement>(
   {ref, height, deps}:
-  {ref: RefObject<T>, height: number, deps?: any[]}
+  {ref: RefObject<T|null>, height: number, deps?: any[]}
 ) {
   // this tracks whether the contents of the tab actually overflow
   const [meritsCollapse, setMeritsCollapse] = useState(false)

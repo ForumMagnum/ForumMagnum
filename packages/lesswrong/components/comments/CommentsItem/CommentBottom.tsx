@@ -36,7 +36,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   treeOptions: CommentTreeOptions,
   votingSystem: VotingSystem
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody|null>|null,
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {

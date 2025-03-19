@@ -44,12 +44,12 @@ const reformatAuthorPlaceholder = (
 
 const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
-  expandContainer: RefObject<HTMLDivElement>,
+  expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement|null>(null);
 
   useEffect(() => {
     if (isAnon || authors.length === 0) {

@@ -38,7 +38,7 @@ export const NotificationsPage = ({classes}: {
 
   // Save the initial karma changes to display, as they'll be marked as read
   // once the user visits the page and they'll dissapear
-  const karmaChanges = useRef<KarmaChanges>();
+  const karmaChanges = useRef<KarmaChanges>(null);
   if (fetchedKarmaChanges && !karmaChanges.current) {
     karmaChanges.current = fetchedKarmaChanges.karmaChanges;
   }
@@ -68,7 +68,7 @@ export const NotificationsPage = ({classes}: {
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
       <NotificationsPageTabContextProvider>
-        <NotificationsPageFeed karmaChanges={karmaChanges.current} />
+        <NotificationsPageFeed karmaChanges={karmaChanges.current ?? undefined} />
       </NotificationsPageTabContextProvider>
     </div>
   );

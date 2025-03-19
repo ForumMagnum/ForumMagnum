@@ -139,7 +139,7 @@ const useGenerator = (
   post: RecommendablePost,
 ): RecommendationsGenerator => {
   const [cookies] = useCookiesWithConsent();
-  const generator = useRef<RecommendationsGenerator>();
+  const generator = useRef<RecommendationsGenerator>(null);
   if (!generator.current) {
     const generators = getAvailableGenerators(user, post, cookies);
     const index = Math.floor(seed) % generators.length;
