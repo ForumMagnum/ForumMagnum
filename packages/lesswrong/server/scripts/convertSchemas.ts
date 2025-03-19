@@ -3,6 +3,7 @@ import * as path from 'path';
 import net from 'net';
 import GraphQLJSON from 'graphql-type-json';
 import { allSchemas, getSchema, getSimpleSchema } from '../../lib/schema/allSchemas';
+import { getSchema as getNewSchema } from '../../lib/schema/allNewSchemas';
 import { augmentSchemas } from '../resolvers/allFieldAugmentations';
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { Type } from '../sql/Type';
@@ -262,7 +263,7 @@ const defaultFieldValueSubstitutions = {
         if (!('foreignCollectionName' in func)) {
           throw new Error(`foreignCollectionName not found in func for idResolverSingle in ${collectionName}.${fieldName}`);
         }
-        
+
         const foreignCollectionName = func.foreignCollectionName;
         return `generateIdResolverSingle({ foreignCollectionName: '${foreignCollectionName}', fieldName: '${fieldName}' })`;
       }
@@ -627,10 +628,10 @@ function buildSection(
   field: CollectionFieldSpecification<CollectionNameString>,
   context: Omit<FieldValueSubstitutionProps, 'func'>,
   isResolverOnlyField = false,
-): string[] {
+): string[] | undefined {
   // Don't bother with form section if the original field spec had it set to hidden, since it won't be present in the form
-  if (section === 'form' && (typeof field.hidden === 'boolean' && field.hidden)) {
-    return [];
+  if (section === 'form' && ((typeof field.hidden === 'boolean' && field.hidden) || (!field.canCreate && !field.canUpdate))) {
+    return undefined;
   }
 
   if (section === 'graphql' && !field.canRead) {
@@ -761,8 +762,8 @@ function convertDatabaseField(
   collectionName: CollectionNameString,
 ) {
   const context = { field, fieldName, collectionName };
-  const databaseSection = buildSection(databaseProps, 'database', field, context);
-  const graphqlSection = buildSection(graphqlProps, 'graphql', field, context);
+  const databaseSection = buildSection(databaseProps, 'database', field, context) ?? [];
+  const graphqlSection = buildSection(graphqlProps, 'graphql', field, context) ?? [];
   const formSection = buildSection(formProps, 'form', field, context);
 
   const databaseContent = typeString ? [typeString, ...databaseSection] : databaseSection;
@@ -780,7 +781,7 @@ ${databaseContent.join('\n')}
 ${outputTypeValueForGraphQL}${includeInputType ? `
 ${inputTypeValue}` : ''}
 ${graphqlSection.join('\n')}
-    },` : ''}${formSection.length > 0 ? `
+    },` : ''}${formSection ? `
     form: {
 ${formSection.join('\n')}
     },` : ''}
@@ -796,8 +797,8 @@ function convertResolverOnlyField(
 ) {
   const context = { field, fieldName, collectionName };
   const result: string[] = [];
-  const graphqlSection = buildSection(graphqlProps, 'graphql', field, context, true);
-  const formSection = buildSection(formProps, 'form', field, context, true);
+  const graphqlSection = buildSection(graphqlProps, 'graphql', field, context, true) ?? [];
+  const formSection = buildSection(formProps, 'form', field, context, true) ?? [];
 
   if (field.resolveAs.arguments) {
     graphqlSection.push(`    arguments: ${formatValue(field.resolveAs.arguments, context, 'resolveAs')},`);
@@ -1083,5 +1084,61 @@ export async function convertSchemas() {
   for (const collectionName of Object.keys(allSchemas)) {
     void convertSchemaToNewFormat(collectionName as CollectionNameString);
     await sleep(100);
+  }
+}
+
+export async function findMissingFormSections() {
+  for (const collectionName of Object.keys(allSchemas) as CollectionNameString[]) {
+    const newSchema = getNewSchema(collectionName);
+    const oldSchema = getSchema(collectionName);
+
+    const collectionDir = findCollectionDir(collectionName);
+    if (!collectionDir) {
+      console.warn(`Could not find collection directory for ${collectionName}, skipping...`);
+      continue;
+    }
+    const newSchemaPath = path.join(collectionDir, 'newSchema.ts');
+    const newSchemaContent = await fs.promises.readFile(newSchemaPath, 'utf8');
+    const newSchemaLines = newSchemaContent.split('\n');
+
+    for (const fieldName of Object.keys(oldSchema).filter(fieldName => !fieldName.includes('.$'))) {
+      const oldField = oldSchema[fieldName];
+      if (fieldHasResolveAs(oldField) && !oldField.resolveAs.addOriginalField) {
+        continue;
+      }
+
+      const context = { field: oldField, fieldName, collectionName };
+      const formSection = buildSection(formProps, 'form', oldField, context);
+      if (formSection && !newSchema[fieldName].form) {
+        console.log(`${collectionName}.${fieldName} is missing form section`);
+        const missingFormSection = `    form: {${formSection.join('\n')}},`;
+        // console.log(missingFormSection);
+
+        // Find the beginning of the field in the new schema
+        const fieldStartLine = newSchemaLines.findIndex(line => line.startsWith(`  ${fieldName}: {`));
+
+        // Walk forward, keeping track of opening and closing braces, until we find the end of the field
+        let braceCount = 0;
+        let endLine = fieldStartLine;
+        for (let i = fieldStartLine; i < newSchemaLines.length; i++) {
+          const line = newSchemaLines[i];
+          braceCount += (line.match(/[{]/g) || []).length;
+          braceCount -= (line.match(/[}]/g) || []).length;
+          if (braceCount === 0) {
+            endLine = i;
+            break;
+          }
+        }
+
+        // Splice in the missing form section before the last line of the field
+        newSchemaLines.splice(endLine, 0, missingFormSection);
+        const newFieldLines = newSchemaLines.slice(fieldStartLine, endLine + 2).join('\n');
+        // console.log('New field lines:');
+        // console.log(newFieldLines);
+
+        // Write the new schema to the file
+        await fs.promises.writeFile(newSchemaPath, newSchemaLines.join('\n'));
+      }
+    }
   }
 }
