@@ -43,17 +43,12 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     width: 3,
     backgroundColor: theme.palette.grey[400],
     zIndex: 0, // Ensure it's behind comments
+    display: 'none',
   },
   commentItem: {
-    marginBottom: 4,
     position: 'relative',
     zIndex: 1, // Ensure comments are above the line
-  },
-  indentedCommentItem: {
     marginBottom: 4,
-    position: 'relative',
-    paddingLeft: 16, // Indent subsequent comments
-    zIndex: 1, // Ensure comments are above the line
   },
   viewFullThreadButton: {
     marginTop: 12,
@@ -107,14 +102,14 @@ const UltraFeedThreadItem = ({thread}: {
       
       <div className={classes.commentsList}>
         <div className={classes.commentsContainer}>
-          {visibleComments.length > 1 && <div className={classes.verticalLine}></div>}
+          {/* {visibleComments.length > 1 && <div className={classes.verticalLine}></div>} */}
           
           {visibleComments.map((item: DisplayFeedComment, index: number) => (
             <div 
               key={item.comment._id} 
-              className={index === 0 ? classes.commentItem : classes.indentedCommentItem}
+              className={classes.commentItem}
             >
-              <UltraFeedCommentItem comment={item} />
+              <UltraFeedCommentItem commentWithMetaInfo={item} post={thread.post} />
             </div>
           ))}
         </div>

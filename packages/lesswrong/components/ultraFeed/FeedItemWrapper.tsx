@@ -5,9 +5,6 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
     marginBottom: 32,
-    gap: 4,
-    paddingLeft: 8,
-    borderRadius: 2,
   },
   sourceLabel: {
     display: 'flex',
@@ -39,10 +36,10 @@ const FeedItemWrapper = ({sources, children}: {
   
   return (
     <div className={classes.wrapper}>
+      {children}
       {/* <div className={classes.sourceLabel}>
         {labels.join(', ')}
       </div> */}
-      {children}
     </div>
   );
 };

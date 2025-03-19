@@ -163,7 +163,13 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     // Merge comment data with source information
     const commentsWithSources = comments.map((c: CommentsList) => ({
-      comment: {...c, topLevelCommentId: c.topLevelCommentId ?? c._id},
+      // TODO: figure out ideal fix for __typename stuff, is causing issues in useNotifyMe within Actions Menu on ufCommentItems
+      comment: { 
+        ...c, 
+        topLevelCommentId: c.topLevelCommentId ?? c._id, 
+        __typename: "Comment",
+        user: c.user ? { ...c.user, __typename: "User" } : null 
+      },
       metaInfo: { sources: suggestedComments.find((c2: CommentWithSource) => c2._id === c._id /* c from outer scope */)?.sources ?? [] }
     }));
 
@@ -190,7 +196,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     // Fetch posts data
     const postsQuery = gql`
       query GetPostsForComments($postIds: [String!]!) {
-        posts(input: { terms: { view: "postsByIDs", postIds: $postIds } }) {
+        posts(input: { terms: { view: "postsByIDs", postIds: $postIds, limit: 1000 } }) {
           results {
             ...PostsMinimumInfo
           }
