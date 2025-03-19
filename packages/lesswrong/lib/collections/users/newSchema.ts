@@ -4630,6 +4630,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "FormComponentFriendlyTextInput",
+      group: () => formGroups.generalInfo,
+      order: 2,
+      label: 'Role',
+    },
   },
   organization: {
     database: {
@@ -4643,6 +4650,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      control: "FormComponentFriendlyTextInput",
+      group: () => formGroups.generalInfo,
+      order: 3,
     },
   },
   careerStage: {
@@ -4658,6 +4671,19 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "FormComponentMultiSelect",
+      group: () => formGroups.generalInfo,
+      order: 4,
+      label: "Career stage",
+      placeholder: 'Select all that apply',
+      form: {
+        variant: "grey",
+        separator: ", ",
+        options: CAREER_STAGES,
+      },
+    },
   },
   website: {
     database: {
@@ -4670,6 +4696,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+      },
+    },
+    form: {
+      hidden: true,
+      control: "PrefixedInput",
+      group: () => formGroups.socialMedia,
+      order: 6,
+      form: {
+        inputPrefix: 'https://',
+        heading: "Website",
       },
     },
   },
@@ -4721,6 +4757,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "PrefixedInput",
+      group: () => formGroups.socialMedia,
+      order: 1,
+      form: {
+        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
+        heading: "Social media",
+        smallBottomMargin: true,
+      },
+    },
   },
   facebookProfileURL: {
     database: {
@@ -4733,6 +4780,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+      },
+    },
+    form: {
+      hidden: true,
+      control: "PrefixedInput",
+      group: () => formGroups.socialMedia,
+      order: 2,
+      form: {
+        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
+        smallBottomMargin: true,
       },
     },
   },
@@ -4749,6 +4806,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "PrefixedInput",
+      group: () => formGroups.socialMedia,
+      order: 3,
+      form: {
+        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
+        smallBottomMargin: true,
+      },
+    },
   },
   twitterProfileURL: {
     database: {
@@ -4761,6 +4828,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+      },
+    },
+    form: {
+      hidden: true,
+      control: "PrefixedInput",
+      group: () => formGroups.socialMedia,
+      order: 4,
+      form: {
+        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+        smallBottomMargin: true,
       },
     },
   },
@@ -4801,6 +4878,15 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+      },
+    },
+    form: {
+      hidden: true,
+      control: "PrefixedInput",
+      group: () => formGroups.socialMedia,
+      order: 4,
+      form: {
+        inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL,
       },
     },
   },
@@ -4857,6 +4943,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "SelectLocalgroup",
+      label: "Organizer of",
+      placeholder: 'Select groups to display',
+      tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+      form: {
+        useDocumentAsUser: true,
+        variant: "grey",
+        separator: ", ",
+        multiselect: true,
+        hideClear: true,
+      },
+    },
   },
   organizerOfGroups: {
     graphql: {
@@ -4876,6 +4976,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+      },
+    },
+    form: {
+      hidden: true,
+      control: "FormComponentMultiSelect",
+      placeholder: "Which of these programs have you participated in?",
+      form: {
+        variant: "grey",
+        separator: ", ",
+        options: () => PROGRAM_PARTICIPATION
       },
     },
   },
