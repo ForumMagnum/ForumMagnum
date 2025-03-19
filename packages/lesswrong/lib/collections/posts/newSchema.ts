@@ -32,7 +32,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { getVotingSystems } from "../../voting/votingSystems";
 import {
-  eaFrontpageDateDefault, fmCrosspostSiteNameSetting, isEAForum,
+  eaFrontpageDateDefault, fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum,
   isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting
 } from "../../instanceSettings";
 import { forumSelect } from "../../forumTypeUtils";
@@ -2672,6 +2672,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       control: "FMCrosspostControl",
       hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
       group: () => formGroups.advancedOptions,
+      tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
+        "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it." :
+        undefined,
     },
   },
   canonicalSequenceId: {
@@ -4241,25 +4244,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
           ...getDefaultViewSelector("Comments"),
-          score: {
-            $gt: 0,
-          },
+          score: { $gt: 0 },
           deletedPublic: false,
-          postedAt: {
-            $gt: timeCutoff,
-          },
-          ...(af
-            ? {
-                af: true,
-              }
-            : {}),
-          ...(isLWorAF
-            ? {
-                userId: {
-                  $ne: reviewUserBotSetting.get(),
-                },
-              }
-            : {}),
+          postedAt: { $gt: timeCutoff },
+          ...(af ? { af: true } : {}),
+          ...(isLWorAF ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);

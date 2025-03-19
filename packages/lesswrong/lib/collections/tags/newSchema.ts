@@ -27,7 +27,7 @@ import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/server/utils/contributorsFieldHelper";
 import { captureException } from "@sentry/core";
 import { wikiGradeDefinitions } from "./schema";
-import { isEAForum, isLW } from "@/lib/instanceSettings";
+import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from "@/lib/instanceSettings";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -469,7 +469,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       },
     },
     form: {
-      tooltip: "Rank this wikitag higher in lists of wikitags?",
+      tooltip: `Rank this ${taggingNameSetting.get()} higher in lists of ${taggingNamePluralSetting.get()}?`,
       group: () => formGroups.advancedOptions,
     },
   },
@@ -1319,7 +1319,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
     },
     form: {
       label: "No Index",
-      tooltip: "Hide this wikitag from search engines",
+      tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
       group: () => formGroups.advancedOptions,
     },
   },

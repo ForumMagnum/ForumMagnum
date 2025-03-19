@@ -14,8 +14,10 @@ import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from ".
 import { formGroups } from "./formGroups";
 import * as _ from "underscore";
 import {
+  hasEventsSetting,
   isAF,
   isEAForum, isLW, isLWorAF,
+  taggingNamePluralSetting,
   verifyEmailsSetting
 } from "../../instanceSettings";
 import {
@@ -1016,8 +1018,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       outputType: "Date",
       canRead: ["members"],
       canUpdate: verifyEmailsSetting.get()
-      ? [userOwns, 'sunshineRegiment', 'admins']
-      : [],
+        ? [userOwns, 'sunshineRegiment', 'admins']
+        : [],
       canCreate: ["members"],
       validation: {
         optional: true,
@@ -2194,7 +2196,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       label: "Auto-subscribe to posts/events in groups I organize",
       control: "checkbox",
-      hidden: false,
+      hidden: !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2367,7 +2369,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       label: "Posts/events in groups I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
-      hidden: false,
+      hidden: !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2508,7 +2510,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       label: "New events in my notification radius",
       control: "NotificationTypeSettingsWidget",
-      hidden: false,
+      hidden: !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2550,7 +2552,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       label: "New RSVP responses to my events",
       control: "NotificationTypeSettingsWidget",
-      hidden: false,
+      hidden: !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2574,7 +2576,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       label: "Group administration notifications",
       control: "NotificationTypeSettingsWidget",
-      hidden: false,
+      hidden: !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -3316,7 +3318,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       order: 100,
       label: "Account location (used for location-based recommendations)",
       control: "LocationFormComponent",
-      hidden: false,
+      hidden: !hasEventsSetting.get(),
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -4514,6 +4516,16 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      order: isLWorAF ? 40 : 1,
+      group: () => formGroups.default,
+      label: "Profile Image",
+      control: "ImageUpload",
+      form: {
+        horizontal: true,
+      },
+    },
   },
   jobTitle: {
     database: {
@@ -4718,6 +4730,17 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      group: () => formGroups.aboutMe,
+      order: 100,
+      control: "TagMultiselect",
+      form: {
+        variant: "grey",
+      },
+      label: "Interests",
+      placeholder: `Search for ${taggingNamePluralSetting.get()}`
     },
   },
   profileTags: {
