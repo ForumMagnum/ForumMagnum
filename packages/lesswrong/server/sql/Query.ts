@@ -420,6 +420,12 @@ abstract class Query<T extends DbObject> {
           return ["NOT (", ...this.compileComparison(fieldName, value[comparer]), ")"];
 
         case "$nin":
+          const expression = value[comparer];
+
+          if (Array.isArray(expression) && expression.length === 0) {
+            return ["1=1"];
+          }
+
           return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
 
         case "$in":
