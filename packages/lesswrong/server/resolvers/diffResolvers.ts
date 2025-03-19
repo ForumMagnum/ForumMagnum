@@ -1,7 +1,7 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import { isValidCollectionName } from '../../lib/vulcan-lib/getCollection';
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { editableCollections, editableCollectionsFields, } from '../../lib/editor/make_editable';
+import { isValidCollectionName } from '@/server/collections/allCollections';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection, } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from './htmlDiff';
 import { getPrecedingRev } from '../editor/utils';
@@ -18,19 +18,17 @@ addGraphQLResolvers({
       if (!isValidCollectionName(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
       }
-      if (!editableCollections.has(collectionName)) {
+      if (!getEditableCollectionNames().includes(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
       }
-      if (!editableCollectionsFields[collectionName]!.find(f=>f===fieldName)) {
+      if (!getEditableFieldNamesForCollection(collectionName).find(f=>f===fieldName)) {
         throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
       }
-      
-      const collection = context[collectionName];
       
       const documentUnfiltered = await context.loaders[collectionName].load(id);
       
       // Check that the user has access to the document
-      const document = await accessFilterSingle(currentUser, collection, documentUnfiltered, context);
+      const document = await accessFilterSingle(currentUser, collectionName, documentUnfiltered, context);
       if (!document) {
         throw new Error(`Could not find document: ${id}`);
       }
@@ -54,8 +52,8 @@ addGraphQLResolvers({
         beforeUnfiltered = await getPrecedingRev(afterUnfiltered);
       }
       
-      const before: Partial<DbRevision>|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
-      const after: Partial<DbRevision>|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
+      const before: Partial<DbRevision>|null = await accessFilterSingle(currentUser, 'Revisions', beforeUnfiltered, context);
+      const after: Partial<DbRevision>|null = await accessFilterSingle(currentUser, 'Revisions', afterUnfiltered, context);
       // If we don't provide a beforeRev at all, then just assume that all in the current revision is new
       if (beforeRev && (!before || !beforeUnfiltered)) {
         throw new Error(`Could not find revision: ${beforeRev}`);

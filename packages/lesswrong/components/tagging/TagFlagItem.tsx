@@ -5,7 +5,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import Card from "@material-ui/core/Card";
+import Card from "@/lib/vendor/@material-ui/core/src/Card";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 

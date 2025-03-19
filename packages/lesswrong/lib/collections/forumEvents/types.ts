@@ -29,7 +29,13 @@ export type ForumEventStickerData = {
 // Should match ForumEventCommentMetadataSchema
 export type ForumEventCommentMetadata = {
   eventFormat: ForumEventFormat
-  sticker?: Partial<ForumEventStickerInput>
+  sticker?: Partial<ForumEventStickerInput> | null
+  poll?: {
+    /** 0 to 1 */
+    voteWhenPublished: number
+    /** 0 to 1, in the case where the vote hasn't changed, latestVote will be null and voteWhenPublished will have the latest vote */
+    latestVote?: number | null
+  } | null
 }
 
 // Should match ForumEventCommentMetadata
@@ -63,6 +69,21 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
       }
     }),
     optional: true,
+    nullable: true,
   },
+  poll: {
+    type: new SimpleSchema({
+      voteWhenPublished: {
+        type: Number,
+      },
+      latestVote: {
+        type: Number,
+        optional: true,
+        nullable: true
+      },
+    }),
+    optional: true,
+    nullable: true
+  }
 });
 

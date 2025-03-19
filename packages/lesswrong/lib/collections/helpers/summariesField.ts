@@ -1,5 +1,4 @@
 import { resolverOnlyField } from "@/lib/utils/schemaUtils";
-import { formGroups } from "../tags/formGroups";
 
 export function summariesField<T extends CollectionNameString>(collectionName: T, fieldOptions: CollectionFieldSpecification<T> = {}) {
   return {

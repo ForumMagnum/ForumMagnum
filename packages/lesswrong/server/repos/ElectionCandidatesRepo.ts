@@ -1,5 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
-import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
+import ElectionCandidates from "../../server/collections/electionCandidates/collection";
 import { getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

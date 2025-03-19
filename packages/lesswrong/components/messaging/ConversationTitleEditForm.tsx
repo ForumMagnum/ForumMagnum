@@ -1,9 +1,8 @@
 import React from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 /**
  * Form for editing the title of a private messages conversation and also for
@@ -19,9 +18,8 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
         <Components.WrappedSmartForm
           collectionName="Conversations"
           documentId={documentId}
-          fragment={getFragment('ConversationsList')}
-          queryFragment={getFragment('ConversationsList')}
-          mutationFragment={getFragment('ConversationsList')}
+          queryFragmentName={'ConversationsList'}
+          mutationFragmentName={'ConversationsList'}
           successCallback={() => {
             if (onClose)
               onClose();

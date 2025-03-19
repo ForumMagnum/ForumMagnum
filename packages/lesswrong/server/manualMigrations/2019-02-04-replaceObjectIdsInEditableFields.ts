@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { editableCollections } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { getEditableCollectionNames } from '../../lib/editor/make_editable'
+import { getCollection } from '../collections/allCollections';
 import * as _ from 'underscore';
 
 export default registerMigration({
@@ -8,7 +8,7 @@ export default registerMigration({
   dateWritten: "2019-02-04",
   idempotent: true,
   action: async () => {
-    const collectionNames: Array<CollectionNameString> = [...editableCollections, "Revisions", "Votes"]
+    const collectionNames: Array<CollectionNameString> = [...getEditableCollectionNames(), "Revisions", "Votes"]
     for (let collectionName of collectionNames) {
       const collection = getCollection(collectionName)
       await migrateDocuments({

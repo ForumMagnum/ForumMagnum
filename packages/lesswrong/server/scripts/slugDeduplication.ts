@@ -1,4 +1,4 @@
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const runDeduplication = false;

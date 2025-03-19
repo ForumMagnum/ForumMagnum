@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
+import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType) => ({

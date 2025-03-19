@@ -2,7 +2,6 @@ import React from 'react';
 import { styles } from './CollectionsEditForm';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getFragment } from "../../lib/vulcan-lib/fragments";
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
@@ -20,9 +19,8 @@ const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps, class
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
-        fragment={getFragment('ChaptersFragment')}
-        queryFragment={getFragment('ChaptersFragment')}
-        mutationFragment={getFragment('ChaptersFragment')}
+        queryFragmentName={'ChaptersFragment'}
+        mutationFragmentName={'ChaptersFragment'}
       />
     </div>
   )

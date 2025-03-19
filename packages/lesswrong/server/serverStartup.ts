@@ -3,7 +3,7 @@ import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
 import PgCollection, { DbTarget } from './sql/PgCollection';
-import { Collections } from '../lib/vulcan-lib/getCollection';
+import { getAllCollections } from './collections/allCollections';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
@@ -15,6 +15,7 @@ import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFil
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
+import { augmentSchemas } from '@/server/resolvers/allFieldAugmentations';
 
 const numCPUs = cpus().length;
 
@@ -79,8 +80,9 @@ const initSettings = () => {
 }
 
 const initPostgres = async () => {
-  if (Collections.some(collection => collection instanceof PgCollection)) {
-    for (const collection of Collections) {
+  augmentSchemas();
+  if (getAllCollections().some(collection => collection instanceof PgCollection)) {
+    for (const collection of getAllCollections()) {
       if (collection instanceof PgCollection) {
         collection.buildPostgresTable();
       }

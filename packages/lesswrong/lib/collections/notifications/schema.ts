@@ -1,7 +1,11 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Notifications"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: [userOwns]},
+  }),
   userId: {
     type: String,
     foreignKey: "Users",

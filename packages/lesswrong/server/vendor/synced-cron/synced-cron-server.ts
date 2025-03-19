@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { CronHistories } from '../../../lib/collections/cronHistories/collection';
+import { CronHistories } from '../../../server/collections/cronHistories/collection';
 import { isDevelopment } from '@/lib/executionEnvironment';
 
 // A package for running jobs synchronized across multiple processes

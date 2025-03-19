@@ -38,13 +38,15 @@ import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 import { ensureClientId } from '@/server/clientIdMiddleware';
 import { captureEvent } from '@/lib/analyticsEvents';
+import { getSqlBytesDownloaded } from '@/server/sqlConnection';
+import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
 type RenderTimings = {
-  totalTime: number
-  prerenderTime: number
-  renderTime: number
+  wallTime: number
+  cpuTime: number
+  sqlBytesDownloaded?: number
 }
 
 export interface RenderSuccessResult {
@@ -438,6 +440,9 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 }
 
 const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
+  const startCpuTime = getCpuTimeMs();
+  const startSqlBytesDownloaded = getSqlBytesDownloaded();
+
   let prefetchedResources: Promise<boolean | undefined>;
   if (!cacheAttemptParams.cacheAttempt) {
     // If this is rendering a request for a page that is not cache-eligible,
@@ -525,19 +530,20 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const jssSheets = renderJssSheetImports(themeOptions);
 
   const finishedTime = new Date();
+  const finishedCpuTime = getCpuTimeMs();
   const timings: RenderTimings = {
-    prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
-    renderTime: finishedTime.valueOf() - afterPrerenderTime.valueOf(),
-    totalTime: finishedTime.valueOf() - startTime.valueOf()
+    wallTime: finishedTime.valueOf() - startTime.valueOf(),
+    cpuTime: finishedCpuTime - startCpuTime,
+    ...(measureSqlBytesDownloaded ? {sqlBytesDownloaded: getSqlBytesDownloaded() - startSqlBytesDownloaded} : {}),
   };
   
   // eslint-disable-next-line no-console
   const slowSSRWarnThreshold = slowSSRWarnThresholdSetting.get();
-  if (timings.totalTime > slowSSRWarnThreshold) {
+  if (timings.wallTime > slowSSRWarnThreshold) {
     captureException(new Error(`SSR time above ${slowSSRWarnThreshold}ms`), {
       extra: {
         url: getPathFromReq(req),
-        ssrTime: timings.totalTime,
+        ssrTime: timings.wallTime,
       }
     });
   }
@@ -580,5 +586,10 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
 }
 
 const formatTimings = (timings: RenderTimings): string => {
-  return `${timings.totalTime}ms`;
+  return `${timings.wallTime}ms`;
+}
+
+const getCpuTimeMs = (): number => {
+  const cpuUsage = process.cpuUsage();
+  return (cpuUsage.system + cpuUsage.user) / 1000.0;
 }

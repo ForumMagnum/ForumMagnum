@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
-import { Users } from '../../lib/collections/users/collection';
-import { Conversations } from '../../lib/collections/conversations/collection';
-import { Messages } from '../../lib/collections/messages/collection';
+import { Users } from '../../server/collections/users/collection';
+import { Conversations } from '../../server/collections/conversations/collection';
+import { Messages } from '../../server/collections/messages/collection';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createMutator } from '../vulcan-lib/mutators';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';

@@ -1,4 +1,4 @@
-import Spotlights from "../../lib/collections/spotlights/collection"
+import Spotlights from "../../server/collections/spotlights/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const acceptsSchemaHash = "498e064c609716f4a0b3dd145dab50b2";

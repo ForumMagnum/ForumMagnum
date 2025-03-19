@@ -24,6 +24,7 @@ export type TagLens = MultiDocumentMinimumInfo & {
   preview: string | null;
   originalLensDocument: MultiDocumentContentDisplay | MultiDocumentWithContributors | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
+  textLastUpdatedAt: Date | null;
 }
 
 interface TagLensInfo {
@@ -56,7 +57,7 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
-
+    textLastUpdatedAt: tag.textLastUpdatedAt,
     baseScore: tag.baseScore,
     extendedScore: tag.extendedScore,
     score: tag.score,
@@ -82,6 +83,7 @@ export function addDefaultLensToLenses(
       contributors: 'contributors' in lens ? lens.contributors : null,
       arbitalLinkedPages: 'arbitalLinkedPages' in lens ? lens.arbitalLinkedPages : null,
       originalLensDocument: lens,
+      textLastUpdatedAt: lens.textLastUpdatedAt,
     }))
   ];
 }

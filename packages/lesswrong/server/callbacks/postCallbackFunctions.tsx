@@ -1,11 +1,11 @@
 import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/schema";
-import { Posts } from "@/lib/collections/posts/collection";
+import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
@@ -552,7 +552,7 @@ export function addLinkSharingKey(post: DbPost): DbPost {
 }
 
 /* CREATE AFTER */
-export async function applyNewPostTags(post: DbPost, props: CreateCallbackProperties<'Posts'>) {
+export async function applyNewPostTags(post: DbPost, props: AfterCreateCallbackProperties<'Posts'>) {
   const {currentUser, context} = props;
   if (!currentUser) return post; // Shouldn't happen, but just in case
   
@@ -566,7 +566,7 @@ export async function applyNewPostTags(post: DbPost, props: CreateCallbackProper
   return post;
 }
 
-export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<'Posts'>) {
+export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
   const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
   const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
 
@@ -597,6 +597,36 @@ export async function createNewJargonTermsCallback(post: DbPost, callbackPropert
   }
 
   return post;
+}
+
+export async function updateFirstDebateCommentPostId(newDoc: DbPost, { context, currentUser }: AfterCreateCallbackProperties<'Posts'>) {
+  const { Comments } = context;
+
+  const isFirstDebatePostComment = 'debate' in newDoc
+      ? !!newDoc.debate
+      : false;
+
+  if (currentUser && isFirstDebatePostComment) {
+    // With the editable callback refactoring, this might now be missing a documentId,
+    // but we should really just get rid of this code anyways since debates are deprecated.
+    const revision = await getLatestContentsRevision(newDoc, context);
+    if (!revision?.html) {
+      return newDoc;
+    }
+
+    await createMutator({
+      collection: Comments,
+      document: {
+        userId: currentUser._id,
+        postId: newDoc._id,
+        contents: revision as EditableFieldInsertion,
+        debateResponse: true,
+      },
+      context,
+      currentUser,
+    });
+  }
+  return newDoc;
 }
 
 /* NEW AFTER */
@@ -655,12 +685,13 @@ export function postsNewPostRelation(post: DbPost, callbackProperties: AfterCrea
 
 // Use the first image in the post as the social preview image
 export async function extractSocialPreviewImage(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
-  const { context: { Posts } } = callbackProperties;
+  const { context } = callbackProperties;
+  const { Posts } = context;
   
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
-  const contents = await getLatestContentsRevision(post);
+  const contents = await getLatestContentsRevision(post, context);
   if (!contents) {
     return post;
   }
@@ -1017,11 +1048,11 @@ export function sendPostApprovalNotifications(post: DbPost, oldPost: DbPost) {
   }
 }
 
-export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPost, oldPost: DbPost) {
+export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
   if (newPost.collabEditorDialogue) {
     const [oldIds, newIds] = await Promise.all([
-      getDialogueResponseIds(oldPost),
-      getDialogueResponseIds(newPost),
+      getDialogueResponseIds(oldPost, context),
+      getDialogueResponseIds(newPost, context),
     ]);
     const uniqueNewIds = _.difference(newIds, oldIds);
     

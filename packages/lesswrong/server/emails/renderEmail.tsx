@@ -1,4 +1,4 @@
-import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
+import { createGenerateClassName, MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
@@ -10,12 +10,11 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
-import LWEvents from '../../lib/collections/lwevents/collection';
+import LWEvents from '../../server/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
-import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -23,6 +22,8 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
+import { cheerioParse } from '../utils/htmlUtil';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -176,8 +177,6 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // accordingly.
   await getDataFromTree(wrappedBodyComponent);
   
-  validateSheets(sheetsRegistry);
-  
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
   
@@ -186,12 +185,15 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const css = sheetsRegistry.toString();
   const html = boilerplateGenerator({ css, body, title:subject })
   
+  // Find any relative links, and convert them to absolute
+  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
+  
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
-  const inlinedHTML = Juice(html, { preserveMediaQueries: true });
+  const inlinedHTML = Juice(htmlWithAbsoluteUrls, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText(html, {
+  const plaintext = htmlToText(htmlWithAbsoluteUrls, {
     wordwrap: plainTextWordWrap
   });
   
@@ -266,20 +268,6 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   }
 }
 
-function validateSheets(sheetsRegistry: typeof SheetsRegistry)
-{
-  let styleValidator = new StyleValidator();
-  
-  for (let sheet of sheetsRegistry.registry) {
-    for (let rule of sheet.rules.index) {
-      if (rule.style) {
-        styleValidator.validate(rule.style, rule.selectorText);
-      }
-    }
-  }
-}
-
-
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
@@ -344,4 +332,29 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
     return "Setting 'Do not send me any emails' is checked";
   
   return null;
+}
+
+function makeAllUrlsAbsolute(html: string, relativeTo: string): string {
+  const $ = cheerioParse(html);
+  
+  $('a').each((_, element) => {
+    const href = $(element).attr('href');
+    
+    // Skip if there's no href attribute or it's already absolute, empty, or just a hash
+    if (!href || href.startsWith('http://') || href.startsWith('https://')
+      || href === '' || href === '#' || href.startsWith('mailto:') || href.startsWith('tel:')
+    ) {
+      return;
+    }
+    
+    try {
+      const absoluteUrl = new URL(href, relativeTo).href;
+      $(element).attr('href', absoluteUrl);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`Could not convert URL "${href}" to absolute: ${error}`);
+    }
+  });
+  
+  return $.html();
 }

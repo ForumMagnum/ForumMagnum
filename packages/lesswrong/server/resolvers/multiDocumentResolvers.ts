@@ -1,6 +1,4 @@
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
 import { GraphQLJSON } from "graphql-type-json";
-import { accessFilterMultiple, augmentFieldsDict } from "@/lib/utils/schemaUtils";
 import { getToCforMultiDocument } from "../tableOfContents";
 import { loadByIds } from "@/lib/loaders";
 import { defineMutation } from "../utils/serverGraphqlUtil";
@@ -8,7 +6,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { updateMutator } from "../vulcan-lib/mutators";
 import { contributorsField } from '../utils/contributorsFieldHelper';
 
-augmentFieldsDict(MultiDocuments, {
+export const multiDocumentResolvers = {
   contributors: contributorsField({
     collectionName: 'MultiDocuments',
     fieldName: 'contents',
@@ -22,7 +20,7 @@ augmentFieldsDict(MultiDocuments, {
       },
     },
   },
-});
+} satisfies Record<string, CollectionFieldSpecification<"MultiDocuments">>;
 
 defineMutation({
   name: 'reorderSummaries',
@@ -58,7 +56,7 @@ defineMutation({
     // Check that the user has permission to edit at least the first summary
     // (permissions should be the same for all summaries, since they are all summaries of the same parent document)
     if (MultiDocuments.options.mutations?.update?.check) {
-      const canEditFirstSummary = await MultiDocuments.options.mutations?.update?.check(currentUser, summaries[0]);
+      const canEditFirstSummary = await MultiDocuments.options.mutations?.update?.check(currentUser, summaries[0], context);
       if (!canEditFirstSummary) {
         throw new Error('User does not have permission to edit summaries for this document');
       }

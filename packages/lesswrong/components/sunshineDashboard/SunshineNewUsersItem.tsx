@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import FlagIcon from '@material-ui/icons/Flag'
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag'
 
 const styles = (theme: ThemeType) => ({
   negativeKarma: {

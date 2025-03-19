@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
-import { getFragment } from "@/lib/vulcan-lib/fragments.ts";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -222,8 +221,8 @@ const SummaryEditorRow = ({ summary, refetch }: {
         key={mountKey}
         collectionName="MultiDocuments"
         documentId={summary._id}
-        mutationFragment={getFragment('MultiDocumentContentDisplay')}
-        queryFragment={getFragment('MultiDocumentContentDisplay')}
+        mutationFragmentName={'MultiDocumentContentDisplay'}
+        queryFragmentName={'MultiDocumentContentDisplay'}
         prefetchedDocument={summary}
         successCallback={() => {
           setEdit(false);
@@ -263,8 +262,8 @@ const NewSummaryEditor = ({ parentDocument, refetchSummaries, setNewSummaryEdito
   return <div className={classes.summaryRowFormStyles}>
     <WrappedSmartForm
       collectionName="MultiDocuments"
-      mutationFragment={getFragment('MultiDocumentContentDisplay')}
-      queryFragment={getFragment('MultiDocumentContentDisplay')}
+      mutationFragmentName={'MultiDocumentContentDisplay'}
+      queryFragmentName={'MultiDocumentContentDisplay'}
       successCallback={wrappedSuccessCallback}
       cancelCallback={() => setNewSummaryEditorOpen(false)}
       formComponents={{ FormSubmit: SummarySubmitButtons }}

@@ -2,7 +2,7 @@ import "./integrationTestSetup";
 import { createDummyPost, createDummyLocalgroup } from "./utils";
 
 // TODO: this is a temporary hack to resolve an import order issue with callback hooks on ReviewVotes.  Do not remove this or the stringify, or move it below the import of `notificationCallbacks`!
-import ReviewVotes from "../lib/collections/reviewVotes/collection";
+import ReviewVotes from "../server/collections/reviewVotes/collection";
 JSON.stringify({ ReviewVotes });
 
 import { sendNewPostNotifications } from "@/server/callbacks/postCallbackFunctions";

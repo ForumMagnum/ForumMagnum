@@ -6,7 +6,6 @@ import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
-import { addAllEditableCallbacks } from './editor/make_editable_callbacks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { initGoogleVertex } from './google-vertex/client';
 import { addElicitResolvers } from './resolvers/elicitPredictions';
@@ -18,9 +17,8 @@ import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
-import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 import type { CommandLineArguments } from './commandLine';
+import { captureEvent } from '@/lib/analyticsEvents';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -52,20 +50,18 @@ export async function runServerOnStartupFunctions() {
   startMemoryUsageMonitor();
   initLegacyRoutes();
   await startupSanityChecks();
-  addAllEditableCallbacks();
   await refreshKarmaInflationCache();
   initGoogleVertex();
   addElicitResolvers();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
-  addCountOfReferenceCallbacks();
 
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
-  registerElasticCallbacks();
 
   startSyncedCron();
+  captureEvent("serverStarted", {});
 }
 
 

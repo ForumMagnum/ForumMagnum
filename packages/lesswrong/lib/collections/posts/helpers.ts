@@ -1,11 +1,9 @@
 import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting } from '../../publicSettings';
-import Localgroups from '../localgroups/collection';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
@@ -39,8 +37,8 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost): Promise<string> {
-  var user = await mongoFindOne("Users", post.userId);
+export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
+  var user = await context.Users.findOne({_id: post.userId});
   if (user) {
     return userGetDisplayName(user);
   } else {
@@ -238,14 +236,14 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null 
  * @param post
  * @returns {Promise} Promise object resolves to true if the post has a group and the user is an organizer for that group
  */
-export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext|null): Promise<boolean> => {
+export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext): Promise<boolean> => {
+  const { loaders } = context;
+
   const groupId = ('group' in post) ? post.group?._id : post.groupId;
   if (!user || !groupId)
     return false
     
-  const group = context
-    ? await context.loaders.Localgroups.load(groupId)
-    : await Localgroups.findOne({_id: groupId});
+  const group = await loaders.Localgroups.load(groupId);
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
@@ -340,7 +338,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
-const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
+export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
 const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
 /** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */

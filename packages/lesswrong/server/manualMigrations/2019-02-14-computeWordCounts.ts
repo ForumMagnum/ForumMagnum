@@ -1,8 +1,8 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
+import { getCollection } from '../collections/allCollections';
 import { dataToWordCount } from '../editor/conversionUtils';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 
 export default registerMigration({
   name: "computeWordCounts",
@@ -43,8 +43,8 @@ export default registerMigration({
     });
     
     // Fill in wordCount in the denormalized latest revs on posts/comments/etc
-    for (let collectionName of editableCollections) {
-      for (let fieldName of editableCollectionsFields[collectionName]!) {
+    for (let collectionName of getEditableCollectionNames()) {
+      for (let fieldName of getEditableFieldNamesForCollection(collectionName)) {
         const collection: CollectionBase<any> = getCollection(collectionName)
         await migrateDocuments({
           description: `Compute word counts for ${collectionName}.${fieldName}`,

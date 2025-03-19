@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
-
-registerFragment(`
+export const UsersMinimumInfo = `
   fragment UsersMinimumInfo on User {
     _id
     slug
@@ -26,9 +24,9 @@ registerFragment(`
     tagRevisionCount
     reviewedByUserId
   }
-`);
+`
 
-registerFragment(`
+export const UsersProfile = `
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     oldSlugs
@@ -97,9 +95,9 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
   }
-`);
+`
 
-registerFragment(`
+export const UsersCurrent = `
   fragment UsersCurrent on User {
     ...UsersProfile
 
@@ -225,7 +223,7 @@ registerFragment(`
     generateJargonForDrafts
     generateJargonForPublishedPosts
   }
-`);
+`
 
 /**
  * Fragment containing rate-limit information (ie, whether the user is rate limited and when
@@ -233,30 +231,30 @@ registerFragment(`
  * involve some DB queries that we don't want to have to finish in serial before the rest of the
  * page can start loading.
  */
-registerFragment(`
+export const UsersCurrentCommentRateLimit = `
   fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
   }
-`);
+`
 
-registerFragment(`
+export const UsersCurrentPostRateLimit = `
   fragment UsersCurrentPostRateLimit on User {
     _id
     rateLimitNextAbleToPost(eventForm: $eventForm)
   }
-`);
+`
 
-registerFragment(`
+export const UserBookmarkedPosts = `
   fragment UserBookmarkedPosts on User {
     _id
     bookmarkedPosts {
       ...PostsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const UserKarmaChanges = `
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
@@ -394,9 +392,9 @@ registerFragment(`
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const UsersBannedFromUsersModerationLog = `
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -404,9 +402,9 @@ registerFragment(`
     bannedUserIds
     bannedPersonalUserIds
   }
-`)
+`
 
-registerFragment(`
+export const SunshineUsersList = `
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
@@ -461,16 +459,16 @@ registerFragment(`
     recentKarmaInfo
     lastNotificationsCheck
   }
-`);
+`
 
-registerFragment(`
+export const UserAltAccountsFragment = `
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
     IPs
   }
-`);
+`
 
-registerFragment(`
+export const SharedUserBooleans = `
   fragment SharedUserBooleans on User {
     walledGardenInvite
     hideWalledGardenUI
@@ -478,11 +476,11 @@ registerFragment(`
     taggingDashboardCollapsed
     usernameUnset
   }
-`)
+`
 
 // Fragment used for the map markers on /community. This is a much-larger-than-
 // usual number of users, so keep this fragment minimal.
-registerFragment(`
+export const UsersMapEntry = `
   fragment UsersMapEntry on User {
     _id
     displayName
@@ -496,10 +494,10 @@ registerFragment(`
     mapLocationSet
     htmlMapMarkerText
   }
-`);
+`
 
 
-registerFragment(`
+export const UsersEdit = `
   fragment UsersEdit on User {
     ...UsersCurrent
     biography {
@@ -609,9 +607,9 @@ registerFragment(`
 
     twitterProfileURLAdmin
   }
-`)
+`
 
-registerFragment(`
+export const UsersAdmin = `
   fragment UsersAdmin on User {
     _id
     username
@@ -624,17 +622,17 @@ registerFragment(`
     services
     karma
   }
-`);
+`
 
-registerFragment(`
+export const UsersWithReviewInfo = `
   fragment UsersWithReviewInfo on User {
     ...UsersMinimumInfo
     reviewVoteCount
     email
   }
-`)
+`
 
-registerFragment(`
+export const UsersProfileEdit = `
   fragment UsersProfileEdit on User {
     _id
     slug
@@ -666,25 +664,25 @@ registerFragment(`
     twitterProfileURL
     githubProfileURL
   }
-`)
+`
 
-registerFragment(`
+export const UsersCrosspostInfo = `
   fragment UsersCrosspostInfo on User {
     _id
     username
     slug
     fmCrosspostUserId
   }
-`)
+`
 
-registerFragment(`
+export const UsersOptedInToDialogueFacilitation = `
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
   }
-`);
+`
 
-registerFragment(`
+export const UserOnboardingAuthor = `
   fragment UserOnboardingAuthor on User {
     _id
     displayName
@@ -693,11 +691,11 @@ registerFragment(`
     jobTitle
     organization
   }
-`);
+`
 
-registerFragment(`
+export const UsersSocialMediaInfo = `
   fragment UsersSocialMediaInfo on User {
     ...UsersProfile
     twitterProfileURLAdmin
   }
-`);
+`

@@ -1,6 +1,6 @@
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import { LWEvents } from '../../lib/collections/lwevents/collection'
-import { ReadStatuses } from '../../lib/collections/readStatus/collection'
+import { LWEvents } from '../../server/collections/lwevents/collection'
+import { ReadStatuses } from '../../server/collections/readStatus/collection'
 
 export default registerMigration({
   name: "denormalizeReadStatus",

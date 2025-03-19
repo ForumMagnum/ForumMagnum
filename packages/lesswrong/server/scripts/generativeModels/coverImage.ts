@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
-import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
-import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
+import ReviewWinners from '../../../server/collections/reviewWinners/collection.ts';
+import ReviewWinnerArts from '../../../server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { myMidjourneyAPIKeySetting } from '../../../lib/instanceSettings.ts';
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';

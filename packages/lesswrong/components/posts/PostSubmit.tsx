@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -68,8 +68,10 @@ const PostSubmit = ({
   feedbackLabel = "Request Feedback",
   cancelCallback, document, collectionName,
   updateCurrentValues,
+  submitForm,
+  addToSuccessForm,
   classes
-}: PostSubmitProps, { addToSuccessForm, submitForm }: any) => {
+}: PostSubmitProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
@@ -155,23 +157,7 @@ const PostSubmit = ({
   );
 }
 
-PostSubmit.propTypes = {
-  submitLabel: PropTypes.string,
-  cancelLabel: PropTypes.string,
-  cancelCallback: PropTypes.func,
-  document: PropTypes.object,
-  collectionName: PropTypes.string,
-  classes: PropTypes.object,
-};
-
-PostSubmit.contextTypes = {
-  addToSuccessForm: PropTypes.func,
-  submitForm: PropTypes.func
-}
-
-
-// HACK: Cast PostSubmit to hide the legacy context arguments, to make the type checking work
-const PostSubmitComponent = registerComponent('PostSubmit', (PostSubmit as React.ComponentType<PostSubmitProps>), {styles});
+const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {styles});
 
 declare global {
   interface ComponentTypes {

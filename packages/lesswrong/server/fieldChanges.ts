@@ -1,6 +1,7 @@
-import { LWEvents } from '../lib/collections/lwevents/collection';
-import { getSchema } from '../lib/utils/getSchema';
-import { Utils } from '../lib/vulcan-lib/utils';
+import { FieldChanges } from '@/server/collections/fieldChanges/collection';
+import { getSchema } from '@/lib/schema/allSchemas';
+import { randomId } from '@/lib/random';
+import { captureException } from '@sentry/core';
 
 export const logFieldChanges = async <
   N extends CollectionNameString
@@ -12,7 +13,7 @@ export const logFieldChanges = async <
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};
-  let schema = getSchema(collection);
+  let schema = getSchema(collection.collectionName);
   
   for (let key of Object.keys(data)) {
     let before = oldDocument[key as keyof ObjectsByCollectionName[N]];
@@ -41,21 +42,24 @@ export const logFieldChanges = async <
   }
   
   if (Object.keys(loggedChangesAfter).length > 0) {
-    void Utils.createMutator({
-      collection: LWEvents,
-      currentUser,
-      document: {
-        name: 'fieldChanges',
-        documentId: oldDocument._id,
-        userId: currentUser?._id,
-        important: true,
-        properties: {
-          before: loggedChangesBefore,
-          after: loggedChangesAfter,
-        }
-      },
-      validate: false,
-    })
+    const changeGroup = randomId();
+
+    try {
+      await Promise.all(Object.keys(loggedChangesAfter).map(key =>
+        FieldChanges.rawInsert({
+          userId: currentUser?._id,
+          changeGroup,
+          documentId: oldDocument._id,
+          fieldName: key,
+          oldValue: loggedChangesBefore[key],
+          newValue: loggedChangesAfter[key],
+        })
+      ));  
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error logging field changes', error);
+      captureException(error);
+    }
   }
 }
 
