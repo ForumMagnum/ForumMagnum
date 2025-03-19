@@ -5,7 +5,7 @@
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"UserJobAds">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -144,6 +144,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserJobAds">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"UserJobAds">>;
 
 export default schema;

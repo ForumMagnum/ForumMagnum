@@ -5,7 +5,7 @@
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -171,6 +171,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       label: "Don't show the intro post at the top of topic feeds",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"UserTagRels">>;
 
 export default schema;

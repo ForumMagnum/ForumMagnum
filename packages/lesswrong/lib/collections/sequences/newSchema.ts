@@ -26,7 +26,7 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
   },
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Sequences">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -491,6 +491,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sequences">> = {
       label: "Alignment Forum",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Sequences">>;
 
 export default schema;

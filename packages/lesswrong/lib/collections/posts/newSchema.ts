@@ -283,7 +283,7 @@ const hxrFo8 = async (post, context) => {
   return lastTimestamp;
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -5019,6 +5019,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Posts">>;
 
 export default schema;

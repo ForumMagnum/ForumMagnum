@@ -14,7 +14,7 @@ const commonFields = () => ({
   nullable: false,
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -105,6 +105,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"SideCommentCaches"
       nullable: false,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"SideCommentCaches">>;
 
 export default schema;

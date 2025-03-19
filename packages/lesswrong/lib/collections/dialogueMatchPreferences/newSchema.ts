@@ -24,7 +24,7 @@ const topicPreferenceSchema = new SimpleSchema({
   },
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPreferences">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -231,6 +231,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueMatchPrefe
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"DialogueMatchPreferences">>;
 
 export default schema;

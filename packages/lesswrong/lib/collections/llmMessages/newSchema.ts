@@ -13,7 +13,7 @@ export type LlmVisibleMessageRole = UnionOf<typeof llmVisibleMessageRoles>;
 export const userVisibleMessageRoles = new TupleSet(["user", "assistant", "user-context"] as const);
 export type UserVisibleMessageRole = UnionOf<typeof userVisibleMessageRoles>;
 
-const schema: Record<string, NewCollectionFieldSpecification<"LlmMessages">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -129,6 +129,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmMessages">> = {
       canCreate: [userHasLlmChat, "admins"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"LlmMessages">>;
 
 export default schema;

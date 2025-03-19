@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 
-const schema: Record<string, NewCollectionFieldSpecification<"Digests">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -164,6 +164,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Digests">> = {
       control: "FormComponentColorPicker",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Digests">>;
 
 export default schema;

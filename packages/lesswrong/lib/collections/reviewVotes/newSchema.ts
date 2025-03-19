@@ -6,7 +6,7 @@ import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 export const DEFAULT_QUALITATIVE_VOTE = 4;
 
-const schema: Record<string, NewCollectionFieldSpecification<"ReviewVotes">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -184,6 +184,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewVotes">> = {
       canRead: ["guests"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ReviewVotes">>;
 
 export default schema;

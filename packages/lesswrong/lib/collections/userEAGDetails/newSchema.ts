@@ -10,7 +10,7 @@ import { userOwns } from "../../vulcan-users/permissions";
  * Values are currently only changed via /scripts/importEAGUserInterests.
  */
 
-const schema: Record<string, NewCollectionFieldSpecification<"UserEAGDetails">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -190,6 +190,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserEAGDetails">> 
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"UserEAGDetails">>;
 
 export default schema;

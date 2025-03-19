@@ -41,7 +41,7 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
   );
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -687,6 +687,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Spotlights">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Spotlights">>;
 
 export default schema;

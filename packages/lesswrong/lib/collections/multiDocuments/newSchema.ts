@@ -29,7 +29,7 @@ export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, d
   return userOwns(user, document) && withinDeletionWindow;
 }
 
-const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -274,7 +274,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
-      onCreate: ({ currentUser }) => currentUser._id,
+      onCreate: ({ currentUser }) => currentUser?._id,
       validation: {
         optional: true,
       },
@@ -665,6 +665,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"MultiDocuments">>;
 
 export default schema;

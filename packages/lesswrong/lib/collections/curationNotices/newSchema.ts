@@ -6,7 +6,7 @@ import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenorma
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -201,6 +201,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"CurationNotices">>
       control: "checkbox",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"CurationNotices">>;
 
 export default schema;

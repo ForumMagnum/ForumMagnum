@@ -27,7 +27,7 @@ const jobAdsType = new SimpleSchema({
   },
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"AdvisorRequests">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -141,6 +141,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"AdvisorRequests">>
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"AdvisorRequests">>;
 
 export default schema;

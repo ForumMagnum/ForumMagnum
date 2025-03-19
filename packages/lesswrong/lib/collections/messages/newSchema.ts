@@ -6,7 +6,7 @@ import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenorma
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -178,6 +178,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Messages">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Messages">>;
 
 export default schema;

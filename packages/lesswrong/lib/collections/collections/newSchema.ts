@@ -7,7 +7,7 @@ import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/sche
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -287,6 +287,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Collections">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Collections">>;
 
 export default schema;

@@ -410,7 +410,7 @@ const heeJHD = async (user) => {
     return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation);
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -5575,6 +5575,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Users">>;
 
 export default schema;

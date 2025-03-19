@@ -5,7 +5,7 @@
 import SimpleSchema from "simpl-schema";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Bans">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -170,6 +170,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Bans">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Bans">>;
 
 export default schema;

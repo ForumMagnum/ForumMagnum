@@ -5,7 +5,7 @@
 import { getWithCustomLoader } from "../../loaders";
 import { generateIdResolverSingle, getForeignKeySqlResolver } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -204,6 +204,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinners">> =
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ReviewWinners">>;
 
 export default schema;

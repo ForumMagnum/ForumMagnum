@@ -21,7 +21,7 @@ const creatorSchema = new SimpleSchema({
   sourceUserId: { type: String, nullable: true, optional: true },
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPredictions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -191,6 +191,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestionPred
       canCreate: ["admins"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ElicitQuestionPredictions">>;
 
 export default schema;

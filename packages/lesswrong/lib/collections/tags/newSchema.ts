@@ -65,7 +65,7 @@ async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   );
 }
 
-const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -1821,6 +1821,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Tags">>;
 
 export default schema;

@@ -77,7 +77,7 @@ const RenderResultSchemaType = new SimpleSchema({
   },
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -178,6 +178,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"PageCache">> = {
       nullable: false,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"PageCache">>;
 
 export default schema;

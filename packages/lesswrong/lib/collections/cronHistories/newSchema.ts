@@ -11,7 +11,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -95,6 +95,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"CronHistories">>;
 
 export default schema;

@@ -6,7 +6,7 @@ import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisions
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Books">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -312,6 +312,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Books">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Books">>;
 
 export default schema;

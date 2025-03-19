@@ -40,7 +40,7 @@ const defaultEditableProps: Pick<
 
 const hRyJXH = () => defaultEditorPlaceholder;
 
-const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -602,6 +602,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       resolver: ({ publicData }) => (publicData ? Object.keys(publicData).length : 0),
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ForumEvents">>;
 
 export default schema;

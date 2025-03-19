@@ -15,7 +15,7 @@ export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
   },
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Chapters">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -243,6 +243,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Chapters">> = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "postIds" }),
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Chapters">>;
 
 export default schema;

@@ -6,7 +6,7 @@ import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } fr
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"ElectionCandidates">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -493,6 +493,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElectionCandidates
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ElectionCandidates">>;
 
 export default schema;

@@ -17,7 +17,7 @@ const userEditableField = ({
   nullable,
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -176,6 +176,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"SurveyResponses">>;
 
 export default schema;

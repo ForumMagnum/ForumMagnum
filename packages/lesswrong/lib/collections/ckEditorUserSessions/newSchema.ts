@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 
-const schema: Record<string, NewCollectionFieldSpecification<"CkEditorUserSessions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -116,6 +116,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"CkEditorUserSessio
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"CkEditorUserSessions">>;
 
 export default schema;

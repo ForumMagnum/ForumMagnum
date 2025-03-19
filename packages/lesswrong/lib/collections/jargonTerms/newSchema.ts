@@ -6,7 +6,7 @@ import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, get
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
 
-const schema: Record<string, NewCollectionFieldSpecification<"JargonTerms">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -252,6 +252,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"JargonTerms">> = {
       tooltip: "Comma-separated, no spaces",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"JargonTerms">>;
 
 export default schema;

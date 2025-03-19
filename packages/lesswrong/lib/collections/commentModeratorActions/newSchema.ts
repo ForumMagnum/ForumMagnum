@@ -18,7 +18,7 @@ export const isCommentActionActive = (moderatorAction: DbCommentModeratorAction)
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"CommentModeratorActions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -149,6 +149,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"CommentModeratorAc
       resolver: (doc) => isCommentActionActive(doc),
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"CommentModeratorActions">>;
 
 export default schema;

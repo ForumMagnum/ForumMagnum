@@ -5,7 +5,7 @@
 import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"TagFlags">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -200,6 +200,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagFlags">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"TagFlags">>;
 
 export default schema;

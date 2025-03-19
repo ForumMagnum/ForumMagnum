@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 
-const schema: Record<string, NewCollectionFieldSpecification<"ArbitalTagContentRels">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -164,6 +164,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ArbitalTagContentR
       canCreate: ["admins"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ArbitalTagContentRels">>;
 
 export default schema;

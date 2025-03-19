@@ -42,7 +42,7 @@ const hrQe2n = async (localgroup) => {
   return null;
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -534,6 +534,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       nullable: true,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Localgroups">>;
 
 export default schema;

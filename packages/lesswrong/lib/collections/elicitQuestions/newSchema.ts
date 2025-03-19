@@ -13,7 +13,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -130,6 +130,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElicitQuestions">>
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ElicitQuestions">>;
 
 export default schema;

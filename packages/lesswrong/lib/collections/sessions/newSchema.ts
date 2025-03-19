@@ -11,7 +11,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
+const schema = {
   _id: {
     database: {
       type: "TEXT",
@@ -71,6 +71,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Sessions">>;
 
 export default schema;

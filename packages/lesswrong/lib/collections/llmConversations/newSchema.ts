@@ -8,7 +8,7 @@ import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { userVisibleMessageRoles } from "../llmMessages/schema";
 
-const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -226,6 +226,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"LlmConversations">
     )`,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"LlmConversations">>;
 
 export default schema;

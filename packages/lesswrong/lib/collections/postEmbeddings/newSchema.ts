@@ -15,7 +15,7 @@ const commonFields = (nullable = false) => ({
   nullable,
 });
 
-const schema: Record<string, NewCollectionFieldSpecification<"PostEmbeddings">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -147,6 +147,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostEmbeddings">> 
       canCreate: ["admins"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"PostEmbeddings">>;
 
 export default schema;

@@ -4,7 +4,7 @@
 
 import { userOwns } from "../../vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -222,6 +222,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       canRead: [userOwns],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Notifications">>;
 
 export default schema;

@@ -57,7 +57,7 @@ const htKrvN = async (comment, context) => {
   return !!post.hideCommentKarma;
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -1652,6 +1652,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Comments">>;
 
 export default schema;

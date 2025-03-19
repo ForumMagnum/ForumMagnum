@@ -4,7 +4,7 @@
 
 import { userOwns } from "../../vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCaches">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -144,6 +144,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"RecommendationsCac
       canCreate: ["admins"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"RecommendationsCaches">>;
 
 export default schema;

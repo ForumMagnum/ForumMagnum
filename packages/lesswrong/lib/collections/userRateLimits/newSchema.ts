@@ -20,7 +20,7 @@ const INTERVAL_UNITS = {
   weeks: "weeks",
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"UserRateLimits">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -184,6 +184,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserRateLimits">> 
       control: "datetime",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"UserRateLimits">>;
 
 export default schema;

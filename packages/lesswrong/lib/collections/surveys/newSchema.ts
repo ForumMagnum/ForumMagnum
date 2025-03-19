@@ -5,7 +5,7 @@
 import { getWithLoader } from "@/lib/loaders";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -106,6 +106,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Surveys">> = {
     )`,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Surveys">>;
 
 export default schema;

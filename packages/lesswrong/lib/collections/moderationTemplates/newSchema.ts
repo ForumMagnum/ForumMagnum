@@ -9,7 +9,7 @@ export const ALLOWABLE_COLLECTIONS: TemplateType[] = ["Messages", "Comments", "R
 
 export type TemplateType = "Messages" | "Comments" | "Rejections";
 
-const schema: Record<string, NewCollectionFieldSpecification<"ModerationTemplates">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -198,6 +198,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ModerationTemplate
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ModerationTemplates">>;
 
 export default schema;

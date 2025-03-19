@@ -6,7 +6,7 @@ import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
 import { validateCompareState, validateVote } from "./helpers";
 
-const schema: Record<string, NewCollectionFieldSpecification<"ElectionVotes">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -218,6 +218,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElectionVotes">> =
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ElectionVotes">>;
 
 export default schema;

@@ -11,7 +11,7 @@ import { getWithCustomLoader } from "../../loaders";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { isLWorAF } from "@/lib/instanceSettings";
 
-const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -294,6 +294,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
         }),
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Conversations">>;
 
 export default schema;

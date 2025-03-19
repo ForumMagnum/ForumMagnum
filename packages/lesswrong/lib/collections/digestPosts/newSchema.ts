@@ -8,7 +8,7 @@ import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 export const DIGEST_STATUSES = new TupleSet(["yes", "maybe", "no"] as const);
 export type InDigestStatus = UnionOf<typeof DIGEST_STATUSES>;
 
-const schema: Record<string, NewCollectionFieldSpecification<"DigestPosts">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -139,6 +139,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"DigestPosts">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"DigestPosts">>;
 
 export default schema;

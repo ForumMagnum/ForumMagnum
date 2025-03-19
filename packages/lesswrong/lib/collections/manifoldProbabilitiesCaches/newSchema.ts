@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 
-const schema: Record<string, NewCollectionFieldSpecification<"ManifoldProbabilitiesCaches">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -136,6 +136,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ManifoldProbabilit
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ManifoldProbabilitiesCaches">>;
 
 export default schema;

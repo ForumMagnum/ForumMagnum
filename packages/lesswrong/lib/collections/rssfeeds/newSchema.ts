@@ -4,7 +4,7 @@
 
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -235,6 +235,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"RSSFeeds">> = {
       control: "checkbox",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"RSSFeeds">>;
 
 export default schema;

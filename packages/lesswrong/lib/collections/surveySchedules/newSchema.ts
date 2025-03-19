@@ -24,7 +24,7 @@ const surveyScheduleTargets = [
 
 export type SurveyScheduleTarget = (typeof surveyScheduleTargets)[number]["value"];
 
-const schema: Record<string, NewCollectionFieldSpecification<"SurveySchedules">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -285,6 +285,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveySchedules">>
       resolver: generateIdResolverMulti({ foreignCollectionName: "ClientIds", fieldName: "clientIds" }),
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"SurveySchedules">>;
 
 export default schema;

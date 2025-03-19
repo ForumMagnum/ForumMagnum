@@ -4,7 +4,7 @@
 
 import { userOwns } from "../../vulcan-users/permissions";
 
-const schema: Record<string, NewCollectionFieldSpecification<"TypingIndicators">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -100,6 +100,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"TypingIndicators">
       canCreate: ["members"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"TypingIndicators">>;
 
 export default schema;

@@ -4,7 +4,7 @@
 
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -159,6 +159,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ClientIds">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ClientIds">>;
 
 export default schema;

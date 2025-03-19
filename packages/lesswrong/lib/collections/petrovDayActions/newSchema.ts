@@ -19,7 +19,7 @@ const ACTION_TYPES = [
 const ACTION_TYPES_SET = new TupleSet(ACTION_TYPES);
 export type PetrovDayActionType = UnionOf<typeof ACTION_TYPES_SET>;
 
-const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -137,6 +137,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"PetrovDayActions">
       canCreate: ["members"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"PetrovDayActions">>;
 
 export default schema;

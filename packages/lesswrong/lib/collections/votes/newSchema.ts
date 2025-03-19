@@ -23,7 +23,7 @@ const docIsTagRel = (currentUser: DbUser | UsersCurrent | null, document: DbVote
   return document?.collectionName === "TagRels";
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -295,6 +295,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Votes">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Votes">>;
 
 export default schema;

@@ -3,7 +3,7 @@
 // The original schema is still in use, this is just for reference.
 
 
-const schema: Record<string, NewCollectionFieldSpecification<"Tweets">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -80,6 +80,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tweets">> = {
       nullable: false,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Tweets">>;
 
 export default schema;

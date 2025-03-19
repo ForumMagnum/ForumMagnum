@@ -73,7 +73,7 @@ export const getOriginalContents = <N extends CollectionNameString>(
   return returnOriginalContents ? originalContents : null;
 };
 
-const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -679,6 +679,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"Revisions">>;
 
 export default schema;

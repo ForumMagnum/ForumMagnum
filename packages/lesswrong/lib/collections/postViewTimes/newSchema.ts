@@ -4,7 +4,7 @@
 
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"PostViewTimes">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -87,8 +87,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostViewTimes">> =
       foreignKey: "ClientIds",
       nullable: false,
     },
-  },
-  clientId: {
     graphql: {
       outputType: "ClientId!",
       canRead: [],
@@ -115,6 +113,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostViewTimes">> =
       nullable: false,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"PostViewTimes">>;
 
 export default schema;

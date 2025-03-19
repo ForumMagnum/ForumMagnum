@@ -24,7 +24,7 @@ export const surveyQuestionFormats = {
 
 export type SurveyQuestionFormat = keyof typeof surveyQuestionFormats;
 
-const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -146,6 +146,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>
       canCreate: ["admins"],
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>;
 
 export default schema;

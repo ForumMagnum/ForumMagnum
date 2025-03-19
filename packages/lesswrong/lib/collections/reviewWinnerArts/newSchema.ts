@@ -5,7 +5,7 @@
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { getReviewWinnerArtCoordinates } from "@/server/review/splashArtCoordinatesCache";
 
-const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinnerArts">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -114,6 +114,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"ReviewWinnerArts">
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"ReviewWinnerArts">>;
 
 export default schema;

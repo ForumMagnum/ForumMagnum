@@ -8,7 +8,7 @@
 // connect to a production database without using the corresponding config
 // file.)
 
-const schema: Record<string, NewCollectionFieldSpecification<"DatabaseMetadata">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -79,6 +79,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"DatabaseMetadata">
       nullable: false,
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"DatabaseMetadata">>;
 
 export default schema;

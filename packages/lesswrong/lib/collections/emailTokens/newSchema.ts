@@ -4,7 +4,7 @@
 
 import { generateIdResolverSingle } from "../../../lib/utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"EmailTokens">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -99,6 +99,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"EmailTokens">> = {
       type: "JSONB",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"EmailTokens">>;
 
 export default schema;

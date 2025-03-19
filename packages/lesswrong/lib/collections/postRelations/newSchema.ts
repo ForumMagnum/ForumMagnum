@@ -4,7 +4,7 @@
 
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -132,6 +132,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRelations">> =
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"PostRelations">>;
 
 export default schema;

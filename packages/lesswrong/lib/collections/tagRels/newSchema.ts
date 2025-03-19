@@ -9,7 +9,7 @@ import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { getTagBotUserId } from "@/server/languageModels/autoTagCallbacks";
 
-const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -350,6 +350,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"TagRels">>;
 
 export default schema;

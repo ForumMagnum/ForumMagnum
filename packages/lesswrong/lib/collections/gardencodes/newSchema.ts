@@ -28,7 +28,7 @@ export const eventTypes = [
   },
 ];
 
-const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -371,6 +371,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"GardenCodes">> = {
       control: "checkbox",
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"GardenCodes">>;
 
 export default schema;

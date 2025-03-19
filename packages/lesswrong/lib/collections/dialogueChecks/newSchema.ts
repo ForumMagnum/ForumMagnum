@@ -4,7 +4,7 @@
 
 import { accessFilterSingle } from "../../utils/schemaUtils";
 
-const schema: Record<string, NewCollectionFieldSpecification<"DialogueChecks">> = {
+const schema = {
   _id: {
     database: {
       type: "VARCHAR(27)",
@@ -169,6 +169,6 @@ const schema: Record<string, NewCollectionFieldSpecification<"DialogueChecks">> 
       },
     },
   },
-};
+} satisfies Record<string, NewCollectionFieldSpecification<"DialogueChecks">>;
 
 export default schema;
