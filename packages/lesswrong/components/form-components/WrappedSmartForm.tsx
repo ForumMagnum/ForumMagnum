@@ -17,6 +17,7 @@ import * as _ from 'underscore';
  */
 function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFormProps<T>) {
   const { collectionName } = props
+  
   if (getEditableCollectionNames().includes(collectionName)) {
     return <Components.FormWrapper
       {...props}
