@@ -2578,6 +2578,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Social Preview Image",
+      group: () => formGroups.socialPreview,
+      order: 4,
+    }
   },
   socialPreviewImageAutoUrl: {
     database: {
@@ -3025,6 +3031,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Save to Drafts",
+    },
   },
   wasEverUndrafted: {
     database: {
@@ -3058,6 +3068,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: "Publish to meta",
+      control: "checkbox",
     },
   },
   hideFrontpageComments: {
@@ -3246,6 +3261,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "FormUserMultiselect",
+      group: () => formGroups.event,
+    },
   },
   organizers: {
     graphql: {
@@ -3332,6 +3352,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      group: () => formGroups.event,
+    }
   },
   reviewedByUserId: {
     database: {
@@ -3794,6 +3818,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      order: 15,
+    },
   },
   usersSharedWith: {
     graphql: {
@@ -4057,6 +4085,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: "Replies in sidebar",
+      group: () => formGroups.advancedOptions,
+      control: "select",
+      form: {
+        options: () => {
+          return [
+            {value: "highKarma", label: "10+ karma (default)"},
+            {value: "hidden", label: "Hide all"},
+          ];
+        }
+      }
     },
   },
   disableSidenotes: {
@@ -4587,6 +4629,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Alignment Forum",
+      group: () => formGroups.advancedOptions,
+    },
   },
   afCommentCount: {
     database: {
@@ -4685,6 +4732,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: "Suggested for Alignment by",
+      control: "FormUserMultiselect",
+      group: () => formGroups.adminOptions,
     },
   },
   suggestForAlignmentUsers: {
