@@ -262,7 +262,7 @@ const ForumEventStickers: FC<{
           <ForumEventSticker
             {...draftSticker}
             tooltipDisabled={commentFormOpen}
-            ref={setUserVoteRef}
+            setUserVoteRef={setUserVoteRef}
             onClear={() => clearSticker(null)}
           />
         )}
