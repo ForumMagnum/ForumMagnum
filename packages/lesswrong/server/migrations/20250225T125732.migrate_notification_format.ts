@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import Users from "@/lib/collections/users/collection";
 import usersSchema, { LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings, NotificationTypeSettings } from "@/lib/collections/users/schema";
 import { updateDefaultValue } from "./meta/utils";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
+import Users from "../collections/users/collection";
 
 const notificationTypes = [
   "notificationCommentsOnSubscribedPost",
