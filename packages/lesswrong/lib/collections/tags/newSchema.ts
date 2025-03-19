@@ -27,6 +27,7 @@ import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/server/utils/contributorsFieldHelper";
 import { captureException } from "@sentry/core";
 import { wikiGradeDefinitions } from "./schema";
+import { isEAForum, isLW } from "@/lib/instanceSettings";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -426,7 +427,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
     },
     form: {
       label: "Is post type",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.advancedOptions,
     },
   },
@@ -775,7 +776,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["sunshineRegiment", "admins"],
+      canCreate: [...(isLW ? ['members' as const] : []), 'sunshineRegiment', 'admins'],
       validation: {
         optional: true,
       },
@@ -801,7 +802,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       label: "Banner Image",
       tooltip: "Minimum 200x600 px",
       control: "ImageUpload",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.advancedOptions,
     },
   },
@@ -822,7 +823,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       label: "Square Image",
       tooltip: "Minimum 200x200 px",
       control: "ImageUpload",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.advancedOptions,
     },
   },

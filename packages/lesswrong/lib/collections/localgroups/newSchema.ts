@@ -10,8 +10,10 @@ import {
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
-import { isFriendlyUI } from "../../../themes/forumTheme";
+import { localGroupTypeFormOptions } from "./groupTypes";
+import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { isEAForum, isLW } from "@/lib/instanceSettings";
 
 export const GROUP_CATEGORIES = [
   { value: "national", label: "National" },
@@ -167,7 +169,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
     },
     form: {
       order: 10,
-      label: "Group name",
+      label: isFriendlyUI ? "Group name" : "Group Name",
       control: "MuiTextField",
     },
   },
@@ -208,7 +210,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
     },
     form: {
       order: 20,
-      label: "Add organizers",
+      label: preferredHeadingCase("Add Organizers"),
       control: "FormUserMultiselect",
     },
   },
@@ -249,6 +251,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
+    form: {
+      minCount: 1,
+      form: { options: () => localGroupTypeFormOptions },
+      label: "Group Type:",
+      control: "MultiSelectButtons",
+      hidden: !isLW,
+    },
   },
   categories: {
     database: {
@@ -267,7 +276,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       form: { label: "Group type / intended audience", options: () => GROUP_CATEGORIES },
       control: "FormComponentMultiSelect",
       placeholder: "Select all that apply",
-      hidden: false,
+      hidden: !isEAForum,
     },
   },
   isOnline: {
@@ -323,7 +332,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
     },
     form: {
       form: { stringVersionFieldName: "location" },
-      label: "Group location",
+      label: isFriendlyUI ? "Group location" : "Group Location",
       control: "LocationFormComponent",
       hidden: (data) => !!data.document?.isOnline,
     },
@@ -356,7 +365,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       },
     },
     form: {
-      label: "Contact info",
+      label: isFriendlyUI ? "Contact info" : "Contact Info",
       control: "MuiTextField",
     },
   },
@@ -375,7 +384,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       },
     },
     form: {
-      label: "Facebook group",
+      label: isFriendlyUI ? "Facebook group" : "Facebook Group",
       tooltip: "https://www.facebook.com/groups/...",
       control: "MuiTextField",
     },
@@ -395,7 +404,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       },
     },
     form: {
-      label: "Facebook page",
+      label: isFriendlyUI ? "Facebook page" : "Facebook Page",
       tooltip: "https://www.facebook.com/...",
       control: "MuiTextField",
     },
@@ -415,7 +424,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       },
     },
     form: {
-      label: "Meetup.com group",
+      label: isFriendlyUI ? "Meetup.com group" : "Meetup.com Group",
       tooltip: "https://www.meetup.com/...",
       control: "MuiTextField",
     },
@@ -435,7 +444,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       },
     },
     form: {
-      label: "Slack workspace",
+      label: isFriendlyUI ? "Slack workspace" : "Slack Workspace",
       tooltip: "https://...",
       control: "MuiTextField",
     },
@@ -474,7 +483,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
     },
     form: {
       form: { croppingAspectRatio: 1.91 },
-      label: "Banner image",
+      label: isFriendlyUI ? "Banner image" : "Banner Image",
       tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
       control: "ImageUpload",
     },

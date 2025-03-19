@@ -8,6 +8,8 @@ import {
 } from "../../utils/schemaUtils";
 import * as _ from "underscore";
 import { getWithCustomLoader } from "../../loaders";
+import { isFriendlyUI } from "@/themes/forumTheme";
+import { isLWorAF } from "@/lib/instanceSettings";
 
 const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> = {
   _id: {
@@ -82,7 +84,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       },
     },
     form: {
-      label: "Conversation title (visible to all)",
+      label: isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title",
     },
   },
   participantIds: {
@@ -142,6 +144,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Conversations">> =
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: !isLWorAF,
     },
   },
   messageCount: {

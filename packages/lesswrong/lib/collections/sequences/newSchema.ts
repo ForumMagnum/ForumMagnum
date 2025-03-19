@@ -199,7 +199,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sequences">> = {
     form: {
       order: 10,
       control: "EditSequenceTitle",
-      placeholder: "Sequence title",
+      placeholder: preferredHeadingCase("Sequence Title"),
     },
   },
   bannerImageId: {
@@ -350,7 +350,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sequences">> = {
       },
     },
     form: {
-      label: "Collection slug",
+      label: preferredHeadingCase("Collection Slug"),
       tooltip:
         "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
       control: "text",

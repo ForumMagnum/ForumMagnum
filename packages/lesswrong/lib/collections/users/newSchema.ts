@@ -6,17 +6,17 @@ import SimpleSchema from "simpl-schema";
 import {
   userGetProfileUrl,
   getUserEmail,
-  userOwnsAndInGroup,
-  SOCIAL_MEDIA_PROFILE_FIELDS,
-  getAuth0Provider,
+  userOwnsAndInGroup, getAuth0Provider,
+  SOCIAL_MEDIA_PROFILE_FIELDS
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { getAllUserGroups, userOwns, userIsAdmin } from "../../vulcan-users/permissions";
+import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
 import { formGroups } from "./formGroups";
 import * as _ from "underscore";
 import {
   isAF,
-  isEAForum, isLWorAF
+  isEAForum, isLW, isLWorAF,
+  verifyEmailsSetting
 } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -33,6 +33,10 @@ import { userThemeSettings } from "../../../themes/themeNames";
 import type { ForumIconName } from "../../../components/common/ForumIcon";
 import { getCommentViewOptions } from "../../commentViewOptions";
 import {
+  allowSubscribeToSequencePosts,
+  hasAccountDeletionFlow,
+  hasPostRecommendations,
+  hasSurveys,
   userCanViewJargonTerms
 } from "../../betas";
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
@@ -41,11 +45,12 @@ import { getUserABTestKey } from "../../abTestImpl";
 import { DeferredForumSelect } from "../../forumTypeUtils";
 import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
-import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -472,6 +477,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "moderationGuidelines"),
     },
+    form: {
+      form: {
+        hintText: () => defaultEditorPlaceholder,
+        fieldName: "moderationGuidelines",
+        collectionName: "Users",
+        commentEditor: true,
+        commentStyles: true,
+        hideControls: false,
+      },
+      order: 50,
+      control: "EditorFormComponent",
+      hidden: isFriendlyUI,
+      group: () => formGroups.moderationGroup,
+      editableFieldOptions: {
+        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
+        revisionsHaveCommitMessages: false,
+      },
+    },
   },
   moderationGuidelines_latest: {
     database: {
@@ -625,6 +648,25 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "biography"),
     },
+    form: {
+      form: {
+        label: "Bio",
+        hintText: () => "Tell us about yourself",
+        fieldName: "biography",
+        collectionName: "Users",
+        commentEditor: true,
+        commentStyles: true,
+        hideControls: false,
+      },
+      order: isEAForum ? 6 : 40,
+      control: "EditorFormComponent",
+      hidden: isEAForum,
+      group: () => (isEAForum ? formGroups.aboutMe : formGroups.default),
+      editableFieldOptions: {
+        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
+        revisionsHaveCommitMessages: false,
+      },
+    },
   },
   biography_latest: {
     database: {
@@ -754,7 +796,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["sunshineRegiment", "admins", "members"],
+      canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: user }) => {
         return user.displayName || createDisplayName(user);
@@ -762,6 +804,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 10,
+      hidden: isFriendlyUI,
+      group: () => formGroups.default,
     },
   },
   previousDisplayName: {
@@ -932,7 +979,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       order: 1,
       control: "ThemeSelect",
-      hidden: false,
+      hidden: isLWorAF,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -957,7 +1004,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     graphql: {
       outputType: "Date",
       canRead: ["members"],
-      canUpdate: [],
+      canUpdate: verifyEmailsSetting.get()
+      ? [userOwns, 'sunshineRegiment', 'admins']
+      : [],
       canCreate: ["members"],
       validation: {
         optional: true,
@@ -1055,6 +1104,26 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      form: {
+        options: function () {
+          return [
+            {
+              value: "listView",
+              label: "List View",
+            },
+            {
+              value: "iconView",
+              label: "Icons",
+            },
+          ];
+        },
+      },
+      label: "React Palette Style",
+      control: "select",
+      hidden: isEAForum,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   noKibitz: {
     database: {
@@ -1094,7 +1163,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       order: 69,
       label: "Enable option on posts to hide karma visibility",
       control: "checkbox",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1284,7 +1353,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       order: 93,
       label: "Hide community section from the frontpage",
       control: "checkbox",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1324,7 +1393,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       order: 94,
       label: "Show Community posts in Recent Discussion",
       control: "checkbox",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1348,7 +1417,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       order: 95,
       label: "Hide recommendations from the posts page",
       control: "checkbox",
-      hidden: false,
+      hidden: !hasPostRecommendations,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1386,7 +1455,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       order: 97,
       label: "Opt out of user surveys",
-      hidden: false,
+      hidden: !hasSurveys,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1720,6 +1789,35 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      form: {
+        options: function () {
+          return [
+            {
+              value: "",
+              label: "No Moderation",
+            },
+            {
+              value: "easy-going",
+              label: "Easy Going - I just delete obvious spam and trolling.",
+            },
+            {
+              value: "norm-enforcing",
+              label: "Norm Enforcing - I try to enforce particular rules (see below)",
+            },
+            {
+              value: "reign-of-terror",
+              label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
+            },
+          ];
+        },
+      },
+      order: 55,
+      label: "Style",
+      control: "select",
+      hidden: isFriendlyUI,
+      group: () => formGroups.moderationGroup,
+    },
   },
   moderatorAssistance: {
     database: {
@@ -1734,6 +1832,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      order: 55,
+      label: "I'm happy for site moderators to help enforce my policy",
+      control: "checkbox",
+      hidden: isFriendlyUI,
+      group: () => formGroups.moderationGroup,
+    },
   },
   collapseModerationGuidelines: {
     database: {
@@ -1747,6 +1852,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 56,
+      label: "On my posts, collapse my moderation guidelines by default",
+      control: "checkbox",
+      hidden: isFriendlyUI,
+      group: () => formGroups.moderationGroup,
     },
   },
   bannedUserIds: {
@@ -1879,6 +1991,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "Deactivate",
+      tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
+      control: "checkbox",
+      hidden: hasAccountDeletionFlow,
+      group: () => formGroups.deactivate,
     },
   },
   permanentDeletionRequestedAt: {
@@ -2109,7 +2228,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       },
     },
     form: {
-      label: "Quick takes by users I'm subscribed to",
+      label: isEAForum
+        ? "Quick takes by users I'm subscribed to"
+        : "Shortform by users I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
       group: () => formGroups.notifications,
     },
@@ -2282,7 +2403,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     form: {
       label: "Posts added to sequences I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
-      hidden: false,
+      hidden: !allowSubscribeToSequencePosts,
       group: () => formGroups.notifications,
     },
   },
@@ -2348,6 +2469,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         simpleSchema: notificationTypeSettings,
         optional: true,
       },
+    },
+    form: {
+      label: "Alignment Forum submission approvals",
+      control: "NotificationTypeSettingsWidget",
+      hidden: !isLWorAF,
+      group: () => formGroups.notifications,
     },
   },
   notificationEventInRadius: {
@@ -2615,6 +2742,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
+      control: "NotificationTypeSettingsWidget",
+      hidden: !isLW,
+      group: () => formGroups.notifications,
+    },
   },
   notificationDebateReplies: {
     database: {
@@ -2632,6 +2765,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         simpleSchema: notificationTypeSettings,
         optional: true,
       },
+    },
+    form: {
+      label: "[Old Style] New dialogue content in a dialogue I'm participating in",
+      control: "NotificationTypeSettingsWidget",
+      hidden: !isLW,
+      group: () => formGroups.notifications,
     },
   },
   notificationDialogueMatch: {
@@ -2651,6 +2790,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "Another user and I have matched for a dialogue",
+      control: "NotificationTypeSettingsWidget",
+      hidden: !isLW,
+      group: () => formGroups.notifications,
+    },
   },
   notificationNewDialogueChecks: {
     database: {
@@ -2668,6 +2813,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         simpleSchema: notificationTypeSettings,
         optional: true,
       },
+    },
+    form: {
+      label: "You have new people interested in dialogue-ing with you",
+      control: "NotificationTypeSettingsWidget",
+      hidden: !isLW,
+      group: () => formGroups.notifications,
     },
   },
   notificationYourTurnMatchForm: {
@@ -2687,6 +2838,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "Fill in the topics form for your dialogue match",
+      control: "NotificationTypeSettingsWidget",
+      hidden: !isLW,
+      group: () => formGroups.notifications,
+    },
   },
   hideDialogueFacilitation: {
     database: {
@@ -2703,6 +2860,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "Hide the widget for opting in to being approached about dialogues",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
     },
   },
   revealChecksToAdmins: {
@@ -2721,6 +2883,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "Allow users to reveal their checks for better facilitation",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   optedInToDialogueFacilitation: {
     database: {
@@ -2738,6 +2905,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   showDialoguesList: {
     database: {
@@ -2752,6 +2924,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      label: "Show a list of recently active dialogues inside the frontpage widget",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
     },
   },
   showMyDialogues: {
@@ -2768,6 +2945,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      label: "Show a list of dialogues the user participated in inside the frontpage widget",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   showMatches: {
     database: {
@@ -2783,6 +2965,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
+    form: {
+      label: "Show a list of dialogue reciprocity matched users inside frontpage widget",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   showRecommendedPartners: {
     database: {
@@ -2797,6 +2984,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      label: "Show a list of recommended dialogue partners inside frontpage widget",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
     },
   },
   hideActiveDialogueUsers: {
@@ -2814,6 +3006,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "Hides/collapses the active dialogue users in the header",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
     },
   },
   karmaChangeNotifierSettings: {
@@ -2881,6 +3078,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "Email me new posts in Curated",
+      control: "EmailConfirmationRequiredCheckbox",
+      hidden: !isLW,
+      group: () => formGroups.emails,
+    },
   },
   subscribedToDigest: {
     database: {
@@ -2900,7 +3103,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     },
     form: {
       label: "Subscribe to the EA Forum Digest emails",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.emails,
     },
   },
@@ -3133,6 +3336,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      form: { variant: "grey" },
+      order: isLWorAF ? 101 : 5,
+      label: isLWorAF ? "Public map location" : "Location",
+      control: "LocationFormComponent",
+      hidden: isEAForum,
+      group: () => (isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo),
+    },
   },
   mapLocationLatLng: {
     graphql: {
@@ -3290,6 +3501,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      order: 44,
+      label: "Hide the frontpage map",
+      hidden: !isLW,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   hideTaggingProgressBar: {
     database: {
@@ -3344,6 +3561,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 47,
+      label: "Hide the frontpage book ad",
+      hidden: !isLWorAF,
+      group: () => formGroups.siteCustomizations,
     },
   },
   sunshineNotes: {
@@ -3697,6 +3920,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 39,
+      hidden: !isLWorAF,
+      group: () => formGroups.default,
     },
   },
   shortformFeedId: {
@@ -4131,7 +4359,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       order: 73,
       label: "Restore the previous WYSIWYG editor",
       tooltip: "Restore the old Draft-JS based editor",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -4147,6 +4375,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: !isLWorAF,
+      group: () => formGroups.adminOptions,
+    },
   },
   hideWalledGardenUI: {
     database: {
@@ -4158,6 +4390,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: !isLWorAF,
+      group: () => formGroups.siteCustomizations,
     },
   },
   walledGardenPortalOnboarded: {
@@ -4214,6 +4450,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "Payment Contact Email",
+      tooltip: "An email you'll definitely check where you can receive information about receiving payments",
+      hidden: !isLWorAF,
+      group: () => formGroups.paymentInfo,
+    },
   },
   paymentInfo: {
     database: {
@@ -4226,6 +4468,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "PayPal Info",
+      tooltip: "Your PayPal account info, for sending small payments",
+      hidden: !isLWorAF,
+      group: () => formGroups.paymentInfo,
     },
   },
   profileUpdatedAt: {
@@ -4425,7 +4673,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       },
       order: 11,
       control: "PrefixedInput",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.adminOptions,
     },
   },
@@ -4736,7 +4984,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
     },
     form: {
       label: "Hide my profile from the People directory",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.privacy,
     },
   },
@@ -4760,7 +5008,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       label: "Allow Session Replay",
       tooltip:
         "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.privacy,
     },
   },
@@ -4901,6 +5149,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      label: "AF Review UserId",
+      hidden: !isLWorAF,
+      group: () => formGroups.adminOptions,
+    },
   },
   afApplicationText: {
     database: {
@@ -4980,6 +5233,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "Hide Sunshine Sidebar",
+      hidden: isEAForum,
+      group: () => formGroups.adminOptions,
     },
   },
   inactiveSurveyEmailSentAt: {

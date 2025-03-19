@@ -12,7 +12,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isAF, isEAForum } from "../../instanceSettings";
+import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from "./helpers";
 import { getVotingSystemNameForDocument } from "../../voting/votingSystems";
 import { viewTermsToQuery } from "../../utils/viewUtils";
@@ -418,7 +418,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
     },
     graphql: {
       outputType: "String",
-      canRead: [documentIsNotDeleted],
+      canRead: [isEAForum ? documentIsNotDeleted : "guests"],
       canCreate: ["members"],
       validation: {
         optional: true,
@@ -428,7 +428,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
   user: {
     graphql: {
       outputType: "User",
-      canRead: [documentIsNotDeleted],
+      canRead: [isEAForum ? documentIsNotDeleted : "guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
@@ -1389,6 +1389,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "AF Review UserId",
+      hidden: !isLWorAF,
+      group: () => alignmentOptionsGroup,
     },
   },
   afDate: {

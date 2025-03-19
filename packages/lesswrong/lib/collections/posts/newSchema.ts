@@ -33,7 +33,7 @@ import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { getVotingSystems } from "../../voting/votingSystems";
 import {
   eaFrontpageDateDefault, fmCrosspostSiteNameSetting, isEAForum,
-  isLWorAF, reviewUserBotSetting
+  isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting
 } from "../../instanceSettings";
 import { forumSelect } from "../../forumTypeUtils";
 import * as _ from "underscore";
@@ -51,8 +51,7 @@ import { crosspostKarmaThreshold } from "../../publicSettings";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import {
-  hasAuthorModeration,
-  hasSideComments, userCanCreateAndEditJargonTerms,
+  hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms,
   userCanViewJargonTerms
 } from "../../betas";
 import { isFriendlyUI } from "../../../themes/forumTheme";
@@ -250,6 +249,7 @@ function shouldHideEndTime(props: SmartFormProps<"Posts">): boolean {
   return !props.eventForm || props.document?.eventType === "course";
 }
 
+const hq3cSx = () => defaultEditorPlaceholder;
 const h4eSQo = () => {
   return new Date();
 };
@@ -355,7 +355,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
     },
     form: {
       form: {
-        hintText: () => defaultEditorPlaceholder,
+        hintText: hq3cSx,
         fieldName: "contents",
         collectionName: "Posts",
         commentEditor: false,
@@ -424,6 +424,24 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       resolver: getNormalizedEditableResolver("moderationGuidelines"),
       sqlResolver: getNormalizedEditableSqlResolver("moderationGuidelines"),
     },
+    form: {
+      form: {
+        hintText: hq3cSx,
+        fieldName: "moderationGuidelines",
+        collectionName: "Posts",
+        commentEditor: true,
+        commentStyles: true,
+        hideControls: false,
+      },
+      order: 50,
+      control: "EditorFormComponent",
+      hidden: isFriendlyUI,
+      group: () => formGroups.moderationGroup,
+      editableFieldOptions: {
+        getLocalStorageId: getDefaultLocalStorageIdGenerator("Posts"),
+        revisionsHaveCommitMessages: false,
+      },
+    },
   },
   moderationGuidelines_latest: {
     database: {
@@ -464,7 +482,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
     },
     form: {
       form: {
-        hintText: () => defaultEditorPlaceholder,
+        hintText: hq3cSx,
         fieldName: "customHighlight",
         collectionName: "Posts",
         commentEditor: false,
@@ -1456,6 +1474,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: !isLWorAF,
+      group: () => formGroups.adminOptions,
+    },
   },
   annualReviewMarketProbability: {
     graphql: {
@@ -2348,8 +2370,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+      canCreate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
       validation: {
         optional: true,
       },
@@ -2434,20 +2456,25 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) =>
-        eaFrontpageDateDefault(isEvent, submitToFrontpage, draft),
-      onUpdate: ({ data, oldDocument }) => {
-        if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
-          return eaFrontpageDateDefault(
-            data.isEvent ?? oldDocument.isEvent,
-            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
-            false
-          );
-        }
-        // Setting frontpageDate to null is a special case that means "move to personal blog",
-        // if frontpageDate is actually undefined then we want to use the old value.
-        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
-      },
+      ...(!requireReviewToFrontpagePostsSetting.get() && {
+        onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => eaFrontpageDateDefault(
+          isEvent,
+          submitToFrontpage,
+          draft,
+        ),
+        onUpdate: ({ data, oldDocument }) => {
+          if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
+            return eaFrontpageDateDefault(
+              data.isEvent ?? oldDocument.isEvent,
+              data.submitToFrontpage ?? oldDocument.submitToFrontpage,
+              false,
+            );
+          }
+          // Setting frontpageDate to null is a special case that means "move to personal blog",
+          // if frontpageDate is actually undefined then we want to use the old value.
+          return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
+        },
+      }),
       validation: {
         optional: true,
       },
@@ -2975,7 +3002,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       order: 14,
       label: "Hide comments on this post from Popular Comments",
       control: "checkbox",
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.adminOptions,
     },
   },
@@ -3333,8 +3360,8 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+      canCreate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
       validation: {
         optional: true,
       },
@@ -4001,6 +4028,18 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
           version: sideCommentCacheVersion,
         });
       },
+      ...(hasSideComments && {
+        sqlResolver: ({field, join}) => join({
+          table: "SideCommentCaches",
+          type: "left",
+          on: {
+            postId: field("_id"),
+            version: `${sideCommentCacheVersion}`,
+          },
+          resolver: (sideCommentsField) => sideCommentsField("*"),
+        }),
+        sqlPostProcess: () => null,
+      }),
     },
   },
   sideCommentVisibility: {
@@ -4032,6 +4071,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: !hasSidenotes,
+      group: () => formGroups.advancedOptions,
     },
   },
   moderationStyle: {
@@ -4116,7 +4159,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       },
     },
     form: {
-      hidden: false,
+      hidden: !isEAForum,
       group: () => formGroups.moderationGroup,
     },
   },
@@ -4629,6 +4672,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
         optional: true,
       },
     },
+    form: {
+      order: 10,
+      label: "Sticky (Alignment)",
+      control: "checkbox",
+      hidden: isEAForum,
+      group: () => formGroups.adminOptions,
+    },
   },
   suggestForAlignmentUserIds: {
     database: {
@@ -4667,6 +4717,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      label: "AF Review UserId",
+      hidden: isEAForum,
+      group: () => formGroups.adminOptions,
     },
   },
   agentFoundationsId: {

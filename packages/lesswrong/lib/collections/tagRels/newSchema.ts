@@ -2,6 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import { isEAForum } from "@/lib/instanceSettings";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "@/lib/utils/schemaUtils";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
@@ -132,14 +133,14 @@ const schema: Record<string, NewCollectionFieldSpecification<"TagRels">> = {
     graphql: {
       outputType: "String",
       inputType: "String!",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canRead: isEAForum ? [userOwns, "sunshineRegiment", "admins"] : ["guests"],
       canCreate: ["members"],
     },
   },
   user: {
     graphql: {
       outputType: "User",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canRead: isEAForum ? [userOwns, "sunshineRegiment", "admins"] : ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
