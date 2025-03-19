@@ -62,24 +62,25 @@ export const NewPostNotification = serverRegisterNotificationType({
   name: "newPost",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    if (notifications.length > 1) {
-      return `${notifications.length} new posts by authors you are subscribed to`;
+    const uniquePostIds = Array.from(new Set(notifications.map(n => n.documentId)));
+    if (uniquePostIds.length > 1) {
+      return `${uniquePostIds.length} new posts by authors you are subscribed to`;
     } else {
-      const postId = notifications[0].documentId;
+      const postId = uniquePostIds[0];
       const post = await Posts.findOne({_id: postId});
       if (!post) throw Error(`Can't find post to generate subject-line for: ${postId}`)
       return post.title;
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const postIds = notifications.map(n => n.documentId).filter(postId => {
+    const postIds = Array.from(new Set(notifications.map(n => n.documentId).filter(postId => {
       if (!postId) {
         // eslint-disable-next-line no-console
-        console.error(`Can't find post to generate body for: ${postId}`)
+        console.error("Can't find post to generate body for, no postId given");
         return false;
       }
       return true;
-    }) as string[];
+    }))) as string[];
 
     return <Components.PostsEmail postIds={postIds}/>
   },
