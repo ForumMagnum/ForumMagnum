@@ -7,7 +7,7 @@ import keyBy from "lodash/keyBy";
 import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType, FeedCommentThreadItem } from "../utils/feedItemUtils";
 import FeedItemServingsRepo from "../repos/FeedItemServingsRepo";
 import UltraFeedRepo, {  } from "../../lib/ultraFeed/UltraFeedRepo";
-import { DisplayFeedCommentThread, DisplayFeedItem } from "@/components/ultraFeed/ultraFeedTypes";
+import { DisplayFeedCommentThread, DisplayFeedItem, DisplayFeedPostWithComments, UltraFeedTopLevelTypes, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 
 const TESTING_DATE_CUTOFF = new Date('2025-01-01');
 
@@ -24,6 +24,7 @@ addGraphQLSchema(`
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
   commentThreads: 10,
+  postThreads: 10,
   // Commented out sources as requested
   // popularComments: 5,
   // quickTakes: 5,
@@ -31,9 +32,12 @@ const SOURCE_WEIGHTS = {
 };
 
 // Helper function to perform weighted sampling
-function weightedSample(sources: Record<string, { weight: number, items: any[] }>, totalItems: number) {
-  const finalFeed = [];
-  let totalWeight = Object.values(sources).reduce((sum, src) => 
+function weightedSample(
+  inputs: Record<FeedItemSourceType, { weight: number, items: UltraFeedTopLevelTypes[], renderAsType: FeedItemRenderType }>, 
+  totalItems: number
+): DisplayFeedItem[] {
+  const finalFeed: DisplayFeedItem[] = [];
+  let totalWeight = Object.values(inputs).reduce((sum, src) => 
     sum + (src.items.length > 0 ? src.weight : 0), 0);
 
   for (let i = 0; i < totalItems; i++) {
@@ -46,7 +50,7 @@ function weightedSample(sources: Record<string, { weight: number, items: any[] }
     let cumulative = 0;
     let chosenSourceKey = null;
     
-    for (const [key, src] of Object.entries(sources)) {
+    for (const [key, src] of Object.entries(inputs)) {
       // Skip sources that have run out of items
       if (src.items.length === 0) continue;
 
@@ -59,23 +63,22 @@ function weightedSample(sources: Record<string, { weight: number, items: any[] }
 
     // We found a source to sample from
     if (chosenSourceKey) {
-      const source = sources[chosenSourceKey];
-      const item = source.items.shift();
+      const sourceItems = inputs[chosenSourceKey as FeedItemSourceType];
+      const item = sourceItems.items.shift();
       
-      // Only add the source once if it's not already in the sources array
-      const itemSources = item.sources || [];
-      if (!itemSources.includes(chosenSourceKey)) {
-        itemSources.push(chosenSourceKey);
-      }
+      // Skip if item is undefined
+      if (!item) continue;
       
       finalFeed.push({
-        ...item,
-        sources: itemSources
+        type: "ultraFeedItem",
+        renderAsType: sourceItems.renderAsType, 
+        sources: [chosenSourceKey as FeedItemSourceType],
+        item
       });
       
       // If that source is now empty, effectively set its weight to 0
-      if (source.items.length === 0) {
-        totalWeight -= source.weight;
+      if (sourceItems.items.length === 0) {
+        totalWeight -= sourceItems.weight;
       }
     }
   }
@@ -83,18 +86,38 @@ function weightedSample(sources: Record<string, { weight: number, items: any[] }
   return finalFeed;
 }
 
+async function fetchPostThreads({
+  context,
+  currentUser,
+}: {
+  context: ResolverContext;
+  currentUser: DbUser;
+}): Promise<DisplayFeedPostWithComments[]> {
+  console.log("Fetching post threads...");
 
+  // Create UltraFeedRepo instance
+  const ultraFeedRepo = new UltraFeedRepo();
+  
+  // Get post threads
+  const postThreads = await ultraFeedRepo.getUltraFeedPostThreads(context, 20);
+  
+  console.log(`Found ${postThreads.length} post threads`);
+  
+  // Map to FeedPostThreadItem format
+  return postThreads;
+  
+}
 /**
  * Fetches comment threads for the feed
  */
 async function fetchCommentThreads({
   context,
   currentUser,
-  servedCommentIds
+  // servedCommentIds
 }: {
   context: ResolverContext;
   currentUser: DbUser;
-  servedCommentIds: Set<string>;
+  // servedCommentIds: Set<string>;
 }): Promise<DisplayFeedCommentThread[]> {
   console.log("Fetching comment threads...");
   
@@ -102,7 +125,7 @@ async function fetchCommentThreads({
   const ultraFeedRepo = new UltraFeedRepo();
   
   // Get comment threads
-  const commentThreads = await ultraFeedRepo.getUltraFeedCommentThreads(50);
+  const commentThreads = await ultraFeedRepo.getUltraFeedCommentThreads(context, 50);
   
   console.log(`Found ${commentThreads.length} comment threads`);
 
@@ -308,7 +331,8 @@ defineFeedResolver<Date>({
   cutoffTypeGraphQL: "Date", 
   args: "",
   resultTypesGraphQL: `
-    ultraFeedItem: UltraFeedItem
+    feedCommentThread: UltraFeedItem
+    feedPost: UltraFeedItem
   `,
   /**
    * The resolver function fetches content from multiple sources,
@@ -343,44 +367,49 @@ defineFeedResolver<Date>({
     }
 
     // Fetch recently served items to avoid duplicates using the SQL-powered repo method
-    const feedItemServingsRepo = new FeedItemServingsRepo();
-    const recentlyServedDocs = await feedItemServingsRepo.loadRecentlyServedDocumentsForUser(
-      currentUser._id,
-      30, // look back 30 days
-      1000 // max 1000 items
-    );
+    // const feedItemServingsRepo = new FeedItemServingsRepo();
+    // const recentlyServedDocs = await feedItemServingsRepo.loadRecentlyServedDocumentsForUser(
+    //   currentUser._id,
+    //   30, // look back 30 days
+    //   1000 // max 1000 items
+    // );
     
-    console.log(`Retrieved ${recentlyServedDocs.length} previously served unique documents`);
+    // console.log(`Retrieved ${recentlyServedDocs.length} previously served unique documents`);
     
-    // Create sets for O(1) lookups
-    const servedCommentIds = new Set<string>();
-    const servedPostIds = new Set<string>();
-    const servedPostCommentCombos = new Set<string>();
+    // // Create sets for O(1) lookups
+    // const servedCommentIds = new Set<string>();
+    // const servedPostIds = new Set<string>();
+    // const servedPostCommentCombos = new Set<string>();
     
-    // Populate the sets from the SQL results
-    for (const item of recentlyServedDocs) {
-      if (item.collectionName === 'Comments' && item.documentId) {
-        servedCommentIds.add(item.documentId);
-      } else if (item.collectionName === 'Posts' && item.documentId) {
-        servedPostIds.add(item.documentId);
+    // // Populate the sets from the SQL results
+    // for (const item of recentlyServedDocs) {
+    //   if (item.collectionName === 'Comments' && item.documentId) {
+    //     servedCommentIds.add(item.documentId);
+    //   } else if (item.collectionName === 'Posts' && item.documentId) {
+    //     servedPostIds.add(item.documentId);
         
-        // If this is a post with associated comments, the combo is already created by the SQL
-        if (item.firstTwoCommentIds?.length) {
-          // Create a combo key of post ID + first comment IDs (sorted to ensure consistent comparison)
-          const comboKey = `${item.documentId}:${[...item.firstTwoCommentIds].sort().join(':')}`;
-          servedPostCommentCombos.add(comboKey);
-        }
-      }
-    }
+    //     // If this is a post with associated comments, the combo is already created by the SQL
+    //     if (item.firstTwoCommentIds?.length) {
+    //       // Create a combo key of post ID + first comment IDs (sorted to ensure consistent comparison)
+    //       const comboKey = `${item.documentId}:${[...item.firstTwoCommentIds].sort().join(':')}`;
+    //       servedPostCommentCombos.add(comboKey);
+    //     }
+    //   }
+    // }
     
-    console.log(`Set up lookups for ${servedCommentIds.size} comments, ${servedPostIds.size} posts, and ${servedPostCommentCombos.size} post+comment combinations`);
+    // console.log(`Set up lookups for ${servedCommentIds.size} comments, ${servedPostIds.size} posts, and ${servedPostCommentCombos.size} post+comment combinations`);
 
     try {
-      // Fetch comment threads
+
+      const postThreadsItems = await fetchPostThreads({
+        context,
+        currentUser,
+      });
+
       const commentThreadsItems = await fetchCommentThreads({
         context,
         currentUser,
-        servedCommentIds
+        // servedCommentIds
       });
       
       // Commented out other content sources
@@ -393,10 +422,16 @@ defineFeedResolver<Date>({
       */
       
       // Create sources object for weighted sampling
-      const sources = {
+      const sources: Record<FeedItemSourceType, { weight: number, items: UltraFeedTopLevelTypes[], renderAsType: FeedItemRenderType }> = {
+        postThreads: {
+          weight: SOURCE_WEIGHTS.postThreads,
+          items: postThreadsItems,
+          renderAsType: "feedPost"
+        },
         commentThreads: {
           weight: SOURCE_WEIGHTS.commentThreads,
-          items: commentThreadsItems
+          items: commentThreadsItems,
+          renderAsType: "feedCommentThread"
         }
         // Commented out other sources
         /*
@@ -416,6 +451,7 @@ defineFeedResolver<Date>({
       };
 
       console.log("Performing weighted sampling with:", {
+        postThreadsCount: sources.postThreads.items.length,
         commentThreadsCount: sources.commentThreads.items.length,
         // quickTakesCount: sources.quickTakes.items.length,
         // popularCommentsCount: sources.popularComments.items.length,
@@ -431,28 +467,28 @@ defineFeedResolver<Date>({
       if (sampledItems.length > 0) {
         const example = sampledItems[0];
         console.log('Example item keys:', {
-          _id: example._id,
           renderAsType: example.renderAsType,
           sourceCount: example.sources?.length || 0
         });
       }
+
       
       // Transform results for the feed
       const results = sampledItems.map((item, index) => {
+        if (!item.renderAsType) {
+          console.log("No renderAsType for item:", item);
+        }
         
-        // Structure the item correctly with the data nested under ultraFeedItem
-        const feedItem = {
-          _id: item._id || `temp_${index}`,
-          type: "ultraFeedItem",
-          renderAsType: item.renderAsType || "feedCommentThread",
-          sources: item.sources || [],
-          itemContent: item // Use itemContent instead of commentThread to match the schema
-        };
-        
-        // Create the return object with type and matching nested field
+        // Return an object with type matching the renderAsType and nested field with that name
         const result = {
-          type: "ultraFeedItem",
-          ultraFeedItem: feedItem // Nest under the same name as the type
+          type: item.renderAsType, // This is how the MixedTypeFeed knows which renderer to use
+          [item.renderAsType]: {  // This field name must match the type
+            _id: `feed-item-${index}-${Date.now()}`,
+            type: "ultraFeedItem",
+            renderAsType: item.renderAsType,
+            sources: item.sources || [],
+            itemContent: item.item
+          }
         };
         
         return result;

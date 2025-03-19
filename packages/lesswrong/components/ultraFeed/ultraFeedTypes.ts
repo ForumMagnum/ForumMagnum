@@ -16,16 +16,23 @@
 // 2. PROCESSING & ENRICHMENT TYPES
 //-----------------------------------------------------------------------------
 
-/**
- * The type of source where a comment came from.
- * Used in: Various feed item candidates and display types
- */
-export type FeedItemSourceType = 'QuickTake' | 'PopularComment' | string;
 
-/**
- * Metadata for feed comments, including sources and sibling information.
- * Used in: FeedCommentCandidate
- */
+// TODO: properly split out items and weight accordingly
+export type FeedItemSourceType = 'postThreads' | 'commentThreads'; //'QuickTake' | 'PopularComment' | 'RecombeeHybridPosts';
+export type FeedItemRenderType = "feedComment" | "feedPost" | "feedCommentThread";
+
+export interface RecombeeMetaInfo {
+  scenario: string;
+  recommId: string;
+  generatedAt: Date;
+}
+
+export interface PostMetaInfo {
+  recommInfo: RecombeeMetaInfo;
+  sources: FeedItemSourceType[];
+  displayStatus: FeedItemDisplayStatus;
+}
+
 export interface FeedCommentMetaInfo {
   /** Sources where this comment came from */
   sources: FeedItemSourceType[] | null;
@@ -47,8 +54,6 @@ export interface PreDisplayFeedComment {
   /** Metadata about the comment's context in the feed */
   metaInfo: Pick<FeedCommentMetaInfo, 'sources'>;
 }
-
-
 
 /**
  * A linear thread of comments for display in the feed.
@@ -87,9 +92,10 @@ export interface LinearCommentThreadStatistics {
 // 3. DISPLAY TYPES - For Client/GraphQL
 //-----------------------------------------------------------------------------
 
+export type UltraFeedTopLevelTypes = DisplayFeedPostWithComments | DisplayFeedCommentThread;
 export interface DisplayFeedItem {
-  _id: string;
-  item: FeedItemContent;
+  item: UltraFeedTopLevelTypes;
+  type: string;
   renderAsType: FeedItemRenderType;
   sources: FeedItemSourceType[] | null;
 }
@@ -103,18 +109,18 @@ export interface DisplayFeedComment {
   metaInfo: Pick<FeedCommentMetaInfo, 'sources' | 'displayStatus'>;
 }
 
+export interface DisplayFeedPostWithComments {
+  post: PostsList
+  comments: DisplayFeedComment[];
+  metaInfo: PostMetaInfo;
+}
+
 export interface DisplayFeedCommentThread {
   post: PostsMinimumInfo; // TODO: maybe want fragment with post contents?
   comments: DisplayFeedComment[];
   topLevelCommentId: string;
 }
 
-
-/** 
- * The valid render types for feed items.
- * Used in: Various feed item related types and functions
- */
-export type FeedItemRenderType = "feedComment" | "feedPost" | "feedCommentThread";
 
 
 /**
@@ -320,20 +326,3 @@ export interface PostFeedItemContent extends BaseFeedItemContent {
   comments: FeedCommentDisplayItem[];
 }
 
-/**
- * Union type for all possible item content types.
- * Used in: itemContent field in FeedItemServings
- */
-export type FeedItemContent = CommentThreadFeedItemContent | PostFeedItemContent;
-
-/**
- * New feed item structure as defined in the UltraFeed schema.
- * This replaces the older types that had separate fields for different content types.
- */
-export interface UltraFeedItemResolver {
-  _id: string;
-  type: string;
-  renderAsType: FeedItemRenderType;
-  sources: string[];
-  itemContent: any; // Any JSON content appropriate for the renderAsType
-}

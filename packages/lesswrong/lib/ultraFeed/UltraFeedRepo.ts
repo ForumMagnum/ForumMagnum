@@ -6,7 +6,7 @@
  */
 
 import { randomId } from '../random';
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedCommentThread } from '../../components/ultraFeed/ultraFeedTypes';
+import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedCommentThread, DisplayFeedPostWithComments } from '../../components/ultraFeed/ultraFeedTypes';
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
@@ -17,6 +17,7 @@ import { CommentsList } from '../../lib/collections/comments/fragments';
 import { PostsMinimumInfo } from '../../lib/collections/posts/fragments';
 import { TagPreviewFragment, TagBasicInfo } from '../../lib/collections/tags/fragments';
 import { UsersMinimumInfo } from '../../lib/collections/users/fragments';
+import { fragmentTextForQuery } from '../vulcan-lib/fragments';
 
 
 /**
@@ -36,12 +37,64 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     super(Comments);
   }
 
+  public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedPostWithComments[]> {
+
+    // RECOMBEE HYBRID POSTS: LATEST + RECOMMENDED
+    // TODO: separate these out so can be selected independently
+    const GET_RECOMBEE_HYBRID_POSTS = gql`
+      query getRecombeeHybridPosts($limit: Int, $settings: JSON) {
+        RecombeeHybridPosts(limit: $limit, settings: $settings) {
+          results {
+            post {
+              ...PostsMinimumInfo
+            }
+            scenario
+            recommId
+            generatedAt
+            curated
+            stickied
+          }
+        }
+      }
+      ${fragmentTextForQuery('PostsMinimumInfo')}
+    `;
+    
+    const variables = {
+      limit,
+      settings: {
+        hybridScenarios: { fixed: 'forum-classic', configurable: 'recombee-lesswrong-custom' }
+      }
+    };
+    const result = await runQuery(GET_RECOMBEE_HYBRID_POSTS, variables, context);
+
+    const recommendedData = result.data?.RecombeeHybridPosts?.results || [];
+
+    // 4. Convert each post result into DisplayFeedPostWithComments
+    //    so each item has a "post" and an empty "comments" array by default
+    const displayPosts: DisplayFeedPostWithComments[] = recommendedData.map((item: any) => ({
+      post: item.post,           // The top-level post. Cast or ensure it matches PostsList if needed.
+      comments: [],              // We leave comments empty, or retrieve them separately if desired.
+      metaInfo: {
+        sources: [item.scenario],
+        recommInfo: {
+          recommId: item.recommId,
+          scenario: item.scenario,
+          generatedAt: item.generatedAt ? new Date(item.generatedAt) : null,
+        },
+      },
+    }));
+
+    // TODO: Get posts based on your subscriptions
+
+    return displayPosts;
+  }
+
 
   //TODO: add comments on threads you've partificipated in/interacted with, especially replies to you
   //TODO: filter based on previous interactions with comments?
   //TODO: figure out exact threshold / date window (make parameter?), perhaps make a window that's adjusted based on user's visit frequency
 
-  async getCommentsForFeed(limit = 1000): Promise<PreDisplayFeedComment[]> {
+  async getCommentsForFeed(context: ResolverContext, limit = 1000): Promise<PreDisplayFeedComment[]> {
     const db = this.getRawDb();
 
     console.log(`UltraFeedRepo.getCommentsForFeed called with limit=${limit}`);
@@ -124,9 +177,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     }
     console.log(`UltraFeedRepo: First few comment IDs:`, firstFewIds);
 
-    const context = createAnonymousContext();
-    
-    
     const query = gql`
       query GetFeedComments($commentIds: [String!]!) {
         comments(input: { terms: { view: "allRecentComments", commentIds: $commentIds, limit: 1000 } }) {
@@ -135,11 +185,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           }
         }
       }
-      
-      ${CommentsList}
-      ${TagPreviewFragment}
-      ${TagBasicInfo}
-      ${UsersMinimumInfo}
+      ${fragmentTextForQuery('CommentsList')}
     `;
     
     const result = await runQuery(query, { commentIds: suggestedComments.map(c => c._id) }, context);
@@ -203,7 +249,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         }
       }
       
-      ${PostsMinimumInfo}
+      ${fragmentTextForQuery('PostsMinimumInfo')}
     `;
 
     const context = createAnonymousContext();
@@ -418,10 +464,10 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
   // TODO: somewhere choose threads better
   // end-to-end function for generating threads for displaying in the UltraFeed
-  public async getUltraFeedCommentThreads(limit = 20): Promise<DisplayFeedCommentThread[]> {
+  public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedCommentThread[]> {
     console.log(`UltraFeedRepo.getUltraFeedCommentThreads started with limit=${limit}`);
     
-    const candidates = await this.getCommentsForFeed(1000); // limit of how many comments to consider
+    const candidates = await this.getCommentsForFeed(context, 1000); // limit of how many comments to consider
     console.log(`UltraFeedRepo: Got ${candidates.length} candidates from getCommentsForFeed`);
     
     const threads = await this.getAllCommentThreads(candidates);

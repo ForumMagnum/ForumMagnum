@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
-import { UltraFeedItemResolver } from './ultraFeedTypes';
+import { DisplayFeedItem, DisplayFeedCommentThread, DisplayFeedPostWithComments, UltraFeedTopLevelTypes } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -226,30 +226,45 @@ const UltraFeedContent = () => {
 
   // Feed item renderer for both feeds
   const ultraFeedRenderer = {
-    ultraFeedItem: {
-      fragmentName: 'UltraFeedItemFragment',
-      render: (ultraFeedItem: UltraFeedItemResolver) => {
-        // Use renderAsType to determine how to render the item
-        if (!ultraFeedItem || !ultraFeedItem.itemContent) {
-          console.log("Missing item content:", ultraFeedItem);
+    feedCommentThread: {
+      fragmentName: 'UltraFeedCommentThreadFragment',
+      render: (item: any) => {
+        if (!item || !item.itemContent) {
+          console.log("Missing item structure:", item);
           return null;
         }
-
-        const { _id, renderAsType, sources, itemContent } = ultraFeedItem;
         
-        // Wrap all items in FeedItemWrapper
+        // Extract the actual thread data from itemContent
+        const thread = item.itemContent;
+        
         return (
-          <FeedItemWrapper sources={sources}>
-            {renderAsType === "feedCommentThread" && (
-              <UltraFeedThreadItem
-                key={_id}
-                thread={itemContent}
-              />
-            )}
-            {/* We're not handling other types for now as we're focusing on comment threads */}
-            {renderAsType !== "feedCommentThread" && (
-              <div>Unsupported item type: {renderAsType}</div>
-            )}
+          <FeedItemWrapper sources={item.sources || []}>
+            <UltraFeedThreadItem thread={thread} />
+          </FeedItemWrapper>
+        );
+      }
+    },
+    feedPost: {
+      fragmentName: 'UltraFeedPostWithCommentsFragment',
+      render: (item: any) => {
+        if (!item || !item.itemContent) {
+          console.log("Missing item structure:", item);
+          return null;
+        }
+        
+        // Extract the actual post data from itemContent
+        const post = item.itemContent;
+        
+        return (
+          <FeedItemWrapper sources={item.sources || []}>
+            <div style={{ padding: 16, background: "#f0f0f0", borderRadius: 4, marginBottom: 8 }}>
+              <h3 style={{ margin: "0 0 8px" }}>
+                {post.post.title}
+              </h3>
+              <div>
+                <em>{post.post.user?.displayName || 'Unknown'}</em>
+              </div>
+            </div>
           </FeedItemWrapper>
         );
       }

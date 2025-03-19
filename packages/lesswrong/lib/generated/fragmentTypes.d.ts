@@ -3687,11 +3687,27 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
+interface UltraFeedCommentThreadFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly type: any,
+  readonly renderAsType: any,
+  readonly sources: any,
+  readonly itemContent: any,
+}
+
 interface UltraFeedCommentWithPostFragment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
 }
 
 interface UltraFeedItemFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly type: any,
+  readonly renderAsType: any,
+  readonly sources: any,
+  readonly itemContent: any,
+}
+
+interface UltraFeedPostWithCommentsFragment { // fragment on non-collection type
   readonly _id: any,
   readonly type: any,
   readonly renderAsType: any,
@@ -5367,8 +5383,10 @@ interface FragmentTypes {
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  UltraFeedCommentThreadFragment: UltraFeedCommentThreadFragment
   UltraFeedCommentWithPostFragment: UltraFeedCommentWithPostFragment
   UltraFeedItemFragment: UltraFeedItemFragment
+  UltraFeedPostWithCommentsFragment: UltraFeedPostWithCommentsFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserActivitiesDefaultFragment: UserActivitiesDefaultFragment
   UserAltAccountsFragment: UserAltAccountsFragment
@@ -5510,7 +5528,7 @@ interface FragmentTypesByCollection {
   Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailedPreviewFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"TagsDefaultFragment"|"UserOnboardingTag"|"WithVoteTag"
   Tweets: "TweetsDefaultFragment"
   TypingIndicators: "TypingIndicatorInfo"|"TypingIndicatorsDefaultFragment"
-  UltraFeedItems: "UltraFeedItemFragment"
+  UltraFeedItems: "UltraFeedCommentThreadFragment"|"UltraFeedItemFragment"|"UltraFeedPostWithCommentsFragment"
   UserActivities: "UserActivitiesDefaultFragment"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -5793,8 +5811,10 @@ interface CollectionNamesByFragmentName {
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  UltraFeedCommentThreadFragment: never
   UltraFeedCommentWithPostFragment: "Comments"
   UltraFeedItemFragment: never
+  UltraFeedPostWithCommentsFragment: never
   UnclaimedReportsList: "Reports"
   UserActivitiesDefaultFragment: "UserActivities"
   UserAltAccountsFragment: "Users"
