@@ -1826,6 +1826,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -3582,6 +3583,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       onUpdate: getDenormalizedFieldOnUpdate<"Posts">({ getValue: hEpEiL, needsUpdate: h9LCpv }),
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -3596,6 +3598,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -3791,6 +3794,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -4084,6 +4088,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canCreate: ["members", "sunshineRegiment", "admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -4133,6 +4138,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Posts">> = {
       canCreate: ["members", "sunshineRegiment", "admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {

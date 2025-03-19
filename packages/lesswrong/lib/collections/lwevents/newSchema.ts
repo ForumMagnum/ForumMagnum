@@ -132,6 +132,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"LWEvents">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

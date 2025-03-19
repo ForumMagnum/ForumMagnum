@@ -110,6 +110,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Notifications">> =
       canRead: [userOwns],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

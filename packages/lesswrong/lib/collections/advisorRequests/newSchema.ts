@@ -137,6 +137,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"AdvisorRequests">>
       validation: {
         simpleSchema: [jobAdsType],
         optional: true,
+        blackbox: true,
       },
     },
   },

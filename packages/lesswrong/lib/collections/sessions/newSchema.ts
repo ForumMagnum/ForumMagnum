@@ -37,6 +37,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Sessions">> = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

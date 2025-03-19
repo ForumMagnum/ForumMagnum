@@ -91,6 +91,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"CronHistories">> =
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

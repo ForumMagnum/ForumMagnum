@@ -438,6 +438,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"MultiDocuments">> 
       canRead: ["guests"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

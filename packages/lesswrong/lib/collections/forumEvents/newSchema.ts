@@ -591,6 +591,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ForumEvents">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

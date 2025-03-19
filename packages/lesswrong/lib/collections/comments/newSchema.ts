@@ -375,6 +375,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
       validation: {
         simpleSchema: ForumEventCommentMetadataSchema,
         optional: true,
+        blackbox: true,
       },
     },
   },

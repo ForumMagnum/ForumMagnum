@@ -314,6 +314,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       onUpdate: getDenormalizedFieldOnUpdate<"Localgroups">({ getValue: hrQe2n, needsUpdate: h3A2NF }),
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -328,6 +329,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Localgroups">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {

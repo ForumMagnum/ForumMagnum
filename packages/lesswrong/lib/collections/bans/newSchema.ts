@@ -166,6 +166,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Bans">> = {
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

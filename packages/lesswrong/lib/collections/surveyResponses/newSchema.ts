@@ -171,6 +171,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"SurveyResponses">>
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["guests"],
+      validation: {
+        blackbox: true,
+      },
     },
   },
 };

@@ -120,6 +120,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElectionVotes">> =
       },
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -145,6 +146,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElectionVotes">> =
       },
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -182,6 +184,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"ElectionVotes">> =
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

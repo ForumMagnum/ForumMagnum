@@ -804,6 +804,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canRead: ownsOrIsAdmin,
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -1627,6 +1628,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: "guests",
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -1829,6 +1831,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members", "sunshineRegiment", "admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -3344,6 +3347,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: hjtvjR, needsUpdate: hmGinK }),
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -3358,6 +3362,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -3394,6 +3399,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -3505,6 +3511,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canCreate: ["members"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
     form: {
@@ -3527,6 +3534,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       onUpdate: getDenormalizedFieldOnUpdate<"Users">({ getValue: heeJHD, needsUpdate: hTcEov }),
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -4444,6 +4452,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

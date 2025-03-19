@@ -400,6 +400,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       outputType: "JSON",
       inputType: "JSON!",
       canRead: ["guests"],
+      validation: {
+        blackbox: true,
+      },
     },
   },
   googleDocMetadata: {
@@ -412,6 +415,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Revisions">> = {
       canRead: ["guests"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

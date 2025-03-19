@@ -141,6 +141,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserEAGDetails">> 
       canUpdate: [userOwns, "admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

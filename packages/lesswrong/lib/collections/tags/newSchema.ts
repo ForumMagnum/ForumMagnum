@@ -1012,6 +1012,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       canRead: ["guests"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

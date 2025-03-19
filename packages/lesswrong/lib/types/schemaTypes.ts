@@ -219,12 +219,12 @@ type NotAGraphQLFieldSpecification = Record<string, never>;
 interface GraphQLBaseFieldSpecification {
   outputType: string | GraphQLScalarType,
   typescriptType?: string,
-  blackbox?: boolean,
   validation?: {
     optional?: boolean,
     simpleSchema?: SimpleSchema | [SimpleSchema],
     regEx?: any,
     allowedValues?: string[],
+    blackbox?: boolean,
   },
 }
 

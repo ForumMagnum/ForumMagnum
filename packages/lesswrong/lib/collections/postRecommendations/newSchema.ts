@@ -133,6 +133,9 @@ const schema: Record<string, NewCollectionFieldSpecification<"PostRecommendation
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        blackbox: true,
+      },
     },
   },
   strategySettings: {
