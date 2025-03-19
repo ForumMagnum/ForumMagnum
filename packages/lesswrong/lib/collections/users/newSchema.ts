@@ -533,6 +533,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "howOthersCanHelpMe"),
     },
+    form: {
+      form: {
+        formVariant: isFriendlyUI ? "grey" : undefined,
+      }
+    },
   },
   howOthersCanHelpMe_latest: {
     database: {
@@ -570,6 +575,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "howICanHelpOthers"),
+    },
+    form: {
+      form: {
+        formVariant: isFriendlyUI ? "grey" : undefined,
+      }
     },
   },
   howICanHelpOthers_latest: {
@@ -657,6 +667,7 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         commentEditor: true,
         commentStyles: true,
         hideControls: false,
+        formVariant: isFriendlyUI ? "grey" : undefined,
       },
       order: isEAForum ? 6 : 40,
       control: "EditorFormComponent",
