@@ -200,7 +200,7 @@ const schema: SchemaType<"Posts"> = {
     permissions: {
       canRead: ['guests'],
       canUpdate: ['members', 'sunshineRegiment', 'admins'],
-      canCreate: [userHasModerationGuidelines]
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
     },
     normalized: true,
   }),
