@@ -169,7 +169,7 @@ const styles = (theme: ThemeType) => ({
   rootWithSplashPageHeader: {
     paddingTop: 'calc(100vh - 560px)',
     [theme.breakpoints.down('md')]: {
-      paddingTop: 'calc(100vh - 300px)',
+      paddingTop: 'calc(100vh - 400px)',
     },
   },
   rootWithSplashPageHeaderLong: {
@@ -179,6 +179,18 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       paddingTop: 'calc(100vh - 320px)',
+    },
+  },
+  rootWithSplashPageHeaderLonger: {
+    paddingTop: 'calc(100vh - 560px)',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: 'calc(100vh - 500px)',
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 'calc(100vh - 320px)',
+    },
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 'calc(100vh - 400px)',
     },
   }
 }); 
@@ -228,7 +240,13 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
   </LWTooltip> : null;
 
   const splashPageTitleClass = post.title.length > 60 ? classes.splashPageTitleLong : classes.splashPageTitle;
-  const rootWithSplashPageHeaderClass =  post.title.length > 50 ? classes.rootWithSplashPageHeaderLong : classes.rootWithSplashPageHeader;
+  let rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeader
+  if (post.title.length > 50) {
+    rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLong
+  }
+  if (post.title.length > 60) {
+    rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLonger
+  }
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[rootWithSplashPageHeaderClass]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}

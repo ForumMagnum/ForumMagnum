@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -6,7 +7,10 @@ import { useImageContext } from '../ImageContext';
 import { ImagePreviewAndCrop } from './ImagePreviewAndCrop';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const widescreenImagesStyles = (theme: ThemeType) => ({
+const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
+  root: {
+    position: 'relative',
+  },
   backgroundImageWrapper: {
     position: 'fixed',
     width: '100vw',
@@ -14,9 +18,6 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       top: -108
     },
-  },
-  backgroundImageWrapperInner: {
-    position: 'relative',
   },
   backgroundImage: {
     position: 'absolute',
@@ -32,7 +33,7 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     right: 0,
     width: '100vw',
     height: '100vh',
-    background: 'linear-gradient(180deg, #ffffff 164px, rgba(255,255,255,.8) 165px,  transparent 40%, #fff 87%)',
+    background: `linear-gradient(180deg, ${theme.palette.panelBackground.default} 164px, ${theme.palette.panelBackground.translucent} 165px,  transparent 45%, ${theme.palette.panelBackground.default} 87%)`,
     pointerEvents: 'none',
     bottom: 0,
     left: 'auto',
@@ -46,16 +47,9 @@ const widescreenImagesStyles = (theme: ThemeType) => ({
     right: 0,
     width: '100vw',
     height: '100vh',
-    background: 'linear-gradient(-90deg, transparent 48%,#fff 95%)',
+    background: `linear-gradient(-90deg, transparent 48%, ${theme.palette.panelBackground.default} 95%)`,
     pointerEvents: 'none',
   },
-})
-
-const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
-  root: {
-    position: 'relative',
-  },
-  ...widescreenImagesStyles(theme),
 }));
 
 export const BestOfLWPostsPageSplashImage = ({post}: {
@@ -96,11 +90,9 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
 
   return <div className={classes.root}>
     <div className={classes.backgroundImageWrapper} style={{opacity}}>
-      <div className={classes.backgroundImageWrapperInner}>
-        <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
-        <div className={classes.overlayY} />
-        <div className={classes.overlayX} />
-      </div>
+      <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
+      <div className={classes.overlayY} />
+      <div className={classes.overlayX} />
     </div>
     {userIsAdminOrMod(currentUser) && <ImagePreviewAndCrop imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
   </div>
