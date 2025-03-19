@@ -18,8 +18,11 @@ export type UseHoverEventHandlers = {
   onMouseLeave: (ev: React.MouseEvent) => void,
 }
 
-export const useHover = ({eventProps, onEnter, onLeave, disabledOnMobile}: UseHoverProps = {}): {
-  eventHandlers: UseHoverEventHandlers,
+export const useHover = <EventType extends {currentTarget: Element}=React.MouseEvent>({eventProps, onEnter, onLeave, disabledOnMobile}: UseHoverProps = {}): {
+  eventHandlers: {
+    onMouseOver: (ev: EventType) => void,
+    onMouseLeave: (ev: EventType) => void,
+  }
   hover: boolean,
   everHovered: boolean,
   anchorEl: any,
@@ -42,7 +45,7 @@ export const useHover = ({eventProps, onEnter, onLeave, disabledOnMobile}: UseHo
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
-  const handleMouseOver = useCallback((event: React.MouseEvent) => {
+  const handleMouseOver = useCallback((event: EventType) => {
     if (disabledOnMobile && isMobile()) {
       return;
     }

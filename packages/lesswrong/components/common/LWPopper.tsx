@@ -48,6 +48,7 @@ const LWPopper = ({
   flip,
   open,
   anchorEl,
+  distance=0,
   placement,
   clickable = true,
   hideOnTouchScreens,
@@ -62,6 +63,7 @@ const LWPopper = ({
   open: boolean,
   placement?: PopperPlacementType,
   anchorEl: any,
+  distance?: number,
   className?: string,
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
@@ -93,6 +95,12 @@ const LWPopper = ({
           gpuAcceleration: false, // true by default
         },
       },
+      ...(distance>0 ? [{
+        name: "offset",
+        options: {
+          offset: [0, distance]
+        },
+      }] : []),
       ...flipModifier,
       ...preventOverflowModifier
     ],

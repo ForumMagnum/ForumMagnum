@@ -1,11 +1,12 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import React from 'react';
+import React, { Ref } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { FMTooltip } from '../FMTooltip';
 
 const smallIconSize = 23
 
@@ -78,7 +79,8 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
   // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
   const Element = externalLink ?
-    ({to, ...rest}: { to: string, className: string }) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
+    ({to, anchorRef, ...rest}: { to: string, anchorRef: Ref<HTMLAnchorElement>, className: string }) =>
+      <a href={to} target="_blank" rel="noopener noreferrer" ref={anchorRef} {...rest} />
     : Link;
 
   const isSelected = pathname === tab.link;
@@ -87,9 +89,10 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
-  return <Tooltip placement='top' title={tab.tooltip || ''}>
-    <Element
+  return <FMTooltip placement='top' title={tab.tooltip || ''} distance={16}>
+    {(ref: Ref<HTMLAnchorElement>) => <Element
       to={tab.link}
+      anchorRef={ref}
       className={classNames(classes.navButton, {
         [classes.selected]: isSelected,
       })}
@@ -108,8 +111,8 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
           { tab.mobileTitle || tab.title }
         </span>
       }
-    </Element>
-  </Tooltip>
+    </Element>}
+  </FMTooltip>
 }
 
 const TabNavigationFooterItemComponent = registerComponent(
