@@ -269,6 +269,20 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Tags", "moderationGuidelines"),
     },
+    form: {
+      hidden: true,
+      control: "EditorFormComponent",
+      order: 50,
+      group: () => formGroups.subforumModerationGuidelines,
+      form: {
+        commentEditor: true,
+        commentStyles: true,    
+      },
+      editableFieldOptions: {
+        getLocalStorageId: getDefaultLocalStorageIdGenerator("Tags"),
+        revisionsHaveCommitMessages: false,
+      },
+    },
   },
   moderationGuidelines_latest: {
     database: {
@@ -843,6 +857,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Tags">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      control: 'TagFlagToggleList',
+      label: "Flags: ",
+      order: 30,
     },
   },
   tagFlags: {

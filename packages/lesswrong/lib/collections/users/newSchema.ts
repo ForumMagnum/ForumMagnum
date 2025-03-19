@@ -29,7 +29,7 @@ import {
   googleLocationToMongoLocation, schemaDefaultValue
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
-import { REVIEW_YEAR } from "../../reviewUtils";
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from "../../reviewUtils";
 import uniqBy from "lodash/uniqBy";
 import { userThemeSettings } from "../../../themes/themeNames";
 import type { ForumIconName } from "../../../components/common/ForumIcon";
@@ -536,8 +536,15 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       resolver: getDenormalizedEditableResolver("Users", "howOthersCanHelpMe"),
     },
     form: {
+      hidden: true,
+      order: 7,
+      label: "How others can help me",
+      group: () => formGroups.aboutMe,
       form: {
+        hintText: () => "Ex: I am looking for opportunities to do...",
         formVariant: isFriendlyUI ? "grey" : undefined,
+        commentEditor: true,
+        commentStyles: true,
       }
     },
   },
@@ -579,8 +586,15 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       resolver: getDenormalizedEditableResolver("Users", "howICanHelpOthers"),
     },
     form: {
+      hidden: true,
+      order: 8,
+      label: "How I can help others",
+      group: () => formGroups.aboutMe,
       form: {
+        hintText: () => "Ex: Reach out to me if you have questions about...",
         formVariant: isFriendlyUI ? "grey" : undefined,
+        commentEditor: true,
+        commentStyles: true,
       }
     },
   },
@@ -1193,6 +1207,13 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: 'checkbox',
+      group: () => formGroups.siteCustomizations,
+      order: 70,
+      label: "Show my bio at the end of my posts",
+    },
   },
   hideIntercom: {
     database: {
@@ -1510,6 +1531,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      group: () => formGroups.siteCustomizations,
+    },
   },
   generateJargonForPublishedPosts: {
     database: {
@@ -1525,6 +1550,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      group: () => formGroups.siteCustomizations,
     },
   },
   acceptedTos: {
@@ -2046,6 +2075,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: 'checkbox',
+      group: () => formGroups.banUser,
+      label: 'Set all future votes of this user to have zero weight',  
+    },
   },
   nullifyVotes: {
     database: {
@@ -2531,6 +2566,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Karma powers gained",
+      control: "NotificationTypeSettingsWidget",
+      group: () => formGroups.notifications,
+    },
   },
   notificationRSVPs: {
     database: {
@@ -2619,6 +2660,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         simpleSchema: notificationTypeSettings,
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
+      control: "NotificationTypeSettingsWidget",
+      group: () => formGroups.notifications,
     },
   },
   notificationSubforumUnread: {
@@ -3405,6 +3452,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Your text on the community map",
+      control: "MuiTextField",
+      order: 44,
+    },
   },
   htmlMapMarkerText: {
     database: {
@@ -3454,6 +3507,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "LocationFormComponent",
+    },
   },
   nearbyEventsNotificationsMongoLocation: {
     database: {
@@ -3485,6 +3542,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      min: 0,
+      max: MAX_NOTIFICATION_RADIUS,
     },
   },
   nearbyPeopleNotificationThreshold: {
@@ -3534,6 +3596,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Hide the tagging progress bar",
+      order: 45,
+      group: () => formGroups.siteCustomizations,  
+    },
   },
   hideFrontpageBookAd: {
     database: {
@@ -3546,6 +3614,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: "Hide the frontpage book ad",
+      order: 46,
+      group: () => formGroups.siteCustomizations,
     },
   },
   hideFrontpageBook2019Ad: {
@@ -3560,6 +3634,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: "Hide the frontpage book ad",
+      order: 47,
+      group: () => formGroups.siteCustomizations,
     },
   },
   hideFrontpageBook2020Ad: {
@@ -4082,6 +4162,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      control: "datetime",
+      group: () => formGroups.adminOptions,
+    },
   },
   petrovLaunchCodeDate: {
     database: {
@@ -4094,6 +4179,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Users">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      control: "datetime",
+      group: () => formGroups.adminOptions,
     },
   },
   defaultToCKEditor: {

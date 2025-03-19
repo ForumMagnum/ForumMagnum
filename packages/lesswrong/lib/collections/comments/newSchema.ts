@@ -1370,6 +1370,12 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Suggested for Alignment by",
+      control: "FormUserMultiselect",
+      group: () => alignmentOptionsGroup,  
+    },
   },
   suggestForAlignmentUsers: {
     graphql: {
@@ -1409,6 +1415,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Alignment Forum",
+      group: () => alignmentOptionsGroup,
+    },
   },
   moveToAlignmentUserId: {
     database: {
@@ -1423,6 +1434,11 @@ const schema: Record<string, NewCollectionFieldSpecification<"Comments">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Move to Alignment UserId",
+      group: () => alignmentOptionsGroup,
+    }
   },
   moveToAlignmentUser: {
     graphql: {

@@ -125,6 +125,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+      label: "Unread count in sidebar",
+    },
   },
   subforumEmailNotifications: {
     database: {
@@ -161,6 +165,10 @@ const schema: Record<string, NewCollectionFieldSpecification<"UserTagRels">> = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
+      label: "Don't show the intro post at the top of topic feeds",
     },
   },
 };
