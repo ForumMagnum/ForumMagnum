@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useAuth0Client } from '../hooks/useAuth0Client';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
@@ -84,16 +84,9 @@ const Auth0PasswordResetPage = ({ classes }: { classes: ClassesType<typeof style
   const { query } = useLocation();
   const client = useAuth0Client();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(query.email ?? '');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const emailFromQuery = query.email;
-    if (emailFromQuery) {
-      setEmail(emailFromQuery);
-    }
-  }, [query]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
