@@ -129,12 +129,6 @@ const UltraFeedPostItem = ({
         <UltraFeedPostItemMeta post={post} {...metaInfoProps} />
       </div>
       
-      {/* <FeedPostCardMeta post={post} /> */}
-
-      
-      {/* <div className={classes.metadata}>
-        <PostsItemMeta post={post} />
-      </div> */}
       
       {post.contents && (
         // <div className={classes.content}>
@@ -145,11 +139,6 @@ const UltraFeedPostItem = ({
         <FeedPostsHighlight post={post} maxCollapsedLengthWords={40} />
       )}
       
-      {/* <div className={classes.footer}>
-        <Link to={postUrl} onClick={handlePostClick}>
-          Read more →
-        </Link>
-      </div> */}
     </div>
   );
 };

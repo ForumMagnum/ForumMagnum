@@ -72,7 +72,14 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     // 4. Convert each post result into DisplayFeedPostWithComments
     //    so each item has a "post" and an empty "comments" array by default
     const displayPosts: DisplayFeedPostWithComments[] = recommendedData.map((item: any) => ({
-      post: { ...item.post, __typename: "Post" } as PostsListWithVotes,           // The top-level post. Cast or ensure it matches PostsList if needed.
+      post: { 
+        ...item.post, 
+        __typename: "Post",
+        user: {
+          ...item.post.user,
+          __typename: "User",
+        },
+      } as PostsListWithVotes,           // The top-level post. Cast or ensure it matches PostsList if needed.
       comments: [],              // We leave comments empty, or retrieve them separately if desired.
       metaInfo: {
         sources: [item.scenario],
