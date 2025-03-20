@@ -14,7 +14,7 @@ import groupBy from 'lodash/groupBy';
 import { runQuery, createAnonymousContext } from '@/server/vulcan-lib/query';
 import gql from 'graphql-tag';
 import { CommentsList } from '../../lib/collections/comments/fragments';
-import { PostsMinimumInfo } from '../../lib/collections/posts/fragments';
+import { PostsListWithVotes } from '../../lib/collections/posts/fragments';
 import { TagPreviewFragment, TagBasicInfo } from '../../lib/collections/tags/fragments';
 import { UsersMinimumInfo } from '../../lib/collections/users/fragments';
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
@@ -37,7 +37,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     super(Comments);
   }
 
-  public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedPostWithComments[]> {
+  public async getUltraFeedPostThreads(context: ResolverContext, limit = 10): Promise<DisplayFeedPostWithComments[]> {
 
     // RECOMBEE HYBRID POSTS: LATEST + RECOMMENDED
     // TODO: separate these out so can be selected independently
@@ -46,7 +46,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         RecombeeHybridPosts(limit: $limit, settings: $settings) {
           results {
             post {
-              ...PostsMinimumInfo
+              ...PostsListWithVotes
             }
             scenario
             recommId
@@ -56,7 +56,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           }
         }
       }
-      ${fragmentTextForQuery('PostsMinimumInfo')}
+      ${fragmentTextForQuery('PostsListWithVotes')}
     `;
     
     const variables = {
@@ -72,7 +72,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     // 4. Convert each post result into DisplayFeedPostWithComments
     //    so each item has a "post" and an empty "comments" array by default
     const displayPosts: DisplayFeedPostWithComments[] = recommendedData.map((item: any) => ({
-      post: item.post,           // The top-level post. Cast or ensure it matches PostsList if needed.
+      post: { ...item.post, __typename: "Post" } as PostsListWithVotes,           // The top-level post. Cast or ensure it matches PostsList if needed.
       comments: [],              // We leave comments empty, or retrieve them separately if desired.
       metaInfo: {
         sources: [item.scenario],
@@ -94,7 +94,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   //TODO: filter based on previous interactions with comments?
   //TODO: figure out exact threshold / date window (make parameter?), perhaps make a window that's adjusted based on user's visit frequency
 
-  async getCommentsForFeed(context: ResolverContext, limit = 1000): Promise<PreDisplayFeedComment[]> {
+  async getCommentsForFeed(context: ResolverContext, limit = 200): Promise<PreDisplayFeedComment[]> {
     const db = this.getRawDb();
 
     console.log(`UltraFeedRepo.getCommentsForFeed called with limit=${limit}`);
@@ -179,7 +179,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     const query = gql`
       query GetFeedComments($commentIds: [String!]!) {
-        comments(input: { terms: { view: "allRecentComments", commentIds: $commentIds, limit: 1000 } }) {
+        comments(input: { terms: { view: "allRecentComments", commentIds: $commentIds, limit: 200 } }) {
           results {
             ...CommentsList
           }
@@ -242,22 +242,22 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     // Fetch posts data
     const postsQuery = gql`
       query GetPostsForComments($postIds: [String!]!) {
-        posts(input: { terms: { view: "postsByIDs", postIds: $postIds, limit: 1000 } }) {
+        posts(input: { terms: { view: "postsByIDs", postIds: $postIds, limit: 50 } }) {
           results {
-            ...PostsMinimumInfo
+            ...PostsListWithVotes
           }
         }
       }
       
-      ${fragmentTextForQuery('PostsMinimumInfo')}
+      ${fragmentTextForQuery('PostsListWithVotes')}
     `;
 
     const context = createAnonymousContext();
     const postsResult = await runQuery(postsQuery, { postIds: uniquePostIds }, context);
-    const posts: PostsMinimumInfo[] = postsResult.data?.posts?.results || [];
+    const posts: PostsListWithVotes[] = postsResult.data?.posts?.results || [];
 
     // Create a map of postId to post for easy lookup
-    const postsById = new Map(posts.map((post: PostsMinimumInfo) => [post._id, post]));
+    const postsById = new Map(posts.map((post: PostsListWithVotes) => [post._id, post]));
 
     // Group by topLevelCommentId
     const groups: Record<string, PreDisplayFeedComment[]> = {};
@@ -291,7 +291,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
         // Create the FeedCommentThread
         allThreads.push({
-          post: post as PostsMinimumInfo,
+          post: { ...post, __typename: "Post" } as PostsListWithVotes,
           comments: path,
           topLevelCommentId: topLevelId,
         });
@@ -467,7 +467,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedCommentThread[]> {
     console.log(`UltraFeedRepo.getUltraFeedCommentThreads started with limit=${limit}`);
     
-    const candidates = await this.getCommentsForFeed(context, 1000); // limit of how many comments to consider
+    const candidates = await this.getCommentsForFeed(context, 200); // limit of how many comments to consider
     console.log(`UltraFeedRepo: Got ${candidates.length} candidates from getCommentsForFeed`);
     
     const threads = await this.getAllCommentThreads(candidates);
@@ -478,8 +478,12 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     
     const displayThreads = prioritizedThreads.map(thread => this.prepareCommentThreadForDisplay(thread.thread));
     console.log(`UltraFeedRepo: Generated ${displayThreads.length} display threads`);
+
+    // TODO: IMPORTANT - remove before production
+    // filter to only include threads with < 5 comments
+    const filteredDisplayThreads = displayThreads.filter(thread => thread.comments.length < 5);
     
-    const result = displayThreads.slice(0, limit);
+    const result = filteredDisplayThreads.slice(0, limit);
     console.log(`UltraFeedRepo: Returning ${result.length} threads after applying limit`);
     
     return result;

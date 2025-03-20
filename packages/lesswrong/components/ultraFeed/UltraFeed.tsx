@@ -119,7 +119,7 @@ const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
     FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, 
-    Divider, UltraFeedThreadItem } = Components;
+    Divider, UltraFeedCommentThreadItem, UltraFeedPostThreadItem } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -239,7 +239,7 @@ const UltraFeedContent = () => {
         
         return (
           <FeedItemWrapper sources={item.sources || []}>
-            <UltraFeedThreadItem thread={thread} />
+            <UltraFeedCommentThreadItem thread={thread} />
           </FeedItemWrapper>
         );
       }
@@ -257,14 +257,7 @@ const UltraFeedContent = () => {
         
         return (
           <FeedItemWrapper sources={item.sources || []}>
-            <div style={{ padding: 16, background: "#f0f0f0", borderRadius: 4, marginBottom: 8 }}>
-              <h3 style={{ margin: "0 0 8px" }}>
-                {post.post.title}
-              </h3>
-              <div>
-                <em>{post.post.user?.displayName || 'Unknown'}</em>
-              </div>
-            </div>
+            <UltraFeedPostThreadItem thread={post} />
           </FeedItemWrapper>
         );
       }

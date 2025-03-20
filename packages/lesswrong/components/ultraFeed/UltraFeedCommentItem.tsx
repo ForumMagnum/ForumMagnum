@@ -17,6 +17,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius: 4,
     backgroundColor: theme.palette.panelBackground.default,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
     // marginBottom: 4,
   },
   hidden: {

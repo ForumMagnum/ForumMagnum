@@ -206,7 +206,7 @@ const MixedTypeFeed = (args: {
     sessionId: resolverArgsValues?.sessionId 
   });
   
-  const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
+  const keyFunc = useCallback((result: any) => `${result.type}_${result[result.type]?._id}`, []); // Get a unique key for each result. Used for sorting and deduplication.
 
   // Function to load more content at the top
   const loadMoreAtTop = useCallback(() => {

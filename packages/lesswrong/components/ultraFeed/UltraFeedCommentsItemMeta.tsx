@@ -37,7 +37,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     textAlign: "center",
     flexGrow: 0,
     flexShrink: 0,
-    paddingTop: 5,
+    // paddingTop: 5,
     paddingRight: 8,
   },
   username: {
@@ -57,6 +57,10 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
   moderatorHat: {
     marginLeft: 10,
+  },
+  voteButtons: {
+    marginLeft: 2,
+    paddingTop: 2
   },
 }));
 
@@ -107,11 +111,13 @@ const UltraFeedCommentsItemMeta = ({
           className={classes.username}
         />
         {!hideDate && <CommentsItemDate comment={comment} post={post} />}
-        {showVoteButtons && <SmallSideVote
-          document={comment}
-          collectionName="Comments"
-          hideKarma={post?.hideCommentKarma}
-        />}
+        {showVoteButtons && <div className={classes.voteButtons}>
+          <SmallSideVote
+            document={comment}
+            collectionName="Comments"
+            hideKarma={post?.hideCommentKarma}
+          />
+        </div>}
         {showModeratorCommentAnnotation &&
           <span className={classes.moderatorHat}>
             {moderatorCommentAnnotation}

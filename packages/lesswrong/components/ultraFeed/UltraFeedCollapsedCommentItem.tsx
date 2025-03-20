@@ -14,6 +14,7 @@ const styles = defineStyles("UltraFeedCollapsedCommentItem", (theme: ThemeType) 
     cursor: "pointer",
     borderRadius: 4,
     backgroundColor: theme.palette.panelBackground.default,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
     paddingLeft: 12,
     paddingRight: 12,
     paddingBottom: 10

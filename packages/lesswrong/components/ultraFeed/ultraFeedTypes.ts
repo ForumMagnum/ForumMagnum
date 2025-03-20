@@ -61,7 +61,7 @@ export interface PreDisplayFeedComment {
  */
 export interface PreDisplayFeedCommentThread {
   /** Post the comments belong to */
-  post: PostsMinimumInfo; 
+  post: PostsListWithVotes; 
   /** List of comments in the thread */
   comments: PreDisplayFeedComment[]; 
   /** ID of the root comment in the thread */
@@ -110,13 +110,13 @@ export interface DisplayFeedComment {
 }
 
 export interface DisplayFeedPostWithComments {
-  post: PostsList
+  post: PostsListWithVotes
   comments: DisplayFeedComment[];
   metaInfo: PostMetaInfo;
 }
 
 export interface DisplayFeedCommentThread {
-  post: PostsMinimumInfo; // TODO: maybe want fragment with post contents?
+  post: PostsListWithVotes; // TODO: maybe want fragment with post contents?
   comments: DisplayFeedComment[];
   topLevelCommentId: string;
 }

@@ -125,7 +125,7 @@ async function fetchCommentThreads({
   const ultraFeedRepo = new UltraFeedRepo();
   
   // Get comment threads
-  const commentThreads = await ultraFeedRepo.getUltraFeedCommentThreads(context, 50);
+  const commentThreads = await ultraFeedRepo.getUltraFeedCommentThreads(context, 20);
   
   console.log(`Found ${commentThreads.length} comment threads`);
 
@@ -339,7 +339,7 @@ defineFeedResolver<Date>({
    * samples them based on weights, and returns the merged results.
    */
   resolver: async ({
-    limit = 25, // Default to 25 items for initial draw
+    limit = 20, // Default to 5 items for initial draw
     cutoff,
     offset,
     sessionId: sessionId,
