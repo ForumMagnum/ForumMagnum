@@ -1,6 +1,5 @@
 import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple, slugFields } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
@@ -19,8 +18,9 @@ import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
 import { universalFields } from "../../collectionUtils";
 import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import gql from 'graphql-tag';
 
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type TagContributor {
     user: User
     contributionScore: Int!
@@ -36,7 +36,7 @@ addGraphQLSchema(`
     _id: String!
     displayName: String!
   }
-`);
+`
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   relevance: { label: preferredHeadingCase('Most Relevant') },

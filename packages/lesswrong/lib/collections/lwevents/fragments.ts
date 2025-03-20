@@ -1,5 +1,3 @@
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-
 export const newEventFragment = `
   fragment newEventFragment on LWEvent {
     _id

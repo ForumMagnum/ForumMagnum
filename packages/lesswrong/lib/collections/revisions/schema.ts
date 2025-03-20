@@ -1,10 +1,10 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle, schemaDefaultValue } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
 import { universalFields } from "../../collectionUtils";
 import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import gql from 'graphql-tag';
 
 /**
  * This covers the type of originalContents for all editor types. 
@@ -26,16 +26,13 @@ export const ContentType = new SimpleSchema({
 
 // defining a custom scalar seems to allow it to pass through any data type,
 // but this doesn't seem much more permissive than ContentType was originally
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   scalar ContentTypeData
-`)
-
-addGraphQLSchema(`
   type ContentType {
     type: String
     data: ContentTypeData
   }
-`)
+`
 
 const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document

@@ -5,6 +5,7 @@ import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/de
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from '@/lib/collections/posts/helpers';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { userCanPost } from '@/lib/collections/users/helpers';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
@@ -45,5 +46,7 @@ export const Posts = createCollection({
     {type: "extension", name: "earthdistance"},
   ],
 });
+
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Posts');
 
 export default Posts;

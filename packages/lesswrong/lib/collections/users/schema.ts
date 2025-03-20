@@ -22,9 +22,9 @@ import { universalFields } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { editableFields } from '@/lib/editor/make_editable';
 import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
+import gql from 'graphql-tag';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -328,12 +328,13 @@ const latLng = new SimpleSchema({
     type: Number,
   },
 });
-addGraphQLSchema(`
+
+export const graphqlTypeDefs = gql`
   type LatLng {
     lat: Float!
     lng: Float!
   }
-`);
+`;
 
 /**
  * @summary Users schema

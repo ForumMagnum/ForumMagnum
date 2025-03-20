@@ -12,7 +12,7 @@ import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';

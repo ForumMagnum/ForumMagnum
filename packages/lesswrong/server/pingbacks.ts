@@ -8,7 +8,7 @@ import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUt
 import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
 import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
-import { createAnonymousContext } from '@/server/vulcan-lib/query';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 

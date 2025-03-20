@@ -69,7 +69,7 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
 
   return {
     currentUser, collection,
-    context: createMutatorParams.context ?? require('./query').createAnonymousContext(),
+    context: createMutatorParams.context ?? require('./createContexts').createAnonymousContext(),
     document: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     newDocument: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     schema
@@ -128,7 +128,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('(new) document', document);
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  const context = createMutatorParams.context ?? require('./query').createAnonymousContext();
+  const context = createMutatorParams.context ?? require('./createContexts').createAnonymousContext();
 
   const { collectionName } = collection;
   const schema = getSchema(collectionName);
@@ -363,7 +363,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  const context = maybeContext ?? require('./query').createAnonymousContext();
+  const context = maybeContext ?? require('./createContexts').createAnonymousContext();
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
@@ -621,7 +621,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  const context = maybeContext ?? require('./query').createAnonymousContext();
+  const context = maybeContext ?? require('./createContexts').createAnonymousContext();
 
   const { runCountOfReferenceCallbacks }: {
     runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,

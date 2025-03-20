@@ -3,6 +3,7 @@ import { defineQuery } from "../utils/serverGraphqlUtil";
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
+import gql from "graphql-tag";
 
 
 export async function initReviewWinnerCache() {
@@ -21,11 +22,15 @@ function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], c
   }));
 }
 
-defineQuery({
-  name: 'GetAllReviewWinners',
-  resultType: '[Post!]!',
-  fn: async (root, args, context) => {
+export const reviewWinnerGraphQLTypeDefs = gql`
+  extend type Query {
+    getAllReviewWinners: [Post!]!
+  }
+`;
+
+export const reviewWinnerGraphQLQueries = {
+  getAllReviewWinners: async (root: void, args: void, context: ResolverContext) => {
     const { reviewWinners } = await reviewWinnerCache.get();
     return restrictReviewWinnerPostFields(reviewWinners, context);
   }
-});
+};

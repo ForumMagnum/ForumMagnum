@@ -1,5 +1,4 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
-import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
 import JargonTerms from '@/server/collections/jargonTerms/collection';
 import { initialGlossaryPrompt } from './jargonPrompts';
@@ -19,6 +18,7 @@ import uniq from 'lodash/uniq';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { createMutator } from "../../vulcan-lib/mutators";
 import { sanitize } from "../../../lib/vulcan-lib/utils";
+import gql from 'graphql-tag';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -375,12 +375,14 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
   return newJargonTerms.map(result => result.data);
 }
 
+export const jargonTermsGraphQLTypeDefs = gql`
+  extend type Mutation {
+    getNewJargonTerms(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String): [JargonTerm]
+  }
+`
 
-defineMutation({
-  name: 'getNewJargonTerms',
-  argTypes: '(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String)',
-  resultType: '[JargonTerm]',
-  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
+export const jargonTermsGraphQLMutations = {
+  getNewJargonTerms: async (root: void, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
@@ -389,4 +391,4 @@ defineMutation({
     }
     return await createNewJargonTerms({ postId, currentUser, ...exampleParams });
   },
-});
+}

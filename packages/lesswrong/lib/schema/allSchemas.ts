@@ -146,11 +146,3 @@ const allSimpleSchemas: Record<CollectionNameString, SimpleSchema> = new Proxy({
 export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): SimpleSchemaType<N> {
   return allSimpleSchemas[collectionName] as SimpleSchemaType<N>;
 }
-
-export function apolloCacheVoteablePossibleTypes() {
-  return {
-    Voteable: Object.entries(allSchemas)
-      .filter(([_, schema]) => 'score' in schema && 'currentUserVote' in schema)
-      .map(([collectionName]) => collectionNameToTypeName[collectionName as CollectionNameString]),
-  }
-}

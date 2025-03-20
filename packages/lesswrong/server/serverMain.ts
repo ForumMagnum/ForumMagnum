@@ -1,6 +1,4 @@
 import { startWebserver } from './apolloServer';
-import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
-import { createVoteableUnionType } from './votingGraphQL';
 import { scheduleQueueProcessing } from './cache/swr';
 import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
@@ -8,7 +6,6 @@ import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { initGoogleVertex } from './google-vertex/client';
-import { addElicitResolvers } from './resolvers/elicitPredictions';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
@@ -52,13 +49,8 @@ export async function runServerOnStartupFunctions() {
   await startupSanityChecks();
   await refreshKarmaInflationCache();
   initGoogleVertex();
-  addElicitResolvers();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
-
-  // define executableSchema
-  createVoteableUnionType();
-  initGraphQL();
 
   startSyncedCron();
   captureEvent("serverStarted", {});

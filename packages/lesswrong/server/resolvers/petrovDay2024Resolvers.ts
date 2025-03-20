@@ -1,12 +1,8 @@
-import { PetrovDayLaunchs } from "@/server/collections/petrovDayLaunchs/collection.ts";
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
-import { petrovDayLaunchCode } from "@/components/seasonal/PetrovDayButton";
 import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
 import { petrovBeforeTime } from "@/components/Layout";
 import { DatabaseServerSetting } from "../databaseSettings";
-import sample from "lodash/sample";
 import { inWarningWindow } from "@/components/seasonal/petrovDay/PetrovWarningConsole";
-import { defineQuery } from "../utils/serverGraphqlUtil";
+import gql from "graphql-tag";
 
 const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
@@ -22,14 +18,19 @@ const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov') 
   return missileCountArray[result];
 }
 
-const PetrovDay2024CheckNumberOfIncomingData = `type PetrovDay2024CheckNumberOfIncomingData {
-  count: Int
-}`
+export const petrovDay2024GraphQLTypeDefs = gql`
+  type PetrovDay2024CheckNumberOfIncomingData {
+    count: Int
+  }
+  extend type Query {
+    PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData
+    petrov2024checkIfNuked: Boolean
+  }
+`
 
-addGraphQLSchema(PetrovDay2024CheckNumberOfIncomingData);
 const startTime = new Date(petrovBeforeTime.get())
 
-const petrovDay2024Resolvers = {
+export const petrovDay2024GraphQLQueries = {
   Query: {
     async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
       const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}).fetch()
@@ -51,47 +52,35 @@ const petrovDay2024Resolvers = {
         return { count: getIncomingCount(incoming, 'westPetrov') }
       }
       return { count: 0 }
+    },
+    async petrov2024checkIfNuked(root: void, args: void, context: ResolverContext): Promise<Boolean> {
+      const { currentUser } = context;
+      if (!currentUser) {
+        return false;
+      }
+  
+      const currentUserSideAction = await PetrovDayActions.findOne({ userId: currentUser._id, actionType: 'hasSide' });
+  
+      if (!currentUserSideAction) {
+        return false;
+      }
+  
+      const ninetyMinutesAgo = new Date(new Date().getTime() - (90 * 60 * 1000));
+      const nukeActions = await PetrovDayActions.find({ actionType: { $in: ['nukeTheEast', 'nukeTheWest'] }, createdAt: { $lte: ninetyMinutesAgo } }).fetch();
+  
+      const userSide = currentUserSideAction.data.side;
+  
+      if (userSide === 'east') {
+        const eastIsNuked = nukeActions.find(({actionType}) => actionType === 'nukeTheEast')
+        return !!eastIsNuked;
+      }
+  
+      if (userSide === 'west') {
+        const westIsNuked = nukeActions.find(({actionType}) => actionType === 'nukeTheWest')
+        return !!westIsNuked;
+      }
+  
+      return false;
     }
   },
 };
-
-addGraphQLResolvers(petrovDay2024Resolvers);
-
-addGraphQLQuery('PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData');
-
-
-
-
-defineQuery({
-  name: "petrov2024checkIfNuked",
-  resultType: "Boolean",
-  fn: async (_, args, context: ResolverContext): Promise<Boolean> => {
-    const { currentUser } = context;
-    if (!currentUser) {
-      return false;
-    }
-
-    const currentUserSideAction = await PetrovDayActions.findOne({ userId: currentUser._id, actionType: 'hasSide' });
-
-    if (!currentUserSideAction) {
-      return false;
-    }
-
-    const ninetyMinutesAgo = new Date(new Date().getTime() - (90 * 60 * 1000));
-    const nukeActions = await PetrovDayActions.find({ actionType: { $in: ['nukeTheEast', 'nukeTheWest'] }, createdAt: { $lte: ninetyMinutesAgo } }).fetch();
-
-    const userSide = currentUserSideAction.data.side;
-
-    if (userSide === 'east') {
-      const eastIsNuked = nukeActions.find(({actionType}) => actionType === 'nukeTheEast')
-      return !!eastIsNuked;
-    }
-
-    if (userSide === 'west') {
-      const westIsNuked = nukeActions.find(({actionType}) => actionType === 'nukeTheWest')
-      return !!westIsNuked;
-    }
-
-    return false;
-  }
-})

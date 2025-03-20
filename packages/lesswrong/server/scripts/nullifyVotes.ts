@@ -2,7 +2,7 @@ import Users from '../../server/collections/users/collection';
 import { nullifyVotesForUserByTarget } from '../callbacks';
 import VotesRepo from '../repos/VotesRepo';
 import { Votes } from '../../server/collections/votes/collection';
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { nullifyVotesForUser, silentlyReverseVote } from '../voteServer';
 
 // Exported to allow running manually with "yarn repl"

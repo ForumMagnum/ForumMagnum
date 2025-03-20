@@ -10,7 +10,7 @@ import Users from "../../server/collections/users/collection";
 import Votes from "../../server/collections/votes/collection";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 /** 

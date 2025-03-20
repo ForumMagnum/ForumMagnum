@@ -8,7 +8,7 @@ import * as _ from 'underscore';
 import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
 import { runSqlQuery } from '../server/sql/sqlClient';
 import { updateMutator } from "./vulcan-lib/mutators";
-import { addGraphQLMutation, addGraphQLResolvers } from "../lib/vulcan-lib/graphql";
+import gql from 'graphql-tag';
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have
@@ -154,20 +154,22 @@ const postsToReadStatuses = async (user: DbUser, postIds: Array<string>) => {
   return resultDict;
 }
 
-addGraphQLMutation('updateContinueReading(sequenceId: String!, postId: String!): Boolean');
-addGraphQLResolvers({
-  Mutation: {
-    async updateContinueReading(root: void, {sequenceId, postId}: {sequenceId: string, postId: string}, context: ResolverContext) {
-      const { currentUser } = context;
-      if (!currentUser) {
-        // If not logged in, this is ignored, but is not an error (in future
-        // versions it might associate with a clientID rather than a userID).
-        return null;
-      }
-      
-      await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId, context);
-      
-      return true;
-    }
+export const partiallyReadSequencesTypeDefs = gql`
+  extend type Mutations {
+    updateContinueReading(sequenceId: String!, postId: String!): Boolean
   }
-});
+`
+export const partiallyReadSequencesMutations = {
+  async updateContinueReading(root: void, {sequenceId, postId}: {sequenceId: string, postId: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser) {
+      // If not logged in, this is ignored, but is not an error (in future
+      // versions it might associate with a clientID rather than a userID).
+      return null;
+    }
+    
+    await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId, context);
+    
+    return true;
+  }
+}

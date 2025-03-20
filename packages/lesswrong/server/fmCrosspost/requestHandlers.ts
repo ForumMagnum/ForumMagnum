@@ -4,7 +4,7 @@ import Users from "../../server/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
 import { createMutator } from "../vulcan-lib/mutators";
 import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";

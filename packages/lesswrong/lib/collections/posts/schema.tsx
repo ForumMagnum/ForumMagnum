@@ -29,7 +29,6 @@ import { allOf } from '../../utils/functionUtils';
 import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { stableSortTags } from '../tags/helpers';
@@ -41,6 +40,7 @@ import { documentIsNotDeleted, userOverNKarmaFunc, userOverNKarmaOrApproved, use
 import { editableFields } from '@/lib/editor/make_editable';
 import { universalFields } from "../../collectionUtils";
 import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import gql from 'graphql-tag';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -100,14 +100,14 @@ const rsvpType = new SimpleSchema({
   },
 })
 
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type SocialPreviewType {
     _id: String
     imageId: String
     imageUrl: String
     text: String
   }
-`)
+`
 
 export const MINIMUM_COAUTHOR_KARMA = 1;
 

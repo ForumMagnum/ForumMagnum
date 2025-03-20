@@ -5,7 +5,7 @@ import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
-import { createAdminContext, createAnonymousContext } from './vulcan-lib/query';
+import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';

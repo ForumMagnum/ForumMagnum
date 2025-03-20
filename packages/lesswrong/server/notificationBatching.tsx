@@ -7,12 +7,11 @@ import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Posts } from '../server/collections/posts/collection';
 import { Components } from '../lib/vulcan-lib/components';
-import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import Users from '@/server/collections/users/collection';
-import { createAnonymousContext } from './vulcan-lib/query';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
+import gql from 'graphql-tag';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -103,52 +102,53 @@ const notificationBatchToEmails = async ({user, notifications, context}: {
 }
 
 
-addGraphQLResolvers({
-  Query: {
-    async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
-      const { currentUser } = context;
-      if (!currentUser || !userIsAdmin(currentUser)) {
-        throw new Error("This debug feature is only available to admin accounts");
-      }
-      if (!notificationIds?.length && !postId) {
-        return [];
-      }
-      if (notificationIds?.length && postId) {
-        throw new Error("Please only specify notificationIds or postId in the query")
-      }
-      
-      let emails: any[] = []
-      if (notificationIds?.length) {
-        const notifications = await Notifications.find(
-          { _id: {$in: notificationIds} }
-        ).fetch();
-        emails = await notificationBatchToEmails({
-          user: currentUser,
-          notifications,
-          context
-        });
-      }
-      if (postId) {
-        const post = await Posts.findOne(postId)
-        if (post) {
-          emails = [{
-            user: currentUser,
-            subject: post.title,
-            body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
-          }]
-        }
-      }
-      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
-      return renderedEmails;
+export const graphqlQueries = {
+  async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdmin(currentUser)) {
+      throw new Error("This debug feature is only available to admin accounts");
     }
+    if (!notificationIds?.length && !postId) {
+      return [];
+    }
+    if (notificationIds?.length && postId) {
+      throw new Error("Please only specify notificationIds or postId in the query")
+    }
+    
+    let emails: any[] = []
+    if (notificationIds?.length) {
+      const notifications = await Notifications.find(
+        { _id: {$in: notificationIds} }
+      ).fetch();
+      emails = await notificationBatchToEmails({
+        user: currentUser,
+        notifications,
+        context
+      });
+    }
+    if (postId) {
+      const post = await Posts.findOne(postId)
+      if (post) {
+        emails = [{
+          user: currentUser,
+          subject: post.title,
+          body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
+        }]
+      }
+    }
+    const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
+    return renderedEmails;
   }
-});
-addGraphQLSchema(`
+};
+
+export const graphqlTypeDefs = gql`
   type EmailPreview {
     to: String
     subject: String
     html: String
     text: String
   }
-`);
-addGraphQLQuery("EmailPreview(notificationIds: [String], postId: String): [EmailPreview]");
+  extend type Query {
+    EmailPreview(notificationIds: [String], postId: String): [EmailPreview]
+  }
+`;

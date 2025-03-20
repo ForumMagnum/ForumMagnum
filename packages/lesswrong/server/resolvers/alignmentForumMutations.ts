@@ -1,57 +1,52 @@
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
+import gql from "graphql-tag"
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { moveToAFUpdatesUserAFKarma, postsMoveToAFAddsAlignmentVoting } from '../callbacks/alignment-forum/callbacks';
 import { commentsAlignmentEdit, recalculateAFCommentMetadata } from '../callbacks/commentCallbackFunctions';
 
-const alignmentCommentResolvers = {
-  Mutation: {
-    async alignmentComment(root: void, {commentId, af}: {commentId: string, af: boolean}, context: ResolverContext) {
-      const comment = await context.Comments.findOne(commentId)
-      if (!comment) throw new Error("Invalid comment ID");
+export const alignmentForumMutations = {
+  async alignmentComment(root: void, {commentId, af}: {commentId: string, af: boolean}, context: ResolverContext) {
+    const comment = await context.Comments.findOne(commentId)
+    if (!comment) throw new Error("Invalid comment ID");
 
-      if (userCanDo(context.currentUser, "comments.alignment.move.all")) {
-        let modifier = { $set: {af: af} };
-        await context.Comments.rawUpdateOne({_id: commentId}, modifier);
-        const updatedComment = (await context.Comments.findOne(commentId))!
-        await moveToAFUpdatesUserAFKarma(updatedComment, comment);
-        await recalculateAFCommentMetadata(comment.postId, context);
-        await commentsAlignmentEdit(updatedComment, comment, context);
-        return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
-      } else {
-        throw new Error({id: `app.user_cannot_edit_comment_alignment_forum_status`} as any);
-      }
+    if (userCanDo(context.currentUser, "comments.alignment.move.all")) {
+      let modifier = { $set: {af: af} };
+      await context.Comments.rawUpdateOne({_id: commentId}, modifier);
+      const updatedComment = (await context.Comments.findOne(commentId))!
+      await moveToAFUpdatesUserAFKarma(updatedComment, comment);
+      await recalculateAFCommentMetadata(comment.postId, context);
+      await commentsAlignmentEdit(updatedComment, comment, context);
+      return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
+    } else {
+      throw new Error({id: `app.user_cannot_edit_comment_alignment_forum_status`} as any);
+    }
+  },
+  async alignmentPost(root: void, {postId, af}: {postId: string, af: boolean}, context: ResolverContext) {
+    const post = await context.Posts.findOne(postId)
+    if (!post) throw new Error("Invalid post ID");
+
+    if (userCanMakeAlignmentPost(context.currentUser, post)) {
+      let modifier = { $set: {af: af} };
+      await context.Posts.rawUpdateOne({_id: postId}, modifier);
+      const updatedPost = (await context.Posts.findOne(postId))!
+      await moveToAFUpdatesUserAFKarma(updatedPost, post);
+      void postsMoveToAFAddsAlignmentVoting(updatedPost, post);
+      return await accessFilterSingle(context.currentUser, 'Posts', updatedPost, context);
+    } else {
+      throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);
     }
   }
-};
-
-addGraphQLResolvers(alignmentCommentResolvers);
-addGraphQLMutation('alignmentComment(commentId: String, af: Boolean): Comment');
+}
 
 
-const alignmentPostResolvers = {
-  Mutation: {
-    async alignmentPost(root: void, {postId, af}: {postId: string, af: boolean}, context: ResolverContext) {
-      const post = await context.Posts.findOne(postId)
-      if (!post) throw new Error("Invalid post ID");
 
-      if (userCanMakeAlignmentPost(context.currentUser, post)) {
-        let modifier = { $set: {af: af} };
-        await context.Posts.rawUpdateOne({_id: postId}, modifier);
-        const updatedPost = (await context.Posts.findOne(postId))!
-        await moveToAFUpdatesUserAFKarma(updatedPost, post);
-        void postsMoveToAFAddsAlignmentVoting(updatedPost, post);
-        return await accessFilterSingle(context.currentUser, 'Posts', updatedPost, context);
-      } else {
-        throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);
-      }
-    }
+export const alignmentForumTypeDefs = gql`
+  extend type Query{
+    alignmentComment(commentId: String, af: Boolean): Comment
+    alignmentPost(postId: String, af: Boolean): Post
   }
-};
-
-addGraphQLResolvers(alignmentPostResolvers);
-addGraphQLMutation('alignmentPost(postId: String, af: Boolean): Post');
+`
 
 
 // const suggestAlignmentPostResolvers = {

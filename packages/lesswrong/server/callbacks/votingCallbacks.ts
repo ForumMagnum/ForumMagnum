@@ -10,7 +10,7 @@ import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
-import { createAdminContext } from '../vulcan-lib/query';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import Tags from '../../server/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';

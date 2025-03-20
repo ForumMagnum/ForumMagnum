@@ -3,7 +3,7 @@ import { getLatestContentsRevision } from "@/server/collections/revisions/helper
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
 import { Posts } from "../../server/collections/posts/collection";
 import { revisionResolvers } from "../../server/resolvers/revisionResolvers";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 /** For visually inspecting that our descriptions match the post content well */
 export const testPostDescription = async () => {

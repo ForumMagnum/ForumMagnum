@@ -5,6 +5,7 @@ import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
+import { getVoteGraphql } from "@/server/votingGraphQL";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
@@ -41,3 +42,5 @@ export const MultiDocuments = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
+
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('MultiDocuments');

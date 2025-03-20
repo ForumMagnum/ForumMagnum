@@ -4,7 +4,7 @@ import { ModeratorActions } from "../../server/collections/moderatorActions/coll
 import { allRateLimits } from "../../lib/collections/moderatorActions/schema";
 import { appendToSunshineNotes } from "../../lib/collections/users/helpers";
 import { triggerReview } from "../callbacks/sunshineCallbackUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import * as _ from 'underscore';
 import moment from 'moment';
 

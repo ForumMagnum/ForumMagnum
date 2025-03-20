@@ -36,7 +36,7 @@ import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
-import { createAdminContext, createAnonymousContext } from "../vulcan-lib/query";
+import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/core";

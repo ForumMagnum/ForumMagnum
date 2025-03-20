@@ -4,7 +4,7 @@ import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { Posts } from "@/server/collections/posts/collection.ts";
-import { createAdminContext } from "../../vulcan-lib/query";
+import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createMutator, updateMutator } from "../../vulcan-lib/mutators";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {

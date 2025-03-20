@@ -6,7 +6,6 @@ import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsO
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
-import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
 import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
@@ -187,17 +186,3 @@ export const getToCforMultiDocument = async ({document, version, context}: {
     sections: tocSections,
   }
 }
-
-/** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
-defineQuery({
-  name: "generateTableOfContents",
-  resultType: "JSON",
-  argTypes: "(html: String!)",
-  fn: (root: void, {html}: {html: string}, context: ResolverContext) => {
-    if (html) {
-      return extractTableOfContents(parseDocumentFromString(html))
-    } else {
-      return {html: null, sections: []}
-    }
-  }
-})

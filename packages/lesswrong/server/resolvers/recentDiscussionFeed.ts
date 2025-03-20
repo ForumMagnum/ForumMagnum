@@ -1,10 +1,11 @@
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
+import { mergeFeedQueries, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../server/collections/posts/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
 import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
 import { EA_FORUM_COMMUNITY_TOPIC_ID, EA_FORUM_TRANSLATION_TOPIC_ID } from '@/lib/collections/tags/helpers';
+import gql from 'graphql-tag';
 
 const communityFilters = {
   none: {$or: [
@@ -21,21 +22,31 @@ const communityFilters = {
 
 type CommunityFilter = typeof communityFilters[keyof typeof communityFilters];
 
-defineFeedResolver<Date>({
-  name: "RecentDiscussionFeed",
-  args: "af: Boolean",
-  cutoffTypeGraphQL: "Date",
-  resultTypesGraphQL: `
+export const recentDiscussionFeedGraphQLTypeDefs = gql`
+  type RecentDiscussionFeedQueryResults {
+    cutoff: Date
+    endOffset: Int!
+    results: [RecentDiscussionFeedEntryType!]
+  }
+  type RecentDiscussionFeedEntryType {
+    type: String!
     postCommented: Post
     shortformCommented: Post
     tagDiscussed: Tag
     tagRevised: Revision
-  `,
-  resolver: async ({limit=20, cutoff, offset, args, context}: {
-    limit?: number, cutoff?: Date, offset?: number,
-    args: {af: boolean},
-    context: ResolverContext
-  }) => {
+  }
+  extend type Query {
+    RecentDiscussionFeed(
+      limit: Int,
+      cutoff: Date,
+      offset: Int
+    ): RecentDiscussionFeedQueryResults!
+  }
+`
+
+export const recentDiscussionFeedGraphQLQueries = {
+  RecentDiscussionFeed: async (_root: void, args: any, context: ResolverContext) => {
+    const {limit, cutoff, offset, ...rest} = args;
     type SortKeyType = Date;
     const {af} = args;
     const {currentUser} = context;
@@ -76,7 +87,7 @@ defineFeedResolver<Date>({
         : postCommentedEventsCriteria),
     };
 
-    return await mergeFeedQueries<SortKeyType>({
+    const result = await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
         // Post commented
@@ -145,5 +156,10 @@ defineFeedResolver<Date>({
         ),
       ],
     });
+    
+    return {
+      __typename: "RecentDiscussionFeedQueryResults",
+      ...result
+    }
   }
-});
+}
