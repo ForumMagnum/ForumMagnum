@@ -414,6 +414,12 @@ export const styles = (theme: ThemeType) => ({
   reviewVoting: {
     marginTop: 60,
     marginBottom: -20 // to account or voting UI padding
+  },
+  bestOfLessWrong: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[700],
+    marginLeft: 14,
+    marginBottom: 10,
   }
 })
 
@@ -521,6 +527,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
+  const reviewWinner = isReviewWinner ? (post.reviewWinner as ReviewWinnerAll) : null;
   const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
 
   useEffect(() => {
@@ -602,7 +609,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
+    StickyDigestAd, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
     PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton
   } = Components
@@ -735,6 +742,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const answersTree = unflattenComments(answersAndReplies ?? []);
   const answerCount = post.question ? answersTree.length : undefined;
 
+  const prefix = showSplashPageHeader && <div className={classes.bestOfLessWrong}>Best of LessWrong {reviewWinner?.reviewYear}</div>
+
   // Hide the table of contents on questions that are foreign crossposts
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
@@ -747,6 +756,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             title={post.title}
             heading={<PostFixedPositionToCHeading post={post}/>}
             fixedPositionToc={true}
+            prefix={prefix}
           />
         : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
       )
@@ -861,7 +871,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // components. When the forum gating is removed, each of these variables should have only a single usage,
   // so inline it back into place. See also the forum gating in PostsCommentsSection, which must be removed at
   // the same time.
-
 
   const postBodySection =
     <div id="postBody" className={classNames(

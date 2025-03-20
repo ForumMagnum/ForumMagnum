@@ -861,7 +861,8 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     setCategory(t);
   }
 
-  return <div className={classes.postsByYearSectionCentered} id="year-category-section">
+  return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
+    <div className={classes.postsByYearSectionCentered} id="year-category-section">
       <div className={classes.yearSelector}>
         {[...publishedReviewYears].map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
@@ -915,6 +916,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         </div>)}
       </div>
     </div>
+  </AnalyticsContext>
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {

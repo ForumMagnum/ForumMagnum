@@ -7,6 +7,7 @@ import { parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -302,6 +303,7 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
       {post.isEvent && <div className={classes.eventData}>
         <PostsPageEventData post={post}/>
       </div>}
+      <ReviewPillContainer postId={post._id} />
   </div>
 }
 

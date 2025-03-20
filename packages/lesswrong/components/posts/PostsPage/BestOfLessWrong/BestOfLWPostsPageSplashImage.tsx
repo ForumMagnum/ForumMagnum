@@ -1,10 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useImageContext } from '../ImageContext';
-import { ImagePreviewAndCrop } from './ImagePreviewAndCrop';
+import ImagePreviewAndCrop from './ImagePreviewAndCrop';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
@@ -33,7 +32,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     right: 0,
     width: '100vw',
     height: '100vh',
-    background: `linear-gradient(180deg, ${theme.palette.panelBackground.default} 164px, ${theme.palette.panelBackground.translucent} 165px,  transparent 45%, ${theme.palette.panelBackground.default} 87%)`,
+    background: `linear-gradient(180deg, ${theme.palette.panelBackground.default} 0px, ${theme.palette.panelBackground.translucent} 165px,  transparent 45%, ${theme.palette.panelBackground.default} 87%)`,
     pointerEvents: 'none',
     bottom: 0,
     left: 'auto',

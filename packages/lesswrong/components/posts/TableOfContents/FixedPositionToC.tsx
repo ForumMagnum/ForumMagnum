@@ -226,16 +226,18 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    '& .TableOfContentsRow-link': {
-      // background: theme.palette.panelBackground.default
-    },
     '& .TableOfContentsDivider-divider': {
       marginLeft: 4,
     },
   },
+  bestOfLessWrong: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[700],
+    marginBottom: 10,
+  }
 });
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, prefix}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
@@ -243,6 +245,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
+  prefix?: React.ReactNode,
 }) => {
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
@@ -429,6 +432,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
         <div className={classes.unfilledProgressBar}/>
       </div>
       <div className={classes.rows}>
+        {prefix}
         {titleRow}
         <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
           {heading}

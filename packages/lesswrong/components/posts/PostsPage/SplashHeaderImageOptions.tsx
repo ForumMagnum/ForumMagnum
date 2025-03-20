@@ -6,37 +6,6 @@ import groupBy from 'lodash/groupBy';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCreate } from '@/lib/crud/withCreate';
 
-const styles = (theme: ThemeType) => ({
-  root: { 
-    zIndex: theme.zIndexes.splashHeaderImageOptions,
-    marginBottom: '40px', 
-    height: '80vh',
-    overflow: 'scroll',
-    display: 'flex',
-    gap: '10px',
-    width: 'calc(100vw - 40px)',
-    flexWrap: 'wrap',
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.palette.boxShadow.lwCard,
-    padding: 20,
-    ...theme.typography.body2,
-    '& $PostWithArtRow': {
-      ...theme.typography.body2,
-      backgroundColor: theme.palette.background.paper,
-    }
-  },
-  imageContainer: {
-    width: '200px',
-    height: 'auto',
-    cursor: 'pointer',
-    paddingRight: 5,
-  },
-  image: { 
-    maxWidth: '100%',
-    height: 'auto'
-  }
-});
-
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
   if (!url.includes('cloudinary.com')) return url;
@@ -50,13 +19,11 @@ export const getCloudinaryThumbnail = (url: string, width = 300): string => {
 }
 
 const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
-  root: {
-  
-  },
   postWrapper: {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '10px'
+    gap: '10px',
+    ...theme.typography.body2,
   },
   image: {
     width: '200px',
@@ -163,11 +130,42 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   </div>
 }
 
-export const SplashHeaderImageOptions = ({ post, classes }: {
+const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
+  root: { 
+    zIndex: theme.zIndexes.splashHeaderImageOptions,
+    marginBottom: '40px', 
+    height: '80vh',
+    overflow: 'scroll',
+    display: 'flex',
+    gap: '10px',
+    width: 'calc(100vw - 40px)',
+    flexWrap: 'wrap',
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.palette.boxShadow.lwCard,
+    padding: 20,
+    ...theme.typography.body2,
+    '& $PostWithArtRow': {
+      ...theme.typography.body2,
+      backgroundColor: theme.palette.background.paper,
+    }
+  },
+  imageContainer: {
+    width: '200px',
+    height: 'auto',
+    cursor: 'pointer',
+    paddingRight: 5,
+  },
+  image: { 
+    maxWidth: '100%',
+    height: 'auto'
+  }
+}));
+
+export const SplashHeaderImageOptions = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  classes: ClassesType<typeof styles>
 }) => {
   const { Loading } = Components;
+  const classes = useStyles(styles);
 
   const { results: images, loading } = useMulti({
     collectionName: 'ReviewWinnerArts',
@@ -187,7 +185,7 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
   );
 };
 
-const SplashHeaderImageOptionsComponent = registerComponent('SplashHeaderImageOptions', SplashHeaderImageOptions, {styles});
+const SplashHeaderImageOptionsComponent = registerComponent('SplashHeaderImageOptions', SplashHeaderImageOptions);
 
 declare global {
   interface ComponentTypes {

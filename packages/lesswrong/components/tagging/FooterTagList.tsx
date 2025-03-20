@@ -332,6 +332,12 @@ const FooterTagList = ({
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
+  const postYear = new Date(post.createdAt).getFullYear(); // 2023
+  const currentYear = new Date().getFullYear(); // 2025
+  const age = currentYear - postYear;
+  const isRecent = age < 2;
+  console.log(postYear, currentYear, age, "isRecent", isRecent)
+
   const innerContent = (
     <>
       {!tagRight && currentUser && !hideAddTag && addTagButton}
@@ -359,7 +365,7 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {isLWorAF && annualReviewMarketInfo && (
+      {isLWorAF && annualReviewMarketInfo && isRecent && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {tagRight && currentUser && !hideAddTag && addTagButton}

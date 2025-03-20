@@ -35,9 +35,13 @@ const styles = defineStyles("ImagePreviewAndCrop", (theme: ThemeType) => ({
       opacity: 1
     }
   },
+  splashContent: {
+    padding: 8,
+    backgroundColor: theme.palette.background.paper,
+  }
 }));
 
-export const ImagePreviewAndCrop = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
+const ImagePreviewAndCrop = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
   const { SplashHeaderImageOptions, ImageCropPreview, LWPopper } = Components;
 
@@ -71,13 +75,12 @@ export const ImagePreviewAndCrop = ({ imgRef, imageFlipped, setImageFlipped, pos
     }
   };
 
-
   return <div className={classes.rightSectionBelowBottomRow}>
     <div {...eventHandlers}>
       <div className={classes.changeImageBox}>Change image</div>
       <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
-        <div>
+        <div className={classes.splashContent}>
           <SplashHeaderImageOptions post={post}/>
         </div>
       </LWPopper>
@@ -95,3 +98,5 @@ declare global {
     ImagePreviewAndCrop: typeof ImagePreviewAndCropComponent
   }
 }
+
+export default ImagePreviewAndCrop;
