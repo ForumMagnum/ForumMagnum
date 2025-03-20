@@ -89,6 +89,7 @@
     "@google-cloud/discoveryengine": "^1.4.1",
     "@googleapis/drive": "^8.7.0",
     "@googleapis/oauth2": "^1.0.5",
+    "@googleapis/sheets": "^9.5.0",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "@hello-pangea/dnd": "^17.0.0",
     "@heroicons/react": "^2.0.16",
