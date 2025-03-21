@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';

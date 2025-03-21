@@ -9,7 +9,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 const styles = (theme: ThemeType) => ({
 });
 
-const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover, prefix}: {
+const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
   sectionData: ToCData,
   title: string,
   heading?: React.ReactNode,
@@ -18,7 +18,6 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   classes: ClassesType<typeof styles>,
   fixedPositionToc?: boolean,
   hover?: boolean,
-  prefix?: React.ReactNode,
 }) => {
   const {setToC, toc} = useContext(SidebarsContext)!;
 
@@ -40,7 +39,6 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
       <AnalyticsContext pageSectionContext="tableOfContents" componentName="FixedPositionToC">
         <Components.FixedPositionToC
           tocSections={displayToc.sectionData.sections}
-          prefix={prefix}
           title={title}
           heading={heading}
           onClickSection={onClickSection}

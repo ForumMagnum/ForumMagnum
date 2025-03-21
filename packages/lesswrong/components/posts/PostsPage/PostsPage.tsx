@@ -742,8 +742,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const answersTree = unflattenComments(answersAndReplies ?? []);
   const answerCount = post.question ? answersTree.length : undefined;
 
-  const prefix = showSplashPageHeader && <div className={classes.bestOfLessWrong}>Best of LessWrong {reviewWinner?.reviewYear}</div>
-
   // Hide the table of contents on questions that are foreign crossposts
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
@@ -756,7 +754,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             title={post.title}
             heading={<PostFixedPositionToCHeading post={post}/>}
             fixedPositionToc={true}
-            prefix={prefix}
           />
         : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
       )

@@ -1,16 +1,16 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useTracking } from "../../lib/analyticsEvents";
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments'; 
 import { gql, useQuery } from '@apollo/client';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
-import { getCloudinaryThumbnail, PostWithArtGrid, SplashHeaderImageOptions } from '../posts/PostsPage/SplashHeaderImageOptions';
+import { PostWithArtGrid } from '../posts/PostsPage/SplashHeaderImageOptions';
 import { defineStyles, useStyles } from '../hooks/useStyles'; 
 import { ImageProvider } from '../posts/PostsPage/ImageContext';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
@@ -37,6 +37,8 @@ export const BestOfLessWrongAdmin = () => {
   const classes = useStyles(styles);
   const { Loading } = Components;
 
+  const currentUser = useCurrentUser();
+
   const { data, loading: reviewWinnersLoading } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
@@ -57,6 +59,10 @@ export const BestOfLessWrongAdmin = () => {
     }
   });
   const groupedImages = groupBy(images, (image) => image.post?.title);
+
+  if (!userIsAdmin(currentUser)) {
+    return <div>You are not authorized to view this page</div>
+  }
 
   return <div className={classes.root}>
       {(reviewWinnersLoading || imagesLoading) && <Loading/>}

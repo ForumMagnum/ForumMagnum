@@ -131,7 +131,6 @@ const styles = (theme: ThemeType) => ({
   },
   bestOfLessWrong: {
     ...titleStyles(theme),
-    // color: theme.palette.panelBackground.reviewDarkGold,
     marginBottom: 12
   },
   splashPageTitle: {
@@ -252,17 +251,10 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
   </LWTooltip> : null;
 
   const splashPageTitleClass = post.title.length > 60 ? classes.splashPageTitleLong : classes.splashPageTitle;
-  let rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeader
-  // if (post.title.length > 50) {
-  //   rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLong
-  // }
-  // if (post.title.length > 60) {
-  //   rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLonger
-  // }
 
   const reviewYear = 'reviewWinner' in post && post.reviewWinner?.reviewYear;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[rootWithSplashPageHeaderClass]: showSplashPageHeader})}>
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
