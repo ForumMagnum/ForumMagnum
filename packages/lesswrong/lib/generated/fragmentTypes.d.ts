@@ -2191,6 +2191,46 @@ interface PostsListTagWithVotes extends PostsListWithVotes { // fragment on Post
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
+  readonly reviewWinner: PostsListWithVotes_reviewWinner|null,
+}
+
+interface PostsListWithVotes_reviewWinner { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+  readonly curatedOrder: number | null,
+  readonly postId: string,
+  readonly reviewYear: number,
+  readonly reviewRanking: number,
+  readonly reviewWinnerArt: PostsListWithVotes_reviewWinner_reviewWinnerArt|null,
+  readonly competitorCount: number|null,
+}
+
+interface PostsListWithVotes_reviewWinner_reviewWinnerArt { // fragment on ReviewWinnerArts
+  readonly _id: string,
+  readonly postId: string,
+  readonly splashArtImagePrompt: string,
+  readonly splashArtImageUrl: string,
+  readonly activeSplashArtCoordinates: PostsListWithVotes_reviewWinner_reviewWinnerArt_activeSplashArtCoordinates|null,
+}
+
+interface PostsListWithVotes_reviewWinner_reviewWinnerArt_activeSplashArtCoordinates { // fragment on SplashArtCoordinates
+  readonly _id: string,
+  readonly reviewWinnerArtId: string,
+  readonly leftXPct: number,
+  readonly leftYPct: number,
+  readonly leftHeightPct: number,
+  readonly leftWidthPct: number,
+  readonly leftFlipped: boolean,
+  readonly middleXPct: number,
+  readonly middleYPct: number,
+  readonly middleHeightPct: number,
+  readonly middleWidthPct: number,
+  readonly middleFlipped: boolean,
+  readonly rightXPct: number,
+  readonly rightYPct: number,
+  readonly rightHeightPct: number,
+  readonly rightWidthPct: number,
+  readonly rightFlipped: boolean,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
@@ -2310,7 +2350,7 @@ interface PostsRevisionsList { // fragment on Posts
   readonly revisions: Array<RevisionMetadata>,
 }
 
-interface PostsTopItemInfo extends PostsListWithVotes, PostsAuthors { // fragment on Posts
+interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment on Posts
   readonly isRead: boolean|null,
   readonly contents: PostsTopItemInfo_contents|null,
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,
