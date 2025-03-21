@@ -349,7 +349,6 @@ declare global {
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
       reviewGold: ColorString,
-      reviewDarkGold: ColorString,
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
