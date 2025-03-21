@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -14,10 +14,6 @@ import { CommentsListWithTopLevelComment } from "@/lib/collections/comments/frag
 const ultraFeedCommentItemCommonStyles = (theme: ThemeType) => ({
   paddingLeft: 12,
   paddingRight: 12,
-  borderBottom: theme.palette.border.itemSeparatorBottom,
-  '&:not(:last-child)': {
-    borderBottom: theme.palette.border.itemSeparatorBottom,
-  },
 });
 
 // Styles for the UltraFeedCommentItem component
@@ -71,14 +67,38 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     cursor: "pointer",
   },
   commentBottom: {
-    // marginBottom: 4,
+    marginTop: 4,
+    marginBottom: 4,
   },
   voteContainer: {
     marginLeft: 10,
   },
+  numComments: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 6,
+    fontSize: '1.4rem',
+    opacity: 0.5,
+    cursor: "pointer",
+    '&:hover': {
+      opacity: 1,
+    },
+  },
 }));
 
 
+const UltraFeedCompressedCommentsItem = ({numComments, setExpanded}: {numComments: number, setExpanded: () => void}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.root} onClick={(setExpanded)}>
+    <div className={classes.numComments}>
+      <span>+{numComments} comments</span>
+    </div>
+  </div>
+}
+
+const UltraFeedCompressedCommentsItemComponent = registerComponent("UltraFeedCompressedCommentsItem", UltraFeedCompressedCommentsItem);
 
 // Main component definition
 const UltraFeedCommentItem = ({
@@ -106,16 +126,14 @@ const UltraFeedCommentItem = ({
   // Initial expansion state is determined by either:
   // 1. The forceExpand prop (if provided)
   // 2. The default display status from metadata
-  const initialExpanded = forceExpand !== undefined ? forceExpand : metaInfo.displayStatus === "expanded";
+  const initialExpanded = metaInfo.displayStatus === "expanded" || forceExpand;
 
   const [expanded, setExpanded] = useState(initialExpanded);
   const [contentTruncated, setContentTruncated] = useState(shouldTruncate);
   const [showEditState, setShowEditState] = useState(false);
 
-  console.log("in comment item", {expanded, displayStatus: metaInfo.displayStatus });
-
   // Update expanded state when forceExpand prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (forceExpand !== undefined) {
       setExpanded(forceExpand);
       setContentTruncated(false);
@@ -214,5 +232,6 @@ export default UltraFeedCommentItemComponent;
 declare global {
   interface ComponentTypes {
     UltraFeedCommentItem: typeof UltraFeedCommentItemComponent
+    UltraFeedCompressedCommentsItem: typeof UltraFeedCompressedCommentsItemComponent
   }
 }
