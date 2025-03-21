@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useTracking } from "../../lib/analyticsEvents";
+import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import { postGetLink } from "@/lib/collections/posts/helpers";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
