@@ -14,8 +14,7 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.1rem",
-    justifyContent: "space-between",
+    fontSize: "1.4rem",
     "& > *": {
       marginRight: 5,
     },
@@ -27,7 +26,7 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
   leftSection: {
     display: "flex",
     alignItems: "center",
-    flexGrow: 1,
+    flex: "1 1 auto",
     flexWrap: "wrap",
     // rowGap: "0px",
   },
@@ -50,13 +49,11 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     '& a, & a:hover': {
       color: theme.palette.link.unmarked,
     },
-    // fontSize: '1.2rem',
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     whiteSpace: 'nowrap',
     display: 'flex',
     alignItems: 'center',
-    // fontWeight: 600,
   },
   coauthors: {
     marginLeft: 4,

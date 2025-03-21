@@ -5,23 +5,17 @@ import { DisplayFeedComment } from "./ultraFeedTypes";
 import type { PostsMinimumInfo } from "../../lib/collections/posts/fragments";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import classNames from "classnames";
+// import { ultraFeedCommentItemCommonStyles } from "./UltraFeedCommentItem";
 
 export const SINGLE_LINE_PADDING_TOP = 5;
 
 const styles = defineStyles("UltraFeedCollapsedCommentItem", (theme: ThemeType) => ({
   root: {
-    position: "relative",
-    cursor: "pointer",
-    borderRadius: 4,
-    backgroundColor: theme.palette.panelBackground.default,
-    border: theme.palette.border.commentBorder,
-    // borderBottom: theme.palette.border.itemSeparatorBottom,
+    // ...ultraFeedCommentItemCommonStyles(theme),
     paddingLeft: 12,
     paddingRight: 12,
+    cursor: "pointer",
     paddingBottom: 10,
-    '&:not(:last-child)': {
-      marginBottom: 10,
-    },
   },
   contentWrapper: {
     cursor: "pointer",
@@ -36,8 +30,7 @@ const styles = defineStyles("UltraFeedCollapsedCommentItem", (theme: ThemeType) 
     "-webkit-line-clamp": 2,
     flexGrow: 1,
     textOverflow: "ellipsis",
-    // marginTop: 0,
-    // marginBottom: 0,
+    lineHeight: 1.4,
     '& *': {
       display: "inline"
     },

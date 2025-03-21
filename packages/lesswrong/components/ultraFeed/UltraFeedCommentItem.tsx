@@ -8,17 +8,22 @@ import { DisplayFeedComment } from "./ultraFeedTypes";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
+import { CommentsListWithTopLevelComment } from "@/lib/collections/comments/fragments";
+
+
+const ultraFeedCommentItemCommonStyles = (theme: ThemeType) => ({
+  paddingLeft: 12,
+  paddingRight: 12,
+  borderBottom: theme.palette.border.itemSeparatorBottom,
+  '&:not(:last-child)': {
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+  },
+});
 
 // Styles for the UltraFeedCommentItem component
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
-    position: "relative",
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
-    borderRadius: 4,
-    backgroundColor: theme.palette.panelBackground.default,
-    border: theme.palette.border.commentBorder,
-    borderBottom: theme.palette.border.itemSeparatorBottom,
+    ...ultraFeedCommentItemCommonStyles(theme),
   },
   hidden: {
     display: 'none',
@@ -36,7 +41,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingTop: "0.6em",
     marginRight: isFriendlyUI ? 40 : 20,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.2rem',
+    fontSize: '1.4rem',
     rowGap: "6px",
     "& a:hover, & a:active": {
       textDecoration: "none",
@@ -91,19 +96,23 @@ const UltraFeedCommentItem = ({
 
   const { comment, metaInfo } = commentWithMetaInfo;
 
-  // Initial expansion state is determined by either:
-  // 1. The forceExpand prop (if provided)
-  // 2. The default display status from metadata
-  const initialExpanded = true // forceExpand !== undefined ? forceExpand : metaInfo.displayStatus === "expanded";
   
   // Calculate if content should be truncated (over 500 words)
   const shouldTruncate = useMemo(() => {
     return ((comment.contents?.wordCount ?? 0 > 500) && metaInfo.displayStatus === 'collapsed') || (metaInfo.displayStatus === 'expanded');
   }, [metaInfo.displayStatus, comment.contents?.wordCount]);
 
+
+  // Initial expansion state is determined by either:
+  // 1. The forceExpand prop (if provided)
+  // 2. The default display status from metadata
+  const initialExpanded = forceExpand !== undefined ? forceExpand : metaInfo.displayStatus === "expanded";
+
   const [expanded, setExpanded] = useState(initialExpanded);
   const [contentTruncated, setContentTruncated] = useState(shouldTruncate);
   const [showEditState, setShowEditState] = useState(false);
+
+  console.log("in comment item", {expanded, displayStatus: metaInfo.displayStatus });
 
   // Update expanded state when forceExpand prop changes
   React.useEffect(() => {

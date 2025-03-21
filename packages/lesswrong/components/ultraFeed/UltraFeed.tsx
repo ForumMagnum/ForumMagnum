@@ -295,7 +295,7 @@ const UltraFeedContent = () => {
               pageSize={15}
               refetchRef={refetchSubscriptionContentRef}
               loadMoreRef={loadMoreAtTopRef}
-              prependedLoadMore={true}
+              prependedLoadMore={false}
               resolverArgsValues={{ sessionId }}
               renderers={ultraFeedRenderer}
             />

@@ -12,7 +12,10 @@ import UnfoldLessDoubleIcon from "@/lib/vendor/@material-ui/icons/src/UnfoldLess
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    padding: 12,
+    // padding: 12,
+    paddingTop: 16,
+    paddingBottom: 8,
+
     // marginBottom: 16,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
@@ -22,7 +25,9 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
+    marginBottom: 12,
     marginLeft: 2,
     // textAlign: 'right',
   },
@@ -30,18 +35,18 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     flexGrow: 1,
   },
   postTitle: {
-    cursor: 'pointer',
-    // marginLeft: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.1rem',
-    fontWeight: 500,
+    fontSize: '1.4rem',
+    fontWeight: 600,
     opacity: 0.6,
-    lineHeight: 1.1,
-    // color: theme.palette.primary.main,
+    lineHeight: 1.15,
+
     lineWrap: 'balance',
     textWrap: 'balance',
     textDecoration: 'none',
-    // textAlign: 'right',
+    cursor: 'pointer',
+
+    paddingBottom: 4,
     width: '100%',
     '&:hover': {
       opacity: 0.9,
@@ -78,8 +83,13 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   commentItem: {
     position: 'relative',
     zIndex: 1, // Ensure comments are above the line
+    '&:first-child': {
+      // borderTop: theme.palette.border.itemSeparatorBottom,
+      borderBottom: '4px solid rgba(0,0,0,0.025)'
+
+    },
     '&:not(:last-child)': {
-      marginBottom: 2,
+      borderBottom: theme.palette.border.itemSeparatorBottom,
     },
   },
   viewFullThreadButton: {
@@ -169,7 +179,7 @@ const UltraFeedThreadItem = ({thread}: {
 
   return (
     <div className={classes.root}>
-      {postExpanded ? <UltraFeedPostItem post={thread.post} initiallyExpanded={true} /> : titleElement}
+      {postExpanded ? <UltraFeedPostItem post={thread.post} initiallyExpanded={false} /> : titleElement}
       <div className={classes.commentsList}>
         <div className={classes.commentsContainer}>
           {/* {visibleComments.length > 1 && <div className={classes.verticalLine}></div>} */}

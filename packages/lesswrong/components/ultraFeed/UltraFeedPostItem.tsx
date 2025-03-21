@@ -13,7 +13,10 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     // marginBottom: 4,
     // paddingLeft: 4,
     // paddingRight: 4,
-    paddingBottom: 4,
+    // paddingTop: 4,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingBottom: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   header: {
@@ -36,11 +39,11 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.2rem',
+    fontSize: '1.4rem',
     fontWeight: 600,
+    opacity: 0.6,
     lineHeight: 1.15,
     textWrap: 'balance',
-    opacity: 0.7,
     width: '100%',
     '&:hover': {
       opacity: 0.9,
@@ -134,7 +137,7 @@ const UltraFeedPostItem = ({
         //     <div dangerouslySetInnerHTML={{ __html: html }} />
         //   </ContentStyles>
         // </div>
-        <FeedPostsHighlight post={post} maxCollapsedLengthWords={60} />
+        <FeedPostsHighlight post={post} maxCollapsedLengthWords={100} />
       )}
       
     </div>

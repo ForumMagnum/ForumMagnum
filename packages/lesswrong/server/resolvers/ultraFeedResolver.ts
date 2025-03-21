@@ -339,7 +339,7 @@ defineFeedResolver<Date>({
    * samples them based on weights, and returns the merged results.
    */
   resolver: async ({
-    limit = 20, // Default to 5 items for initial draw
+    limit = 20,
     cutoff,
     offset,
     sessionId: sessionId,
