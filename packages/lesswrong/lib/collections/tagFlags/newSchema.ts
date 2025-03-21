@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema = {
@@ -61,10 +61,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   contents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: [documentIsNotDeleted],
@@ -73,6 +80,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("TagFlags", "contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {

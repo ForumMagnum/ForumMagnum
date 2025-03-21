@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -164,6 +165,7 @@ const schema = {
       order: 20,
     },
   },
+  // Set to 'inactive' to prevent posting
   status: {
     database: {
       type: "TEXT",

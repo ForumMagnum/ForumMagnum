@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 import moment from "moment";
@@ -84,10 +84,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   contents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: [documentIsNotDeleted],
@@ -96,6 +103,10 @@ const schema = {
       editableFieldOptions: { pingbacks: true, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("GardenCodes", "contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {

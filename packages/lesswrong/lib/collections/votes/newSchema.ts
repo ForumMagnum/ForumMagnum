@@ -79,10 +79,12 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   documentId: {
+    // No explicit foreign-key relation because which collection this is depends on collectionName
     database: {
       type: "TEXT",
       nullable: false,
@@ -117,6 +119,7 @@ const schema = {
       canRead: [userOwns, docIsTagRel, "admins"],
     },
   },
+  // The IDs of the authors of the document that was voted on
   authorIds: {
     database: {
       type: "VARCHAR(27)[]",
@@ -127,6 +130,8 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  // Resolver-only authorId for backwards compatability after migrating to allow
+  // co-authors to receive karma with authorIds
   authorId: {
     graphql: {
       outputType: "String",
@@ -134,6 +139,12 @@ const schema = {
       resolver: (vote) => vote.authorIds?.[0],
     },
   },
+  // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
+  // voteType is the type of the vote that was reversed.
+  //
+  // If this vote was cast in an alternate voting system, this is the projection
+  // of their vote onto an approve/disapprove axis, if that makes sense, or
+  // neutral if it doesn't.
   voteType: {
     database: {
       type: "TEXT",
@@ -148,6 +159,9 @@ const schema = {
       },
     },
   },
+  // If this vote was cast in an alternate voting system, this is the complete
+  // ballot. If the vote was cast in traditional Reddit-style upvoting/downvoting,
+  // then this is null.
   extendedVoteType: {
     database: {
       type: "JSONB",
@@ -160,9 +174,19 @@ const schema = {
       },
     },
   },
+  // The vote power - that is, the effect this vote had on the comment/post's
+  // score. Positive for upvotes, negative for downvotes, based on whether it's
+  // a regular or strong vote and on the voter's karma at the time the vote was
+  // made. If this is an unvote, then the opposite: negative for undoing an
+  // upvote, positive for undoing a downvote.
+  //
+  // If this vote was cast in an alternate voting system, this is not the whole
+  // ballot, but is the effect the vote has on the votee's karma.
   power: {
     database: {
       type: "DOUBLE PRECISION",
+      // Can be inferred from userId+voteType+votedAt (votedAt necessary because
+      // the user's vote power may have changed over time)
       denormalized: true,
       nullable: false,
     },
@@ -174,6 +198,11 @@ const schema = {
       },
     },
   },
+  // The vote's alignment-forum power - that is, the effect this vote had on
+  // the comment/post's AF score.
+  //
+  // If this vote was cast in an alternate voting system, this is not the whole
+  // ballot, but is the effect the vote has on the votee's AF karma.
   afPower: {
     database: {
       type: "DOUBLE PRECISION",
@@ -186,6 +215,8 @@ const schema = {
       },
     },
   },
+  // Whether this vote has been cancelled (by un-voting or switching to a
+  // different vote type) or is itself an unvote/cancellation.
   cancelled: {
     database: {
       type: "BOOL",
@@ -199,6 +230,7 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  // Whether this is an unvote. This data is unreliable on the EA Forum for old votes (around 2019).
   isUnvote: {
     database: {
       type: "BOOL",
@@ -212,6 +244,8 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  // Time this vote was cast. If this is an unvote, the time the vote was
+  // reversed.
   votedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -267,6 +301,8 @@ const schema = {
       },
     },
   },
+  // This flag allows us to calculate the baseScore/karma of documents and users using nothing but the votes
+  // collection. Otherwise doing that calculation would require a lookup, which is pretty expensive
   documentIsAf: {
     database: {
       type: "BOOL",
@@ -280,6 +316,8 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  // Whether to silence notifications of the karma changes from this vote. This is set to true for votes that are
+  // nullified by mod actions
   silenceNotification: {
     database: {
       type: "BOOL",

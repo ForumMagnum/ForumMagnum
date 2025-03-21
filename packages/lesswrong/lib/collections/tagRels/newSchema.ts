@@ -8,6 +8,7 @@ import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } fr
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { getTagBotUserId } from "@/server/languageModels/autoTagCallbacks";
+import GraphQLJSON from "graphql-type-json";
 
 const schema = {
   _id: {
@@ -65,6 +66,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -124,6 +126,7 @@ const schema = {
       },
     },
   },
+  // The user who first tagged the post with this tag
   userId: {
     database: {
       type: "VARCHAR(27)",
@@ -133,6 +136,7 @@ const schema = {
     graphql: {
       outputType: "String",
       inputType: "String!",
+      // Hide who applied the tag on the EA Forum
       canRead: isEAForum ? [userOwns, "sunshineRegiment", "admins"] : ["guests"],
       canCreate: ["members"],
     },
@@ -168,6 +172,7 @@ const schema = {
       },
     },
   },
+  // Indicates that a tagRel was applied via the script backfillParentTags.ts
   backfilled: {
     database: {
       type: "BOOL",
@@ -281,7 +286,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -331,7 +336,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,

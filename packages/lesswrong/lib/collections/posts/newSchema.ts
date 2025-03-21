@@ -21,7 +21,9 @@ import {
   postGetTwitterShareUrl,
   postGetFacebookShareUrl,
   postGetDefaultStatus,
-  getSocialPreviewImage, isNotHostedHere
+  getSocialPreviewImage,
+  isNotHostedHere,
+  isDialogueParticipant
 } from "./helpers";
 import { postStatuses, postStatusLabels, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -67,14 +69,11 @@ import {
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { SmartFormProps } from "@/components/vulcan-forms/propTypes";
-import { isDialogueParticipant } from "@/components/posts/PostsPage/PostsPage";
-import Comments from "@/server/collections/comments/collection";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
-import { fetchFragmentSingle } from "@/server/fetchFragment";
 import { languageModelGenerateText } from "@/server/languageModels/languageModelIntegration";
 import { getLocalTime } from "@/server/mapsUtils";
 import { getDefaultPostLocationFields, getDialogueMessageTimestamps, getPostHTML, getDialogueResponseIds } from "@/server/posts/utils";
@@ -85,6 +84,7 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import GraphQLJSON from "graphql-type-json";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -266,9 +266,9 @@ function postHasStartTimeOrGoogleLocation(data: Partial<DbPost>) {
   return "startTime" in data || "googleLocation" in data;
 }
 
-async function getUpdatedLocalStartTime(post: DbPost) {
+async function getUpdatedLocalStartTime(post: DbPost, context: ResolverContext) {
   if (!post.startTime) return null;
-  const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation;
+  const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
   return await getLocalTime(post.startTime, googleLocation);
 }
@@ -277,9 +277,9 @@ function postHasEndTimeOrGoogleLocation(data: Partial<DbPost>) {
   return "endTime" in data || "googleLocation" in data;
 }
 
-async function getUpdatedLocalEndTime(post: DbPost) {
+async function getUpdatedLocalEndTime(post: DbPost, context: ResolverContext) {
   if (!post.endTime) return null;
-  const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation;
+  const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
   return await getLocalTime(post.endTime, googleLocation);
 }
@@ -359,6 +359,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -366,6 +367,7 @@ const schema = {
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       editableFieldOptions: { pingbacks: true, normalized: true },
@@ -491,6 +493,12 @@ const schema = {
     },
   },
   customHighlight: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -499,6 +507,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Posts", "customHighlight"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -745,6 +757,7 @@ const schema = {
       },
     },
   },
+  // The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   status: {
     database: {
       type: "DOUBLE PRECISION",
@@ -813,6 +826,7 @@ const schema = {
       },
     },
   },
+  // Whether the post is sticky (pinned to the top of posts lists)
   sticky: {
     database: {
       type: "BOOL",
@@ -845,6 +859,8 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // Priority of the stickied post. Higher priorities will be sorted before
+  // lower priorities.
   stickyPriority: {
     database: {
       type: "INTEGER",
@@ -1015,6 +1031,7 @@ const schema = {
       resolver: (post, args, context) => postGetFacebookShareUrl(post),
     },
   },
+  // DEPRECATED: use socialPreview.imageUrl instead
   socialPreviewImageUrl: {
     graphql: {
       outputType: "String",
@@ -1060,6 +1077,9 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // By default, the read time for a post is calculated automatically from the word count.
+  // Sometimes this incorrect (often due to link posts, videos, etc.) so it can be overridden
+  // manually by setting this field.
   readTimeMinutesOverride: {
     database: {
       type: "DOUBLE PRECISION",
@@ -1107,6 +1127,7 @@ const schema = {
         }),
     },
   },
+  // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: {
     graphql: {
       outputType: "Int",
@@ -1126,6 +1147,7 @@ const schema = {
         }),
     },
   },
+  // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: {
     graphql: {
       outputType: "String",
@@ -1172,6 +1194,11 @@ const schema = {
       },
     },
   },
+  // (I'm not totally sure but this is my understanding of what this field is for):
+  // Back when we had a form where you could create a related question from a question post,
+  // you could set this to true to prevent the related question from appearing on the frontpage.
+  // Now that we've removed the form to create a related question, I think we can drop
+  // this field entirely?
   hiddenRelatedQuestion: {
     database: {
       type: "BOOL",
@@ -1229,6 +1256,8 @@ const schema = {
       },
     },
   },
+  // A post should have the shortform flag set iff its author's shortformFeedId
+  // field is set to this post's ID.
   shortform: {
     database: {
       type: "BOOL",
@@ -1552,6 +1581,8 @@ const schema = {
       },
     },
   },
+  // We get this to show up in the PostsEditForm by adding it to the addFields array
+  // Trying to do that by having `canUpdate` doesn't work because it then tries to validate the jargon terms in the glossary, and barfs
   glossary: {
     graphql: {
       outputType: "[JargonTerm!]!",
@@ -1563,24 +1594,15 @@ const schema = {
         if (!userCanViewJargonTerms(context.currentUser)) {
           return [];
         }
-        const jargonTerms = await context.JargonTerms.find(
-          {
-            postId: post._id,
-          },
-          {
-            sort: {
-              term: 1,
-            },
-          }
-        ).fetch();
+        const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 } }).fetch();
         return await accessFilterMultiple(context.currentUser, "JargonTerms", jargonTerms, context);
       },
-      sqlResolver: ({ field, currentUserField }) => `(
-      SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
-      FROM "JargonTerms" jt
-      WHERE jt."postId" = ${field("_id")}
-      LIMIT 1
-    )`,
+      sqlResolver: ({ field }) => `(
+        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
+        FROM "JargonTerms" jt
+        WHERE jt."postId" = ${field("_id")}
+        LIMIT 1
+      )`,
     },
     form: {
       control: "GlossaryEditFormWrapper",
@@ -1588,6 +1610,7 @@ const schema = {
       group: () => formGroups.glossary,
     },
   },
+  // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     database: {
       type: "DOUBLE PRECISION",
@@ -1618,6 +1641,9 @@ const schema = {
       },
     },
   },
+  // Results (sum) of the quadratic votes when filtering only for users with >1000 karma
+  // NOTE: as of the 2023 Review (in 2025), this is now used to store the voting power including
+  // karma weighting (from the Strong Vote multiplier)
   reviewVoteScoreHighKarma: {
     database: {
       type: "DOUBLE PRECISION",
@@ -1633,6 +1659,9 @@ const schema = {
       },
     },
   },
+  // A list of each individual user's calculated quadratic vote, for users with >1000 karma
+  // NOTE: as of the 2023 Review (in 2025), this is now used to store the voting power including
+  // karma weighting (from the Strong Vote multiplier)
   reviewVotesHighKarma: {
     database: {
       type: "DOUBLE PRECISION[]",
@@ -1648,6 +1677,8 @@ const schema = {
       },
     },
   },
+  // Results (sum) of the quadratic votes for all users
+  // uses the raw voting power, without karma multiplier
   reviewVoteScoreAllKarma: {
     database: {
       type: "DOUBLE PRECISION",
@@ -1663,6 +1694,7 @@ const schema = {
       },
     },
   },
+  // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     database: {
       type: "DOUBLE PRECISION[]",
@@ -1678,6 +1710,7 @@ const schema = {
       },
     },
   },
+  // the final review scores for each post, at the end of the review.
   finalReviewVoteScoreHighKarma: {
     database: {
       type: "DOUBLE PRECISION",
@@ -1738,6 +1771,8 @@ const schema = {
       },
     },
   },
+  // DEPRECATED. Af Users didn't really vote in interesting enough ways to justify the UI complexity
+  // of displaying these.
   finalReviewVoteScoreAF: {
     database: {
       type: "DOUBLE PRECISION",
@@ -1836,6 +1871,9 @@ const schema = {
       },
     },
   },
+  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie
+  // Record<string,number>. If submitted as part of a new-post submission, the
+  // submitter applies/upvotes relevance for any tags included as keys.
   tagRelevance: {
     database: {
       type: "JSONB",
@@ -1843,6 +1881,7 @@ const schema = {
     graphql: {
       outputType: "JSON",
       canRead: ["guests"],
+      // This must be set to editable to allow the data to be sent from the edit form, but in practice it's always overwritten by updatePostDenormalizedTags
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
@@ -1913,6 +1952,10 @@ const schema = {
       },
     },
   },
+  // Tell search engines not to index this post. Useful for old posts that were
+  // from a time with different quality standards. Posts will still be findable
+  // in elastic. See PostsPage and HeadTags for their use of this field and the
+  // noIndexLowKarma migration for the setting of it.
   noIndex: {
     database: {
       type: "BOOL",
@@ -1937,6 +1980,7 @@ const schema = {
     database: {
       type: "JSONB[]",
     },
+    // TODO: how to remove people without db access?
     graphql: {
       outputType: "[JSON]",
       canRead: ["guests"],
@@ -2153,6 +2197,8 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
+      // This differs from the `defaultValue` because it varies by forum-type
+      // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
       onCreate: ({ document }) => document.votingSystem ?? getDefaultVotingSystem(),
       validation: {
         optional: true,
@@ -2226,6 +2272,8 @@ const schema = {
       }),
     },
   },
+  // Forces allowing the type 3 audio player even if the post is not new or high karma enough. Note
+  // this doesn't override every other condition (e.g. questions and events still can't have type 3 audio)
   forceAllowType3Audio: {
     database: {
       type: "BOOL",
@@ -2249,6 +2297,7 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     database: {
       type: "BOOL",
@@ -2272,6 +2321,7 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     database: {
       type: "TEXT",
@@ -2286,6 +2336,8 @@ const schema = {
       },
     },
   },
+  // Legacy Spam: True if the original post in the legacy LW database had this post
+  // marked as spam
   legacySpam: {
     database: {
       type: "BOOL",
@@ -2303,6 +2355,8 @@ const schema = {
       },
     },
   },
+  // Feed Id: If this post was automatically generated by an integrated RSS feed
+  // then this field will have the ID of the relevant feed
   feedId: {
     database: {
       type: "VARCHAR(27)",
@@ -2328,6 +2382,8 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "RSSFeeds", fieldName: "feedId" }),
     },
   },
+  // Feed Link: If this post was automatically generated by an integrated RSS feed
+  // then this field will have the link to the original blogpost it was posted from
   feedLink: {
     database: {
       type: "TEXT",
@@ -2345,6 +2401,8 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // lastVisitedAt: If the user is logged in and has viewed this post, the date
+  // they last viewed it. Otherwise, null.
   lastVisitedAt: {
     graphql: {
       outputType: "Date",
@@ -2385,6 +2443,8 @@ const schema = {
         }),
     },
   },
+  // curatedDate: Date at which the post was promoted to curated (null or false
+  // if it never has been promoted to curated)
   curatedDate: {
     database: {
       type: "TIMESTAMPTZ",
@@ -2403,6 +2463,8 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // metaDate: Date at which the post was marked as meta (null or false if it
+  // never has been marked as meta)
   metaDate: {
     database: {
       type: "TIMESTAMPTZ",
@@ -2425,6 +2487,9 @@ const schema = {
     database: {
       type: "VARCHAR(27)[]",
     },
+    // FIXME: client-side mutations of this are rewriting the whole thing,
+    // when they should be doing add or delete. The current set up can cause
+    // overwriting of other people's changes in a race.
     graphql: {
       outputType: "[String]",
       canRead: ["members"],
@@ -2445,9 +2510,9 @@ const schema = {
       outputType: "String",
       canRead: ["members"],
       resolver: async (post, args, context) => {
-        // TODO - Turn this into a proper resolve field.
+        // TODO(JB) - Turn this into a proper resolver field.
         // Ran into weird issue trying to get this to be a proper "users"
-        // resolve field. Wasn't sure it actually needed to be anyway,
+        // resolver field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
         if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(
@@ -2462,11 +2527,9 @@ const schema = {
           return null;
         }
       },
-      sqlResolver: ({ field }) => `(
-        SELECT ARRAY_AGG(u."displayName")
-        FROM UNNEST(${field("suggestForCuratedUserIds")}) AS "ids"
-        JOIN "Users" u ON u."_id" = "ids"
-      )`,
+      // RM: This used to have a sqlResolver, but it was incorrectly returning an array of strings
+      // rather than a comma-concatenated string
+      // I don't think there's an enormous perf implication, but can fix it if there is
     },
   },
   frontpageDate: {
@@ -2587,6 +2650,8 @@ const schema = {
       },
     },
   },
+  // Cloudinary image id for an image that will be used as the OpenGraph image
+  // DEPRECATED: use socialPreview.imageId instead
   socialPreviewImageId: {
     database: {
       type: "TEXT",
@@ -2607,6 +2672,7 @@ const schema = {
       order: 4,
     }
   },
+  // Autoset OpenGraph image, derived from the first post image in a callback
   socialPreviewImageAutoUrl: {
     database: {
       type: "TEXT",
@@ -2614,6 +2680,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      // TODO: should this be more restrictive?
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
@@ -2671,6 +2738,7 @@ const schema = {
       canRead: [documentIsNotDeleted],
       canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
       canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
+      // Users aren't allowed to directly select the foreignPostId of a crosspost
       onCreate: (args) => {
         const { document, context } = args;
         // If we're handling a request from our peer site, then we have just set
@@ -2758,9 +2826,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         if (!post.canonicalCollectionSlug) return null;
-        const collection = await context.Collections.findOne({
-          slug: post.canonicalCollectionSlug,
-        });
+        const collection = await context.Collections.findOne({ slug: post.canonicalCollectionSlug });
         return await accessFilterSingle(context.currentUser, "Collections", collection, context);
       },
     },
@@ -2832,6 +2898,13 @@ const schema = {
       group: () => formGroups.canonicalSequence,
     },
   },
+  /**
+   * The next post. If a sequenceId is provided, that sequence must contain this
+   * post, and this returns the next post after this one in that sequence.  If
+   * there is no next post in the same sequence, we check if this sequence is in a
+   * collection, and if there's a next sequence after this one.  If so, return the
+   * first post in the next sequence. If no sequenceId is provided, uses this post's canonical sequence.
+   */
   nextPost: {
     graphql: {
       outputType: "Post",
@@ -2873,6 +2946,13 @@ const schema = {
       },
     },
   },
+  /**
+   * The previous post. If a sequenceId is provided, that sequence must contain
+   * this post, and this returns the post before this one in that sequence. If
+   * there is no previous post in the same sequence, we check if this sequence is in a
+   * collection, and if there's a previous sequence before this one.  If so, return the
+   * last post in the previous sequence. If no sequenceId is provided, uses this post's canonical sequence.
+   */
   prevPost: {
     graphql: {
       outputType: "Post",
@@ -2918,6 +2998,16 @@ const schema = {
       },
     },
   },
+  /**
+   * A sequence this post is part of. Takes an optional sequenceId and an optional
+   * flag indicating whether we're in the context of a "next" or "previous" post;
+   * if the sequenceId is given and it contains this post, returns that sequence.
+   * If it doesn't contain this post, and we have a prevOrNext flag, check the
+   * previous or next sequence (as requested) for this post, and return it if
+   * it's part of that sequence, return the sequence. Otherwise, if this post
+   * has a canonical sequence, return that. If no sequence ID is given and
+   * there is no canonical sequence for this post, returns null.
+   */
   sequence: {
     graphql: {
       outputType: "Sequence",
@@ -2944,6 +3034,8 @@ const schema = {
       },
     },
   },
+  // unlisted: If true, the post is not featured on the frontpage and is not
+  // featured on the user page. Only accessible via it's ID
   unlisted: {
     database: {
       type: "BOOL",
@@ -2967,6 +3059,11 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // disableRecommendation: If true, this post will never appear as a
+  // recommended post (but will still appear in all other places, ie on its
+  // author's profile, in archives, etc).
+  // Use for things that lose their relevance with age, like announcements, or
+  // for things that aged poorly, like results that didn't replicate.
   disableRecommendation: {
     database: {
       type: "BOOL",
@@ -2990,6 +3087,7 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // defaultRecommendation: If true, always include this post in the recommendations
   defaultRecommendation: {
     database: {
       type: "BOOL",
@@ -3058,6 +3156,7 @@ const schema = {
       label: "Save to Drafts",
     },
   },
+  // If the post has ever been undrafted and published
   wasEverUndrafted: {
     database: {
       type: "BOOL",
@@ -3118,6 +3217,7 @@ const schema = {
       group: () => formGroups.moderationGroup,
     },
   },
+  // maxBaseScore: Highest baseScore this post ever had, used for RSS feed generation
   maxBaseScore: {
     database: {
       type: "DOUBLE PRECISION",
@@ -3132,6 +3232,7 @@ const schema = {
       },
     },
   },
+  // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
     database: {
       type: "TIMESTAMPTZ",
@@ -3360,8 +3461,7 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["members"],
       onCreate: ({ newDocument }) => {
-        // HACK: This replaces the `onCreate` that normally comes with
-        // `schemaDefaultValue`. In addition to enforcing that the field must
+        // In addition to enforcing that the field must
         // be present (not undefined), it also enforces that it cannot be null.
         // There is a bug where GreaterWrong somehow submits posts with isEvent
         // set to null (instead of false), which causes some post-views to filter
@@ -3855,6 +3955,9 @@ const schema = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "shareWithUsers" }),
     },
   },
+  // linkSharingKey: An additional ID for this post which is used for link-sharing,
+  // and not made accessible to people who merely have access to the published version
+  // of a post. Only populated if some form of link sharing is (or has been) enabled.
   linkSharingKey: {
     database: {
       type: "TEXT",
@@ -3869,6 +3972,8 @@ const schema = {
       },
     },
   },
+  // linkSharingKeyUsedBy: An array of user IDs who have used the link-sharing key
+  // to unlock access.
   linkSharingKeyUsedBy: {
     database: {
       type: "VARCHAR(27)[]",
@@ -3898,6 +4003,8 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // hideAuthor: Post stays online, but doesn't show on your user profile anymore, and doesn't
+  // link back to your account
   hideAuthor: {
     database: {
       type: "BOOL",
@@ -3961,7 +4068,7 @@ const schema = {
       outputType: "JSON",
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
-        const { SideCommentCaches } = context;
+        const { SideCommentCaches, Comments } = context;
         if (!hasSideComments || isNotHostedHere(post)) {
           return null;
         }
@@ -4099,6 +4206,15 @@ const schema = {
       },
     },
   },
+  /**
+   * Resolver to fetch the relevant data from the side comment caches table.
+   * This data isn't directly viewable on the client, which instead uses the
+   * data generated by the resolver for the `sideComments` field above. The
+   * permissions here allow anybody to read this field (which is needed to
+   * make this data accessible in the resolver) but the sqlPostProcess function
+   * always sets the result to null to avoid sending large amounts of duplicated
+   * data to the client (the data isn't sensitive though - just large).
+   */
   sideCommentsCache: {
     graphql: {
       outputType: "SideCommentCache",
@@ -4127,6 +4243,8 @@ const schema = {
       }),
     },
   },
+  // This is basically deprecated. We now have them enabled by default
+  // for all users. Leaving this field for legacy reasons.
   sideCommentVisibility: {
     database: {
       type: "TEXT",
@@ -4156,6 +4274,10 @@ const schema = {
       }
     },
   },
+  /**
+   * Author-controlled option to disable sidenotes (display of footnotes in the
+   * right margin).
+   */
   disableSidenotes: {
     database: {
       type: "BOOL",
@@ -4166,8 +4288,9 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["members"],
+      // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
       canCreate: ["sunshineRegiment"],
+      canUpdate: ["members"],
       validation: {
         optional: true,
       },
@@ -4333,7 +4456,9 @@ const schema = {
       outputType: "[Comment]",
       canRead: ["guests"],
       arguments: "commentsLimit: Int, maxAgeHours: Int, af: Boolean",
-      resolver: async (post, args, context) => {
+      // commentsLimit for some reason can receive a null (which was happening in one case)
+      // we haven't figured out why yet
+      resolver: async (post, args: { commentsLimit?: number|null, maxAgeHours?: number, af?: boolean }, context) => {
         const { commentsLimit, maxAgeHours = 18, af = false } = args;
         const { currentUser, Comments } = context;
         const oneHourInMs = 60 * 60 * 1000;
@@ -4363,15 +4488,12 @@ const schema = {
         if (!post.contents_latest) {
           return "";
         }
-        const postWithContents = await fetchFragmentSingle({
-          collectionName: "Posts",
-          fragmentName: "PostsOriginalContents",
-          selector: {
-            _id: post._id,
-          },
-          currentUser: context.currentUser,
-          context,
-        });
+
+        // This replaced the use of a `fetchFragmentSingle` for getting the post contents,
+        // in order to eliminate a dependency cycle
+        // TODO: test that this works correctly!
+        const postWithContents = await context.repos.posts.getPostWithContents(post._id);
+
         if (!postWithContents?.contents?.originalContents) {
           return "";
         }
@@ -4393,6 +4515,8 @@ const schema = {
       },
     },
   },
+  // This flag corresponds to the comments-in-the-post debate mode, not to be
+  // confused with collab-editor debates. Should be DEPRECATED.
   debate: {
     database: {
       type: "BOOL",
@@ -4410,6 +4534,8 @@ const schema = {
       },
     },
   },
+  // This flag corresponds to the collab-editor dialogue type, not to be confused
+  // with comments-in-the-post style dialogues (which is the `debate`) flag.
   collabEditorDialogue: {
     database: {
       type: "BOOL",
@@ -4595,7 +4721,7 @@ const schema = {
         const isParticipant = isDialogueParticipant(currentUser._id, post);
         if (!isParticipant) return null;
         const html =
-          (await getLatestRev(post._id, "contents"))?.html ??
+          (await getLatestRev(post._id, "contents", context))?.html ??
           (await getLatestContentsRevision(post, context))?.html ??
           "";
         const $ = cheerioParse(html);
@@ -4836,6 +4962,9 @@ const schema = {
       },
     },
   },
+  /**
+   * @deprecated Remove after 2024-06-14
+   */
   swrCachingEnabled: {
     database: {
       type: "BOOL",
@@ -4889,6 +5018,7 @@ const schema = {
       },
     },
   },
+  // reviews that appear on SpotlightItem
   reviews: {
     graphql: {
       outputType: "[Comment]",
@@ -5000,7 +5130,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -5050,7 +5180,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,

@@ -64,6 +64,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -147,12 +148,12 @@ const schema = {
         );
         return lastMessage?.createdAt ?? document.createdAt;
       },
-      sqlResolver: ({ field, join }) => `(
-      SELECT MAX(COALESCE(lm."createdAt", ${field("createdAt")}))
-      FROM "LlmMessages" lm
-      WHERE lm."conversationId" = ${field("_id")}
-      GROUP BY lm."conversationId"
-    )`,
+      sqlResolver: ({ field }) => `(
+        SELECT MAX(COALESCE(lm."createdAt", ${field("createdAt")}))
+        FROM "LlmMessages" lm
+        WHERE lm."conversationId" = ${field("_id")}
+        GROUP BY lm."conversationId"
+      )`,
     },
   },
   messages: {
@@ -161,19 +162,8 @@ const schema = {
       canRead: [userOwns, "admins"],
       resolver: async (document, args, context) => {
         const { LlmMessages } = context;
-        const messages = await LlmMessages.find(
-          {
-            conversationId: document._id,
-            role: {
-              $in: [...userVisibleMessageRoles],
-            },
-          },
-          {
-            sort: {
-              createdAt: 1,
-            },
-          }
-        ).fetch();
+        const selector = { conversationId: document._id, role: { $in: [...userVisibleMessageRoles] } };
+        const messages = await LlmMessages.find(selector, { sort: { createdAt: 1 } }).fetch();
         const messagesHtml = await Promise.all(
           messages.map(async (message) => ({
             ...message,

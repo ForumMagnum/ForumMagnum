@@ -60,11 +60,13 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   type: {
     database: {
+      // "subQuestion"
       type: "TEXT",
       nullable: false,
     },

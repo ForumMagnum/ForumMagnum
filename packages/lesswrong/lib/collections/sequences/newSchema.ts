@@ -9,7 +9,7 @@ import {
 import { getWithCustomLoader } from "../../loaders";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 
 const formGroups = {
   adminOptions: {
@@ -82,10 +82,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   contents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: [documentIsNotDeleted],
@@ -94,6 +101,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Sequences", "contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -188,6 +199,7 @@ const schema = {
   title: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",
@@ -202,6 +214,7 @@ const schema = {
       placeholder: preferredHeadingCase("Sequence Title"),
     },
   },
+  // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
     database: {
       type: "TEXT",
@@ -220,6 +233,7 @@ const schema = {
       control: "ImageUpload",
     },
   },
+  // Cloudinary image id for the card image
   gridImageId: {
     database: {
       type: "TEXT",
@@ -351,8 +365,7 @@ const schema = {
     },
     form: {
       label: preferredHeadingCase("Collection Slug"),
-      tooltip:
-        "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
+      tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
       control: "text",
       hidden: false,
       group: () => formGroups.adminOptions,
@@ -388,8 +401,7 @@ const schema = {
       },
     },
     form: {
-      tooltip:
-        "Hidden sequences don't show up on lists/search results on this site, but can still be accessed directly by anyone",
+      tooltip: "Hidden sequences don't show up on lists/search results on this site, but can still be accessed directly by anyone",
       group: () => formGroups.adminOptions,
     },
   },
@@ -452,20 +464,15 @@ const schema = {
       },
     },
   },
-  chaptersDummy: {
+  // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
+  chapters: {
     graphql: {
       outputType: "[Chapter]",
       canRead: ["guests"],
       resolver: async (sequence, args, context) => {
         const chapters = await context.Chapters.find(
-          {
-            sequenceId: sequence._id,
-          },
-          {
-            sort: {
-              number: 1,
-            },
-          }
+          { sequenceId: sequence._id },
+          { sort: { number: 1 } }
         ).fetch();
         return await accessFilterMultiple(context.currentUser, "Chapters", chapters, context);
       },

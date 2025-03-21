@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -113,6 +114,9 @@ const schema = {
       canRead: ["members"],
     },
   },
+
+  // While these are both JSON values, they can also contain primitives like strings, numbers, booleans, nulls, etc.
+  // They should still get deserialized correctly (except for dates, which get serialized and deserialized as strings).
   oldValue: {
     database: {
       type: "JSONB",
@@ -121,6 +125,9 @@ const schema = {
       outputType: "JSON",
       inputType: "JSON!",
       canRead: ["members"],
+      validation: {
+        blackbox: true,
+      },
     },
   },
   newValue: {
@@ -131,6 +138,9 @@ const schema = {
       outputType: "JSON",
       inputType: "JSON!",
       canRead: ["members"],
+      validation: {
+        blackbox: true,
+      },
     },
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"FieldChanges">>;

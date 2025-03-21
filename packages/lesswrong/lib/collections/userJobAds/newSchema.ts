@@ -61,6 +61,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -84,6 +85,7 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  // This is just an internal name used to identify the specific job ad, such as "cltr-biosecurity-policy-advisor"
   jobName: {
     database: {
       type: "TEXT",

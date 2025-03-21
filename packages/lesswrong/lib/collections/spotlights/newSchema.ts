@@ -4,11 +4,11 @@
 
 import range from "lodash/range";
 import {
-    accessFilterSingle,
-    accessFilterMultiple
+  accessFilterSingle,
+  accessFilterMultiple
 } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 
 const SPOTLIGHT_DOCUMENT_TYPES = ["Sequence", "Post", "Tag"] as const;
 
@@ -97,10 +97,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   description: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -109,6 +116,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Spotlights", "description"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -182,6 +193,8 @@ const schema = {
       order: 10,
     },
   },
+  // TODO: remove `document` once old clients have cycled out and aren't querying this field anymore
+  // Has been replaced by the post, sequence, and tag fields
   document: {
     graphql: {
       outputType: "Post!",
@@ -243,10 +256,14 @@ const schema = {
       },
     },
   },
+  /**
+   * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
+   * Note subtle distinction: those are type names, not collection names.
+   */
   documentType: {
     database: {
       type: "TEXT",
-      defaultValue: "Sequence",
+      defaultValue: SPOTLIGHT_DOCUMENT_TYPES[0],
       typescriptType: "SpotlightDocumentType",
       canAutofillDefault: true,
       nullable: false,
@@ -258,16 +275,12 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
       validation: {
-        allowedValues: ["Sequence", "Post", "Tag"],
+        allowedValues: [...SPOTLIGHT_DOCUMENT_TYPES],
       },
     },
     form: {
       form: {
-        options: () =>
-          SPOTLIGHT_DOCUMENT_TYPES.map((documentType) => ({
-            label: documentType,
-            value: documentType,
-          })),
+        options: () => SPOTLIGHT_DOCUMENT_TYPES.map((documentType) => ({ label: documentType, value: documentType })),
       },
       order: 20,
       control: "select",
@@ -285,36 +298,25 @@ const schema = {
       canCreate: ["admins", "sunshineRegiment"],
       onCreate: async ({ newDocument, context }) => {
         const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
-          context.Spotlights.findOne(
-            {},
-            {
-              sort: {
-                lastPromotedAt: -1,
-              },
-            }
-          ),
-          context.Spotlights.findOne(
-            {},
-            {
-              sort: {
-                position: -1,
-              },
-            }
-          ),
+          context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),
+          context.Spotlights.findOne({}, { sort: { position: -1 } }),
         ]);
+
         // If we don't have an active spotlight (or any spotlight), the new one should be first
         if (!currentSpotlight || !lastSpotlightByPosition) {
           return 0;
         }
+
         // If we didn't specify a position, by default we probably want to be inserting it right after the currently-active spotlight
         // If we're instead putting the created spotlight somewhere before the last spotlight, shift everything at and after the desired position back
-        const startBound =
-          typeof newDocument.position !== "number" ? currentSpotlight.position + 1 : newDocument.position;
+        const startBound = typeof newDocument.position !== "number" ? currentSpotlight.position + 1 : newDocument.position;
         const endBound = lastSpotlightByPosition.position + 1;
+
         // Don't let us create a new spotlight with an arbitrarily large position
         if (newDocument.position > endBound) {
           return endBound;
         }
+
         // Push all the spotlight items both at and after the about-to-be-created item's position back by 1
         await shiftSpotlightItems({
           startBound,
@@ -322,6 +324,7 @@ const schema = {
           offset: 1,
           context,
         });
+
         // The to-be-created spotlight's position
         return startBound;
       },
@@ -329,21 +332,15 @@ const schema = {
         if (typeof data.position === "number" && data.position !== oldDocument.position) {
           // Figure out whether we're moving an existing spotlight item to an earlier position or a later position
           const pullingSpotlightForward = data.position < oldDocument.position;
+
           // Use that to determine which other spotlight items we need to move, and whether we correspondingly push them back or pull them forward
           const startBound = pullingSpotlightForward ? data.position : oldDocument.position + 1;
           const endBound = pullingSpotlightForward ? oldDocument.position : data.position + 1;
           const offset = pullingSpotlightForward ? 1 : -1;
+
           // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift back
-          await context.Spotlights.rawUpdateOne(
-            {
-              _id: oldDocument._id,
-            },
-            {
-              $set: {
-                position: 9001,
-              },
-            }
-          );
+          await context.Spotlights.rawUpdateOne({ _id: oldDocument._id }, { $set: { position: 9001 } });
+
           // Shift the intermediate items backward
           await shiftSpotlightItems({
             startBound,
@@ -351,6 +348,7 @@ const schema = {
             offset,
             context,
           });
+
           // The to-be-updated spotlight's position will get updated back to the desired position later in the mutator
           return data.position;
         }
@@ -492,7 +490,8 @@ const schema = {
   lastPromotedAt: {
     database: {
       type: "TIMESTAMPTZ",
-      defaultValue: {},
+      // Default to the epoch date if not specified
+      defaultValue: new Date(0),
       canAutofillDefault: true,
       nullable: false,
     },
@@ -598,6 +597,8 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
+      // Note that `onCreate` has a forum-specific default value,
+      // because we can't use forumType conditionals in `defaultValue` while sharing an `accepted_schema.sql` file
       onCreate: ({ document }) => document.imageFade ?? (isLWorAF ? false : true),
       validation: {
         optional: true,

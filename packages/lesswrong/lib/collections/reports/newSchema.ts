@@ -61,6 +61,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -152,6 +153,7 @@ const schema = {
   link: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",
@@ -214,6 +216,7 @@ const schema = {
       },
     },
   },
+  // Only set when report is closed. Indicates whether content is spam or not.
   markedAsSpam: {
     database: {
       type: "BOOL",
@@ -227,6 +230,8 @@ const schema = {
       },
     },
   },
+  // Set when report is created, indicates whether content was reported as spam
+  // (currently only used for Akismet integration)
   reportedAsSpam: {
     database: {
       type: "BOOL",

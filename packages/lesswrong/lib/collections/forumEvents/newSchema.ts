@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
 import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
@@ -38,7 +38,9 @@ const defaultEditableProps: Pick<
   },
 };
 
-const hRyJXH = () => defaultEditorPlaceholder;
+function getDefaultEditorPlaceholder() {
+  return defaultEditorPlaceholder;
+}
 
 const schema = {
   _id: {
@@ -96,10 +98,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   frontpageDescription: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -108,11 +117,15 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "frontpageDescription"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
         label: "Frontpage description",
-        hintText: hRyJXH,
+        hintText: getDefaultEditorPlaceholder,
         fieldName: "frontpageDescription",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -161,6 +174,12 @@ const schema = {
     },
   },
   frontpageDescriptionMobile: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -169,11 +188,15 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "frontpageDescriptionMobile"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
         label: "Frontpage description (mobile)",
-        hintText: hRyJXH,
+        hintText: getDefaultEditorPlaceholder,
         fieldName: "frontpageDescriptionMobile",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -222,6 +245,12 @@ const schema = {
     },
   },
   postPageDescription: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -230,11 +259,15 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "postPageDescription"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
         label: "Post page description",
-        hintText: hRyJXH,
+        hintText: getDefaultEditorPlaceholder,
         fieldName: "postPageDescription",
         collectionName: "ForumEvents",
         commentEditor: true,
@@ -484,6 +517,7 @@ const schema = {
       control: "ImageUpload",
     },
   },
+  /** @deprecated Set `eventFormat` to "POLL" instead */
   includesPoll: {
     database: {
       type: "BOOL",
@@ -580,6 +614,16 @@ const schema = {
       tooltip: 'For events with comments, the title in the comment box (defaults to "Add your comment")',
     },
   },
+  /**
+    Used to store public event data, like public poll votes.
+    For the AI Welfare Debate Week, it was structured like:
+    {<userId>: {
+      x: <number>,
+      points: {
+        <postId>: <number>
+      }
+    }}
+  */
   publicData: {
     database: {
       type: "JSONB",

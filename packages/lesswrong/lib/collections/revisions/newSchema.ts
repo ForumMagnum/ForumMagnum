@@ -15,12 +15,28 @@ import { extractTableOfContents } from "@/lib/tableOfContents";
 import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
-import { htmlToTextPlaintextDescription } from "@/server/resolvers/revisionResolvers";
 import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
 import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
 import sanitizeHtml from "sanitize-html";
+import { compile as compileHtmlToText } from "html-to-text";
+import GraphQLJSON from "graphql-type-json";
+
+// I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
+// TODO: consider moving it to a server-side helper file with a stub, if so
+// Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
+const htmlToTextPlaintextDescription = compileHtmlToText({
+  wordwrap: false,
+  selectors: [
+    { selector: "img", format: "skip" },
+    { selector: "a", options: { ignoreHref: true } },
+    { selector: "p", options: { leadingLineBreaks: 1 } },
+    { selector: "h1", options: { trailingLineBreaks: 1, uppercase: false } },
+    { selector: "h2", options: { trailingLineBreaks: 1, uppercase: false } },
+    { selector: "h3", options: { trailingLineBreaks: 1, uppercase: false } },
+  ]
+});
 
 /**
  * This covers the type of originalContents for all editor types.
@@ -66,7 +82,7 @@ export const getOriginalContents = <N extends CollectionNameString>(
     currentUser,
     // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
     // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
-    { canRead: [userOwns, canViewOriginalContents, userIsPodcaster, "admins", "sunshineRegiment"] },
+    [userOwns, canViewOriginalContents, userIsPodcaster, "admins", "sunshineRegiment"],
     document
   );
 
@@ -129,6 +145,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -177,6 +194,17 @@ const schema = {
       },
     },
   },
+  // autosaveTimeoutStart: If this revision was created by rate-limited
+  // autosaving, this is the timestamp that the rate limit is computed relative
+  // to. This is separate from editedAt, which is when this revision was last
+  // rewritten. This is so that if the revision is repeatedly updated in place,
+  // chaining together edits can't produce an interval longer than the
+  // intended one.
+  //
+  // Optional, only present on revisions that have been autosaved in-place at
+  // least once.
+  //
+  // See also: saveOrUpdateDocumentRevision in ckEditorWebhook.ts
   autosaveTimeoutStart: {
     database: {
       type: "TIMESTAMPTZ",
@@ -242,6 +270,20 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  // Whether this revision is a draft (ie unpublished). This is here so that
+  // after a post is published, we have a sensible way for users to save edits
+  // that they don't want to publish just yet. Note that this is redundant with
+  // posts' draft field, and does *not* have to be in sync; the latest revision
+  // can be a draft even though the document is published (ie, there's a saved
+  // but unpublished edit), and the latest revision can be not-a-draft even
+  // though the document itself is marked as a draft (eg, if the post was moved
+  // back to drafts after it was published).
+  //
+  // This field will not normally be edited after insertion.
+  //
+  // The draftiness of a revision used to be implicit in the version number,
+  // with 0.x meaning draft and 1.x meaning non-draft, except for tags/wiki
+  // where 0.x means imported from the old wiki instead.
   draft: {
     database: {
       type: "BOOL",
@@ -255,9 +297,16 @@ const schema = {
     },
   },
   originalContents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+    },
     graphql: {
       outputType: "ContentType",
       canRead: ["guests"],
+      validation: {
+        simpleSchema: ContentType,
+      },
       resolver: async (document, args, context) => {
         // Original contents sometimes contains private data (ckEditor suggestions
         // via Track Changes plugin). In those cases the html field strips out the
@@ -405,6 +454,11 @@ const schema = {
       },
     },
   },
+  /**
+   * For revisions imported from a google doc, this contains some metadata about the doc,
+   * see `GoogleDocMetadata` in packages/lesswrong/server/resolvers/postResolvers.ts for the
+   * fields that are included.
+   */
   googleDocMetadata: {
     database: {
       type: "JSONB",
@@ -419,6 +473,12 @@ const schema = {
       },
     },
   },
+  /**
+   * If set, this revision will be skipped over when attributing text to
+   * contributors on wiki pages. Useful when reverting - if a bad edit and a
+   * reversion are marked with this flag, then attributions will be as-if the
+   * reverted edited never happened.
+   */
   skipAttributions: {
     database: {
       type: "BOOL",
@@ -466,7 +526,7 @@ const schema = {
       outputType: "MultiDocument",
       canRead: ["guests"],
       resolver: async (revision, args, context) => {
-        const { currentUser, MultiDocuments } = context;
+        const { currentUser } = context;
         if (revision.collectionName !== "MultiDocuments") {
           return null;
         }
@@ -610,7 +670,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -660,7 +720,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,

@@ -59,12 +59,14 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   title: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",

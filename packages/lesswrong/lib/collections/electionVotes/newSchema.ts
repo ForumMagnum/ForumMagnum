@@ -62,9 +62,11 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  /** The name of the election */
   electionName: {
     database: {
       type: "TEXT",
@@ -78,6 +80,7 @@ const schema = {
       canCreate: ["members"],
     },
   },
+  /** The user voting */
   userId: {
     database: {
       type: "VARCHAR(27)",
@@ -98,6 +101,19 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  /**
+   * Object of type CompareState (from ./helpers.ts), docstring copied from there:
+   * ```
+   * /* Each entry maps an *ordered pair* of candidate ids concatenated together (e.g. "ADoKFRmPkWbmyWwGw-cF8iwCmwFjbmCqYkQ") to
+   *  *the relative value of the candidates. If AtoB is true, then this means the first candidate is `multiplier` times as
+   *  *\/ valuable as the second candidate (and vice versa if AtoB is false).
+   * export type CompareState = Record<string, {multiplier: number | string, AtoB: boolean}>;
+   * ```
+   *
+   * This is used to calculate an initial vote allocation (via convertCompareStateToVote) on the frontend. This
+   * vote allocation can then be edited manually so there is no guarantee that the vote object will be consistent
+   * with the compareState object.
+   */
   compareState: {
     database: {
       type: "JSONB",
@@ -124,6 +140,11 @@ const schema = {
       },
     },
   },
+  /**
+   * Object like {'cF8iwCmwFjbmCqYkQ': 1, 'cF8iwCmwFjbmCqYkQ': 2} representing the (unnormalised) weights
+   * given to each selected candidate. Weights can not be negative, but can be null (these will
+   * be ignored).
+   */
   vote: {
     database: {
       type: "JSONB",
@@ -172,6 +193,23 @@ const schema = {
       },
     },
   },
+  /**
+   * Json blob storing the answers to the questions in the submission form,
+   * along with the exact wording of the questions. See ./helpers:
+   * ```
+   * export type SubmissionComments = {
+   *   rawFormValues: {
+   *     electionEffect: string;
+   *     note: string;
+   *   };
+   *   questions: {
+   *     question: string;
+   *     answer: string;
+   *     answerValue?: string;
+   *   }[];
+   * }
+   * ```
+   */
   submissionComments: {
     database: {
       type: "JSONB",
@@ -188,6 +226,9 @@ const schema = {
       },
     },
   },
+  /**
+   * DEPRECATED: Use submissionComments instead
+   */
   userExplanation: {
     database: {
       type: "TEXT",
@@ -203,6 +244,9 @@ const schema = {
       },
     },
   },
+  /**
+   * DEPRECATED: Use submissionComments instead
+   */
   userOtherComments: {
     database: {
       type: "TEXT",

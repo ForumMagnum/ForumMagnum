@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -96,6 +97,7 @@ const schema = {
     },
   },
   documentId: {
+    // No explicit foreign-key relationship because documentId refers to different collections based on event type
     database: {
       type: "TEXT",
     },
@@ -108,6 +110,7 @@ const schema = {
       },
     },
   },
+  // marking an event as important means it should never be erased
   important: {
     database: {
       type: "BOOL",
@@ -136,6 +139,7 @@ const schema = {
       },
     },
   },
+  // whether to send this event to intercom or not
   intercom: {
     database: {
       type: "BOOL",

@@ -59,6 +59,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -73,6 +74,15 @@ const schema = {
       type: "TEXT",
       nullable: false,
     },
+    // This is here purely for the type codegen output;
+    // if/when we get rid of SimpleSchema, we can get rid of this
+    graphql: {
+      outputType: "String",
+      canRead: [],
+      validation: {
+        allowedValues: ["userId", "clientId"],
+      }
+    }
   },
   startDate: {
     database: {
@@ -88,6 +98,7 @@ const schema = {
   },
   activityArray: {
     database: {
+      // In practice this is currently a boolean, but we could support weighting by how long exactly they were active for
       type: "DOUBLE PRECISION[]",
       nullable: false,
     },

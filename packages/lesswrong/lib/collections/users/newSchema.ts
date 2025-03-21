@@ -7,7 +7,8 @@ import {
   userGetProfileUrl,
   getUserEmail,
   userOwnsAndInGroup, getAuth0Provider,
-  SOCIAL_MEDIA_PROFILE_FIELDS
+  SOCIAL_MEDIA_PROFILE_FIELDS,
+  karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
@@ -41,18 +42,17 @@ import {
   hasSurveys,
   userCanViewJargonTerms
 } from "../../betas";
-import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
-import { DeferredForumSelect } from "../../forumTypeUtils";
 import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import GraphQLJSON from "graphql-type-json";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -138,19 +138,6 @@ const rateLimitInfoSchema = new SimpleSchema({
   },
 });
 
-const karmaChangeUpdateFrequencies = new TupleSet(["disabled", "daily", "weekly", "realtime"] as const);
-
-export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
-
-export interface KarmaChangeSettingsType {
-  updateFrequency: KarmaChangeUpdateFrequency;
-  /**
-   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
-   */
-  timeOfDayGMT: number;
-  dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
-  showNegativeKarma: boolean;
-}
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -173,21 +160,6 @@ const karmaChangeSettingsType = new SimpleSchema({
     optional: true,
   },
 });
-
-export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
-  EAForum: {
-    updateFrequency: "realtime",
-    timeOfDayGMT: 11, // 3am PST
-    dayOfWeekGMT: "Saturday",
-    showNegativeKarma: false,
-  },
-  default: {
-    updateFrequency: "daily",
-    timeOfDayGMT: 11,
-    dayOfWeekGMT: "Saturday",
-    showNegativeKarma: false,
-  },
-} as const);
 
 const notificationTypeSettings = new SimpleSchema({
   channel: {
@@ -386,6 +358,18 @@ addGraphQLSchema(`
   }
 `);
 
+const emailsSchema = new SimpleSchema({
+  address: {
+    type: String,
+    optional: true,
+    regEx: SimpleSchema.RegEx.Email,
+  },
+  verified: {
+    type: Boolean,
+    optional: true,
+  },
+});
+
 function userHasGoogleLocation(data: Partial<DbUser>) {
   return "googleLocation" in data;
 }
@@ -477,10 +461,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   moderationGuidelines: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -489,6 +480,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "moderationGuidelines"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -537,6 +532,12 @@ const schema = {
     },
   },
   howOthersCanHelpMe: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -545,6 +546,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "howOthersCanHelpMe"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       hidden: true,
@@ -587,6 +592,12 @@ const schema = {
     },
   },
   howICanHelpOthers: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -595,6 +606,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "howICanHelpOthers"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       hidden: true,
@@ -675,7 +690,18 @@ const schema = {
       },
     },
   },
+  // biography: Some text the user provides for their profile page and to display
+  // when people hover over their name.
+  //
+  // Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+  // which now exist as resolver-only fields for back-compatibility.
   biography: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -684,6 +710,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Users", "biography"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -752,6 +782,10 @@ const schema = {
       },
     },
   },
+  // Emails (not to be confused with email). This field belongs to Meteor's
+  // accounts system; we should never write it, but we do need to read it to find
+  // out whether a user's email address is verified.
+  // FIXME: Update this comment, it's horribly out of date.
   emails: {
     database: {
       type: "JSONB[]",
@@ -759,6 +793,9 @@ const schema = {
     graphql: {
       outputType: "[JSON]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
+      // FIXME
+      // This is dead code and doesn't actually run, but we do have to implement something like this in a post Meteor world
+      // RM: is that comment actually true?  I'm not sure it doesn't run...
       onCreate: ({ document: user }) => {
         const oAuthEmail =
           getNestedProperty(user, "services.facebook.email") |
@@ -766,16 +803,12 @@ const schema = {
           getNestedProperty(user, "services.github.email") |
           getNestedProperty(user, "services.linkedin.emailAddress");
         if (oAuthEmail) {
-          return [
-            {
-              address: oAuthEmail,
-              verified: true,
-            },
-          ];
+          return [{ address: oAuthEmail, verified: true }];
         }
       },
       validation: {
         optional: true,
+        simpleSchema: [emailsSchema],
       },
     },
   },
@@ -819,15 +852,19 @@ const schema = {
       },
     },
   },
+  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {
       outputType: "Boolean",
+      // Mods cannot read because they cannot read services, which is a prerequisite
       canRead: [userOwns, "admins"],
       resolver: (user) => {
         return getAuth0Provider(user) === "auth0";
       },
     },
   },
+  // The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
+  // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
     database: {
       type: "TEXT",
@@ -835,6 +872,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      // On the EA Forum name changing is rate limited in rateLimitCallbacks
       canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: user }) => {
@@ -850,6 +888,9 @@ const schema = {
       group: () => formGroups.default,
     },
   },
+  /**
+   Used for tracking changes of displayName
+   */
   previousDisplayName: {
     database: {
       type: "TEXT",
@@ -902,6 +943,7 @@ const schema = {
       },
     },
     form: {
+      // Will always be disabled for mods, because they cannot read hasAuth0Id
       form: { disabled: ({ document }) => isEAForum && !(document as AnyBecauseHard)?.hasAuth0Id },
       order: 20,
       control: "text",
@@ -1036,6 +1078,7 @@ const schema = {
       },
     },
   },
+  // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
     database: {
       type: "TIMESTAMPTZ",
@@ -1043,6 +1086,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["members"],
+      // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
       canUpdate: verifyEmailsSetting.get()
         ? [userOwns, 'sunshineRegiment', 'admins']
         : [],
@@ -1057,6 +1101,7 @@ const schema = {
       group: () => formGroups.emails,
     },
   },
+  // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     database: {
       type: "BOOL",
@@ -1088,6 +1133,9 @@ const schema = {
       },
     },
     form: {
+      // getCommentViewOptions has optional parameters so it's safer to wrap it
+      // in a lambda. We don't currently enable admin-only sorting options for
+      // admins - we could but it seems not worth the effort.
       form: { options: () => getCommentViewOptions() },
       order: 43,
       control: "select",
@@ -1206,6 +1254,8 @@ const schema = {
       group: () => formGroups.siteCustomizations,
     },
   },
+  // We tested this on the EA Forum and it didn't encourage more PMs, but it led to some profile views.
+  // Hiding for now, will probably delete or test another version in the future.
   showPostAuthorCard: {
     database: {
       type: "BOOL",
@@ -1227,6 +1277,7 @@ const schema = {
       label: "Show my bio at the end of my posts",
     },
   },
+  // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
     database: {
       type: "BOOL",
@@ -1250,6 +1301,8 @@ const schema = {
       group: () => formGroups.siteCustomizations,
     },
   },
+  // This field-name is no longer accurate, but is here because we used to have that field
+  // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {
     database: {
       type: "BOOL",
@@ -1308,6 +1361,13 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 90,
+      label: "Hide explanations of how AIAF submissions work for non-members",
+      control: "checkbox",
+      hidden: !isAF, //TODO: just hide this in prod
+      group: () => formGroups.siteCustomizations,
     },
   },
   noSingleLineComments: {
@@ -1419,6 +1479,7 @@ const schema = {
       },
     },
   },
+  // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
   showCommunityInRecentDiscussion: {
     database: {
       type: "BOOL",
@@ -1482,6 +1543,16 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 96,
+      label: "Opt out of Petrov Day - you will not be able to launch",
+      control: "checkbox",
+      group: () => formGroups.siteCustomizations,
+      hidden: (new Date()).valueOf() > 1664161200000 
+      // note this date is hard coded as a hack
+      // we originally were using petrovBeforeTime but it didn't work in this file because the database
+      // public settings aren't been loaded yet.
     },
   },
   optedOutOfSurveys: {
@@ -1637,6 +1708,10 @@ const schema = {
       canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      // The old schema had the below comment:
+      // FIXME this isn't filling default values as intended
+      // ...schemaDefaultValue(getDefaultFilterSettings),
+      // It'd need to be converted to an `onCreate`, or something, but it doesn't seem to be causing any problems by its lack.
       validation: {
         optional: true,
         blackbox: true,
@@ -1647,6 +1722,16 @@ const schema = {
     database: {
       type: "BOOL",
       nullable: true,
+    },
+    // This used to not have a `canRead`, which seems like a mistake
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: "guests",
+      validation: {
+        optional: true,
+      },
     },
   },
   allPostsTimeframe: {
@@ -1917,6 +2002,7 @@ const schema = {
       group: () => formGroups.moderationGroup,
     },
   },
+  // bannedUserIds: users who are not allowed to comment on this user's posts
   bannedUserIds: {
     database: {
       type: "VARCHAR(27)[]",
@@ -1936,6 +2022,7 @@ const schema = {
       group: () => formGroups.moderationGroup,
     },
   },
+  // bannedPersonalUserIds: users who are not allowed to comment on this user's personal blog posts
   bannedPersonalUserIds: {
     database: {
       type: "VARCHAR(27)[]",
@@ -1990,6 +2077,13 @@ const schema = {
       }),
     },
   },
+  // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
+  // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
+  // model this closer to ReadStatuses: an object per hidden thread + user pair, and exposing the hidden status
+  // as a property on thread. 
+  //
+  // That said, this is likely fine given this is a power use feature, but if it ever gives anyone any problems
+  // feel free to change it!
   hiddenPostsMetadata: {
     database: {
       type: "JSONB[]",
@@ -2019,6 +2113,7 @@ const schema = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "hiddenPostsMetadata" }),
     },
   },
+  // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     database: {
       type: "TEXT",
@@ -2056,6 +2151,9 @@ const schema = {
       group: () => formGroups.deactivate,
     },
   },
+  // permanentDeletionRequestedAt: The date the user requested their account to be permanently deleted,
+  // it will be deleted by the script in packages/lesswrong/server/users/permanentDeletion.ts after a cooling
+  // off period
   permanentDeletionRequestedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -2076,6 +2174,8 @@ const schema = {
       },
     },
   },
+  // DEPRECATED
+  // voteBanned: All future votes of this user have weight 0
   voteBanned: {
     database: {
       type: "BOOL",
@@ -2096,6 +2196,7 @@ const schema = {
       label: 'Set all future votes of this user to have zero weight',  
     },
   },
+  // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
   nullifyVotes: {
     database: {
       type: "BOOL",
@@ -2115,6 +2216,7 @@ const schema = {
       group: () => formGroups.banUser,
     },
   },
+  // deleteContent: Flag all comments and posts from this user as deleted
   deleteContent: {
     database: {
       type: "BOOL",
@@ -2153,6 +2255,9 @@ const schema = {
       group: () => formGroups.banUser,
     },
   },
+  // IPs: All Ips that this user has ever logged in with
+  // We probably shouldn't use this field right now because LWEvents is huge
+  // and the perf would be awful.
   IPs: {
     graphql: {
       outputType: "[String!]",
@@ -2676,6 +2781,7 @@ const schema = {
       },
     },
     form: {
+      // Hide this while review is inactive
       hidden: true,
       label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
       control: "NotificationTypeSettingsWidget",
@@ -2799,6 +2905,7 @@ const schema = {
       group: () => formGroups.notifications,
     },
   },
+  //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     database: {
       type: "JSONB",
@@ -3124,6 +3231,10 @@ const schema = {
       },
     },
   },
+
+  // If, the last time you opened the karma-change notifier, you saw more than
+  // just the most recent batch (because there was a batch you hadn't viewed),
+  // the start of the date range of that batch.
   karmaChangeBatchStart: {
     database: {
       type: "TIMESTAMPTZ",
@@ -3233,6 +3344,7 @@ const schema = {
       },
     },
   },
+  // Used by the EA Forum to allow users to hide the right-hand side of the home page
   hideHomeRHS: {
     database: {
       type: "BOOL",
@@ -3250,6 +3362,7 @@ const schema = {
       },
     },
   },
+  // frontpagePostCount: count of how many posts of yours were posted on the frontpage
   frontpagePostCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -3281,6 +3394,7 @@ const schema = {
       },
     },
   },
+  // sequenceCount: count of how many non-draft, non-deleted sequences you have
   sequenceCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -3312,6 +3426,7 @@ const schema = {
       },
     },
   },
+  // sequenceDraftCount: count of how many draft, non-deleted sequences you have
   sequenceDraftCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -3343,6 +3458,10 @@ const schema = {
       },
     },
   },
+  // Should match googleLocation/location
+  // Determines which events are considered nearby for default sorting on the community page
+  // Determines where the community map is centered/zoomed in on by default
+  // Not shown to other users
   mongoLocation: {
     database: {
       type: "JSONB",
@@ -3362,6 +3481,8 @@ const schema = {
       },
     },
   },
+  // Is the canonical value for denormalized mongoLocation and location
+  // Edited from the /events page to choose where to show events near
   googleLocation: {
     database: {
       type: "JSONB",
@@ -3399,6 +3520,8 @@ const schema = {
       },
     },
   },
+  // Used to place a map marker pin on the where-are-other-users map.
+  // Public.
   mapLocation: {
     database: {
       type: "JSONB",
@@ -3511,6 +3634,7 @@ const schema = {
       },
     },
   },
+  // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
     database: {
       type: "JSONB",
@@ -3622,6 +3746,7 @@ const schema = {
       group: () => formGroups.siteCustomizations,  
     },
   },
+  // this was for the 2018 book, no longer relevant
   hideFrontpageBookAd: {
     database: {
       type: "BOOL",
@@ -3738,6 +3863,7 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // DEPRECATED in favor of snoozedUntilContentCount
   sunshineSnoozed: {
     database: {
       type: "BOOL",
@@ -3773,6 +3899,8 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // Set after a moderator has approved or purged a new user. NB: reviewed does
+  // not imply approval, the user might have been banned
   reviewedByUserId: {
     database: {
       type: "VARCHAR(27)",
@@ -3821,6 +3949,14 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
+  // certainly not-spam. This is the same scale as ReCaptcha, except that it
+  // also includes post-signup activity like moderator approval, upvotes, etc.
+  // Scale:
+  //   0    Banned and purged user
+  //   0-0.8: Unreviewed user, based on ReCaptcha rating on signup (times 0.8)
+  //   0.9: Reviewed user
+  //   1.0: Reviewed user with 20+ karma
   spamRiskScore: {
     graphql: {
       outputType: "Float!",
@@ -4021,6 +4157,7 @@ const schema = {
       },
     },
   },
+  // Full Name field to display full name for alignment forum users
   fullName: {
     database: {
       type: "TEXT",
@@ -4222,6 +4359,8 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // ReCaptcha v3 Integration
+  // From 0 to 1. Lower is spammier, higher is humaner.
   signUpReCaptchaRating: {
     database: {
       type: "DOUBLE PRECISION",
@@ -4455,10 +4594,10 @@ const schema = {
   },
   abTestOverrides: {
     database: {
-      type: "JSONB",
+      type: "JSONB", // Record<string,number>
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       validation: {
@@ -4467,6 +4606,7 @@ const schema = {
       },
     },
   },
+  // This is deprecated.
   reenableDraftJs: {
     database: {
       type: "BOOL",
@@ -4602,7 +4742,7 @@ const schema = {
   profileUpdatedAt: {
     database: {
       type: "TIMESTAMPTZ",
-      defaultValue: {},
+      defaultValue: new Date(0),
       canAutofillDefault: true,
       nullable: false,
     },
@@ -4614,6 +4754,7 @@ const schema = {
       canCreate: ["members"],
     },
   },
+  // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     database: {
       type: "TEXT",
@@ -4837,6 +4978,10 @@ const schema = {
       },
     },
   },
+  /**
+   * Twitter profile URL that the user can set in their public profile. "URL" is a bit of a misnomer here,
+   * if entered correctly this will be *just* the handle (e.g. "eaforumposts" for the account at https://twitter.com/eaforumposts)
+   */
   twitterProfileURL: {
     database: {
       type: "TEXT",
@@ -4861,6 +5006,10 @@ const schema = {
       },
     },
   },
+  /**
+   * Twitter profile URL that can only be set by mods/admins. for when a more reliable reference is needed than
+   * what the user enters themselves (e.g. for tagging authors from the EA Forum twitter account)
+   */
   twitterProfileURLAdmin: {
     database: {
       type: "TEXT",
@@ -4946,6 +5095,8 @@ const schema = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "Tags", fieldName: "profileTagIds" }),
     },
   },
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
   organizerOfGroupIds: {
     database: {
       type: "VARCHAR(27)[]",
@@ -4965,6 +5116,8 @@ const schema = {
     },
     form: {
       hidden: true,
+      group: () => formGroups.activity,
+      order: 2,
       control: "SelectLocalgroup",
       label: "Organizer of",
       placeholder: 'Select groups to display',
@@ -5000,6 +5153,8 @@ const schema = {
     },
     form: {
       hidden: true,
+      group: () => formGroups.activity,
+      order: 3,  
       control: "FormComponentMultiSelect",
       placeholder: "Which of these programs have you participated in?",
       form: {
@@ -5180,7 +5335,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"], // only editable by changing the setting from the subforum page
       canCreate: ["members", "admins"],
       validation: {
         allowedValues: ["card", "list"],
@@ -5188,6 +5343,7 @@ const schema = {
       },
     },
   },
+  // used by the EA Forum to track when a user has dismissed the frontpage job ad
   hideJobAdUntil: {
     database: {
       type: "TIMESTAMPTZ",
@@ -5203,6 +5359,7 @@ const schema = {
       },
     },
   },
+  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
   criticismTipsDismissed: {
     database: {
       type: "BOOL",
@@ -5260,8 +5417,7 @@ const schema = {
     },
     form: {
       label: "Allow Session Replay",
-      tooltip:
-        "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
+      tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
       hidden: !isEAForum,
       group: () => formGroups.privacy,
     },
@@ -5454,7 +5610,7 @@ const schema = {
       resolver: async (user, args, context) => {
         const { eventForm } = args;
         if (eventForm) return null;
-        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
         if (rateLimit) {
           return rateLimit;
         } else {
@@ -5468,7 +5624,7 @@ const schema = {
       outputType: "JSON",
       canRead: ["guests"],
       resolver: async (user, args, context) => {
-        return getRecentKarmaInfo(user._id);
+        return getRecentKarmaInfo(user._id, context);
       },
     },
   },
@@ -5494,6 +5650,7 @@ const schema = {
       group: () => formGroups.adminOptions,
     },
   },
+  // EA Forum emails the user a survey if they haven't read a post in 4 months
   inactiveSurveyEmailSentAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -5509,6 +5666,7 @@ const schema = {
       },
     },
   },
+  // Used by EAF to track when we last emailed the user about the annual user survey
   userSurveyEmailSentAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -5572,6 +5730,7 @@ const schema = {
       },
     },
   },
+  // Admin-only options for configuring Recommendations placement, for experimentation
   recommendationSettings: {
     database: {
       type: "JSONB",

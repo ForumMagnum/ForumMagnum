@@ -4,6 +4,13 @@
 
 import { userOwns } from "../../vulcan-users/permissions";
 
+export type NotificationCountsResult = {
+  checkedAt: Date,
+  unreadNotifications: number
+  unreadPrivateMessages: number
+  faviconBadgeNumber: number
+};
+
 const schema = {
   _id: {
     database: {
@@ -60,6 +67,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -78,6 +86,7 @@ const schema = {
     },
   },
   documentId: {
+    // No explicit foreign-key relation because which collection this is depends on notification type
     database: {
       type: "TEXT",
     },

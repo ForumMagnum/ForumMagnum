@@ -59,6 +59,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -83,7 +84,7 @@ const schema = {
     graphql: {
       outputType: "String",
       inputType: "String!",
-      canRead: [],
+      canRead: [], // We don't really want this being sent over the network
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },

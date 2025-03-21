@@ -59,12 +59,15 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  // the digest number (should correspond with the email digest)
   num: {
     database: {
       type: "DOUBLE PRECISION",
+      nullable: false,
     },
     graphql: {
       outputType: "Float",
@@ -77,9 +80,11 @@ const schema = {
       control: "number",
     },
   },
+  // the start of the range of eligible posts (just used to filter posts for the Edit Digest page)
   startDate: {
     database: {
       type: "TIMESTAMPTZ",
+      nullable: false,
     },
     graphql: {
       outputType: "Date",
@@ -92,6 +97,7 @@ const schema = {
       control: "datetime",
     },
   },
+  // the end of the range of eligible posts (just used to filter posts for the Edit Digest page)
   endDate: {
     database: {
       type: "TIMESTAMPTZ",
@@ -110,6 +116,7 @@ const schema = {
       control: "datetime",
     },
   },
+  // when this digest was published
   publishedDate: {
     database: {
       type: "TIMESTAMPTZ",
@@ -128,6 +135,7 @@ const schema = {
       control: "datetime",
     },
   },
+  // Cloudinary image id for the on-site digest background image (high resolution)
   onsiteImageId: {
     database: {
       type: "TEXT",
@@ -146,6 +154,8 @@ const schema = {
       control: "ImageUpload",
     },
   },
+  // primary color for the on-site digest background
+  // - fades onto the image so chosen to match
   onsitePrimaryColor: {
     database: {
       type: "TEXT",

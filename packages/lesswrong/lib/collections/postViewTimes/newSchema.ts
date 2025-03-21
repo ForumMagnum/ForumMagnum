@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -69,26 +70,35 @@ const schema = {
       nullable: false,
     },
   },
+  /** The start of the time window this row is counting over. Currently (2024-01-18) all windows are full UTC days */
   windowStart: {
     database: {
       type: "TIMESTAMPTZ",
       nullable: false,
     },
   },
+  /** The end of the time window this row is counting over. Currently (2024-01-18) all windows are full UTC days */
   windowEnd: {
     database: {
       type: "TIMESTAMPTZ",
       nullable: false,
     },
   },
+  /** The clientId of the person viewing the post */
   clientId: {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "ClientIds",
       nullable: false,
     },
+    // I am pretty confused by what this was supposed to be doing.
+    // In the original schema, this was a foreignKeyField without a `canRead`,
+    // so the resolver couldn't actually be used except maybe internally via e.g. `fetchFragment`
+    // (and it wasn't, afaict).
+    // Maybe it was just for the foreign key annotation?
+    // So this is probably safe to get rid of.
     graphql: {
-      outputType: "ClientId!",
+      outputType: "ClientId",
       canRead: [],
       resolver: generateIdResolverSingle({ foreignCollectionName: "ClientIds", fieldName: "clientId" }),
     },
@@ -107,6 +117,7 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
+  /** The total number of seconds the given clientId spent on this post, in the given time window */
   totalSeconds: {
     database: {
       type: "DOUBLE PRECISION",

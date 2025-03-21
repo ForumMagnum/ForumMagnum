@@ -14,7 +14,8 @@ import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { defaultEditorPlaceholder, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { getToCforMultiDocument } from "@/server/tableOfContents";
-import { getContributorsFieldResolver } from "@/server/utils/contributorsFieldHelper";
+import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
+import GraphQLJSON from "graphql-type-json";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
@@ -85,6 +86,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -197,6 +199,8 @@ const schema = {
       },
     },
   },
+  // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
+  // In the case of summaries, we don't have a title that needs to be in the "body"; we just use the tab title in the summary tab.
   title: {
     database: {
       type: "TEXT",
@@ -304,7 +308,7 @@ const schema = {
       outputType: "Tag",
       canRead: ["guests"],
       resolver: async (multiDocument, _, context) => {
-        const { loaders, currentUser, Tags } = context;
+        const { loaders, currentUser } = context;
         if (multiDocument.collectionName !== "Tags") {
           return null;
         }
@@ -360,6 +364,7 @@ const schema = {
       },
     },
   },
+  // e.g. content, description, summary.  Whatever it is that we have "multiple" of for a single parent document.
   fieldName: {
     database: {
       type: "TEXT",
@@ -387,16 +392,7 @@ const schema = {
       onCreate: async ({ newDocument, context }) => {
         const { MultiDocuments } = context;
         const { parentDocumentId } = newDocument;
-        const otherSummaries = await MultiDocuments.find(
-          {
-            parentDocumentId,
-            fieldName: newDocument.fieldName,
-          },
-          undefined,
-          {
-            index: 1,
-          }
-        ).fetch();
+        const otherSummaries = await MultiDocuments.find({ parentDocumentId, fieldName: newDocument.fieldName }, undefined, { index: 1 }).fetch();
         const otherSummaryIndexes = otherSummaries.map((summary) => summary.index);
         const newIndex = otherSummaryIndexes.length > 0 ? Math.max(...otherSummaryIndexes) + 1 : 0;
         return newIndex;
@@ -420,6 +416,7 @@ const schema = {
       },
     },
   },
+  // basically the same thing for both tag main pages and lenses
   contributors: {
     graphql: {
       outputType: "TagContributorsList",
@@ -596,7 +593,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -646,7 +643,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,

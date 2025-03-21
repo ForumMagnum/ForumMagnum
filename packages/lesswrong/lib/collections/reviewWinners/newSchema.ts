@@ -31,7 +31,7 @@ const schema = {
       canRead: ["guests"],
       onUpdate: () => 1,
       validation: {
-        optional: true,
+        // TODO: why did I delete the `optional: true` here?  Come back and compare codegen outputs with and without.
       },
     },
   },
@@ -61,6 +61,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },

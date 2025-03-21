@@ -59,9 +59,11 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  /** @deprecated Use identifier + identifierType = 'originalUrl' */
   originalUrl: {
     database: {
       type: "TEXT",
@@ -79,6 +81,13 @@ const schema = {
       type: "TEXT",
       nullable: false,
     },
+    graphql: {
+      outputType: "String",
+      canRead: [],
+      validation: {
+        allowedValues: ['sha256Hash', 'originalUrl'],
+      }
+    }
   },
   cdnHostedUrl: {
     database: {

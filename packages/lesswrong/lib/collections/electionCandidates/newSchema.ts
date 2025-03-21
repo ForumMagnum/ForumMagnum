@@ -5,6 +5,7 @@
 import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "../../utils/schemaUtils";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import GraphQLJSON from "graphql-type-json";
 
 const schema = {
   _id: {
@@ -62,9 +63,11 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  /** The name of the election this is a candidate in */
   electionName: {
     database: {
       type: "TEXT",
@@ -87,6 +90,7 @@ const schema = {
       control: "select",
     },
   },
+  /** The name of this candidate */
   name: {
     database: {
       type: "TEXT",
@@ -104,6 +108,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /** URL for this candidates logo */
   logoSrc: {
     database: {
       type: "TEXT",
@@ -121,6 +126,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /** Link for this candidate (i.e. to the org's website) */
   href: {
     database: {
       type: "TEXT",
@@ -138,6 +144,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /** Link for this candidate's GWWC fundraiser page */
   fundraiserLink: {
     database: {
       type: "TEXT",
@@ -157,6 +164,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
   gwwcLink: {
     database: {
       type: "TEXT",
@@ -176,6 +184,10 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /**
+   * The id of the fundraiser ("Parfit slug" in gwwc's CMS). This can be different from the slug in the fundraiser link
+   * (although they are often the same)
+   */
   gwwcId: {
     database: {
       type: "TEXT",
@@ -195,6 +207,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /** Short plaintext description */
   description: {
     database: {
       type: "TEXT",
@@ -213,6 +226,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  /** The user who created this candidate (this is required by makeVoteable) */
   userId: {
     database: {
       type: "VARCHAR(27)",
@@ -237,6 +251,7 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  /** Denormalized count of posts referencing this candidate in this election */
   postCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -252,11 +267,12 @@ const schema = {
       },
     },
   },
+  /** The tag user for marking posts as being relevant to this candidate */
   tagId: {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Tags",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
       outputType: "String",
@@ -277,6 +293,7 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
+  /** Whether this is the main fundraiser (that will be distributed among the winning candidates), as opposed to being a particular candidate */
   isElectionFundraiser: {
     database: {
       type: "BOOL",
@@ -294,6 +311,7 @@ const schema = {
       },
     },
   },
+  /** The amount of money raised in the fundraiser for this candidate */
   amountRaised: {
     database: {
       type: "DOUBLE PRECISION",
@@ -309,6 +327,7 @@ const schema = {
       },
     },
   },
+  /** The target amount of money to raise in the fundraiser for this candidate */
   targetAmount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -424,7 +443,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -474,7 +493,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,

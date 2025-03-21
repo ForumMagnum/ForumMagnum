@@ -19,15 +19,16 @@ import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPage
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import uniqBy from "lodash/uniqBy";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { userIsSubforumModerator } from "./helpers";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getToCforTag } from "@/server/tableOfContents";
-import { getContributorsFieldResolver } from "@/server/utils/contributorsFieldHelper";
+import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
 import { captureException } from "@sentry/core";
-import { wikiGradeDefinitions } from "./schema";
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from "@/lib/instanceSettings";
+import GraphQLJSON from "graphql-type-json";
+import { permissionGroups } from "@/lib/permissions";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -52,7 +53,16 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption> = {
   ...SORT_ORDER_OPTIONS,
 };
 
-// Define the helper function at an appropriate place in your file
+
+const wikiGradeDefinitions: Partial<Record<number,string>> = {
+  0: "Uncategorized",
+  1: "Flagged",
+  2: "Stub",
+  3: "C-Class",
+  4: "B-Class",
+  5: "A-Class"
+};
+
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;
   return await getWithLoader(
@@ -121,10 +131,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   description: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -133,6 +150,10 @@ const schema = {
       editableFieldOptions: { pingbacks: true, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Tags", "description"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -204,6 +225,12 @@ const schema = {
     },
   },
   subforumWelcomeText: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -212,6 +239,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Tags", "subforumWelcomeText"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -260,6 +291,12 @@ const schema = {
     },
   },
   moderationGuidelines: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -268,6 +305,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Tags", "moderationGuidelines"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       hidden: true,
@@ -487,6 +528,7 @@ const schema = {
       group: () => formGroups.advancedOptions,
     },
   },
+  // number of paragraphs to display above-the-fold
   descriptionTruncationCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -499,7 +541,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-      onUpdate: () => {},
       validation: {
         optional: true,
       },
@@ -520,7 +561,8 @@ const schema = {
         fieldName: "postCount",
         foreignCollectionName: "TagRels",
         foreignFieldName: "tagId",
-        filterFn: (tagRel) => !tagRel.deleted,
+        //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
+        filterFn: tagRel => !tagRel.deleted // TODO: per the above, we still need to make this check baseScore > 0
       }),
       nullable: false,
     },
@@ -711,6 +753,7 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reviewedByUserId" }),
     },
   },
+  // What grade is the current tag? See the wikiGradeDefinitions variable for details.
   wikiGrade: {
     database: {
       type: "INTEGER",
@@ -746,35 +789,22 @@ const schema = {
         // assuming this might have the same issue as `recentComments` on the posts schema, w.r.t. tagCommentsLimit being null vs. undefined
         const { tagCommentsLimit, maxAgeHours = 18, af = false, tagCommentType = "DISCUSSION" } = args;
         const { currentUser, Comments } = context;
+
         // `lastCommentTime` can be `null`, which produces <Invalid Date> when passed through moment, rather than the desired Date.now() default
-        const lastCommentTime =
-          (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
+        const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
         const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, "hours").toDate();
-        const comments = await Comments.find(
-          {
-            ...getDefaultViewSelector("Comments"),
-            tagId: tag._id,
-            score: {
-              $gt: 0,
-            },
-            deletedPublic: false,
-            postedAt: {
-              $gt: timeCutoff,
-            },
-            tagCommentType: tagCommentType,
-            ...(af
-              ? {
-                  af: true,
-                }
-              : {}),
-          },
-          {
-            limit: tagCommentsLimit ?? 5,
-            sort: {
-              postedAt: -1,
-            },
-          }
-        ).fetch();
+        const comments = await Comments.find({
+          ...getDefaultViewSelector("Comments"),
+          tagId: tag._id,
+          score: { $gt: 0 },
+          deletedPublic: false,
+          postedAt: { $gt: timeCutoff },
+          tagCommentType: tagCommentType,
+          ...(af ? { af: true } : {}),
+        }, {
+          limit: tagCommentsLimit ?? 5,
+          sort: { postedAt: -1 },
+        }).fetch();
         return await accessFilterMultiple(currentUser, "Comments", comments, context);
       },
     },
@@ -799,6 +829,7 @@ const schema = {
       group: () => formGroups.advancedOptions,
     },
   },
+  // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
     database: {
       type: "TEXT",
@@ -820,6 +851,7 @@ const schema = {
       group: () => formGroups.advancedOptions,
     },
   },
+  // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
   squareImageId: {
     database: {
       type: "TEXT",
@@ -872,6 +904,8 @@ const schema = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "TagFlags", fieldName: "tagFlagsIds" }),
     },
   },
+  // Populated by the LW 1.0 wiki import, with the revision number
+  // that has the last full state of the imported post
   lesswrongWikiImportRevision: {
     database: {
       type: "TEXT",
@@ -908,6 +942,9 @@ const schema = {
       },
     },
   },
+  // lastVisitedAt: If the user is logged in and has viewed this tag, the date
+  // they last viewed it. Otherwise, null.
+  // RM: in fact we don't currently record ReadStatuses for tags, so this is always null
   lastVisitedAt: {
     graphql: {
       outputType: "Date",
@@ -1075,6 +1112,7 @@ const schema = {
       canCreate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
+        allowedValues: ["userOwns", "userOwnsOnlyUpvote", ...permissionGroups],
       },
     },
     form: {
@@ -1215,11 +1253,7 @@ const schema = {
         if (tag.parentTagId) {
           // don't allow chained parent tag relationships
           const { Tags } = context;
-          if (
-            await Tags.find({
-              parentTagId: tag._id,
-            }).count()
-          ) {
+          if ((await Tags.find({ parentTagId: tag._id }).count())) {
             throw Error(`Tag ${tag.name} is a parent tag of another tag.`);
           }
         }
@@ -1232,11 +1266,7 @@ const schema = {
           }
           const { Tags } = context;
           // don't allow chained parent tag relationships
-          if (
-            await Tags.find({
-              parentTagId: oldDocument._id,
-            }).count()
-          ) {
+          if ((await Tags.find({ parentTagId: oldDocument._id }).count())) {
             throw Error(`Tag ${oldDocument.name} is a parent tag of another tag.`);
           }
         }
@@ -1270,6 +1300,8 @@ const schema = {
     graphql: {
       outputType: "[String]",
       canRead: ["guests"],
+      // To edit this, you have to edit the parent tag of the tag you are adding, and this will be automatically updated. It's like this for
+      // largely historical reasons, we didn't used to materialise the sub tag ids at all, but this had performance issues
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -1351,94 +1383,82 @@ const schema = {
       arguments: "lensSlug: String, version: String",
       resolver: async (tag, { lensSlug, version }, context) => {
         const { MultiDocuments, Revisions } = context;
-        const multiDocuments = await MultiDocuments.find(
-          {
-            parentDocumentId: tag._id,
-            collectionName: "Tags",
-            fieldName: "description",
-            deleted: false,
-          },
-          {
-            sort: {
-              index: 1,
-            },
-          }
-        ).fetch();
+        const multiDocuments = await MultiDocuments.find({
+          parentDocumentId: tag._id,
+          collectionName: "Tags",
+          fieldName: "description",
+          deleted: false,
+        }, { sort: { index: 1 } }).fetch();
+
         let revisions;
         if (version && lensSlug) {
           // Find the MultiDocument with the matching slug or oldSlug
           const versionedLens = multiDocuments.find(
             (md) => md.slug === lensSlug || (md.oldSlugs && md.oldSlugs.includes(lensSlug))
           );
+
           if (versionedLens) {
             const versionedLensId = versionedLens._id;
             const nonVersionedLensRevisionIds = multiDocuments
               .filter((md) => md._id !== versionedLensId)
               .map((md) => md.contents_latest);
+
             const selector = {
               $or: [
-                {
-                  documentId: versionedLensId,
-                  version,
-                },
-                {
-                  _id: {
-                    $in: nonVersionedLensRevisionIds,
-                  },
-                },
+                { documentId: versionedLensId, version },
+                { _id: { $in: nonVersionedLensRevisionIds } }
               ],
             };
+
             revisions = await Revisions.find(selector).fetch();
           }
         }
         if (!revisions) {
           const revisionIds = multiDocuments.map((md) => md.contents_latest);
-          revisions = await Revisions.find({
-            _id: {
-              $in: revisionIds,
-            },
-          }).fetch();
+          revisions = await Revisions.find({ _id: { $in: revisionIds } }).fetch();
         }
+
         const revisionsById = new Map(revisions.map((rev) => [rev.documentId || rev._id, rev]));
         const unfilteredResults = multiDocuments.map((md) => ({
           ...md,
           contents: revisionsById.get(md._id),
         }));
+
         return await accessFilterMultiple(context.currentUser, "MultiDocuments", unfilteredResults, context);
       },
       sqlResolver: ({ field, resolverArg }) => {
         return `(
-        SELECT ARRAY_AGG(
-          JSONB_SET(
-            TO_JSONB(md.*),
-            '{contents}'::TEXT[],
-            TO_JSONB(r.*),
-            true
-          )
-          ORDER BY md."index" ASC
-        ) AS contents
-        FROM "MultiDocuments" md
-        LEFT JOIN "Revisions" r
-          ON r._id = CASE
-            WHEN (
-              md.slug = ${resolverArg("lensSlug")}::TEXT OR
-              ( md."oldSlugs" IS NOT NULL AND
-                ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
-              )
-            ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
-              SELECT r._id FROM "Revisions" r
-              WHERE r."documentId" = md._id 
-              AND r.version = ${resolverArg("version")}::TEXT 
-              LIMIT 1
+          SELECT ARRAY_AGG(
+            JSONB_SET(
+              TO_JSONB(md.*),
+              '{contents}'::TEXT[],
+              TO_JSONB(r.*),
+              true
             )
-            ELSE md.contents_latest
-          END
-        WHERE md."parentDocumentId" = ${field("_id")}
-          AND md."collectionName" = 'Tags'
-          AND md."fieldName" = 'description'
-          AND md."deleted" IS FALSE
-          LIMIT 1
-      )`;
+            ORDER BY md."index" ASC
+          ) AS contents
+          FROM "MultiDocuments" md
+          LEFT JOIN "Revisions" r
+            ON r._id = CASE
+              WHEN (
+                md.slug = ${resolverArg("lensSlug")}::TEXT OR
+                ( md."oldSlugs" IS NOT NULL AND
+                  ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
+                )
+              ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
+                SELECT r._id FROM "Revisions" r
+                WHERE r."documentId" = md._id 
+                AND r.version = ${resolverArg("version")}::TEXT 
+                LIMIT 1
+              )
+              ELSE md.contents_latest
+            END
+          WHERE md."parentDocumentId" = ${field("_id")}
+            AND md."collectionName" = 'Tags'
+            AND md."fieldName" = 'description'
+            AND md."deleted" IS FALSE
+            LIMIT 1
+        )`;
       },
     },
   },
@@ -1449,95 +1469,89 @@ const schema = {
       arguments: "lensSlug: String, version: String",
       resolver: async (tag, { lensSlug, version }, context) => {
         const { MultiDocuments, Revisions } = context;
-        const multiDocuments = await MultiDocuments.find(
-          {
-            parentDocumentId: tag._id,
-            collectionName: "Tags",
-            fieldName: "description",
-          },
-          {
-            sort: {
-              index: 1,
-            },
-          }
-        ).fetch();
+        const multiDocuments = await MultiDocuments.find({
+          parentDocumentId: tag._id,
+          collectionName: "Tags",
+          fieldName: "description",
+        }, { sort: { index: 1 } }).fetch();
+
         let revisions;
         if (version && lensSlug) {
           // Find the MultiDocument with the matching slug or oldSlug
           const versionedLens = multiDocuments.find(
             (md) => md.slug === lensSlug || (md.oldSlugs && md.oldSlugs.includes(lensSlug))
           );
+
           if (versionedLens) {
             const versionedLensId = versionedLens._id;
             const nonVersionedLensRevisionIds = multiDocuments
               .filter((md) => md._id !== versionedLensId)
               .map((md) => md.contents_latest);
+
             const selector = {
               $or: [
-                {
-                  documentId: versionedLensId,
-                  version,
-                },
-                {
-                  _id: {
-                    $in: nonVersionedLensRevisionIds,
-                  },
-                },
+                { documentId: versionedLensId, version },
+                { _id: { $in: nonVersionedLensRevisionIds } },
               ],
             };
             revisions = await Revisions.find(selector).fetch();
           }
         }
+
         if (!revisions) {
           const revisionIds = multiDocuments.map((md) => md.contents_latest);
-          revisions = await Revisions.find({
-            _id: {
-              $in: revisionIds,
-            },
-          }).fetch();
+          revisions = await Revisions.find({ _id: { $in: revisionIds } }).fetch();
+        
         }
         const revisionsById = new Map(revisions.map((rev) => [rev.documentId || rev._id, rev]));
         const unfilteredResults = multiDocuments.map((md) => ({
           ...md,
           contents: revisionsById.get(md._id),
         }));
+
         return await accessFilterMultiple(context.currentUser, "MultiDocuments", unfilteredResults, context);
       },
       sqlResolver: ({ field, resolverArg }) => {
         return `(
-        SELECT ARRAY_AGG(
-          JSONB_SET(
-            TO_JSONB(md.*),
-            '{contents}'::TEXT[],
-            TO_JSONB(r.*),
-            true
-          )
-          ORDER BY md."index" ASC
-        ) AS contents
-        FROM "MultiDocuments" md
-        LEFT JOIN "Revisions" r
-          ON r._id = CASE
-            WHEN (
-              md.slug = ${resolverArg("lensSlug")}::TEXT OR
-              ( md."oldSlugs" IS NOT NULL AND
-                ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
-              )
-            ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
-              SELECT r._id FROM "Revisions" r
-              WHERE r."documentId" = md._id 
-              AND r.version = ${resolverArg("version")}::TEXT 
-              LIMIT 1
+          SELECT ARRAY_AGG(
+            JSONB_SET(
+              TO_JSONB(md.*),
+              '{contents}'::TEXT[],
+              TO_JSONB(r.*),
+              true
             )
-            ELSE md.contents_latest
-          END
-        WHERE md."parentDocumentId" = ${field("_id")}
-          AND md."collectionName" = 'Tags'
-          AND md."fieldName" = 'description'
-          LIMIT 1
-      )`;
+            ORDER BY md."index" ASC
+          ) AS contents
+          FROM "MultiDocuments" md
+          LEFT JOIN "Revisions" r
+            ON r._id = CASE
+              WHEN (
+                md.slug = ${resolverArg("lensSlug")}::TEXT OR
+                ( md."oldSlugs" IS NOT NULL AND
+                  ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
+                )
+              ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
+                SELECT r._id FROM "Revisions" r
+                WHERE r."documentId" = md._id 
+                AND r.version = ${resolverArg("version")}::TEXT 
+                LIMIT 1
+              )
+              ELSE md.contents_latest
+            END
+          WHERE md."parentDocumentId" = ${field("_id")}
+            AND md."collectionName" = 'Tags'
+            AND md."fieldName" = 'description'
+            LIMIT 1
+        )`;
       },
     },
   },
+  /**
+   * Placeholder pages are pages that have been linked to, but haven't properly
+   * been created. This is the same as Arbital redlinks. They semi-exist as
+   * wiki pages so that they can have pingbacks (which are used to see how many
+   * pages are linking to them), and so you can vote on creating them.
+   */
   isPlaceholderPage: {
     database: {
       type: "BOOL",
@@ -1752,7 +1766,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -1802,7 +1816,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,

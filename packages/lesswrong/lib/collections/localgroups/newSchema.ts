@@ -12,7 +12,7 @@ import {
 } from "../../utils/schemaUtils";
 import { localGroupTypeFormOptions } from "./groupTypes";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isEAForum, isLW } from "@/lib/instanceSettings";
 
 export const GROUP_CATEGORIES = [
@@ -101,10 +101,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   contents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -113,6 +120,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Localgroups", "contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -255,7 +266,7 @@ const schema = {
       canCreate: ["members"],
     },
     form: {
-      minCount: 1,
+      minCount: 1, // Ensure that at least one type is selected
       form: { options: () => localGroupTypeFormOptions },
       label: "Group Type:",
       control: "MultiSelectButtons",
@@ -473,6 +484,7 @@ const schema = {
       control: "MuiTextField",
     },
   },
+  // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
     database: {
       type: "TEXT",
@@ -531,6 +543,7 @@ const schema = {
       group: () => formGroups.advancedOptions,
     },
   },
+  // used by the EA Forum to associate groups with their listing in salesforce - currently only populated via script
   salesforceId: {
     database: {
       type: "TEXT",

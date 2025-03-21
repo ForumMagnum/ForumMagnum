@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
 
@@ -62,10 +62,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   contents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
@@ -74,6 +81,10 @@ const schema = {
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("JargonTerms", "contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -162,7 +173,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
-        const botAccountId = await getAdminTeamAccountId();
+        const botAccountId = await getAdminTeamAccountId(context);
         if (!botAccountId) {
           return null;
         }
@@ -195,6 +206,10 @@ const schema = {
         } else {
           return "AI";
         }
+      },
+      validation: {
+        allowedValues: ['humans', 'AI', 'humansAndAI'],
+        optional: true,
       },
     },
   },

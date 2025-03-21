@@ -60,9 +60,12 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  // NOTE: this "userId" is the recombee user id, which is our userId for logged-in users and clientId for logged out users
+  // Do not use it as a foreign key for Users
   userId: {
     database: {
       type: "TEXT",

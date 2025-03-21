@@ -75,9 +75,11 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  // NOTE: this whole schema is bad, sorry Robert
   actionType: {
     database: {
       type: "TEXT",
@@ -104,11 +106,7 @@ const schema = {
     },
     form: {
       form: {
-        options: () =>
-          [...ACTION_TYPES].map((key) => ({
-            label: key,
-            value: key,
-          })),
+        options: () => [...ACTION_TYPES].map((key) => ({ label: key, value: key })),
       },
     },
   },

@@ -67,6 +67,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -207,16 +208,14 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
+      // Allow users to only update their own archived status, this has some potential concurrency problems,
+      // but I don't expect this to ever come up, and it fails relatively gracefully in case one does occur
       onUpdate: ({ data, currentUser, oldDocument }) => {
         if (data?.archivedByIds) {
           const changedIds = _.difference(oldDocument?.archivedByIds || [], data?.archivedByIds);
           changedIds.forEach((id) => {
             if (id !== currentUser?._id) {
-              throw new Error(
-                `You can't archive or unarchive a conversation for another user. Attempted update: ${JSON.stringify(
-                  data
-                )}`
-              );
+              throw new Error(`You can't archive or unarchive a conversation for another user. Attempted update: ${JSON.stringify(data)}`);
             }
           });
         }

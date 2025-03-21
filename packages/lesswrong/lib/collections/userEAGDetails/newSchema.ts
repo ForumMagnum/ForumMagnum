@@ -66,6 +66,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -130,6 +131,7 @@ const schema = {
       },
     },
   },
+  // Looks like: {"Boston": "I'm unwilling or unable to move here"}
   willingnessToRelocate: {
     database: {
       type: "JSONB",

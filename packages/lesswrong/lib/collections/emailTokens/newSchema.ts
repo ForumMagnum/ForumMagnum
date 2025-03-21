@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -98,6 +99,15 @@ const schema = {
     database: {
       type: "JSONB",
     },
+    // This isn't accessible via the API, but it's here to reduce diffs in codegen outputs because `blackbox` affects that
+    // Can get rid of it later if we want to
+    graphql: {
+      outputType: "JSON",
+      canRead: [],
+      validation: {
+        blackbox: true,
+      }
+    }
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"EmailTokens">>;
 

@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -88,6 +89,7 @@ const schema = {
   title: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",
@@ -99,6 +101,7 @@ const schema = {
   episodeLink: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",
@@ -110,6 +113,7 @@ const schema = {
   externalEpisodeId: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",

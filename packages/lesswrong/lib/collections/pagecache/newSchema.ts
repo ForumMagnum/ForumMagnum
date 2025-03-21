@@ -4,25 +4,6 @@
 
 import SimpleSchema from "simpl-schema";
 
-// export type RenderResult = {
-//   ssrBody: string
-//   headers: Array<string>
-//   serializedApolloState: string
-//   serializedForeignApolloState: string
-//   jssSheets: string
-//   status: number|undefined,
-//   redirectUrl: string|undefined
-//   relevantAbTestGroups: RelevantTestGroupAllocation
-//   allAbTestGroups: CompleteTestGroupAllocation
-//   themeOptions: AbstractThemeOptions,
-//   renderedAt: Date,
-//   cacheFriendly: boolean,
-//   timezone: string,
-//   timings: RenderTimings,
-//   aborted: false,
-// } | {
-//   aborted: true
-// }
 const RenderResultSchemaType = new SimpleSchema({
   ssrBody: {
     type: String,
@@ -133,6 +114,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -142,11 +124,19 @@ const schema = {
       nullable: false,
     },
   },
+  // This is always a Record<string, string>
   abTestGroups: {
     database: {
       type: "JSONB",
       nullable: false,
     },
+    graphql: {
+      outputType: "JSON",
+      canRead: [],
+      validation: {
+        blackbox: true,
+      }
+    }
   },
   bundleHash: {
     database: {
@@ -166,6 +156,7 @@ const schema = {
       nullable: false,
     },
   },
+  // This can be inferred from renderedAt and expiresAt, but it's useful to have for debugging
   ttlMs: {
     database: {
       type: "DOUBLE PRECISION",
@@ -177,6 +168,15 @@ const schema = {
       type: "JSONB",
       nullable: false,
     },
+    // This isn't accessible via the API, but it's here to for the type codegen output
+    // If/when we tear out SimpleSchema, we can get rid of this
+    graphql: {
+      outputType: "JSON",
+      canRead: [],
+      validation: {
+        simpleSchema: RenderResultSchemaType,
+      }
+    }
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"PageCache">>;
 

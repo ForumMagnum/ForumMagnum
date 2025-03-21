@@ -70,6 +70,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -78,6 +79,11 @@ const schema = {
       type: "VARCHAR(27)",
       foreignKey: "Posts",
       nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [],
+      forceIncludeInExecutableSchema: true,
     },
   },
   post: {
@@ -92,17 +98,35 @@ const schema = {
       type: "TEXT",
       nullable: false,
     },
+    graphql: {
+      outputType: "String",
+      canRead: [],
+      forceIncludeInExecutableSchema: true,
+    },
   },
   commentsByBlock: {
     database: {
       type: "JSONB",
       nullable: false,
     },
+    graphql: {
+      outputType: "JSON",
+      canRead: [],
+      forceIncludeInExecutableSchema: true,
+      validation: {
+        blackbox: true,
+      },
+    },
   },
   version: {
     database: {
       type: "DOUBLE PRECISION",
       nullable: false,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: [],
+      forceIncludeInExecutableSchema: true,
     },
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"SideCommentCaches">>;

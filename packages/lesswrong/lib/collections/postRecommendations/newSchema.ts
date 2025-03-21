@@ -60,6 +60,7 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
@@ -86,6 +87,13 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  /**
+   * The client id of logged out users. This is null when user id is set in order to
+   * make sure that our unique index contraints for `ON CONFLICT` work correctly. We
+   * don't currently try to unify recommendations made to a logged out client id that
+   * subsequently logs in and can be associated with a user id, but this would be a
+   * good improvement for the future.
+   */
   clientId: {
     database: {
       type: "TEXT",
@@ -101,6 +109,7 @@ const schema = {
       },
     },
   },
+  /** The post used as a seed for this recommendation. */
   postId: {
     database: {
       type: "VARCHAR(27)",
@@ -122,6 +131,10 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
+  /**
+   * The strategy used to generate this recommendation.
+   * See server/recommendations/Strategy.ts.
+   */
   strategyName: {
     database: {
       type: "TEXT",
@@ -138,6 +151,9 @@ const schema = {
       },
     },
   },
+  /**
+   * The settings fed into the above strategy to generate the recommendation.
+   */
   strategySettings: {
     database: {
       type: "JSONB",
@@ -150,9 +166,15 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
+  /**
+   * The number of times this recommendation has been _viewed_ by the user. This starts
+   * at 0 when the recommendation is generated and is incremeted each time the
+   * recommendation enters the users viewport.
+   */
   recommendationCount: {
     database: {
       type: "INTEGER",
@@ -168,6 +190,7 @@ const schema = {
       canCreate: ["admins"],
     },
   },
+  /** The date of the last time this recommendation was generated. */
   lastRecommendedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -181,6 +204,7 @@ const schema = {
       canCreate: ["admins"],
     },
   },
+  /** The date of the last time this recommendation was clicked. */
   clickedAt: {
     database: {
       type: "TIMESTAMPTZ",

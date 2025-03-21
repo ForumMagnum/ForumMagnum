@@ -18,12 +18,11 @@ import { getVotingSystemNameForDocument } from "../../voting/votingSystems";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
-import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
-import { fetchFragmentSingle } from "@/server/fetchFragment";
-import { updateMutator } from "@/server/vulcan-lib/mutators";
+import GraphQLJSON from "graphql-type-json";
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -117,10 +116,17 @@ const schema = {
       canCreate: ["admins"],
       validation: {
         optional: true,
+        blackbox: true,
       },
     },
   },
   contents: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      logChanges: false,
+      typescriptType: "EditableFieldContents",
+    },
     graphql: {
       outputType: "Revision",
       canRead: [documentIsNotDeleted],
@@ -129,6 +135,10 @@ const schema = {
       editableFieldOptions: { pingbacks: true, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Comments", "contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -368,6 +378,11 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "ForumEvents", fieldName: "forumEventId" }),
     },
   },
+  /**
+   * Extra data regarding how this comment relates to the `forumEventId`. Currently
+   * this is used for "STICKERS" events, to trigger the creation of a sticker on the
+   * frontpage banner as a side effect.
+   */
   forumEventMetadata: {
     database: {
       type: "JSONB",
@@ -646,6 +661,9 @@ const schema = {
       },
     },
   },
+  // users can write comments nominating posts for a particular review period.
+  // this field is generally set by a custom dialog,
+  // set to the year of the review period (i.e. '2018')
   nominatedForReview: {
     database: {
       type: "TEXT",
@@ -688,6 +706,7 @@ const schema = {
       },
     },
   },
+  // The semver-style version of the post that this comment was made against
   postVersion: {
     database: {
       type: "TEXT",
@@ -695,20 +714,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      onCreate: async ({ newDocument }) => {
-        if (!newDocument.postId) {
-          return "1.0.0";
-        }
-        const post = await fetchFragmentSingle({
-          collectionName: "Posts",
-          fragmentName: "PostsRevision",
-          currentUser: null,
-          selector: {
-            _id: newDocument.postId,
-          },
-        });
-        return (post && post.contents && post.contents.version) || "1.0.0";
-      },
+      // This used to have an onCreate (in `commentResolvers.ts`), which I've moved to the `commentCreateBefore` callback
       validation: {
         optional: true,
       },
@@ -740,21 +746,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onUpdate: async ({ data, currentUser, document, oldDocument, context }) => {
-        if (data?.promoted && !oldDocument.promoted && document.postId) {
-          void updateMutator({
-            collection: context.Posts,
-            context,
-            documentId: document.postId,
-            data: {
-              lastCommentPromotedAt: new Date(),
-            },
-            currentUser,
-            validate: false,
-          });
-          return currentUser?._id;
-        }
-      },
+      // This used to have an onUpdate, which I've moved to `commentUpdateBefore` to avoid dependency cycles
       validation: {
         optional: true,
       },
@@ -787,6 +779,12 @@ const schema = {
       },
     },
   },
+  // Comments store a duplicate of their post's hideCommentKarma data. The
+  // source of truth remains the hideCommentKarma field of the post. If this
+  // field is true, we do not report the baseScore to non-admins. We update it
+  // if (for some reason) this comment gets transferred to a new post. The
+  // trickier case is updating this on post change. For that we rely on the
+  // UpdateCommentHideKarma callback.
   hideKarma: {
     database: {
       type: "BOOL",
@@ -807,6 +805,7 @@ const schema = {
       },
     },
   },
+  // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: {
     graphql: {
       outputType: "Int",
@@ -818,6 +817,7 @@ const schema = {
       },
     },
   },
+  // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: {
     graphql: {
       outputType: "String",
@@ -838,6 +838,7 @@ const schema = {
       },
     },
   },
+  // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     database: {
       type: "BOOL",
@@ -855,6 +856,7 @@ const schema = {
       },
     },
   },
+  // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     database: {
       type: "TEXT",
@@ -869,6 +871,7 @@ const schema = {
       },
     },
   },
+  // Legacy Poll: Boolean to indicate that original LW data had a poll here
   legacyPoll: {
     database: {
       type: "BOOL",
@@ -886,6 +889,7 @@ const schema = {
       },
     },
   },
+  // Legacy Parent Id: Id of parent comment in original LW database
   legacyParentId: {
     database: {
       type: "TEXT",
@@ -900,6 +904,8 @@ const schema = {
       },
     },
   },
+  // retracted: Indicates whether a comment has been retracted by its author.
+  // Results in the text of the comment being struck-through, but still readable.
   retracted: {
     database: {
       type: "BOOL",
@@ -917,6 +923,8 @@ const schema = {
       },
     },
   },
+  // deleted: Indicates whether a comment has been deleted by an admin.
+  // Deleted comments and their replies are not rendered by default.
   deleted: {
     database: {
       type: "BOOL",
@@ -1011,6 +1019,8 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "deletedByUserId" }),
     },
   },
+  // spam: Indicates whether a comment has been marked as spam.
+  // This removes the content of the comment, but still renders replies.
   spam: {
     database: {
       type: "BOOL",
@@ -1028,6 +1038,8 @@ const schema = {
       },
     },
   },
+  // repliesBlockedUntil: Deactivates replying to this post by anyone except
+  // admins and sunshineRegiment members until the specified time is reached.
   repliesBlockedUntil: {
     database: {
       type: "TIMESTAMPTZ",
@@ -1081,6 +1093,8 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reviewedByUserId" }),
     },
   },
+  // hideAuthor: Displays the author as '[deleted]'. We use this to copy over
+  // old deleted comments from LW 1.0
   hideAuthor: {
     database: {
       type: "BOOL",
@@ -1117,6 +1131,9 @@ const schema = {
       },
     },
   },
+  /**
+   * Suppress user-visible styling for comments marked with `moderatorHat: true`
+   */
   hideModeratorHat: {
     database: {
       type: "BOOL",
@@ -1251,6 +1268,7 @@ const schema = {
       },
     },
   },
+  // How well does ModGPT (GPT-4o) think this comment adheres to forum norms and rules? (currently EAF only)
   modGPTAnalysis: {
     database: {
       type: "TEXT",
@@ -1266,6 +1284,7 @@ const schema = {
       },
     },
   },
+  // This should be one of: Intervene, Consider reviewing, Don't intervene
   modGPTRecommendation: {
     database: {
       type: "TEXT",
@@ -1587,7 +1606,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: customBaseScoreReadAccess,
       validation: {
         optional: true,
@@ -1637,7 +1656,7 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: GraphQLJSON,
       canRead: ["guests"],
       validation: {
         optional: true,
