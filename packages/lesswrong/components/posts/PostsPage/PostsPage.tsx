@@ -527,7 +527,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
 
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
-  console.log("isReviewWinner", isReviewWinner, post, "post")
   const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
 
   useEffect(() => {

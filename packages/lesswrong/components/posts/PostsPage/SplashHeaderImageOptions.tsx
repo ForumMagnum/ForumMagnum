@@ -31,7 +31,7 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
     cursor: 'pointer',
     paddingRight: 5,
   },
-  imageContainer: {
+  imageTooltipContainer: {
     width: 800,
     height: 400,
     backgroundColor: theme.palette.background.pageActiveAreaBackground
@@ -118,7 +118,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
             const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
             const medUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 800);
 
-            const tooltip = <div className={classes.imageContainer}><img src={medUrl} alt={image.splashArtImagePrompt}/></div>
+            const tooltip = <div className={classes.imageTooltipContainer}><img src={medUrl} alt={image.splashArtImagePrompt}/></div>
 
             return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
               <img className={classes.image} key={image._id} src={smallUrl} style={{border: selectedImageInfo?._id === image._id ? '2px solid #000' : 'none'}} onClick={() => handleSaveCoordinates(image)} />
