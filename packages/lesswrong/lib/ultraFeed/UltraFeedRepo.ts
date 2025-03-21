@@ -37,7 +37,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     super(Comments);
   }
 
-  public async getUltraFeedPostThreads(context: ResolverContext, limit = 10): Promise<DisplayFeedPostWithComments[]> {
+  public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedPostWithComments[]> {
 
     // RECOMBEE HYBRID POSTS: LATEST + RECOMMENDED
     // TODO: separate these out so can be selected independently
@@ -430,7 +430,10 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       
       // Calculate a combined priority score - adjust this formula as needed
       // Current formula emphasizes high karma and adequate comment count
-      const priorityScore = stats.sumKarmaSquared;
+
+      // TODO: temporarily add some noise, we'll remove later, noise should be about 10% of the score
+
+      const priorityScore = stats.sumKarmaSquared + (Math.random() * stats.sumKarmaSquared * 0.2);
       
       return {
         thread,
@@ -446,31 +449,41 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   // TOOD: Implement actually good logic for choosing which to display
   public prepareCommentThreadForDisplay(thread: PreDisplayFeedCommentThread): DisplayFeedPostWithComments {
     const numComments = thread.comments.length;
-    const numExpanded = numComments <= 4 ? 1 : 2;
+    // Make sure we don't try to expand more comments than exist
+    const numExpanded = Math.min(numComments, numComments <= 7 ? 2 : 3);
     // randomly choose numExpanded indices from numComments
     const expandedIndices = new Set<number>();
-    while (expandedIndices.size < numExpanded) {
+    
+    // If numExpanded is 0, skip the loop entirely
+    if (numExpanded > 0) {
+      // Use an attempt counter to prevent infinite loops
+      let attempts = 0;
+      const maxAttempts = 100;
+      
+      while (expandedIndices.size < numExpanded && attempts < maxAttempts) {
+        attempts++;
         const index = Math.floor(Math.random() * numComments);
         expandedIndices.add(index);
       }
-      
-      return {
-        post: thread.post,
-        postMetaInfo: {
-          sources: ['commentThreads'],
-          displayStatus: 'hidden',
-        },
-        comments: thread.comments.map((item: PreDisplayFeedComment, index: number) => {
-          const { comment } = item;
-          return {
-            comment,
-            metaInfo: {
-              sources: item.metaInfo.sources,
-              displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
-            }
-          }
-        })
     }
+      
+    return {
+      post: thread.post,
+      postMetaInfo: {
+        sources: ['commentThreads'],
+        displayStatus: 'hidden',
+      },
+      comments: thread.comments.map((item: PreDisplayFeedComment, index: number) => {
+        const { comment } = item;
+        return {
+          comment,
+          metaInfo: {
+            sources: item.metaInfo?.sources || [],
+            displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
+          }
+        }
+      })
+    };
   }
 
   // TODO: somewhere choose threads better
@@ -492,7 +505,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     // TODO: IMPORTANT - remove before production
     // filter to only include threads with < 5 comments
-    const filteredDisplayThreads = displayThreads.filter(thread => thread.comments.length < 5);
+    const filteredDisplayThreads = displayThreads.filter(thread => thread.comments.length < 10);
     
     const result = filteredDisplayThreads.slice(0, limit);
     console.log(`UltraFeedRepo: Returning ${result.length} threads after applying limit`);
