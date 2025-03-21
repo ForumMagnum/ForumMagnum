@@ -28,7 +28,7 @@ export interface RecombeeMetaInfo {
 }
 
 export interface PostMetaInfo {
-  recommInfo: RecombeeMetaInfo;
+  recommInfo?: RecombeeMetaInfo;
   sources: FeedItemSourceType[];
   displayStatus: FeedItemDisplayStatus;
 }
@@ -92,7 +92,7 @@ export interface LinearCommentThreadStatistics {
 // 3. DISPLAY TYPES - For Client/GraphQL
 //-----------------------------------------------------------------------------
 
-export type UltraFeedTopLevelTypes = DisplayFeedPostWithComments | DisplayFeedCommentThread;
+export type UltraFeedTopLevelTypes = DisplayFeedPostWithComments
 export interface DisplayFeedItem {
   item: UltraFeedTopLevelTypes;
   type: string;
@@ -112,13 +112,7 @@ export interface DisplayFeedComment {
 export interface DisplayFeedPostWithComments {
   post: PostsListWithVotes
   comments: DisplayFeedComment[];
-  metaInfo: PostMetaInfo;
-}
-
-export interface DisplayFeedCommentThread {
-  post: PostsListWithVotes; // TODO: maybe want fragment with post contents?
-  comments: DisplayFeedComment[];
-  topLevelCommentId: string;
+  postMetaInfo: PostMetaInfo;
 }
 
 

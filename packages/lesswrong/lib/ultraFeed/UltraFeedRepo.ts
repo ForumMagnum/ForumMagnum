@@ -6,7 +6,7 @@
  */
 
 import { randomId } from '../random';
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedCommentThread, DisplayFeedPostWithComments } from '../../components/ultraFeed/ultraFeedTypes';
+import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedPostWithComments } from '../../components/ultraFeed/ultraFeedTypes';
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
@@ -81,8 +81,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         },
       } as PostsListWithVotes,           // The top-level post. Cast or ensure it matches PostsList if needed.
       comments: [],              // We leave comments empty, or retrieve them separately if desired.
-      metaInfo: {
+      postMetaInfo: {
         sources: [item.scenario],
+        displayStatus: 'expanded',
         recommInfo: {
           recommId: item.recommId,
           scenario: item.scenario,
@@ -443,7 +444,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   }
 
   // TOOD: Implement actually good logic for choosing which to display
-  public prepareCommentThreadForDisplay(thread: PreDisplayFeedCommentThread): DisplayFeedCommentThread {
+  public prepareCommentThreadForDisplay(thread: PreDisplayFeedCommentThread): DisplayFeedPostWithComments {
     const numComments = thread.comments.length;
     const numExpanded = numComments <= 4 ? 1 : 2;
     // randomly choose numExpanded indices from numComments
@@ -455,7 +456,10 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       
       return {
         post: thread.post,
-        topLevelCommentId: thread.topLevelCommentId,
+        postMetaInfo: {
+          sources: ['commentThreads'],
+          displayStatus: 'hidden',
+        },
         comments: thread.comments.map((item: PreDisplayFeedComment, index: number) => {
           const { comment } = item;
           return {
@@ -471,7 +475,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
   // TODO: somewhere choose threads better
   // end-to-end function for generating threads for displaying in the UltraFeed
-  public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedCommentThread[]> {
+  public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedPostWithComments[]> {
     console.log(`UltraFeedRepo.getUltraFeedCommentThreads started with limit=${limit}`);
     
     const candidates = await this.getCommentsForFeed(context, 200); // limit of how many comments to consider

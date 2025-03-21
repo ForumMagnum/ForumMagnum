@@ -7,7 +7,7 @@ import keyBy from "lodash/keyBy";
 import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType, FeedCommentThreadItem } from "../utils/feedItemUtils";
 import FeedItemServingsRepo from "../repos/FeedItemServingsRepo";
 import UltraFeedRepo, {  } from "../../lib/ultraFeed/UltraFeedRepo";
-import { DisplayFeedCommentThread, DisplayFeedItem, DisplayFeedPostWithComments, UltraFeedTopLevelTypes, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
+import { DisplayFeedItem, DisplayFeedPostWithComments, UltraFeedTopLevelTypes, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 
 const TESTING_DATE_CUTOFF = new Date('2025-01-01');
 
@@ -118,7 +118,7 @@ async function fetchCommentThreads({
   context: ResolverContext;
   currentUser: DbUser;
   // servedCommentIds: Set<string>;
-}): Promise<DisplayFeedCommentThread[]> {
+}): Promise<DisplayFeedPostWithComments[]> {
   console.log("Fetching comment threads...");
   
   // Create UltraFeedRepo instance

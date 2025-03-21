@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
-import { DisplayFeedItem, DisplayFeedCommentThread, DisplayFeedPostWithComments, UltraFeedTopLevelTypes } from './ultraFeedTypes';
+import { DisplayFeedItem, DisplayFeedPostWithComments } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -119,7 +119,7 @@ const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
     FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, 
-    Divider, UltraFeedCommentThreadItem, UltraFeedPostThreadItem } = Components;
+    Divider, UltraFeedThreadItem, UltraFeedPostThreadItem } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -239,7 +239,7 @@ const UltraFeedContent = () => {
         
         return (
           <FeedItemWrapper sources={item.sources || []}>
-            <UltraFeedCommentThreadItem thread={thread} />
+            <UltraFeedThreadItem thread={thread} />
           </FeedItemWrapper>
         );
       }
@@ -253,11 +253,11 @@ const UltraFeedContent = () => {
         }
         
         // Extract the actual post data from itemContent
-        const post = item.itemContent;
+        const thread = item.itemContent;
         
         return (
           <FeedItemWrapper sources={item.sources || []}>
-            <UltraFeedPostThreadItem thread={post} />
+            <UltraFeedThreadItem thread={thread} />
           </FeedItemWrapper>
         );
       }
