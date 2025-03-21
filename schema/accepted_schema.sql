@@ -962,6 +962,8 @@ CREATE TABLE "ForumEvents" (
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
   "pollQuestion_latest" TEXT,
+  "pollAgreeWording" TEXT,
+  "pollDisagreeWording" TEXT,
   "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
   "commentPrompt" TEXT,

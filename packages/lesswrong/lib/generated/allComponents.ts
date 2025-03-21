@@ -1089,6 +1089,7 @@ importComponent("LocalgroupPageTitle", () => require("../../components/titles/Lo
 importComponent("PostsPageHeaderTitle", () => require("../../components/titles/PostsPageHeaderTitle.tsx"));
 importComponent("SequencesPageTitle", () => require("../../components/titles/SequencesPageTitle.tsx"));
 importComponent("UserPageTitle", () => require("../../components/titles/UserPageTitle.tsx"));
+importComponent("Auth0PasswordResetPage", () => require("../../components/users/Auth0PasswordResetPage.tsx"));
 importComponent("BannedNotice", () => require("../../components/users/BannedNotice.tsx"));
 importComponent("CrosspostLoginPage", () => require("../../components/users/CrosspostLoginPage.tsx"));
 importComponent("EAUserTooltipContent", () => require("../../components/users/EAUserTooltipContent.tsx"));

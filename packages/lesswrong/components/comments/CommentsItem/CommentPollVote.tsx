@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { useSingle } from "@/lib/crud/withSingle";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,6 +25,16 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
+  const { document: forumEvent, loading } = useSingle({
+    documentId: comment.forumEventId,
+    collectionName: "ForumEvents",
+    fragmentName: 'ForumEventsMinimumInfo',
+    skip: !comment.forumEventId
+  });
+
+  const agreeWording = forumEvent?.pollAgreeWording || "agree";
+  const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
+
   if (!voteWhenPublished) return null;
 
   const isAgreement = (pollVote: number) => pollVote >= 0.5;
@@ -45,7 +56,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
           <LWTooltip title="Vote when comment was posted" placement="top" popperClassName={classes.tooltip}>
             <s>
               {startPercentage}
-              {showStartAgreement && (startAgreement ? " agree" : " disagree")}
+              {showStartAgreement && (startAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`)}
             </s>
           </LWTooltip>
           {/* Right arrow */}
@@ -54,7 +65,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
       )}
       <span className={endAgreement ? classes.agreePollVote : classes.disagreePollVote}>
         {endPercentage}
-        {endAgreement ? " agree" : " disagree"}
+        {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
       </span>
     </span>
   );
