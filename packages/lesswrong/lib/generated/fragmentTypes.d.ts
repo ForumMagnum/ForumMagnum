@@ -2468,7 +2468,17 @@ interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly postId: string,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
-  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+  readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
+}
+
+interface ReviewWinnerArtImagesForYear extends ReviewWinnerArtImages { // fragment on ReviewWinnerArts
+  readonly post: ReviewWinnerArtImagesForYear_post|null,
+}
+
+interface ReviewWinnerArtImagesForYear_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -2509,7 +2519,7 @@ interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
 
 interface ReviewWinnerTopPostsPage_reviewWinnerArt { // fragment on ReviewWinnerArts
   readonly splashArtImageUrl: string,
-  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+  readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
 }
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
@@ -2796,6 +2806,10 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly rightHeightPct: number,
   readonly rightWidthPct: number,
   readonly rightFlipped: boolean,
+}
+
+interface SplashArtCoordinatesEdit extends SplashArtCoordinates { // fragment on SplashArtCoordinates
+  readonly createdAt: Date,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -5208,6 +5222,7 @@ interface FragmentTypes {
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerArtImages: ReviewWinnerArtImages
+  ReviewWinnerArtImagesForYear: ReviewWinnerArtImagesForYear
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
@@ -5236,6 +5251,7 @@ interface FragmentTypes {
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
+  SplashArtCoordinatesEdit: SplashArtCoordinatesEdit
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
@@ -5422,13 +5438,13 @@ interface FragmentTypesByCollection {
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
-  ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
+  ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtImagesForYear"|"ReviewWinnerArtsDefaultFragment"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
   SideCommentCaches: "SideCommentCacheMinimumInfo"|"SideCommentCachesDefaultFragment"
-  SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"
+  SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"|"SpotlightReviewWinner"|"SpotlightsDefaultFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"|"SubscriptionsDefaultFragment"
@@ -5628,6 +5644,7 @@ interface CollectionNamesByFragmentName {
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
+  ReviewWinnerArtImagesForYear: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerTopPostsDisplay: "ReviewWinners"
@@ -5656,6 +5673,7 @@ interface CollectionNamesByFragmentName {
   SideCommentCachesDefaultFragment: "SideCommentCaches"
   SplashArtCoordinates: "SplashArtCoordinates"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
+  SplashArtCoordinatesEdit: "SplashArtCoordinates"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SpotlightHeaderEventSubtitle: "Spotlights"

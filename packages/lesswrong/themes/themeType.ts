@@ -348,7 +348,7 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
-      reviewGold: ColorString
+      reviewGold: ColorString,
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,

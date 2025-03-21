@@ -226,13 +226,15 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    '& .TableOfContentsRow-link': {
-      background: theme.palette.panelBackground.default
-    },
     '& .TableOfContentsDivider-divider': {
       marginLeft: 4,
     },
   },
+  bestOfLessWrong: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[700],
+    marginBottom: 10,
+  }
 });
 
 const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {

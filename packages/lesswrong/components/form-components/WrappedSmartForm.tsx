@@ -17,33 +17,33 @@ import * as _ from 'underscore';
  */
 function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFormProps<T>) {
   const { collectionName } = props
-
-  if (getEditableCollectionNames().includes(collectionName)) {
-    return <Components.FormWrapper
-      {...props}
-      submitCallback={(data: AnyBecauseTodo) => {
-        if (props.submitCallback) {data = props.submitCallback(data)}
+  return null
+  // if (getEditableCollectionNames().includes(collectionName)) {
+  //   return <Components.FormWrapper
+  //     {...props}
+  //     submitCallback={(data: AnyBecauseTodo) => {
+  //       if (props.submitCallback) {data = props.submitCallback(data)}
         
-        // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
-        const editableFields = _.object(getEditableFieldNamesForCollection(collectionName).map(fieldName => {
-          const { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions } = (data && data[fieldName]) || {}
-          return [
-            fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
-            // Ensure that we have data. We check for data field presence but
-            // not truthiness, because the empty string is falsy.
-            (typeof originalContents==="object" && "data" in originalContents)
-              // If so, constrain it to correct shape
-              ? { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions }
-              // If not, set field to undefined
-              : undefined
-          ]
-        }))
-        return {...data, ...editableFields}
-      }}
-    />  
-  } else {
-    return <Components.FormWrapper {...props}/>
-  }
+  //       // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
+  //       const editableFields = _.object(getEditableFieldNamesForCollection(collectionName).map(fieldName => {
+  //         const { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions } = (data && data[fieldName]) || {}
+  //         return [
+  //           fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
+  //           // Ensure that we have data. We check for data field presence but
+  //           // not truthiness, because the empty string is falsy.
+  //           (typeof originalContents==="object" && "data" in originalContents)
+  //             // If so, constrain it to correct shape
+  //             ? { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions }
+  //             // If not, set field to undefined
+  //             : undefined
+  //         ]
+  //       }))
+  //       return {...data, ...editableFields}
+  //     }}
+  //   />  
+  // } else {
+  //   return <Components.FormWrapper {...props}/>
+  // }
 }
 
 const WrappedSmartFormComponent = registerComponent("WrappedSmartForm", WrappedSmartForm);

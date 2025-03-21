@@ -8,20 +8,24 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 
+export const titleStyles = (theme: ThemeType) => ({
+  display: 'inline-block',
+  fontSize: 22,
+  verticalAlign: '-webkit-baseline-middle',
+  fontFamily: theme.typography.uiSecondary.fontFamily,
+  lineHeight: '24px',
+  color: theme.palette.text.dim,
+  ...theme.typography.smallCaps,
+})
+
 const styles = (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
     alignItems: "center",
   },
-  title: {
-    display: 'inline-block',
-    fontSize: 22,
-    verticalAlign: '-webkit-baseline-middle',
-    fontFamily: theme.typography.uiSecondary.fontFamily,
-    lineHeight: '24px',
-    color: theme.palette.text.dim,
-    ...theme.typography.smallCaps,
+  title: {  
+    ...titleStyles(theme)
   }
 })
 
