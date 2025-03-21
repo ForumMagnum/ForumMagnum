@@ -18,8 +18,8 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     return res ? res.vote : null
   }
 
-  addVote(_id: string, userId: string, voteData: Json) {
-    void this.none(`
+  async addVote(_id: string, userId: string, voteData: Json) {
+    return this.none(`
       -- ForumEventsRepo.addVote
       UPDATE "ForumEvents"
       SET "publicData" = COALESCE("publicData", '{}'::jsonb) || $2
@@ -27,8 +27,8 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     `, [_id, {[userId]: voteData}])
   }
 
-  removeVote(_id: string, userId: string) {
-    void this.none(`
+  async removeVote(_id: string, userId: string) {
+    return this.none(`
       -- ForumEventsRepo.removeVote
       UPDATE "ForumEvents"
       SET "publicData" = "publicData" - $1

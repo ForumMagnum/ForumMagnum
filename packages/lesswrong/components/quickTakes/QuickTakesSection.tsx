@@ -1,5 +1,5 @@
 import React from "react";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";

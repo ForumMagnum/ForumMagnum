@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const styles = (theme: ThemeType) => ({

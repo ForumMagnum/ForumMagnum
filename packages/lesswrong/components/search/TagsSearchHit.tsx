@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
+import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { SearchHitComponentProps } from './types';
 

@@ -3,8 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 
 const styles = defineStyles('AllComments', theme => ({
   settings: {

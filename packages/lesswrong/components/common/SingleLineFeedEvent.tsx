@@ -2,7 +2,7 @@ import React from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 
 const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {

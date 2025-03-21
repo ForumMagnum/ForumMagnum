@@ -1,9 +1,9 @@
 import React from 'react';
 import { annualReviewAnnouncementPostPathSetting, DatabasePublicSetting } from "../../publicSettings";
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
-import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
-import StarIcon from '@material-ui/icons/Star';
+import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
+import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
+import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { isEAForum } from '../../instanceSettings';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '@/lib/reviewUtils';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';

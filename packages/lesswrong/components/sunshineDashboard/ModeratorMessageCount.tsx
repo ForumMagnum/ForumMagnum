@@ -2,7 +2,7 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import EmailIcon from '@material-ui/icons/Email';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 
 const styles = (theme: ThemeType) => ({
   root: {

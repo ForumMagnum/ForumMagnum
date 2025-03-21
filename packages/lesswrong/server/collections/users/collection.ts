@@ -3,7 +3,7 @@ import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib/graphql";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 
 export const Users = createCollection({
   collectionName: 'Users',

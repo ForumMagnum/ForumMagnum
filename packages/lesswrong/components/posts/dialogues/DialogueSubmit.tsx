@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { isLW } from "../../../lib/instanceSettings";

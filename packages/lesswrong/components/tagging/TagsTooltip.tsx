@@ -4,7 +4,7 @@ import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
-import { PopperPlacementType } from "@material-ui/core/Popper";
+import { PopperPlacementType } from "@/lib/vendor/@material-ui/core/src/Popper";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";

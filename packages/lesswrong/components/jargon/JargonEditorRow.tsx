@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 export const formStyles = {

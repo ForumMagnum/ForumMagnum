@@ -1,5 +1,5 @@
-import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';

@@ -3,15 +3,11 @@ import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 
-const FormError = (
-  { error, errorContext="" }: {
-    error: any,
-    errorContext: any,
-  },
-  { getLabel=(name)=>name }: {
-    getLabel?: (name: string, local: string) => string,
-  }
-) => {
+const FormError = ({ error, errorContext="", getLabel }: {
+  error: any,
+  errorContext: any,
+  getLabel: (fieldName: string, fieldLocale?: any) => string,
+}) => {
   if (error.message) { // A normal string error
     return error.message;
   } else if (error.id) { // An internationalized error
@@ -34,10 +30,6 @@ const FormError = (
   } else {
     return 'Error submitting form';
   }
-};
-
-(FormError as any).contextTypes = {
-  getLabel: PropTypes.func,
 };
 
 

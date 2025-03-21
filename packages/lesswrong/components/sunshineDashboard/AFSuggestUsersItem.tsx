@@ -4,8 +4,8 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
-import ClearIcon from '@material-ui/icons/Clear';
-import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import { useUpdate } from '../../lib/crud/withUpdate';

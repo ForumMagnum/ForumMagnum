@@ -5,7 +5,7 @@ import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const sharedStyles = (theme: ThemeType) => ({

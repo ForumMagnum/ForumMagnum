@@ -14,7 +14,7 @@ import {
   getEmojiMutuallyExclusivePartner,
 } from "../../lib/voting/eaEmojiPalette";
 import type { VotingProps } from "./votingProps";
-import Menu from "@material-ui/core/Menu";
+import Menu from "@/lib/vendor/@material-ui/core/src/Menu";
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 

@@ -1,6 +1,6 @@
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
-import Select from '@material-ui/core/Select';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';

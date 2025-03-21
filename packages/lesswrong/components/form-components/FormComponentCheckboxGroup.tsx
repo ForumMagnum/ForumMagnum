@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import without from 'lodash/without';
 
 const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => ({

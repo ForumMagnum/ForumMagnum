@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import Input from '@material-ui/core/Input';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
 

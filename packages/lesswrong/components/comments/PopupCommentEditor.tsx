@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@material-ui/core/Card"
-import CloseIcon from '@material-ui/icons/Close';
+import Paper from "@/lib/vendor/@material-ui/core/src/Card"
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import type { CommentsNewFormProps } from './CommentsNewForm';
 
 const styles = (theme: ThemeType) => ({

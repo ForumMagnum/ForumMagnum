@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../hooks/useOptimisticToggle";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,

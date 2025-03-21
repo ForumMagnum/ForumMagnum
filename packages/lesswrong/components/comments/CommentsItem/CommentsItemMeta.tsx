@@ -225,12 +225,10 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-
-
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
+    ForumIcon, CommentsMenu, UserCommentMarkers, CommentPollVote
   } = Components;
 
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
@@ -334,6 +332,7 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
+      <CommentPollVote comment={comment} />
 
       <span className={classes.rightSection}>
         {rightSectionElements}

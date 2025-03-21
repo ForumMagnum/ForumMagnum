@@ -1,6 +1,6 @@
 import React, { ChangeEventHandler, ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import TextField, { TextFieldProps } from '@material-ui/core/TextField';
+import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/TextField';
 import classnames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

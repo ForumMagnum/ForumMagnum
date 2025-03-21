@@ -1,5 +1,5 @@
 import React from 'react'
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';

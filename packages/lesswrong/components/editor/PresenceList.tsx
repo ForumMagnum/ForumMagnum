@@ -4,7 +4,7 @@ import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
-import CloudOff from "@material-ui/icons/CloudOff";
+import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
 
 const styles = (theme: ThemeType) => ({
   user: {

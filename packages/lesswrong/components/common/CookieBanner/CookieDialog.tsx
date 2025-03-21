@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Checkbox from "@material-ui/core/Checkbox";
+import DialogContent from "@/lib/vendor/@material-ui/core/src/DialogContent";
+import DialogTitle from "@/lib/vendor/@material-ui/core/src/DialogTitle";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import classNames from "classnames";
-import Button from "@material-ui/core/Button";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 

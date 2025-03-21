@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';

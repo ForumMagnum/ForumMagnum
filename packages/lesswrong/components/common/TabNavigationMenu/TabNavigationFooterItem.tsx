@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 

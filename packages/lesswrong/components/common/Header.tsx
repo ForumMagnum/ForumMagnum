@@ -2,9 +2,9 @@ import React, { useContext, useState, useCallback, useEffect, CSSProperties } fr
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import TocIcon from '@material-ui/icons/Toc';
+import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';

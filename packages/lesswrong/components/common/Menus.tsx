@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
-import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiMenuItem from '@/lib/vendor/@material-ui/core/src/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, children}: {

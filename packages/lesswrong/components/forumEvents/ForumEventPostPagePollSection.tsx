@@ -88,8 +88,15 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
     return null;
   }
 
-  const {bannerImageId, darkColor, lightColor} = currentForumEvent;
-  const pollAreaStyle: CSSProperties = {background: darkColor}
+  const {bannerImageId, darkColor, lightColor, bannerTextColor} = currentForumEvent;
+
+  const pollAreaStyle = {
+    "--forum-event-background": darkColor,
+    "--forum-event-foreground": lightColor,
+    "--forum-event-banner-text": bannerTextColor,
+    background: "--forum-event-background",
+  } as CSSProperties;
+
   if (bannerImageId) {
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
       c: "fill",

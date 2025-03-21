@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';

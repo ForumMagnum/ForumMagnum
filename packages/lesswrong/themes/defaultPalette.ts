@@ -87,13 +87,13 @@
 //   Functional notation without commas, eg "rgba(0 0 0 / 10%)"
 //   RGB percentages, eg "rgba(50%,25%,25%,1)"
 //   Omitted alpha: eg "rgb(0,0,100)"
-//   Importing color constants from @material-ui/core/colors or other libraries
+//   Importing color constants from @/lib/vendor/@material-ui/core/src/colors or other libraries
 //   Color keywords other than white, black, and transparent: eg "red", "grey", "wheat"
 //
 //
 
 export const grey = {
-  // Exactly matches @material-ui/core/colors/grey
+  // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
   100: '#f5f5f5',
   200: '#eeeeee',

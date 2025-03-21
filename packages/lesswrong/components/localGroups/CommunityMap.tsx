@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import PersonIcon from '@material-ui/icons/Person';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
 import {isFriendlyUI} from '../../themes/forumTheme'

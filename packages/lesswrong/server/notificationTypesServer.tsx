@@ -60,17 +60,29 @@ const serverRegisterNotificationType = ({skip = async () => false, ...notificati
 
 export const NewPostNotification = serverRegisterNotificationType({
   name: "newPost",
-  canCombineEmails: false,
+  canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const postId = notifications[0].documentId;
-    const post = await Posts.findOne({_id: postId});
-    if (!post) throw Error(`Can't find post to generate subject-line for: ${postId}`)
-    return post.title;
+    const uniquePostIds = Array.from(new Set(notifications.map(n => n.documentId)));
+    if (uniquePostIds.length > 1) {
+      return `${uniquePostIds.length} new posts by authors you are subscribed to`;
+    } else {
+      const postId = uniquePostIds[0];
+      const post = await Posts.findOne({_id: postId});
+      if (!post) throw Error(`Can't find post to generate subject-line for: ${postId}`)
+      return post.title;
+    }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const postId = notifications[0].documentId;
-    if (!postId) throw Error(`Can't find post to generate body for: ${postId}`)
-    return <Components.NewPostEmail documentId={postId}/>
+    const postIds = Array.from(new Set(notifications.map(n => n.documentId).filter(postId => {
+      if (!postId) {
+        // eslint-disable-next-line no-console
+        console.error("Can't find post to generate body for, no postId given");
+        return false;
+      }
+      return true;
+    }))) as string[];
+
+    return <Components.PostsEmail postIds={postIds}/>
   },
 });
 
@@ -94,7 +106,7 @@ export const NewEventNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event post to generate body for: ${postId}`)
-    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -109,7 +121,7 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find group post to generate body for: ${postId}`)
-    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -128,18 +140,28 @@ export const NominatedPostNotification = serverRegisterNotificationType({
 
 export const NewShortformNotification = serverRegisterNotificationType({
   name: "newShortform",
-  canCombineEmails: false,
+  canCombineEmails: true,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    const comment = await Comments.findOne(notifications[0].documentId)
-    const post = comment?.postId && await Posts.findOne(comment.postId)
-    // This notification type should never be triggered on tag-comments, so we just throw an error here
-    if (!post) throw Error(`Can't find post to generate subject-line for: ${comment}`)
-    return 'New comment on "' + post.title + '"';
+    if (notifications.length > 1) {
+      return `${notifications.length} new quick takes from authors you are subscribed to`;
+    } else {
+      const comment = await Comments.findOne(notifications[0].documentId);
+      const post = comment?.postId && await Posts.findOne(comment.postId);
+
+      if (!post) throw Error(`Can't find post to generate subject-line for: ${comment}`);
+
+      const author = await Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for comment: ${comment}`);
+
+      return `New quick take by ${author.displayName}`;
+    }
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    const comment = await Comments.findOne(notifications[0].documentId)
-    if (!comment) throw Error(`Can't find comment for comment email notification: ${notifications[0]}`)
-    return <Components.EmailCommentBatch comments={[comment]}/>;
+    const commentIds = notifications.map(n => n.documentId);
+    const comments = await Comments.find({_id: {$in: commentIds}}).fetch();
+    if (!comments.length) throw Error(`Can't find comments for comment email notification: ${notifications}`);
+
+    return <Components.EmailCommentBatch comments={comments}/>;
   }
 })
 
@@ -154,7 +176,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
-      return <Components.NewPostEmail documentId={ tagRel.postId}/>
+      return <Components.PostsEmail postIds={ [tagRel.postId] }/>
     }
   }
 })
@@ -603,7 +625,7 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
-    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
+    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 

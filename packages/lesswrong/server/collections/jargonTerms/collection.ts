@@ -4,7 +4,7 @@ import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/de
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {

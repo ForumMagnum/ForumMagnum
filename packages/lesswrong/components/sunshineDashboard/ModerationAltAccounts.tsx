@@ -5,8 +5,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery, gql } from '@apollo/client';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 
 const styles = (theme: ThemeType) => ({
   selectUser: {

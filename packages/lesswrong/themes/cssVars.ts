@@ -1,4 +1,4 @@
-import type { Theme as MuiThemeType } from '@material-ui/core/styles';
+import type { Theme as MuiThemeType } from '@/lib/vendor/@material-ui/core/src/styles';
 import { getAtPath } from '../lib/helpers';
 
 type ThemePathItem = string | number;

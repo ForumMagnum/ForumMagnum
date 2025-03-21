@@ -1,6 +1,6 @@
 import { getForumType, ThemeOptions } from './themeNames';
 import { baseTheme } from './createThemeDefaults';
-import { createMuiTheme, Theme as MuiThemeType } from '@material-ui/core/styles';
+import { createMuiTheme, Theme as MuiThemeType } from '@/lib/vendor/@material-ui/core/src/styles';
 import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';

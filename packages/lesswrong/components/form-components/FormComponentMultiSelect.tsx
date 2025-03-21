@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import FormLabel from '@material-ui/core/FormLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

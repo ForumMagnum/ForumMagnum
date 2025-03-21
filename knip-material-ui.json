@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "packages/lesswrong/client/clientStartup.ts",
+    "packages/lesswrong/server/runServer.ts",
+    "packages/lesswrong/lib/index.ts",
+    "packages/lesswrong/viteClient/importCkEditorVite.ts"
+  ],
+  "project": [
+    "packages/lesswrong/**",
+    "!packages/lesswrong/stubs/**",
+    "!packages/lesswrong/server/migrations/**"
+  ],
+  "ignore": [
+    "unused-files"
+  ],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "rules": {
+    "files": "error"
+  },
+  "includeEntryExports": true
+} 

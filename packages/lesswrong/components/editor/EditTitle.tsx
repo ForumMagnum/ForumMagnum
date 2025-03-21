@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { PostCategory } from '../../lib/collections/posts/helpers';

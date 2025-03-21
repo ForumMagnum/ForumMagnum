@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ConditionalVisibilityMode, conditionalVisibilityModes, ConditionalVisibilitySettings, EditConditionalVisibilityProps } from './conditionalVisibility';
-import Checkbox from '@material-ui/core/Checkbox';
-import Input from '@material-ui/core/Input';
-import Select from '@material-ui/core/Select';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 
 const styles = defineStyles("EditConditionalVisibility", (theme: ThemeType) => ({
   root: {

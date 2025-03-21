@@ -3,7 +3,7 @@ import React, { ReactNode, useRef } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, Pagination } from 'react-instantsearch-dom';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';

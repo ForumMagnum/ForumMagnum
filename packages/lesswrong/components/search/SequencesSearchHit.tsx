@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
-import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
+import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';
 import { isFriendlyUI } from '../../themes/forumTheme';

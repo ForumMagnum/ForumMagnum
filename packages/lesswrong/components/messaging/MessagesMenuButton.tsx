@@ -2,8 +2,8 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles  } from "../notifications/NotificationsMenuButton";
-import Badge from "@material-ui/core/Badge";
-import IconButton from "@material-ui/core/IconButton";
+import Badge from "@/lib/vendor/@material-ui/core/src/Badge";
+import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 

@@ -2,11 +2,11 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
+import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward'
+import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';

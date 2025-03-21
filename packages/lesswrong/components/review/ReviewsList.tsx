@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';

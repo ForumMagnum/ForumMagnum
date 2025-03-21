@@ -1,8 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import DragIcon from '@material-ui/icons/DragHandle';
-import RemoveIcon from '@material-ui/icons/Close';
+import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
+import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 
 const styles = (theme: ThemeType) => ({
   box: {

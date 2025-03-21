@@ -12,9 +12,9 @@ import {
   recommendationStrategyNames,
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
-import Checkbox from "@material-ui/core/Checkbox";
-import Select from "@material-ui/core/Select";
-import Input from "@material-ui/core/Input";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Select from "@/lib/vendor/@material-ui/core/src/Select";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import moment from "moment";
 import qs from "qs";
 import { useCurrentTime } from "../../lib/utils/timeUtil";

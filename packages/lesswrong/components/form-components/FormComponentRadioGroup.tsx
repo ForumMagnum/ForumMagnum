@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
+import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import PropTypes from 'prop-types';
 
 const styles = (theme: ThemeType) => ({

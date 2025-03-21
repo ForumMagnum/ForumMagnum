@@ -2,7 +2,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { schema } from '@/lib/collections/splashArtCoordinates/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const splashArtCoordinatesMutationOptions: MutationOptions<DbSplashArtCoordinate> = {

@@ -4,7 +4,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
-import TagIcon from '@material-ui/icons/LocalOffer';
+import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";

@@ -13,8 +13,8 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
-import Card from '@material-ui/core/Card'
-import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
+import Card from '@/lib/vendor/@material-ui/core/src/Card'
+import FormatListBulletedIcon from "@/lib/vendor/@material-ui/icons/src/FormatListBulleted"
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';

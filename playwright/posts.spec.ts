@@ -10,7 +10,7 @@ test("create and edit post", async ({page, context}) => {
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
-  await page.getByText("Submit").click();
+  await page.getByText("Publish").click();
 
   // Submitting navigates to the post page - check our new post is there
   await page.waitForURL(`/posts/**/test-post-${n}**`);
@@ -43,7 +43,7 @@ test("can create 5 posts per day, but not 6", async ({page, context}) => {
   for (let i = 0; i < 5; i++) {
     await page.goto("/newPost");
     await setPostContent(page, {title: `Test post ${i}`, body: `Test body ${i}`});
-    await page.getByText("Submit").click();
+    await page.getByText("Publish").click();
     await page.waitForURL("/posts/**");
   }
 
@@ -110,9 +110,10 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
-  await page.getByText("Submit").click();
+  await page.getByText("Publish").click();
 
   // Submitting navigates to the post page - check our new post is there
+  // This will have a slug derived from the initial title, rather than the one we just set.
   await page.waitForURL(`/posts/**/test-post-${n}**`);
   await expect(page.getByText(title)).toBeVisible();
   await expect(page.getByText(body)).toBeVisible();
@@ -120,7 +121,7 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   // Create another post with the same title
   await page.goto("/newPost");
   await setPostContent(page, {title, body});
-  await page.getByText("Submit").click();
+  await page.getByText("Publish").click();
 
   // We should get an error
   const error = page.getByText("You recently published another post titled").first();

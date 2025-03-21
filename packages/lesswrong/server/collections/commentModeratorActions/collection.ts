@@ -1,7 +1,7 @@
 import schema from '@/lib/collections/commentModeratorActions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const CommentModeratorActions: CommentModeratorActionsCollection = createCollection({

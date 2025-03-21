@@ -2,7 +2,7 @@ import React, { createContext, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from "jss";
-import { jssPreset } from "@material-ui/core/styles";
+import { jssPreset } from "@/lib/vendor/@material-ui/core/src/styles";
 import { isClient } from "@/lib/executionEnvironment";
 
 export type StylesContextType = {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 
 const styles = (theme: ThemeType) => ({
   root: {

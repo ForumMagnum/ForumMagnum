@@ -23,6 +23,9 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'HqmQMmKgX7nfSLaNX', // Moral error as an existential risk
+  'aHqCaNCmrhRreuyBN', // US aid freeze – how to help & where to donate: GWWC's February Newsletter
+  'rxTPv3MdrsHiqK7kM', // Money, Population, and Insecticide Resistance: Why malaria cases haven’t declined since 2015
   'DZnSFYPzoL2oT3pXX', // Announcing: Existential Choices Debate Week (March 17-24)
   'S9H86osFKhfFBCday', // How bad would human extinction be?
   'jCwuozHHjeoLPLemB', // How Long Do Policy Changes Matter?

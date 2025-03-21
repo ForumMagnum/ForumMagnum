@@ -1,5 +1,5 @@
 import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -11,7 +11,7 @@ import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/c
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import ArrowForward from '@material-ui/icons/ArrowForward';
+import ArrowForward from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';

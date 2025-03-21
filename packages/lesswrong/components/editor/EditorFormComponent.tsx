@@ -7,7 +7,6 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
   EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
-import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -81,6 +80,9 @@ export const EditorFormComponent = ({
   formVariant,
   commentStyles,
   updateCurrentValues,
+  submitForm,
+  addToSubmitForm,
+  addToSuccessForm,
   classes,
 }: FormComponentProps<any> & {
   form: any,
@@ -91,10 +93,9 @@ export const EditorFormComponent = ({
   formVariant?: "default" | "grey",
   commentStyles: boolean,
   classes: ClassesType<typeof styles>,
-}, context: any) => {
+}) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
-  const { submitForm } = context;
   const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
@@ -109,6 +110,25 @@ export const EditorFormComponent = ({
       getLSKeyPrefix(editorType)
     );
   }, [document, name, editableFieldOptions.clientOptions.getLocalStorageId]);
+
+
+  const getNewPostLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
+    // It would be nice to check that it's a post and not a comment, but it should be fine
+    // in comments as well, because there should always be content when editing a comment
+    // (which we check later).
+    if (formType !== "edit" || document.contents_latest || document.title !== 'Untitled Draft') {
+      return {
+        get: () => null,
+        set: () => {},
+        reset: () => {},
+      };
+    }
+    // pass in {_id: null} to getLocalStorageId to treat this like a new post, without having to change how makeEditableOptions works
+    const getLocalStorageId = (_: any, name: string) => editableFieldOptions.clientOptions.getLocalStorageId?.({_id: null}, name);
+    return getLSHandlers(getLocalStorageId, document, name,
+      getLSKeyPrefix(editorType)
+    );
+  }, [document, name, editableFieldOptions.clientOptions, formType]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
@@ -264,19 +284,11 @@ export const EditorFormComponent = ({
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
       autosaveContentsRef.current = newContents;
-      if (updatedFormType === 'new') {
-        setUpdatedFormType('edit');
-        const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
-        await updateCurrentValues({ draft: true, ...defaultTitle });
-        // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
-        await submitForm(null, { noReload: true });
-      } else {
-        await autosaveRevision({ 
-          variables: { postId: document._id, contents: newContents }
-        });
-      }
+      await autosaveRevision({
+        variables: { postId: document._id, contents: newContents }
+      });
     }
-  }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
+  }, [currentUser, collectionName, fieldName, document._id, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -385,10 +397,22 @@ export const EditorFormComponent = ({
       // TODO: Focus editor
     }
   }, [wrappedSetContents, flash, isCollabEditor]);
+
+  const onRestoreNewPostLegacy = useCallback((newState: EditorContents) => {
+    if (isCollabEditor) {
+      // If in collab editing mode, we can't edit the editor contents.
+      flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
+    } else {
+      wrappedSetContents({contents: newState, autosave: false});
+      getNewPostLocalStorageHandlers(currentEditorType).reset();
+      // TODO: Focus editor
+    }
+  }, [wrappedSetContents, flash, isCollabEditor, currentEditorType, getNewPostLocalStorageHandlers]);
+  
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm(async (submission: any) => {
+      const cleanupSubmitForm = addToSubmitForm(async (submission: any) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current))
           return {
             ...submission,
@@ -397,7 +421,7 @@ export const EditorFormComponent = ({
         else
           return submission;
       });
-      const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
+      const cleanupSuccessForm = addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
@@ -442,7 +466,7 @@ export const EditorFormComponent = ({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
+  }, [!!editorRef.current, fieldName, initialEditorType, addToSuccessForm, addToSubmitForm]);
   
   const fieldHasCommitMessages = getEditableFieldInCollection(collectionName as CollectionNameString, fieldName)?.editableFieldOptions.clientOptions.revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
@@ -485,6 +509,8 @@ export const EditorFormComponent = ({
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
+      onRestoreNewPostLegacy={onRestoreNewPostLegacy}
+      getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
     <Components.Editor
@@ -536,12 +562,6 @@ export const EditorFormComponent = ({
 export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {
   hocs: [withErrorBoundary], styles
 });
-
-(EditorFormComponent as any).contextTypes = {
-  addToSubmitForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  submitForm: PropTypes.func,
-};
 
 declare global {
   interface ComponentTypes {

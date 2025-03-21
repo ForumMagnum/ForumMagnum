@@ -7,8 +7,8 @@ import { postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import Visibility from '@/lib/vendor/@material-ui/icons/src/Visibility';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import isEqual from 'lodash/isEqual';
 

@@ -1,6 +1,6 @@
 import schema from '@/lib/collections/elicitQuestionPredictions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from '@/lib/vulcan-core/default_resolvers'
+import { getDefaultResolvers } from '@/server/resolvers/defaultResolvers'
 
 export const ElicitQuestionPredictions: ElicitQuestionPredictionsCollection = createCollection({
   collectionName: 'ElicitQuestionPredictions',

@@ -862,6 +862,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
+    {
+      name: 'setPassword',
+      path: '/setPassword',
+      componentName: 'Auth0PasswordResetPage',
+      title: 'Set password',
+    },
   ],
   LessWrong: [
     {

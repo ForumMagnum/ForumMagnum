@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";

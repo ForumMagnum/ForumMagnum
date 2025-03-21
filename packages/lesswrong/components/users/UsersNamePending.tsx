@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import ErrorIcon from '@material-ui/icons/ErrorOutline';
+import ErrorIcon from '@/lib/vendor/@material-ui/icons/src/ErrorOutline';
 import {
   userGetDisplayName,
   userGetProfileUrl,

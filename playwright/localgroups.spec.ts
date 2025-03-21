@@ -26,7 +26,7 @@ test("can create and edit events in group", async ({page, context}) => {
     body: "Test event body",
     titlePlaceholder: "Event name",
   });
-  await page.getByText("Submit").click();
+  await page.getByText("Publish").click();
 
   // Submitting the new event navigates to the event page
   await page.waitForURL("/events/**/test-event-title**");

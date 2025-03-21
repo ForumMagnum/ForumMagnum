@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Button, { ButtonProps } from '@material-ui/core/Button';
+import Button, { ButtonProps } from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 

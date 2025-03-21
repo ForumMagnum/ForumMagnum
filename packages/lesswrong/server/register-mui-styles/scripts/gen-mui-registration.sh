@@ -39,7 +39,7 @@ if ! <"$MUI_SRC" grep -q 'palette' > /dev/null; then
 	exit 0
 fi
 
-echo import $component from "'@material-ui/core/$component';"
+echo import $component from "'@/lib/vendor/@material-ui/core/src/$component';"
 
 <"$MUI_SRC" 2>/dev/null kakfilter '
 	/^export const styles<ret>gh # Find line with "styles" export

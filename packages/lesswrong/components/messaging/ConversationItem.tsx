@@ -3,9 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
-import ArchiveIcon from '@material-ui/icons/Archive';
-import UnarchiveIcon from '@material-ui/icons/Unarchive';
-import Tooltip from '@material-ui/core/Tooltip';
+import ArchiveIcon from '@/lib/vendor/@material-ui/icons/src/Archive';
+import UnarchiveIcon from '@/lib/vendor/@material-ui/icons/src/Unarchive';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
 

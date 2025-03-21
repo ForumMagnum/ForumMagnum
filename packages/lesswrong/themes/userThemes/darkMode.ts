@@ -4,7 +4,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
 export const invertedGreyscale = {
-  // Present in @material-ui/core/colors/grey
+  // Present in @/lib/vendor/@material-ui/core/src/colors/grey
   50: invertHexColor('#fafafa'),
   100: invertHexColor('#f5f5f5'),
   200: invertHexColor('#eeeeee'),

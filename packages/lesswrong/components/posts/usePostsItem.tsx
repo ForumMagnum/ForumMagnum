@@ -11,7 +11,7 @@ import {
   postGetPrimaryTag,
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
-import type { PopperPlacementType } from "@material-ui/core/Popper"
+import type { PopperPlacementType } from "@/lib/vendor/@material-ui/core/src/Popper"
 import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/collections/posts/annualReviewMarkets";
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';

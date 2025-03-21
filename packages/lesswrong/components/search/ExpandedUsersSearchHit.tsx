@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
-import LocationIcon from '@material-ui/icons/LocationOn'
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

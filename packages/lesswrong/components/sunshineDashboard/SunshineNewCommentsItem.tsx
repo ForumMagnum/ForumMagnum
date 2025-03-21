@@ -7,8 +7,8 @@ import { useHover } from '../common/withHover'
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
-import DoneIcon from '@material-ui/icons/Done';
-import ClearIcon from '@material-ui/icons/Clear';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import { isLWorAF } from '../../lib/instanceSettings';
 
 const SunshineNewCommentsItem = ({comment}: {

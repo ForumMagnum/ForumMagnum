@@ -34,7 +34,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[0].waitForTimeout(1000);
 
   // Create the post
-  await pages[0].getByText("Submit").click();
+  await pages[0].getByText("Publish").click();
 
   // Check the post exists on the source site
   await pages[0].waitForURL("/posts/**/**");

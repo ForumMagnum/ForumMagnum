@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import RejectedIcon from "@material-ui/icons/NotInterested";
+import RejectedIcon from "@/lib/vendor/@material-ui/icons/src/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
-import ReplayIcon from '@material-ui/icons/Replay';
+import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
 
 const styles = (theme: ThemeType) => ({
   root: {

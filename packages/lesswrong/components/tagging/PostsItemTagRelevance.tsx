@@ -4,7 +4,7 @@ import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 

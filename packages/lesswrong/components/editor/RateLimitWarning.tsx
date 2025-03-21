@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
-import AlarmIcon from '@material-ui/icons/Alarm';
+import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowUpIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

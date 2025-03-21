@@ -1,10 +1,10 @@
 import React, { Component, FC } from 'react';
 import PropTypes from 'prop-types';
-import Tooltip from '@material-ui/core/Tooltip';
-import Checkbox from '@material-ui/core/Checkbox';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 
 const styles = (theme: ThemeType) => ({
   submitToFrontpageWrapper: {

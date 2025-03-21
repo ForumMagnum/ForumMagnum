@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import FlagIcon from '@material-ui/icons/Flag';
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';

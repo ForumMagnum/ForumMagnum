@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import { defaultNotificationTypeSettings, NotificationChannelOption, NotificationTypeSettings } from '../../lib/collections/users/schema';

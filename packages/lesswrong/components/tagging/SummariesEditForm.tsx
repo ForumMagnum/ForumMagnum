@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";

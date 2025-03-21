@@ -454,7 +454,7 @@ export const FeaturedResourcesDefaultFragment = `
 `;
 
 export const FieldChangesDefaultFragment = `
-  fragment FieldChangesDefaultFragment on undefined {
+  fragment FieldChangesDefaultFragment on FieldChange {
     _id
     schemaVersion
     createdAt
@@ -489,6 +489,9 @@ export const ForumEventsDefaultFragment = `
     bannerImageId
     includesPoll
     eventFormat
+    pollQuestion_latest
+    pollAgreeWording
+    pollDisagreeWording
     maxStickersPerUser
     customComponent
     commentPrompt

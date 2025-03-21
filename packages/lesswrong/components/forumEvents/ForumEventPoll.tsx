@@ -15,6 +15,7 @@ import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -38,9 +39,9 @@ const styles = (theme: ThemeType) => ({
   },
   question: {
     fontSize: 32,
-    lineHeight: '110%',
+    lineHeight: '100%',
     fontWeight: 700,
-    maxWidth: 700,
+    maxWidth: 730,
     marginBottom: 13,
     marginLeft: "auto",
     marginRight: "auto"
@@ -378,27 +379,100 @@ const clusterForumEventVotes = ({
   return clusters;
 };
 
-const PollQuestion = ({
+function footnotesToTooltips({
+  html,
+  event,
+  classes,
+}: {
+  html: string;
+  event: ForumEventsDisplay;
+  classes: ClassesType<typeof styles>;
+}): React.ReactNode[] {
+  const { LWTooltip } = Components;
+
+  const { document } = parseDocumentFromString(html);
+
+  const footnotes = Array.from(document.querySelectorAll(".footnote-item"));
+  const footnotesMap: Record<string, string> = {};
+  for (const li of footnotes) {
+    const footnoteId = li.getAttribute("data-footnote-id");
+    if (!footnoteId) continue;
+    const footnoteHtml = li.querySelector(".footnote-content")?.innerHTML ?? "";
+    footnotesMap[footnoteId] = footnoteHtml;
+  }
+
+  // Remove the footnotes block from the DOM so we don't flatten it
+  const footnotesList = document.querySelector(".footnotes");
+  footnotesList?.remove();
+
+  const resultArray: React.ReactNode[] = [];
+
+  function walkNode(node: ChildNode) {
+    // If TEXT_NODE, just push its text, dropping the specific html tag etc
+    if (node.nodeType === ServerSafeNode.TEXT_NODE) {
+      const text = node.textContent || "";
+      if (text.trim() !== "") {
+        resultArray.push(text);
+      }
+      return;
+    }
+
+    if (node.nodeType === ServerSafeNode.ELEMENT_NODE) {
+      const el = node as Element;
+
+      // If it's a .footnote-reference, produce a <LWTooltip>
+      if (el.classList.contains("footnote-reference")) {
+        const footnoteId = el.getAttribute("data-footnote-id") || "";
+        const content = footnotesMap[footnoteId] || "";
+
+        // Extract just digits from e.g. "[1]" → "1"
+        const footnoteNumberRaw = el.textContent?.trim() || "";
+        const footnoteNumber = footnoteNumberRaw.replace(/[^\d]+/g, "") || "?";
+
+        const tooltipNode = (
+          <LWTooltip
+            key={footnoteNumber}
+            title={<div dangerouslySetInnerHTML={{ __html: content }} />}
+          >
+            <span
+              className={classes.questionFootnote}
+              style={{ color: event.contrastColor ?? event.darkColor }}
+            >
+              {footnoteNumber}
+            </span>
+          </LWTooltip>
+        );
+        resultArray.push(tooltipNode);
+      } else {
+        Array.from(el.childNodes).forEach(walkNode);
+      }
+    }
+  }
+
+  // Walk all top level nodes, recursing into child nodes
+  Array.from(document.body.childNodes).forEach(walkNode);
+
+  return resultArray;
+}
+
+function PollQuestion({
   event,
   classes,
 }: {
   event: ForumEventsDisplay;
   classes: ClassesType<typeof styles>;
-}) => {
-  const { LWTooltip } = Components;
+}) {
+  const { pollQuestion } = event;
 
-  return (
-    <div className={classes.question}>
-      “It would be better to spend an extra $100m
-      <LWTooltip title="In total. You can imagine this is a trust that could be spent down today, or over any time period.">
-        <span className={classes.questionFootnote} style={{ color: event.contrastColor ?? event.darkColor }}>
-          1
-        </span>
-      </LWTooltip>{" "}
-      on animal welfare than on global health”
-    </div>
+  const displayHtml = useMemo(
+    () => (pollQuestion?.html ? footnotesToTooltips({ html: pollQuestion.html, event, classes }) : null),
+    [pollQuestion?.html, event, classes]
   );
-};
+
+  if (!displayHtml) return null;
+
+  return <div className={classes.question}>{displayHtml}</div>;
+}
 
 /**
  * This component is for forum events that have a poll.
@@ -677,6 +751,17 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
+  const commentPrefilledProps: Partial<DbComment> = !currentUserComment && currentUserVote !== null ? {
+    forumEventMetadata: {
+      eventFormat: "POLL",
+      sticker: null,
+      poll: {
+        voteWhenPublished: currentUserVote,
+        latestVote: null
+      }
+    },
+  } : {};
+
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classes.root}>
@@ -793,6 +878,7 @@ export const ForumEventPoll = ({
                     <ForumEventCommentForm
                       open={commentFormOpen}
                       comment={currentUserComment}
+                      prefilledProps={commentPrefilledProps}
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEvent={event}
                       cancelCallback={() => setCommentFormOpen(false)}

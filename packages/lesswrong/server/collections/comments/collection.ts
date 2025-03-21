@@ -3,7 +3,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '@/lib/collections/users/helpers';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { commentVotingOptions } from '@/lib/collections/comments/voting';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {

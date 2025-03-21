@@ -6,7 +6,7 @@ import { userCanEditTagPortal } from '../../lib/betas'
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
 import { useNotifyMe } from '../hooks/useNotifyMe';

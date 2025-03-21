@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
-import Info from '@material-ui/icons/Info';
-import Tooltip from '@material-ui/core/Tooltip';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { isLWorAF } from '../../lib/instanceSettings';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { forumHeaderTitleSetting } from '../common/Header';
 
 const styles = (theme: ThemeType) => ({

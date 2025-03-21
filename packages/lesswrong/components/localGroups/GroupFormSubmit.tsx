@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components.tsx";
-import Button from "@material-ui/core/Button";
-import Tooltip from "@material-ui/core/Tooltip";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import Tooltip from "@/lib/vendor/@material-ui/core/src/Tooltip";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({

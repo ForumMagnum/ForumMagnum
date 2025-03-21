@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import Tooltip from '@material-ui/core/Tooltip';
+import SvgIcon from '@/lib/vendor/@material-ui/core/src/SvgIcon';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme'

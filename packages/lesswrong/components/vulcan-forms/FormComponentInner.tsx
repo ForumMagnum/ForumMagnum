@@ -41,6 +41,7 @@ const FormComponentInner = (props: FormComponentInnerWrapperProps<any>) => {
     input,
     beforeComponent,
     afterComponent,
+    getLabel,
     errors,
   } = props;
 
@@ -93,7 +94,7 @@ const FormComponentInner = (props: FormComponentInnerWrapperProps<any>) => {
     <div className={classNames(inputClass, {[classes.highlightAnimation]: highlight})} ref={scrollRef}>
       {instantiateComponent(beforeComponent, properties)}
       <FormInput {...properties}/>
-      {hasErrors ? <Components.FieldErrors errors={errors} /> : null}
+      {hasErrors ? <Components.FieldErrors errors={errors} getLabel={getLabel} /> : null}
       {renderClear()}
       {instantiateComponent(afterComponent, properties)}
     </div>

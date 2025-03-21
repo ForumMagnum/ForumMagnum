@@ -9,7 +9,7 @@ import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
-import SubdirectoryArrowLeft from "@material-ui/icons/SubdirectoryArrowLeft";
+import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 
 const styles = (theme: ThemeType) => ({

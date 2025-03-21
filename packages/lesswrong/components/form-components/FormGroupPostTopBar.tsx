@@ -1,15 +1,20 @@
 import React from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { QuestionIcon } from '../icons/questionIcon';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { Link } from "../../lib/reactRouterWrapper";
 
 // We want the buttons to go _above_ the tabs when the space gets too tight,
 // which requires some special breakpoint logic (due to the how the central column
 // both expands and contracts as you reduce the screen size):
 // - Use the row layout above 1070px, and between 620px and the "md" breakpoint (around 950px)
 // - Otherwise use the column layout, with the buttons above
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FormGroupPostTopBar", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -53,9 +58,57 @@ const styles = (theme: ThemeType) => ({
       flexBasis: 'auto',
     },
   },
-});
+  editorGuideOffset: {
+  },
+  editorGuideButton: {
+    color: theme.palette.grey[900],
+    backgroundColor: "transparent",
+    padding: "2px 12px",
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  editorGuide: {
+    display: 'flex',
+    alignItems: 'center',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    paddingTop: 2,
+    borderRadius: theme.borderRadius.default,
+  },
+  editorGuideIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 6
+  },
+  editorGuideLink: {}
+}));
 
-const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
+const LinkToEditorGuideButton = () => {
+  const classes = useStyles(styles);
+  const {LWTooltip, EAButton, ForumIcon} = Components;
+  const navigate = useNavigate();
+
+  if (isLWorAF) {
+    return (
+      <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+        <EAButton
+          className={classes.editorGuideButton}
+          onClick={() => {
+            navigate(tagGetUrl({slug: "guide-to-the-lesswrong-editor"}))
+          }}
+        >
+          <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
+          Editor Guide
+        </EAButton>
+      </LWTooltip>
+    );
+  } else {
+    return null;
+  }
+}
+
+const FormGroupPostTopBar = ({ children }: FormGroupLayoutProps) => {
+  const classes = useStyles(styles);
   const childrenArray = React.Children.toArray(children);
   const [tabs, ...otherChildren] = childrenArray;
 
@@ -70,13 +123,14 @@ const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { cla
       <div className={classes.tabs}>{tabs}</div>
       <div className={classes.otherChildren}>
         {hasGoogleDocImportSetting.get() && <GoogleDocImportButton postId={postId} version={version} />}
+        <LinkToEditorGuideButton />
         {otherChildren}
       </div>
     </div>
   );
 };
 
-const FormGroupPostTopBarComponent = registerComponent('FormGroupPostTopBar', FormGroupPostTopBar, { styles })
+const FormGroupPostTopBarComponent = registerComponent('FormGroupPostTopBar', FormGroupPostTopBar)
 
 declare global {
   interface ComponentTypes {

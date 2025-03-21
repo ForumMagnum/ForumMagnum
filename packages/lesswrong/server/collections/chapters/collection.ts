@@ -3,7 +3,7 @@ import schema from '@/lib/collections/chapters/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import Sequences from '../sequences/collection';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbChapter> = {

@@ -8,7 +8,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 

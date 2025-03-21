@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
