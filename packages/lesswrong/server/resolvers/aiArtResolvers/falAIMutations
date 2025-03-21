@@ -1,0 +1,23 @@
+import { defineMutation } from '../../utils/serverGraphqlUtil';
+
+
+
+
+
+
+
+
+defineMutation({
+  name: 'generateReviewWinnerArt',
+  argTypes: '(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String)',
+  resultType: '[JargonTerm]',
+  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
+    if (!currentUser) {
+      throw new Error('You need to be logged in to generate jargon terms');
+    }
+    if (!userIsAdmin(currentUser)) {
+      throw new Error('You need to be an admin to generate review winner art');
+    }
+    return await createNewJargonTerms({ postId, currentUser, ...exampleParams });
+  },
+});

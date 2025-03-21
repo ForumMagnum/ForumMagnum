@@ -80,7 +80,7 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
     limit: 5
   });
 
-  const { LWTooltip, UsersName, CommentBody, SmallSideVote } = Components;
+  const { LWTooltip, UsersName, CommentBody, SmallSideVote, UsersNameDisplay } = Components;
 
   const reviewPreview = (review: CommentsList) => <div className={classes.reviewPreviewContainer}>
     <div className={classes.reviewPreview}>
@@ -105,7 +105,7 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
                 Review by
               </div>
             <div>
-              {review?.user?.displayName || "Anonymous"}
+              <UsersNameDisplay user={review.user} />
             </div>
             </div>
           </HashLink>

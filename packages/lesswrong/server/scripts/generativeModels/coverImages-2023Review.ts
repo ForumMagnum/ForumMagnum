@@ -26,6 +26,12 @@ const promptImageUrls = [
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
+  return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, smooth color gradients, ethereal, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
+}
+
+
+const prompterOld = (el: string) => {
+  const lowerCased = el[0].toLowerCase() + el.slice(1)
   return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
 }
 
@@ -131,35 +137,31 @@ const saveImage = async (prompt: string, essay: Essay, url: string) => {
 }
 
 const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
-  const postIds = await ReviewWinners
-    .find({reviewYear: 2023}, { projection: { postId: 1, reviewYear: 1 }, sort: { reviewRanking: 1 } })
-    .fetch();
-  const reviewArts = await ReviewWinnerArts
-    .find({})
-    .fetch();
-  const postIdsWithoutLotsOfArt = postIds
-  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 90)
-  const postIdsWithoutEnoughArt = postIds
-  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 100)
+  const targetAmountOfArt = 100
 
-  const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
+  const postIds = await ReviewWinners.find({reviewYear: 2023}, { projection: { postId: 1, reviewYear: 1 }, sort: { reviewRanking: 1 } }).fetch();
+
+  const reviewArts = await ReviewWinnerArts.find({}).fetch();
+
+  const postIdsWithoutEnoughArt = postIds
+  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < (targetAmountOfArt * .9))
 
   const essays = await fetchFragment({
     collectionName: "Posts",
     fragmentName: "PostsPage",
-    selector: {_id: {$in: postsToFind.map(p => p.postId)}},
+    selector: {_id: {$in: postIdsWithoutEnoughArt.map(p => p.postId)}},
     currentUser: null,
     skipFiltering: true,
   });
 
-  const toGenerate = (p: PostsPage) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
-
   return essays.map(e => {
-    return {post: e, title: e.title, content: e.contents?.html ?? "", toGenerate: toGenerate(e) }
+    const existingArtCount = reviewArts.filter(a => a.postId === e._id).length;
+    const neededArtCount = Math.max(0, targetAmountOfArt - existingArtCount);
+    return {post: e, title: e.title, content: e.contents?.html ?? "", neededArtCount}
   })
 }
 
-type Essay = {post: PostsPage, title: string, content: string, toGenerate: number}
+type Essay = {post: PostsPage, title: string, content: string, neededArtCount: number}
 
 const TextResponseFormat = zodResponseFormat(z.object({
   metaphors: z.array(z.string()),
@@ -225,6 +227,9 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error generating image:', error);
+    // eslint-disable-next-line no-console
+    console.log("prompt", prompt)
+    console.log("imageUrl", imageUrl)
     throw error;
   }
 }
@@ -272,10 +277,12 @@ type EssayResult = {
 
 const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
+  console.log("essay", essay.title, essay.neededArtCount)
   const prompts = await getPrompts(openAiClient, essay)
-  const promptsX5 = prompts.flatMap(p => Array(5).fill(p))
-
-  const results = Promise.all(promptsX5.map(async (prompt) => {
+  const promptCount = Math.floor(essay.neededArtCount/prompts.length)
+  const promptsTotal = prompts.flatMap(p => Array(promptCount).fill(p))
+  console.log("promptsTotal", promptsTotal.length)
+  const results = Promise.all(promptsTotal.map(async (prompt) => {
     const image = await generateHighResImage(essay, prompt, sample(promptImageUrls)!)
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
@@ -288,11 +295,11 @@ export const getReviewWinnerArts = async () => {
   console.time('running getReviewWinnerArts');
 
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays
+  const essays = totalEssays.slice(0, 1)
 
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
-    throw new Error('Could not initialize OpenAI client!');
+    throw new Error('         Could not initialize OpenAI client!');
   }
 
   const results: EssayResult[][] = await Promise.all(essays.map(async (essay) => {

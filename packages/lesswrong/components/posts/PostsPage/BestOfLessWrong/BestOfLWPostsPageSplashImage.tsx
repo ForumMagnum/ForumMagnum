@@ -14,6 +14,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     position: 'fixed',
     width: '100vw',
     top: -100,
+    right: -200,
     [theme.breakpoints.down('xs')]: {
       top: -108
     },
@@ -21,6 +22,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   backgroundImage: {
     position: 'absolute',
     objectFit: 'cover',
+    objectPosition: 'right',
     top: 0,
     right: 0,
     height: "100vh",
