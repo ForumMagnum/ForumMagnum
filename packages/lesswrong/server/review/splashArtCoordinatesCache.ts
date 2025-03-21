@@ -16,8 +16,5 @@ export const splashArtCoordinateCache = new SwrCache<{
 
 export async function getReviewWinnerArtCoordinates(reviewWinnerArtId: string, context: ResolverContext): Promise<DbSplashArtCoordinate | null> {
   const { coordinatesByReviewWinnerArtId } = await splashArtCoordinateCache.get();
-  return (
-    coordinatesByReviewWinnerArtId[reviewWinnerArtId]
-      ?? await context.SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } })
-  );
+  return coordinatesByReviewWinnerArtId[reviewWinnerArtId];
 }
