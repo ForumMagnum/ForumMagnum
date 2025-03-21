@@ -15,6 +15,7 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "1.1rem",
+    justifyContent: "space-between",
     "& > *": {
       marginRight: 5,
     },
@@ -30,16 +31,22 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     flexWrap: "wrap",
     // rowGap: "0px",
   },
+  rightSection: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: "auto",
+    marginRight: 0,
+  },
   karma: {
     display: "inline-block",
     textAlign: "center",
     flexGrow: 0,
     flexShrink: 0,
     paddingRight: 8,
-    marginRight: 8,
+    marginRight: 4,
   },
   username: {
-    marginRight: 8,
+    marginRight: 12,
     '& a, & a:hover': {
       color: theme.palette.link.unmarked,
     },
@@ -61,9 +68,9 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     marginRight: 8,
   },
   voteButtons: {
-    // marginLeft: 8,
+    marginLeft: 0,
     marginRight: 0,
-    paddingTop: 4
+    paddingTop: 2,
   },
 }));
 
@@ -97,6 +104,7 @@ const UltraFeedPostItemMeta = ({
     
     return (
       <span className={classes.username}>
+        By&nbsp;
         <UsersName user={mainAuthor} />
         {additionalAuthorsCount > 0 && (
           <span className={classes.coauthors}>+{additionalAuthorsCount}</span>
@@ -117,14 +125,18 @@ const UltraFeedPostItemMeta = ({
             <FormatDate date={post.postedAt} />
           </span>
         )}
-        {showVoteButtons && <div className={classes.voteButtons}>
-          <SmallSideVote
-            document={post}
-            collectionName="Posts"
-            hideKarma={false}
-          />
-        </div>}
       </span>
+      {showVoteButtons && (
+        <span className={classes.rightSection}>
+          <div className={classes.voteButtons}>
+            <SmallSideVote
+              document={post}
+              collectionName="Posts"
+              hideKarma={false}
+            />
+          </div>
+        </span>
+      )}
     </div>
   );
 };

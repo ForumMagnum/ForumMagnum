@@ -8,6 +8,10 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 const styles = defineStyles("UltraFeedPostThreadItem", (theme: ThemeType) => ({
   root: {
     // Empty for now
+    padding: 12,
+    // marginBottom: 16,
+    backgroundColor: theme.palette.panelBackground.default,
+    borderRadius: 4,
   },
 }));
 

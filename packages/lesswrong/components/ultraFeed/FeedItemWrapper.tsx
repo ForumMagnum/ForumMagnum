@@ -4,7 +4,10 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
-    marginBottom: 32,
+    marginBottom: 0,
+    borderBottom: '4px solid rgba(0,0,0,0.05)'
+    // borderBottom: '3px solid rgba(0,0,0,0.10)'
+
   },
   sourceLabel: {
     display: 'flex',
@@ -45,6 +48,8 @@ const FeedItemWrapper = ({sources, children}: {
 };
 
 const FeedItemWrapperComponent = registerComponent('FeedItemWrapper', FeedItemWrapper);
+
+export default FeedItemWrapperComponent;
 
 declare global {
   interface ComponentTypes {

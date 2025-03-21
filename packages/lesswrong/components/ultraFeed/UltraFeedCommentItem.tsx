@@ -17,8 +17,8 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius: 4,
     backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.itemSeparatorBottom,
-    // marginBottom: 4,
   },
   hidden: {
     display: 'none',
@@ -78,10 +78,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
 // Main component definition
 const UltraFeedCommentItem = ({
   commentWithMetaInfo,
-  post
+  post,
+  forceExpand,
 }: {
   commentWithMetaInfo: DisplayFeedComment,
   post: PostsMinimumInfo,
+  forceExpand?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
@@ -89,7 +91,10 @@ const UltraFeedCommentItem = ({
 
   const { comment, metaInfo } = commentWithMetaInfo;
 
-  const initialExpanded = metaInfo.displayStatus === "expanded";
+  // Initial expansion state is determined by either:
+  // 1. The forceExpand prop (if provided)
+  // 2. The default display status from metadata
+  const initialExpanded = true // forceExpand !== undefined ? forceExpand : metaInfo.displayStatus === "expanded";
   
   // Calculate if content should be truncated (over 500 words)
   const shouldTruncate = useMemo(() => {
@@ -100,11 +105,21 @@ const UltraFeedCommentItem = ({
   const [contentTruncated, setContentTruncated] = useState(shouldTruncate);
   const [showEditState, setShowEditState] = useState(false);
 
+  // Update expanded state when forceExpand prop changes
+  React.useEffect(() => {
+    if (forceExpand !== undefined) {
+      setExpanded(forceExpand);
+      setContentTruncated(false);
+    }
+  }, [forceExpand]);
+
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
 
-  const handleContentClick = useCallback(() => {
+  const handleContentClick = useCallback((ev: React.MouseEvent<HTMLDivElement>) => {
+    ev.preventDefault();
+    ev.stopPropagation();
     setContentTruncated(false);
   }, []);
 

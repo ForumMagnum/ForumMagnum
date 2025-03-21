@@ -10,19 +10,17 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
-    position: "relative",
-    padding: theme.spacing.unit*1.5,
-    borderRadius: 4,
-    backgroundColor: theme.palette.panelBackground.default,
-    borderBottom: theme.palette.border.itemSeparatorBottom,
     // marginBottom: 4,
+    // paddingLeft: 4,
+    // paddingRight: 4,
+    paddingBottom: 4,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   titleRow: {
     display: 'flex',
@@ -34,18 +32,18 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   titleContainer: {
     flexGrow: 1,
     paddingRight: 8,
+    marginBottom: 0,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.2rem',
-    fontWeight: 500,
+    fontWeight: 600,
     lineHeight: 1.15,
-    color: theme.palette.primary.main,
-    textDecoration: 'none',
-    textAlign: 'left',
+    textWrap: 'balance',
+    opacity: 0.7,
     width: '100%',
     '&:hover': {
-      textDecoration: 'underline',
+      opacity: 0.9,
     },
     // marginBottom: 4,
   },
@@ -136,7 +134,7 @@ const UltraFeedPostItem = ({
         //     <div dangerouslySetInnerHTML={{ __html: html }} />
         //   </ContentStyles>
         // </div>
-        <FeedPostsHighlight post={post} maxCollapsedLengthWords={40} />
+        <FeedPostsHighlight post={post} maxCollapsedLengthWords={60} />
       )}
       
     </div>
