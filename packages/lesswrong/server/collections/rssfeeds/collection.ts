@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/rssfeeds/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
@@ -27,8 +26,7 @@ const options: MutationOptions<DbRSSFeed> = {
 export const RSSFeeds: RSSFeedsCollection = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('RSSFeeds', { userId: 1, createdAt: 1 });
     return indexSet;

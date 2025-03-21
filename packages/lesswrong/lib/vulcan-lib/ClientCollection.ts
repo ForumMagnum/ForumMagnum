@@ -26,7 +26,8 @@ class ClientCollection<
   }
 
   hasSlug(): this is ClientCollection<CollectionNameWithSlug> {
-    return !!getSchema(this.collectionName).slug;
+    const schema = getSchema(this.collectionName);
+    return 'slug' in schema;
   }
 
   private executeQuery(): never {
