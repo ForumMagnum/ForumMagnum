@@ -14,11 +14,17 @@
 export const acceptsSchemaHash = "2431de6961ce37514d54a17a5ca14adc";
 
 import Users from "../../server/collections/users/collection"
-import { NotificationTypeSettings } from "../../lib/collections/users/schema";
 import { updateDefaultValue } from "./meta/utils"
 
+type LegacyNotificationTypeSettings = {
+  channel: 'none' | 'onsite' | 'email' | 'both';
+  dayOfWeekGMT: string;
+  timeOfDayGMT: number;
+  batchingFrequency: 'realtime' | 'daily' | 'weekly';
+};
+
 export const up = async ({db}: MigrationContext) => {
-  const newSettings: NotificationTypeSettings = {
+  const newSettings: LegacyNotificationTypeSettings = {
     channel: 'none',
     dayOfWeekGMT: 'Monday',
     timeOfDayGMT: 12,
