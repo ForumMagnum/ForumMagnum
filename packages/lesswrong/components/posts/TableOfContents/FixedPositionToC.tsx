@@ -432,7 +432,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
         <div className={classes.unfilledProgressBar}/>
       </div>
       <div className={classes.rows}>
-        {prefix}
+        {/* {prefix} */}
         {titleRow}
         <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
           {heading}

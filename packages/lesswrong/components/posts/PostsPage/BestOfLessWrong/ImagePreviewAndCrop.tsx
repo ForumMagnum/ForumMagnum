@@ -78,9 +78,9 @@ const ImagePreviewAndCrop = ({ imgRef, imageFlipped, setImageFlipped, post }: { 
   return <div className={classes.rightSectionBelowBottomRow}>
     <div {...eventHandlers}>
       <div className={classes.changeImageBox}>Change image</div>
-      <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
         <div className={classes.splashContent}>
+          <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
           <SplashHeaderImageOptions post={post}/>
         </div>
       </LWPopper>

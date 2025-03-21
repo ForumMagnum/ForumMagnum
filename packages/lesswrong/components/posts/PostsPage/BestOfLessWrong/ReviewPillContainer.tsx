@@ -9,15 +9,17 @@ import { hideScrollBars } from '@/themes/styleUtils';
 
 const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({ 
   root: {
-    paddingTop: 10,
+    paddingTop: 24,
     display: 'flex',
-    gap: '8px'
+    gap: '8px',
+    ...theme.typography.body2,
+    fontSize: '1.1rem',
   },
   review: {
     cursor: 'pointer',
     display: 'flex',
-    padding: '4px',
-    borderRadius: '4px',
+    padding: '4px 8px',
+    borderRadius: '3px',
     backgroundColor: theme.palette.panelBackground.reviewGold,
     gap: '7px',
     whiteSpace: 'nowrap',
@@ -27,29 +29,41 @@ const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
   },
   reviewPreviewContainer: {
-    padding: '16px',
+    paddingTop: 8,
     minHeight: 0
   },
   reviewPreview: {
     ...theme.typography.commentStyle,
     transition: 'opacity 0.2s ease-in-out',
-    backgroundColor: theme.palette.panelBackground.translucent2,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     border: `1px solid ${theme.palette.panelBackground.reviewGold}`,
     padding: '8px',
     width: '650px',
     maxWidth: '70vw',
     whiteSpace: 'normal',
     textAlign: 'left',
-    borderRadius: '8px',
+    borderRadius: '3px',
     marginLeft: 'auto',
     marginRight: 'auto',
     overflowY: 'scroll',
     ...hideScrollBars,
     maxHeight: '100%'
   },
-  reviewPreviewAuthor: {
-    fontWeight: '600'
+  reviewMeta: {
+    display: 'flex',
+    ...theme.typography.body2,
+    gap: '8px',
+    alignItems: 'center',
   },
+  reviewPreviewYear: {
+    fontSize: '1rem',
+    color: theme.palette.primary.dark,
+    fontStyle: 'italic',
+  },
+  reviewerName: {
+    fontWeight: '600',
+    marginRight: '8px'
+  }
 }));
 
 const ReviewPillContainer = ({postId}: {postId: string}) => {
@@ -59,6 +73,7 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
     terms: {
       view: "reviews",
       postId: postId,
+      minimumKarma: 5
     },
     collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
@@ -66,12 +81,14 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
     limit: 5
   });
 
-  const { LWTooltip, UsersName, CommentBody } = Components;
+  const { LWTooltip, UsersName, CommentBody, SmallSideVote } = Components;
 
   const reviewPreview = (review: CommentsList) => <div className={classes.reviewPreviewContainer}>
     <div className={classes.reviewPreview}>
-      <div className={classes.reviewPreviewAuthor}>
-        <UsersName user={review.user} />
+      <div className={classes.reviewMeta}>
+        <div className={classes.reviewerName}><UsersName user={review.user} /></div>
+        <SmallSideVote document={review} collectionName="Comments" />
+        <span className={classes.reviewPreviewYear}>Review for {review.reviewingForReview} Review</span>
       </div>
       <div>
         <CommentBody comment={review} />
@@ -82,19 +99,19 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
   return <AnalyticsContext pageElementContext="reviewPillContainer">
     <div className={classes.root}>
       {reviews?.map((review) => (
-        <LWTooltip key={review._id} title={reviewPreview(review)} tooltip={false} placement="bottom-start">
+        <LWTooltip key={review._id} title={reviewPreview(review)} tooltip={false} placement="bottom-start" flip={false} clickable={true}>
           <HashLink key={review._id} to={`#${review._id}`}>
-          <div className={classes.review}>
+            <div className={classes.review}>
+              <div>
+                Review by
+              </div>
             <div>
-            {review.baseScore}
-          </div>
-          <div>
-            {review?.user?.displayName || "Anonymous"}
-          </div>
-          </div>
-        </HashLink>
-      </LWTooltip>
-    ))}
+              {review?.user?.displayName || "Anonymous"}
+            </div>
+            </div>
+          </HashLink>
+        </LWTooltip>
+      ))}
   </div>
   </AnalyticsContext>
 }

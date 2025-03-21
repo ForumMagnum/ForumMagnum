@@ -141,7 +141,6 @@ const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
     width: 'calc(100vw - 40px)',
     flexWrap: 'wrap',
     backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.palette.boxShadow.lwCard,
     padding: 20,
     ...theme.typography.body2,
     '& $PostWithArtRow': {

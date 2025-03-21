@@ -8,7 +8,8 @@ import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers'
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
-
+import { titleStyles } from './PostsTopSequencesNav';
+import { Link } from '@/lib/reactRouterWrapper';
 export const LW_POST_PAGE_PADDING = 110;
 
 const styles = (theme: ThemeType) => ({
@@ -128,12 +129,17 @@ const styles = (theme: ThemeType) => ({
   readTime: {
     marginRight: 20,
   },
+  bestOfLessWrong: {
+    ...titleStyles(theme),
+    // color: theme.palette.panelBackground.reviewDarkGold,
+    marginBottom: 12
+  },
   splashPageTitle: {
     '&&': {
+      fontSize: '5rem',
       [theme.breakpoints.down('sm')]: {
         fontSize: '4rem',
       },
-      fontSize: '5rem',
       [theme.breakpoints.up('md')]: {
         marginRight: -50,
         fontSize: '6rem',
@@ -145,6 +151,7 @@ const styles = (theme: ThemeType) => ({
   },
   splashPageTitleLong: {
     '&&': {
+      fontSize: '5rem',
       [theme.breakpoints.down('md')]: {
         fontSize: '5rem',
         marginRight: -25,
@@ -159,6 +166,7 @@ const styles = (theme: ThemeType) => ({
   },
   splashPageTitleLonger: {
     '&&': {
+      fontSize: '5rem',
       [theme.breakpoints.down('sm')]: {
         fontSize: '3.5rem',
       },
@@ -168,32 +176,35 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   rootWithSplashPageHeader: {
-    paddingTop: 'calc(100vh - 560px)',
-    [theme.breakpoints.down('md')]: {
-      paddingTop: 'calc(100vh - 400px)',
-    },
+    paddingTop: '44vh',
   },
-  rootWithSplashPageHeaderLong: {
-    paddingTop: 'calc(100vh - 560px)',
-    [theme.breakpoints.down('md')]: {
-      paddingTop: 'calc(100vh - 500px)',
-    },
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: 'calc(100vh - 320px)',
-    },
-  },
-  rootWithSplashPageHeaderLonger: {
-    paddingTop: 'calc(100vh - 560px)',
-    [theme.breakpoints.down('md')]: {
-      paddingTop: 'calc(100vh - 500px)',
-    },
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: 'calc(100vh - 320px)',
-    },
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 'calc(100vh - 400px)',
-    },
-  }
+  // rootWithSplashPageHeader: {
+  //   paddingTop: `calc(100vh - ${460 + 50}px)`,
+  //   [theme.breakpoints.down('md')]: {
+  //     paddingTop: `calc(100vh - ${440 + 50}px)`,
+  //   },
+  // },
+  // rootWithSplashPageHeaderLong: {
+  //   paddingTop: `calc(100vh - ${580 + 50}px)`,
+  //   [theme.breakpoints.down('md')]: {
+  //     paddingTop: `calc(100vh - ${520 + 50}px)`,
+  //   },
+  //   [theme.breakpoints.down('sm')]: {
+  //     paddingTop: `calc(100vh - ${340 + 50}px)`,
+  //   },
+  // },
+  // rootWithSplashPageHeaderLonger: {
+  //   paddingTop: `calc(100vh - ${580 + 50}px)`,
+  //   [theme.breakpoints.down('md')]: {
+  //     paddingTop: `calc(100vh - ${500 + 50}px)`,
+  //   },
+  //   [theme.breakpoints.down('sm')]: {
+  //     paddingTop: `calc(100vh - ${340 + 50}px)`,
+  //   },
+  //   [theme.breakpoints.down('xs')]: {
+  //     paddingTop: `calc(100vh - ${420 + 50}px)`,
+  //   },
+  // }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
@@ -242,12 +253,14 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
 
   const splashPageTitleClass = post.title.length > 60 ? classes.splashPageTitleLong : classes.splashPageTitle;
   let rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeader
-  if (post.title.length > 50) {
-    rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLong
-  }
-  if (post.title.length > 60) {
-    rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLonger
-  }
+  // if (post.title.length > 50) {
+  //   rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLong
+  // }
+  // if (post.title.length > 60) {
+  //   rootWithSplashPageHeaderClass = classes.rootWithSplashPageHeaderLonger
+  // }
+
+  const reviewYear = 'reviewWinner' in post && post.reviewWinner?.reviewYear;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[rootWithSplashPageHeaderClass]: showSplashPageHeader})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
@@ -256,6 +269,9 @@ const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPl
           <PostsTopSequencesNav post={post} />
         </div>}
       </AnalyticsContext>
+      {showSplashPageHeader && !('sequence' in post && !!post.sequence) && <Link to={`/bestoflesswrong?year=${reviewYear}&category=all`} className={classes.bestOfLessWrong}>
+        Best of LessWrong {reviewYear}
+      </Link>}
       <div>
         <span className={classes.topRight}>
           <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />

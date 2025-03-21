@@ -194,7 +194,6 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
     return []
   }
 }
-console.log("apiKey", falApiKey.get())
 
 fal.config({
   credentials: falApiKey.get()
@@ -289,7 +288,7 @@ export const getReviewWinnerArts = async () => {
   console.time('running getReviewWinnerArts');
 
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays.filter(e => e.title === "The ants and the grasshopper")
+  const essays = totalEssays
 
   const openAiClient = await getOpenAI()
   if (!openAiClient) {

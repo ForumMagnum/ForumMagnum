@@ -38,7 +38,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     left: 'auto',
     [theme.breakpoints.up('lg')]: {
       width: '100vw',
-    }
+    },
   },
   overlayX: {
     position: 'absolute',
@@ -48,7 +48,22 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     height: '100vh',
     background: `linear-gradient(-90deg, transparent 48%, ${theme.palette.panelBackground.default} 95%)`,
     pointerEvents: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    }
   },
+  overlayDiag: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '100vw',
+    height: '100vh',
+    background: `linear-gradient(225deg, transparent 48%, ${theme.palette.panelBackground.default} 95%)`,
+    pointerEvents: 'none', 
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    }
+  }
 }));
 
 export const BestOfLWPostsPageSplashImage = ({post}: {
@@ -92,6 +107,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
       <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
       <div className={classes.overlayY} />
       <div className={classes.overlayX} />
+      <div className={classes.overlayDiag} />
     </div>
     {userIsAdminOrMod(currentUser) && <ImagePreviewAndCrop imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
   </div>
