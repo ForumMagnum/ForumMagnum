@@ -9,6 +9,8 @@ import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
+import { DeferredForumSelect } from '@/lib/forumTypeUtils';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -633,3 +635,32 @@ export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.postingDisabled) return false
   return userCanDo(user, 'posts.new')
 }
+
+export const karmaChangeUpdateFrequencies = new TupleSet(["disabled", "daily", "weekly", "realtime"] as const);
+
+export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
+
+export interface KarmaChangeSettingsType {
+  updateFrequency: KarmaChangeUpdateFrequency;
+  /**
+   * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
+   */
+  timeOfDayGMT: number;
+  dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+  showNegativeKarma: boolean;
+}
+
+export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
+  EAForum: {
+    updateFrequency: "realtime",
+    timeOfDayGMT: 11, // 3am PST
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+  default: {
+    updateFrequency: "daily",
+    timeOfDayGMT: 11,
+    dayOfWeekGMT: "Saturday",
+    showNegativeKarma: false,
+  },
+} as const);
