@@ -970,7 +970,6 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly frontpageDescription_latest: string,
   readonly frontpageDescriptionMobile_latest: string,
   readonly postPageDescription_latest: string,
-  readonly pollQuestion_latest: string,
   readonly title: string,
   readonly startDate: Date,
   readonly endDate: Date,
@@ -983,6 +982,9 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly pollQuestion_latest: string,
+  readonly pollAgreeWording: string | null,
+  readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
@@ -1042,6 +1044,8 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
+  readonly pollAgreeWording: string | null,
+  readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,
 }
 
