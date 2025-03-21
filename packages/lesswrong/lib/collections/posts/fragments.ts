@@ -192,40 +192,6 @@ export const PostsListWithVotes = `
     ...PostsList
     currentUserVote
     currentUserExtendedVote
-    reviewWinner {
-      _id
-      category
-      curatedOrder
-      postId
-      reviewYear
-      reviewRanking
-      reviewWinnerArt {
-        _id
-        postId
-        splashArtImagePrompt
-        splashArtImageUrl
-        activeSplashArtCoordinates {
-          _id
-          reviewWinnerArtId
-          leftXPct
-          leftYPct
-          leftHeightPct
-          leftWidthPct
-          leftFlipped
-          middleXPct
-          middleYPct
-          middleHeightPct
-          middleWidthPct
-          middleFlipped
-          rightXPct
-          rightYPct
-          rightHeightPct
-          rightWidthPct
-          rightFlipped
-        }
-      }
-      competitorCount
-    }
   }
 `
 
