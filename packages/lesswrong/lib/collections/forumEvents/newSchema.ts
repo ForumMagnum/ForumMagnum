@@ -2,15 +2,21 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
 import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 
 const formGroups = {
+  pollEventOptions: {
+    name: "pollEventOptions",
+    order: 10,
+    label: '"POLL" Event Options',
+    startCollapsed: true,
+  },
   stickerEventOptions: {
     name: "stickerEventOptions",
-    order: 10,
+    order: 20,
     label: '"STICKER" Event Options',
     startCollapsed: true,
   },
@@ -560,6 +566,103 @@ const schema = {
         })),
       control: "select",
     },
+  },
+  pollQuestion: {
+    graphql: {
+      outputType: "Revision",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      editableFieldOptions: { pingbacks: false, normalized: true },
+      arguments: "version: String",
+      resolver: getNormalizedEditableResolver("pollQuestion"),
+      sqlResolver: getNormalizedEditableSqlResolver("pollQuestion"),
+    },
+    form: {
+      form: {
+        label: "Poll question",
+        hintText: () => 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
+        fieldName: "pollQuestion",
+        collectionName: "ForumEvents",
+        commentEditor: true,
+        commentStyles: true,
+        hideControls: true,
+      },
+      control: "EditorFormComponent",
+      hidden: false,
+      editableFieldOptions: {
+        getLocalStorageId: (forumEvent) => {
+          return {
+            id: `forumEvent:pollQuestion:${forumEvent?._id ?? "create"}`,
+            verify: true,
+          };
+        },
+        revisionsHaveCommitMessages: false,
+      },
+    },  
+  },
+  pollQuestion_latest: {
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  pollQuestionRevisions: {
+    graphql: {
+      outputType: "[Revision]",
+      canRead: ["guests"],
+      arguments: "limit: Int = 5",
+      resolver: getRevisionsResolver("pollQuestionRevisions"),
+    },
+  },
+  pollQuestionVersion: {
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      resolver: getVersionResolver("pollQuestionVersion"),
+    },
+  },
+  pollAgreeWording: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+    form: {
+      group: () => formGroups.pollEventOptions,
+    }
+  },
+  pollDisagreeWording: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+    form: {
+      group: () => formGroups.pollEventOptions,
+    }
   },
   maxStickersPerUser: {
     database: {

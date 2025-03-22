@@ -32,7 +32,7 @@ class FormNestedObject extends PureComponent<FormNestedObjectProps> {
       'inputProperties',
       'nestedInput'
     );
-    const { errors } = this.props;
+    const { errors, getLabel } = this.props;
     // only keep errors specific to the nested array (and not its subfields)
     const nestedObjectErrors = errors.filter(
       error => error.path && error.path === this.props.path
@@ -51,6 +51,7 @@ class FormNestedObject extends PureComponent<FormNestedObjectProps> {
           hasErrors ? (
             <Components.FieldErrors
               key="form-nested-errors"
+              getLabel={getLabel}
               errors={nestedObjectErrors}
             />
           ) : null

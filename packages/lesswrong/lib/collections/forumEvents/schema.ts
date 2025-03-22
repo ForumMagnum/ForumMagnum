@@ -5,9 +5,15 @@ import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 import { universalFields } from "../../collectionUtils";
 
 const formGroups = {
+  pollEventOptions: {
+    name: "pollEventOptions",
+    order: 10,
+    label: '"POLL" Event Options',
+    startCollapsed: true,
+  },
   stickerEventOptions: {
     name: "stickerEventOptions",
-    order: 10,
+    order: 20,
     label: '"STICKER" Event Options',
     startCollapsed: true,
   },
@@ -69,7 +75,7 @@ const schema: SchemaType<"ForumEvents"> = {
     },
     ...defaultEditableProps,
   }),
-  
+
   title: {
     ...defaultProps(),
     type: String,
@@ -179,6 +185,33 @@ const schema: SchemaType<"ForumEvents"> = {
     optional: true,
     type: String,
     options: () => EVENT_FORMATS.map(ef => ({value: ef, label: ef}))
+  },
+  ...editableFields("ForumEvents", {
+    fieldName: "pollQuestion",
+    label: "Poll question",
+    hintText: () => 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:pollQuestion:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    normalized: true,
+    ...defaultEditableProps,
+  }),
+  pollAgreeWording: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    nullable: true,
+    group: () => formGroups.pollEventOptions,
+  },
+  pollDisagreeWording: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    nullable: true,
+    group: () => formGroups.pollEventOptions,
   },
   maxStickersPerUser: {
     ...defaultProps(),

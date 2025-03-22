@@ -307,7 +307,11 @@ interface CommentsDefaultFragment { // fragment on Comments
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
@@ -488,6 +492,21 @@ interface CommentsList { // fragment on Comments
   readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
   readonly originalDialogueId: string | null,
+  readonly forumEventId: string,
+  readonly forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      _id: string,
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
+  },
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -971,6 +990,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly pollQuestion_latest: string,
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
@@ -985,6 +1005,7 @@ interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on For
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
   readonly frontpageDescriptionMobile: ForumEventsDisplay_frontpageDescriptionMobile|null,
   readonly postPageDescription: ForumEventsDisplay_postPageDescription|null,
+  readonly pollQuestion: ForumEventsDisplay_pollQuestion|null,
 }
 
 interface ForumEventsDisplay_frontpageDescription { // fragment on Revisions
@@ -1002,10 +1023,16 @@ interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
   readonly html: string,
 }
 
+interface ForumEventsDisplay_pollQuestion { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
 interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly frontpageDescription: RevisionEdit|null,
   readonly frontpageDescriptionMobile: RevisionEdit|null,
   readonly postPageDescription: RevisionEdit|null,
+  readonly pollQuestion: RevisionEdit|null,
 }
 
 interface ForumEventsMinimumInfo { // fragment on ForumEvents
@@ -1023,6 +1050,8 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
+  readonly pollAgreeWording: string | null,
+  readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,
 }
 
@@ -3028,7 +3057,10 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly postCount: number,
@@ -3933,7 +3965,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly whenConfirmationEmailSent: Date,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
@@ -4068,7 +4103,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly biography_latest: string,
   readonly username: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly isAdmin: boolean,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly displayName: string,
@@ -4759,7 +4797,10 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly petrovOptOut: boolean,
   readonly sortDraftsBy: string,
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly banned: Date,
   readonly noindex: boolean,
   readonly paymentEmail: string,
@@ -5033,7 +5074,10 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
 }
 
 interface FragmentTypes {

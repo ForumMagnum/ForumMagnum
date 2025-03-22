@@ -38,6 +38,7 @@ import { getCommentViewOptions } from "../../commentViewOptions";
 import {
   allowSubscribeToSequencePosts,
   hasAccountDeletionFlow,
+  hasAuthorModeration,
   hasPostRecommendations,
   hasSurveys,
   userCanViewJargonTerms
@@ -496,7 +497,7 @@ const schema = {
       },
       order: 50,
       control: "EditorFormComponent",
-      hidden: isFriendlyUI,
+      hidden: !hasAuthorModeration,
       group: () => formGroups.moderationGroup,
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),

@@ -489,6 +489,9 @@ export const ForumEventsDefaultFragment = `
     bannerImageId
     includesPoll
     eventFormat
+    pollQuestion_latest
+    pollAgreeWording
+    pollDisagreeWording
     maxStickersPerUser
     customComponent
     commentPrompt
