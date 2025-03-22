@@ -119,7 +119,7 @@ const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
     FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, 
-    Divider, UltraFeedThreadItem } = Components;
+    Divider, UltraFeedThreadItem, SpotlightFeedItem } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -145,9 +145,9 @@ const UltraFeedContent = () => {
   // Ref for the loadMoreAtTop function
   const loadMoreAtTopRef = useRef<null | (() => void)>(null);
   const loadMoreAtTop = useCallback(() => {
-    if (loadMoreAtTopRef.current) {
-      loadMoreAtTopRef.current();
-    }
+    // if (loadMoreAtTopRef.current) {
+    //   loadMoreAtTopRef.current();
+    // }
   }, [loadMoreAtTopRef]);
 
   // Function to handle end of feed button click
@@ -211,7 +211,7 @@ const UltraFeedContent = () => {
         <span className={classes.titleTextDesktop}>Update Feed</span>
         <span className={classes.titleTextMobile}>The Feed</span>
       </span>
-      <span className={classes.refreshText}>click for more</span>
+      {/* <span className={classes.refreshText}>click for more</span> */}
     </div>
     <div className={classes.settingsButtonContainer}>
       <SettingsButton 
@@ -227,7 +227,7 @@ const UltraFeedContent = () => {
   // Feed item renderer for both feeds
   const ultraFeedRenderer = {
     feedCommentThread: {
-      fragmentName: 'UltraFeedCommentThreadFragment',
+      fragmentName: 'UltraFeedItemFragment',
       render: (item: any) => {
         if (!item || !item.itemContent) {
           console.log("Missing item structure:", item);
@@ -245,7 +245,7 @@ const UltraFeedContent = () => {
       }
     },
     feedPost: {
-      fragmentName: 'UltraFeedPostWithCommentsFragment',
+      fragmentName: 'UltraFeedItemFragment',
       render: (item: any) => {
         if (!item || !item.itemContent) {
           console.log("Missing item structure:", item);
@@ -258,6 +258,27 @@ const UltraFeedContent = () => {
         return (
           <FeedItemWrapper sources={item.sources || []}>
             <UltraFeedThreadItem thread={thread} />
+          </FeedItemWrapper>
+        );
+      }
+    },
+    feedSpotlight: {
+      fragmentName: 'UltraFeedItemFragment',
+      render: (item: any) => {
+        if (!item || !item.itemContent) {
+          console.log("Missing item structure:", item);
+          return null;
+        }
+        
+        // Extract the spotlight data
+        const spotlight = item.itemContent.spotlight;
+        
+        return (
+          <FeedItemWrapper sources={item.sources || []}>
+            <SpotlightFeedItem 
+              spotlight={spotlight}
+              showSubtitle={true}
+            />
           </FeedItemWrapper>
         );
       }
@@ -300,7 +321,7 @@ const UltraFeedContent = () => {
               renderers={ultraFeedRenderer}
             />
           </div>
-          {newContentButton}
+          {/* {newContentButton} */}
           {/* History Feed Section
           <div className={classes.historyContainer}>
             <MixedTypeFeed

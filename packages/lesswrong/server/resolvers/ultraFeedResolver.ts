@@ -7,7 +7,7 @@ import keyBy from "lodash/keyBy";
 import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType, FeedCommentThreadItem } from "../utils/feedItemUtils";
 import FeedItemServingsRepo from "../repos/FeedItemServingsRepo";
 import UltraFeedRepo, {  } from "../../lib/ultraFeed/UltraFeedRepo";
-import { DisplayFeedItem, DisplayFeedPostWithComments, UltraFeedTopLevelTypes, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
+import { DisplayFeedItem, DisplayFeedPostWithComments, UltraFeedTopLevelTypes, FeedItemSourceType, DisplayFeedSpotlight } from "@/components/ultraFeed/ultraFeedTypes";
 
 const TESTING_DATE_CUTOFF = new Date('2025-01-01');
 
@@ -23,9 +23,10 @@ addGraphQLSchema(`
 
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
-  commentThreads: 10,
-  postThreads: 10,
-  // Commented out sources as requested
+  postThreads: 20,
+  commentThreads: 40,
+  spotlights: 5,  // Add weight for spotlights
+  // Commented out sources
   // popularComments: 5,
   // quickTakes: 5,
   // subscribed: 0
@@ -322,6 +323,24 @@ async function fetchSubscribedContent({
 }
 */
 
+async function fetchSpotlights({
+  context,
+}: {
+  context: ResolverContext;
+}): Promise<DisplayFeedSpotlight[]> {
+  console.log("Fetching spotlights...");
+  
+  // Create UltraFeedRepo instance
+  const ultraFeedRepo = new UltraFeedRepo();
+  
+  // Get spotlight items
+  const spotlights = await ultraFeedRepo.getUltraFeedSpotlights(context, 5);
+  
+  console.log(`Found ${spotlights.length} spotlights for feed`);
+  
+  return spotlights;
+}
+
 /**
  * 2) Create the feed resolver. We'll call it "UltraFeed" for now, but you can rename
  *    it in defineFeedResolver if you prefer something like "CommentsComboFeed".
@@ -333,6 +352,7 @@ defineFeedResolver<Date>({
   resultTypesGraphQL: `
     feedCommentThread: UltraFeedItem
     feedPost: UltraFeedItem
+    feedSpotlight: UltraFeedItem
   `,
   /**
    * The resolver function fetches content from multiple sources,
@@ -411,6 +431,8 @@ defineFeedResolver<Date>({
         currentUser,
         // servedCommentIds
       });
+
+      const spotlightItems = await fetchSpotlights({ context });
       
       // Commented out other content sources
       /*
@@ -432,6 +454,11 @@ defineFeedResolver<Date>({
           weight: SOURCE_WEIGHTS.commentThreads,
           items: commentThreadsItems,
           renderAsType: "feedCommentThread"
+        },
+        spotlights: {
+          weight: SOURCE_WEIGHTS.spotlights,
+          items: spotlightItems,
+          renderAsType: "feedSpotlight"
         }
         // Commented out other sources
         /*
@@ -450,9 +477,11 @@ defineFeedResolver<Date>({
         */
       };
 
+      
       console.log("Performing weighted sampling with:", {
         postThreadsCount: sources.postThreads.items.length,
         commentThreadsCount: sources.commentThreads.items.length,
+        spotlightsCount: sources.spotlights.items.length,
         // quickTakesCount: sources.quickTakes.items.length,
         // popularCommentsCount: sources.popularComments.items.length,
         // subscribedCount: sources.subscribed.items.length,

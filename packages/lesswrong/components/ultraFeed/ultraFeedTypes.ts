@@ -18,8 +18,8 @@
 
 
 // TODO: properly split out items and weight accordingly
-export type FeedItemSourceType = 'postThreads' | 'commentThreads'; //'QuickTake' | 'PopularComment' | 'RecombeeHybridPosts';
-export type FeedItemRenderType = "feedComment" | "feedPost" | "feedCommentThread";
+export type FeedItemSourceType = 'postThreads' | 'commentThreads' | 'spotlights'; //'QuickTake' | 'PopularComment' | 'RecombeeHybridPosts';
+export type FeedItemRenderType = "feedComment" | "feedPost" | "feedCommentThread" | "feedSpotlight";
 
 export interface RecombeeMetaInfo {
   scenario: string;
@@ -92,7 +92,7 @@ export interface LinearCommentThreadStatistics {
 // 3. DISPLAY TYPES - For Client/GraphQL
 //-----------------------------------------------------------------------------
 
-export type UltraFeedTopLevelTypes = DisplayFeedPostWithComments
+export type UltraFeedTopLevelTypes = DisplayFeedPostWithComments | DisplayFeedSpotlight;
 export interface DisplayFeedItem {
   item: UltraFeedTopLevelTypes;
   type: string;
@@ -115,7 +115,9 @@ export interface DisplayFeedPostWithComments {
   postMetaInfo: PostMetaInfo;
 }
 
-
+export interface DisplayFeedSpotlight {
+  spotlight: SpotlightDisplay;
+}
 
 /**
  * Feed item containing a comment (final hydrated version).

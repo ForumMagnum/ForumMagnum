@@ -39,7 +39,6 @@ const useSpotlightFeedItemStyles = defineStyles(
   "SpotlightFeedItem",
   (theme: ThemeType) => ({
     root: {
-      marginBottom: 12,
       boxShadow: theme.palette.boxShadow.default,
       maxWidth: SECTION_WIDTH,
       marginLeft: "auto",
@@ -54,24 +53,6 @@ const useSpotlightFeedItemStyles = defineStyles(
       overflow: "hidden",
       "&:hover": {
         boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
-      },
-      "&:hover $adminButtonIcon": {
-        opacity: 0.2,
-      },
-      "&:hover $closeButton": {
-        ...(isFriendlyUI
-          ? {
-              color: theme.palette.grey[100],
-              background: theme.palette.panelBackground.default,
-            }
-          : {
-              color: theme.palette.type === "dark" 
-                ? "rgba(0,0,0,.7)" 
-                : theme.palette.grey[400],
-              background: theme.palette.type==="dark" 
-                ? "white" 
-                : theme.palette.panelBackground.default,
-            }),
       },
     },
     contentContainer: {
@@ -125,28 +106,19 @@ const useSpotlightFeedItemStyles = defineStyles(
       // fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: "1.8rem",
       fontVariant: "small-caps",
-      lineHeight: "1.1em",
+      lineHeight: "1em",
       display: "flex",
       alignItems: "center"
     },
     subtitle: {
       ...theme.typography.postStyle,
       ...theme.typography.italic,
-      ...(isFriendlyUI ? {
-        fontSize: 13,
-        fontWeight: 500,
-        fontFamily: theme.palette.fonts.sansSerifStack,
-        color: theme.palette.text.alwaysWhite,
-        marginTop: 8,
-        maxWidth: TEXT_WIDTH,
-      } : {
-        color: theme.palette.grey[700],
-        fontSize: 15,
-        marginTop: -1,
-      }),
+      color: theme.palette.grey[700],
+      fontSize: "1.4rem",
+      marginTop: -1,
     },
     imageContainer: {
-      margin: "-40px -16px -20px 0",
+      margin: "-30px -16px -20px -16px",
       position: "relative",
       zIndex: 1,
       alignSelf: "stretch",
@@ -156,9 +128,9 @@ const useSpotlightFeedItemStyles = defineStyles(
     image: {
       maxWidth: "100%",
       height: "auto",
-      objectFit: "contain",
+      objectFit: "cover",
       objectPosition: "right center",
-      maxHeight: 150,
+      maxHeight: 250,
       borderRadius: `${theme.borderRadius.default}px 0 0 ${theme.borderRadius.default}px`,
     },
     imageDualFade: buildFadeMask([
@@ -310,36 +282,15 @@ function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
 const SpotlightFeedItem = ({
   spotlight,
   showSubtitle=true,
-  refetchAllSpotlights,
   className,
 }: {
   spotlight: SpotlightDisplay,
   showSubtitle?: boolean,
-  refetchAllSpotlights?: () => void,
   className?: string,
 }) => {
   const classes = useStyles(useSpotlightFeedItemStyles);
 
-  const [edit, setEdit] = useState<boolean>(false)
-  const [editDescription, setEditDescription] = useState<boolean>(false)
-
   const url = getSpotlightUrl(spotlight);
-
-  const duration = spotlight.duration
-
-  const onUpdate = useCallback(() => {
-    setEdit(false);
-    refetchAllSpotlights?.();
-  }, [refetchAllSpotlights]);
-
-  const { mutate: updateSpotlight } = useUpdate({
-    collectionName: "Spotlights",
-    fragmentName: "SpotlightDisplay",
-  });
-
-  const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight({
-    fragmentName: "SpotlightDisplay",
-  });
 
 
   // Define fade color with a CSS variable to be accessed in the styles
@@ -357,20 +308,6 @@ const SpotlightFeedItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const spotlightReviews = [];//getSpotlightDisplayReviews(spotlight);
 
-
-  const spotlightImages = (<>
-    {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
-    {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
-      <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageDualFade, classes.splashImage)}/>
-    </div>}
-    {spotlight.spotlightImageId && <CloudinaryImage2
-      publicId={spotlight.spotlightImageId}
-      darkPublicId={spotlight.spotlightDarkImageId}
-      className={classNames(classes.image, classes.imageDualFade)}
-      imgProps={{w: "800"}}
-      loading="lazy"
-    />}
-  </>)
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
@@ -442,10 +379,6 @@ const SpotlightFeedItem = ({
             <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
           </div>)} */}
         </div>
-        <div className={classes.draftButton}>
-        </div>
-        {spotlight.draft && <div className={classes.deleteButton}>
-        </div>}
       </div>
     </div>
   </AnalyticsTracker>

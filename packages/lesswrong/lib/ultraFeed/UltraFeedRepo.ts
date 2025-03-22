@@ -6,19 +6,20 @@
  */
 
 import { randomId } from '../random';
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedPostWithComments } from '../../components/ultraFeed/ultraFeedTypes';
+import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedPostWithComments, DisplayFeedSpotlight } from '../../components/ultraFeed/ultraFeedTypes';
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
 import groupBy from 'lodash/groupBy';
-import { runQuery, createAnonymousContext } from '@/server/vulcan-lib/query';
+import { runQuery, createAnonymousContext, runFragmentMultiQuery } from '@/server/vulcan-lib/query';
 import gql from 'graphql-tag';
 import { CommentsList } from '../../lib/collections/comments/fragments';
 import { PostsListWithVotes } from '../../lib/collections/posts/fragments';
 import { TagPreviewFragment, TagBasicInfo } from '../../lib/collections/tags/fragments';
 import { UsersMinimumInfo } from '../../lib/collections/users/fragments';
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
-
+import { loadByIds } from '../../lib/loaders';
+import { accessFilterMultiple } from '../utils/schemaUtils';
 
 /**
  * Statistics to help prioritize which threads to display
@@ -185,21 +186,14 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     }
     console.log(`UltraFeedRepo: First few comment IDs:`, firstFewIds);
 
-    const query = gql`
-      query GetFeedComments($commentIds: [String!]!) {
-        comments(input: { terms: { view: "allRecentComments", commentIds: $commentIds, limit: 200 } }) {
-          results {
-            ...CommentsList
-          }
-        }
-      }
-      ${fragmentTextForQuery('CommentsList')}
-    `;
-    
-    const result = await runQuery(query, { commentIds: suggestedComments.map(c => c._id) }, context);
-    const comments: CommentsList[] = result.data?.comments?.results || [];
-
     console.log(`UltraFeedRepo: Preparing to fetch ${suggestedComments.length} comments via GraphQL`);
+    
+    const comments = await runFragmentMultiQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsList",
+      terms: { view: "allRecentComments", commentIds: suggestedComments.map(c => c._id), limit: 200 },
+      context,
+    });
 
     console.log(`UltraFeedRepo: GraphQL query returned ${comments?.length || 0} comments`);
     if (comments?.length > 0) {
@@ -247,22 +241,13 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       return [];
     }
 
-    // Fetch posts data
-    const postsQuery = gql`
-      query GetPostsForComments($postIds: [String!]!) {
-        posts(input: { terms: { view: "postsByIDs", postIds: $postIds, limit: 50 } }) {
-          results {
-            ...PostsListWithVotes
-          }
-        }
-      }
-      
-      ${fragmentTextForQuery('PostsListWithVotes')}
-    `;
-
     const context = createAnonymousContext();
-    const postsResult = await runQuery(postsQuery, { postIds: uniquePostIds }, context);
-    const posts: PostsListWithVotes[] = postsResult.data?.posts?.results || [];
+    const posts = await runFragmentMultiQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsListWithVotes",
+      terms: { postIds: uniquePostIds, limit: 50 },
+      context,
+    });
 
     // Create a map of postId to post for easy lookup
     const postsById = new Map(posts.map((post: PostsListWithVotes) => [post._id, post]));
@@ -511,6 +496,65 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     console.log(`UltraFeedRepo: Returning ${result.length} threads after applying limit`);
     
     return result;
+  }
+
+  /**
+   * Fetches random spotlight items for UltraFeed
+   */
+  public async getUltraFeedSpotlights(context: ResolverContext, limit = 5): Promise<DisplayFeedSpotlight[]> {
+    console.log(`UltraFeedRepo.getUltraFeedSpotlights called with limit=${limit}`);
+
+    // Get database connection
+    const db = this.getRawDb();
+    
+    // Query for random spotlight IDs
+    const spotlightRows = await db.manyOrNone(`
+      -- UltraFeedRepo.getUltraFeedSpotlights
+      SELECT _id 
+      FROM "Spotlights"
+      WHERE "draft" IS NOT TRUE
+      AND "deletedDraft" IS NOT TRUE
+      ORDER BY RANDOM()
+      LIMIT $(limit)
+    `, { limit });
+    
+    console.log(`UltraFeedRepo: SQL query returned ${spotlightRows?.length || 0} random spotlight IDs`);
+    
+    // If no results, return empty array
+    if (!spotlightRows || !spotlightRows.length) {
+      return [];
+    }
+    
+    // Extract IDs
+    const spotlightIds = spotlightRows.map(row => row._id);
+
+    console.log("spotlightIds", spotlightIds, Array.isArray(spotlightIds));
+    
+    if (!spotlightIds.length) {
+      console.log(`UltraFeedRepo: No spotlight IDs to query`);
+      return [];
+    }
+    
+    console.log({spotlightIds});
+    const spotlightResults = await runFragmentMultiQuery({
+      collectionName: "Spotlights",
+      fragmentName: "SpotlightDisplay", 
+      terms: { view: "spotlightsById", spotlightIds, limit: 5 },
+      context,
+    });
+    
+    console.log(`UltraFeedRepo: Fetched ${spotlightResults.length} spotlight items`);
+
+    console.log("auditing spotlight results", {
+      selectedIds: spotlightIds,
+      idOfRetrievedResults: spotlightResults.map((s: SpotlightDisplay) => s._id),
+    });
+
+    const displaySpotlights: DisplayFeedSpotlight[] = spotlightResults.map((result: SpotlightDisplay) => ({
+      spotlight: result,
+    }));
+    
+    return displaySpotlights;
   }
 }
 
