@@ -15,6 +15,12 @@ class Arg {
         this.value = type.getDefaultValue();
       } else {
         this.value = type.getDefaultValueString();
+        // For string types, `getDefaultValueString` returns a string wrapped in single quotes,
+        // which is what we want in most contexts but not when we're actually setting the value
+        // of an argument for a query (since then we'll have a set of quotes in the actual string value)
+        if (this.value?.startsWith("'") && this.value?.endsWith("'")) {
+          this.value = this.value.slice(1, -1);
+        }
       }
     }
 
