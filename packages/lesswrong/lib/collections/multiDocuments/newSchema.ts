@@ -11,7 +11,7 @@ import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPage
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { defaultEditorPlaceholder, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { getToCforMultiDocument } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
@@ -100,6 +100,10 @@ const schema = {
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("contents"),
       sqlResolver: getNormalizedEditableSqlResolver("contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {

@@ -577,6 +577,10 @@ const schema = {
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("pollQuestion"),
       sqlResolver: getNormalizedEditableSqlResolver("pollQuestion"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {

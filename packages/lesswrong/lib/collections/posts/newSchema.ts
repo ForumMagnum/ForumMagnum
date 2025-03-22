@@ -374,6 +374,10 @@ const schema = {
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("contents"),
       sqlResolver: getNormalizedEditableSqlResolver("contents"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -445,6 +449,10 @@ const schema = {
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("moderationGuidelines"),
       sqlResolver: getNormalizedEditableSqlResolver("moderationGuidelines"),
+      validation: {
+        simpleSchema: RevisionStorageType,
+        optional: true,
+      },
     },
     form: {
       form: {
@@ -1606,6 +1614,12 @@ const schema = {
         WHERE jt."postId" = ${field("_id")}
         LIMIT 1
       )`,
+      // Necessary to include, otherwise trying to create a new post will fail
+      // because the glossary field is a "form" field and so is included in the simpleSchema validation
+      // (even though it's a resolver-only field)
+      validation: {
+        optional: true,
+      }
     },
     form: {
       control: "GlossaryEditFormWrapper",

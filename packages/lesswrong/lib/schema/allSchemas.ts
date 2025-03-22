@@ -240,7 +240,7 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
 
 function getSchemaDefinition(schema: NewSchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   return Object.entries(schema).reduce((acc, [key, value]) => {
-    if (!value.graphql) {
+    if (!value.graphql || (!value.form && !value.graphql.canCreate?.length && !value.graphql.canUpdate?.length)) {
       return acc;
     }
 
