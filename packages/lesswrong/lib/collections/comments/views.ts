@@ -372,7 +372,6 @@ function sunshineNewCommentsList(terms: CommentsViewTerms) {
     selector: {
       ...dontHideDeletedAndUnreviewed,
       $or: [
-        {$and: []},
         {needsReview: true},
         {baseScore: {$lte:0}}
       ],
