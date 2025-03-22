@@ -324,7 +324,7 @@ type UserMaybeWithEmail = {
 }
 
 export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined {
-  return user?.emails?.[0]?.address ?? user?.email
+  return user?.emails?.[0]?.address ?? user?.email ?? undefined
 }
 
 type DatadogUser = {

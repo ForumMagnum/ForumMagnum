@@ -1,4 +1,3 @@
-import Posts from '@/lib/collections/posts/schema';
 import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
@@ -9,8 +8,9 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
-import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
+import { convertSchema, getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
 import { hasAuthorModeration } from '@/lib/betas';
+import { getSimpleSchema } from '@/lib/schema/allSchemas';
 
 const prefillFromTemplate = (template: PostsEdit) => {
   return pick(
@@ -160,7 +160,9 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        const insertableFields = getInsertableFields(Posts, currentUser);
+        const postSchema = getSimpleSchema('Posts', true);
+        const convertedSchema = convertSchema(postSchema);
+        const insertableFields = getInsertableFields(convertedSchema!, currentUser);
         const { data, errors } = await createPost.create({
           data: {
             title: "Untitled Draft",

@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import * as fs from 'fs';
 import * as path from 'path';
 import net from 'net';
@@ -855,7 +857,7 @@ function getFieldTypeString(
   }
 
   const indexSchema = schema[`${fieldName}.$`];
-  const dbType = Type.fromSchema(collectionName, fieldName, field, indexSchema, forumTypeSetting.get());
+  const dbType = Type.fromOldSchema(collectionName, fieldName, field, indexSchema, forumTypeSetting.get());
   return `${spaces(6)}type: '${dbType.toConcrete().toString()}',`;
 }
 

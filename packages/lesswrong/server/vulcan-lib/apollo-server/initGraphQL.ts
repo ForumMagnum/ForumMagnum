@@ -272,14 +272,14 @@ const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typ
     }
 
     // OpenCRUD backwards compatibility
-    if (graphql.canCreate) {
+    if (graphql.canCreate?.length) {
       fields.create.push({
         name: fieldName,
         type: inputFieldType === 'Revision' ? 'JSON' : inputFieldType,
       });
     }
     // OpenCRUD backwards compatibility
-    if (graphql.canUpdate) {
+    if (graphql.canUpdate?.length) {
       fields.update.push({
         name: fieldName,
         type: inputFieldType === 'Revision' ? 'JSON' : inputFieldType,
