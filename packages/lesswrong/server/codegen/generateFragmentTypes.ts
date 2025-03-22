@@ -1,4 +1,4 @@
-import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript, getAllowedValuesUnionTypeString, isFieldNullable } from './typeGenerationUtils';
+import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript, generateAllowedValuesTypeString } from './typeGenerationUtils';
 import { allSchemas, getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import groupBy from 'lodash/groupBy';
 import { getAllFragmentNames, getFragment } from "../../lib/vulcan-lib/fragments";
@@ -198,9 +198,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: FieldNo
       if (fieldWithResolver.graphql.typescriptType) {
         fieldType = fieldWithResolver.graphql.typescriptType;
       } else if (fieldWithResolver.graphql?.validation?.allowedValues) {
-        const unionType = getAllowedValuesUnionTypeString(fieldWithResolver.graphql.validation.allowedValues);
-        const nullable = isFieldNullable(fieldWithResolver);
-        fieldType = nullable ? `${unionType} | null` : unionType;
+        fieldType = generateAllowedValuesTypeString(fieldWithResolver.graphql.validation.allowedValues, fieldWithResolver);
       } else {
         assert(!!fieldWithResolver.graphql.outputType);
         fieldType = graphqlTypeToTypescript(fieldWithResolver.graphql.outputType);
@@ -218,15 +216,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: FieldNo
       if (fieldSimpleSchema?.typescriptType && fieldSimpleSchema?.blackbox) {
         fieldType = fieldSimpleSchema.typescriptType;
       } else if (fieldSchema.graphql?.validation?.allowedValues) {
-        const unionType = getAllowedValuesUnionTypeString(fieldSchema.graphql.validation.allowedValues);
-        const nullable = isFieldNullable(fieldSchema);
-        const arrayField = typeof fieldSchema.graphql.outputType === 'string' && fieldSchema.graphql.outputType.startsWith('[');
-        if (arrayField) {
-          fieldType = `Array<${unionType}>`;
-        } else {
-          fieldType = unionType;
-        }
-        fieldType = nullable ? `${fieldType} | null` : fieldType;
+        fieldType = generateAllowedValuesTypeString(fieldSchema.graphql.validation.allowedValues, fieldSchema);
       } else {
         fieldType = simplSchemaTypeToTypescript(simpleSchema, fieldName, fieldSimpleSchema.type);
       }

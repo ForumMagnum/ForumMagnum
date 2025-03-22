@@ -991,6 +991,8 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly pollQuestion_latest: string,
+  readonly pollAgreeWording: string | null,
+  readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,

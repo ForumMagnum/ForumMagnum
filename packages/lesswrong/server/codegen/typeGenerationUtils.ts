@@ -21,12 +21,25 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function isFieldNullable(fieldSpec: Pick<NewCollectionFieldSpecification<any>, "database" | "graphql">) {
-  return fieldSpec.database?.nullable ?? fieldSpec.graphql?.validation?.optional;
+export function isFieldNullable(fieldSpec: Pick<NewCollectionFieldSpecification<any>, "database" | "graphql">, dbGenContext?: boolean) {
+  const coalescedValue = fieldSpec.database?.nullable ?? fieldSpec.graphql?.validation?.optional;
+  // The implicit default value of `nullable` in the context of database type codegen is `true`, so we need to explicitly rule out `false`, not `undefined`
+  if (dbGenContext) {
+    return coalescedValue !== false;
+  }
+  return !!coalescedValue;
 }
 
-export function getAllowedValuesUnionTypeString(allowedValues: string[]) {
+function getAllowedValuesUnionTypeString(allowedValues: string[]) {
   return allowedValues?.map(v => `"${v}"`).join(' | ');
+}
+
+export function generateAllowedValuesTypeString(allowedValues: string[], fieldSchema: NewCollectionFieldSpecification<any>, dbGenContext?: boolean) {
+  const unionType = getAllowedValuesUnionTypeString(allowedValues);
+  const nullable = isFieldNullable(fieldSchema, dbGenContext);
+  const arrayField = typeof fieldSchema.graphql?.outputType === 'string' && fieldSchema.graphql.outputType.startsWith('[');
+  const fieldType = arrayField ? `Array<${unionType}>` : unionType;
+  return maybeNullable(fieldType, nullable);
 }
 
 export function simplSchemaTypeToTypescript(

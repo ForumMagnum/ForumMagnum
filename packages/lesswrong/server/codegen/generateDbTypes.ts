@@ -1,5 +1,5 @@
 import { getAllCollections } from '@/server/collections/allCollections';
-import { generatedFileHeader, getAllowedValuesUnionTypeString, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
+import { generateAllowedValuesTypeString, generatedFileHeader, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/collectionUtils';
 import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import orderBy from 'lodash/orderBy';
@@ -46,21 +46,14 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
 
 function databaseSpecToTypescriptType(databaseSpec: DatabaseFieldSpecification<any>, graphqlSpec?: GraphQLFieldSpecification<any>): string {
   const { type, typescriptType } = databaseSpec;
-  const nullable = isFieldNullable({ database: databaseSpec, graphql: graphqlSpec });
-  // The implicit default value of `nullable` in the context of database type codegen is `true`, so we need to explicitly rule out `false`, not `undefined`
-  const nullableString = nullable !== false ? " | null" : "";
+  const nullable = isFieldNullable({ database: databaseSpec, graphql: graphqlSpec }, true);
+  const nullableString = nullable ? " | null" : "";
   if (typescriptType) {
     return typescriptType + nullableString;
   }
 
   if (graphqlSpec?.validation?.allowedValues) {
-    const unionType = getAllowedValuesUnionTypeString(graphqlSpec.validation.allowedValues);
-    const isArrayType = isArrayTypeString(type);
-    if (isArrayType) {
-      const arrayTypeString = `Array<${unionType}>`;
-      return nullable ? arrayTypeString + nullableString : arrayTypeString;
-    }
-    return nullable ? unionType + nullableString : unionType;
+    return generateAllowedValuesTypeString(graphqlSpec.validation.allowedValues, { database: databaseSpec, graphql: graphqlSpec });
   }
 
   const rawTypescriptType = databaseTypeToTypescriptType(type);

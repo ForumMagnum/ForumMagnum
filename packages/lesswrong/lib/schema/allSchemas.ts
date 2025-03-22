@@ -244,7 +244,7 @@ function isPlausiblyFormField(field: NewCollectionFieldSpecification<CollectionN
 
 function getSchemaDefinition(schema: NewSchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   return Object.entries(schema).reduce((acc, [key, value]) => {
-    if (!value.graphql || !isPlausiblyFormField(value)) {
+    if (!value.graphql) {
       return acc;
     }
 
@@ -262,12 +262,19 @@ function getSchemaDefinition(schema: NewSchemaType<CollectionNameString>): Recor
     const canUpdate = value.graphql?.canUpdate;
     const canCreate = value.graphql?.canCreate;
 
+    // We need to include a bunch of fields in the validation schema that technically aren't form fields for codegen purposes,
+    // but we don't want them to cause validation errors when checking that inserts/updates are valid.
+    // So we need to add an `optional` prop to the schema definition for them.
+    const isNonWriteableField = !isPlausiblyFormField(value);
+    const implicitOptionalProp = isNonWriteableField ? { optional: true } : {};
+
     const originalTypeDef = typeDefs[key];
     const indexTypeDef = typeDefs[`${key}.$`];
 
     const fieldSchemaDefinition: SchemaDefinition = {
       ...originalTypeDef,
       ...value.form,
+      ...implicitOptionalProp,
       // This needs to be included even if false because it's used for type codegen in a way that relies on the difference between undefined and false
       // (i.e. the implicit default value of `nullable` in the context of database type codegen is `true`)
       ...(nullable !== undefined ? { nullable } : {}),
