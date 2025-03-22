@@ -199,6 +199,9 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       excludeRemovedFields: false,
       excludeHiddenFields: false,
       addExtraFields: false,
+      // This is extremely stupid, but we need to get the non-form-specific schema to avoid stripping out fields
+      // that aren't visible in the form itself.
+      schema: getSimpleSchema(this.props.collectionName)._schema,
       ...customArgs
     };
 

@@ -213,13 +213,13 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
   if (array) {
     const outerType = {
       ...remainingSimpleSchemaValidationFields,
-      optional: !outerRequired,
+      optional: remainingSimpleSchemaValidationFields.optional || !outerRequired,
       type: Array,
     };
   
     const innerType = {
       ...remainingSimpleSchemaValidationFields,
-      optional: !innerRequired,
+      optional: remainingSimpleSchemaValidationFields.optional || !innerRequired,
       type: baseType,
     };
 
@@ -232,15 +232,19 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
   return {
     [fieldName]: {
       ...remainingSimpleSchemaValidationFields,
-      optional: !outerRequired,
+      optional: remainingSimpleSchemaValidationFields.optional || !outerRequired,
       type: baseType,
     },
   };
 }
 
+function isPlausiblyFormField(field: NewCollectionFieldSpecification<CollectionNameString>) {
+  return field.form || !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
+}
+
 function getSchemaDefinition(schema: NewSchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   return Object.entries(schema).reduce((acc, [key, value]) => {
-    if (!value.graphql || (!value.form && !value.graphql.canCreate?.length && !value.graphql.canUpdate?.length)) {
+    if (!value.graphql || !isPlausiblyFormField(value)) {
       return acc;
     }
 
@@ -300,12 +304,10 @@ export function getSimpleSchema<N extends CollectionNameString>(collectionName: 
   const simpleSchema = allSimpleSchemas[collectionName] as NewSimpleSchemaType<N>;
   if (formOnly) {
     const originalSchema = getSchema(collectionName);
-    Object.keys(originalSchema).forEach(key => {
-      const field = originalSchema[key];
-      if (!field.form) {
-        delete simpleSchema._schema[key as keyof NewSimpleSchemaType<N>];
-      }
-    });
+    // Please forgive me for this.
+    const schemaCopy = new SimpleSchema(simpleSchema._schema);
+    const fieldsToOmit = Object.keys(originalSchema).filter(key => !originalSchema[key].form);
+    return schemaCopy.omit(...fieldsToOmit) as NewSimpleSchemaType<N>;
   }
   return simpleSchema;
 }
