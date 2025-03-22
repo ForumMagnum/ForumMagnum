@@ -1,5 +1,5 @@
-import { denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue } from './utils/schemaUtils'
-import { getWithLoader } from './loaders'
+import { denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue } from './utils/schemaUtils';
+import { getWithLoader } from './loaders';
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -29,9 +29,7 @@ export interface CollectionVoteOptions {
 }
 
 
-const currentUserVoteResolver = <N extends CollectionNameString>(
-  resolver: SqlResolverJoin<'Votes'>["resolver"],
-): SqlResolver<N> => ({field, currentUserField, join}) => join({
+export const currentUserVoteResolver = <N extends CollectionNameString>({ field, currentUserField, join }: SqlResolverArgs<N>) => join({
   table: "Votes",
   type: "left",
   on: {
@@ -39,7 +37,18 @@ const currentUserVoteResolver = <N extends CollectionNameString>(
     documentId: field("_id"),
     cancelled: "FALSE",
   },
-  resolver,
+  resolver: (votesField) => votesField("voteType"),
+});
+
+export const currentUserExtendedVoteResolver = <N extends CollectionNameString>({ field, currentUserField, join }: SqlResolverArgs<N>) => join({
+  table: "Votes",
+  type: "left",
+  on: {
+    userId: currentUserField("_id"),
+    documentId: field("_id"),
+    cancelled: "FALSE",
+  },
+  resolver: (votesField) => votesField("extendedVoteType"),
 });
 
 export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
@@ -61,9 +70,7 @@ export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
           if (!votes.length) return null;
           return votes[0].voteType ?? null;
         },
-        sqlResolver: currentUserVoteResolver(
-          (votesField) => votesField("voteType"),
-        ),
+        sqlResolver: currentUserVoteResolver,
       },
     },
     
@@ -78,9 +85,7 @@ export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
           if (!votes.length) return null;
           return votes[0].extendedVoteType || null;
         },
-        sqlResolver: currentUserVoteResolver(
-          (votesField) => votesField("extendedVoteType"),
-        ),
+        sqlResolver: currentUserExtendedVoteResolver,
       },
     },
 
@@ -182,7 +187,7 @@ export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
   };
 }
 
-async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
+export async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   if (!currentUser) return [];
   const votes = await getWithLoader(context, Votes,
@@ -198,7 +203,7 @@ async function getCurrentUserVotes<T extends DbVoteableType>(document: T, contex
   return await accessFilterMultiple(currentUser, 'Votes', votes, context);
 }
 
-async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
+export async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   const votes = await getWithLoader(context, Votes,
     "votesByDocument",

@@ -108,12 +108,12 @@ export async function validateCollection(collection: CollectionBase<any>)
       // Iterate through fields checking for the foreignKey property (which
       // simpl-schema doesn't handle), and verifying that the keys actually
       // exist
-      for (let fieldName in schema._schema) {
+      for (let fieldName in schema) {
         // TODO: Nested-field foreign key constraints aren't yet supported
         if (fieldName.indexOf("$") >= 0)
           continue;
         
-        const foreignKeySpec = (schema as AnyBecauseTodo)._schema[fieldName].foreignKey;
+        const foreignKeySpec = schema[fieldName].database?.foreignKey;
         
         if (foreignKeySpec) {
           // Get a list of foreign values to check for

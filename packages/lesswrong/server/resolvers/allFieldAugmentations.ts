@@ -7,7 +7,7 @@ import { llmConversationResolvers } from "./llmConversationsResolvers";
 import { multiDocumentResolvers } from "./multiDocumentResolvers";
 import { reviewWinnerArtResolvers } from "./reviewWinnerArtResolvers";
 import { revisionResolvers } from "./revisionResolvers";
-import { allSchemas } from "@/lib/schema/allSchemas";
+import { allSchemas } from "@/lib/schema/allOldSchemas";
 
 export const allFieldAugmentations = {
   Posts: postResolvers,

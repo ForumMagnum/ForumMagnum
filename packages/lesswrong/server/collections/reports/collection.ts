@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/reports/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
@@ -7,8 +6,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Reports', {createdAt: 1});
     indexSet.addIndex('Reports', {claimedUserId:1, createdAt: 1});

@@ -14,7 +14,7 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
+import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/newSchema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';

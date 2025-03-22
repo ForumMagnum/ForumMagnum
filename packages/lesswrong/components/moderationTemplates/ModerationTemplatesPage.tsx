@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";
-import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/schema';
+import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/newSchema';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 

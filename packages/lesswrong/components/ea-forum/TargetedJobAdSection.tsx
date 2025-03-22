@@ -15,7 +15,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
-import { CAREER_STAGES } from '../../lib/collections/users/schema';
+import { CAREER_STAGES } from '../../lib/collections/users/newSchema';
 
 type UserCoreTagReads = {
   tagId: string,

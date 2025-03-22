@@ -1,6 +1,6 @@
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 
-export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
+export const formGroups = {
   default: {
     name: "default",
     order: 0,
@@ -88,4 +88,4 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
     label: preferredHeadingCase("Deactivate Account"),
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Users">>>;

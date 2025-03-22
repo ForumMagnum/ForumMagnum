@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/comments/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '@/lib/collections/users/helpers';
@@ -40,8 +39,7 @@ export const commentMutationOptions: MutationOptions<DbComment> = {
 export const Comments = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  schema,
-  resolvers: getDefaultResolvers('Comments'),
+    resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),
   logChanges: true,
   voteable: commentVotingOptions,

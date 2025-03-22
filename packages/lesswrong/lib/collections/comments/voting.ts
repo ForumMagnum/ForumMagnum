@@ -2,7 +2,7 @@ import type { CollectionVoteOptions } from '../../make_voteable';
 import { userCanDo } from '../../vulcan-users/permissions';
 
 // Comments have the custom behavior in that they sometimes have hidden karma
-const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
+export const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
   return !comment.hideKarma || userCanDo(user, 'posts.moderate.all')
 }
 

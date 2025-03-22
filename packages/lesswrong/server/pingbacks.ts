@@ -84,6 +84,8 @@ const extractLinks = (html: string): Array<string> => {
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
+  const context = createAnonymousContext();
+
   await forEachDocumentBatchInCollection({
     collection,
     callback: async (batch) => {
@@ -92,10 +94,10 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
         if (!editableFields) return;
 
         for (const [fieldName, editableField] of Object.entries(editableFields)) {
-          const editableFieldOptions = editableField.editableFieldOptions.callbackOptions;
+          const editableFieldOptions = editableField.graphql.editableFieldOptions;
           if (!editableFieldOptions.pingbacks) continue;
           const fieldContents = editableFieldOptions.normalized
-            ? await getLatestRev(doc._id, fieldName)
+            ? await getLatestRev(doc._id, fieldName, context)
             : doc[fieldName as keyof T] as AnyBecauseHard;
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
@@ -125,7 +127,7 @@ export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(c
   if (!editableFields) return;
   
   for (const [fieldName, editableField] of Object.entries(editableFields)) {
-    if (!editableField.editableFieldOptions.callbackOptions.pingbacks) continue;
+    if (!editableField.graphql.editableFieldOptions.pingbacks) continue;
     const fieldContents = doc[fieldName as keyof T] as AnyBecauseHard;
     const html = fieldContents?.html ?? "";
     const pingbacks = await htmlToPingbacks(html, [{

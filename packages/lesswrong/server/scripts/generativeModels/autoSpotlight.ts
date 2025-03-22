@@ -121,11 +121,12 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
 
 // Exported to allow running manually with "yarn repl"
 export async function createSpotlights() {
+  const context = createAdminContext();
   // eslint-disable-next-line no-console
   console.log("Creating spotlights for review winners");
 
   const { posts, spotlights } = await getPromptInfo()
-  const { reviewWinners } = await reviewWinnerCache.get()
+  const { reviewWinners } = await reviewWinnerCache.get(context)
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
@@ -175,7 +176,8 @@ export async function createSpotlights() {
 
 // Exported to allow running manually with "yarn repl"
 const updateOldSpotlightsWithSubtitle = async () => {
-  const { reviewWinners } = await reviewWinnerCache.get()
+  const context = createAdminContext();
+  const { reviewWinners } = await reviewWinnerCache.get(context)
   const postIds = reviewWinners.map(winner => winner._id);
   const spotlights = await Spotlights.find({ documentId: { $in: postIds }, customSubtitle: null, draft: false, deletedDraft: false }).fetch();
 
@@ -189,7 +191,8 @@ const updateOldSpotlightsWithSubtitle = async () => {
 // and changes the corresponding Post customHighlight to the spotlight description
 // Exported to allow running manually with "yarn repl"
 export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
-  const { reviewWinners } = await reviewWinnerCache.get()
+  const context = createAdminContext();
+  const { reviewWinners } = await reviewWinnerCache.get(context)
   const postIds = reviewWinners.map(winner => winner._id);
 
   const spotlights = await fetchFragment({

@@ -94,7 +94,7 @@ export const sanitizeHtmlOptions = {
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-export async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>): Promise<void> {
+export async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -112,8 +112,8 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
     return
   }
 
-  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, {sanitize: false})
-  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, {sanitize: false})
+  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, context, {sanitize: false})
+  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, context, {sanitize: false})
   const commentText = sanitizeHtml(commentHtml ?? "", sanitizeHtmlOptions)
   const postText = sanitizeHtml(postHtml ?? "", sanitizeHtmlOptions)
   const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})
@@ -130,6 +130,7 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
       const parentCommentHtml = await dataToHTML(
         parentComment.contents.originalContents.data,
         parentComment.contents.originalContents.type,
+        context,
         {sanitize: false}
       )
       const parentCommentText = sanitizeHtml(parentCommentHtml ?? "", sanitizeHtmlOptions)

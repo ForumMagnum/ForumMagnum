@@ -9,7 +9,7 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
   LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType, PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
-import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/newSchema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";

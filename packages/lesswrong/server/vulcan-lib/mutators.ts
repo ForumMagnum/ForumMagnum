@@ -31,7 +31,6 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
-import { getSchema } from '@/lib/schema/allSchemas';
 import { throwError } from './errors';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import clone from 'lodash/clone';
@@ -65,6 +64,7 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
     document
   } = createMutatorParams;
 
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
   const schema = getSchema(collection.collectionName);
 
   return {
@@ -131,6 +131,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const context = createMutatorParams.context ?? require('./query').createAnonymousContext();
 
   const { collectionName } = collection;
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
   const schema = getSchema(collectionName);
 
   const hooks = getCollectionHooks(collectionName);
@@ -203,11 +204,11 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const start = Date.now();
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    const schemaField = schema[fieldName];
-    if (schemaField.onCreate) {
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onCreate' in graphql && !!graphql.onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schemaField.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
+      autoValue = await graphql.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)
@@ -357,6 +358,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   document: oldDocument,
 }: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
   const schema = getSchema(collectionName);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
   logger('updateMutator() begin')
@@ -462,9 +464,9 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   const dataAsModifier = dataToModifier(clone(data));
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    const schemaField = schema[fieldName];
-    if (schemaField.onUpdate) {
-      autoValue = await schemaField.onUpdate({...properties, fieldName, modifier: dataAsModifier});
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onUpdate' in graphql && !!graphql.onUpdate) {
+      autoValue = await graphql.onUpdate({...properties, fieldName, modifier: dataAsModifier});
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onUpdate returned a value to update for ${fieldName}: ${autoValue}`)
@@ -613,6 +615,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   document,
 }: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
   const schema = getSchema(collectionName);
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
@@ -670,9 +673,9 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   */
   for (let fieldName of Object.keys(schema)) {
-    const onDelete = schema[fieldName].onDelete;
-    if (onDelete) {
-      await onDelete(properties); // eslint-disable-line no-await-in-loop
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onDelete' in graphql && !!graphql.onDelete) {
+      await graphql.onDelete(properties); // eslint-disable-line no-await-in-loop
     }
   }
 

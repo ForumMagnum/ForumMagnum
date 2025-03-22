@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/newSchema';
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { ObservableQuery } from '@apollo/client';

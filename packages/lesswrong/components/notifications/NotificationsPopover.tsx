@@ -7,7 +7,7 @@ import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisp
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChanges } from "@/server/collections/users/karmaChangesGraphQL";
-import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
+import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";

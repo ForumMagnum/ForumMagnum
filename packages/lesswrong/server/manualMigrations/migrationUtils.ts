@@ -125,9 +125,9 @@ export async function fillDefaultValues<N extends CollectionNameString>({ collec
   if (!fieldName) throw new Error("Missing required argument: fieldName");
   const schema = getSchema(collection.collectionName);
   if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
-  const defaultValue = schema[fieldName].defaultValue;
+  const defaultValue = schema[fieldName].database?.defaultValue;
   if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
-  if (!schema[fieldName].canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
+  if (!schema[fieldName].database?.canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
 
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);

@@ -97,7 +97,7 @@ export const userResolvers = {
         const { eventForm } = args
         if (eventForm) return null
 
-        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
         if (rateLimit) {
           return rateLimit
         } else {
@@ -111,7 +111,7 @@ export const userResolvers = {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
-        return getRecentKarmaInfo(user._id)
+        return getRecentKarmaInfo(user._id, context)
       }
     }
   },

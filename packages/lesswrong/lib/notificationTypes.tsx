@@ -12,7 +12,7 @@ import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 import GroupAddIcon from '@/lib/vendor/@material-ui/icons/src/GroupAdd';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
-import { NotificationChannelOption } from './collections/users/schema';
+import { NotificationChannelOption } from './collections/users/newSchema';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'

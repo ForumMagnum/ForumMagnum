@@ -6,7 +6,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/schema';
+import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/newSchema';
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -5,7 +5,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { PetrovDayActionType } from '@/lib/collections/petrovDayActions/schema';
+import type { PetrovDayActionType } from '@/lib/collections/petrovDayActions/newSchema';
 
 const styles = (theme: ThemeType) => ({
   root: {

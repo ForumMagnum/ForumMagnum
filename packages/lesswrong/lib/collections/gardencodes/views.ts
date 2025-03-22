@@ -1,4 +1,4 @@
-import { eventTypes } from './schema';
+import { eventTypes } from './newSchema';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {

@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
-import type { NotificationCountsResult } from '../../lib/collections/notifications/schema';
+import type { NotificationCountsResult } from '../../lib/collections/notifications/newSchema';
 
 /**
  * Provided by the client (if this is running on the client not the server),

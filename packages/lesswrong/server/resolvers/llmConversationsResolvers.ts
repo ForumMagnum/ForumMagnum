@@ -1,5 +1,5 @@
 import { markdownToHtml } from "../editor/conversionUtils";
-import { userVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { userVisibleMessageRoles } from "@/lib/collections/llmMessages/newSchema";
 
 export const llmConversationResolvers = {
   messages: {

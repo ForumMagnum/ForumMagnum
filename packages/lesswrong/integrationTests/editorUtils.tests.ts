@@ -2,7 +2,7 @@ import "./integrationTestSetup";
 import { createDummyPost, createDummyUser } from "./utils";
 import Revisions from "../server/collections/revisions/collection";
 import { Posts } from "../server/collections/posts/collection";
-import { runQuery } from "../server/vulcan-lib/query";
+import { createAnonymousContext, runQuery } from "../server/vulcan-lib/query";
 import { syncDocumentWithLatestRevision } from "../server/editor/utils";
 import { fetchFragmentSingle } from "../server/fetchFragment";
 
@@ -55,7 +55,7 @@ describe("syncDocumentWithLatestRevision", () => {
     await Revisions.rawRemove({_id: lastRevision._id})
 
     // Function we're actually testing
-    await syncDocumentWithLatestRevision(Posts, post, 'contents')
+    await syncDocumentWithLatestRevision(Posts, post, 'contents', createAnonymousContext())
 
     const postAfterSync = await fetchFragmentSingle({
       collectionName: "Posts",

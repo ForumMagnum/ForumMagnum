@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/users/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib/graphql";
@@ -8,8 +7,7 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  schema,
-  resolvers: getDefaultResolvers('Users'),
+    resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
     editCheck: (user: DbUser|null, document: DbUser) => {
       if (!user || !document)

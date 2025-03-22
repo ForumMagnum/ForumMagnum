@@ -41,6 +41,7 @@ import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
 import { updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from '../vulcan-lib/query';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -850,21 +851,25 @@ defineMutation({
         document: tag,
         collectionName: "Tags",
         fieldName: "description",
+        context,
       }),
       updateDenormalizedHtmlAttributions({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context,
       }),
       updateDenormalizedContributorsList({
         document: tag,
         collectionName: "Tags",
         fieldName: "description",
+        context,
       }),
       updateDenormalizedContributorsList({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context,
       }),
     ]);
     
@@ -876,9 +881,10 @@ defineMutation({
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+  const context = createAdminContext();
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
-  const latestRev = await getLatestRev(tag._id, "description");
+  const latestRev = await getLatestRev(tag._id, "description", context);
   if (!latestRev) throw new Error("Could not get latest rev");
   await Tags.rawUpdateOne(
     {_id: tag._id},
@@ -895,6 +901,9 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+  const resolverContext = createAdminContext();
+  const { Tags } = resolverContext;
+
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const lenses = await MultiDocuments.find({
@@ -908,22 +917,26 @@ export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug
     document: tag,
     collectionName: "Tags",
     fieldName: "description",
+    context: resolverContext,
   });
   await updateDenormalizedContributorsList({
     document: tag,
     collectionName: "Tags",
     fieldName: "description",
+    context: resolverContext,
   });
   for (const lensMultiDocument of lenses) {
     await updateDenormalizedHtmlAttributions({
       document: lensMultiDocument,
       collectionName: "MultiDocuments",
       fieldName: "contents",
+      context: resolverContext,
     });
     await updateDenormalizedContributorsList({
       document: lensMultiDocument,
       collectionName: "MultiDocuments",
       fieldName: "contents",
+      context: resolverContext,
     });
   }
 }

@@ -1,97 +1,232 @@
-import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
+import { generateIdResolverSingle, getForeignKeySqlResolver } from "@/lib/utils/schemaUtils";
 
-export const testSchema: SchemaType<CollectionNameString> = {
+export const testSchema: NewSchemaType<CollectionNameString> = {
   _id: {
-    type: String,
+    database: {
+      type: "VARCHAR(27)",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
   },
   a: {
-    type: Number,
-    defaultValue: 3,
+    database: {
+      type: "DOUBLE PRECISION",
+      defaultValue: 3,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+    },
   },
   b: {
-    type: String,
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+    },
   },
   c: {
-    type: Object,
+    database: {
+      type: "JSONB",
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: ["guests"],
+    },
   },
   d: {
-    type: Array
-  },
-  'd.$': {
-    type: String
+    database: {
+      type: "TEXT[]",
+    },
+    graphql: {
+      outputType: "[String]",
+      canRead: ["guests"],
+    },
   },
   schemaVersion: {
-    type: Number,
+    database: {
+      type: "DOUBLE PRECISION",
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+    },
   },
 };
 
-export const testSchema2: SchemaType<CollectionNameString> = {
+export const testSchema2: NewSchemaType<CollectionNameString> = {
   _id: {
-    type: String,
+    database: {
+      type: "VARCHAR(27)",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
   },
   data: {
-    type: String,
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+    },
   },
   schemaVersion: {
-    type: Number,
+    database: {
+      type: "DOUBLE PRECISION",
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+    },
   },
 };
 
-export const testSchema3: SchemaType<CollectionNameString> = {
+export const testSchema3: NewSchemaType<CollectionNameString> = {
   _id: {
-    type: String,
+    database: {
+      type: "VARCHAR(27)",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
   },
   notNullData: {
-    type: String,
-    nullable: false
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+    },
   },
   schemaVersion: {
-    type: Number,
+    database: {
+      type: "DOUBLE PRECISION",
+    },
   }
 };
 
-export const testSchema4: SchemaType<CollectionNameString> = {
+export const testSchema4: NewSchemaType<CollectionNameString> = {
   _id: {
-    type: String,
+    database: {
+      type: "VARCHAR(27)",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
   },
   testCollection3Id: {
-    ...foreignKeyField({
-      idFieldName: "testCollection3Id",
-      resolverName: "testCollection3",
-      collectionName: "TestCollection3" as CollectionNameString,
-      type: "TestCollection3",
-      nullable: true,
-      autoJoin: true,
-    }),
-  },
-  testCollection2: resolverOnlyField({
-    type: "TestCollection2",
-    graphQLtype: "TestCollection2",
-    graphqlArguments: "testCollection2Id: String",
-    resolver: async () => null,
-    sqlResolver: ({resolverArg, join}) => join({
-      table: "TestCollection2" as CollectionNameString,
-      type: "left",
-      on: {
-        _id: resolverArg("testCollection2Id"),
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "TestCollection3" as CollectionNameString,
+    },
+    graphql: {
+      outputType: "TestCollection3",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
       },
-      resolver: (testCollection2Field) => testCollection2Field("*"),
-    }),
-  }),
+    },
+  },
+  testCollection3: {
+    graphql: {
+      outputType: "TestCollection3",
+      canRead: ["guests"],
+      resolver: generateIdResolverSingle({
+        foreignCollectionName: "TestCollection3" as CollectionNameString,
+        fieldName: "testCollection3Id",
+        nullable: true,
+      }),
+      sqlResolver: getForeignKeySqlResolver({
+        collectionName: "TestCollection3" as CollectionNameString,
+        nullable: true,
+        idFieldName: "testCollection3Id",
+      }),
+    },
+  },
+  testCollection2: {
+    graphql: {
+      outputType: "TestCollection2",
+      canRead: ["guests"],
+      resolver: async () => null,
+      sqlResolver: ({ resolverArg, join }) => join({
+        table: "TestCollection2" as CollectionNameString,
+        type: "left",
+        on: {
+          _id: resolverArg("testCollection2Id"),
+        },
+        resolver: (testCollection2Field) => testCollection2Field("*"),
+      }),
+    },
+  },
   schemaVersion: {
-    type: Number,
+    database: {
+      type: "DOUBLE PRECISION",
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+    },
   },
 };
 
-export const testSchema5: SchemaType<CollectionNameString> = {
+export const testSchema5: NewSchemaType<CollectionNameString> = {
   _id: {
-    type: String,
+    database: {
+      type: "VARCHAR(27)",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
   },
   jsonField: {
-    type: Object,
+    database: {
+      type: "JSONB",
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: ["guests"],
+    },
   },
   schemaVersion: {
-    type: Number,
+    database: {
+      type: "DOUBLE PRECISION",
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+    },
   },
 };
 

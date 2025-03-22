@@ -6,9 +6,10 @@ import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createMutator } from '../vulcan-lib/mutators';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { adminAccountSetting } from '@/lib/publicSettings';
+import { createAnonymousContext } from '../vulcan-lib/query';
 
 const messageResumeReadingUsers = async (user: DbUser) => {
-
+  const context = createAnonymousContext();
   const adminEmail = adminAccountSetting.get()?.email ?? "";
   const message = `<div
     <p>Hey ${userGetDisplayName(user)},</p>
@@ -19,7 +20,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
     Ruby (LW Team)</p>
   </div>`
   
-  const lwAccount = await getAdminTeamAccount()
+  const lwAccount = await getAdminTeamAccount(context)
 
   if (!lwAccount) {
     throw new Error("Unable to find the lwAccount to send message to user")
