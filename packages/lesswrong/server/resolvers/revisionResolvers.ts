@@ -1,4 +1,3 @@
-import Revisions from '@/server/collections/revisions/collection';
 import { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/revisionConstants';
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
@@ -22,7 +21,7 @@ import { extractTableOfContents } from '../../lib/tableOfContents';
 import { htmlContainsFootnotes } from '../utils/htmlUtil';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
-export const htmlToTextPlaintextDescription = compileHtmlToText({
+const htmlToTextPlaintextDescription = compileHtmlToText({
   wordwrap: false,
   selectors: [
     { selector: "img", format: "skip" },
@@ -152,7 +151,7 @@ defineQuery({
       case "html":
         return {
           type: "html",
-          value: await dataToHTML(document.value, document.type),
+          value: await dataToHTML(document.value, document.type, context),
         };
         break;
       case "draftJS":
@@ -180,6 +179,7 @@ defineQuery({
   resultType: "JSON",
   argTypes: "(postId: String!, version: String)",
   fn: async (root: void, { postId, version }: { postId: string; version?: string }, context: ResolverContext) => {
+    const { Revisions } = context;
     const query = {
       documentId: postId,
       googleDocMetadata: { $exists: true },
@@ -207,7 +207,7 @@ defineMutation({
     const [tag, revertToRevision, latestRevision] = await Promise.all([
       loaders.Tags.load(tagId),
       loaders.Revisions.load(revertToRevisionId),
-      getLatestRev(tagId, 'description')
+      getLatestRev(tagId, 'description', context)
     ]);
 
     const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
@@ -243,7 +243,7 @@ defineMutation({
   `,
   argTypes: "(postId: String!, contents: AutosaveContentType!)",
   fn: async (_, { postId, contents }: { postId: string, contents: EditorContents }, context): Promise<DbRevision> => {
-    const { currentUser, loaders } = context;
+    const { currentUser, loaders, Revisions } = context;
     if (!currentUser) {
       throw new Error('Cannot autosave revision while logged out');
     }
@@ -257,8 +257,8 @@ defineMutation({
     const updateSemverType = 'patch';
 
     const [previousRev, html] = await Promise.all([
-      getLatestRev(postId, postContentsFieldName),
-      dataToHTML(contents.value, contents.type, { sanitize: !currentUser.isAdmin })
+      getLatestRev(postId, postContentsFieldName, context),
+      dataToHTML(contents.value, contents.type, context, { sanitize: !currentUser.isAdmin })
     ]);
 
     // This behavior differs from make_editable's `updateBefore` callback, but in the case of manual user saves it seems fine to create new revisions; they don't happen that often
@@ -275,6 +275,7 @@ defineMutation({
       ...await buildRevision({
         originalContents: { type: contents.type, data: contents.value },
         currentUser,
+        context,
       }),
       documentId: postId,
       fieldName: postContentsFieldName,
@@ -295,7 +296,7 @@ defineMutation({
     });
 
     // TODO: not sure if we need these?  The aren't called by `saveDocumentRevision` in `ckEditorWebhook.ts` after creating a new revision from ckeditor's cloud autosave
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: createdRevision._id }]);
+    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: createdRevision._id, context }]);
 
     return createdRevision;
   }

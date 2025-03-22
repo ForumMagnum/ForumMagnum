@@ -5,7 +5,7 @@ export const jargonTermResolvers = {
     resolveAs: {
       type: 'String',
       resolver: async (document: DbJargonTerm, args: void, context: ResolverContext): Promise<JargonTermsPost['humansAndOrAIEdited'] | null> => {        
-        const botAccountId = await getAdminTeamAccountId();
+        const botAccountId = await getAdminTeamAccountId(context);
         if (!botAccountId) {
           return null;
         }

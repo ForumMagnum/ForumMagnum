@@ -1,10 +1,10 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../server/collections/comments/collection';
-import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
+import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/newSchema';
 import { denormalizedField, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { getLocalTime } from '../mapsUtils';
-import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata, extractGoogleDocId, isDialogueParticipant, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
@@ -16,13 +16,12 @@ import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
 import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
 import { drive } from "@googleapis/drive";
-import { convertImportedGoogleDoc, dataToMarkdown } from '../editor/conversionUtils';
+import { dataToMarkdown } from '../editor/conversionUtils';
 import Revisions from '../../server/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
@@ -38,6 +37,7 @@ import { createMutator } from "../vulcan-lib/mutators";
 import { fetchFragmentSingle } from '../fetchFragment';
 import { languageModelGenerateText } from '../languageModels/languageModelIntegration';
 import { getPostReviewWinnerInfo } from '@/server/review/reviewWinnersCache';
+import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 
 export const postResolvers = {
   // Compute a denormalized start/end time for events, accounting for the
@@ -48,9 +48,9 @@ export const postResolvers = {
   localStartTime: {
     ...denormalizedField({
       needsUpdate: (data) => ('startTime' in data || 'googleLocation' in data),
-      getValue: async (post) => {
+      getValue: async (post, context) => {
         if (!post.startTime) return null
-        const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation
+        const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation
         if (!googleLocation) return null
         return await getLocalTime(post.startTime, googleLocation)
       }
@@ -59,9 +59,9 @@ export const postResolvers = {
   localEndTime: {
     ...denormalizedField({
       needsUpdate: (data) => ('endTime' in data || 'googleLocation' in data),
-      getValue: async (post) => {
+      getValue: async (post, context) => {
         if (!post.endTime) return null
-        const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation
+        const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation
         if (!googleLocation) return null
         return await getLocalTime(post.endTime, googleLocation)
       }
@@ -282,7 +282,7 @@ export const postResolvers = {
         const isParticipant = isDialogueParticipant(currentUser._id, post)
         if (!isParticipant) return null;
 
-        const html = (await getLatestRev(post._id, "contents"))?.html ??
+        const html = (await getLatestRev(post._id, "contents", context))?.html ??
           (await getLatestContentsRevision(post, context))?.html ??
           "";
 
@@ -575,13 +575,14 @@ addGraphQLResolvers({
       const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
       if (postId) {
-        const previousRev = await getLatestRev(postId, "contents")
+        const previousRev = await getLatestRev(postId, "contents", context)
         const revisionType = "major"
 
         const newRevision: Partial<DbRevision> = {
           ...(await buildRevision({
             originalContents,
             currentUser,
+            context,
           })),
           documentId: postId,
           draft: true,

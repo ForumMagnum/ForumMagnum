@@ -30,6 +30,7 @@ export function getContributorsFieldResolver(options: ContributorsFieldOptions) 
       collectionName,
       fieldName,
       version: version || null,
+      context,
     });
 
     const contributorUserIds = Object.keys(contributionStatsByUserId);

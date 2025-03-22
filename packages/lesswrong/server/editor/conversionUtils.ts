@@ -205,57 +205,6 @@ export const handleDialogueHtml = async (html: string, context: ResolverContext)
   return $.html();
 };
 
-interface UserIdAndDisplayName {
-  userId: string;
-  displayName: string;
-}
-
-// export const backfillDialogueMessageInputAttributes = async (html: string, postId: string) => {
-//   const post = await Posts.findOne(postId);
-//   if (!post) throw new Error(`Can't find post with id ${postId}!`);
-  
-//   const dialogueParticipantIds = [post.userId, ...getConfirmedCoauthorIds(post)];
-//   const usersWithDisplayNames = await Users.find({ _id: { $in: dialogueParticipantIds } }, undefined, { _id: 1, displayName: 1 }).fetch();
-//   const displayNamesById = Object.fromEntries(usersWithDisplayNames.map(user => [user._id, user.displayName] as const));
-
-//   const $ = cheerioParse(html);
-
-//   if ($('.dialogue-message-input-wrapper').length > 0) {
-//     return $.html();
-//   }
-
-//   const userIdsWithOrders: [number, UserIdAndDisplayName][] = dialogueParticipantIds.map(
-//     (participantId, idx) => ([idx + 1, { userId: participantId, displayName: displayNamesById[participantId] ?? '[Missing displayName]' }])
-//   );
-
-//   userIdsWithOrders.sort(([orderA], [orderB]) => orderA - orderB);
-//   const userIdsByOrder = Object.fromEntries(userIdsWithOrders);
-
-//   const messageInputElements = $('.dialogue-message-input').toArray();
-
-//   for (const [idx, element] of Object.entries(messageInputElements)) {
-//     const userId = $(element).attr('user-id');
-//     const userOrder = $(element).attr('user-order');
-
-//     if (userId) {
-//       // eslint-disable-next-line no-console
-//       console.log(`Element ${element} already has userId ${userId}`);
-//       continue;
-//     }
-
-//     const idxDerivedOrder = (Number.parseInt(idx) + 1).toString();
-//     const finalUserOrder = userOrder ?? idxDerivedOrder;
-//     const { userId: userIdByOrder, displayName } = userIdsByOrder[finalUserOrder];
-
-//     $(element).attr('user-id', userIdByOrder);
-//     $(element).attr('user-order', finalUserOrder);
-//     $(element).attr('display-name', displayName);
-//   }
-
-//   cheerioWrapAll($('.dialogue-message-input'), '<div class="dialogue-message-input-wrapper" />', $);
-
-//   return $.html();
-// }
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerioParse(`<div id="root">${html}</div>`)

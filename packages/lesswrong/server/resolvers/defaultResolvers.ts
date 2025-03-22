@@ -247,7 +247,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let doc: ObjectsByCollectionName[N] | null;
     if (fragmentName) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment = require('@/lib/vulcan-lib/fragments').getSqlFragment;
+      const getSqlFragment = require('../../lib/vulcan-lib/fragments').getSqlFragment;
       const sqlFragment = getSqlFragment(fragmentName as FragmentName);
       const query = new SelectFragmentQuery(
         sqlFragment,
