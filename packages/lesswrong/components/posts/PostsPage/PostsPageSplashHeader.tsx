@@ -443,7 +443,7 @@
 //     </div>
 //   );
 
-//   const imagePreviewAndCrop = (userIsAdminOrMod(currentUser) &&
+//   const SplashImageEditing = (userIsAdminOrMod(currentUser) &&
 //     <div className={classes.rightSectionBelowBottomRow}>
 //       <div {...eventHandlers}>
 //         <div className={classes.changeImageBox}>Change image</div>
@@ -529,7 +529,7 @@
 //     </div>
 //     {audioPlayer}
 //     <div className={classes.rightSection}>
-//       {imagePreviewAndCrop}
+//       {SplashImageEditing}
 //     </div>
 //     {reviewContainer}
 //     {centralSection}

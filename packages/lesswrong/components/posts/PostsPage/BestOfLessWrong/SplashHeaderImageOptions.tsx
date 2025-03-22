@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
-import { useImageContext } from './ImageContext';
-import { useMulti } from '../../../lib/crud/withMulti';
+import { registerComponent, Components } from '../../../../lib/vulcan-lib/components';
+import { useImageContext } from '../ImageContext';
+import { useMulti } from '../../../../lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCreate } from '@/lib/crud/withCreate';

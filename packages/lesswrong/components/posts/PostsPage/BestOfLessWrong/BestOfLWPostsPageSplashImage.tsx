@@ -3,7 +3,7 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useImageContext } from '../ImageContext';
-import ImagePreviewAndCrop from './ImagePreviewAndCrop';
+import SplashImageEditing from './SplashImageEditing';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
@@ -111,7 +111,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
       <div className={classes.overlayX} />
       <div className={classes.overlayDiag} />
     </div>
-    {userIsAdminOrMod(currentUser) && <ImagePreviewAndCrop imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
+    {userIsAdminOrMod(currentUser) && <SplashImageEditing imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
   </div>
 }
 

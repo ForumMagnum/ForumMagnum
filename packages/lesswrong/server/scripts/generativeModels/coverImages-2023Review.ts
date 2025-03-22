@@ -326,3 +326,39 @@ export const getReviewWinnerArts = async () => {
   // eslint-disable-next-line no-console
   console.log(`${results.length} cover images generated for ${uniqueResults.length} essays`)
 }
+
+export const generateCoverImagesForPost = async (postId: string): Promise<EssayResult[]> => {
+  // eslint-disable-next-line no-console
+  console.time('running generateCoverImagesForPost');
+  
+  const post = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    selector: {_id: postId},
+    currentUser: null,
+    skipFiltering: true,
+  });
+  
+  if (!post || !post.length) {
+    throw new Error(`Post with ID ${postId} not found`);
+  }
+  
+  const essay: Essay = {
+    post: post[0],
+    title: post[0].title,
+    content: post[0].contents?.html ?? "",
+    neededArtCount: 3 // Generate 3 images per post when triggered manually
+  };
+  
+  const openAiClient = await getOpenAI();
+  if (!openAiClient) {
+    throw new Error('Could not initialize OpenAI client!');
+  }
+  
+  const results = await getArtForEssay(openAiClient, essay);
+  
+  // eslint-disable-next-line no-console
+  console.timeEnd('running generateCoverImagesForPost');
+  
+  return results;
+};

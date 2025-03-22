@@ -2,9 +2,9 @@ import React, { useState, useRef, RefObject } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
-import { Coordinates } from '../ImageCropPreview';
+import { Coordinates } from './ImageCropPreview';
 import { useImageContext } from '../ImageContext';
-const styles = defineStyles("ImagePreviewAndCrop", (theme: ThemeType) => ({ 
+const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 
   rightSectionBelowBottomRow: {
     position: 'absolute',
     top: 200,
@@ -41,13 +41,14 @@ const styles = defineStyles("ImagePreviewAndCrop", (theme: ThemeType) => ({
   }
 }));
 
-const ImagePreviewAndCrop = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
+const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
   const { SplashHeaderImageOptions, ImageCropPreview, LWPopper } = Components;
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
+
   const toggleImageFlip = () => setImageFlipped(!imageFlipped);
 
   const backgroundImgWrapperRef = useRef<HTMLDivElement>(null);
@@ -91,12 +92,12 @@ const ImagePreviewAndCrop = ({ imgRef, imageFlipped, setImageFlipped, post }: { 
   </div>
 }
 
-const ImagePreviewAndCropComponent = registerComponent('ImagePreviewAndCrop', ImagePreviewAndCrop);
+const SplashImageEditingComponent = registerComponent('SplashImageEditing', SplashImageEditing);
 
 declare global {
   interface ComponentTypes {
-    ImagePreviewAndCrop: typeof ImagePreviewAndCropComponent
+    SplashImageEditing: typeof SplashImageEditingComponent
   }
 }
 
-export default ImagePreviewAndCrop;
+export default SplashImageEditing;

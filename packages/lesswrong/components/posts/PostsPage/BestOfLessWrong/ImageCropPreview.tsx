@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect, RefObject, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
-import { useEventListener } from '../../hooks/useEventListener';
-import { useCreate } from '../../../lib/crud/withCreate';
-import { useWindowSize } from '../../hooks/useScreenWidth';
-import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../sequences/TopPostsPage';
+import { registerComponent } from '../../../../lib/vulcan-lib/components';
+import { useImageContext, ReviewWinnerImageInfo } from '../ImageContext';
+import { useEventListener } from '../../../hooks/useEventListener';
+import { useCreate } from '../../../../lib/crud/withCreate';
+import { useWindowSize } from '../../../hooks/useScreenWidth';
+import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../../sequences/TopPostsPage';
 import classNames from 'classnames';
 
 const initialHeight = 480;
@@ -355,6 +355,7 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
       }
 
       const imgRect = imgRef.current.getBoundingClientRect();
+      console.log("imgRect", imgRect)
 
       const leftOffsets = getOffsetPercentages(imgRect, coordsLeft, 'left');
       const middleOffsets = getOffsetPercentages(imgRect, coordsMiddle, 'middle');
