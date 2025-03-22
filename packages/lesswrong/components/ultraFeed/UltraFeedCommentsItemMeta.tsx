@@ -12,6 +12,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     position: "relative",
     display: "flex",
     flexWrap: "wrap",
+    
     alignItems: "center",
     rowGap: "6px",
     // marginBottom: 8,
@@ -31,6 +32,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     flexGrow: 1,
+    flexWrap: "wrap",
   },
   karma: {
     display:"inline-block",
@@ -42,6 +44,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
   username: {
     marginRight: 8,
+    textWrap: "nowrap",
     '& a, & a:hover': {
       color: theme.palette.link.unmarked,
     },

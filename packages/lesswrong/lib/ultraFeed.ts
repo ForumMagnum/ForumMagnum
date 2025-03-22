@@ -14,29 +14,42 @@ export const UltraFeedItemFragment = `
   }
 `; 
 
-/**
- * Fragment for comment threads in UltraFeed.
- */
-export const UltraFeedCommentThreadFragment = `
-  fragment UltraFeedCommentThreadFragment on UltraFeedItem {
-    _id
-    type
-    renderAsType
-    sources
-    itemContent
-  }
-`;
+// /**
+//  * Fragment for comment threads in UltraFeed.
+//  */
+// export const UltraFeedCommentThreadFragment = `
+//   fragment UltraFeedCommentThreadFragment on UltraFeedItem {
+//     _id
+//     type
+//     renderAsType
+//     sources
+//     itemContent
+//   }
+// `;
 
-/**
- * Fragment for posts with comments in UltraFeed.
- */
-export const UltraFeedPostWithCommentsFragment = `
-  fragment UltraFeedPostWithCommentsFragment on UltraFeedItem {
-    _id
-    type
-    renderAsType
-    sources
-    itemContent
-  }
-`;
+// /**
+//  * Fragment for posts with comments in UltraFeed.
+//  */
+// export const UltraFeedPostWithCommentsFragment = `
+//   fragment UltraFeedPostWithCommentsFragment on UltraFeedItem {
+//     _id
+//     type
+//     renderAsType
+//     sources
+//     itemContent
+//   }
+// `;
+
+// /**
+//  * Fragment for spotlight items in UltraFeed.
+//  */
+// export const DisplayFeedSpotlightFragment = `
+//   fragment DisplayFeedSpotlight on UltraFeedItem {
+//     _id
+//     type
+//     renderAsType
+//     sources
+//     itemContent
+//   }
+// `;
 
