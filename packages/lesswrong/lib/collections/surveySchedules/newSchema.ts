@@ -83,6 +83,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   surveyId: {
     database: {
@@ -97,6 +100,7 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
+    form: {},
   },
   survey: {
     graphql: {
@@ -174,6 +178,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   maxKarma: {
     database: {
@@ -189,6 +194,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   target: {
     database: {
@@ -262,6 +268,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   clientIds: {
     database: {
@@ -277,6 +284,9 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
       onCreate: arrayOfForeignKeysOnCreate,
+    },
+    form: {
+      hidden: true,
     },
   },
   clients: {

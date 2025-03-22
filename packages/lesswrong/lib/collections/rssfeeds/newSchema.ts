@@ -63,6 +63,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   userId: {
     database: {
@@ -78,6 +81,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   user: {
@@ -178,6 +184,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   rawFeed: {
     database: {
@@ -193,6 +200,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   setCanonicalUrl: {

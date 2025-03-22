@@ -271,18 +271,27 @@ const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typ
       }
     }
 
+    const createFieldType = inputFieldType === 'Revision'
+      ? 'JSON'
+      : inputFieldType;
+
+    // Fields should not be required for updates
+    const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
+      ? createFieldType.slice(0, -1)
+      : createFieldType;
+
     // OpenCRUD backwards compatibility
     if (graphql.canCreate?.length) {
       fields.create.push({
         name: fieldName,
-        type: inputFieldType === 'Revision' ? 'JSON' : inputFieldType,
+        type: createFieldType,
       });
     }
     // OpenCRUD backwards compatibility
     if (graphql.canUpdate?.length) {
       fields.update.push({
         name: fieldName,
-        type: inputFieldType === 'Revision' ? 'JSON' : inputFieldType,
+        type: updateFieldType,
       });
     }
   });

@@ -61,7 +61,7 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
 };
 
 const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
-  const schema = getSimpleSchema(nextProps.collectionName, true);
+  const schema = getSimpleSchema(nextProps.collectionName);
   const convertedSchema = convertSchema(schema) ?? {};
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
@@ -199,9 +199,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       excludeRemovedFields: false,
       excludeHiddenFields: false,
       addExtraFields: false,
-      // This is extremely stupid, but we need to get the non-form-specific schema to avoid stripping out fields
-      // that aren't visible in the form itself.
-      schema: getSimpleSchema(this.props.collectionName)._schema,
       ...customArgs
     };
 

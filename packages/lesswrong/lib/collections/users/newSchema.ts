@@ -465,6 +465,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   moderationGuidelines: {
     database: {
@@ -555,6 +558,7 @@ const schema = {
     form: {
       hidden: true,
       order: 7,
+      control: "EditorFormComponent",
       label: "How others can help me",
       group: () => formGroups.aboutMe,
       form: {
@@ -562,7 +566,11 @@ const schema = {
         formVariant: isFriendlyUI ? "grey" : undefined,
         commentEditor: true,
         commentStyles: true,
-      }
+      },
+      editableFieldOptions: {
+        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
+        revisionsHaveCommitMessages: false,  
+      },
     },
   },
   howOthersCanHelpMe_latest: {
@@ -622,7 +630,11 @@ const schema = {
         formVariant: isFriendlyUI ? "grey" : undefined,
         commentEditor: true,
         commentStyles: true,
-      }
+      },
+      editableFieldOptions: {
+        getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
+        revisionsHaveCommitMessages: false,  
+      },
     },
   },
   howICanHelpOthers_latest: {
@@ -782,6 +794,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // Emails (not to be confused with email). This field belongs to Meteor's
   // accounts system; we should never write it, but we do need to read it to find
@@ -838,6 +853,9 @@ const schema = {
   profile: {
     database: {
       type: "JSONB",
+    },
+    form: {
+      hidden: true,
     },
   },
   services: {
@@ -1078,6 +1096,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
@@ -1118,6 +1139,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   commentSorting: {
@@ -1479,6 +1503,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
   showCommunityInRecentDiscussion: {
@@ -1656,6 +1683,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   hideNavigationSidebar: {
     database: {
@@ -1669,6 +1699,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   currentFrontpageFilter: {
@@ -1684,6 +1717,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   frontpageSelectedTab: {
     database: {
@@ -1698,6 +1734,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   frontpageFilterSettings: {
@@ -1718,6 +1757,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   hideFrontpageFilterSettingsDesktop: {
     database: {
@@ -1734,6 +1776,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   allPostsTimeframe: {
     database: {
@@ -1747,6 +1792,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   allPostsFilter: {
@@ -1762,6 +1810,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   allPostsSorting: {
     database: {
@@ -1775,6 +1826,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   allPostsShowLowKarma: {
@@ -1790,6 +1844,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   allPostsIncludeEvents: {
     database: {
@@ -1803,6 +1860,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   allPostsHideCommunity: {
@@ -1818,6 +1878,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   allPostsOpenSettings: {
     database: {
@@ -1831,6 +1894,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   draftsListSorting: {
@@ -1846,6 +1912,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   draftsListShowArchived: {
     database: {
@@ -1859,6 +1928,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   draftsListShowShared: {
@@ -1874,6 +1946,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   lastNotificationsCheck: {
     database: {
@@ -1888,6 +1963,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   karma: {
@@ -2066,6 +2144,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   bookmarkedPosts: {
     graphql: {
@@ -2106,6 +2187,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   hiddenPosts: {
     graphql: {
@@ -2127,6 +2211,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   deleted: {
@@ -2173,6 +2260,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // DEPRECATED
@@ -3231,6 +3321,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
 
   // If, the last time you opened the karma-change notifier, you saw more than
@@ -3249,6 +3342,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   emailSubscribedToCurated: {
@@ -3327,6 +3423,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   hideMeetupsPoke: {
     database: {
@@ -3343,6 +3442,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // Used by the EA Forum to allow users to hide the right-hand side of the home page
@@ -3361,6 +3463,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -3520,6 +3625,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // Used to place a map marker pin on the where-are-other-users map.
   // Public.
@@ -3634,6 +3742,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
@@ -3705,6 +3816,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   hideFrontpageMap: {
@@ -4234,6 +4348,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   beta: {
     database: {
@@ -4266,6 +4383,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   reviewVotesQuadratic2019: {
     database: {
@@ -4278,6 +4398,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   reviewVoteCount: {
@@ -4305,6 +4428,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   petrovPressedButtonDate: {
@@ -4394,6 +4520,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   postCount: {
@@ -4606,6 +4735,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // This is deprecated.
   reenableDraftJs: {
@@ -4672,6 +4804,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   taggingDashboardCollapsed: {
     database: {
@@ -4684,6 +4819,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   usernameUnset: {
@@ -4700,6 +4838,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   paymentEmail: {
@@ -4753,6 +4894,9 @@ const schema = {
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
+    },
+    form: {
+      hidden: true,
     },
   },
   // Cloudinary image id for the profile image (high resolution)
@@ -4904,6 +5048,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   linkedinProfileURL: {
@@ -5316,6 +5463,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   moderatorActions: {
     graphql: {
@@ -5343,6 +5493,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // used by the EA Forum to track when a user has dismissed the frontpage job ad
   hideJobAdUntil: {
@@ -5358,6 +5511,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // used by the EA Forum to track if a user has dismissed the post page criticism tips card
@@ -5376,6 +5532,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   hideFromPeopleDirectory: {
@@ -5578,6 +5737,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   afSubmittedApplication: {
     database: {
@@ -5591,6 +5753,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   rateLimitNextAbleToComment: {
@@ -5666,6 +5831,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // Used by EAF to track when we last emailed the user about the annual user survey
   userSurveyEmailSentAt: {
@@ -5681,6 +5849,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   karmaChanges: {
@@ -5744,6 +5915,9 @@ const schema = {
         simpleSchema: recommendationSettingsSchema,
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"Users">>;

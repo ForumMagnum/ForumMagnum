@@ -100,6 +100,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   description: {
     database: {

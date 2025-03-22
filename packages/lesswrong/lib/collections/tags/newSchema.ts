@@ -134,6 +134,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   description: {
     database: {
@@ -745,6 +748,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   reviewedByUser: {
     graphql: {
@@ -1309,6 +1315,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   subTags: {
     graphql: {
@@ -1566,6 +1575,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   summaries: {

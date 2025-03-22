@@ -107,6 +107,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   frontpageDescription: {
     database: {
@@ -540,6 +543,10 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      control: "FormComponentCheckbox",
+      hidden: true,
+    },
   },
   eventFormat: {
     database: {
@@ -702,6 +709,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   commentPrompt: {
     database: {
@@ -744,6 +752,9 @@ const schema = {
         optional: true,
         blackbox: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   voteCount: {

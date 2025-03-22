@@ -119,6 +119,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     database: {
@@ -228,6 +231,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   parentComment: {
     graphql: {
@@ -249,6 +255,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   topLevelComment: {
@@ -328,6 +337,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   post: {
     graphql: {
@@ -349,6 +361,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   tag: {
     graphql: {
@@ -369,6 +384,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   forumEvent: {
@@ -397,6 +415,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   tagCommentType: {
     database: {
@@ -414,6 +435,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   subforumStickyPriority: {
     database: {
@@ -429,6 +453,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   userId: {
     database: {
@@ -443,6 +470,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   user: {
@@ -505,6 +535,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   pageUrl: {
     graphql: {
@@ -540,6 +573,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   parentAnswerId: {
     database: {
@@ -554,6 +590,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   parentAnswer: {
@@ -643,6 +682,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   shortformFrontpage: {
     database: {
@@ -659,6 +701,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // users can write comments nominating posts for a particular review period.
@@ -677,6 +722,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   reviewingForReview: {
     database: {
@@ -690,6 +738,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   lastSubthreadActivity: {
@@ -751,6 +802,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   promotedByUser: {
     graphql: {
@@ -804,6 +858,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: {
@@ -855,6 +912,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
@@ -869,6 +929,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // Legacy Poll: Boolean to indicate that original LW data had a poll here
@@ -888,6 +951,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // Legacy Parent Id: Id of parent comment in original LW database
   legacyParentId: {
@@ -902,6 +968,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // retracted: Indicates whether a comment has been retracted by its author.
@@ -922,6 +991,10 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      control: "checkbox",
+      hidden: true,
+    },
   },
   // deleted: Indicates whether a comment has been deleted by an admin.
   // Deleted comments and their replies are not rendered by default.
@@ -941,6 +1014,10 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      control: "checkbox",
+      hidden: true,
+    },
   },
   deletedPublic: {
     database: {
@@ -958,6 +1035,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   deletedReason: {
     database: {
@@ -971,6 +1051,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   deletedDate: {
@@ -991,6 +1074,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   deletedByUserId: {
     database: {
@@ -1010,6 +1096,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   deletedByUser: {
@@ -1036,6 +1125,10 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      control: "checkbox",
+      hidden: true,
     },
   },
   // repliesBlockedUntil: Deactivates replying to this post by anyone except
@@ -1070,6 +1163,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   reviewedByUserId: {
     database: {
@@ -1084,6 +1180,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   reviewedByUser: {
@@ -1130,6 +1229,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   /**
    * Suppress user-visible styling for comments marked with `moderatorHat: true`
@@ -1152,6 +1254,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   isPinnedOnProfile: {
     database: {
@@ -1168,6 +1273,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   title: {
@@ -1267,6 +1375,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // How well does ModGPT (GPT-4o) think this comment adheres to forum norms and rules? (currently EAF only)
   modGPTAnalysis: {
@@ -1282,6 +1393,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   // This should be one of: Intervene, Consider reviewing, Don't intervene
@@ -1299,6 +1413,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   rejectedReason: {
     database: {
@@ -1313,6 +1430,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   rejectedByUserId: {
@@ -1333,6 +1453,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   rejectedByUser: {
@@ -1443,6 +1566,7 @@ const schema = {
       hidden: true,
       label: "Alignment Forum",
       group: () => alignmentOptionsGroup,
+      order: 10,
     },
   },
   moveToAlignmentUserId: {
@@ -1484,6 +1608,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   originalDialogueId: {
     database: {
@@ -1499,6 +1626,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   originalDialogue: {

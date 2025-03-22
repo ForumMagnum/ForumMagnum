@@ -160,7 +160,7 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        const postSchema = getSimpleSchema('Posts', true);
+        const postSchema = getSimpleSchema('Posts');
         const convertedSchema = convertSchema(postSchema);
         const insertableFields = getInsertableFields(convertedSchema!, currentUser);
         const { data, errors } = await createPost.create({

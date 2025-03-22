@@ -65,6 +65,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     database: {
@@ -143,6 +146,9 @@ const schema = {
       canRead: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
+    form: {
+      hidden: true,
+    },
   },
   user: {
     graphql: {
@@ -166,6 +172,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   comment: {
     graphql: {
@@ -184,6 +193,9 @@ const schema = {
       inputType: "String!",
       canRead: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+    },
+    form: {
+      hidden: true,
     },
   },
   post: {

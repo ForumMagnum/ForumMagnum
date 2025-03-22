@@ -70,6 +70,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   title: {
     database: {
@@ -195,6 +198,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   archivedByIds: {
     database: {
@@ -224,6 +228,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   archivedBy: {

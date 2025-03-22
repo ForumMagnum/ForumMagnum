@@ -65,6 +65,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     database: {
@@ -143,6 +146,9 @@ const schema = {
       inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
+    },
+    form: {
+      hidden: true,
     },
   },
   post: {
@@ -229,6 +235,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   deleted: {
     database: {
@@ -245,6 +254,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   altTerms: {

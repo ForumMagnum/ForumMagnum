@@ -300,15 +300,8 @@ const allSimpleSchemas: Record<CollectionNameString, SimpleSchema> = new Proxy({
   }
 });
 
-export function getSimpleSchema<N extends CollectionNameString>(collectionName: N, formOnly?: boolean): NewSimpleSchemaType<N> {
+export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): NewSimpleSchemaType<N> {
   const simpleSchema = allSimpleSchemas[collectionName] as NewSimpleSchemaType<N>;
-  if (formOnly) {
-    const originalSchema = getSchema(collectionName);
-    // Please forgive me for this.
-    const schemaCopy = new SimpleSchema(simpleSchema._schema);
-    const fieldsToOmit = Object.keys(originalSchema).filter(key => !originalSchema[key].form);
-    return schemaCopy.omit(...fieldsToOmit) as NewSimpleSchemaType<N>;
-  }
   return simpleSchema;
 }
 

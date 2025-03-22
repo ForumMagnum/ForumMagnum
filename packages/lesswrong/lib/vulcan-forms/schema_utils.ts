@@ -5,7 +5,6 @@ import { userCanCreateField, userCanUpdateField } from '../vulcan-users/permissi
 import _keys from 'lodash/keys';
 import _filter from 'lodash/filter';
 import * as _ from 'underscore';
-import { getSimpleSchema } from '../schema/allSchemas';
 
 /* getters */
 
@@ -33,10 +32,8 @@ export const getUpdateableFields = <N extends CollectionNameString>(schema: NewS
  */
 export const getInsertableFields = function<N extends CollectionNameString>(
   schema: ConvertedFormSchema,
-  // collectionName: N,
   user: UsersCurrent|null,
 ): Array<string> {
-  // const schema = getSimpleSchema(collectionName)._schema;
   const fields: Array<string> = _filter(_keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     if (!field.canCreate) return false;
@@ -53,11 +50,9 @@ export const getInsertableFields = function<N extends CollectionNameString>(
  */
 export const getEditableFields = function<N extends CollectionNameString>(
   schema: ConvertedFormSchema,
-  // collectionName: N,
   user: UsersCurrent|null,
   document: ObjectsByCollectionName[N],
 ): Array<string> {
-  // const schema = getSimpleSchema(collectionName)._schema;
   const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     if (!field.canUpdate) return false;

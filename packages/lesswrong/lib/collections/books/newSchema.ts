@@ -65,6 +65,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     database: {
@@ -168,6 +171,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   subtitle: {
     database: {
@@ -182,6 +186,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   // this overrides the book title in the CollectionsPage table of contents,
   // for books whose title needs to be different there for whatever reason.
@@ -199,6 +204,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   collectionId: {
     database: {
@@ -213,6 +219,7 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["members"],
     },
+    form: {},
   },
   number: {
     database: {
@@ -227,6 +234,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   postIds: {
     database: {
@@ -297,6 +305,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   hideProgressBar: {
     database: {
@@ -311,6 +320,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   showChapters: {
     database: {
@@ -325,6 +335,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"Books">>;
 

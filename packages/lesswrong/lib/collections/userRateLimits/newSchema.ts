@@ -79,6 +79,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   userId: {
     database: {
@@ -92,6 +95,9 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+    },
+    form: {
+      hidden: true,
     },
   },
   user: {
@@ -153,6 +159,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
+    form: {},
   },
   actionsPerInterval: {
     database: {
@@ -166,6 +173,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
+    form: {},
   },
   endedAt: {
     database: {

@@ -89,6 +89,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     graphql: {
@@ -287,6 +290,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   user: {
     graphql: {
@@ -305,6 +311,9 @@ const schema = {
       inputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
+    },
+    form: {
+      hidden: true,
     },
   },
   parentTag: {
@@ -367,6 +376,9 @@ const schema = {
         allowedValues: ["Tags", "MultiDocuments"],
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   // e.g. content, description, summary.  Whatever it is that we have "multiple" of for a single parent document.
   fieldName: {
@@ -382,6 +394,9 @@ const schema = {
       validation: {
         allowedValues: ["description", "summary"],
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   index: {
@@ -404,6 +419,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   tableOfContents: {
@@ -498,6 +516,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   currentUserVote: {
     graphql: {

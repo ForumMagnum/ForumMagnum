@@ -48,6 +48,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   legacyData: {
     database: {
@@ -64,6 +67,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   userId: {
     database: {
@@ -78,6 +84,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   user: {
@@ -100,6 +109,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   reportedUser: {
     graphql: {
@@ -120,6 +132,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   comment: {
@@ -142,6 +157,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   post: {
     graphql: {
@@ -161,6 +179,9 @@ const schema = {
       canRead: ["guests"],
       canCreate: ["members"],
     },
+    form: {
+      hidden: true,
+    },
   },
   claimedUserId: {
     database: {
@@ -175,6 +196,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   claimedUser: {
@@ -215,6 +239,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   // Only set when report is closed. Indicates whether content is spam or not.
   markedAsSpam: {
@@ -229,6 +254,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   // Set when report is created, indicates whether content was reported as spam
   // (currently only used for Akismet integration)
@@ -244,6 +270,9 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"Reports">>;

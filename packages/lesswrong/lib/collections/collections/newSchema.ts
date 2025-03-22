@@ -52,6 +52,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   legacyData: {
     database: {
@@ -67,6 +70,9 @@ const schema = {
         optional: true,
         blackbox: true,
       },
+    },
+    form: {
+      hidden: true,
     },
   },
   contents: {
@@ -167,6 +173,7 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
+    form: {},
   },
   slug: {
     database: {
@@ -180,6 +187,7 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
+    form: {},
   },
   books: {
     graphql: {
@@ -254,6 +262,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   firstPageLink: {
     database: {
@@ -269,6 +278,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   hideStartReadingButton: {
     database: {
@@ -283,6 +293,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
   noindex: {
     database: {
@@ -300,6 +311,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"Collections">>;
 

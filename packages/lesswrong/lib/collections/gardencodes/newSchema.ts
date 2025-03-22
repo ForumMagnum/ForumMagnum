@@ -87,6 +87,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     database: {
@@ -339,6 +342,10 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+    form: {
+      order: 32,
+      hidden: true,
     },
   },
   deleted: {

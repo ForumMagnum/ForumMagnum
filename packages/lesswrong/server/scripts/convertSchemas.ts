@@ -14,6 +14,7 @@ import SimpleSchema from 'simpl-schema';
 import { randomId } from '@/lib/random';
 import { defaultNotificationTypeSettings, multiChannelDefaultNotificationTypeSettings } from '@/lib/collections/users/schema';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+import pick from 'lodash/pick';
 
 // Run the augmentSchemas function to make sure all schemas are properly augmented
 augmentSchemas();
@@ -631,8 +632,7 @@ function buildSection(
   context: Omit<FieldValueSubstitutionProps, 'func'>,
   isResolverOnlyField = false,
 ): string[] | undefined {
-  // Don't bother with form section if the original field spec had it set to hidden, since it won't be present in the form
-  if (section === 'form' && ((typeof field.hidden === 'boolean' && field.hidden) || (!field.canCreate?.length && !field.canUpdate?.length))) {
+  if (section === 'form' && (!field.canCreate?.length && !field.canUpdate?.length)) {
     return undefined;
   }
 
@@ -1132,16 +1132,21 @@ export async function findMissingFormSections() {
 
     for (const fieldName of Object.keys(oldSchema).filter(fieldName => !fieldName.includes('.$'))) {
       const oldField = oldSchema[fieldName];
+
       if (fieldHasResolveAs(oldField) && !oldField.resolveAs.addOriginalField) {
         continue;
       }
 
       const context = { field: oldField, fieldName, collectionName };
       const formSection = buildSection(formProps, 'form', oldField, context);
+
       if (formSection && !newSchema[fieldName].form) {
         console.log(`${collectionName}.${fieldName} is missing form section`);
-        const missingFormSection = `    form: {${formSection.join('\n')}},`;
-        // console.log(missingFormSection);
+        let formSectionString = formSection.join('\n');
+        if (formSectionString.length > 0) {
+          formSectionString = `\n${formSectionString}\n    `;
+        }
+        const missingFormSection = `    form: {${formSectionString}},`;
 
         // Find the beginning of the field in the new schema
         const fieldStartLine = newSchemaLines.findIndex(line => line.startsWith(`  ${fieldName}: {`));
@@ -1163,10 +1168,38 @@ export async function findMissingFormSections() {
         newSchemaLines.splice(endLine, 0, missingFormSection);
         const newFieldLines = newSchemaLines.slice(fieldStartLine, endLine + 2).join('\n');
         // console.log('New field lines:');
-        // console.log(newFieldLines);
+        // console.log(missingFormSection);
 
         // Write the new schema to the file
-        // await fs.promises.writeFile(newSchemaPath, newSchemaLines.join('\n'));
+        await fs.promises.writeFile(newSchemaPath, newSchemaLines.join('\n'));
+      }
+    }
+  }
+}
+
+export async function findMissingFormFields() {
+  for (const collectionName of Object.keys(allSchemas) as CollectionNameString[]) {
+    const newSchema = getNewSchema(collectionName);
+    const oldSchema = getSchema(collectionName);
+
+    for (const fieldName of Object.keys(newSchema)) {
+      if (!oldSchema[fieldName]) {
+        continue;
+      }
+
+      const oldField = oldSchema[fieldName];
+      const newField = newSchema[fieldName];
+
+      const formFieldsInOldSchema = Object.keys(pick(oldField, formProps)).filter(propKey => oldField[propKey as keyof typeof oldField] !== undefined) as (typeof formProps)[number][];
+
+      if (!newField.form || formFieldsInOldSchema.length === 0) {
+        continue;
+      }
+
+      const missingFormFields = formFieldsInOldSchema.filter(field => newField.form?.[field] === undefined);
+      if (missingFormFields.length > 0) {
+        console.log(`${collectionName}.${fieldName} is missing form fields:`);
+        console.log(pick(oldField, missingFormFields));
       }
     }
   }

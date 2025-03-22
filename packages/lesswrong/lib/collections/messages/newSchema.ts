@@ -65,6 +65,9 @@ const schema = {
         blackbox: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   contents: {
     database: {
@@ -145,6 +148,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      hidden: true,
+    },
   },
   user: {
     graphql: {
@@ -164,6 +170,9 @@ const schema = {
       inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
+    },
+    form: {
+      hidden: true,
     },
   },
   conversation: {
@@ -188,6 +197,7 @@ const schema = {
         optional: true,
       },
     },
+    form: {},
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"Messages">>;
 
