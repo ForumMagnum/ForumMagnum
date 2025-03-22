@@ -454,7 +454,7 @@ export const FeaturedResourcesDefaultFragment = `
 `;
 
 export const FieldChangesDefaultFragment = `
-  fragment FieldChangesDefaultFragment on undefined {
+  fragment FieldChangesDefaultFragment on FieldChange {
     _id
     schemaVersion
     createdAt
@@ -525,7 +525,6 @@ export const GoogleServiceAccountSessionsDefaultFragment = `
     createdAt
     legacyData
     email
-    refreshToken
     estimatedExpiry
     active
     revoked
@@ -1220,10 +1219,6 @@ export const SideCommentCachesDefaultFragment = `
     schemaVersion
     createdAt
     legacyData
-    postId
-    annotatedHtml
-    commentsByBlock
-    version
   }
 `;
 
@@ -1608,6 +1603,7 @@ export const UsersDefaultFragment = `
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsFilter
     allPostsSorting
@@ -1809,5 +1805,47 @@ export const VotesDefaultFragment = `
     votedAt
     documentIsAf
     silenceNotification
+  }
+`;
+
+export const TestCollectionDefaultFragment = `
+  fragment TestCollectionDefaultFragment on undefined {
+    _id
+    a
+    b
+    c
+    d
+    schemaVersion
+  }
+`;
+
+export const TestCollection2DefaultFragment = `
+  fragment TestCollection2DefaultFragment on undefined {
+    _id
+    data
+    schemaVersion
+  }
+`;
+
+export const TestCollection3DefaultFragment = `
+  fragment TestCollection3DefaultFragment on undefined {
+    _id
+    notNullData
+  }
+`;
+
+export const TestCollection4DefaultFragment = `
+  fragment TestCollection4DefaultFragment on undefined {
+    _id
+    testCollection3Id
+    schemaVersion
+  }
+`;
+
+export const TestCollection5DefaultFragment = `
+  fragment TestCollection5DefaultFragment on undefined {
+    _id
+    jsonField
+    schemaVersion
   }
 `;
