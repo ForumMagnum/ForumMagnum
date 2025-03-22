@@ -21,10 +21,18 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
+export function isFieldNullable(fieldSpec: Pick<NewCollectionFieldSpecification<any>, "database" | "graphql">) {
+  return fieldSpec.database?.nullable ?? fieldSpec.graphql?.validation?.optional;
+}
+
+export function getAllowedValuesUnionTypeString(allowedValues: string[]) {
+  return allowedValues?.map(v => `"${v}"`).join(' | ');
+}
+
 export function simplSchemaTypeToTypescript(
-  schema: SchemaType<CollectionNameString>,
+  schema: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>,
   fieldName: string,
-  simplSchemaType: AnyBecauseTodo,
+  simplSchemaType: DerivedSimpleSchemaFieldType['type'],
   indent = 2,
   DbType = false,
 ): string {
@@ -59,10 +67,13 @@ export function simplSchemaTypeToTypescript(
     if (graphQLtype) {
       return graphqlTypeToTypescript(graphQLtype);
     } else {
-      const innerSchema = simplSchemaType?.singleType?.schema?.();
-      if (innerSchema) {
-        const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
-        return maybeNullable(objectSchema, nullable);
+      const singleType = simplSchemaType.singleType;
+      if (typeof singleType === 'object' && 'schema' in singleType) {
+        const innerSchema = singleType.schema();
+        if (innerSchema) {
+          const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
+          return maybeNullable(objectSchema, nullable);
+        }
       }
       return `any /*${JSON.stringify(simplSchemaType)}*/`
     }
@@ -125,6 +136,9 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
       if (graphqlType.collectionName) {
         return graphqlType.collectionName;
       } else {
+        if (graphqlType === "JSON") {
+          return "any";
+        }
         // TODO
         //throw new Error("Unrecognized type: "+graphqlType);
         return `any /*${graphqlType}*/`;

@@ -7,24 +7,20 @@ import _filter from 'lodash/filter';
 import * as _ from 'underscore';
 
 /* getters */
-// filter out fields with "." or "$"
-export const getValidFields = <N extends CollectionNameString>(schema: SchemaType<N>) => {
-  return Object.keys(schema).filter(fieldName => !fieldName.includes('$') && !fieldName.includes('.'));
+
+export const getReadableFields = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>) => {
+  // OpenCRUD backwards compatibility
+  return Object.keys(schema).filter(fieldName => schema._schema[fieldName]?.canRead);
 };
 
-export const getReadableFields = <N extends CollectionNameString>(schema: SchemaType<N>) => {
+export const getCreateableFields = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canRead);
+  return Object.keys(schema).filter(fieldName => schema._schema[fieldName]?.canCreate);
 };
 
-export const getCreateableFields = <N extends CollectionNameString>(schema: SchemaType<N>) => {
+export const getUpdateableFields = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canCreate);
-};
-
-export const getUpdateableFields = <N extends CollectionNameString>(schema: SchemaType<N>) => {
-  // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canUpdate);
+  return Object.keys(schema).filter(fieldName => schema._schema[fieldName]?.canUpdate);
 };
 
 /* permissions */
@@ -34,10 +30,12 @@ export const getUpdateableFields = <N extends CollectionNameString>(schema: Sche
  * Get an array of all fields editable by a specific user for a given collection
  * @param {Object} user – the user for which to check field permissions
  */
-export const getInsertableFields = function<N extends CollectionNameString>(schema: SchemaType<N>, user: UsersCurrent|null): Array<string> {
+export const getInsertableFields = function(schema: ConvertedFormSchema, user: UsersCurrent|null): Array<string> {
   const fields: Array<string> = _filter(_keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
-    return userCanCreateField(user, field);
+    if (!field.canCreate) return false;
+
+    return userCanCreateField(user, field.canCreate);
   });
   return fields;
 };
@@ -48,24 +46,38 @@ export const getInsertableFields = function<N extends CollectionNameString>(sche
  * @param {Object} user – the user for which to check field permissions
  */
 export const getEditableFields = function<N extends CollectionNameString>(
-  schema: SchemaType<N>,
+  schema: ConvertedFormSchema,
   user: UsersCurrent|null,
   document: ObjectsByCollectionName[N],
 ): Array<string> {
   const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
-    return userCanUpdateField(user, field, document);
+    if (!field.canUpdate) return false;
+    return userCanUpdateField(user, field.canUpdate, document);
   });
   return fields;
 };
+
+export type FormSchemaField = {
+  [k in typeof schemaProperties[number]]?: k extends keyof DerivedSimpleSchemaFieldType
+    ? DerivedSimpleSchemaFieldType[k]
+    : k extends keyof Exclude<GraphQLBaseFieldSpecification['validation'], undefined>
+      ? Exclude<GraphQLBaseFieldSpecification['validation'], undefined>[k]
+      : unknown;
+};
+
+export type ConvertedFormSchema = Record<
+  string,
+  FormSchemaField & { field?: FormSchemaField, schema?: ConvertedFormSchema }
+>;
 
 /**
  * Convert a nested SimpleSchema schema into a JSON object
  * If flatten = true, will create a flat object instead of nested tree
  */
-export const convertSchema = <N extends CollectionNameString>(schema: SimpleSchemaType<N>, flatten = false) => {
+export const convertSchema = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>, flatten = false) => {
   if (schema._schema) {
-    let jsonSchema: AnyBecauseTodo = {};
+    let jsonSchema: ConvertedFormSchema = {};
 
     Object.keys(schema._schema).forEach(fieldName => {
       // exclude array fields
@@ -108,8 +120,8 @@ export const convertSchema = <N extends CollectionNameString>(schema: SimpleSche
 Get a JSON object representing a field's schema
 
 */
-export const getFieldSchema = <N extends CollectionNameString>(fieldName: string, schema: SimpleSchemaType<N>) => {
-  let fieldSchema: AnyBecauseTodo = {};
+export const getFieldSchema = <N extends CollectionNameString>(fieldName: string, schema: NewSimpleSchemaType<N>) => {
+  let fieldSchema: FormSchemaField = {};
   schemaProperties.forEach(property => {
     const propertyValue = schema.get(fieldName, property);
     if (propertyValue) {
@@ -121,11 +133,11 @@ export const getFieldSchema = <N extends CollectionNameString>(fieldName: string
 
 // type is an array due to the possibility of using SimpleSchema.oneOf
 // right now we support only fields with one type
-export const getSchemaType = (schema: AnyBecauseTodo) => schema.type.definitions[0].type;
+export const getSchemaType = (schema: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>[string]) => schema.type.definitions[0].type;
 
 const getArrayNestedSchema = <N extends CollectionNameString>(
-  fieldName: string & keyof ObjectsByCollectionName[N],
-  schema: SimpleSchemaType<N>,
+  fieldName: string,
+  schema: NewSimpleSchemaType<N>,
 ) => {
   const arrayItemSchema = schema._schema[`${fieldName}.$`];
   
@@ -134,12 +146,12 @@ const getArrayNestedSchema = <N extends CollectionNameString>(
 };
 // nested object fields type is of the form "type: new SimpleSchema({...})"
 // so they should possess a "_schema" prop
-const isNestedSchemaField = (fieldSchema: AnyBecauseTodo) => {
+const isNestedSchemaField = <N extends CollectionNameString>(fieldSchema: NewSimpleSchemaType<N>['_schema'][string]) => {
   const fieldType = getSchemaType(fieldSchema);
   //console.log('fieldType', typeof fieldType, fieldType._schema)
   return fieldType && !!fieldType._schema;
 };
-const getObjectNestedSchema = (fieldName: AnyBecauseTodo, schema: AnyBecauseTodo) => {
+const getObjectNestedSchema = <N extends CollectionNameString>(fieldName: string, schema: NewSimpleSchemaType<N>) => {
   const fieldSchema = schema._schema[fieldName];
   if (!isNestedSchemaField(fieldSchema)) return null;
   const nestedSchema = fieldSchema && getSchemaType(fieldSchema);
@@ -150,7 +162,7 @@ const getObjectNestedSchema = (fieldName: AnyBecauseTodo, schema: AnyBecauseTodo
 Given an array field, get its nested schema
 If the field is not an object, this will return the subfield type instead
 */
-export const getNestedFieldSchemaOrType = (fieldName: AnyBecauseTodo, schema: AnyBecauseTodo) => {
+export const getNestedFieldSchemaOrType = <N extends CollectionNameString>(fieldName: string, schema: NewSimpleSchemaType<N>) => {
   const arrayItemSchema = getArrayNestedSchema(fieldName, schema);
   if (!arrayItemSchema) {
     // look for an object schema
@@ -180,19 +192,17 @@ export const schemaProperties = [
   'autoform', // legacy form placeholder; backward compatibility (not used anymore)
   'order', // position in the form
   'group', // form fieldset group
-  'onCreate', // field insert callback
-  'onUpdate', // field edit callback
-  'onDelete', // field remove callback
+
   'canRead',
   'canCreate',
   'canUpdate',
-  'resolveAs',
   'description',
   'beforeComponent',
   'afterComponent',
   'placeholder',
   'options',
-  'tooltip'
+  'tooltip',
+  'editableFieldOptions',
 ] as const;
 
 /** Fields that, if they appear on a field schema, will be passed through to the
@@ -216,5 +226,6 @@ export const formProperties = [
   'afterComponent',
   'placeholder',
   'options',
-  'tooltip'
+  'tooltip',
+  'editableFieldOptions',
 ] as const;

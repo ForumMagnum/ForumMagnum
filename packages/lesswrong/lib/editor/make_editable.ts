@@ -1,6 +1,6 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
-import { ContentType, getOriginalContents } from '../collections/revisions/schema'
+import { ContentType, getOriginalContents } from '../collections/revisions/newSchema'
 import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
@@ -71,20 +71,25 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   revisionsHaveCommitMessages: false,
 }
 
-interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
-  editableFieldOptions: EditableFieldOptions;
+interface EditableField<N extends CollectionNameString> extends NewCollectionFieldSpecification<N> {
+  graphql: GraphQLFieldSpecification<N> & {
+    editableFieldOptions: EditableFieldCallbackOptions;
+  }
+  form: FormFieldSpecification<N> & {
+    editableFieldOptions: EditableFieldClientOptions;
+  }
 };
 
-export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
-  return !!field[1].editableFieldOptions;
+export function isEditableField<N extends CollectionNameString>(field: [string, NewCollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
+  const { graphql, form } = field[1];
+  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions && !!form?.editableFieldOptions;
 }
 
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
-    const { allSchemas }: { allSchemas: Record<string, SchemaType<CollectionNameString>> } = require('../schema/allSchemas');
+    const { allSchemas }: typeof import('../schema/allSchemas') = require('../schema/allSchemas');
     if (!editableFieldsByCollection) {
-      // const allCollections = getAllCollections();
       editableFieldsByCollection = Object.entries(allSchemas).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
         const editableFields = Object.entries(schema).filter(isEditableField);
         if (editableFields.length > 0) {
@@ -101,7 +106,7 @@ export const getEditableFieldsByCollection = (() => {
 export const getEditableCollectionNames = () => Object.keys(getEditableFieldsByCollection()) as CollectionNameString[];
 export const getEditableFieldNamesForCollection = (collectionName: CollectionNameString) => Object.keys(getEditableFieldsByCollection()[collectionName] ?? {});
 export const getEditableFieldInCollection = <N extends CollectionNameString>(collectionName: N, fieldName: string) => getEditableFieldsByCollection()[collectionName]?.[fieldName];
-export const editableFieldIsNormalized = (collectionName: CollectionNameString, fieldName: string) => !!getEditableFieldInCollection(collectionName, fieldName)?.editableFieldOptions.callbackOptions.normalized;
+export const editableFieldIsNormalized = (collectionName: CollectionNameString, fieldName: string) => !!getEditableFieldInCollection(collectionName, fieldName)?.graphql.editableFieldOptions.normalized;
 
 export function getNormalizedEditableResolver<N extends CollectionNameString>(fieldName: string) {
   return async function normalizedEditableResolver(

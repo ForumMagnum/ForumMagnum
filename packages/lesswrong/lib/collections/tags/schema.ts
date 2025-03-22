@@ -1,6 +1,5 @@
 import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple, slugFields } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
@@ -19,24 +18,6 @@ import { editableFields } from '@/lib/editor/make_editable';
 import { userIsSubforumModerator } from './helpers';
 import { universalFields } from "../../collectionUtils";
 import { getVoteableSchemaFields } from '@/lib/make_voteable';
-
-addGraphQLSchema(`
-  type TagContributor {
-    user: User
-    contributionScore: Int!
-    currentAttributionCharCount: Int
-    numCommits: Int!
-    voteCount: Int!
-  }
-  type TagContributorsList {
-    contributors: [TagContributor!]
-    totalCount: Int!
-  }
-  type UserLikingTag {
-    _id: String!
-    displayName: String!
-  }
-`);
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   relevance: { label: preferredHeadingCase('Most Relevant') },
@@ -981,7 +962,7 @@ const schema: SchemaType<"Tags"> = {
 
 export default schema;
 
-export const wikiGradeDefinitions: Partial<Record<number,string>> = {
+const wikiGradeDefinitions: Partial<Record<number,string>> = {
   0: "Uncategorized",
   1: "Flagged",
   2: "Stub",

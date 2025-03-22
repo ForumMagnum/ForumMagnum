@@ -118,7 +118,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
   typeName: string
   document?: ObjectsByCollectionName[T]
-  schema: SchemaType<T>
+  schema: NewSimpleSchemaType<T>
   createMutation?: any
   updateMutation?: any
   removeMutation?: any

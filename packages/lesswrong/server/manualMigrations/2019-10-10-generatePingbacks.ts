@@ -11,7 +11,7 @@ export default registerMigration({
   action: async () => {
     for (let [collectionName, editableFields] of Object.entries(getEditableFieldsByCollection())) {
       for (let [fieldName, editableField] of Object.entries(editableFields)) {
-        if (editableField.editableFieldOptions.callbackOptions.pingbacks) {
+        if (editableField.graphql.editableFieldOptions.pingbacks) {
           await updatePingbacks(collectionName as CollectionNameString, fieldName);
         }
       }

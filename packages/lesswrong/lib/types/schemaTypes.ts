@@ -153,8 +153,10 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
   includesOldSlugs: boolean,
 }
 
+type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1536)';
+
 interface DatabaseFieldSpecification<N extends CollectionNameString> {
-  type: string,
+  type: DatabaseBaseType | `${DatabaseBaseType}[]`,
   defaultValue?: any,
   typescriptType?: string,
   denormalized?: boolean, 
@@ -162,7 +164,7 @@ interface DatabaseFieldSpecification<N extends CollectionNameString> {
   canAutofillDefault?: boolean,
   needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
   getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
-  foreignKey?: any,
+  foreignKey?: CollectionNameString | { collection: CollectionNameString, field: string },
   logChanges?: boolean,
   nullable?: boolean,
 }
@@ -197,10 +199,16 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
   editableFieldOptions?: EditableFieldCallbackOptions,
   slugCallbackOptions?: SlugCallbackOptions<N>;
   resolver?: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+
+  arguments?: string,
+  sqlResolver?: SqlResolver<N>,
+  sqlPostProcess?: undefined,
 }
 
 interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> {
   canRead: FieldPermissions,
+  canUpdate?: undefined,
+  canCreate?: undefined,
   arguments?: string|null,
   resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   sqlResolver?: SqlResolver<N>,
@@ -226,6 +234,11 @@ interface GraphQLBaseFieldSpecification {
     allowedValues?: string[],
     blackbox?: boolean,
   },
+  // This is a dumb hack to enable the performance optimization of the `PostSideComments` fragment.
+  // We need to include some SideCommentCache fields in the executable schema even if they don't end up served to the client
+  // because they need to live on that fragment (for the optimization), and if they aren't in the executable schema then 
+  // the server barfs when getting a query with a fragment that includes those fields (even though it'll never get anything back for them).
+  forceIncludeInExecutableSchema?: boolean,
 }
 
 type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (
@@ -236,7 +249,6 @@ type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFiel
 
 interface FormFieldSpecification<N extends CollectionNameString> {
   description?: string,
-  defaultValue?: any,
   min?: number,
   max?: number,
   minCount?: number,
@@ -251,8 +263,11 @@ interface FormFieldSpecification<N extends CollectionNameString> {
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: () => FormGroupType<N> | undefined,
+  group?: () => FormGroupType<N>,
   editableFieldOptions?: EditableFieldClientOptions,
+  canRead?: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
 }
 
 interface NewCollectionFieldSpecification<N extends CollectionNameString> {
@@ -368,7 +383,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
 
 /** Field specification for a Form field, created from the collection schema */
 type FormField<N extends CollectionNameString> = Pick<
-  CollectionFieldSpecification<N>,
+  FormFieldSpecification<N> & Exclude<GraphQLBaseFieldSpecification['validation'], undefined> & Pick<DatabaseFieldSpecification<N>, 'defaultValue'>,
   typeof formProperties[number]
 > & {
   document: any
@@ -408,6 +423,28 @@ type FormGroupSafeType<N extends CollectionNameString> = Omit<FormGroupType<N>, 
 };
 
 type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>;
-type SimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
+type OldSimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
+
+type DerivedSimpleSchemaFieldType = {
+  optional: boolean,
+  label: string,
+  blackbox?: boolean,
+  nullable?: boolean,
+  typescriptType?: string,
+  type: {
+    singleType: Function | string | SimpleSchema,
+    definitions: Array<{
+      type: NewSimpleSchemaType<CollectionNameString>,
+      allowedValues: string[]
+    }>
+  },
+} & FormFieldSpecification<CollectionNameString>;
+
+type DerivedSimpleSchemaType<T extends Partial<Record<string, any>>> = {
+  [k in keyof T]: DerivedSimpleSchemaFieldType
+};
+
+type NewSchemaType<N extends CollectionNameString> = Record<string, NewCollectionFieldSpecification<N>>;
+type NewSimpleSchemaType<N extends CollectionNameString> = SimpleSchema & { _schema: DerivedSimpleSchemaType<NewSchemaType<N>> };
 
 }
