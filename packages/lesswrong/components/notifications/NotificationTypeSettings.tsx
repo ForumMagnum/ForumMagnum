@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import { defaultNotificationTypeSettings, NotificationChannelOption, NotificationTypeSettings } from '../../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, NotificationChannelOption, NotificationTypeSettings } from '../../lib/collections/users/newSchema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';

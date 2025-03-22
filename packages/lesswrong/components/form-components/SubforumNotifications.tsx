@@ -1,6 +1,6 @@
 import startCase from 'lodash/startCase';
 import React from 'react';
-import { NotificationChannelOption } from '../../lib/collections/users/schema';
+import type { NotificationChannelOption } from '../../lib/collections/users/newSchema';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 

@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import net from 'net';
 import GraphQLJSON from 'graphql-type-json';
-import { allSchemas, getSchema, getSimpleSchema } from '../../lib/schema/allSchemas';
-import { getSchema as getNewSchema } from '../../lib/schema/allNewSchemas';
+import { allSchemas, getSchema, getSimpleSchema } from '../../lib/schema/allOldSchemas';
+import { getSchema as getNewSchema } from '../../lib/schema/allSchemas';
 import { augmentSchemas } from '../resolvers/allFieldAugmentations';
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { Type } from '../sql/Type';
@@ -630,7 +630,7 @@ function buildSection(
   isResolverOnlyField = false,
 ): string[] | undefined {
   // Don't bother with form section if the original field spec had it set to hidden, since it won't be present in the form
-  if (section === 'form' && ((typeof field.hidden === 'boolean' && field.hidden) || (!field.canCreate && !field.canUpdate))) {
+  if (section === 'form' && ((typeof field.hidden === 'boolean' && field.hidden) || (!field.canCreate?.length && !field.canUpdate?.length))) {
     return undefined;
   }
 
@@ -1088,7 +1088,34 @@ export async function convertSchemas() {
 }
 
 export async function findMissingFormSections() {
-  for (const collectionName of Object.keys(allSchemas) as CollectionNameString[]) {
+  const collectionsWithSmartForms = [
+    'CurationNotices',
+    'Comments',
+    'Posts',
+    'Tags',
+    'ForumEvents',
+    'JargonTerms',
+    'Localgroups',
+    'Conversations',
+    'Messages',
+    'ModerationTemplates',
+    'Users',
+    'RSSFeeds',
+    'Books',
+    'Chapters',
+    'Collections',
+    'Sequences',
+    'Spotlights',
+    'ModeratorActions',
+    'Reports',
+    'UserRateLimits',
+    'SurveySchedules',
+    'MultiDocuments',
+    'TagFlags',
+    'GardenCodes',
+  ] as const;
+
+  for (const collectionName of collectionsWithSmartForms) {
     const newSchema = getNewSchema(collectionName);
     const oldSchema = getSchema(collectionName);
 
@@ -1137,7 +1164,7 @@ export async function findMissingFormSections() {
         // console.log(newFieldLines);
 
         // Write the new schema to the file
-        await fs.promises.writeFile(newSchemaPath, newSchemaLines.join('\n'));
+        // await fs.promises.writeFile(newSchemaPath, newSchemaLines.join('\n'));
       }
     }
   }

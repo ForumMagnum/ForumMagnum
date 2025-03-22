@@ -7,7 +7,7 @@ import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { loadByIds, getWithLoader, getWithCustomLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema';
-import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/newSchema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import {
@@ -119,15 +119,6 @@ const socialPreviewSchema = new SimpleSchema({
     nullable: true
   },
 });
-
-addGraphQLSchema(`
-  type SocialPreviewType {
-    _id: String
-    imageId: String
-    imageUrl: String
-    text: String
-  }
-`)
 
 const crosspostSchema = new SimpleSchema({
   isCrosspost: Boolean,
