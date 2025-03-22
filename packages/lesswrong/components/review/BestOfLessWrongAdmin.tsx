@@ -92,7 +92,8 @@ export const BestOfLessWrongAdmin = () => {
   const handleGenerateCoverImages = async (postId: string) => {
     try {
       setGeneratingPosts(prev => ({ ...prev, [postId]: true }));
-      await generateCoverImages({ variables: { postId } });
+      const results = await generateCoverImages({ variables: { postId } });
+      console.log("results", results);
       await refetchImages();
     } catch (error) {
       // eslint-disable-next-line no-console
