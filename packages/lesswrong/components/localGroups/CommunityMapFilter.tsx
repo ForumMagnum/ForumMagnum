@@ -4,7 +4,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import classNames from 'classnames'
-import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
@@ -20,7 +19,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { RouterLocation } from "../../lib/vulcan-lib/routes";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';
 
@@ -228,6 +227,7 @@ const CommunityMapFilter = ({
   const navigate = useNavigate();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
+  const { SimpleDivider } = Components;
 
   const [filters, setFilters] = useState(() => getInitialFilters(location));
 
@@ -305,7 +305,7 @@ const CommunityMapFilter = ({
           );
         })}
       </div>}
-      <Divider className={classNames(classes.divider, classes.topDivider)} />
+      <SimpleDivider className={classNames(classes.divider, classes.topDivider)} />
       <div className={classes.actions}>
         <div className={classes.filterSection}>
           <span className={classes.desktopFilter}>
@@ -377,7 +377,7 @@ const CommunityMapFilter = ({
           </span>
         </div>
       </div>
-      <Divider className={classNames(classes.divider, classes.bottomDivider)} />
+      <SimpleDivider className={classNames(classes.divider, classes.bottomDivider)} />
       <div
         className={classNames(classes.filterSection, classes.subscribeSection)}
         onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}

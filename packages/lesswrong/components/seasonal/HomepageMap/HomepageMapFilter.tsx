@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
-import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
+import { SimpleDivider } from '@/components/widgets/SimpleDivider';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { CloseableComponent, OpenDialogContextType, useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
@@ -112,7 +112,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
         </Link>
       </div>
     </LWTooltip>
-    <Divider />
+    <SimpleDivider />
     <LWTooltip title="Get notified when events are in your area" placement="left">
       <div
           className={classNames(classes.section, classes.subscribeSection)}

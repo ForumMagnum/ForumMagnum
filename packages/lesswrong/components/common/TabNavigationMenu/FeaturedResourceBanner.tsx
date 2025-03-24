@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Card from '@/lib/vendor/@material-ui/core/src/Card';
-import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
@@ -92,7 +91,7 @@ const FeaturedResourceBanner = ({terms, classes}: {
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
-  const { Typography } = Components
+  const { Typography, SimpleDivider } = Components
 
   useEffect(() => {
     if (loading || !results?.length) {
@@ -126,7 +125,7 @@ const FeaturedResourceBanner = ({terms, classes}: {
       <Typography variant="title" className={classes.title}>
         {resource.title}
       </Typography>
-      <Divider className={classes.divider} />
+      <SimpleDivider className={classes.divider} />
       <Typography variant="body2" className={classes.body}>
         {resource.body}
       </Typography>
