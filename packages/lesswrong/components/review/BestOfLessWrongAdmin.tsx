@@ -8,10 +8,44 @@ import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { getCloudinaryThumbnail, PostWithArtGrid } from '../posts/PostsPage/BestOfLessWrong/PostWithArtGrid';
 import { defineStyles, useStyles } from '../hooks/useStyles'; 
-import { ImageProvider } from '../posts/PostsPage/ImageContext';
+import { ImageProvider, useImageContext } from '../posts/PostsPage/ImageContext';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import GenerateImagesButton from './GenerateImagesButton';
+
+const rowStyles = defineStyles("BestOfLessWrongAdminRow", (theme: ThemeType) => ({
+  post: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    display: 'flex', 
+    gap: '10px',
+    alignItems: 'flex-start',
+  }
+}));
+
+const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: string, slug: string, title: string}, images: ReviewWinnerArtImages[], refetchImages: () => void}) => { 
+  const classes = useStyles(rowStyles);
+  const { selectedImageInfo, setImageInfo } = useImageContext();
+  const previewUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo.splashArtImageUrl) : null;
+  const imageThumbnail = previewUrl && getCloudinaryThumbnail(images[0].splashArtImageUrl);
+
+  return post && <div key={post._id} className={classes.post}>
+    {imageThumbnail && <img src={imageThumbnail} />}
+    <div>
+      <h2>
+        <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
+      </h2>
+      <GenerateImagesButton 
+        postId={post._id}
+        allowCustomPrompt={true}
+        buttonText="Generate More Images"
+        onComplete={refetchImages}
+      />
+      <PostWithArtGrid key={post._id} post={post} images={images} defaultExpanded={false} />
+    </div>  
+  </div>
+}
+
 
 const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
@@ -98,25 +132,10 @@ export const BestOfLessWrongAdmin = () => {
       </div>
       <div>
         {Object.entries(groupedImages).map(([title, images]) => {
-        const post = images[0].post;
-        const imageThumbnail = getCloudinaryThumbnail(images[0].splashArtImageUrl);
-        return post && <div key={title} className={classes.post}>
-          <img src={imageThumbnail} />
-          <div>
-            <h2>
-              <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
-            </h2>
-            <GenerateImagesButton 
-                postId={post._id}
-                allowCustomPrompt={true}
-                buttonText="Generate More Images"
-                onComplete={refetchImages}
-              />
-            <ImageProvider>
-              <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
-            </ImageProvider>
-          </div>  
-        </div>
+          const post = images[0].post;
+          return post && <ImageProvider>
+            <BestOfLessWrongAdminRow key={title} post={post} images={images} refetchImages={refetchImages} />
+          </ImageProvider>
         })}
       </div>
       <div>
