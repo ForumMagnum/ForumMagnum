@@ -437,21 +437,6 @@ const schema = {
       },
     },
   },
-  moderationGuidelinesRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("moderationGuidelinesRevisions"),
-    },
-  },
-  moderationGuidelinesVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("moderationGuidelinesVersion"),
-    },
-  },
   customHighlight: {
     database: {
       type: "JSONB",
@@ -501,21 +486,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-  },
-  customHighlightRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("customHighlightRevisions"),
-    },
-  },
-  customHighlightVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("customHighlightVersion"),
     },
   },
   slug: {

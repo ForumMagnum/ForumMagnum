@@ -622,21 +622,6 @@ const schema = {
       },
     },
   },
-  moderationGuidelinesRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("moderationGuidelinesRevisions"),
-    },
-  },
-  moderationGuidelinesVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("moderationGuidelinesVersion"),
-    },
-  },
   howOthersCanHelpMe: {
     database: {
       type: "JSONB",
@@ -687,21 +672,7 @@ const schema = {
       },
     },
   },
-  howOthersCanHelpMeRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("howOthersCanHelpMeRevisions"),
-    },
-  },
-  howOthersCanHelpMeVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("howOthersCanHelpMeVersion"),
-    },
-  },
+  
   howICanHelpOthers: {
     database: {
       type: "JSONB",
@@ -751,21 +722,7 @@ const schema = {
       },
     },
   },
-  howICanHelpOthersRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("howICanHelpOthersRevisions"),
-    },
-  },
-  howICanHelpOthersVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("howICanHelpOthersVersion"),
-    },
-  },
+  
   slug: {
     database: {
       type: "TEXT",
@@ -863,21 +820,7 @@ const schema = {
       },
     },
   },
-  biographyRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("biographyRevisions"),
-    },
-  },
-  biographyVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("biographyVersion"),
-    },
-  },
+  
   username: {
     database: {
       type: "TEXT",

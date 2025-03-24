@@ -108,21 +108,6 @@ const schema = {
       },
     },
   },
-  descriptionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("descriptionRevisions"),
-    },
-  },
-  descriptionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("descriptionVersion"),
-    },
-  },
   documentId: {
     database: {
       type: "TEXT",

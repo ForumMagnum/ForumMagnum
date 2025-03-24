@@ -110,21 +110,6 @@ const schema = {
       },
     },
   },
-  frontpageDescriptionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("frontpageDescriptionRevisions"),
-    },
-  },
-  frontpageDescriptionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("frontpageDescriptionVersion"),
-    },
-  },
   frontpageDescriptionMobile: {
     database: {
       type: "JSONB",
@@ -181,21 +166,6 @@ const schema = {
       },
     },
   },
-  frontpageDescriptionMobileRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("frontpageDescriptionMobileRevisions"),
-    },
-  },
-  frontpageDescriptionMobileVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("frontpageDescriptionMobileVersion"),
-    },
-  },
   postPageDescription: {
     database: {
       type: "JSONB",
@@ -250,21 +220,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-  },
-  postPageDescriptionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("postPageDescriptionRevisions"),
-    },
-  },
-  postPageDescriptionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("postPageDescriptionVersion"),
     },
   },
   title: {
@@ -565,21 +520,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-  },
-  pollQuestionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("pollQuestionRevisions"),
-    },
-  },
-  pollQuestionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("pollQuestionVersion"),
     },
   },
   pollAgreeWording: {

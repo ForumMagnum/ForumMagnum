@@ -148,21 +148,6 @@ const schema = {
       },
     },
   },
-  descriptionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("descriptionRevisions"),
-    },
-  },
-  descriptionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("descriptionVersion"),
-    },
-  },
   pingbacks: {
     database: {
       type: "JSONB",
@@ -227,21 +212,7 @@ const schema = {
       },
     },
   },
-  subforumWelcomeTextRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("subforumWelcomeTextRevisions"),
-    },
-  },
-  subforumWelcomeTextVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("subforumWelcomeTextVersion"),
-    },
-  },
+  
   moderationGuidelines: {
     database: {
       type: "JSONB",
@@ -289,21 +260,7 @@ const schema = {
       },
     },
   },
-  moderationGuidelinesRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("moderationGuidelinesRevisions"),
-    },
-  },
-  moderationGuidelinesVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("moderationGuidelinesVersion"),
-    },
-  },
+  
   slug: {
     database: {
       type: "TEXT",

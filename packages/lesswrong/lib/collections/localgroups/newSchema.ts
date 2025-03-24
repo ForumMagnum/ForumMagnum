@@ -101,21 +101,6 @@ const schema = {
       },
     },
   },
-  revisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("revisions"),
-    },
-  },
-  version: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("version"),
-    },
-  },
   name: {
     database: {
       type: "TEXT",
