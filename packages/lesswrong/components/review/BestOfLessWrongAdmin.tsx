@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
-import { PostWithArtGrid } from '../posts/PostsPage/BestOfLessWrong/SplashHeaderImageOptions';
+import { PostWithArtGrid } from '../posts/PostsPage/BestOfLessWrong/PostWithArtGrid';
 import { defineStyles, useStyles } from '../hooks/useStyles'; 
 import { ImageProvider } from '../posts/PostsPage/ImageContext';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';

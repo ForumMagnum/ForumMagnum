@@ -19,7 +19,8 @@ This script makes AI-generated images for Best of LessWrong posts.
 It can be run manually via:
 yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImages-2023Review.ts 'getReviewWinnerArts()'
 
-Or, you can run smaller batches via UI on the /bestoflesswrongadmin page 
+Or, you can run smaller batches via UI on the /bestoflesswrongadmin page, using the generateCoverImagesForPost mutation
+
 */ 
 
 const promptImageUrls = [
