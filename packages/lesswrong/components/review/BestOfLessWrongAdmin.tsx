@@ -17,6 +17,10 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
     padding: 50,
     ...theme.typography.body2,
+    '& h2': {
+      marginTop: 10,
+      marginBottom: 0,
+    }
   },
   post: {
     ...theme.typography.body2,
@@ -95,13 +99,13 @@ export const BestOfLessWrongAdmin = () => {
         return post && <div key={title} className={classes.post}>
           <h2>
             <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
-            <GenerateImagesButton 
+          </h2>
+          <GenerateImagesButton 
               postId={post._id}
               allowCustomPrompt={true}
               buttonText="Generate More Images"
               onComplete={refetchImages}
             />
-          </h2>
           <ImageProvider>
             <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
           </ImageProvider>
@@ -113,12 +117,12 @@ export const BestOfLessWrongAdmin = () => {
           return <div key={reviewWinner._id} className={classes.post}>
             <h2>
               <Link target="_blank" to={postGetPageUrl(reviewWinner)}>{reviewWinner.title}</Link>
+            </h2>
               <GenerateImagesButton 
                 postId={reviewWinner._id}
                 allowCustomPrompt={true}
                 onComplete={refetchImages}
               />
-            </h2>
           </div>
         })}
       </div>

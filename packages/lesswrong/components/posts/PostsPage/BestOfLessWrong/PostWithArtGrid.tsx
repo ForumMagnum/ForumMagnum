@@ -35,6 +35,12 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
     width: 800,
     height: 400,
     backgroundColor: theme.palette.background.pageActiveAreaBackground
+  },
+  expandButton: {
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
   }
 }));
 
@@ -101,7 +107,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const currentImageUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo?.splashArtImageUrl, 800) : null
 
   return <div>
-    {!defaultExpanded && <div><button onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</button></div>}
+    {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
 
     {expanded && currentImageThumbnailUrl && currentImageUrl && <div>
       <LWTooltip title={<img src={currentImageUrl} />} tooltip={false}>
