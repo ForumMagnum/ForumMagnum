@@ -1652,7 +1652,10 @@ const schema: SchemaType<"Users"> = {
     label: isEAForum
       ? "Quick takes by users I'm subscribed to"
       : "Shortform by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
@@ -1671,13 +1674,16 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
-      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
       default: defaultNotificationTypeSettings,
     } as const)),
   },
   notificationSubscribedUserComment: {
     label: "Comments by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
     hidden: !allowSubscribeToUserComments
   },
   notificationPostsInGroups: {
@@ -1746,7 +1752,10 @@ const schema: SchemaType<"Users"> = {
   },
   notificationNewMention: {
     label: "Someone has mentioned me in a post or a comment",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
