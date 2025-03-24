@@ -7,7 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { Paper }from '@/components/widgets/Paper';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';

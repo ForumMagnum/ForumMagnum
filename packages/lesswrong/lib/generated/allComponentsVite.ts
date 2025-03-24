@@ -1340,5 +1340,7 @@ import "../../components/walledGarden/WalledGardenHome.tsx"
 import "../../components/walledGarden/WalledGardenMessage.tsx"
 import "../../components/walledGarden/WalledGardenPortal.tsx"
 import "../../components/walledGarden/WalledGardenPortalBar.tsx"
+import "../../components/widgets/Badge.tsx"
+import "../../components/widgets/Paper.tsx"
 import "../../components/widgets/SimpleDivider.tsx"
 
