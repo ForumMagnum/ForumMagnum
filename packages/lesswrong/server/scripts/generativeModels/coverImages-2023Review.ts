@@ -13,6 +13,14 @@ import sample from 'lodash/sample';
 import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection.ts';
 import { falApiKey } from '@/lib/instanceSettings.ts';
 
+/*
+This script makes AI-generated images for Best of LessWrong posts.
+
+It can be run manually via:
+yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImages-2023Review.ts 'getReviewWinnerArts()'
+
+Or, you can run smaller batches via UI on the /bestoflesswrongadmin page 
+*/ 
 
 const promptImageUrls = [
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705201417/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_xvecay.png",
@@ -87,7 +95,7 @@ ${title}
 ${essay}`
 
 
-const saveImage = async (prompt: string, essay: Essay, url: string) => {
+const saveImageAsReviewWinnerArt = async (prompt: string, essay: Essay, url: string) => {
   // Take first 32 characters of the prompt, removing any whitespace
   const shortPrompt = prompt.trim().replace(/\s+/g, '_').slice(0, 32);
   const originId = `${essay.title}_${shortPrompt}_${Math.random()}`;
@@ -189,7 +197,6 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
   })
   try {
     const json = completion?.choices[0].message.content
-    console.log("json", json)
     return JSON.parse(json ?? "{}").metaphors
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -231,21 +238,19 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
     console.error('Error generating image:', error);
     // eslint-disable-next-line no-console
     console.log("prompt", prompt)
+    // eslint-disable-next-line no-console
     console.log("imageUrl", imageUrl)
     throw error;
   }
 }
 
 const generateHighResImage = async (essay: Essay, prompt: string, imageUrl: string): Promise<string> => {
-  // First pass: Generate high-quality image with flux-pro
   const fluxResult = await generateImage(prompt, imageUrl);
-  console.log("fluxResult", fluxResult)
-  // Second pass: Upscale with CCSR
+
   try {
     const upscaleOptions = {
       input: {
         image_url: fluxResult,
-        // CCSR specific settings for best quality
         scale: 1.35
       }
     };
@@ -278,15 +283,12 @@ type EssayResult = {
 }
 
 const getArtForEssay = async (openAiClient: OpenAI, essay: Essay, prompt?: string): Promise<EssayResult[]> => {
-  // eslint-disable-next-line no-console
   const prompts = prompt ? [prompt] : await getPrompts(openAiClient, essay)
-  console.log("prompts", prompts)
   const promptCount = Math.max(1, Math.floor(essay.neededArtCount/prompts.length))
   const promptsTotal = prompts.flatMap(p => Array(promptCount).fill(p))
-  console.log("promptsTotal", promptsTotal)
   const results = Promise.all(promptsTotal.map(async (prompt) => {
     const image = await generateHighResImage(essay, prompt, sample(promptImageUrls)!)
-    const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
+    const reviewWinnerArt = (await saveImageAsReviewWinnerArt(prompt, essay, image))?.data
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))
   return results
@@ -329,6 +331,7 @@ export const getReviewWinnerArts = async () => {
   console.log(`${results.length} cover images generated for ${uniqueResults.length} essays`)
 }
 
+// This is intended to be run via the /bestoflesswrongadmin page
 export const generateCoverImagesForPost = async (postId: string, prompt?: string): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
   console.time('running generateCoverImagesForPost');
@@ -340,7 +343,6 @@ export const generateCoverImagesForPost = async (postId: string, prompt?: string
     currentUser: null,
     skipFiltering: true,
   });
-  console.log("post", post[0].title)
   
   if (!post || !post.length) {
     throw new Error(`Post with ID ${postId} not found`);
