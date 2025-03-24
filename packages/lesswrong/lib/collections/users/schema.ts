@@ -25,6 +25,7 @@ import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { editableFields } from '@/lib/editor/make_editable';
 import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
+import { PartialDeep } from 'type-fest';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -193,11 +194,11 @@ export function isNewNotificationTypeSettings(value: AnyBecauseIsInput): value i
   );
 }
 
-export function legacyToNewNotificationTypeSettings(legacyFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
-  if (!legacyFormat) return defaultNotificationTypeSettings;
-  if (isNewNotificationTypeSettings(legacyFormat)) return legacyFormat
+export function legacyToNewNotificationTypeSettings(notificationSettings: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
+  if (!notificationSettings) return defaultNotificationTypeSettings;
+  if (isNewNotificationTypeSettings(notificationSettings)) return notificationSettings
 
-  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = legacyFormat;
+  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = notificationSettings;
 
   const onsiteEnabled = (channel === "both" || channel === "onsite");
   const emailEnabled = (channel === "both" || channel === "email");
@@ -326,11 +327,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
-type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
-
-const notificationTypeSettingsField = (overrideSettings?: DeepPartial<NotificationTypeSettings>) => {
+const notificationTypeSettingsField = (overrideSettings?: PartialDeep<NotificationTypeSettings>) => {
   const defaultValue = {
     onsite: { ...defaultNotificationTypeSettings.onsite, ...overrideSettings?.onsite },
     email: { ...defaultNotificationTypeSettings.email, ...overrideSettings?.email }
