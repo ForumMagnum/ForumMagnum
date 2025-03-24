@@ -490,6 +490,8 @@ export const ForumEventsDefaultFragment = `
     includesPoll
     eventFormat
     pollQuestion_latest
+    pollAgreeWording
+    pollDisagreeWording
     maxStickersPerUser
     customComponent
     commentPrompt

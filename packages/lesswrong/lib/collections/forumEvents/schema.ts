@@ -5,9 +5,15 @@ import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 import { universalFields } from "../../collectionUtils";
 
 const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
+  pollEventOptions: {
+    name: "pollEventOptions",
+    order: 10,
+    label: '"POLL" Event Options',
+    startCollapsed: true,
+  },
   stickerEventOptions: {
     name: "stickerEventOptions",
-    order: 10,
+    order: 20,
     label: '"STICKER" Event Options',
     startCollapsed: true,
   },
@@ -193,6 +199,20 @@ const schema: SchemaType<"ForumEvents"> = {
     normalized: true,
     ...defaultEditableProps,
   }),
+  pollAgreeWording: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    nullable: true,
+    group: formGroups.pollEventOptions,
+  },
+  pollDisagreeWording: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    nullable: true,
+    group: formGroups.pollEventOptions,
+  },
   maxStickersPerUser: {
     ...defaultProps(),
     ...schemaDefaultValue(1),
