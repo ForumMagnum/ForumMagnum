@@ -1,19 +1,8 @@
+import { DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle, getForeignKeySqlResolver } from "@/lib/utils/schemaUtils";
 
 export const testSchema: NewSchemaType<CollectionNameString> = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
   a: {
     database: {
       type: "DOUBLE PRECISION",
@@ -63,19 +52,7 @@ export const testSchema: NewSchemaType<CollectionNameString> = {
 };
 
 export const testSchema2: NewSchemaType<CollectionNameString> = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
   data: {
     database: {
       type: "TEXT",
@@ -97,19 +74,7 @@ export const testSchema2: NewSchemaType<CollectionNameString> = {
 };
 
 export const testSchema3: NewSchemaType<CollectionNameString> = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
   notNullData: {
     database: {
       type: "TEXT",
@@ -128,19 +93,7 @@ export const testSchema3: NewSchemaType<CollectionNameString> = {
 };
 
 export const testSchema4: NewSchemaType<CollectionNameString> = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
   testCollection3Id: {
     database: {
       type: "VARCHAR(27)",
@@ -197,19 +150,7 @@ export const testSchema4: NewSchemaType<CollectionNameString> = {
 };
 
 export const testSchema5: NewSchemaType<CollectionNameString> = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
   jsonField: {
     database: {
       type: "JSONB",

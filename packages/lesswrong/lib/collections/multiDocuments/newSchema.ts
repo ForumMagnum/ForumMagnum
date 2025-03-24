@@ -2,6 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import {
   accessFilterSingle, generateIdResolverSingle,
   getDenormalizedCountOfReferencesGetValue
@@ -31,66 +32,14 @@ export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, d
 }
 
 const schema = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  schemaVersion: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 1,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onUpdate: () => 1,
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  createdAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["guests"],
-      onCreate: () => new Date(),
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
+  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
+  createdAt: DEFAULT_CREATED_AT_FIELD,
   legacyData: {
-    database: {
-      type: "JSONB",
-      nullable: true,
-    },
+    ...DEFAULT_LEGACY_DATA_FIELD,
     graphql: {
-      outputType: "JSON",
+      ...DEFAULT_LEGACY_DATA_FIELD.graphql,
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-        blackbox: true,
-      },
-    },
-    form: {
-      hidden: true,
     },
   },
   contents: {

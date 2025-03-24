@@ -2,71 +2,17 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "../../utils/schemaUtils";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import GraphQLJSON from "graphql-type-json";
 
 const schema = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  schemaVersion: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 1,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onUpdate: () => 1,
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  createdAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["guests"],
-      onCreate: () => new Date(),
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  legacyData: {
-    database: {
-      type: "JSONB",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-        blackbox: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
+  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
+  createdAt: DEFAULT_CREATED_AT_FIELD,
+  legacyData: DEFAULT_LEGACY_DATA_FIELD,
   /** The name of the election this is a candidate in */
   electionName: {
     database: {
