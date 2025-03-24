@@ -3,10 +3,9 @@ import React, { Ref } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { FMTooltip } from '../FMTooltip';
+import { TooltipRef } from '../FMTooltip';
 
 const smallIconSize = 23
 
@@ -89,7 +88,7 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
-  return <FMTooltip placement='top' title={tab.tooltip || ''} distance={16}>
+  return <TooltipRef placement='top' title={tab.tooltip || ''} distance={16}>
     {(ref: Ref<HTMLAnchorElement>) => <Element
       to={tab.link}
       anchorRef={ref}
@@ -112,7 +111,7 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
         </span>
       }
     </Element>}
-  </FMTooltip>
+  </TooltipRef>
 }
 
 const TabNavigationFooterItemComponent = registerComponent(

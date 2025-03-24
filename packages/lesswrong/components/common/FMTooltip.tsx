@@ -6,7 +6,7 @@ import { useHover } from './withHover';
 import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
 import classNames from 'classnames';
 
-const styles = defineStyles("FMTooltip", (theme: ThemeType) => ({
+const styles = defineStyles("TooltipRef", (theme: ThemeType) => ({
   tooltip: {
     maxWidth: 300,
     
@@ -16,20 +16,38 @@ const styles = defineStyles("FMTooltip", (theme: ThemeType) => ({
   }
 }), {stylePriority: -1})
 
-export const FMTooltip = <T extends HTMLElement>({title, placement, distance, styling="tooltip", flip, clickable, disabled, hideOnTouchScreens, analyticsProps, otherEventProps, titleClassName, popperClassName, forceOpen, children}: {
+interface FMTooltipProps {
   title: React.ReactNode,
   placement?: PopperPlacementType,
   distance?: number,
-  styling?: "tooltip"|"paper"|"none",
+  styling?: "tooltip"|"none",
   flip?: boolean,
   clickable?: boolean,
   disabled?: boolean,
   hideOnTouchScreens?: boolean,
   analyticsProps?: AnalyticsProps,
   otherEventProps?: Record<string, Json | undefined>,
-  titleClassName?: string,
+  className?: string,
   popperClassName?: string,
   forceOpen?: boolean,
+  
+  /**
+   * If set, once the tooltip has been hovered and unhovered, its contents are
+   * kept mounted in the tree (but hidden) and reused for later hovers. This
+   * preserves the state of the contents, if there is any state.
+   *
+   * For tooltips close to the edge of the screen, this triggers a bug in
+   * popperjs, which will cause tooltips to get narrower each time you re-hover
+   * them. So, sadly, it must be used sparingly.
+   */
+  preserve?: boolean,
+}
+
+export const TooltipRef = <T extends HTMLElement>({
+  title, placement="bottom", distance=16, styling="tooltip", flip, clickable,
+  disabled, hideOnTouchScreens, analyticsProps, otherEventProps, className,
+  popperClassName, forceOpen, preserve, children
+}: FMTooltipProps & {
   children: (hoveredElementRef: Ref<T>) => React.ReactNode
 }) => {
   const classes = useStyles(styles);
@@ -93,7 +111,7 @@ export const FMTooltip = <T extends HTMLElement>({title, placement, distance, st
   return <>
     {children(hoveredElementRef)}
     
-    {everHovered && <LWPopper
+    {(hover || (everHovered && preserve)) && <LWPopper
       placement={placement}
       open={forceOpen || (hover && !disabled)}
       anchorEl={anchorEl}
@@ -106,10 +124,22 @@ export const FMTooltip = <T extends HTMLElement>({title, placement, distance, st
     >
       <div className={classNames(
         styling==="tooltip" && classes.tooltip,
-        titleClassName
+        className
       )}>
         {title}
       </div>
     </LWPopper>}
   </>
+}
+
+export const TooltipSpan = (props: FMTooltipProps & {
+  className?: string
+  children: React.ReactNode
+}) => {
+  const { className, ...rest } = props;
+  return <TooltipRef {...rest}>
+    {(ref: Ref<HTMLSpanElement>) => <span ref={ref} className={className}>
+      {props.children}
+    </span>}
+  </TooltipRef>
 }

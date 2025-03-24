@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
@@ -11,6 +10,7 @@ import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
+import { TooltipSpan } from '../FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -22,12 +22,14 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     borderRadius: theme.borderRadius.default,
   },
+  closeButtonWrapper: {
+    alignSelf: 'end',
+    margin: "-1.5em -1.5em 0 0",
+  },
   closeButton: {
     padding: '.25em',
-    margin: "-1.5em -1.5em 0 0",
     minHeight: '.75em',
     minWidth: '.75em',
-    alignSelf: 'end',
   },
   closeIcon: {
     width: '.6em',
@@ -116,11 +118,11 @@ const FeaturedResourceBanner = ({terms, classes}: {
 
   return <AnalyticsContext pageElementContext="featuredResourceLink" resourceName={resource.title} resourceUrl={resource.ctaUrl} >
       <Card className={classes.card}>
-      <Tooltip title="Hide this for the next month">
+      <TooltipSpan title="Hide this for the next month" className={classes.closeButtonWrapper}>
         <Button className={classes.closeButton} onClick={hideBanner}>
           <CloseIcon className={classes.closeIcon} />
         </Button>
-      </Tooltip>
+      </TooltipSpan>
       <Typography variant="title" className={classes.title}>
         {resource.title}
       </Typography>

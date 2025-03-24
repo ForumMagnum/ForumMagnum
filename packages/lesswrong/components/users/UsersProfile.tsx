@@ -13,7 +13,6 @@ import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
@@ -28,6 +27,7 @@ import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
 import { postListSettingUrlParameterNames } from '../posts/PostsListSettings';
+import { TooltipSpan } from '../common/FMTooltip';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -167,50 +167,40 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
       return <div className={classes.meta}>
 
-        { !isAF && <Tooltip title={`${userKarma} karma`}>
-          <span className={classes.userMetaInfo}>
-            <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Karma">
-              {userKarma}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>}
+        { !isAF && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
+          <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <Components.MetaInfo title="Karma">
+            {userKarma}
+          </Components.MetaInfo>
+        </TooltipSpan>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`}>
-          <span className={classes.userMetaInfo}>
-            <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Alignment Karma">
-              {userAfKarma}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>}
+        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
+          <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <Components.MetaInfo title="Alignment Karma">
+            {userAfKarma}
+          </Components.MetaInfo>
+        </TooltipSpan>}
 
-        <Tooltip title={`${userPostCount} posts`}>
-          <span className={classes.userMetaInfo}>
-            <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Posts">
-              {userPostCount}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>
+        <TooltipSpan title={`${userPostCount} posts`} className={classes.userMetaInfo}>
+          <DescriptionIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <Components.MetaInfo title="Posts">
+            {userPostCount}
+          </Components.MetaInfo>
+        </TooltipSpan>
 
-        <Tooltip title={`${userCommentCount} comments`}>
-          <span className={classes.userMetaInfo}>
-            <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="Comments">
-              { userCommentCount }
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>
+        <TooltipSpan title={`${userCommentCount} comments`} className={classes.userMetaInfo}>
+          <MessageIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <Components.MetaInfo title="Comments">
+            { userCommentCount }
+          </Components.MetaInfo>
+        </TooltipSpan>
 
-        <Tooltip title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`}>
-          <span className={classes.userMetaInfo}>
-            <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo>
-              { tagRevisionCount||0 }
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>
+        <TooltipSpan title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`} className={classes.userMetaInfo}>
+          <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
+          <Components.MetaInfo>
+            { tagRevisionCount||0 }
+          </Components.MetaInfo>
+        </TooltipSpan>
       </div>
   }
 

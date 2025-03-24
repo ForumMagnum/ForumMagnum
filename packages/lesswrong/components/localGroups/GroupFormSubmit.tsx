@@ -1,8 +1,8 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import Tooltip from "@/lib/vendor/@material-ui/core/src/Tooltip";
 import classNames from "classnames";
+import { TooltipSpan } from "../common/FMTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,7 +46,7 @@ const GroupFormSubmit = ({
   return (
     <div className={classes.root}>
       {formType === 'edit' &&
-        <Tooltip title={document.inactive
+        <TooltipSpan title={document.inactive
           ? "Display the group on maps and lists again"
           : "This will hide the group from all maps and lists"}
         >
@@ -57,7 +57,7 @@ const GroupFormSubmit = ({
           >
            {document.inactive ? "Reactivate group" : "Mark group as inactive"} 
           </Button>
-        </Tooltip>
+        </TooltipSpan>
       }
       <Button
         type="submit"
