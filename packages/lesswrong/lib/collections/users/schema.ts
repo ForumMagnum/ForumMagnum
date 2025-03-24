@@ -25,6 +25,7 @@ import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { editableFields } from '@/lib/editor/make_editable';
 import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
+import { PartialDeep } from 'type-fest';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -76,35 +77,191 @@ export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
 export const MAX_NOTIFICATION_RADIUS = 300
 
 
-export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
-export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+export type NotificationChannel = "onsite" | "email";
 
-export type NotificationTypeSettings = {
-  channel: NotificationChannelOption,
-  batchingFrequency: NotificationBatchingOption,
+const NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
+  "realtime",
+  "daily",
+  "weekly",
+] as const);
+export type NotificationBatchingFrequency = UnionOf<typeof NOTIFICATION_BATCHING_FREQUENCIES>;
+
+const DAYS_OF_WEEK = new TupleSet(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const);
+export type DayOfWeek = UnionOf<typeof DAYS_OF_WEEK>;
+
+export type NotificationChannelSettings = {
+  enabled: boolean,
+  /**
+   * Frequency at which we send batched notifications. When enabled is false, this doesn't apply, but is persisted
+   * so the user can restore their old settings
+   */
+  batchingFrequency: NotificationBatchingFrequency,
+  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
   timeOfDayGMT: number,
-  dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
+  /** Day of week at which weekly updates are released, always in GMT */
+  dayOfWeekGMT: DayOfWeek
+}
+const notificationChannelSettingsSchema = new SimpleSchema({
+  enabled: {
+    type: Boolean,
+  },
+  batchingFrequency: {
+    type: String,
+    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
+  },
+  timeOfDayGMT: {
+    type: SimpleSchema.Integer,
+    min: 0,
+    max: 23
+  },
+  dayOfWeekGMT: {
+    type: String,
+    allowedValues: Array.from(DAYS_OF_WEEK)
+  },
+})
+
+export type NotificationTypeSettings = Record<NotificationChannel, NotificationChannelSettings>
+const notificationTypeSettingsSchema = new SimpleSchema({
+  onsite: {
+    type: notificationChannelSettingsSchema,
+  },
+  email: {
+    type: notificationChannelSettingsSchema,
+  },
+});
+export const defaultNotificationTypeSettings: NotificationTypeSettings = {
+  onsite: {
+    enabled: true,
+    batchingFrequency: "realtime",
+    timeOfDayGMT: 12,
+    dayOfWeekGMT: "Monday",
+  },
+  email: {
+    enabled: false,
+    batchingFrequency: "realtime",
+    timeOfDayGMT: 12,
+    dayOfWeekGMT: "Monday",
+  }
 };
 
-export const defaultNotificationTypeSettings: NotificationTypeSettings = {
+
+///////////////////////////////////////////////
+// Migration of NotificationTypeSettings     //
+//                                           //
+// This section is here to support migrating //
+// NotificationTypeSettings to a new format, //
+// and will be deleted shortly               //
+///////////////////////////////////////////////
+
+export type LegacyNotificationTypeSettings = {
+  channel: "none" | "onsite" | "email" | "both";
+  batchingFrequency: "realtime" | "daily" | "weekly";
+  timeOfDayGMT: number; // 0 to 23
+  dayOfWeekGMT: DayOfWeek;
+};
+
+
+export const legacyDefaultNotificationTypeSettings: LegacyNotificationTypeSettings = {
   channel: "onsite",
   batchingFrequency: "realtime",
   timeOfDayGMT: 12,
   dayOfWeekGMT: "Monday",
 };
 
-const rateLimitInfoSchema = new SimpleSchema({
-  nextEligible: {
-    type: Date
-  },
-  rateLimitType: {
-    type: String,
-    allowedValues: ["moderator", "lowKarma", "universal", "downvoteRatio"]
-  },
-  rateLimitMessage: {
-    type: String
-  },
-})
+
+export function isLegacyNotificationTypeSettings(value: AnyBecauseIsInput): value is LegacyNotificationTypeSettings {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'channel' in value &&
+    'batchingFrequency' in value &&
+    'timeOfDayGMT' in value &&
+    'dayOfWeekGMT' in value
+  );
+}
+
+export function isNewNotificationTypeSettings(value: AnyBecauseIsInput): value is NotificationTypeSettings {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'onsite' in value &&
+    'email' in value &&
+    typeof value.onsite === 'object' &&
+    typeof value.email === 'object' &&
+    'batchingFrequency' in value.onsite &&
+    'timeOfDayGMT' in value.onsite &&
+    'dayOfWeekGMT' in value.onsite
+  );
+}
+
+export function legacyToNewNotificationTypeSettings(notificationSettings: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
+  if (!notificationSettings) return defaultNotificationTypeSettings;
+  if (isNewNotificationTypeSettings(notificationSettings)) return notificationSettings
+
+  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = notificationSettings;
+
+  const onsiteEnabled = (channel === "both" || channel === "onsite");
+  const emailEnabled = (channel === "both" || channel === "email");
+
+  return {
+    onsite: {
+      enabled: onsiteEnabled,
+      batchingFrequency,
+      timeOfDayGMT,
+      dayOfWeekGMT,
+    },
+    email: {
+      enabled: emailEnabled,
+      batchingFrequency,
+      timeOfDayGMT,
+      dayOfWeekGMT,
+    },
+  };
+};
+
+export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): LegacyNotificationTypeSettings {
+  if (!newFormat) return legacyDefaultNotificationTypeSettings;
+  if (isLegacyNotificationTypeSettings(newFormat)) return newFormat;
+
+  const { onsite, email } = newFormat;
+
+  let channel: "none" | "onsite" | "email" | "both" = "none";
+  if (onsite.enabled && email.enabled) {
+    channel = "both";
+  } else if (onsite.enabled) {
+    channel = "onsite";
+  } else if (email.enabled) {
+    channel = "email";
+  }
+
+  // Not a one-to-one mapping here because the old format doesn't support different settings for each channel
+  // when both are enabled. If this is the case, choose the faster frequency for both
+  let batchingFrequency: NotificationBatchingFrequency = legacyDefaultNotificationTypeSettings.batchingFrequency;
+  if (channel === "both") {
+    const frequencies = [onsite.batchingFrequency, email.batchingFrequency];
+    if (frequencies.includes("realtime")) {
+      batchingFrequency = "realtime";
+    } else if (frequencies.includes("daily")) {
+      batchingFrequency = "daily";
+    } else {
+      batchingFrequency = "weekly";
+    }
+  } else {
+    batchingFrequency = channel === "onsite" ? onsite.batchingFrequency : email.batchingFrequency;
+  }
+
+  // Use onsite settings as the default for time and day, assuming they are the same for both
+  return {
+    channel,
+    batchingFrequency,
+    timeOfDayGMT: onsite.timeOfDayGMT,
+    dayOfWeekGMT: onsite.dayOfWeekGMT,
+  };
+}
+
+///////////////////////////////////////////////
+// End migration of NotificationTypeSettings //
+///////////////////////////////////////////////
 
 const karmaChangeUpdateFrequencies = new TupleSet([
   "disabled",
@@ -114,14 +271,13 @@ const karmaChangeUpdateFrequencies = new TupleSet([
 ] as const);
 
 export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
-
 export interface KarmaChangeSettingsType {
   updateFrequency: KarmaChangeUpdateFrequency
   /**
    * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
    */
   timeOfDayGMT: number
-  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
+  dayOfWeekGMT: DayOfWeek
   showNegativeKarma: boolean
 }
 const karmaChangeSettingsType = new SimpleSchema({
@@ -139,12 +295,12 @@ const karmaChangeSettingsType = new SimpleSchema({
   dayOfWeekGMT: {
     type: String,
     optional: true,
-    allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    allowedValues: Array.from(DAYS_OF_WEEK)
   },
   showNegativeKarma: {
     type: Boolean,
     optional: true,
-  }
+  },
 })
 
 export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
@@ -162,24 +318,6 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
   },
 } as const);
 
-const notificationTypeSettings = new SimpleSchema({
-  channel: {
-    type: String,
-    allowedValues: ["none", "onsite", "email", "both"],
-  },
-  batchingFrequency: {
-    type: String,
-    allowedValues: ['realtime', 'daily', 'weekly'],
-  },
-  timeOfDayGMT: {
-    type: Number,
-    optional: true,
-  },
-  dayOfWeekGMT: {
-    type: String,
-    optional: true,
-  },
-})
 
 const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
@@ -189,16 +327,30 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
-const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
-  type: notificationTypeSettings,
-  optional: true,
-  group: formGroups.notifications,
-  control: "NotificationTypeSettingsWidget" as const,
-  canRead: [userOwns, 'admins'] as FieldPermissions,
-  canUpdate: [userOwns, 'admins'] as FieldPermissions,
-  canCreate: ['members', 'admins'] as FieldCreatePermissions,
-  ...schemaDefaultValue<'Users'>({ ...defaultNotificationTypeSettings, ...overrideSettings })
-});
+const mergeNotificationSettings = (override?: PartialDeep<NotificationTypeSettings>, base: NotificationTypeSettings = defaultNotificationTypeSettings) => {
+  return {
+    onsite: { ...base.onsite, ...override?.onsite },
+    email: { ...base.email, ...override?.email }
+  }
+}
+const notificationTypeSettingsField = (defaultValue: NotificationTypeSettings | DeferredForumSelect<NotificationTypeSettings> = defaultNotificationTypeSettings) => {
+  // TODO remove once migration is complete
+  const migrationFields = {
+    blackbox: true
+  }
+
+  return {
+    type: notificationTypeSettingsSchema,
+    optional: true,
+    group: formGroups.notifications,
+    control: "NotificationTypeSettingsWidget" as const,
+    canRead: [userOwns, 'admins'] as FieldPermissions,
+    canUpdate: [userOwns, 'admins'] as FieldPermissions,
+    canCreate: ['members', 'admins'] as FieldCreatePermissions,
+    ...schemaDefaultValue<'Users'>(defaultValue),
+    ...migrationFields
+  };
+};
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -1491,40 +1643,53 @@ const schema: SchemaType<"Users"> = {
 
   notificationCommentsOnSubscribedPost: {
     label: `Comments on posts/events I'm subscribed to`,
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily"}}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationShortformContent: {
     label: isEAForum
       ? "Quick takes by users I'm subscribed to"
       : "Shortform by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRepliesToSubscribedComments: {
     label: "Replies to comments I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
-    onCreate: () => {
-      if (!isLWorAF) {
-        return {...defaultNotificationTypeSettings, channel: 'both'}
-      }
-    }
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationSubscribedUserComment: {
     label: "Comments by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
     hidden: !allowSubscribeToUserComments
   },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
@@ -1532,63 +1697,69 @@ const schema: SchemaType<"Users"> = {
   },
   notificationSubscribedSequencePost: {
     label: "Posts added to sequences I'm subscribed to",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
     hidden: !isLWorAF,
-    ...notificationTypeSettingsField({ channel: "both"})
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } }))
   },
   notificationEventInRadius: {
     label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationKarmaPowersGained: {
     label: "Karma powers gained",
     hidden: true,
-    ...notificationTypeSettingsField({ channel: "onsite" }),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationGroupAdministration: {
     label: "Group administration notifications",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationCommentsOnDraft: {
     label: "Comments on unpublished draft posts I've shared",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationPostsNominatedReview: {
     label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
     // Hide this while review is inactive
     hidden: true,
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSubforumUnread: {
     label: `New discussions in topics I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { batchingFrequency: "daily" } })),
   },
   notificationNewMention: {
     label: "Someone has mentioned me in a post or a comment",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ channel: "both"}),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
@@ -1598,12 +1769,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { batchingFrequency: 'daily' } })),
     hidden: !isLW,
   },
   notificationDebateReplies: {
@@ -1613,12 +1784,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ channel: "none" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { enabled: false } })),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {
