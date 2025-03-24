@@ -38,8 +38,7 @@ const prompterAlt = (el: string) => {
   return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, fade to white on the left side`
 }
 
-
-const prompter = (el: string) => {
+export const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
   return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
 }
@@ -52,7 +51,7 @@ I want you to list ${promptsGenerated} visual illustration descriptions for the 
 
 If the essay specifically mentions something you can easily visualize, use that as one of the illustrations. If the title of the essay lends itself to a clear visual illustration, include that.
 
-The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but you should figure out the specific concrete images to represent that thing). Do not use "mazes", or "labryinth" or "neural net" as your illustrations.
+The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but you should figure out the specific concrete images to represent that thing). Do not use "mazes", or "labryinth" or "neural net" or "gears" as your illustrations.
 
 If the essay only really talks about learning, metalearning, or other abstract concepts, consider a wide variety of illustrations.
 
@@ -222,7 +221,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
         // aspect_ratio: "4:3" as const, 
         image_size: {
           width: 2048,
-          height: 1536
+          height: 2048
         },
         image_url: imageUrl,
         image_strength: .2

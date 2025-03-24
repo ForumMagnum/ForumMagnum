@@ -11,6 +11,7 @@ interface PostReviewWinnerArtsViewTerms extends ViewTermsBase {
 
 interface AllForYearViewTerms extends ViewTermsBase {
   view: 'allForYear';
+  year: number;
 }
 
 declare global {
@@ -28,11 +29,12 @@ function postArt(terms: PostReviewWinnerArtsViewTerms) {
   };
 }
 
-function allForYear() {
+function allForYear({year}: AllForYearViewTerms) {
   return {
     selector: {
       createdAt: {
-        $gte: new Date(new Date().getFullYear(), 0, 1) // January 1st of currepnt year
+        $gte: new Date(year, 0, 1), // January 1st of current year
+        $lte: new Date(year + 1, 0, 1) // January 1st of next yea
       }
     }
   };

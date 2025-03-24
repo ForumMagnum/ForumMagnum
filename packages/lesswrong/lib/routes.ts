@@ -4,7 +4,7 @@ import {
   isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { REVIEW_YEAR } from './reviewUtils';
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
@@ -932,6 +932,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestOfLessWrongAdmin',
       path: '/bestoflesswrongadmin',
+      // this is a hack because it's annoying to fetch ReviewWinnerArt by review year
+      // instead we fetch by createdAt date for the art, which is generally 2 years after review
+      redirect: () => `/bestoflesswrongadmin/${BEST_OF_LESSWRONG_PUBLISH_YEAR + 2}`,
+    },
+    {
+      name: 'bestOfLessWrongAdminYear',
+      path: '/bestoflesswrongadmin/:year',
       componentName: 'BestOfLessWrongAdmin',
       title: "Best of LessWrong Admin",
     },

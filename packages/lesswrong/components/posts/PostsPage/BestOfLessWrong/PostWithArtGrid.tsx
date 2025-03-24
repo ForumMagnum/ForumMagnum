@@ -13,7 +13,7 @@ export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Split the URL at 'upload'
   const parts = url.split('/upload/');
   if (parts.length !== 2) return url;
-  
+
   // Combine with width transformation
   return `${parts[0]}/upload/w_${width}/${parts[1]}`;
 }
@@ -123,7 +123,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
         <h3>{corePrompt}</h3>
         <GenerateImagesButton 
           postId={post._id}
-          prompt={corePrompt}
+          prompt={prompt}
           allowCustomPrompt={false}
           buttonText="Generate More With This Prompt"
         />

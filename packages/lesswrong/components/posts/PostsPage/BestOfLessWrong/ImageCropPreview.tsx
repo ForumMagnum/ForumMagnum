@@ -355,7 +355,6 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
       }
 
       const imgRect = imgRef.current.getBoundingClientRect();
-      console.log("imgRect", imgRect)
 
       const leftOffsets = getOffsetPercentages(imgRect, coordsLeft, 'left');
       const middleOffsets = getOffsetPercentages(imgRect, coordsMiddle, 'middle');

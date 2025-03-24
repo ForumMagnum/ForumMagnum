@@ -12,6 +12,7 @@ import { ImageProvider, useImageContext } from '../posts/PostsPage/ImageContext'
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import GenerateImagesButton from './GenerateImagesButton';
+import { useLocation } from '@/lib/routeUtil'; 
 
 const rowStyles = defineStyles("BestOfLessWrongAdminRow", (theme: ThemeType) => ({
   post: {
@@ -27,7 +28,7 @@ const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: str
   const classes = useStyles(rowStyles);
   const { selectedImageInfo, setImageInfo } = useImageContext();
   const previewUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo.splashArtImageUrl) : null;
-  const imageThumbnail = previewUrl && getCloudinaryThumbnail(images[0].splashArtImageUrl);
+  const imageThumbnail = previewUrl && getCloudinaryThumbnail(previewUrl);
 
   return post && <div key={post._id} className={classes.post}>
     {imageThumbnail && <img src={imageThumbnail} />}
@@ -110,13 +111,17 @@ export const BestOfLessWrongAdmin = () => {
   const reviewWinners = data?.GetAllReviewWinners ?? [];
   const reviewWinnersWithoutArt = reviewWinners.filter((reviewWinner: PostsTopItemInfo) => !reviewWinner.reviewWinner?.reviewWinnerArt);
 
+  const { params: { year } } = useLocation()
+
   const { results: images, loading: imagesLoading, refetch: refetchImages } = useMulti({
     collectionName: 'ReviewWinnerArts',
     fragmentName: 'ReviewWinnerArtImagesForYear',
     terms: {
       view: 'allForYear',
+      year: parseInt(year),
       limit: 5000,
-    }
+    },
+    skip: !year,
   });
   const groupedImages = groupBy(images, (image) => image.post?.title);
   
@@ -125,6 +130,8 @@ export const BestOfLessWrongAdmin = () => {
   }
 
   return <div className={classes.root}>
+    <h1>Best of LessWrong Admin</h1>
+    <p>Showing art created in {year}</p>
       {(reviewWinnersLoading || imagesLoading) && <Loading/>}
       <div>
         <div>{Object.entries(groupedImages).length} Posts with art</div>

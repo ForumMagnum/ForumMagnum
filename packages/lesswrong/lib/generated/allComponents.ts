@@ -767,6 +767,7 @@ importComponent("FrontpageBestOfLWWidget", () => require("../../components/revie
 importComponent("FrontpageNominationPhase", () => require("../../components/review/FrontpageNominationPhaseDeprecated.tsx"));
 importComponent("FrontpageReviewWidget", () => require("../../components/review/FrontpageReviewWidget.tsx"));
 importComponent("FrontpageVotingPhase", () => require("../../components/review/FrontpageVotingPhaseDeprecated.tsx"));
+importComponent("GenerateImagesButton", () => require("../../components/review/GenerateImagesButton.tsx"));
 importComponent("LatestReview", () => require("../../components/review/LatestReview.tsx"));
 importComponent("NewLongformReviewForm", () => require("../../components/review/NewLongformReviewForm.tsx"));
 importComponent("NominatePostDialog", () => require("../../components/review/NominatePostDialog.tsx"));
