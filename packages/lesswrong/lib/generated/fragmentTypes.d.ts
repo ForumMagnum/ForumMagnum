@@ -2806,10 +2806,7 @@ interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlig
   readonly description: SpotlightDisplay_description|null,
 }
 
-interface SpotlightDisplay_post { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
+interface SpotlightDisplay_post extends PostsMinimumInfo { // fragment on Posts
   readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
