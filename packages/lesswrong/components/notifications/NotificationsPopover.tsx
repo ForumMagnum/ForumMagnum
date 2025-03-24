@@ -89,14 +89,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
-  switch (batchingFrequency) {
-    case "daily":  return " since yesterday";
-    case "weekly": return " since last week";
-    default:       return "";
-  }
-}
-
 const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
   switch (batchingFrequency) {
     case "realtime":  return "appear in real time";

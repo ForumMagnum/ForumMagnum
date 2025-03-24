@@ -1,7 +1,7 @@
 import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -92,6 +92,7 @@ function usePrefetchForAutosaveRedirect() {
 const PostsNewForm = () => {
   const { LoginForm, SingleColumnSection, Typography, Loading } = Components;
   const { query } = useLocation();
+  const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -163,21 +164,25 @@ const PostsNewForm = () => {
         const postSchema = getSimpleSchema('Posts');
         const convertedSchema = convertSchema(postSchema);
         const insertableFields = getInsertableFields(convertedSchema!, currentUser);
-        const { data, errors } = await createPost.create({
-          data: {
-            title: "Untitled Draft",
-            draft: true,
-            ...pick(prefilledProps, insertableFields),
-            ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents &&
-              hasAuthorModeration && {
-              moderationGuidelines: {
-                originalContents: pick(currentUserWithModerationGuidelines.moderationGuidelines.originalContents, ["type","data"])
-              }
-            })
-          },
-        });
-        if (data) {
-          navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+        try {
+          const { data } = await createPost.create({
+            data: {
+              title: "Untitled Draft",
+              draft: true,
+              ...pick(prefilledProps, insertableFields),
+              ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents &&
+                hasAuthorModeration && {
+                moderationGuidelines: {
+                  originalContents: pick(currentUserWithModerationGuidelines.moderationGuidelines.originalContents, ["type","data"])
+                }
+              })
+            },
+          });
+          if (data) {
+            navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+          }
+        } catch(e) {
+          setError(e.message);
         }
       })();
     }
@@ -200,11 +205,11 @@ const PostsNewForm = () => {
     </SingleColumnSection>);
   }
 
-  if (templateId && templateLoading) {
-    return <Loading />
+  if (error) {
+    return <Components.ErrorMessage message={error}/>
+  } else {
+    return <Loading/>
   }
-  
-  return <Loading/>
 }
 
 const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm);

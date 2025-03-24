@@ -134,6 +134,7 @@ const schema = {
       label: "Unread count in sidebar",
     },
   },
+  // TODO delete
   subforumEmailNotifications: {
     database: {
       type: "BOOL",

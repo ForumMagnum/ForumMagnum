@@ -12,7 +12,7 @@ import { Type } from '../sql/Type';
 import { sleep } from '@/lib/helpers';
 import SimpleSchema from 'simpl-schema';
 import { randomId } from '@/lib/random';
-import { defaultNotificationTypeSettings, multiChannelDefaultNotificationTypeSettings } from '@/lib/collections/users/schema';
+import { defaultNotificationTypeSettings, legacyMultiChannelDefaultNotificationTypeSettings } from '@/lib/collections/users/schema';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import pick from 'lodash/pick';
 
@@ -534,7 +534,7 @@ function formatValue(value: any, context: Omit<FieldValueSubstitutionProps, 'fun
     if (propertyName && isUserNotificationSettingsField(context) && JSON.stringify(value) === JSON.stringify(defaultNotificationTypeSettings)) {
       if (JSON.stringify(value) === JSON.stringify(defaultNotificationTypeSettings)) {
         return `defaultNotificationTypeSettings`;
-      } else if (JSON.stringify(value) === JSON.stringify(multiChannelDefaultNotificationTypeSettings)) {
+      } else if (JSON.stringify(value) === JSON.stringify(legacyMultiChannelDefaultNotificationTypeSettings)) {
         return `multiChannelDefaultNotificationTypeSettings`;
       }
     }
