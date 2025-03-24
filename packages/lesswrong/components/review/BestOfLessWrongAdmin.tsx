@@ -11,6 +11,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ImageProvider } from '../posts/PostsPage/ImageContext';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import GenerateImagesButton from './GenerateImagesButton';
 
 const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
@@ -55,9 +56,6 @@ export const BestOfLessWrongAdmin = () => {
   const classes = useStyles(styles);
   const { Loading } = Components;
   
-  // Track which posts are currently generating images
-  const [generatingPosts, setGeneratingPosts] = useState<Record<string, boolean>>({});
-
   const currentUser = useCurrentUser();
 
   const { data, loading: reviewWinnersLoading } = useQuery(gql`
@@ -81,28 +79,6 @@ export const BestOfLessWrongAdmin = () => {
   });
   const groupedImages = groupBy(images, (image) => image.post?.title);
   
-  // Define mutation for generating cover images
-  const [generateCoverImages] = useMutation(gql`
-    mutation GenerateCoverImagesForPost($postId: String!) {
-      generateCoverImagesForPost(postId: $postId)
-    }
-  `);
-  
-  // Function to handle generating cover images for a post
-  const handleGenerateCoverImages = async (postId: string) => {
-    try {
-      setGeneratingPosts(prev => ({ ...prev, [postId]: true }));
-      const results = await generateCoverImages({ variables: { postId } });
-      console.log("results", results);
-      await refetchImages();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Error generating cover images:", error);
-    } finally {
-      setGeneratingPosts(prev => ({ ...prev, [postId]: false }));
-    }
-  };
-
   if (!userIsAdmin(currentUser)) {
     return <div>You are not authorized to view this page</div>
   }
@@ -119,14 +95,12 @@ export const BestOfLessWrongAdmin = () => {
         return post && <div key={title} className={classes.post}>
           <h2>
             <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
-            <button 
-              className={classes.generateButton}
-              onClick={() => handleGenerateCoverImages(post._id)}
-              disabled={generatingPosts[post._id]}
-            >
-              Generate More Images
-            </button>
-            {generatingPosts[post._id] && <span className={classes.loadingText}>Generating...</span>}
+            <GenerateImagesButton 
+              postId={post._id}
+              allowCustomPrompt={true}
+              buttonText="Generate More Images"
+              onComplete={refetchImages}
+            />
           </h2>
           <ImageProvider>
             <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
@@ -139,14 +113,11 @@ export const BestOfLessWrongAdmin = () => {
           return <div key={reviewWinner._id} className={classes.post}>
             <h2>
               <Link target="_blank" to={postGetPageUrl(reviewWinner)}>{reviewWinner.title}</Link>
-              <button 
-                className={classes.generateButton}
-                onClick={() => handleGenerateCoverImages(reviewWinner._id)}
-                disabled={generatingPosts[reviewWinner._id]}
-              >
-                Generate Images
-              </button>
-              {generatingPosts[reviewWinner._id] && <span className={classes.loadingText}>Generating...</span>}
+              <GenerateImagesButton 
+                postId={reviewWinner._id}
+                allowCustomPrompt={true}
+                onComplete={refetchImages}
+              />
             </h2>
           </div>
         })}

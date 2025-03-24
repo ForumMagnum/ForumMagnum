@@ -5,6 +5,7 @@ import { useMulti } from '../../../../lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCreate } from '@/lib/crud/withCreate';
+import GenerateImagesButton from '../../../review/GenerateImagesButton';
 
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
@@ -110,11 +111,18 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
       </LWTooltip>
     </div>}
 
-    {expanded && Object.entries(imagesByPrompt).map(([prompt, images]) => {
+    {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
+      const corePrompt = prompt.split(", aquarelle artwork fading")[0] || 'No prompt found';
       return <div key={prompt}>
-        <p> {prompt.split(", aquarelle artwork fading")[0] || 'No prompt found'} </p>
+        <h3>{corePrompt}</h3>
+        <GenerateImagesButton 
+          postId={post._id}
+          prompt={corePrompt}
+          allowCustomPrompt={false}
+          buttonText="Generate More With This Prompt"
+        />
         <div className={classes.postWrapper} >
-          {images.map((image) => {
+          {promptImages.map((image) => {
             const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
             const medUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 800);
 

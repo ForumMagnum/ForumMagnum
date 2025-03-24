@@ -35,11 +35,11 @@ const prompter = (el: string) => {
   return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
 }
 
-export const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear description of a visual illustration that captures the essence of the essay.
+export const llm_prompt = (title: string, essay: string, promptsGenerated: number) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear description of a visual illustration that captures the essence of the essay.
 
 The illustration description should be concrete and specific, and should be something that can be depicted in a single image. The description should be something that is both visually striking and that captures the essence of the essay in a way that is likely to be interesting. It should be 5 - 15 words long.
 
-I want you to list 10 visual illustration descriptions for the essay.
+I want you to list ${promptsGenerated} visual illustration descriptions for the essay.
 
 If the essay specifically mentions something you can easily visualize, use that as one of the illustrations. If the title of the essay lends itself to a clear visual illustration, include that.
 
@@ -63,16 +63,17 @@ Here are some bad examples:
 2. A pile of resources dwindling
 3. A collection of books about Zen Buddhism
 4. A labyrinth of forking paths
+5. A interlocking mechanism of gears
 
 Please generate 10 visual illustrations for the essay that will appear on Lesswrong. The essay will appear after the "===".
 
 Please format your response as follows:
 
 SUMMARY: What is the main idea of the essay?
-IDEAS: A JSON list of 3 visual illustrations, like ["a sea of thousands of people, one of them zoomed in using a magnifying glass", "a set of scales with a heap of gold on one side and a heart on the other", "a tree with tangled roots and a single leaf"]
+IDEAS: A JSON list of ${promptsGenerated} visual illustrations, like ["a sea of thousands of people, one of them zoomed in using a magnifying glass", "a set of scales with a heap of gold on one side and a heart on the other", "a tree with tangled roots and a single leaf"]
 CHECK: For each illustration, write out the illustration and answer (a) does the illustration contain writing or refer to the content of written materials or say that words should appear in the image? (yes/no) (b) Does the illustration ask for any symbols respresenting concepts? (yes/no) Is it 5 to 15 words long? (yes/no)
 CORRECTIONS: If any of the illustrations contain writing or refer to the content of written materials, please provide a corrected version of the illustration.
-ILLUSTRATIONS: A JSON list of your final 3 visual illustrations.
+ILLUSTRATIONS: A JSON list of your final ${promptsGenerated} visual illustrations.
 
 You must respond in valid JSON format with the following structure:
 {  
@@ -137,7 +138,7 @@ const saveImage = async (prompt: string, essay: Essay, url: string) => {
 }
 
 const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
-  const targetAmountOfArt = 100
+  const targetAmountOfArt = 50
 
   const postIds = await ReviewWinners.find({reviewYear: 2023}, { projection: { postId: 1, reviewYear: 1 }, sort: { reviewRanking: 1 } }).fetch();
 
@@ -157,26 +158,26 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
   return essays.map(e => {
     const existingArtCount = reviewArts.filter(a => a.postId === e._id).length;
     const neededArtCount = Math.max(0, targetAmountOfArt - existingArtCount);
-    return {post: e, title: e.title, content: e.contents?.html ?? "", neededArtCount}
+    return {post: e, title: e.title, content: e.contents?.html ?? "", neededArtCount, promptsGenerated: 10}
   })
 }
 
-type Essay = {post: PostsPage, title: string, content: string, neededArtCount: number}
+type Essay = {post: PostsPage, title: string, content: string, neededArtCount: number, promptsGenerated: number}
 
 const TextResponseFormat = zodResponseFormat(z.object({
   metaphors: z.array(z.string()),
 }), "TextResponseFormat")
 
-const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {
+const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string, content: string, promptsGenerated: number}, tryCount = 0): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
   const completion = await openAiClient.chat.completions.create({
-    messages: [{role: "user", content: llm_prompt(essay.title, content)}],
+    messages: [{role: "user", content: llm_prompt(essay.title, content, essay.promptsGenerated)}],
     model: "o3-mini",
     response_format:TextResponseFormat
   }).catch((error) => {
     if (error instanceof OpenAI.APIError && error.status === 400 && error.code === 'context_length_exceeded') {
       return openAiClient.chat.completions.create({
-        messages: [{role: "user", content: llm_prompt(essay.title, content.slice(0, 8_000) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-8_000))}],
+        messages: [{role: "user", content: llm_prompt(essay.title, content.slice(0, 8_000) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-8_000), essay.promptsGenerated)}],
         model: "o3-mini-2025-1-31",
         response_format: TextResponseFormat
       })
@@ -188,6 +189,7 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
   })
   try {
     const json = completion?.choices[0].message.content
+    console.log("json", json)
     return JSON.parse(json ?? "{}").metaphors
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -237,7 +239,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
 const generateHighResImage = async (essay: Essay, prompt: string, imageUrl: string): Promise<string> => {
   // First pass: Generate high-quality image with flux-pro
   const fluxResult = await generateImage(prompt, imageUrl);
-  
+  console.log("fluxResult", fluxResult)
   // Second pass: Upscale with CCSR
   try {
     const upscaleOptions = {
@@ -263,7 +265,7 @@ const generateHighResImage = async (essay: Essay, prompt: string, imageUrl: stri
   }
 }
 
-const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
+const getPrompts = async (openAiClient: OpenAI, essay: {title: string, content: string, promptsGenerated: number}): Promise<string[]> => {
   const promptElements = await getPromptTextElements(openAiClient, essay)
   return promptElements.map(el => prompter(el))
 }
@@ -275,13 +277,13 @@ type EssayResult = {
   reviewWinnerArt?: DbReviewWinnerArt
 }
 
-const getArtForEssay = async (openAiClient: OpenAI, essay: Essay): Promise<EssayResult[]> => {
+const getArtForEssay = async (openAiClient: OpenAI, essay: Essay, prompt?: string): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
-  console.log("essay", essay.title, essay.neededArtCount)
-  const prompts = await getPrompts(openAiClient, essay)
-  const promptCount = Math.floor(essay.neededArtCount/prompts.length)
+  const prompts = prompt ? [prompt] : await getPrompts(openAiClient, essay)
+  console.log("prompts", prompts)
+  const promptCount = Math.max(1, Math.floor(essay.neededArtCount/prompts.length))
   const promptsTotal = prompts.flatMap(p => Array(promptCount).fill(p))
-  console.log("promptsTotal", promptsTotal.length)
+  console.log("promptsTotal", promptsTotal)
   const results = Promise.all(promptsTotal.map(async (prompt) => {
     const image = await generateHighResImage(essay, prompt, sample(promptImageUrls)!)
     const reviewWinnerArt = (await saveImage(prompt, essay, image))?.data
@@ -295,11 +297,11 @@ export const getReviewWinnerArts = async () => {
   console.time('running getReviewWinnerArts');
 
   const totalEssays = (await getEssaysWithoutEnoughArt())
-  const essays = totalEssays.slice(0, 1)
+  const essays = totalEssays.slice(0, 10)
 
   const openAiClient = await getOpenAI()
   if (!openAiClient) {
-    throw new Error('         Could not initialize OpenAI client!');
+    throw new Error('Could not initialize OpenAI client!');
   }
 
   const results: EssayResult[][] = await Promise.all(essays.map(async (essay) => {
@@ -327,7 +329,7 @@ export const getReviewWinnerArts = async () => {
   console.log(`${results.length} cover images generated for ${uniqueResults.length} essays`)
 }
 
-export const generateCoverImagesForPost = async (postId: string): Promise<EssayResult[]> => {
+export const generateCoverImagesForPost = async (postId: string, prompt?: string): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
   console.time('running generateCoverImagesForPost');
   
@@ -338,6 +340,7 @@ export const generateCoverImagesForPost = async (postId: string): Promise<EssayR
     currentUser: null,
     skipFiltering: true,
   });
+  console.log("post", post[0].title)
   
   if (!post || !post.length) {
     throw new Error(`Post with ID ${postId} not found`);
@@ -347,7 +350,8 @@ export const generateCoverImagesForPost = async (postId: string): Promise<EssayR
     post: post[0],
     title: post[0].title,
     content: post[0].contents?.html ?? "",
-    neededArtCount: 3 // Generate 3 images per post when triggered manually
+    promptsGenerated: 3,
+    neededArtCount: 9 // Generate 3 images per post when triggered manually
   };
   
   const openAiClient = await getOpenAI();
@@ -355,7 +359,7 @@ export const generateCoverImagesForPost = async (postId: string): Promise<EssayR
     throw new Error('Could not initialize OpenAI client!');
   }
   
-  const results = await getArtForEssay(openAiClient, essay);
+  const results = await getArtForEssay(openAiClient, essay, prompt);
   
   // eslint-disable-next-line no-console
   console.timeEnd('running generateCoverImagesForPost');
