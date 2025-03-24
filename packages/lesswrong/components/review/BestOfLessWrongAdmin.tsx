@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
-import { PostWithArtGrid } from '../posts/PostsPage/BestOfLessWrong/PostWithArtGrid';
+import { getCloudinaryThumbnail, PostWithArtGrid } from '../posts/PostsPage/BestOfLessWrong/PostWithArtGrid';
 import { defineStyles, useStyles } from '../hooks/useStyles'; 
 import { ImageProvider } from '../posts/PostsPage/ImageContext';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
@@ -25,6 +25,9 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   post: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    display: 'flex', 
+    gap: '10px',
+    alignItems: 'flex-start',
     marginBottom: 30,
     '& h3': {
       marginBottom: 6,
@@ -96,20 +99,24 @@ export const BestOfLessWrongAdmin = () => {
       <div>
         {Object.entries(groupedImages).map(([title, images]) => {
         const post = images[0].post;
+        const imageThumbnail = getCloudinaryThumbnail(images[0].splashArtImageUrl);
         return post && <div key={title} className={classes.post}>
-          <h2>
-            <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
-          </h2>
-          <GenerateImagesButton 
-              postId={post._id}
-              allowCustomPrompt={true}
-              buttonText="Generate More Images"
-              onComplete={refetchImages}
-            />
-          <ImageProvider>
-            <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
-          </ImageProvider>
-        </div>  
+          <img src={imageThumbnail} />
+          <div>
+            <h2>
+              <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
+            </h2>
+            <GenerateImagesButton 
+                postId={post._id}
+                allowCustomPrompt={true}
+                buttonText="Generate More Images"
+                onComplete={refetchImages}
+              />
+            <ImageProvider>
+              <PostWithArtGrid key={title} post={post} images={images} defaultExpanded={false} />
+            </ImageProvider>
+          </div>  
+        </div>
         })}
       </div>
       <div>

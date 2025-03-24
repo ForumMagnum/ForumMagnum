@@ -38,6 +38,8 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
   },
   expandButton: {
     cursor: 'pointer',
+    marginBottom: 10,
+    color: theme.palette.primary.main,
     '&:hover': {
       opacity: 0.5
     }
@@ -109,11 +111,11 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   return <div>
     {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
 
-    {expanded && currentImageThumbnailUrl && currentImageUrl && <div>
+    {/* {expanded && currentImageThumbnailUrl && currentImageUrl && <div>
       <LWTooltip title={<img src={currentImageUrl} />} tooltip={false}>
         <img src={currentImageThumbnailUrl} />
       </LWTooltip>
-    </div>}
+    </div>} */}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
       const corePrompt = prompt.split(", aquarelle artwork fading")[0] || 'No prompt found';
