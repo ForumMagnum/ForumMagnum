@@ -68,3 +68,16 @@ export const DEFAULT_LEGACY_DATA_FIELD = {
     hidden: true,
   },
 } satisfies NewCollectionFieldSpecification<CollectionNameString>;
+
+export const DEFAULT_LATEST_REVISION_ID_FIELD = {
+  database: {
+    type: "TEXT",
+  },
+  graphql: {
+    outputType: "String",
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+} satisfies NewCollectionFieldSpecification<CollectionNameString>;

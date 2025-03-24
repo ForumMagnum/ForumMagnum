@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
@@ -136,18 +136,7 @@ const schema = {
       },
     },
   },
-  description_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  description_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   pingbacks: {
     database: {
       type: "JSONB",
@@ -200,18 +189,7 @@ const schema = {
       },
     },
   },
-  subforumWelcomeText_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  subforumWelcomeText_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
   moderationGuidelines: {
     database: {
@@ -248,18 +226,7 @@ const schema = {
       },
     },
   },
-  moderationGuidelines_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  moderationGuidelines_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
   slug: {
     database: {

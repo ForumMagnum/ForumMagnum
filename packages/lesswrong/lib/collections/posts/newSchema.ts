@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
@@ -351,18 +351,7 @@ const schema = {
       },
     },
   },
-  contents_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   revisions: {
     graphql: {
       outputType: "[Revision]",
@@ -425,18 +414,7 @@ const schema = {
       },
     },
   },
-  moderationGuidelines_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  moderationGuidelines_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   customHighlight: {
     database: {
       type: "JSONB",
@@ -476,18 +454,7 @@ const schema = {
       },
     },
   },
-  customHighlight_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  customHighlight_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   slug: {
     database: {
       type: "TEXT",

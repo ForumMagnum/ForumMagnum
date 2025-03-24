@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
@@ -98,18 +98,7 @@ const schema = {
       },
     },
   },
-  frontpageDescription_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  frontpageDescription_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   frontpageDescriptionMobile: {
     database: {
       type: "JSONB",
@@ -154,18 +143,7 @@ const schema = {
       },
     },
   },
-  frontpageDescriptionMobile_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  frontpageDescriptionMobile_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   postPageDescription: {
     database: {
       type: "JSONB",
@@ -210,18 +188,7 @@ const schema = {
       },
     },
   },
-  postPageDescription_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  postPageDescription_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   title: {
     database: {
       type: "TEXT",
@@ -510,18 +477,7 @@ const schema = {
       },
     },  
   },
-  pollQuestion_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  pollQuestion_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   pollAgreeWording: {
     database: {
       type: "TEXT",

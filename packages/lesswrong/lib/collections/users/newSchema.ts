@@ -2,7 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
-import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import SimpleSchema from "simpl-schema";
 import {
   userGetProfileUrl,
@@ -610,18 +610,7 @@ const schema = {
       },
     },
   },
-  moderationGuidelines_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  moderationGuidelines_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   howOthersCanHelpMe: {
     database: {
       type: "JSONB",
@@ -660,18 +649,7 @@ const schema = {
       },
     },
   },
-  howOthersCanHelpMe_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  howOthersCanHelpMe_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
   howICanHelpOthers: {
     database: {
@@ -710,18 +688,7 @@ const schema = {
       },
     },
   },
-  howICanHelpOthers_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  howICanHelpOthers_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
   slug: {
     database: {
@@ -808,18 +775,7 @@ const schema = {
       },
     },
   },
-  biography_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  biography_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
   username: {
     database: {
