@@ -1572,15 +1572,6 @@ const schema = {
       sqlResolver: currentUserExtendedVoteResolver,
     },
   },
-  currentUserVotes: {
-    graphql: {
-      outputType: "[Vote]",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        return await getCurrentUserVotes(document, context);
-      },
-    },
-  },
   allVotes: {
     graphql: {
       outputType: "[Vote]",
