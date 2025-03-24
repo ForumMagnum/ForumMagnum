@@ -3,7 +3,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 
 const styles = (theme: ThemeType) => ({
   root: {

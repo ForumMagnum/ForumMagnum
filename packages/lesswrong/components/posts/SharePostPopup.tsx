@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import Popper from "@/lib/vendor/@material-ui/core/src/Popper";
-import Paper from "@/lib/vendor/@material-ui/core/src/Paper";
+import { Paper }from '@/components/widgets/Paper';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useRerenderOnce } from "../hooks/useFirstRender";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";

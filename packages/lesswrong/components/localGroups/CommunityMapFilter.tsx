@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';

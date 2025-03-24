@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
 import { useCurrentUser } from '../common/withUser';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';

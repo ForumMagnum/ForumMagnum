@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import SupervisorAccountIcon from '@/lib/vendor/@material-ui/icons/src/SupervisorAccount';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';

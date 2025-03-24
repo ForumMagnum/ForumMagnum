@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';

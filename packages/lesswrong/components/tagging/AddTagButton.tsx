@@ -1,6 +1,6 @@
 import React, { ReactNode, useRef, useState }  from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";

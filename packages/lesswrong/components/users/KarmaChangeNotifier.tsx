@@ -4,7 +4,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
 import Badge from '@/lib/vendor/@material-ui/core/src/Badge';

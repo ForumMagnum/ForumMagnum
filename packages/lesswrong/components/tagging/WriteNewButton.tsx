@@ -5,7 +5,7 @@ import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
