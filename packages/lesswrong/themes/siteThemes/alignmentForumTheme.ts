@@ -103,11 +103,6 @@ export const alignmentForumTheme: SiteThemeSpecification = {
           top: 0
         }
       },
-      MuiTooltip: {
-        tooltip: {
-          fontSize: 13
-        }
-      },
       PostsVoteDefault: {
         voteScores: {
           fontVariantNumeric: "lining-nums",

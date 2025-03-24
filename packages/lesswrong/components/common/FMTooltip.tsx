@@ -10,6 +10,12 @@ const styles = defineStyles("TooltipRef", (theme: ThemeType) => ({
   tooltip: {
     maxWidth: 300,
     
+    backgroundColor: theme.palette.panelBackground.tooltipBackground,
+    color: theme.palette.text.tooltipText,
+    fontSize: 13,
+    padding: "9.1px",
+    zIndex: 10000000,
+    
     "& img": {
       maxWidth: "100%",
     },

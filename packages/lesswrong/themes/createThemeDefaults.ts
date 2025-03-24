@@ -240,12 +240,6 @@ export const baseTheme: BaseThemeSpecification = {
         `0px 11px 15px -7px ${palette.boxShadowColor(0.2)},0px 24px 38px 3px ${palette.boxShadowColor(0.14)},0px 9px 46px 8px ${palette.boxShadowColor(0.12)}`,
       ],
       overrides: {
-        MuiTooltip: {
-          tooltip: {
-            backgroundColor: palette.panelBackground.tooltipBackground,
-            color: palette.text.tooltipText,
-          },
-        },
         MuiChip: {
           root: {
             color: palette.text.normal, //Necessary because this uses getContrastText() which produces a non-theme color

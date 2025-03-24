@@ -115,13 +115,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
           margin: "25% 15% 15% 15%"
         }
       },
-      MuiTooltip: {
-        tooltip: {
-          fontSize: 13,
-          padding: "9.1px",
-          zIndex: 10000000
-        }
-      },
       MuiDialogContent: {
         root: {
           fontFamily: sansSerifStack,
