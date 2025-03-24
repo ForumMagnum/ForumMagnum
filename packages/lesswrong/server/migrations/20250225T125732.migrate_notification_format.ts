@@ -42,9 +42,8 @@ const fetchEverChangedSettingUsers = async ({
   db: SqlClient;
   fieldName: (typeof notificationTypes)[number];
 }) => {
-  return (
-    await db.any<{ userId: string }>(
-      `
+  const lwEventsUsers = await db.any<{ userId: string }>(
+    `
     SELECT DISTINCT "documentId" AS "userId"
     FROM "LWEvents"
     WHERE "name" = 'fieldChanges'
@@ -52,9 +51,25 @@ const fetchEverChangedSettingUsers = async ({
       AND properties -> 'after' ->> $1 IS NOT NULL
       AND properties -> 'before' ->> $1 <> properties -> 'after' ->> $1;
   `,
-      [fieldName]
-    )
-  ).map((u) => u.userId);
+    [fieldName]
+  );
+
+  const fieldChangesUsers = await db.any<{ userId: string }>(
+    `
+    SELECT DISTINCT "documentId" AS "userId"
+    FROM "FieldChanges"
+    WHERE "fieldName" = $1
+      AND "oldValue" <> "newValue";
+  `,
+    [fieldName]
+  );
+
+  const combinedUserIds = new Set([
+    ...lwEventsUsers.map((u) => u.userId),
+    ...fieldChangesUsers.map((u) => u.userId),
+  ]);
+
+  return Array.from(combinedUserIds);
 };
 
 const migrateFormat = async ({
