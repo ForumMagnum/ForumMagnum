@@ -217,7 +217,6 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
     const runOptions = {
       input: {
         prompt: prompt,
-        negative_prompt: "text, writing, words, low quality, blurry, abstract, pattern, labyrinth, maze, circles, orbs",
         num_inference_steps: 25,
         guidance_scale: 7.5,
         // aspect_ratio: "4:3" as const, 
