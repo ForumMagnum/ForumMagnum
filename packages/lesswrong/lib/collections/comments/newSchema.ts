@@ -1626,7 +1626,7 @@ const schema = {
     },
     graphql: {
       outputType: "Float",
-      canRead: customBaseScoreReadAccess,
+      canRead: [customBaseScoreReadAccess],
       validation: {
         optional: true,
       },
@@ -1638,7 +1638,7 @@ const schema = {
     },
     graphql: {
       outputType: GraphQLJSON,
-      canRead: customBaseScoreReadAccess,
+      canRead: [customBaseScoreReadAccess],
       validation: {
         optional: true,
       },
@@ -1673,7 +1673,7 @@ const schema = {
     },
     graphql: {
       outputType: "Float",
-      canRead: ["guests"],
+      canRead: [customBaseScoreReadAccess],
       validation: {
         optional: true,
       },
@@ -1688,7 +1688,7 @@ const schema = {
     },
     graphql: {
       outputType: GraphQLJSON,
-      canRead: ["guests"],
+      canRead: [customBaseScoreReadAccess],
       validation: {
         optional: true,
       },
