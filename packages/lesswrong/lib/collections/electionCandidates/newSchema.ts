@@ -3,10 +3,8 @@
 // The original schema is still in use, this is just for reference.
 
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "../../utils/schemaUtils";
-import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import GraphQLJSON from "graphql-type-json";
+import { generateIdResolverSingle } from "../../utils/schemaUtils";
+import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -289,152 +287,16 @@ const schema = {
       },
     },
   },
-  currentUserVote: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].voteType ?? null;
-      },
-      sqlResolver: currentUserVoteResolver,
-    },
-  },
-  currentUserExtendedVote: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].extendedVoteType || null;
-      },
-      sqlResolver: currentUserExtendedVoteResolver,
-    },
-  },
-  voteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      denormalized: true,
-      canAutoDenormalize: true,
-      canAutofillDefault: true,
-      getValue: getDenormalizedCountOfReferencesGetValue({
-        collectionName: "ElectionCandidates",
-        fieldName: "voteCount",
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) =>
-          !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "ElectionCandidates",
-      }),
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onCreate: () => 0,
-      countOfReferences: {
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) =>
-          !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "ElectionCandidates",
-        resyncElastic: false,
-      },
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  baseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  extendedScore: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  score: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  inactive: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-  },
-  afBaseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      label: "Alignment Base Score",
-    },
-  },
-  afExtendedScore: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  afVoteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
+  voteCount: defaultVoteCountField('ElectionCandidates'),
+  baseScore: DEFAULT_BASE_SCORE_FIELD,
+  extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
+  score: DEFAULT_SCORE_FIELD,
+  inactive: DEFAULT_INACTIVE_FIELD,
+  afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
+  afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, NewCollectionFieldSpecification<"ElectionCandidates">>;
 
 export default schema;

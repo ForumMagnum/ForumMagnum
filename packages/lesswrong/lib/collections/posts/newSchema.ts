@@ -65,13 +65,12 @@ import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
 import {
   documentIsNotDeleted,
-  userIsAdminOrMod,
   userOverNKarmaFunc,
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
+import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { SmartFormProps } from "@/components/vulcan-forms/propTypes";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
@@ -85,7 +84,6 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import GraphQLJSON from "graphql-type-json";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -5021,150 +5019,16 @@ const schema = {
       },
     },
   },
-  currentUserVote: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].voteType ?? null;
-      },
-      sqlResolver: currentUserVoteResolver,
-    },
-  },
-  currentUserExtendedVote: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].extendedVoteType || null;
-      },
-      sqlResolver: currentUserExtendedVoteResolver,
-    },
-  },
-  voteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      denormalized: true,
-      canAutoDenormalize: true,
-      canAutofillDefault: true,
-      getValue: getDenormalizedCountOfReferencesGetValue({
-        collectionName: "Posts",
-        fieldName: "voteCount",
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Posts",
-      }),
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onCreate: () => 0,
-      countOfReferences: {
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Posts",
-        resyncElastic: false,
-      },
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  baseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  extendedScore: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  score: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  inactive: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-  },
-  afBaseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      label: "Alignment Base Score",
-    },
-  },
-  afExtendedScore: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  afVoteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
+  voteCount: defaultVoteCountField('Posts'),
+  baseScore: DEFAULT_BASE_SCORE_FIELD,
+  extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
+  score: DEFAULT_SCORE_FIELD,
+  inactive: DEFAULT_INACTIVE_FIELD,
+  afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
+  afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, NewCollectionFieldSpecification<"Posts">>;
 
 export default schema;

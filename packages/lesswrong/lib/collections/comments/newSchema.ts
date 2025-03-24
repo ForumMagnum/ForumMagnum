@@ -21,9 +21,8 @@ import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isFriendlyUI } from "@/themes/forumTheme";
-import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
+import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
-import GraphQLJSON from "graphql-type-json";
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -1548,30 +1547,8 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "originalDialogueId" }),
     },
   },
-  currentUserVote: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].voteType ?? null;
-      },
-      sqlResolver: currentUserVoteResolver,
-    },
-  },
-  currentUserExtendedVote: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].extendedVoteType || null;
-      },
-      sqlResolver: currentUserExtendedVoteResolver,
-    },
-  },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   allVotes: {
     graphql: {
       outputType: "[Vote]",
@@ -1586,126 +1563,38 @@ const schema = {
       },
     },
   },
-  voteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      denormalized: true,
-      canAutoDenormalize: true,
-      canAutofillDefault: true,
-      getValue: getDenormalizedCountOfReferencesGetValue({
-        collectionName: "Comments",
-        fieldName: "voteCount",
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Comments",
-      }),
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onCreate: () => 0,
-      countOfReferences: {
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Comments",
-        resyncElastic: false,
-      },
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  voteCount: defaultVoteCountField('Comments'),
   baseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
+    ...DEFAULT_BASE_SCORE_FIELD,
     graphql: {
-      outputType: "Float",
+      ...DEFAULT_BASE_SCORE_FIELD.graphql,
       canRead: [customBaseScoreReadAccess],
-      validation: {
-        optional: true,
-      },
     },
   },
   extendedScore: {
-    database: {
-      type: "JSONB",
-    },
+    ...DEFAULT_EXTENDED_SCORE_FIELD,
     graphql: {
-      outputType: GraphQLJSON,
+      ...DEFAULT_EXTENDED_SCORE_FIELD.graphql,
       canRead: [customBaseScoreReadAccess],
-      validation: {
-        optional: true,
-      },
     },
   },
-  score: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  inactive: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-  },
+  score: DEFAULT_SCORE_FIELD,
+  inactive: DEFAULT_INACTIVE_FIELD,
   afBaseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
+    ...DEFAULT_AF_BASE_SCORE_FIELD,
     graphql: {
-      outputType: "Float",
+      ...DEFAULT_AF_BASE_SCORE_FIELD.graphql,
       canRead: [customBaseScoreReadAccess],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      label: "Alignment Base Score",
     },
   },
   afExtendedScore: {
-    database: {
-      type: "JSONB",
-    },
+    ...DEFAULT_AF_EXTENDED_SCORE_FIELD,
     graphql: {
-      outputType: GraphQLJSON,
+      ...DEFAULT_AF_EXTENDED_SCORE_FIELD.graphql,
       canRead: [customBaseScoreReadAccess],
-      validation: {
-        optional: true,
-      },
     },
   },
-  afVoteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, NewCollectionFieldSpecification<"Comments">>;
 
 export default schema;

@@ -22,13 +22,11 @@ import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtF
 import uniqBy from "lodash/uniqBy";
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { userIsSubforumModerator } from "./helpers";
-import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
 import { captureException } from "@sentry/core";
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from "@/lib/instanceSettings";
-import GraphQLJSON from "graphql-type-json";
 import { permissionGroups } from "@/lib/permissions";
 
 addGraphQLSchema(`
@@ -1553,150 +1551,16 @@ const schema = {
       group: () => formGroups.advancedOptions,
     },
   },
-  currentUserVote: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].voteType ?? null;
-      },
-      sqlResolver: currentUserVoteResolver,
-    },
-  },
-  currentUserExtendedVote: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].extendedVoteType || null;
-      },
-      sqlResolver: currentUserExtendedVoteResolver,
-    },
-  },
-  voteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      denormalized: true,
-      canAutoDenormalize: true,
-      canAutofillDefault: true,
-      getValue: getDenormalizedCountOfReferencesGetValue({
-        collectionName: "Tags",
-        fieldName: "voteCount",
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Tags",
-      }),
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onCreate: () => 0,
-      countOfReferences: {
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Tags",
-        resyncElastic: false,
-      },
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  baseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  extendedScore: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  score: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  inactive: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-  },
-  afBaseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      label: "Alignment Base Score",
-    },
-  },
-  afExtendedScore: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  afVoteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
+  voteCount: defaultVoteCountField('Tags'),
+  baseScore: DEFAULT_BASE_SCORE_FIELD,
+  extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
+  score: DEFAULT_SCORE_FIELD,
+  inactive: DEFAULT_INACTIVE_FIELD,
+  afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
+  afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, NewCollectionFieldSpecification<"Tags">>;
 
 export default schema;
