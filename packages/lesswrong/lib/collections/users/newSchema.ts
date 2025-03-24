@@ -3854,21 +3854,6 @@ const schema = {
       },
     },
   },
-  allVotes: {
-    graphql: {
-      outputType: "[Vote]",
-      canRead: ["admins", "sunshineRegiment"],
-      resolver: async (document, args, context) => {
-        const { Votes, currentUser } = context;
-        const votes = await Votes.find({
-          userId: document._id,
-          cancelled: false,
-        }).fetch();
-        if (!votes.length) return [];
-        return await accessFilterMultiple(currentUser, "Votes", votes, context);
-      },
-    },
-  },
   afKarma: {
     database: {
       type: "DOUBLE PRECISION",

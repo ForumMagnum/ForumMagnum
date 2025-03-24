@@ -465,20 +465,6 @@ const schema = {
       sqlResolver: currentUserExtendedVoteResolver,
     },
   },
-  allVotes: {
-    graphql: {
-      outputType: "[Vote]",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const { currentUser } = context;
-        if (userIsAdminOrMod(currentUser)) {
-          return await getAllVotes(document, context);
-        } else {
-          return await getCurrentUserVotes(document, context);
-        }
-      },
-    },
-  },
   voteCount: {
     database: {
       type: "DOUBLE PRECISION",
