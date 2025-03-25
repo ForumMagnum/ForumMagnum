@@ -5,7 +5,6 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { ImageProvider, useImageContext } from '../ImageContext';
 import SplashImageEditing from './SplashImageEditing';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { right } from 'fp-ts/lib/Separated';
 
 const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
   root: {
