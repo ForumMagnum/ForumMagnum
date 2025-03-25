@@ -217,9 +217,8 @@ const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveA
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
+const ImageCropPreview = ({ imgRef, classes, flipped }: {
   imgRef: RefObject<HTMLImageElement>,
-  setCropPreview: (coordinates?: Coordinates) => void,
   classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {
@@ -245,13 +244,9 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
 
   const updateBoxCoordinates = (newCoordinates: BoxCoordinates) => {
     setBoxCoordinates(newCoordinates);
-    setCropPreview(newCoordinates);
   }
 
   const toggleBoxVisibility = () => {
-    // If we're closing the box, pass that back to undo all the relevant styling
-    const newCropPreviewCoords = isBoxVisible ? undefined : boxCoordinates;
-    setCropPreview(newCropPreviewCoords);
     setIsBoxVisible(!isBoxVisible);
   }
 
@@ -442,7 +437,10 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
           </div>
           {showSaveSuccess && <div className={classes.successNotification}>
             Coordinates saved successfully!
-            <div onClick={() => setShowSaveSuccess(false)}>
+            <div onClick={() => {
+              setShowSaveSuccess(false);
+              toggleBoxVisibility();
+            }}>
               (click here to close)
             </div>
           </div>}

@@ -53,8 +53,6 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
-
   const [flipMutation] = useMutation(gql`
     mutation flipSplashArtImage($reviewWinnerArtId: String!) {
       flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)
@@ -65,31 +63,6 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
     setImageFlipped(!imageFlipped);
     await flipMutation({ variables: { reviewWinnerArtId: post.reviewWinner?.reviewWinnerArt?._id } }); 
   }
-
-  const backgroundImgWrapperRef = useRef<HTMLDivElement>(null);
-  const backgroundImgCropPreviewRef = useRef<HTMLDivElement>(null);
-
-  const setCropPreview = (coordinates?: Coordinates) => {
-    if (imgRef.current && backgroundImgWrapperRef.current && backgroundImgCropPreviewRef.current) {
-      if (coordinates) {
-        const updatedMask = `
-          linear-gradient(#000 0 0) ${coordinates.x}px ${coordinates.y}px/${coordinates.width}px ${coordinates.height}px,
-          linear-gradient(rgba(0,0,0,0.4) 0 0)
-        `;
-        imgRef.current.style.mask = `${updatedMask} no-repeat`;
-        imgRef.current.style.webkitMask = updatedMask;
-        imgRef.current.style.webkitMaskRepeat = 'no-repeat';
-
-        setCropPreviewEnabled(true);
-      } else {
-        imgRef.current.style.mask = '';
-        imgRef.current.style.webkitMask = '';
-        imgRef.current.style.webkitMaskRepeat = '';
-
-        setCropPreviewEnabled(false);
-      }
-    }
-  };
 
   return <div className={classes.rightSectionBelowBottomRow}>
     <div className={classes.controlButtons}>
@@ -104,7 +77,7 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
       <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
     </div>
     <div className={classes.rightSectionBelowBottomRow}>
-      <ImageCropPreview imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
+      <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
     </div>
   </div>
 }

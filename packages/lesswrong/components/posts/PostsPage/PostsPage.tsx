@@ -779,7 +779,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     }
   }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
-  const splashPageHeader = fullPost && <BestOfLWPostsPageSplashImage post={fullPost} />
+  const splashPageHeader = fullPost && showSplashPageHeader && <BestOfLWPostsPageSplashImage post={fullPost} />
 
   const header = <>
     {fullPost && !linkedCommentId && <>
