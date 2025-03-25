@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useImageContext } from '../ImageContext';
+import { ImageProvider, useImageContext } from '../ImageContext';
 import SplashImageEditing from './SplashImageEditing';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -104,15 +104,17 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return <div className={classes.root}>
-    <div className={classes.backgroundImageWrapper} style={{opacity}}>
-      <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
-      <div className={classes.overlayY} />
-      <div className={classes.overlayX} />
-      <div className={classes.overlayDiag} />
+  return <ImageProvider>
+    <div className={classes.root}>
+      <div className={classes.backgroundImageWrapper} style={{opacity}}>
+        <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
+        <div className={classes.overlayY} />
+        <div className={classes.overlayX} />
+        <div className={classes.overlayDiag} />
     </div>
-    {userIsAdminOrMod(currentUser) && <SplashImageEditing imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
-  </div>
+      {userIsAdminOrMod(currentUser) && <SplashImageEditing imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
+    </div>
+  </ImageProvider>
 }
 
 const BestOfLWPostsPageSplashImageComponent = registerComponent('BestOfLWPostsPageSplashImage', BestOfLWPostsPageSplashImage);

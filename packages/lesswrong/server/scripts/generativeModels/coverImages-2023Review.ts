@@ -12,6 +12,7 @@ import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
 import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection.ts';
 import { falApiKey } from '@/lib/instanceSettings.ts';
+import { artPrompt } from '@/components/review/GenerateImagesButton.tsx';
 
 /*
 This script makes AI-generated images for Best of LessWrong posts.
@@ -40,7 +41,7 @@ const prompterAlt = (el: string) => {
 
 export const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture`
+  return `${lowerCased}${artPrompt}`
 }
 
 export const llm_prompt = (title: string, essay: string, promptsGenerated: number) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear description of a visual illustration that captures the essence of the essay.
