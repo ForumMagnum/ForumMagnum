@@ -3,7 +3,8 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
 import { Coordinates } from './ImageCropPreview';
-import { useImageContext } from '../ImageContext';
+import { gql, useMutation } from '@apollo/client';
+
 const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 
   rightSectionBelowBottomRow: {
     position: 'absolute',
@@ -54,7 +55,16 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
 
   const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
 
-  const toggleImageFlip = () => setImageFlipped(!imageFlipped);
+  const [flipMutation] = useMutation(gql`
+    mutation flipSplashArtImage($reviewWinnerArtId: String!) {
+      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)
+    }
+  `); 
+
+  const toggleImageFlip = async () => {
+    setImageFlipped(!imageFlipped);
+    await flipMutation({ variables: { reviewWinnerArtId: post.reviewWinner?.reviewWinnerArt?._id } }); 
+  }
 
   const backgroundImgWrapperRef = useRef<HTMLDivElement>(null);
   const backgroundImgCropPreviewRef = useRef<HTMLDivElement>(null);
