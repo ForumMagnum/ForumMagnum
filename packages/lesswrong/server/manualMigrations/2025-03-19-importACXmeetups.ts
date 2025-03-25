@@ -1340,22 +1340,6 @@ const acxData: ACXMeetup[] = [
   },
   {
     "Region": "North America",
-    "Country": "Canada",
-    "City": "Edmonton",
-    "Name": "Joseph Shapkin",
-    "Username": "Please don't make any LessWrong events or accounts.",
-    "Email address": "ta1hynp09@relay.firefox.com",
-    "Location description": "Irrational Brewing 10643 124 St #109. We will have an ACX sign",
-    "GPS Coordinates": "53.5506875,-113.5355625",
-    "Plus.Code Coordinates": "https://plus.codes/9558HF27+7Q",
-    "Date": "4/17/2025",
-    "Time": "07:00 PM",
-    "Event Link": "https://www.lesswrong.com/events/XzzfeHmw9fsCbE3Ld/acx-spring-meetups-everywhere-2",
-    "Group Link": "https://www.lesswrong.com/groups/hNzrLboTGkRFraHWG",
-    "Notes": ""
-  },
-  {
-    "Region": "North America",
     "Country": "USA",
     "City": "Phoenix",
     "Name": "Nathan",
