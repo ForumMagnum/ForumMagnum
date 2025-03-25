@@ -141,7 +141,7 @@ export const BestOfLessWrongAdmin = () => {
       <div>
         {Object.entries(groupedImages).map(([title, images]) => {
           const post = images[0].post;
-          return post && <ImageProvider>
+          return post && <ImageProvider key={title}>
             <BestOfLessWrongAdminRow key={title} post={post} images={images} refetchImages={refetchImages} />
           </ImageProvider>
         })}
