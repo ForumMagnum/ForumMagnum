@@ -111,7 +111,7 @@ async function insertIntoAllSchemas(collectionName: string) {
   const lines = allSchemas.split('\n');
   
   const collectionNameLower = uncapitalize(collectionName);
-  const importLine = `import { default as ${collectionName} } from '../collections/${collectionNameLower}/schema';`;
+  const importLine = `import { default as ${collectionName} } from '../collections/${collectionNameLower}/newSchema';`;
   
   // Find the "Collection imports" section
   const collectionImportsIndex = lines.findIndex(line => line.includes('// Collection imports'));
