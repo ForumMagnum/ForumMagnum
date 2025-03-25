@@ -3064,7 +3064,7 @@ const acxData: ACXMeetup[] = [
     "Time": "06:00 PM",
     "Event Link": "",
     "Group Link": "https://www.facebook.com/groups/433668130485595",
-    "Notes": "Alternative link for those without Facebook: https://groups.google.com/g/dc-acx?pli=1"
+    "Notes": "Alternative link for those without Facebook: https://groups.google.com/g/dc-acx?pli=1. (Uptown meetup group info here: https://www.facebook.com/groups/605023464809227/)"
   },
   {
     "Region": "North America",
@@ -3131,3 +3131,4 @@ const acxData: ACXMeetup[] = [
     "Notes": ""
   }
 ]
+
