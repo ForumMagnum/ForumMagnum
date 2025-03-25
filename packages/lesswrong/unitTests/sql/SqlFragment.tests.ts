@@ -1,4 +1,4 @@
-import SqlFragment, { getResolverCollection } from "@/server/sql/SqlFragment";
+import { SqlFragment, getResolverCollection } from "@/server/sql/SqlFragment";
 import GraphQLJSON from "graphql-type-json";
 import type { GraphQLScalarType } from "graphql";
 

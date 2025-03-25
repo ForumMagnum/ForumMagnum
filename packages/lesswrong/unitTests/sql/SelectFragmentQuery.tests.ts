@@ -1,5 +1,5 @@
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
-import SqlFragment from "@/server/sql/SqlFragment";
+import { SqlFragment } from "@/server/sql/SqlFragment";
 import { runTestCases } from "@/server/sql/tests/testHelpers";
 import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment } from "@/server/sql/tests/testFragments";
 
