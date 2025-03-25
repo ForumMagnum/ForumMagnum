@@ -10,7 +10,7 @@ import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
@@ -146,8 +146,8 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
-  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+const useTaggedEvents = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
+  const {currentForumEvent, isEventPost} = useCurrentAndRecentForumEvents();
   if (!showEventTag) {
     return undefined;
   }
@@ -198,7 +198,7 @@ const PostsTitle = ({
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const taggedEvent = useTaggedEvent(showEventTag ?? false, post);
+  const taggedEvent = useTaggedEvents(showEventTag ?? false, post);
   const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
