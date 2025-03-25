@@ -50,7 +50,6 @@ const GenerateImagesButton = ({
   const classes = useStyles(styles);
   const [isGenerating, setIsGenerating] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
-  const [showPromptInput, setShowPromptInput] = useState(false);
 
   const [generateCoverImages] = useMutation(gql`
     mutation GenerateCoverImagesForPost($postId: String!, $prompt: String) {
@@ -61,7 +60,7 @@ const GenerateImagesButton = ({
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
-      const finalPrompt = showPromptInput ? customPrompt : prompt;
+      const finalPrompt = allowCustomPrompt ? customPrompt : prompt;
       await generateCoverImages({ 
         variables: { 
           postId,
