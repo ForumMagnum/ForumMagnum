@@ -21,7 +21,6 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -29,10 +28,6 @@ import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { captureException } from '@sentry/core';
-import GraphQLJSON from 'graphql-type-json';
-import { getToCforTag } from '../tableOfContents';
-import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
@@ -695,40 +690,6 @@ defineQuery({
     };
   },
 });
-
-export const tagResolvers = {
-  contributors: contributorsField({
-    collectionName: 'Tags',
-    fieldName: 'description',
-  }),
-  tableOfContents: {
-    resolveAs: {
-      arguments: 'version: String',
-      type: GraphQLJSON,
-      resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
-        try {
-          return await getToCforTag({document, version: args.version||null, context});
-        } catch(e) {
-          captureException(e);
-          return null;
-        }
-      }
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"Tags">>;
-
-export const tagRelResolvers = {
-  autoApplied: {
-    resolveAs: {
-      type: "Boolean!",
-      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
-        const tagBotUserId = await getTagBotUserId(context);
-        if (!tagBotUserId) return false;
-        return (document.userId===tagBotUserId && document.voteCount===1);
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"TagRels">>;
 
 function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   const tagsByIdMap = keyBy(tags, '_id');

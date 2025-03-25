@@ -1,7 +1,3 @@
-// GENERATED FILE - DO NOT MODIFY DIRECTLY
-// This is a generated file that has been converted from the old schema format to the new format.
-// The original schema is still in use, this is just for reference.
-
 const commonFields = (nullable: boolean) => ({
   hidden: true,
   canCreate: ["admins" as const],

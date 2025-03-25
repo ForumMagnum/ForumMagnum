@@ -6,7 +6,7 @@ import net from 'net';
 import GraphQLJSON from 'graphql-type-json';
 import { allSchemas, getSchema, getSimpleSchema } from '../../lib/schema/allOldSchemas';
 import { getSchema as getNewSchema } from '../../lib/schema/allSchemas';
-import { augmentSchemas } from '../resolvers/allFieldAugmentations';
+// import { augmentSchemas } from '../resolvers/allFieldAugmentations';
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { Type } from '../sql/Type';
 import { sleep } from '@/lib/helpers';
@@ -17,7 +17,9 @@ import { forumTypeSetting } from '@/lib/instanceSettings';
 import pick from 'lodash/pick';
 
 // Run the augmentSchemas function to make sure all schemas are properly augmented
-augmentSchemas();
+// This no longer exists post-migration, since we've deleted all of the server-side field resolver augmentations
+// But it's left here if you want to go back to a commit where those are still defined.
+// augmentSchemas();
 
 // Base directory where collection schemas are stored
 const collectionBasePath = path.join(__dirname, '../../lib/collections');
