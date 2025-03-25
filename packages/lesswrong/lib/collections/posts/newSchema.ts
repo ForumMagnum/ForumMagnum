@@ -351,7 +351,6 @@ const schema = {
       outputType: "[Revision]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
-      // TODO: this doesn't work because post contents are normalized
       resolver: getRevisionsResolver("contents"),
     },
   },
@@ -359,7 +358,6 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      // TODO: this doesn't work because post contents are normalized
       resolver: getNormalizedVersionResolver("contents"),
     },
   },
