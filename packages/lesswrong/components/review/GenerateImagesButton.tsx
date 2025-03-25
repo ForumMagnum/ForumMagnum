@@ -31,8 +31,15 @@ const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
     marginLeft: 10,
     padding: 4,
     backgroundColor: 'transparent',
+  },
+  promptContainer: {
+    color: theme.palette.grey[300],
+    whiteSpace: 'pre-wrap',
+    overflow: 'hidden',
   }
 }));
+
+export const artPrompt = ", aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, juxtaposition of hard and soft lines, muted colors, drenched in watercolor, aquarelle, smooth color gradients, ethereal watercolor, beautiful fade to white, white, soaking wet watercolors fading into each other, smooth edges, topographic maps, left side of the image is fading to white, right side has a visceral motif, left fade right intense, image fades to white on left, left side white, smooth texture";
 
 const GenerateImagesButton = ({
   postId,
@@ -60,7 +67,7 @@ const GenerateImagesButton = ({
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
-      const finalPrompt = allowCustomPrompt ? customPrompt : prompt;
+      const finalPrompt = allowCustomPrompt ? customPrompt + ", " + artPrompt : prompt;
       await generateCoverImages({ 
         variables: { 
           postId,
@@ -92,6 +99,7 @@ const GenerateImagesButton = ({
         onChange={(e) => setCustomPrompt(e.target.value)}
         placeholder="Enter custom prompt..."
       />}
+      <div className={classes.promptContainer}>{artPrompt}</div>
       {isGenerating && <span className={classes.loadingText}>Generating...</span>}
     </div>
   );

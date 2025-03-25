@@ -15,7 +15,7 @@ import GenerateImagesButton from './GenerateImagesButton';
 import { useLocation } from '@/lib/routeUtil'; 
 
 const rowStyles = defineStyles("BestOfLessWrongAdminRow", (theme: ThemeType) => ({
-  post: {
+  root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     display: 'flex', 
@@ -30,7 +30,7 @@ const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: str
   const previewUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo.splashArtImageUrl) : null;
   const imageThumbnail = previewUrl && getCloudinaryThumbnail(previewUrl);
 
-  return post && <div key={post._id} className={classes.post}>
+  return post && <div key={post._id} className={classes.root}>
     {imageThumbnail && <img src={imageThumbnail} />}
     <div>
       <h2>
@@ -50,7 +50,8 @@ const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: str
 
 const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
-    padding: 50,
+    paddingLeft: 50,
+    paddingRight: 50,
     ...theme.typography.body2,
     '& h2': {
       marginTop: 10,

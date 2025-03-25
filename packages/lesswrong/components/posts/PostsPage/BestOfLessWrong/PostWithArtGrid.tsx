@@ -34,7 +34,9 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
   imageTooltipContainer: {
     width: 800,
     height: 400,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    position: 'relative',
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
   expandButton: {
     cursor: 'pointer',
@@ -43,6 +45,20 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
     '&:hover': {
       opacity: 0.5
     }
+  },
+  imageWrapper: {
+    position: 'relative',
+  },
+  imageId: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[400],
+    fontSize: 10,
+    position: 'absolute',
+    bottom: 2,
+    left: 2,
+  },
+  content: {
+    marginLeft: 10,
   }
 }));
 
@@ -104,40 +120,37 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     }
   }, [selectedImageInfo, setImageInfo, images]);
 
-  const currentImageThumbnailUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo?.splashArtImageUrl, 300) : null
-
-  const currentImageUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo?.splashArtImageUrl, 800) : null
-
   return <div>
     {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
-
-    {/* {expanded && currentImageThumbnailUrl && currentImageUrl && <div>
-      <LWTooltip title={<img src={currentImageUrl} />} tooltip={false}>
-        <img src={currentImageThumbnailUrl} />
-      </LWTooltip>
-    </div>} */}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
       const corePrompt = prompt.split(", aquarelle artwork fading")[0] || 'No prompt found';
       return <div key={prompt}>
         <h3>{corePrompt}</h3>
-        <GenerateImagesButton 
-          postId={post._id}
-          prompt={prompt}
-          allowCustomPrompt={false}
-          buttonText="Generate More With This Prompt"
-        />
-        <div className={classes.postWrapper} >
-          {promptImages.map((image) => {
-            const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
-            const medUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 800);
+        <div className={classes.content}>
+          <GenerateImagesButton 
+            postId={post._id}
+            prompt={prompt}
+            allowCustomPrompt={false}
+            buttonText="Generate More With This Prompt"
+          />
+          <div className={classes.postWrapper} >
+            {promptImages.map((image) => {
+              const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
+              const medUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 800);
 
-            const tooltip = <div className={classes.imageTooltipContainer}><img src={medUrl} alt={image.splashArtImagePrompt}/></div>
+              const tooltip = <img src={medUrl} className={classes.imageTooltipContainer} />
 
-            return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
-              <img className={classes.image} key={image._id} src={smallUrl} style={{border: selectedImageInfo?._id === image._id ? '2px solid #000' : 'none'}} onClick={() => handleSaveCoordinates(image)} />
-            </LWTooltip>
-          })} 
+              return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
+                <div key={image._id} className={classes.imageWrapper}>
+                  <img className={classes.image} src={smallUrl} style={{border: selectedImageInfo?._id === image._id ? '2px solid #000' : 'none'}} onClick={() => handleSaveCoordinates(image)} />
+                  <div className={classes.imageId}>
+                    {image._id}
+                  </div>
+                </div>
+              </LWTooltip>
+            })} 
+          </div>
         </div>
       </div>
     })}
