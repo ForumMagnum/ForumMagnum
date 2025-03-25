@@ -6,13 +6,12 @@ import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
-import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql";
 import { captureException } from "@sentry/core";
 import isEqual from "lodash/isEqual";
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
 import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
-import { print } from "graphql";
+import { print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 
 export interface DefaultResolverOptions {
   cacheMaxAge: number
@@ -22,38 +21,49 @@ const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
-const logMissingFragmentNames = false;
-
-const getFragmentNameFromInfo = (
-  {fieldName, fieldNodes}: GraphQLResolveInfo,
-  resultFieldName: string,
-): string | null => {
+const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
   const query = fieldNodes.find(
-    ({name: {value}}) => value === fieldName,
+    ({ name: { value } }) => value === fieldName,
   );
   const mainSelections = query?.selectionSet?.selections;
   const results = mainSelections?.find(
     (node): node is FieldNode => node.kind === "Field" && node.name.value === resultFieldName,
   );
-  const resultSelections = results?.selectionSet?.selections;
-  const fragmentSpread = resultSelections?.find(
-    (selectionNode): selectionNode is FragmentSpreadNode => selectionNode.kind === "FragmentSpread",
-  );
-  const fragmentName = fragmentSpread?.name.value;
-  if (!fragmentName) {
-    if (logMissingFragmentNames) {
-      const data = JSON.stringify(fieldNodes, null, 2);
-      // eslint-disable-next-line no-console
-      console.error("Fragment name not found for", fieldName, data);
-    }
-    return null;
-  }
-  return fragmentName;
-}
 
-const getFragmentTextFromInfo = ({ fragments }: GraphQLResolveInfo) => {
-  const fragmentStrings = Object.values(fragments).map(print);
-  return fragmentStrings.join('\n\n');
+  if (!results || !results.selectionSet) {
+    return;
+  }
+
+  const resultSelections = results.selectionSet.selections;
+
+  // We construct an implicit fragment using whatever selections were in the result/results field
+  // because because we need to handle the possibility of fields directly selected from the root
+  // rather than being nested inside a subfragment.
+  const implicitFragment: FragmentDefinitionNode = {
+    kind: 'FragmentDefinition',
+    name: {
+      kind: 'Name',
+      value: fieldName,
+    },
+    typeCondition: {
+      kind: 'NamedType',
+      name: {
+        kind: 'Name',
+        value: typeName,
+      },
+    },
+    selectionSet: {
+      kind: 'SelectionSet',
+      selections: resultSelections,
+    },
+  };
+
+  const fragmentsWithImplicitFragment = [implicitFragment, ...Object.values(fragments)];
+  const fragmentText = fragmentsWithImplicitFragment.map(print).join('\n\n');
+  return {
+    fragmentText,
+    fragmentName: fieldName,
+  };
 };
 
 export const getDefaultResolvers = <N extends CollectionNameString>(
@@ -141,13 +151,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const parameters = viewTermsToQuery(collectionName, terms, {}, context);
 
     // get fragment from GraphQL AST
-    const fragmentName = getFragmentNameFromInfo(info, "results");
+    const fragmentInfo = getFragmentInfo(info, "results", typeName);
 
     let fetchDocs: () => Promise<T[]>;
-    if (fragmentName) {
+    if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentName, getFragmentTextFromInfo(info));
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
@@ -167,7 +177,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       );
     }
     let docs = await fetchDocs();
-
     // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
     if (createIfMissing && docs.length === 0) {
       await collection.options.mutations?.create?.mutation(root, {data: createIfMissing}, context)
@@ -248,13 +257,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const documentId = selector._id;
 
     // get fragment from GraphQL AST
-    const fragmentName = getFragmentNameFromInfo(info, "result");
+    const fragmentInfo = getFragmentInfo(info, "result", typeName);
 
     let doc: ObjectsByCollectionName[N] | null;
-    if (fragmentName) {
+    if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentName, getFragmentTextFromInfo(info));
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
