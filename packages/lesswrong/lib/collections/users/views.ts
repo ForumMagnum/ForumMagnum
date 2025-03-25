@@ -144,7 +144,9 @@ function allUsers(terms: UsersViewTerms) {
 function usersMapLocations() {
   return {
     selector: {
-      mapLocationSet: true
+      mapLocationSet: true,
+      deleted: {$ne: true},
+      deleteContent: {$ne: true},
     },
   }
 }
