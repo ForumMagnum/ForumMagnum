@@ -2,8 +2,8 @@
 // Keep that in mind if changing the structure.
 
 // Helper imports
-import SqlFragment, { NewSqlFragment } from '@/server/sql/SqlFragment';
-import { print, type DocumentNode } from 'graphql';
+import { SqlFragment } from '@/server/sql/SqlFragment';
+import type { DocumentNode } from 'graphql';
 import uniq from 'lodash/uniq';
 import { isAnyTest } from '../executionEnvironment';
 import LRU from "lru-cache";
@@ -84,7 +84,6 @@ import * as votesFragments from '../collections/votes/fragments';
 
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
-import gql from 'graphql-tag';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
@@ -194,40 +193,27 @@ interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
   fragmentObject?: DocumentNode
-  sqlFragment?: SqlFragment
 }
 
 const memoizedFragmentInfo: Partial<Record<FragmentName, FragmentDefinition>> = {};
 
-const parsedFragmentCache = new LRU<string, DocumentNode>({
-  // max: 5_000_000,
-  // Rough estimate that a gql AST is 4x the size of the fragment text
-  // length: (parsedFragment, key) => print(parsedFragment).length,
-});
-
-const sqlFragmentCache = new LRU<string, NewSqlFragment>({
+const sqlFragmentCache = new LRU<string, SqlFragment>({
   max: 5_000_000,
   // Rough estimate that a SQL Fragment is 3x the size of the fragment text, plus the fragment text itself as the key
-  length: (_, key) => !key ? 1000 : key.length * 4,
+  // I'm not sure how the key might be missing, but empirically our queries end up measuring at about 10kb
+  length: (_, key) => !key ? 10_000 : key.length * 4,
 });
 
-function getParsedInternalFragmentByName(fragmentName: FragmentName): DocumentNode {
-  const cached = parsedFragmentCache.get(fragmentName);
-  if (cached) {
-    return cached;
-  }
-  const fragmentText = getAllFragments()[fragmentName];
-  const parsedFragment = gql`${fragmentText}`;
-  parsedFragmentCache.set(fragmentName, parsedFragment);
-  return parsedFragment;
-}
 
-export function getSqlFragment(fragmentText: string): NewSqlFragment {
+export function getSqlFragment(fragmentName: string, fragmentText: string): SqlFragment {
+  // Remove comments from the fragment source text
+  fragmentText = fragmentText.replace(/#.*\n/g, '\n');
+
   const cached = sqlFragmentCache.get(fragmentText);
   if (cached) {
     return cached;
   }
-  const sqlFragment = new NewSqlFragment(fragmentText, getSqlFragment, getParsedInternalFragmentByName);
+  const sqlFragment = new SqlFragment(fragmentName, fragmentText);
   sqlFragmentCache.set(fragmentText, sqlFragment);
   return sqlFragment;
 }
@@ -241,17 +227,8 @@ function registerFragment(fragmentTextSource: string): FragmentDefinition {
   const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
   const subFragments = uniq(matchedSubFragments.map(f => f.replace('...', '')));
 
-  const sqlFragment = bundleIsServer
-    // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
-    ? new SqlFragment(
-      fragmentText,
-      (name: FragmentName) => getMemoizedFragmentInfo(name).sqlFragment ?? null,
-    )
-    : undefined;
-
   const fragmentDefinition: FragmentDefinition = {
     fragmentText,
-    sqlFragment,
   };
 
   if (subFragments && subFragments.length) {

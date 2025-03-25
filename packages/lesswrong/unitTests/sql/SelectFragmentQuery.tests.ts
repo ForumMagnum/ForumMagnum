@@ -1,15 +1,14 @@
-import { getMemoizedFragmentInfo } from "@/lib/fragments/allFragments";
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import SqlFragment from "@/server/sql/SqlFragment";
 import { runTestCases } from "@/server/sql/tests/testHelpers";
-import { TestCollection4DefaultFragment, TestCollection4ArgFragment } from "@/server/sql/tests/testFragments";
+import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment } from "@/server/sql/tests/testFragments";
 
 describe("SelectFragmentQuery", () => {
   runTestCases([
     {
       name: "can build fragment queries with a where clause",
       getQuery: () => new SelectFragmentQuery(
-        new SqlFragment(TestCollection4DefaultFragment, (fragmentName: FragmentName) => getMemoizedFragmentInfo(fragmentName).sqlFragment ?? null),
+        new SqlFragment('TestCollection4DefaultFragment', TestCollection4DefaultFragment + TestCollection3DefaultFragment),
         {_id: "test-user-id"} as DbUser,
         null,
         {_id: "test-document-id"},
@@ -35,7 +34,7 @@ describe("SelectFragmentQuery", () => {
     {
       name: "can build fragment queries with resolver args",
       getQuery: () => new SelectFragmentQuery(
-        new SqlFragment(TestCollection4ArgFragment, (fragmentName: FragmentName) => getMemoizedFragmentInfo(fragmentName).sqlFragment ?? null),
+        new SqlFragment('TestCollection4ArgFragment', TestCollection4ArgFragment + TestCollection2DefaultFragment),
         {_id: "test-user-id"} as DbUser,
         {testCollection2Id: "some-test-id"},
         {_id: "test-document-id"},

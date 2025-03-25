@@ -12,6 +12,7 @@ import isEqual from "lodash/isEqual";
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
 import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
+import { print } from "graphql";
 
 export interface DefaultResolverOptions {
   cacheMaxAge: number
@@ -32,12 +33,12 @@ const getFragmentNameFromInfo = (
   );
   const mainSelections = query?.selectionSet?.selections;
   const results = mainSelections?.find(
-    (node) => node.kind === "Field" && node.name.value === resultFieldName,
-  ) as FieldNode | undefined;
+    (node): node is FieldNode => node.kind === "Field" && node.name.value === resultFieldName,
+  );
   const resultSelections = results?.selectionSet?.selections;
   const fragmentSpread = resultSelections?.find(
-    ({kind}) => kind === "FragmentSpread",
-  ) as FragmentSpreadNode | undefined;
+    (selectionNode): selectionNode is FragmentSpreadNode => selectionNode.kind === "FragmentSpread",
+  );
   const fragmentName = fragmentSpread?.name.value;
   if (!fragmentName) {
     if (logMissingFragmentNames) {
@@ -49,6 +50,11 @@ const getFragmentNameFromInfo = (
   }
   return fragmentName;
 }
+
+const getFragmentTextFromInfo = ({ fragments }: GraphQLResolveInfo) => {
+  const fragmentStrings = Object.values(fragments).map(print);
+  return fragmentStrings.join('\n\n');
+};
 
 export const getDefaultResolvers = <N extends CollectionNameString>(
   collectionName: N, 
@@ -140,8 +146,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let fetchDocs: () => Promise<T[]>;
     if (fragmentName) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment = require('../../lib/vulcan-lib/fragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentName as FragmentName);
+      const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
+      const sqlFragment = getSqlFragment(fragmentName, getFragmentTextFromInfo(info));
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
@@ -247,8 +253,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let doc: ObjectsByCollectionName[N] | null;
     if (fragmentName) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment = require('../../lib/vulcan-lib/fragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentName as FragmentName);
+      const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
+      const sqlFragment = getSqlFragment(fragmentName, getFragmentTextFromInfo(info));
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
