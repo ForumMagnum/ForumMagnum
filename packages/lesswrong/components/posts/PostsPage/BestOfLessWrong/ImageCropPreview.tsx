@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: '40px', 
-    position: 'absolute',
+    position: 'fixed',
     background: 'transparent',
     border: '2px solid',
     borderColor: theme.palette.inverseGreyAlpha(1),
