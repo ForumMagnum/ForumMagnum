@@ -519,6 +519,14 @@ addGraphQLSchema(`
   }
 `);
 
+const postsMetadataSchema = new SimpleSchema({
+  postId: {
+    type: String,
+    foreignKey: "Posts",
+    optional: true,
+  },
+});
+
 const emailsSchema = new SimpleSchema({
   address: {
     type: String,
@@ -2143,6 +2151,7 @@ const schema = {
       },
       validation: {
         optional: true,
+        simpleSchema: [postsMetadataSchema],
       },
     },
     form: {
@@ -2186,6 +2195,7 @@ const schema = {
       },
       validation: {
         optional: true,
+        simpleSchema: [postsMetadataSchema],
       },
     },
     form: {
@@ -5659,6 +5669,7 @@ const schema = {
       validation: {
         simpleSchema: recommendationSettingsSchema,
         optional: true,
+        blackbox: true,
       },
     },
     form: {
