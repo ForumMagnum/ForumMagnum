@@ -12,6 +12,7 @@ const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
   generateButton: {
     padding: '10px 0',
     display: 'block',
+    ...theme.typography.body2,
     color: theme.palette.primary.dark,
     backgroundColor: 'transparent',
     border: 'none',
@@ -23,18 +24,20 @@ const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
     }
   },
   loadingText: {
-    marginLeft: 10,
     color: theme.palette.grey[600],
     fontStyle: 'italic',
+    marginLeft: 10,
   },
   promptInput: {
+    backgroundColor: 'transparent',
+    ...theme.typography.body2,
     marginLeft: 10,
     padding: 4,
-    backgroundColor: 'transparent',
   },
   promptContainer: {
-    color: theme.palette.grey[300],
-    whiteSpace: 'pre-wrap',
+    ...theme.typography.body2,
+    color: theme.palette.grey[400],
+    whiteSpace: 'pre',
     overflow: 'hidden',
   }
 }));

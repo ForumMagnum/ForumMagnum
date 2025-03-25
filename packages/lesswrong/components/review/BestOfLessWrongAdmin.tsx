@@ -14,13 +14,19 @@ import { useCurrentUser } from '../common/withUser';
 import GenerateImagesButton from './GenerateImagesButton';
 import { useLocation } from '@/lib/routeUtil'; 
 
+const previewWidth = 300;
+
 const rowStyles = defineStyles("BestOfLessWrongAdminRow", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     display: 'flex', 
     gap: '10px',
+    justifyContent: 'space-between',
     alignItems: 'flex-start',
+  },
+  imageInfo: {
+    maxWidth: `calc(100% - ${previewWidth}px)`,
   }
 }));
 
@@ -28,11 +34,11 @@ const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: str
   const classes = useStyles(rowStyles);
   const { selectedImageInfo, setImageInfo } = useImageContext();
   const previewUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo.splashArtImageUrl) : null;
-  const imageThumbnail = previewUrl && getCloudinaryThumbnail(previewUrl);
+  const imageThumbnail = previewUrl && getCloudinaryThumbnail(previewUrl, previewWidth);
 
   return post && <div key={post._id} className={classes.root}>
     {imageThumbnail && <img src={imageThumbnail} />}
-    <div>
+    <div className={classes.imageInfo}>
       <h2>
         <Link target="_blank" to={postGetPageUrl(post)}>{post.title}</Link>
       </h2>
@@ -148,16 +154,9 @@ export const BestOfLessWrongAdmin = () => {
       </div>
       <div>
         {reviewWinnersWithoutArt.map((reviewWinner: PostsTopItemInfo) => {
-          return <div key={reviewWinner._id} className={classes.post}>
-            <h2>
-              <Link target="_blank" to={postGetPageUrl(reviewWinner)}>{reviewWinner.title}</Link>
-            </h2>
-              <GenerateImagesButton 
-                postId={reviewWinner._id}
-                allowCustomPrompt={true}
-                onComplete={refetchImages}
-              />
-          </div>
+          return <ImageProvider key={reviewWinner._id}>
+            <BestOfLessWrongAdminRow key={reviewWinner._id} post={reviewWinner} images={[]} refetchImages={refetchImages} />
+          </ImageProvider>
         })}
       </div>
   </div>

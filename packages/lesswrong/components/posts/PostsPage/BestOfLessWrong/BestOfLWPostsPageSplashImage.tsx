@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { ImageProvider, useImageContext } from '../ImageContext';
 import SplashImageEditing from './SplashImageEditing';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { right } from 'fp-ts/lib/Separated';
 
 const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) => ({
   root: {
@@ -16,7 +17,8 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     top: -100,
     right: -200,
     [theme.breakpoints.down('xs')]: {
-      top: -108
+      top: -108,
+      right: 0,
     },
   },
   backgroundImage: {
@@ -27,6 +29,10 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     right: 0,
     height: "100vh",
     width: "100vw",
+    [theme.breakpoints.down('xs')]: {
+      objectPosition: 'center',
+      width: '200vw',
+    },
   },
   overlayY: {
     position: 'absolute',

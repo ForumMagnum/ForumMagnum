@@ -23,10 +23,12 @@ const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType)
     display: 'flex',
     flexWrap: 'wrap',
     gap: '10px',
+    width: '100%',
     ...theme.typography.body2,
   },
   image: {
     width: '200px',
+    maxWidth: '100%',
     height: 'auto',
     cursor: 'pointer',
     paddingRight: 5,
