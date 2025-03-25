@@ -2,6 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { documentIsNotDeleted, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
 import {
   arrayOfForeignKeysOnCreate,
@@ -20,9 +21,8 @@ import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isFriendlyUI } from "@/themes/forumTheme";
-import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
+import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
-import GraphQLJSON from "graphql-type-json";
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -61,68 +61,16 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
 };
 
 const schema = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  schemaVersion: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 1,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onUpdate: () => 1,
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
+  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
   createdAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
+    database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
-      outputType: "Date",
+      ...DEFAULT_CREATED_AT_FIELD.graphql,
       canRead: ["admins"],
-      onCreate: () => new Date(),
-      validation: {
-        optional: true,
-      },
     },
   },
-  legacyData: {
-    database: {
-      type: "JSONB",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-        blackbox: true,
-      },
-    },
-    form: {
-      hidden: true,
-    },
-  },
+  legacyData: DEFAULT_LEGACY_DATA_FIELD,
   contents: {
     database: {
       type: "JSONB",
@@ -178,33 +126,7 @@ const schema = {
       },
     },
   },
-  contents_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  revisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("revisions"),
-    },
-  },
-  version: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("version"),
-    },
-  },
+  contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   pingbacks: {
     database: {
       type: "JSONB",
@@ -267,20 +189,7 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "topLevelCommentId" }),
     },
   },
-  postedAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["guests"],
-      onCreate: () => new Date(),
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  postedAt: DEFAULT_CREATED_AT_FIELD,
   lastEditedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -1638,39 +1547,8 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "originalDialogueId" }),
     },
   },
-  currentUserVote: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].voteType ?? null;
-      },
-      sqlResolver: currentUserVoteResolver,
-    },
-  },
-  currentUserExtendedVote: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const votes = await getCurrentUserVotes(document, context);
-        if (!votes.length) return null;
-        return votes[0].extendedVoteType || null;
-      },
-      sqlResolver: currentUserExtendedVoteResolver,
-    },
-  },
-  currentUserVotes: {
-    graphql: {
-      outputType: "[Vote]",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        return await getCurrentUserVotes(document, context);
-      },
-    },
-  },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   allVotes: {
     graphql: {
       outputType: "[Vote]",
@@ -1685,126 +1563,38 @@ const schema = {
       },
     },
   },
-  voteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      denormalized: true,
-      canAutoDenormalize: true,
-      canAutofillDefault: true,
-      getValue: getDenormalizedCountOfReferencesGetValue({
-        collectionName: "Comments",
-        fieldName: "voteCount",
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Comments",
-      }),
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onCreate: () => 0,
-      countOfReferences: {
-        foreignCollectionName: "Votes",
-        foreignFieldName: "documentId",
-        filterFn: (vote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === "Comments",
-        resyncElastic: false,
-      },
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  voteCount: defaultVoteCountField('Comments'),
   baseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
+    ...DEFAULT_BASE_SCORE_FIELD,
     graphql: {
-      outputType: "Float",
-      canRead: customBaseScoreReadAccess,
-      validation: {
-        optional: true,
-      },
+      ...DEFAULT_BASE_SCORE_FIELD.graphql,
+      canRead: [customBaseScoreReadAccess],
     },
   },
   extendedScore: {
-    database: {
-      type: "JSONB",
-    },
+    ...DEFAULT_EXTENDED_SCORE_FIELD,
     graphql: {
-      outputType: GraphQLJSON,
-      canRead: customBaseScoreReadAccess,
-      validation: {
-        optional: true,
-      },
+      ...DEFAULT_EXTENDED_SCORE_FIELD.graphql,
+      canRead: [customBaseScoreReadAccess],
     },
   },
-  score: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 0,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  inactive: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-  },
+  score: DEFAULT_SCORE_FIELD,
+  inactive: DEFAULT_INACTIVE_FIELD,
   afBaseScore: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
+    ...DEFAULT_AF_BASE_SCORE_FIELD,
     graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      label: "Alignment Base Score",
+      ...DEFAULT_AF_BASE_SCORE_FIELD.graphql,
+      canRead: [customBaseScoreReadAccess],
     },
   },
   afExtendedScore: {
-    database: {
-      type: "JSONB",
-    },
+    ...DEFAULT_AF_EXTENDED_SCORE_FIELD,
     graphql: {
-      outputType: GraphQLJSON,
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
+      ...DEFAULT_AF_EXTENDED_SCORE_FIELD.graphql,
+      canRead: [customBaseScoreReadAccess],
     },
   },
-  afVoteCount: {
-    database: {
-      type: "DOUBLE PRECISION",
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, NewCollectionFieldSpecification<"Comments">>;
 
 export default schema;

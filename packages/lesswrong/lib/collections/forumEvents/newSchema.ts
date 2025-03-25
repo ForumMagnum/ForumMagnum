@@ -2,6 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
@@ -49,68 +50,10 @@ function getDefaultEditorPlaceholder() {
 }
 
 const schema = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  schemaVersion: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 1,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onUpdate: () => 1,
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  createdAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["guests"],
-      onCreate: () => new Date(),
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  legacyData: {
-    database: {
-      type: "JSONB",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-        blackbox: true,
-      },
-    },
-    form: {
-      hidden: true,
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
+  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
+  createdAt: DEFAULT_CREATED_AT_FIELD,
+  legacyData: DEFAULT_LEGACY_DATA_FIELD,
   frontpageDescription: {
     database: {
       type: "JSONB",
@@ -155,33 +98,7 @@ const schema = {
       },
     },
   },
-  frontpageDescription_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  frontpageDescriptionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("frontpageDescriptionRevisions"),
-    },
-  },
-  frontpageDescriptionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("frontpageDescriptionVersion"),
-    },
-  },
+  frontpageDescription_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   frontpageDescriptionMobile: {
     database: {
       type: "JSONB",
@@ -226,33 +143,7 @@ const schema = {
       },
     },
   },
-  frontpageDescriptionMobile_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  frontpageDescriptionMobileRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("frontpageDescriptionMobileRevisions"),
-    },
-  },
-  frontpageDescriptionMobileVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("frontpageDescriptionMobileVersion"),
-    },
-  },
+  frontpageDescriptionMobile_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   postPageDescription: {
     database: {
       type: "JSONB",
@@ -297,33 +188,7 @@ const schema = {
       },
     },
   },
-  postPageDescription_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  postPageDescriptionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("postPageDescriptionRevisions"),
-    },
-  },
-  postPageDescriptionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("postPageDescriptionVersion"),
-    },
-  },
+  postPageDescription_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   title: {
     database: {
       type: "TEXT",
@@ -612,33 +477,7 @@ const schema = {
       },
     },  
   },
-  pollQuestion_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  pollQuestionRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("pollQuestionRevisions"),
-    },
-  },
-  pollQuestionVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("pollQuestionVersion"),
-    },
-  },
+  pollQuestion_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   pollAgreeWording: {
     database: {
       type: "TEXT",

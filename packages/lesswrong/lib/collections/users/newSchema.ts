@@ -2,6 +2,7 @@
 // This is a generated file that has been converted from the old schema format to the new format.
 // The original schema is still in use, this is just for reference.
 
+import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import SimpleSchema from "simpl-schema";
 import {
   userGetProfileUrl,
@@ -557,68 +558,10 @@ function convertNearbyEventsNotificationsToMongoLocation(user: DbUser) {
 }
 
 const schema = {
-  _id: {
-    database: {
-      type: "VARCHAR(27)",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  schemaVersion: {
-    database: {
-      type: "DOUBLE PRECISION",
-      defaultValue: 1,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      onUpdate: () => 1,
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  createdAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["guests"],
-      onCreate: () => new Date(),
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  legacyData: {
-    database: {
-      type: "JSONB",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-        blackbox: true,
-      },
-    },
-    form: {
-      hidden: true,
-    },
-  },
+  _id: DEFAULT_ID_FIELD,
+  schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
+  createdAt: DEFAULT_CREATED_AT_FIELD,
+  legacyData: DEFAULT_LEGACY_DATA_FIELD,
   moderationGuidelines: {
     database: {
       type: "JSONB",
@@ -658,33 +601,7 @@ const schema = {
       },
     },
   },
-  moderationGuidelines_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  moderationGuidelinesRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("moderationGuidelinesRevisions"),
-    },
-  },
-  moderationGuidelinesVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("moderationGuidelinesVersion"),
-    },
-  },
+  moderationGuidelines_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   howOthersCanHelpMe: {
     database: {
       type: "JSONB",
@@ -723,33 +640,8 @@ const schema = {
       },
     },
   },
-  howOthersCanHelpMe_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  howOthersCanHelpMeRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("howOthersCanHelpMeRevisions"),
-    },
-  },
-  howOthersCanHelpMeVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("howOthersCanHelpMeVersion"),
-    },
-  },
+  howOthersCanHelpMe_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
+  
   howICanHelpOthers: {
     database: {
       type: "JSONB",
@@ -787,33 +679,8 @@ const schema = {
       },
     },
   },
-  howICanHelpOthers_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  howICanHelpOthersRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("howICanHelpOthersRevisions"),
-    },
-  },
-  howICanHelpOthersVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("howICanHelpOthersVersion"),
-    },
-  },
+  howICanHelpOthers_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
+  
   slug: {
     database: {
       type: "TEXT",
@@ -899,33 +766,8 @@ const schema = {
       },
     },
   },
-  biography_latest: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  biographyRevisions: {
-    graphql: {
-      outputType: "[Revision]",
-      canRead: ["guests"],
-      arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("biographyRevisions"),
-    },
-  },
-  biographyVersion: {
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      resolver: getVersionResolver("biographyVersion"),
-    },
-  },
+  biography_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
+  
   username: {
     database: {
       type: "TEXT",
@@ -4000,21 +3842,6 @@ const schema = {
           // No recaptcha rating present; score it .8
           return 0.8;
         }
-      },
-    },
-  },
-  allVotes: {
-    graphql: {
-      outputType: "[Vote]",
-      canRead: ["admins", "sunshineRegiment"],
-      resolver: async (document, args, context) => {
-        const { Votes, currentUser } = context;
-        const votes = await Votes.find({
-          userId: document._id,
-          cancelled: false,
-        }).fetch();
-        if (!votes.length) return [];
-        return await accessFilterMultiple(currentUser, "Votes", votes, context);
       },
     },
   },
