@@ -34,11 +34,6 @@ const promptImageUrls = [
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1741915911/raemon777_httpss.mj.runvqNA-Ykxa4U_watercolor_--no_circle_--a_e526384c-ca72-42e3-b0f8-aae57e7f3ca0_3_j57fgb.png",
 ]
 
-const prompterAlt = (el: string) => {
-  const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `${lowerCased}, aquarelle artwork fading out to the left, in the style of ethereal watercolor washes, clear focal point on the right half of image, fade to white on the left side`
-}
-
 export const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
   return `${lowerCased}${artPrompt}`
