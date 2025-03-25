@@ -33,9 +33,16 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
+    paddingBottom: 12,
     background: theme.palette.panelBackground.default,
     borderRadius: 3,
-    marginBottom:4
+    marginBottom: 4,
+
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      paddingLeft: 14,
+      paddingRight: 14,
+    },
   },
   content: {
     marginLeft: 4,
