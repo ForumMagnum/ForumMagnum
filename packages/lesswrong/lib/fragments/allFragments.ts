@@ -2,10 +2,11 @@
 // Keep that in mind if changing the structure.
 
 // Helper imports
-import SqlFragment from '@/server/sql/SqlFragment';
-import type { DocumentNode } from 'graphql';
+import SqlFragment, { NewSqlFragment } from '@/server/sql/SqlFragment';
+import { print, type DocumentNode } from 'graphql';
 import uniq from 'lodash/uniq';
 import { isAnyTest } from '../executionEnvironment';
+import LRU from "lru-cache";
 
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
@@ -83,6 +84,7 @@ import * as votesFragments from '../collections/votes/fragments';
 
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
+import gql from 'graphql-tag';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
@@ -196,6 +198,39 @@ interface FragmentDefinition {
 }
 
 const memoizedFragmentInfo: Partial<Record<FragmentName, FragmentDefinition>> = {};
+
+const parsedFragmentCache = new LRU<string, DocumentNode>({
+  // max: 5_000_000,
+  // Rough estimate that a gql AST is 4x the size of the fragment text
+  // length: (parsedFragment, key) => print(parsedFragment).length,
+});
+
+const sqlFragmentCache = new LRU<string, NewSqlFragment>({
+  max: 5_000_000,
+  // Rough estimate that a SQL Fragment is 3x the size of the fragment text, plus the fragment text itself as the key
+  length: (_, key) => !key ? 1000 : key.length * 4,
+});
+
+function getParsedInternalFragmentByName(fragmentName: FragmentName): DocumentNode {
+  const cached = parsedFragmentCache.get(fragmentName);
+  if (cached) {
+    return cached;
+  }
+  const fragmentText = getAllFragments()[fragmentName];
+  const parsedFragment = gql`${fragmentText}`;
+  parsedFragmentCache.set(fragmentName, parsedFragment);
+  return parsedFragment;
+}
+
+export function getSqlFragment(fragmentText: string): NewSqlFragment {
+  const cached = sqlFragmentCache.get(fragmentText);
+  if (cached) {
+    return cached;
+  }
+  const sqlFragment = new NewSqlFragment(fragmentText, getSqlFragment, getParsedInternalFragmentByName);
+  sqlFragmentCache.set(fragmentText, sqlFragment);
+  return sqlFragment;
+}
 
 // Register a fragment, including its text, the text of its subfragments, and the fragment object
 function registerFragment(fragmentTextSource: string): FragmentDefinition {
