@@ -10,8 +10,17 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
-import { DisplayFeedItem, DisplayFeedPostWithComments } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+
+// Add this at the top level of your file
+interface FeedPostWithCommentsType {
+  _id: string;
+  sources: string[];
+  postMetaInfo: any;
+  commentMetaInfos: any;
+  post: PostsListWithVotes;
+  comments: CommentsList[];
+}
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   toggleContainer: {
@@ -224,67 +233,6 @@ const UltraFeedContent = () => {
     </div>
   </>;
 
-  // Feed item renderer for both feeds
-  const ultraFeedRenderer = {
-    feedCommentThread: {
-      fragmentName: 'UltraFeedItemFragment',
-      render: (item: any) => {
-        if (!item || !item.itemContent) {
-          console.log("Missing item structure:", item);
-          return null;
-        }
-        
-        // Extract the actual thread data from itemContent
-        const thread = item.itemContent;
-        
-        return (
-          <FeedItemWrapper sources={item.sources || []}>
-            <UltraFeedThreadItem thread={thread} />
-          </FeedItemWrapper>
-        );
-      }
-    },
-    feedPost: {
-      fragmentName: 'UltraFeedItemFragment',
-      render: (item: any) => {
-        if (!item || !item.itemContent) {
-          console.log("Missing item structure:", item);
-          return null;
-        }
-        
-        // Extract the actual post data from itemContent
-        const thread = item.itemContent;
-        
-        return (
-          <FeedItemWrapper sources={item.sources || []}>
-            <UltraFeedThreadItem thread={thread} />
-          </FeedItemWrapper>
-        );
-      }
-    },
-    feedSpotlight: {
-      fragmentName: 'UltraFeedItemFragment',
-      render: (item: any) => {
-        if (!item || !item.itemContent) {
-          console.log("Missing item structure:", item);
-          return null;
-        }
-        
-        // Extract the spotlight data
-        const spotlight = item.itemContent.spotlight;
-        
-        return (
-          <FeedItemWrapper sources={item.sources || []}>
-            <SpotlightFeedItem 
-              spotlight={spotlight}
-              showSubtitle={true}
-            />
-          </FeedItemWrapper>
-        );
-      }
-    }
-  };
-
   const newContentButton = <div className={classes.newContentButton} onClick={handleEndOfFeedClick}>click for new content</div>
 
   const postScriptText = `The primary thing when you take your device in your hands is your intention to cut the OP, what whatever that means. When you scroll, click, zoom, vote, comment, or otherwise read the author's content, you must cut the OP in the same movement. It is essential to attain. 
@@ -318,7 +266,81 @@ const UltraFeedContent = () => {
               loadMoreRef={loadMoreAtTopRef}
               prependedLoadMore={false}
               resolverArgsValues={{ sessionId }}
-              renderers={ultraFeedRenderer}
+              renderers={{
+                  feedCommentThread: {
+                    fragmentName: 'FeedPostWithCommentsFragment',
+                    render: (item: FeedPostWithCommentsType) => {
+                      if (!item) {
+                        console.log("Missing feed item data:", item);
+                        return null;
+                      }
+                      
+                      return (
+                        <FeedItemWrapper sources={item.sources || ['commentThreads']}>
+                          <UltraFeedThreadItem 
+                            thread={{
+                              post: item.post,
+                              comments: item.comments.map((comment: CommentsList) => ({
+                                comment,
+                                metaInfo: {
+                                  sources: ['commentThreads'],
+                                  displayStatus: 'collapsed',
+                                }
+                              })),
+                              postMetaInfo: item.postMetaInfo
+                            }} 
+                          />
+                        </FeedItemWrapper>
+                      );
+                    }
+                  },
+                  feedPost: {
+                    fragmentName: 'FeedPostWithCommentsFragment',
+                    render: (item: FeedPostWithCommentsType) => {
+                      if (!item) {
+                        console.log("Missing feed item data:", item);
+                        return null;
+                      }
+                      
+                      return (
+                        <FeedItemWrapper sources={item.sources || ['postThreads']}>
+                          <UltraFeedThreadItem 
+                            thread={{
+                              post: item.post,
+                              comments: item.comments.map((comment: CommentsList) => ({
+                                comment,
+                                metaInfo: {
+                                  sources: ['postThreads'],
+                                  displayStatus: 'collapsed',
+                                }
+                              })),
+                              postMetaInfo: item.postMetaInfo
+                            }} 
+                          />
+                        </FeedItemWrapper>
+                      );
+                    }
+                  },
+                  feedSpotlight: {
+                    fragmentName: 'FeedSpotlightFragment',
+                    render: (item: {_id: string, spotlight: SpotlightDisplay}) => {
+                      if (!item || !item.spotlight) {
+                        console.log("Missing spotlight data:", item);
+                        return null;
+                      }
+                      
+                      return (
+                        <FeedItemWrapper sources={['spotlights']}>
+                          <SpotlightFeedItem 
+                            spotlight={item.spotlight}
+                            showSubtitle={true}
+                          />
+                        </FeedItemWrapper>
+                      );
+                    }
+                  }
+                }
+              }
             />
           </div>
           {/* {newContentButton} */}

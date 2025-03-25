@@ -994,6 +994,19 @@ interface FeedItemServingsDefaultFragment { // fragment on FeedItemServings
   readonly itemContent: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface FeedPostWithCommentsFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly postMetaInfo: any,
+  readonly commentMetaInfos: any,
+  readonly post: any,
+  readonly comments: any,
+}
+
+interface FeedSpotlightFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly spotlight: any,
+}
+
 interface FieldChangeFragment { // fragment on FieldChanges
   readonly _id: string,
   readonly createdAt: Date,
@@ -3687,18 +3700,6 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
-interface UltraFeedCommentWithPostFragment extends CommentsList { // fragment on Comments
-  readonly post: PostsMinimumInfo|null,
-}
-
-interface UltraFeedItemFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly type: any,
-  readonly renderAsType: any,
-  readonly sources: any,
-  readonly itemContent: any,
-}
-
 interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
@@ -5166,6 +5167,8 @@ interface FragmentTypes {
   FeaturedResourcesFragment: FeaturedResourcesFragment
   FeedCommentItemFragment: FeedCommentItemFragment
   FeedItemServingsDefaultFragment: FeedItemServingsDefaultFragment
+  FeedPostWithCommentsFragment: FeedPostWithCommentsFragment
+  FeedSpotlightFragment: FeedSpotlightFragment
   FieldChangeFragment: FieldChangeFragment
   FieldChangesDefaultFragment: FieldChangesDefaultFragment
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
@@ -5367,8 +5370,6 @@ interface FragmentTypes {
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
-  UltraFeedCommentWithPostFragment: UltraFeedCommentWithPostFragment
-  UltraFeedItemFragment: UltraFeedItemFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserActivitiesDefaultFragment: UserActivitiesDefaultFragment
   UserAltAccountsFragment: UserAltAccountsFragment
@@ -5439,7 +5440,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"FeedCommentItemFragment"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedCommentWithPostFragment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"FeedCommentItemFragment"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -5457,6 +5458,7 @@ interface FragmentTypesByCollection {
   EmailTokenses: "EmailTokensDefaultFragment"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
   FeedItemServings: "FeedItemServingsDefaultFragment"
+  FeedSpotlightItems: "FeedSpotlightFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
@@ -5510,7 +5512,7 @@ interface FragmentTypesByCollection {
   Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailedPreviewFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"TagsDefaultFragment"|"UserOnboardingTag"|"WithVoteTag"
   Tweets: "TweetsDefaultFragment"
   TypingIndicators: "TypingIndicatorInfo"|"TypingIndicatorsDefaultFragment"
-  UltraFeedItems: "UltraFeedItemFragment"
+  UltraFeedPostWithCommentses: "FeedPostWithCommentsFragment"
   UserActivities: "UserActivitiesDefaultFragment"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -5592,6 +5594,8 @@ interface CollectionNamesByFragmentName {
   FeaturedResourcesFragment: "FeaturedResources"
   FeedCommentItemFragment: "Comments"
   FeedItemServingsDefaultFragment: "FeedItemServings"
+  FeedPostWithCommentsFragment: never
+  FeedSpotlightFragment: never
   FieldChangeFragment: "FieldChanges"
   FieldChangesDefaultFragment: "FieldChanges"
   ForumEventsDefaultFragment: "ForumEvents"
@@ -5793,8 +5797,6 @@ interface CollectionNamesByFragmentName {
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
-  UltraFeedCommentWithPostFragment: "Comments"
-  UltraFeedItemFragment: never
   UnclaimedReportsList: "Reports"
   UserActivitiesDefaultFragment: "UserActivities"
   UserAltAccountsFragment: "Users"

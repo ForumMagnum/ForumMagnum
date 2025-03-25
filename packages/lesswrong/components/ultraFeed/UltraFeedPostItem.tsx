@@ -12,7 +12,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     // marginBottom: 4,
     // paddingLeft: 4,
     // paddingRight: 4,
-    // paddingTop: 4,
+    paddingTop: 16,
     paddingLeft: 12,
     paddingRight: 12,
     paddingBottom: 12,

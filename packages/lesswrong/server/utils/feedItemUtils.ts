@@ -6,10 +6,9 @@ import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { loadByIds } from "../../lib/loaders";
 import { fetchFragment } from "../fetchFragment";
+import { feedItemRenderTypes, FeedItemRenderType } from "@/components/ultraFeed/ultraFeedTypes";
 
 /** For feed items, we typically render them as a post or a comment. */
-export const feedItemRenderTypes = ["feedComment", "feedPost"] as const;
-export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 /**
  * Validates if a string is a valid FeedItemRenderType
@@ -156,7 +155,7 @@ export async function hydrateFeedItems(
     if (validRenderAsType === "feedPost" && item.primaryDocumentCollectionName === "Posts") {
       const post = item.primaryDocumentId ? postsById[item.primaryDocumentId] : null;
       hydrated.primaryPost = post || null;
-    } else if (validRenderAsType === "feedComment" && item.primaryDocumentCollectionName === "Comments") {
+    } else if (validRenderAsType === "feedCommentThread" && item.primaryDocumentCollectionName === "Comments") {
       const comment = item.primaryDocumentId ? commentsById[item.primaryDocumentId] : null;
       hydrated.primaryComment = comment || null;
     }
@@ -198,7 +197,7 @@ export function dehydrateFeedItem(
     mostRecentServingId: item.mostRecentServingId || null,
   };
 
-  if (item.renderAsType === "feedComment" && item.primaryComment) {
+  if (item.renderAsType === "feedCommentThread" && item.primaryComment) {
     base.primaryDocumentId = item.primaryComment._id;
     base.primaryDocumentCollectionName = "Comments";
   } else if (item.renderAsType === "feedPost" && item.primaryPost) {

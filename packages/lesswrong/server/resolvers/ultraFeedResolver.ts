@@ -1,23 +1,31 @@
 import { defineFeedResolver } from "../utils/feedUtil";
 import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
-import { loadByIds } from "../../lib/loaders";
-import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import keyBy from "lodash/keyBy";
-import { logFeedItemServings, HydratedFeedItem, feedItemRenderTypes, FeedItemRenderType, FeedCommentThreadItem } from "../utils/feedItemUtils";
-import FeedItemServingsRepo from "../repos/FeedItemServingsRepo";
-import UltraFeedRepo, {  } from "../../lib/ultraFeed/UltraFeedRepo";
-import { DisplayFeedItem, DisplayFeedPostWithComments, UltraFeedTopLevelTypes, FeedItemSourceType, DisplayFeedSpotlight } from "@/components/ultraFeed/ultraFeedTypes";
-
-const TESTING_DATE_CUTOFF = new Date('2025-01-01');
+import UltraFeedRepo from "../../lib/ultraFeed/UltraFeedRepo";
+import { 
+  FeedItemSourceType,
+  UltraFeedResolverType, 
+  FeedItemRenderType,
+  FeedItem,
+  FeedItemResolverType,
+  FeedPostWithComments,
+  FeedSpotlight,
+  FeedSpotlightItem
+} from "@/components/ultraFeed/ultraFeedTypes";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 addGraphQLSchema(`
-  type UltraFeedItem {
+  type UltraFeedPostWithComments {
     _id: String!
-    type: String!                     # The type of the item, e.g., "ultraFeedItem"
-    renderAsType: String!              # e.g., "feedPost", "feedComment", "feedCommentThread"
-    sources: [String!]!                # e.g., ["quickTakes", "subscribed"]
-    itemContent: JSON               # JSON representation of content for the item
+    postMetaInfo: JSON                 # Metadata about the post display
+    commentMetaInfos: JSON             # Metadata about comment display states
+    post: Post                         # The actual post data, loaded via ID
+    comments: [Comment]                # The actual comment data, loaded via IDs
+  }
+
+  type FeedSpotlightItem {
+    _id: String!
+    spotlight: Spotlight               # The actual spotlight data, loaded via ID
   }
 `);
 
@@ -25,21 +33,42 @@ addGraphQLSchema(`
 const SOURCE_WEIGHTS = {
   postThreads: 20,
   commentThreads: 40,
-  spotlights: 5,  // Add weight for spotlights
-  // Commented out sources
+  spotlights: 20,
   // popularComments: 5,
   // quickTakes: 5,
   // subscribed: 0
 };
 
+// Define the subset of FeedItemSourceType that we actually use
+type UsedFeedItemSourceType = Extract<FeedItemSourceType, "postThreads" | "commentThreads" | "spotlights">;
+
+interface WeightedSource {
+  weight: number;
+  items: FeedItem[];
+  renderAsType: FeedItemRenderType;
+}
+
+type SampledItem = { renderAsType: "feedCommentThread", feedCommentThread: FeedPostWithComments } | { renderAsType: "feedPost", feedPost: FeedPostWithComments } | { renderAsType: "feedSpotlight", feedSpotlight: FeedSpotlight };
+
 // Helper function to perform weighted sampling
 function weightedSample(
-  inputs: Record<FeedItemSourceType, { weight: number, items: UltraFeedTopLevelTypes[], renderAsType: FeedItemRenderType }>, 
+  inputs: Record<UsedFeedItemSourceType, WeightedSource>, 
   totalItems: number
-): DisplayFeedItem[] {
-  const finalFeed: DisplayFeedItem[] = [];
-  let totalWeight = Object.values(inputs).reduce((sum, src) => 
-    sum + (src.items.length > 0 ? src.weight : 0), 0);
+): SampledItem[] {
+  // Create deep copies of the input arrays to avoid modifying the originals
+  const sourcesWithCopiedItems = Object.entries(inputs).reduce((acc, [key, value]) => {
+    acc[key as UsedFeedItemSourceType] = {
+      ...value,
+      items: [...value.items] // Create a copy of the items array
+    };
+    return acc;
+  }, {} as Record<UsedFeedItemSourceType, WeightedSource>);
+
+  const finalFeed: SampledItem[] = [];
+  let totalWeight = Object.values(sourcesWithCopiedItems).reduce(
+    (sum, src) => sum + (src.items.length > 0 ? src.weight : 0),
+    0
+  );
 
   for (let i = 0; i < totalItems; i++) {
     // If no items remain in any source, break
@@ -49,34 +78,45 @@ function weightedSample(
     const pick = Math.random() * totalWeight;
 
     let cumulative = 0;
-    let chosenSourceKey = null;
-    
-    for (const [key, src] of Object.entries(inputs)) {
+    let chosenSourceKey: UsedFeedItemSourceType | null = null;
+
+    for (const [key, src] of Object.entries(sourcesWithCopiedItems)) {
       // Skip sources that have run out of items
       if (src.items.length === 0) continue;
 
       cumulative += src.weight;
       if (pick < cumulative) {
-        chosenSourceKey = key;
+        chosenSourceKey = key as UsedFeedItemSourceType;
         break;
       }
     }
 
     // We found a source to sample from
     if (chosenSourceKey) {
-      const sourceItems = inputs[chosenSourceKey as FeedItemSourceType];
-      const item = sourceItems.items.shift();
-      
+      const sourceItems = sourcesWithCopiedItems[chosenSourceKey];
+      const item = sourceItems.items.shift(); // This modifies our copy, not the original
+
       // Skip if item is undefined
       if (!item) continue;
-      
-      finalFeed.push({
-        type: "ultraFeedItem",
-        renderAsType: sourceItems.renderAsType, 
-        sources: [chosenSourceKey as FeedItemSourceType],
-        item
-      });
-      
+
+      // Create object based on renderAsType to avoid type errors
+      if (sourceItems.renderAsType === "feedCommentThread") {
+        finalFeed.push({
+          renderAsType: "feedCommentThread",
+          feedCommentThread: item as FeedPostWithComments
+        });
+      } else if (sourceItems.renderAsType === "feedPost") {
+        finalFeed.push({
+          renderAsType: "feedPost",
+          feedPost: item as FeedPostWithComments
+        });
+      } else if (sourceItems.renderAsType === "feedSpotlight") {
+        finalFeed.push({
+          renderAsType: "feedSpotlight",
+          feedSpotlight: item as FeedSpotlight
+        });
+      }
+
       // If that source is now empty, effectively set its weight to 0
       if (sourceItems.items.length === 0) {
         totalWeight -= sourceItems.weight;
@@ -86,158 +126,6 @@ function weightedSample(
 
   return finalFeed;
 }
-
-async function fetchPostThreads({
-  context,
-  currentUser,
-}: {
-  context: ResolverContext;
-  currentUser: DbUser;
-}): Promise<DisplayFeedPostWithComments[]> {
-  console.log("Fetching post threads...");
-
-  // Create UltraFeedRepo instance
-  const ultraFeedRepo = new UltraFeedRepo();
-  
-  // Get post threads
-  const postThreads = await ultraFeedRepo.getUltraFeedPostThreads(context, 20);
-  
-  console.log(`Found ${postThreads.length} post threads`);
-  
-  // Map to FeedPostThreadItem format
-  return postThreads;
-  
-}
-/**
- * Fetches comment threads for the feed
- */
-async function fetchCommentThreads({
-  context,
-  currentUser,
-  // servedCommentIds
-}: {
-  context: ResolverContext;
-  currentUser: DbUser;
-  // servedCommentIds: Set<string>;
-}): Promise<DisplayFeedPostWithComments[]> {
-  console.log("Fetching comment threads...");
-  
-  // Create UltraFeedRepo instance
-  const ultraFeedRepo = new UltraFeedRepo();
-  
-  // Get comment threads
-  const commentThreads = await ultraFeedRepo.getUltraFeedCommentThreads(context, 20);
-  
-  console.log(`Found ${commentThreads.length} comment threads`);
-
-  
-  // Map to FeedCommentThreadItem format
-  return commentThreads;
-}
-
-/**
- * COMMENTED OUT: Fetches quick takes (shortform posts) for the feed
- */
-/* 
-async function fetchQuickTakes({
-  context,
-  currentUser,
-  servedCommentIds
-}: {
-  context: ResolverContext;
-  currentUser: DbUser;
-  servedCommentIds: Set<string>;
-}): Promise<FeedCommentItem[]> {
-  console.log("Fetching quick takes...");
-  
-  const quickTakesRaw = await context.Comments.find(
-    {
-      shortform: true,
-      deleted: { $ne: true },
-      // Exclude comments that have been recently served to this user
-      _id: { $nin: Array.from(servedCommentIds) },
-      postedAt: { $lt: TESTING_DATE_CUTOFF }
-    },
-    { limit: 20, sort: { postedAt: -1 } }
-  ).fetch();
-  
-  const quickTakes = await accessFilterMultiple(
-    currentUser,
-    "Comments",
-    quickTakesRaw,
-    context
-  );
-
-  console.log(`Found ${quickTakes.length} quick takes after filtering already served items`);
-
-  // Map to FeedCommentItem format
-  return quickTakes.map((doc: DbComment) => {
-    // Make sure we have no circular references
-    const comment = {...doc};
-    if (comment.parentCommentId === comment._id) {
-      comment.parentCommentId = null;
-    }
-    
-    return {
-      _id: doc._id,
-      comment,
-      sources: ["quickTakes"],
-      renderAsType: "feedComment"
-    };
-  });
-}
-*/
-
-/**
- * COMMENTED OUT: Fetches popular comments for the feed
- */
-/*
-async function fetchPopularComments({
-  context,
-  currentUser,
-  servedCommentIds
-}: {
-  context: ResolverContext;
-  currentUser: DbUser;
-  servedCommentIds: Set<string>;
-}): Promise<FeedCommentItem[]> {
-  console.log("Fetching popular comments...");
-  
-  const popularCommentsRaw = await context.Comments.find(
-    {
-      deleted: { $ne: true },
-      baseScore: { $gt: 10 },
-      postedAt: { $lt: TESTING_DATE_CUTOFF, $gte: new Date(Date.now() - (180 * 24 * 60 * 60 * 1000)) },
-      ...(servedCommentIds.size > 0 ? { _id: { $nin: Array.from(servedCommentIds) } } : {})
-    },
-    { limit: 50, sort: { baseScore: -1 } }
-  ).fetch();
-  
-  const popularComments = await accessFilterMultiple(
-    currentUser,
-    "Comments",
-    popularCommentsRaw,
-    context
-  );
-
-  console.log(`Found ${popularComments.length} popular comments after filtering already served items`);
-
-  // Map to FeedCommentItem format
-  return popularComments.map((doc: DbComment) => {
-    const comment = {...doc};
-    if (comment.parentCommentId === comment._id) {
-      comment.parentCommentId = null;
-    }
-    
-    return {
-      _id: doc._id,
-      comment,
-      sources: ["popularComments"],
-      renderAsType: "feedComment"
-    };
-  });
-}
-*/
 
 /**
  * COMMENTED OUT: Fetches subscribed content for the feed
@@ -288,81 +176,29 @@ async function fetchSubscribedContent({
     return [];
   }
   
-  // Load posts and comments
-  const postIds = filterNonnull(filteredPostsAndComments.map(row => row.postId));
-  const commentIds = filterNonnull(filteredPostsAndComments.flatMap(row => row.fullCommentTreeIds ?? []));
-  
-  console.log(`Loading ${postIds.length} posts and ${commentIds.length} comments for subscribed content (after filtering)`);
-  
-  const [posts, comments] = await Promise.all([
-    loadByIds(context, "Posts", postIds)
-      .then(posts => accessFilterMultiple(currentUser, "Posts", posts, context))
-      .then(filterNonnull),
-    loadByIds(context, "Comments", commentIds)
-      .then(comments => accessFilterMultiple(currentUser, "Comments", comments, context))
-      .then(filterNonnull)
-  ]);
-
-  console.log(`Successfully loaded ${posts.length} posts and ${comments.length} comments`);
-
-  const postsById = keyBy(posts, p => p._id);
-  const commentsById = keyBy(comments, c => c._id);
-  
-  // Map to FeedPostItem format
-  return filteredPostsAndComments
-    .filter(item => postsById[item.postId]) // Skip items where post is missing
-    .map(item => {
-      return {
-        _id: item.postId,
-        post: postsById[item.postId] as DbPost,
-        comments: (item.commentIds?.map(id => commentsById[id]).filter(Boolean) || []) as DbComment[],
-        sources: ["subscribed"],
-        renderAsType: "feedPost"
-      };
-    });
-}
 */
 
-async function fetchSpotlights({
-  context,
-}: {
-  context: ResolverContext;
-}): Promise<DisplayFeedSpotlight[]> {
-  console.log("Fetching spotlights...");
-  
-  // Create UltraFeedRepo instance
-  const ultraFeedRepo = new UltraFeedRepo();
-  
-  // Get spotlight items
-  const spotlights = await ultraFeedRepo.getUltraFeedSpotlights(context, 5);
-  
-  console.log(`Found ${spotlights.length} spotlights for feed`);
-  
-  return spotlights;
-}
 
 /**
- * 2) Create the feed resolver. We'll call it "UltraFeed" for now, but you can rename
- *    it in defineFeedResolver if you prefer something like "CommentsComboFeed".
+ * UltraFeed resolver
+ * 
+ * Uses a weighted sampling approach to mix different content types
+ * while providing fragment names so GraphQL can load the full content.
  */
 defineFeedResolver<Date>({
   name: "UltraFeed",
   cutoffTypeGraphQL: "Date", 
   args: "",
   resultTypesGraphQL: `
-    feedCommentThread: UltraFeedItem
-    feedPost: UltraFeedItem
-    feedSpotlight: UltraFeedItem
+    feedCommentThread: UltraFeedPostWithComments
+    feedPost: UltraFeedPostWithComments
+    feedSpotlight: FeedSpotlightItem
   `,
-  /**
-   * The resolver function fetches content from multiple sources,
-   * samples them based on weights, and returns the merged results.
-   */
   resolver: async ({
     limit = 20,
     cutoff,
     offset,
-    sessionId: sessionId,
+    sessionId,
     args,
     context
   }: {
@@ -386,65 +222,18 @@ defineFeedResolver<Date>({
       throw new Error("Must be logged in to fetch UltraFeed.");
     }
 
-    // Fetch recently served items to avoid duplicates using the SQL-powered repo method
-    // const feedItemServingsRepo = new FeedItemServingsRepo();
-    // const recentlyServedDocs = await feedItemServingsRepo.loadRecentlyServedDocumentsForUser(
-    //   currentUser._id,
-    //   30, // look back 30 days
-    //   1000 // max 1000 items
-    // );
-    
-    // console.log(`Retrieved ${recentlyServedDocs.length} previously served unique documents`);
-    
-    // // Create sets for O(1) lookups
-    // const servedCommentIds = new Set<string>();
-    // const servedPostIds = new Set<string>();
-    // const servedPostCommentCombos = new Set<string>();
-    
-    // // Populate the sets from the SQL results
-    // for (const item of recentlyServedDocs) {
-    //   if (item.collectionName === 'Comments' && item.documentId) {
-    //     servedCommentIds.add(item.documentId);
-    //   } else if (item.collectionName === 'Posts' && item.documentId) {
-    //     servedPostIds.add(item.documentId);
-        
-    //     // If this is a post with associated comments, the combo is already created by the SQL
-    //     if (item.firstTwoCommentIds?.length) {
-    //       // Create a combo key of post ID + first comment IDs (sorted to ensure consistent comparison)
-    //       const comboKey = `${item.documentId}:${[...item.firstTwoCommentIds].sort().join(':')}`;
-    //       servedPostCommentCombos.add(comboKey);
-    //     }
-    //   }
-    // }
-    
-    // console.log(`Set up lookups for ${servedCommentIds.size} comments, ${servedPostIds.size} posts, and ${servedPostCommentCombos.size} post+comment combinations`);
-
     try {
+      const ultraFeedRepo = new UltraFeedRepo();
 
-      const postThreadsItems = await fetchPostThreads({
-        context,
-        currentUser,
-      });
-
-      const commentThreadsItems = await fetchCommentThreads({
-        context,
-        currentUser,
-        // servedCommentIds
-      });
-
-      const spotlightItems = await fetchSpotlights({ context });
-      
-      // Commented out other content sources
-      /*
-      const [quickTakesItems, popularCommentsItems, subscribedItems] = await Promise.all([
-        fetchQuickTakes({ context, currentUser, servedCommentIds }),
-        fetchPopularComments({ context, currentUser, servedCommentIds }),
-        fetchSubscribedContent({ context, currentUser, servedPostIds, servedPostCommentCombos })
+      // Get minimal data from repo methods
+      const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
+        ultraFeedRepo.getUltraFeedPostThreads(context, limit),
+        ultraFeedRepo.getUltraFeedCommentThreads(context, limit),
+        ultraFeedRepo.getUltraFeedSpotlights(context, limit/4)
       ]);
-      */
       
       // Create sources object for weighted sampling
-      const sources: Record<FeedItemSourceType, { weight: number, items: UltraFeedTopLevelTypes[], renderAsType: FeedItemRenderType }> = {
+      const sources: Record<UsedFeedItemSourceType, { weight: number, items: FeedItem[], renderAsType: FeedItemRenderType }> = {
         postThreads: {
           weight: SOURCE_WEIGHTS.postThreads,
           items: postThreadsItems,
@@ -460,84 +249,68 @@ defineFeedResolver<Date>({
           items: spotlightItems,
           renderAsType: "feedSpotlight"
         }
-        // Commented out other sources
-        /*
-        quickTakes: { 
-          weight: SOURCE_WEIGHTS.quickTakes, 
-          items: quickTakesItems 
-        },
-        popularComments: { 
-          weight: SOURCE_WEIGHTS.popularComments, 
-          items: popularCommentsItems 
-        },
-        subscribed: { 
-          weight: SOURCE_WEIGHTS.subscribed, 
-          items: subscribedItems 
-        }
-        */
       };
 
-      
       console.log("Performing weighted sampling with:", {
         postThreadsCount: sources.postThreads.items.length,
         commentThreadsCount: sources.commentThreads.items.length,
         spotlightsCount: sources.spotlights.items.length,
-        // quickTakesCount: sources.quickTakes.items.length,
-        // popularCommentsCount: sources.popularComments.items.length,
-        // subscribedCount: sources.subscribed.items.length,
+        sources: sources,
         requestedLimit: limit
       });
       
-      // Perform weighted sampling to get final items
-      const sampledItems: DisplayFeedItem[] = weightedSample(sources, limit);
-      console.log(`Sampled ${sampledItems.length} items for feed`);
-      
-      // Log just the key properties, not the entire potentially large item
-      if (sampledItems.length > 0) {
-        const example = sampledItems[0];
-        console.log('Example item keys:', {
-          renderAsType: example.renderAsType,
-          sourceCount: example.sources?.length || 0
-        });
-      }
-
+      // Sample from the sources based on weights
+      const sampledItems = weightedSample(sources, limit);
       
       // Transform results for the feed
-      const results = sampledItems.map((item, index) => {
+      const results: UltraFeedResolverType[] = filterNonnull(await Promise.all(
+        sampledItems.map(async (item: SampledItem, index: number): 
+        Promise<UltraFeedResolverType | null> => {
         if (!item.renderAsType) {
           console.log("No renderAsType for item:", item);
         }
         
-        // Return an object with type matching the renderAsType and nested field with that name
-        const result = {
-          type: item.renderAsType, // This is how the MixedTypeFeed knows which renderer to use
-          [item.renderAsType]: {  // This field name must match the type
-            _id: `feed-item-${index}-${Date.now()}`,
-            type: "ultraFeedItem",
-            renderAsType: item.renderAsType,
-            sources: item.sources || [],
-            itemContent: item.item
-          }
-        };
-        
-        return result;
-      }).filter(Boolean);
+        // Special case for spotlights which are handled differently
+        if (item.renderAsType === "feedSpotlight") {
+          return {
+            type: item.renderAsType,
+            [item.renderAsType]: {
+              _id: item.feedSpotlight.spotlightId,
+              spotlight: await context.loaders.Spotlights.load(item.feedSpotlight.spotlightId)
+            }
+          };
+        }
 
-      // // Save items to FeedItemServings collection
-      // console.log("Saving feed items to FeedItemServings collection...");
-      
-      // // Use the shared helper function to log feed item servings - fire and forget
-      // void logFeedItemServings({
-      //   context,
-      //   userId: currentUser._id,
-      //   sessionId,
-      //   results: results.map(r => r?.ultraFeedItem ?? null),
-      //   isHistoryView: false // This is a normal feed view, not history
-      // });
-      // console.log("Triggered feed item servings logging");
-      
+        if (item.renderAsType === "feedPost" || item.renderAsType === "feedCommentThread") {
+
+          const { postId, postMetaInfo, commentMetaInfos, commentIds } = item.renderAsType === "feedPost" ? item.feedPost : item.feedCommentThread;
+
+          if (!postId) {
+            console.log("No postId for item:", item);
+            return null;
+          }
+
+          return {
+            type: item.renderAsType,
+            [item.renderAsType]: {
+              _id: `feed-item-${index}-${Date.now()}`,
+              post: await context.loaders.Posts.load(postId) ?? null,
+              postMetaInfo: postMetaInfo || {},
+              comments: await Promise.all(commentIds?.map( async (id: string) => context.loaders.Comments.load(id)) || []),
+              commentMetaInfos: commentMetaInfos || {},
+            }
+          };  
+        }
+
+        console.error("Unknown item renderAsType:", item);
+        return null;
+      })))
+
+      console.log("Spotlight Results before being returned:", results.filter(r => r.type === "feedSpotlight").map(r => r.feedSpotlight?.spotlight));
+
+
       // Determine if there are likely more results that could be returned
-      const hasMoreResults = sampledItems.length >= limit;
+      const hasMoreResults = true;
       
       const response = {
         cutoff: hasMoreResults ? new Date() : null, // null signals end of results
@@ -545,15 +318,6 @@ defineFeedResolver<Date>({
         results,
         sessionId // Include the sessionId in the response
       };
-      
-      console.log("UltraFeed resolver returning:", {
-        hasMoreResults,
-        cutoffExists: !!response.cutoff,
-        cutoffDate: response.cutoff ? response.cutoff.toISOString() : null,
-        endOffset: response.endOffset,
-        resultsCount: response.results.length,
-        sessionId // Log the sessionId too
-      });
       
       return response;
     } catch (error) {

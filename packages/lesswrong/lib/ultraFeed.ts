@@ -1,55 +1,36 @@
 /**
  * Fragment for UltraFeed items.
- * IMPORTANT: The post reference inside primaryComment MUST include the full PostsMinimumInfo 
- * fragment, not just _id. Components like UltraFeedCollapsedCommentItem need the full post
- * information, including title, for proper display.
  */
-export const UltraFeedItemFragment = `
-  fragment UltraFeedItemFragment on UltraFeedItem {
+
+/**
+ * Fragment for both feedPost and feedCommentThread items
+ * This includes both metadata fields and content fields loaded via IDs
+ */
+
+export const FeedPostWithCommentsFragment = `
+  fragment FeedPostWithCommentsFragment on UltraFeedPostWithComments {
     _id
-    type
-    renderAsType
-    sources
-    itemContent
+    postMetaInfo
+    commentMetaInfos
+    post {
+      ...PostsListWithVotes
+    }
+    comments {
+      ...CommentsList
+    }
   }
-`; 
+`;
 
-// /**
-//  * Fragment for comment threads in UltraFeed.
-//  */
-// export const UltraFeedCommentThreadFragment = `
-//   fragment UltraFeedCommentThreadFragment on UltraFeedItem {
-//     _id
-//     type
-//     renderAsType
-//     sources
-//     itemContent
-//   }
-// `;
-
-// /**
-//  * Fragment for posts with comments in UltraFeed.
-//  */
-// export const UltraFeedPostWithCommentsFragment = `
-//   fragment UltraFeedPostWithCommentsFragment on UltraFeedItem {
-//     _id
-//     type
-//     renderAsType
-//     sources
-//     itemContent
-//   }
-// `;
-
-// /**
-//  * Fragment for spotlight items in UltraFeed.
-//  */
-// export const DisplayFeedSpotlightFragment = `
-//   fragment DisplayFeedSpotlight on UltraFeedItem {
-//     _id
-//     type
-//     renderAsType
-//     sources
-//     itemContent
-//   }
-// `;
+/**
+ * Fragment for feedSpotlight items in UltraFeed
+ * This matches the structure returned by the UltraFeed resolver
+ */
+export const FeedSpotlightFragment = `
+  fragment FeedSpotlightFragment on FeedSpotlightItem {
+    _id
+    spotlight {
+      ...SpotlightDisplay
+    }
+  }
+`;
 

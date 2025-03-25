@@ -5,21 +5,13 @@
  * for the UltraFeed system.
  */
 
-import { randomId } from '../random';
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, DisplayFeedPostWithComments, DisplayFeedSpotlight } from '../../components/ultraFeed/ultraFeedTypes';
+import { FeedCommentFromDb, FeedCommentMetaInfo, FeedItemSourceType, FeedPostWithComments, FeedSpotlight, PreDisplayFeedComment, PreDisplayFeedCommentThread } from '../../components/ultraFeed/ultraFeedTypes';
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
-import groupBy from 'lodash/groupBy';
-import { runQuery, createAnonymousContext, runFragmentMultiQuery } from '@/server/vulcan-lib/query';
+import { runQuery } from '@/server/vulcan-lib/query';
 import gql from 'graphql-tag';
-import { CommentsList } from '../../lib/collections/comments/fragments';
-import { PostsListWithVotes } from '../../lib/collections/posts/fragments';
-import { TagPreviewFragment, TagBasicInfo } from '../../lib/collections/tags/fragments';
-import { UsersMinimumInfo } from '../../lib/collections/users/fragments';
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
-import { loadByIds } from '../../lib/loaders';
-import { accessFilterMultiple } from '../utils/schemaUtils';
 
 /**
  * Statistics to help prioritize which threads to display
@@ -38,7 +30,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     super(Comments);
   }
 
-  public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedPostWithComments[]> {
+  public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<FeedPostWithComments[]> {
 
     // RECOMBEE HYBRID POSTS: LATEST + RECOMMENDED
     // TODO: separate these out so can be selected independently
@@ -47,17 +39,14 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         RecombeeHybridPosts(limit: $limit, settings: $settings) {
           results {
             post {
-              ...PostsListWithVotes
+              _id
             }
             scenario
             recommId
             generatedAt
-            curated
-            stickied
           }
         }
       }
-      ${fragmentTextForQuery('PostsListWithVotes')}
     `;
     
     const variables = {
@@ -72,15 +61,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     // 4. Convert each post result into DisplayFeedPostWithComments
     //    so each item has a "post" and an empty "comments" array by default
-    const displayPosts: DisplayFeedPostWithComments[] = recommendedData.map((item: any) => ({
-      post: { 
-        ...item.post, 
-        __typename: "Post",
-        user: {
-          ...item.post.user,
-          __typename: "User",
-        },
-      } as PostsListWithVotes,           // The top-level post. Cast or ensure it matches PostsList if needed.
+    const displayPosts: FeedPostWithComments[] = recommendedData.map((item: any) => ({
+      postId: item.post._id,
       comments: [],              // We leave comments empty, or retrieve them separately if desired.
       postMetaInfo: {
         sources: [item.scenario],
@@ -103,7 +85,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   //TODO: filter based on previous interactions with comments?
   //TODO: figure out exact threshold / date window (make parameter?), perhaps make a window that's adjusted based on user's visit frequency
 
-  async getCommentsForFeed(context: ResolverContext, limit = 200): Promise<PreDisplayFeedComment[]> {
+
+  async getCommentsForFeed(context: ResolverContext, limit = 200): Promise<FeedCommentFromDb[]> {
     const db = this.getRawDb();
 
     console.log(`UltraFeedRepo.getCommentsForFeed called with limit=${limit}`);
@@ -117,7 +100,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     AND "postId" IS NOT NULL
     `;
 
-    const suggestedComments = await db.manyOrNone(`
+    const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
       -- UltraFeedRepo.getCommentsForFeed
       WITH
       "popularComments" AS (
@@ -125,7 +108,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           c._id AS "commentId",
           c."topLevelCommentId",
           c."postId",
-          'topComment' AS source
+          c."parentCommentId",
+          c."baseScore",
+          'topComments' AS source
         FROM "Comments" c
         WHERE ${FEED_COMMENT_FILTER_CLAUSE}
           AND c."baseScore" > 20
@@ -137,6 +122,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           c._id AS "commentId",
           c."topLevelCommentId",
           c."postId",
+          c."parentCommentId",
+          c."baseScore",
           'quickTake' AS source
         FROM "Comments" c
         WHERE ${FEED_COMMENT_FILTER_CLAUSE}
@@ -148,6 +135,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         SELECT
           sub."commentId" AS _id,
           sub."topLevelCommentId",
+          sub."parentCommentId",
+          sub."baseScore",
           sub."postId",
           ARRAY_AGG(sub.source) AS sources
         FROM (
@@ -155,12 +144,14 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           UNION
           SELECT * FROM "quickTakes"
         ) sub
-        GROUP BY sub."commentId", sub."topLevelCommentId", sub."postId"
+        GROUP BY sub."commentId", sub."topLevelCommentId", sub."postId", sub."parentCommentId", sub."baseScore"
       ),
       "otherComments"  AS (
         SELECT
           c._id,
           c."topLevelCommentId",
+          c."parentCommentId",
+          c."baseScore",
           c."postId",
           ARRAY[]::TEXT[] AS sources
         FROM "Comments" c
@@ -171,92 +162,43 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           AND ${FEED_COMMENT_FILTER_CLAUSE}
           AND c._id NOT IN (SELECT _id FROM "allSuggestedComments")
       )
-      SELECT _id, "sources" FROM "allSuggestedComments"
+      SELECT _id AS "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "sources" FROM "allSuggestedComments"
       UNION
-      SELECT _id, "sources" FROM "otherComments"
+      SELECT _id AS "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "sources" FROM "otherComments"
     `, { limit });
 
+    const firstFewIds = suggestedComments.slice(0, 5).map(c => c.commentId);
     console.log(`UltraFeedRepo: SQL query returned ${suggestedComments?.length || 0} suggested comments`);
-    // Safely extract comment IDs for logging
-    const firstFewIds = [];
-    for (let i = 0; i < Math.min(5, suggestedComments.length); i++) {
-      if (suggestedComments[i] && suggestedComments[i]._id) {
-        firstFewIds.push(suggestedComments[i]._id);
-      }
-    }
     console.log(`UltraFeedRepo: First few comment IDs:`, firstFewIds);
+    console.log(`UltraFeedRepo: After merging with sources, have ${suggestedComments.length} comments`);
 
-    console.log(`UltraFeedRepo: Preparing to fetch ${suggestedComments.length} comments via GraphQL`);
     
-    const comments = await runFragmentMultiQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsList",
-      terms: { view: "allRecentComments", commentIds: suggestedComments.map(c => c._id), limit: 200 },
-      context,
-    });
+    // // Merge comment data with source information
+    // const commentsWithSources = suggestedComments.map((c: FeedCommentFromDb) => ({
+    //   // TODO: figure out ideal fix for __typename stuff, is causing issues in useNotifyMe within Actions Menu on ufCommentItems
+    //   commentId: c._id,
+    //   postId: c.postId,
+    //   metaInfo: { sources: c.sources as FeedItemSourceType[] }
+    // }));
 
-    console.log(`UltraFeedRepo: GraphQL query returned ${comments?.length || 0} comments`);
-    if (comments?.length > 0) {
-      console.log(`UltraFeedRepo: First few comment IDs after GraphQL:`, comments.slice(0, 3).map((c: any) => c._id));
-      console.log(`UltraFeedRepo: Sample comment data structure:`, JSON.stringify(comments[0], null, 2).substring(0, 500) + '...');
-    } else {
-      console.log(`UltraFeedRepo: WARNING - No comments returned from GraphQL query!`);
-    }
-
-
-    interface CommentWithSource {
-      _id: string;
-      sources?: string[];
-    }
-
-    // Merge comment data with source information
-    const commentsWithSources = comments.map((c: CommentsList) => ({
-      // TODO: figure out ideal fix for __typename stuff, is causing issues in useNotifyMe within Actions Menu on ufCommentItems
-      comment: { 
-        ...c, 
-        topLevelCommentId: c.topLevelCommentId ?? c._id, 
-        __typename: "Comment",
-        user: c.user ? { ...c.user, __typename: "User" } : null 
-      },
-      metaInfo: { sources: suggestedComments.find((c2: CommentWithSource) => c2._id === c._id /* c from outer scope */)?.sources ?? [] }
-    }));
-
-    console.log(`UltraFeedRepo: After merging with sources, have ${commentsWithSources.length} comments`);
-
-    return commentsWithSources;
+    return suggestedComments;
   }
 
-  public async getAllCommentThreads(candidates: PreDisplayFeedComment[]): Promise<PreDisplayFeedCommentThread[]> {
+  public async getAllCommentThreads(candidates: FeedCommentFromDb[]): Promise<PreDisplayFeedComment[][]> {
     console.log(`UltraFeedRepo.getAllCommentThreads called with ${candidates.length} candidates`);
 
     // Get unique postIds from all comments
-    const uniquePostIds = [...new Set(candidates.map(candidate => candidate.comment.postId))].filter(Boolean);
+    const uniquePostIds = [...new Set(candidates.map(candidate => candidate.postId))].filter(Boolean);
     //log comments missing postId, give their postIds
-    const commentsMissingPostId = candidates.filter(candidate => !candidate.comment.postId);
-    console.log(`UltraFeedRepo: ${commentsMissingPostId.length} comments missing postId, their postIds:`, commentsMissingPostId.map(c => c.comment.postId));
+    const commentsMissingPostId = candidates.filter(candidate => !candidate.postId);
+    console.log(`UltraFeedRepo: ${commentsMissingPostId.length} comments missing postId, their postIds:`, commentsMissingPostId.map(c => c.postId));
 
-    // If no valid postIds, return empty array
-    if (uniquePostIds.length === 0) {
-      console.log(`UltraFeedRepo: No valid postIds found in candidates`);
-      return [];
-    }
-
-    const context = createAnonymousContext();
-    const posts = await runFragmentMultiQuery({
-      collectionName: "Posts",
-      fragmentName: "PostsListWithVotes",
-      terms: { postIds: uniquePostIds, limit: 50 },
-      context,
-    });
-
-    // Create a map of postId to post for easy lookup
-    const postsById = new Map(posts.map((post: PostsListWithVotes) => [post._id, post]));
 
     // Group by topLevelCommentId
-    const groups: Record<string, PreDisplayFeedComment[]> = {};
+    const groups: Record<string, FeedCommentFromDb[]> = {};
     for (const candidate of candidates) {
       // Fall back to the comment's own _id if topLevelCommentId is missing
-      const topId = candidate.comment.topLevelCommentId ?? candidate.comment._id;
+      const topId = candidate.topLevelCommentId ?? candidate.commentId;
       if (!groups[topId]) {
         groups[topId] = [];
       }
@@ -264,40 +206,41 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     }
 
     // Build a result array of all threads
-    const allThreads: PreDisplayFeedCommentThread[] = [];
+    const allThreads: PreDisplayFeedComment[][] = [];
 
     // For each top-level group, compute all linear threads
     for (const [topLevelId, groupCandidates] of Object.entries(groups)) {
       const threads = this.buildDistinctLinearThreads(groupCandidates);
 
-      // Convert each linear path of candidates into a FeedCommentThread
-      for (const path of threads) {
-        // Get the post for this thread
-        const postId = path[0].comment.postId;
-        const post = postsById.get(postId);
-        
-        if (!post) {
-          // eslint-disable-next-line no-console
-          console.error("UltraFeedRepo.getAllCommentThreads: No post found for thread with topLevelId", { topLevelId, postId });
-          continue;
-        }
+      allThreads.push(...threads);
 
-        // Create the FeedCommentThread
-        allThreads.push({
-          post: { ...post, __typename: "Post" } as PostsListWithVotes,
-          comments: path,
-          topLevelCommentId: topLevelId,
-        });
-      }
+      // // Convert each linear path of candidates into a FeedCommentThread
+      // for (const path of threads) {
+      //   // Get the post for this thread
+      //   const postId = path[0].postId;
+        
+      //   if (!postId) {
+      //     // eslint-disable-next-line no-console
+      //     console.error("UltraFeedRepo.getAllCommentThreads: No post found for thread with topLevelId", { topLevelId, postId });
+      //     continue;
+      //   }
+
+      //   // Create the FeedCommentThread
+      //   allThreads.push({
+      //     postId,
+      //     commentIds: path.map(c => c.commentId),
+      //     topLevelCommentId: topLevelId,
+      //   });
+      // }
     }
 
     console.log(`UltraFeedRepo: Generated ${allThreads.length} distinct threads`);
     if (allThreads.length > 0) {
       console.log(`UltraFeedRepo: Sample thread structure:`, 
         JSON.stringify({
-          topLevelCommentId: allThreads[0].topLevelCommentId,
-          postId: allThreads[0].post._id,
-          commentCount: allThreads[0].comments.length
+          topLevelCommentId: allThreads[0][0].commentId,
+          postId: allThreads[0][0].postId,
+          commentCount: allThreads[0].length
         }, null, 2));
     } else {
       console.log(`UltraFeedRepo: WARNING - No threads were generated!`);
@@ -307,48 +250,48 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   }
 
   private buildDistinctLinearThreads(
-    candidates: PreDisplayFeedComment[]
+    candidates: FeedCommentFromDb[]
   ): PreDisplayFeedComment[][] {
     if (!candidates.length) return [];
 
     // Build a parent->child map to track siblings
     const children: Record<string, string[]> = {};
     for (const c of candidates) {
-      const parent = c.comment.parentCommentId ?? "root";
+      const parent = c.parentCommentId ?? "root";
       if (!children[parent]) {
         children[parent] = [];
       }
-      children[parent].push(c.comment._id);
+      children[parent].push(c.commentId);
     }
 
-    const enhancedCandidates = candidates.map(candidate => {
-      if (!candidate.comment.parentCommentId) {
-        return candidate;
-      }
+    const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
       
-      const parentId = candidate.comment.parentCommentId;
+      const parentId = candidate.parentCommentId;
       const siblingCount = children[parentId] ? children[parentId].length - 1 : 0;
       
       // Create new object instead of mutating the original
       return {
-        comment: candidate.comment,
+        commentId: candidate.commentId,
+        postId: candidate.postId,
+        baseScore: candidate.baseScore,
         metaInfo: {
-          ...(candidate.metaInfo || {}),
-          siblingCount
+          sources: candidate.sources as FeedItemSourceType[],
+          siblingCount,
+          alreadySeen: null,
         }
       };
     });
     
     // Index enhanced candidates by their commentId for quick lookups
     const commentsById = new Map<string, PreDisplayFeedComment>(
-      enhancedCandidates.map((c) => [c.comment._id, c])
+      enhancedCandidates.map((c) => [c.commentId, c])
     );
 
     // Identify the "top-level" comment ID from the group
-    const topLevelId = candidates[0].comment.topLevelCommentId ?? candidates[0].comment._id;
+    const topLevelId = candidates[0].topLevelCommentId ?? candidates[0].commentId;
 
     // Recursively build all linear threads starting at topLevelId
-    const buildCommentThreads = (currentId: string): PreDisplayFeedComment[][] => {
+    const buildCommentThreads = (currentId: string): PreDisplayFeedCommentThread[] => {
       const currentCandidate = commentsById.get(currentId);
       if (!currentCandidate) return [];
 
@@ -359,7 +302,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       }
 
       // For each child, collect all subpaths
-      const results: PreDisplayFeedComment[][] = [];
+      const results: PreDisplayFeedCommentThread[] = [];
       for (const cid of childIds) {
         const subPaths = buildCommentThreads(cid);
         for (const subPath of subPaths) {
@@ -374,7 +317,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
   public getThreadStatistics(thread: PreDisplayFeedCommentThread): ThreadStatistics {
     // Handle edge case of empty threads
-    if (!thread.comments || thread.comments.length === 0) {
+    if (!thread.length || thread.length === 0) {
       return {
         commentCount: 0,
         maxKarma: 0,
@@ -385,8 +328,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       };
     }
 
-    const commentCount = thread.comments.length;
-    const karmaValues = thread.comments.map(comment => comment.comment.baseScore || 0);
+    const commentCount = thread.length;
+    const karmaValues = thread.map(comment => comment.baseScore || 0);
     const maxKarma = Math.max(...karmaValues);
     const sumKarma = karmaValues.reduce((sum, score) => sum + score, 0);
     const sumKarmaSquared = karmaValues.reduce((sum, score) => sum + (score * score), 0);
@@ -395,7 +338,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     const averageKarma = sumKarma / commentCount;
 
     return {
-      commentCount: thread.comments.length,
+      commentCount,
       maxKarma,
       sumKarma,
       sumKarmaSquared,
@@ -432,8 +375,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   }
 
   // TOOD: Implement actually good logic for choosing which to display
-  public prepareCommentThreadForDisplay(thread: PreDisplayFeedCommentThread): DisplayFeedPostWithComments {
-    const numComments = thread.comments.length;
+  public prepareCommentThreadForResolver(thread: PreDisplayFeedCommentThread): FeedPostWithComments {
+    const numComments = thread.length;
     // Make sure we don't try to expand more comments than exist
     const numExpanded = Math.min(numComments, numComments <= 7 ? 2 : 3);
     // randomly choose numExpanded indices from numComments
@@ -451,29 +394,29 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         expandedIndices.add(index);
       }
     }
-      
+
+    const commentIds = thread.map((item: PreDisplayFeedComment) => item.commentId);
+    const commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo} = thread.reduce((acc: {[commentId: string]: FeedCommentMetaInfo}, comment, index) => {
+      acc[comment.commentId] = {
+        sources: comment.metaInfo?.sources || [],
+        displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
+        alreadySeen: null,
+        siblingCount: comment.metaInfo?.siblingCount ?? null,
+      };
+      return acc;
+    }, {});
+    
     return {
-      post: thread.post,
-      postMetaInfo: {
-        sources: ['commentThreads'],
-        displayStatus: 'hidden',
-      },
-      comments: thread.comments.map((item: PreDisplayFeedComment, index: number) => {
-        const { comment } = item;
-        return {
-          comment,
-          metaInfo: {
-            sources: item.metaInfo?.sources || [],
-            displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
-          }
-        }
-      })
+      postId: thread[0].postId,
+      postMetaInfo: { sources: ['commentThreads'], displayStatus: 'hidden' },
+      commentIds,
+      commentMetaInfos,
     };
   }
 
   // TODO: somewhere choose threads better
   // end-to-end function for generating threads for displaying in the UltraFeed
-  public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<DisplayFeedPostWithComments[]> {
+  public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<FeedPostWithComments[]> {
     console.log(`UltraFeedRepo.getUltraFeedCommentThreads started with limit=${limit}`);
     
     const candidates = await this.getCommentsForFeed(context, 200); // limit of how many comments to consider
@@ -485,12 +428,12 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     const prioritizedThreads = this.prioritizeThreads(threads);
     console.log(`UltraFeedRepo: After prioritization, have ${prioritizedThreads.length} threads`);
     
-    const displayThreads = prioritizedThreads.map(thread => this.prepareCommentThreadForDisplay(thread.thread));
+    const displayThreads = prioritizedThreads.map(thread => this.prepareCommentThreadForResolver(thread.thread));
     console.log(`UltraFeedRepo: Generated ${displayThreads.length} display threads`);
 
     // TODO: IMPORTANT - remove before production
     // filter to only include threads with < 5 comments
-    const filteredDisplayThreads = displayThreads.filter(thread => thread.comments.length < 10);
+    const filteredDisplayThreads = displayThreads.filter(thread => thread.commentIds?.length && thread.commentIds.length < 10);
     
     const result = filteredDisplayThreads.slice(0, limit);
     console.log(`UltraFeedRepo: Returning ${result.length} threads after applying limit`);
@@ -501,7 +444,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   /**
    * Fetches random spotlight items for UltraFeed
    */
-  public async getUltraFeedSpotlights(context: ResolverContext, limit = 5): Promise<DisplayFeedSpotlight[]> {
+  public async getUltraFeedSpotlights(context: ResolverContext, limit = 5): Promise<FeedSpotlight[]> {
     console.log(`UltraFeedRepo.getUltraFeedSpotlights called with limit=${limit}`);
 
     // Get database connection
@@ -526,35 +469,22 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     }
     
     // Extract IDs
-    const spotlightIds = spotlightRows.map(row => row._id);
+    const spotlightItems = spotlightRows.map(row => {
+      return {
+        spotlightId: row._id,
+      }
+    });
 
-    console.log("spotlightIds", spotlightIds, Array.isArray(spotlightIds));
+    console.log("spotlightIds", spotlightItems, Array.isArray(spotlightItems));
     
-    if (!spotlightIds.length) {
+    if (!spotlightItems.length) {
       console.log(`UltraFeedRepo: No spotlight IDs to query`);
       return [];
     }
     
-    console.log({spotlightIds});
-    const spotlightResults = await runFragmentMultiQuery({
-      collectionName: "Spotlights",
-      fragmentName: "SpotlightDisplay", 
-      terms: { view: "spotlightsById", spotlightIds, limit: 5 },
-      context,
-    });
-    
-    console.log(`UltraFeedRepo: Fetched ${spotlightResults.length} spotlight items`);
+    console.log(`UltraFeedRepo: Fetched ${spotlightItems.length} spotlight items`);
 
-    console.log("auditing spotlight results", {
-      selectedIds: spotlightIds,
-      idOfRetrievedResults: spotlightResults.map((s: SpotlightDisplay) => s._id),
-    });
-
-    const displaySpotlights: DisplayFeedSpotlight[] = spotlightResults.map((result: SpotlightDisplay) => ({
-      spotlight: result,
-    }));
-    
-    return displaySpotlights;
+    return spotlightItems;
   }
 }
 
