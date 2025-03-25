@@ -13,7 +13,7 @@ import {
 } from "../../utils/schemaUtils";
 import { localGroupTypeFormOptions } from "./groupTypes";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isEAForum, isLW } from "@/lib/instanceSettings";
 
 export const GROUP_CATEGORIES = [
