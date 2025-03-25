@@ -1,14 +1,7 @@
-import { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/revisionConstants';
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
-import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
-import { htmlStartingAtHash } from '../extractHighlights';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
-import { compile as compileHtmlToText } from 'html-to-text'
-import sanitizeHtml, {IFrame} from 'sanitize-html';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
-import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
-import { htmlToTextDefault } from '../../lib/htmlToText';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { afterCreateRevisionCallback, buildRevision } from '../editor/make_editable_callbacks';
 import isEqual from 'lodash/isEqual';
@@ -16,131 +9,6 @@ import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
-import { parseDocumentFromString } from '../../lib/domParser';
-import { extractTableOfContents } from '../../lib/tableOfContents';
-import { htmlContainsFootnotes } from '../utils/htmlUtil';
-
-// Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
-const htmlToTextPlaintextDescription = compileHtmlToText({
-  wordwrap: false,
-  selectors: [
-    { selector: "img", format: "skip" },
-    { selector: "a", options: { ignoreHref: true } },
-    { selector: "p", options: { leadingLineBreaks: 1 } },
-    { selector: "h1", options: { trailingLineBreaks: 1, uppercase: false } },
-    { selector: "h2", options: { trailingLineBreaks: 1, uppercase: false } },
-    { selector: "h3", options: { trailingLineBreaks: 1, uppercase: false } },
-  ]
-});
-
-export const revisionResolvers = {
-  markdown: {
-    type: String,
-    resolveAs: {
-      type: 'String',
-      resolver: ({originalContents}): string | null => originalContents
-        ? dataToMarkdown(originalContents.data, originalContents.type)
-        : null,
-    },
-    nullable: true,
-  },
-  draftJS: {
-    type: Object,
-    resolveAs: {
-      type: 'JSON',
-      resolver: ({originalContents}) => originalContents
-        ? dataToDraftJS(originalContents.data, originalContents.type)
-        : null,
-    }
-  },
-  ckEditorMarkup: {
-    type: String,
-    resolveAs: {
-      type: 'String',
-      resolver: ({originalContents, html}) => originalContents
-        // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
-        ? (originalContents.type === 'ckEditorMarkup' ? originalContents.data : html)
-        : null,
-    }
-  },
-  htmlHighlight: {
-    type: String,
-    resolveAs: {
-      type: 'String!',
-      resolver: ({html}): string => highlightFromHTML(html)
-    }
-  },
-  htmlHighlightStartingAtHash: {
-    type: String,
-    resolveAs: {
-      type: 'String!',
-      arguments: 'hash: String',
-      resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
-        const {hash} = args;
-        const rawHtml = revision?.html;
-
-        if (!rawHtml) return '';
-        
-        // Process the HTML through the table of contents generator (which has
-        // the byproduct of marking section headers with anchors)
-        const toc = extractTableOfContents(parseDocumentFromString(rawHtml));
-        const html = toc?.html || rawHtml;
-        
-        if (!html) return '';
-        
-        const startingFromHash = htmlStartingAtHash(html, hash);
-        const highlight = highlightFromHTML(startingFromHash);
-        return highlight;
-      },
-    }
-  },
-  plaintextDescription: {
-    type: String,
-    resolveAs: {
-      type: 'String!',
-      resolver: ({html}): string => {
-        if (!html) return ""
-        const truncatedHtml = truncate(html, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
-      }
-    }
-  },
-  // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
-  plaintextMainText: {
-    type: String,
-    resolveAs: {
-      type: 'String!',
-      resolver: ({html}): string => {
-        if (!html) return ""
-
-        const mainTextHtml = sanitizeHtml(
-          html, {
-            allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
-            nonTextTags: ['blockquote', 'img', 'style'],
-            
-            exclusiveFilter: function(element: IFrame) {
-              return (element.attribs?.class === 'spoilers' || element.attribs?.class === 'spoiler' || element.attribs?.class === "spoiler-v2");
-            }
-          }
-        )
-        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToTextDefault(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      }
-    }
-  },
-  
-  hasFootnotes: {
-    type: Boolean,
-    resolveAs: {
-      type: 'Boolean',
-      resolver: ({html}): boolean => {
-        if (!html) return false;
-        return htmlContainsFootnotes(html);
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"Revisions">>;
 
 defineQuery({
   name: "convertDocument",

@@ -4021,8 +4021,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>,
+  readonly hiddenPostsMetadata: Array<{
+    postId: string,
+  }>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
@@ -4197,8 +4201,12 @@ interface UsersDefaultFragment { // fragment on Users
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>,
+  readonly hiddenPostsMetadata: Array<{
+    postId: string,
+  }>,
   readonly legacyId: string,
   readonly deleted: boolean,
   readonly permanentDeletionRequestedAt: Date | null,

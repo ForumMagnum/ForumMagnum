@@ -1,7 +1,3 @@
-// GENERATED FILE - DO NOT MODIFY DIRECTLY
-// This is a generated file that has been converted from the old schema format to the new format.
-// The original schema is still in use, this is just for reference.
-
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate,
@@ -28,6 +24,7 @@ import { getContributorsFieldResolver } from "@/lib/collections/helpers/contribu
 import { captureException } from "@sentry/core";
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
+import type { TagCommentType } from "../comments/types";
 
 addGraphQLSchema(`
   type TagContributor {
@@ -662,7 +659,7 @@ const schema = {
       outputType: "[Comment]",
       canRead: ["guests"],
       arguments: "tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String",
-      resolver: async (tag, args, context) => {
+      resolver: async (tag, args: { tagCommentsLimit?: number|null, maxAgeHours?: number, af?: boolean, tagCommentType?: TagCommentType }, context) => {
         // assuming this might have the same issue as `recentComments` on the posts schema, w.r.t. tagCommentsLimit being null vs. undefined
         const { tagCommentsLimit, maxAgeHours = 18, af = false, tagCommentType = "DISCUSSION" } = args;
         const { currentUser, Comments } = context;

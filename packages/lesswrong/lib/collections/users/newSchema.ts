@@ -1,7 +1,3 @@
-// GENERATED FILE - DO NOT MODIFY DIRECTLY
-// This is a generated file that has been converted from the old schema format to the new format.
-// The original schema is still in use, this is just for reference.
-
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import SimpleSchema from "simpl-schema";
 import {
@@ -518,6 +514,14 @@ addGraphQLSchema(`
     lng: Float!
   }
 `);
+
+const postsMetadataSchema = new SimpleSchema({
+  postId: {
+    type: String,
+    foreignKey: "Posts",
+    optional: true,
+  },
+});
 
 const emailsSchema = new SimpleSchema({
   address: {
@@ -2143,6 +2147,7 @@ const schema = {
       },
       validation: {
         optional: true,
+        simpleSchema: [postsMetadataSchema],
       },
     },
     form: {
@@ -2186,6 +2191,7 @@ const schema = {
       },
       validation: {
         optional: true,
+        simpleSchema: [postsMetadataSchema],
       },
     },
     form: {
@@ -4336,7 +4342,7 @@ const schema = {
       outputType: "[Post]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
-      resolver: async (user, args, context) => {
+      resolver: async (user, args: { limit: number }, context) => {
         const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = await Posts.find(
@@ -5659,6 +5665,7 @@ const schema = {
       validation: {
         simpleSchema: recommendationSettingsSchema,
         optional: true,
+        blackbox: true,
       },
     },
     form: {
