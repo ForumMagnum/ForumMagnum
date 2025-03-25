@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/jargonTerms/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
@@ -46,8 +45,7 @@ const options: MutationOptions<DbJargonTerm> = {
 export const JargonTerms: JargonTermsCollection = createCollection({
   collectionName: 'JargonTerms',
   typeName: 'JargonTerm',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('JargonTerms', { postId: 1, term: 1, createdAt: 1 });
     return indexSet;

@@ -183,7 +183,7 @@ const recommendationAlgorithmSettingsSchema = new SimpleSchema({
   onlyUnread: Boolean,
 });
 
-const recommendationSettingsSchema = new SimpleSchema({
+export const recommendationSettingsSchema = new SimpleSchema({
   frontpage: recommendationAlgorithmSettingsSchema,
   frontpageEA: recommendationAlgorithmSettingsSchema,
   recommendationspage: recommendationAlgorithmSettingsSchema,

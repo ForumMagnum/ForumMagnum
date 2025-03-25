@@ -31,6 +31,7 @@ interface JargonTermGenerationExampleParams {
 interface CreateJargonTermsQueryParams extends JargonTermGenerationExampleParams {
   postId: string;
   currentUser: DbUser;
+  context: ResolverContext;
 }
 
 interface JargonGlossaryQueryParams extends JargonTermGenerationExampleParams {
@@ -288,7 +289,7 @@ const processedTerms = (jargonTerms: DbJargonTerm[]) => {
   return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
 }
 
-export const createNewJargonTerms = async ({ postId, currentUser, ...exampleParams }: CreateJargonTermsQueryParams) => {
+export const createNewJargonTerms = async ({ postId, currentUser, context, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
     fragmentName: 'PostsPage',
@@ -322,7 +323,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     newJargonTerms = await executeWithLock(rawLockId, async () => {
       const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams });
 
-      const botAccount = await getAdminTeamAccount();
+      const botAccount = await getAdminTeamAccount(context);
       
       const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>
@@ -380,13 +381,14 @@ defineMutation({
   name: 'getNewJargonTerms',
   argTypes: '(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String)',
   resultType: '[JargonTerm]',
-  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
+  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser' | 'context'>, context: ResolverContext) => {
+    const { currentUser } = context;
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
     if (!userCanCreateAndEditJargonTerms(currentUser)) {
       throw new Error('This is a prototype feature that is not yet available to all users');
     }
-    return await createNewJargonTerms({ postId, currentUser, ...exampleParams });
+    return await createNewJargonTerms({ postId, currentUser, context, ...exampleParams });
   },
 });
