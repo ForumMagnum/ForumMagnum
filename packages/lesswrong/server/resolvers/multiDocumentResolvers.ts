@@ -1,10 +1,10 @@
 import { GraphQLJSON } from "graphql-type-json";
 import { getToCforMultiDocument } from "../tableOfContents";
 import { loadByIds } from "@/lib/loaders";
-import { defineMutation } from "../utils/serverGraphqlUtil";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { updateMutator } from "../vulcan-lib/mutators";
 import { contributorsField } from '../utils/contributorsFieldHelper';
+import gql from "graphql-tag";
 
 export const multiDocumentResolvers = {
   contributors: contributorsField({
@@ -22,11 +22,14 @@ export const multiDocumentResolvers = {
   },
 } satisfies Record<string, CollectionFieldSpecification<"MultiDocuments">>;
 
-defineMutation({
-  name: 'reorderSummaries',
-  argTypes: `(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!)`,
-  resultType: 'Boolean',
-  fn: async (root, { parentDocumentId, parentDocumentCollectionName, summaryIds }: { parentDocumentId: string, parentDocumentCollectionName: string, summaryIds: string[] }, context) => {
+export const multiDocumentTypeDefs = gql`
+  extend type Mutation {
+    reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
+  }
+`
+
+export const multiDocumentMutations = {
+  async reorderSummaries(root: void, { parentDocumentId, parentDocumentCollectionName, summaryIds }: { parentDocumentId: string, parentDocumentCollectionName: string, summaryIds: string[] }, context: ResolverContext) {
     const { currentUser, loaders, MultiDocuments } = context;
     if (!currentUser) {
       throw new Error('Must be logged in to reorder summaries');
@@ -74,5 +77,5 @@ defineMutation({
     }
 
     return true;
-  },
-});
+  }
+}

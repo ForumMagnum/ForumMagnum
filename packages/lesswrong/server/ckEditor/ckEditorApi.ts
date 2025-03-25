@@ -15,7 +15,7 @@ import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerC
 import { getPostEditorConfig } from './postEditorConfig';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 // TODO: actually implement these in Zod

@@ -1,8 +1,6 @@
 // Generate GraphQL-syntax schemas from resolvers &c that were set up with
 // addGraphQLResolvers &c.
 
-import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getResolvers, QueryAndDescription, MutationAndDescription } from '../../../lib/vulcan-lib/graphql';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -26,87 +24,258 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from './graphqlTemplates';
-import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
+import type { GraphQLScalarType } from 'graphql';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
-import { getSchema } from '@/lib/schema/allSchemas';
-import deepmerge from 'deepmerge';
-import GraphQLJSON from 'graphql-type-json';
-import GraphQLDate from './graphql-date';
+import gql from 'graphql-tag'; 
 import * as _ from 'underscore';
 import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
-import { getAllCollections } from "../../collections/allCollections";
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
+import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
+import { graphqlTypeDefs as analyticsTypeDefs } from '@/lib/analyticsEvents';
+import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
+import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/posts/newSchema';
+import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
+import { graphqlTypeDefs as additionalTagsTypeDefs } from '@/lib/collections/tags/newSchema';
+import { graphqlTypeDefs as additionalUsersTypeDefs } from '@/lib/collections/users/newSchema';
+import { graphqlTypeDefs as additionalRecommendationsTypeDefs } from '@/server/recommendations';
+import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResolversMutations, graphqlQueries as userResolversQueries } from '@/server/resolvers/userResolvers';
+import { graphqlVoteTypeDefs as postVoteTypeDefs, graphqlVoteMutations as postVoteMutations } from '@/server/collections/posts/collection';
+import { graphqlVoteTypeDefs as commentVoteTypeDefs, graphqlVoteMutations as commentVoteMutations } from '@/server/collections/comments/collection';
+import { graphqlVoteTypeDefs as tagRelVoteTypeDefs, graphqlVoteMutations as tagRelVoteMutations } from '@/server/collections/tagRels/collection';
+import { graphqlVoteTypeDefs as revisionVoteTypeDefs, graphqlVoteMutations as revisionVoteMutations } from '@/server/collections/revisions/collection';
+import { graphqlVoteTypeDefs as electionCandidateVoteTypeDefs, graphqlVoteMutations as electionCandidateVoteMutations } from '@/server/collections/electionCandidates/collection';
+import { graphqlVoteTypeDefs as tagVoteTypeDefs, graphqlVoteMutations as tagVoteMutations } from '@/server/collections/tags/collection';
+import { graphqlVoteTypeDefs as multiDocumentVoteTypeDefs, graphqlVoteMutations as multiDocumentVoteMutations } from '@/server/collections/multiDocuments/collection';
+import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutations, graphqlQueries as commentQueries } from '@/server/resolvers/commentResolvers'
+import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
+import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
+import { arbitalGraphQLTypeDefs, arbitalGraphQLQueries } from '@/server/resolvers/arbitalPageData';
+import { coronaLinkDatabaseGraphQLTypeDefs, coronaLinkDatabaseGraphQLQueries } from '@/server/resolvers/coronaLinkDatabase';
+import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
+import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
+import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
+import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/server/resolvers/petrovDay2024Resolvers';
+import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
+import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
+import { postGqlQueries, postGqlMutations, postGqlTypeDefs } from '@/server/resolvers/postResolvers'
+import { adminGqlTypeDefs, adminGqlMutations } from '@/server/resolvers/adminResolvers'
+import { alignmentForumMutations, alignmentForumTypeDefs } from '@/server/resolvers/alignmentForumMutations'
+import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs } from '@/server/resolvers/allTagsActivityFeed';
+import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
+import { subscribedUsersFeedGraphQLQueries, subscribedUsersFeedGraphQLTypeDefs } from '@/server/resolvers/subscribedUsersFeedResolver';
+import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
+import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
+import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
+import { surveyResolversGraphQLMutations, surveyResolversGraphQLQueries, surveyResolversGraphQLTypeDefs } from '@/server/resolvers/surveyResolvers';
+import { wrappedResolversGqlTypeDefs, wrappedResolversGraphQLQueries } from '@/server/resolvers/wrappedResolvers';
+import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
+import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
+import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
+import { dialogueMessageGqlQueries, dialogueMessageGqlTypeDefs } from '@/server/resolvers/dialogueMessageResolvers';
+import { forumEventGqlMutations, forumEventGqlTypeDefs } from '@/server/resolvers/forumEventResolvers';
+import { ckEditorCallbacksGraphQLMutations, ckEditorCallbacksGraphQLTypeDefs, getLinkSharedPostGraphQLQueries } from '@/server/ckEditor/ckEditorCallbacks';
+import { googleVertexGqlMutations, googleVertexGqlTypeDefs } from '@/server/resolvers/googleVertexResolvers';
+import { migrationsDashboardGraphQLQueries, migrationsDashboardGraphQLTypeDefs } from '@/server/manualMigrations/migrationsDashboardGraphql';
+import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/server/resolvers/reviewWinnerResolvers';
+import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@/server/resolvers/importUrlAsDraftPost';
+import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
+import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
+import { multiDocumentMutations, multiDocumentResolvers, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
+import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
+import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
+import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
+import { bookmarkGqlMutations, bookmarkGqlTypeDefs } from '@/server/bookmarkMutation';
+import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
+import { markAsUnreadMutations, markAsUnreadTypeDefs } from '@/server/markAsUnread';
+import { cronGraphQLMutations, cronGraphQLQueries, cronGraphQLTypeDefs } from '@/server/rss-integration/cron';
+import { partiallyReadSequencesMutations, partiallyReadSequencesTypeDefs } from '@/server/partiallyReadSequences';
+import { jargonTermsGraphQLMutations, jargonTermsGraphQLTypeDefs } from '@/server/resolvers/jargonResolvers/jargonTermMutations';
+import { rsvpToEventsMutations, rsvpToEventsTypeDefs } from '@/server/rsvpToEvent';
+import { siteAdminMetadataGraphQLQueries, siteAdminMetadataGraphQLTypeDefs } from '@/server/siteAdminMetadata';
+import { tagsGqlMutations, tagsGqlTypeDefs } from '@/server/tagging/tagsGraphQL';
+import { analyticsEventGraphQLMutations, analyticsEventTypeDefs } from '@/server/analytics/serverAnalyticsWriter';
+import { usersGraphQLQueries, usersGraphQLTypeDefs } from '@/server/collections/users/collection';
+import { elasticGqlMutations, elasticGqlQueries, elasticGqlTypeDefs } from '@/server/search/elastic/elasticGraphQL';
+import { emailTokensGraphQLMutations, emailTokensGraphQLTypeDefs } from '@/server/emails/emailTokens';
+import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGraphQLTypeDefs } from '@/server/fmCrosspost/resolvers';
+import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
+import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
+import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
+import { getSchema } from '@/lib/schema/allSchemas';
 
-const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
-  `type Query {
-${queries.map(q =>
-        `${
-          q.description
-            ? `  # ${q.description}\n`
-            : ''
-        }  ${q.query}
-  `
-    )
-    .join('\n')}
-}
-
-`;
-const mutationsToGraphQL = (mutations: MutationAndDescription[]): string =>
-  mutations.length > 0
-    ? `
-${
-        mutations.length > 0
-          ? `type Mutation {
-
-${mutations
-              .map(m => `${
-                m.description
-                  ? `  # ${m.description}\n`
-                  : ''
-              }  ${m.mutation}\n`)
-              .join('\n')}
-}
+export const typeDefs = gql`
+  # type Query
+  # type Mutation
+  ${notificationTypeDefs}
+  ${analyticsTypeDefs}
+  ${arbitalLinkedPagesTypeDefs}
+  ${additionalPostsTypeDefs}
+  ${additionalRevisionsTypeDefs}
+  ${additionalTagsTypeDefs}
+  ${additionalUsersTypeDefs}
+  ${additionalRecommendationsTypeDefs}
+  ${userResolversTypeDefs}
+  # # Vote typedefs
+  ${postVoteTypeDefs}
+  ${commentVoteTypeDefs}
+  ${tagRelVoteTypeDefs}
+  ${revisionVoteTypeDefs}
+  ${electionCandidateVoteTypeDefs}
+  ${tagVoteTypeDefs}
+  ${multiDocumentVoteTypeDefs}
+  ${commentTypeDefs}
+  # # End vote typedefs
+  ${karmaChangesTypeDefs}
+  ${analyticsGraphQLTypeDefs}
+  ${arbitalGraphQLTypeDefs}
+  ${coronaLinkDatabaseGraphQLTypeDefs}
+  ${elicitPredictionsGraphQLTypeDefs}
+  ${notificationResolversGqlTypeDefs}
+  ${lightcone2024FundraiserGraphQLTypeDefs}
+  ${petrovDay2024GraphQLTypeDefs}
+  ${petrovDayLaunchGraphQLTypeDefs}
+  ${reviewVoteGraphQLTypeDefs}
+  ${postGqlTypeDefs}
+  ${adminGqlTypeDefs}
+  ${alignmentForumTypeDefs}
+  ${allTagsActivityFeedGraphQLTypeDefs}
+  ${recentDiscussionFeedGraphQLTypeDefs}
+  ${subscribedUsersFeedGraphQLTypeDefs}
+  ${tagHistoryFeedGraphQLTypeDefs}
+  ${subForumFeedGraphQLTypeDefs}
+  ${conversationGqlTypeDefs}
+  ${surveyResolversGraphQLTypeDefs}
+  ${tagGraphQLTypeDefs}
+  ${wrappedResolversGqlTypeDefs}
+  ${databaseSettingsGqlTypeDefs}
+  ${siteGraphQLTypeDefs}
+  ${loginDataGraphQLTypeDefs}
+  ${dialogueMessageGqlTypeDefs}
+  ${forumEventGqlTypeDefs}
+  ${ckEditorCallbacksGraphQLTypeDefs}
+  ${migrationsDashboardGraphQLTypeDefs}
+  ${reviewWinnerGraphQLTypeDefs}
+  ${googleVertexGqlTypeDefs}
+  ${importUrlAsDraftPostTypeDefs}
+  ${revisionResolversGraphQLTypeDefs}
+  ${moderationGqlTypeDefs}
+  ${multiDocumentTypeDefs}
+  ${spotlightGqlTypeDefs}
+  ${typingIndicatorsGqlTypeDefs}
+  ${acceptCoauthorRequestTypeDefs}
+  ${bookmarkGqlTypeDefs}
+  ${hidePostGqlTypeDefs}
+  ${markAsUnreadTypeDefs}
+  ${cronGraphQLTypeDefs}
+  ${partiallyReadSequencesTypeDefs}
+  ${jargonTermsGraphQLTypeDefs}
+  ${rsvpToEventsTypeDefs}
+  ${siteAdminMetadataGraphQLTypeDefs}
+  ${tagsGqlTypeDefs}
+  ${analyticsEventTypeDefs}
+  ${usersGraphQLTypeDefs}
+  ${elasticGqlTypeDefs}
+  ${emailTokensGraphQLTypeDefs}
+  ${fmCrosspostGraphQLTypeDefs}
+  ${diffGqlTypeDefs}
+  ${recommendationsGqlTypeDefs}
+  ${extraPostResolversGraphQLTypeDefs}
 `
-          : ''
-      }
 
-`
-    : '';
-
-// generate GraphQL schemas for all registered collections
-const getTypeDefs = () => {
-  const schemaContents: Array<string> = [
-    "scalar JSON",
-    "scalar Date",
-    getAdditionalSchemas(),
-  ];
-  
-  const allQueries = [...queries];
-  const allMutations = [...mutations];
-  const allResolvers: Array<any> = [];
-  
-  for (let collection of getAllCollections()) {
-    const { schema, addedQueries, addedResolvers, addedMutations } = generateSchema(collection);
-
-    for (let query of addedQueries) allQueries.push(query);
-    for (let resolver of addedResolvers) allResolvers.push(resolver);
-    for (let mutation of addedMutations) allMutations.push(mutation);
-    
-    schemaContents.push(schema);
-  }
-  
-  schemaContents.push(queriesToGraphQL(allQueries));
-  schemaContents.push(mutationsToGraphQL(allMutations));
-  
-  return {
-    schemaText: schemaContents.join("\n"),
-    addedResolvers: allResolvers,
-  };
+export const resolvers = {
+  Query: {
+    ...userResolversQueries,
+    ...notificationQueries,
+    ...commentQueries,
+    ...analyticsGraphQLQueries,
+    ...arbitalGraphQLQueries,
+    ...coronaLinkDatabaseGraphQLQueries,
+    ...elicitPredictionsGraphQLQueries,
+    ...notificationResolversGqlQueries,
+    ...elicitPredictionsGraphQLQueries,
+    ...lightcone2024FundraiserGraphQLQueries,
+    ...petrovDay2024GraphQLQueries,
+    ...petrovDayLaunchGraphQLQueries,
+    ...reviewVoteGraphQLQueries,
+    ...postGqlQueries,
+    ...allTagsActivityFeedGraphQLQueries,
+    ...recentDiscussionFeedGraphQLQueries,
+    ...subscribedUsersFeedGraphQLQueries,
+    ...tagHistoryFeedGraphQLQueries,
+    ...subForumFeedGraphQLQueries,
+    ...wrappedResolversGraphQLQueries,
+    ...siteGraphQLQueries,
+    ...dialogueMessageGqlQueries,
+    ...getLinkSharedPostGraphQLQueries,
+    ...migrationsDashboardGraphQLQueries,
+    ...reviewWinnerGraphQLQueries,  
+    ...revisionResolversGraphQLQueries,
+    ...moderationGqlQueries,
+    ...tagResolversGraphQLQueries,
+    ...cronGraphQLQueries,
+    ...siteAdminMetadataGraphQLQueries,
+    ...usersGraphQLQueries,
+    ...elasticGqlQueries,
+    ...fmCrosspostGraphQLQueries,
+    ...diffGqlQueries,
+    ...surveyResolversGraphQLQueries,
+    ...tagResolversGraphQLQueries,
+  },
+  Mutation: {
+    ...userResolversMutations,
+    ...postVoteMutations,
+    ...commentVoteMutations,
+    ...tagRelVoteMutations,
+    ...revisionVoteMutations,
+    ...electionCandidateVoteMutations,
+    ...tagVoteMutations,
+    ...multiDocumentVoteMutations,
+    ...commentMutations,
+    ...notificationResolversGqlMutations,
+    ...elicitPredictionsGraphQLMutations,
+    ...petrovDayLaunchGraphQLMutations,
+    ...reviewVoteGraphQLMutations,
+    ...postGqlMutations,
+    ...adminGqlMutations,
+    ...alignmentForumMutations,
+    ...conversationGqlMutations,
+    ...databaseSettingsGqlMutations,
+    ...forumEventGqlMutations,
+    ...googleVertexGqlMutations,
+    ...ckEditorCallbacksGraphQLMutations,
+    ...importUrlAsDraftPostGqlMutation,
+    ...revisionResolversGraphQLMutations,
+    ...moderationGqlMutations,
+    ...multiDocumentMutations,
+    ...spotlightGqlMutations,
+    ...typingIndicatorsGqlMutations,
+    ...tagResolversGraphQLMutations,
+    ...acceptCoauthorRequestMutations,
+    ...bookmarkGqlMutations,
+    ...hidePostGqlMutations,
+    ...markAsUnreadMutations,
+    ...cronGraphQLMutations,
+    ...partiallyReadSequencesMutations,
+    ...jargonTermsGraphQLMutations,
+    ...rsvpToEventsMutations,
+    ...tagsGqlMutations,
+    ...analyticsEventGraphQLMutations,
+    ...elasticGqlMutations,
+    ...emailTokensGraphQLMutations,
+    ...fmCrosspostGraphQLMutations,
+    ...surveyResolversGraphQLMutations, 
+    ...recommendationsGqlMutations,
+    ...extraPostResolversGraphQLMutations,
+    ...loginDataGraphQLMutations,
+  },
+  ...karmaChangesFieldResolvers,
+  ...elicitPredictionsGraphQLFieldResolvers,
 }
 
-// get GraphQL type for a given field
+
+// get GraphQL type for a given schema and field name
 const getGraphQLType = <N extends CollectionNameString>(
   graphql: GraphQLFieldSpecification<N>,
   isInput = false,
@@ -299,7 +468,7 @@ const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typ
 };
 
 // generate a GraphQL schema corresponding to a given collection
-const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
+export const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
   let graphQLSchema = '';
 
   const schemaFragments: Array<string> = [];
@@ -441,39 +610,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
   return {
     schema: graphQLSchema,
     addedQueries,
+    addedMutations,
     addedResolvers,
-    addedMutations
   };
-};
-
-
-
-export const initGraphQL = () => {
-  const { schemaText, addedResolvers } = getTypeDefs();
-  
-  let allResolvers = deepmerge(
-    getResolvers(),
-    {
-      JSON: GraphQLJSON,
-      Date: GraphQLDate,
-    }
-  );
-  for (let addedResolverGroup of addedResolvers) {
-    allResolvers = deepmerge(allResolvers, addedResolverGroup);
-  }
-  
-  executableSchema = makeExecutableSchema({
-    typeDefs: schemaText,
-    resolvers: allResolvers,
-  });
-
-  return executableSchema;
-};
-
-let executableSchema: GraphQLSchema | null = null;
-export const getExecutableSchema = () => {
-  if (!executableSchema) {
-    throw new Error('Warning: trying to access executable schema before it has been created by the server.');
-  }
-  return executableSchema;
 };

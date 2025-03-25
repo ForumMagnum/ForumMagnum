@@ -46,7 +46,6 @@ import {
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
@@ -54,8 +53,8 @@ import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges }
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import GraphQLJSON from "graphql-type-json";
-import type { PartialDeep } from "type-fest";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
+import gql from "graphql-tag";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -503,21 +502,12 @@ export const PROGRAM_PARTICIPATION = [
 
 export type RateLimitReason = "moderator" | "lowKarma" | "downvoteRatio" | "universal";
 
-const latLng = new SimpleSchema({
-  lat: {
-    type: Number,
-  },
-  lng: {
-    type: Number,
-  },
-});
-
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type LatLng {
     lat: Float!
     lng: Float!
   }
-`);
+`;
 
 const emailsSchema = new SimpleSchema({
   address: {

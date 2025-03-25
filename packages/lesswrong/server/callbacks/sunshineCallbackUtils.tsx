@@ -78,7 +78,7 @@ function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbP
 }
 
 async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
-  const { createAdminContext }: typeof import("../vulcan-lib/query") = require("../vulcan-lib/query");
+  const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
   const context = createAdminContext();
   const { ModeratorActions } = context;
 
@@ -114,7 +114,7 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
 }
 
 async function disableModerationAction(userId: string, warningType: DbModeratorAction['type']) {
-  const { createAdminContext }: typeof import("../vulcan-lib/query") = require("../vulcan-lib/query");
+  const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
   const context = createAdminContext();
   const { ModeratorActions } = context;
 
@@ -223,7 +223,7 @@ export async function triggerAutomodIfNeeded(userId: string, context: ResolverCo
 }
 
 export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote) {
-  const { createAdminContext }: typeof import("../vulcan-lib/query") = require("../vulcan-lib/query");
+  const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
 
   const context = createAdminContext();
   const { Votes, CommentModeratorActions } = context;

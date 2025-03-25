@@ -8,7 +8,6 @@ import {
   generateIdResolverSingle,
   getDenormalizedCountOfReferencesGetValue
 } from "../../utils/schemaUtils";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { getWithLoader } from "../../loaders";
 import moment from "moment";
 import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
@@ -29,8 +28,9 @@ import { captureException } from "@sentry/core";
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from "@/lib/instanceSettings";
 import GraphQLJSON from "graphql-type-json";
 import { permissionGroups } from "@/lib/permissions";
+import gql from "graphql-tag";
 
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type TagContributor {
     user: User
     contributionScore: Int!
@@ -46,7 +46,7 @@ addGraphQLSchema(`
     _id: String!
     displayName: String!
   }
-`);
+`
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption> = {
   relevance: { label: preferredHeadingCase("Most Relevant") },

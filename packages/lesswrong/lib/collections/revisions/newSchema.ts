@@ -4,7 +4,6 @@
 
 import { accessFilterSingle, generateIdResolverSingle, getDenormalizedCountOfReferencesGetValue } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { userCanReadField, userIsAdminOrMod, userIsPodcaster, userOwns } from "../../vulcan-users/permissions";
 import { SharableDocument, userIsSharedOn } from "../users/helpers";
 import { currentUserExtendedVoteResolver, currentUserVoteResolver, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
@@ -22,6 +21,7 @@ import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import GraphQLJSON from "graphql-type-json";
+import gql from "graphql-tag";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -55,16 +55,13 @@ export const ContentType = new SimpleSchema({
 
 // defining a custom scalar seems to allow it to pass through any data type,
 // but this doesn't seem much more permissive than ContentType was originally
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   scalar ContentTypeData
-`);
-
-addGraphQLSchema(`
   type ContentType {
     type: String
     data: ContentTypeData
   }
-`);
+`
 
 const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document;

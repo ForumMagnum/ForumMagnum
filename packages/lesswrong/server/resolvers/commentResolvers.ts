@@ -1,4 +1,3 @@
-import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
@@ -9,58 +8,9 @@ import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { fetchFragmentSingle } from '../fetchFragment';
+import gql from 'graphql-tag';
 
-const specificResolvers = {
-  Mutation: {
-    async moderateComment(root: void, { commentId, deleted, deletedPublic, deletedReason}: {
-      commentId: string, deleted: boolean, deletedPublic: boolean, deletedReason: string
-    }, context: ResolverContext) {
-      const {currentUser} = context;
-      const comment = await context.Comments.findOne(commentId)
-      if (!comment) throw new Error("Invalid commentId");
-      const post = comment.postId ? await context.Posts.findOne(comment.postId) : null;
-      const tag = comment.tagId ? await context.Tags.findOne(comment.tagId) : null;
-      
-      if (currentUser && userCanModerateComment(currentUser, post, tag, comment))
-      {
-        let set: Record<string,any> = {deleted: deleted}
-        if (deleted) {
-          if(deletedPublic !== undefined) {
-            set.deletedPublic = deletedPublic;
-          }
-          set.deletedDate = comment.deletedDate || new Date();
-          if(deletedReason !== undefined) {
-            set.deletedReason = deletedReason;
-          }
-          set.deletedByUserId = currentUser._id;
-        } else { //When you undo delete, reset all delete-related fields
-          set.deletedPublic = false;
-          set.deletedDate = null;
-          set.deletedReason = "";
-          set.deletedByUserId = null;
-        }
-        
-        const {data: updatedComment} = await updateMutator({
-          collection: Comments,
-          documentId: commentId,
-          set,
-          currentUser: currentUser,
-          validate: false,
-          context
-        });
-        return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
-      } else {
-        throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));
-      }
-    }
-  }
-};
-
-addGraphQLResolvers(specificResolvers);
-addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment');
-
-
-createPaginatedResolver({
+const { Query: commentsWithReactsQuery, typeDefs: commentsWithReactsTypeDefs } = createPaginatedResolver({
   name: "CommentsWithReacts",
   graphQLType: "Comment",
   callback: async (context: ResolverContext, limit: number): Promise<DbComment[]> => {
@@ -70,7 +20,7 @@ createPaginatedResolver({
   }
 })
 
-createPaginatedResolver({
+const { Query: popularCommentsQuery, typeDefs: popularCommentsTypeDefs } = createPaginatedResolver({
   name: "PopularComments",
   graphQLType: "Comment",
   callback: async (
@@ -82,6 +32,65 @@ createPaginatedResolver({
   },
   cacheMaxAgeMs: 300000, // 5 mins
 });
+
+
+export const graphqlMutations = {
+  async moderateComment(root: void, { commentId, deleted, deletedPublic, deletedReason}: {
+    commentId: string, deleted: boolean, deletedPublic: boolean, deletedReason: string
+  }, context: ResolverContext) {
+    const {currentUser} = context;
+    const comment = await context.Comments.findOne(commentId)
+    if (!comment) throw new Error("Invalid commentId");
+    const post = comment.postId ? await context.Posts.findOne(comment.postId) : null;
+    const tag = comment.tagId ? await context.Tags.findOne(comment.tagId) : null;
+    
+    if (currentUser && userCanModerateComment(currentUser, post, tag, comment))
+    {
+      let set: Record<string,any> = {deleted: deleted}
+      if (deleted) {
+        if(deletedPublic !== undefined) {
+          set.deletedPublic = deletedPublic;
+        }
+        set.deletedDate = comment.deletedDate || new Date();
+        if(deletedReason !== undefined) {
+          set.deletedReason = deletedReason;
+        }
+        set.deletedByUserId = currentUser._id;
+      } else { //When you undo delete, reset all delete-related fields
+        set.deletedPublic = false;
+        set.deletedDate = null;
+        set.deletedReason = "";
+        set.deletedByUserId = null;
+      }
+      
+      const {data: updatedComment} = await updateMutator({
+        collection: Comments,
+        documentId: commentId,
+        set,
+        currentUser: currentUser,
+        validate: false,
+        context
+      });
+      return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
+    } else {
+      throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));
+    }
+  }
+}
+
+export const graphqlQueries = {
+  ...commentsWithReactsQuery,
+  ...popularCommentsQuery
+}
+
+export const graphqlTypeDefs = gql`
+  extend type Mutation {
+    moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment
+  }
+  ${commentsWithReactsTypeDefs}
+  ${popularCommentsTypeDefs}
+`
+
 
 type TopicRecommendation = {
   comment: DbComment,
