@@ -320,6 +320,20 @@ const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
   },
 } satisfies GraphQLFieldSpecification<"Users">;
 
+const dailyEmailBatchNotificationSettingOnCreate = () => {
+  return {
+    onsite: { ...defaultNotificationTypeSettings.onsite },
+    email: { ...defaultNotificationTypeSettings.email, enabled: true, batchingFrequency: "daily" },
+  };
+};
+
+const emailEnabledNotificationSettingOnCreate = () => {
+  return {
+    onsite: { ...defaultNotificationTypeSettings.onsite },
+    email: { ...defaultNotificationTypeSettings.email, enabled: true },
+  };
+};
+
 ///////////////////////////////////////////////
 // End migration of NotificationTypeSettings //
 ///////////////////////////////////////////////
@@ -2459,7 +2473,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Comments on posts/events I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
@@ -2473,7 +2490,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: isEAForum
         ? "Quick takes by users I'm subscribed to"
@@ -2489,7 +2509,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: emailEnabledNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Replies to my comments",
       control: "NotificationTypeSettingsWidget",
@@ -2503,7 +2526,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Replies to comments I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
@@ -2519,14 +2545,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => {
-        if (!isLWorAF) {
-          return {
-            onsite: { ...defaultNotificationTypeSettings.onsite },
-            email: { ...defaultNotificationTypeSettings.email, enabled: true },
-          };
-        }
-      },
+      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Posts by users I'm subscribed to",
@@ -2541,7 +2560,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Comments by users I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
@@ -2658,7 +2680,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: emailEnabledNotificationSettingOnCreate } : {}),
+    },
     form: {
       hidden: true,
       label: "Karma powers gained",
@@ -2750,7 +2775,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: emailEnabledNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Someone has mentioned me in a post or a comment",
       control: "NotificationTypeSettingsWidget",
