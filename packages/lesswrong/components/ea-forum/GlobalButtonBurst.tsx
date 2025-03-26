@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { DatabasePublicSetting } from "@/lib/publicSettings";
 
 export const buttonBurstSetting = new DatabasePublicSetting<boolean>("buttonBurst.enabled", false);
-const buttonBurstImage = new DatabasePublicSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby.png");
+const buttonBurstImage = new DatabasePublicSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png");
 
 function onIdle(fn: () => void) {
   if (typeof (window as any).requestIdleCallback === "function") {
@@ -164,8 +164,8 @@ export default function GlobalButtonBursts() {
               position: "fixed",
               left: 0,
               top: 0,
-              width: "40px",
-              height: "40px",
+              width: "60px",
+              height: "60px",
               pointerEvents: "none",
               zIndex: 9999,
               transform: "translate(0px, 0px)",
