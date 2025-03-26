@@ -13,7 +13,7 @@ export const schema: SchemaType<"ReviewWinnerArts"> = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
-      nullable: true,
+      // nullable: true,
     }), 
   },
   splashArtImagePrompt: {
