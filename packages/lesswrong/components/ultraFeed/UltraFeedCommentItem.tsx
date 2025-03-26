@@ -138,50 +138,29 @@ const UltraFeedCommentItem = ({
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-  const { UltraFeedCollapsedCommentItem, UltraFeedCommentsItemMeta, ContentStyles, CommentBottom } = Components;
+  const { UltraFeedCommentsItemMeta, ContentStyles, CommentBottom } = Components;
 
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
 
-  // Is this comment currently expanded or collapsed?
-  const expanded = displayStatus === "expanded";
-
   // Decide if we should truncate the content if collapsed
   const shouldTruncate = useMemo(() => {
     const wordCount = comment.contents?.wordCount ?? 0;
-    return wordCount > 500 && !expanded;
-  }, [expanded, comment.contents?.wordCount]);
+    return wordCount > 500 && displayStatus !== "expanded";
+  }, [displayStatus, comment.contents?.wordCount]);
 
   const handleExpand = useCallback(() => {
     onChangeDisplayStatus("expanded");
     captureEvent("ultraFeedCommentExpanded");
   }, [onChangeDisplayStatus, captureEvent]);
 
-  const handleCollapse = useCallback(() => {
-    onChangeDisplayStatus("collapsed");
-    captureEvent("ultraFeedCommentCollapsed");
-  }, [onChangeDisplayStatus, captureEvent]);
+  const expanded = displayStatus === "expanded";
+  const metaDataProps = displayStatus === "expanded" ? {} : {hideDate: true, hideVoteButtons: true, hideActionsMenu: true};
 
-  // Collapsed version
-  const collapsedComment = (
-    <div className={classNames({ [classes.hidden]: expanded })}>
-      <UltraFeedCollapsedCommentItem 
-        comment={comment}
-        post={post}
-        onExpand={handleExpand}
-      />
-    </div>
-  );
-
-  // Expanded version
-  const expandedComment = (
-    <div className={classNames(classes.root, { [classes.hidden]: !expanded })}>
-      <UltraFeedCommentsItemMeta
-        comment={comment}
-        post={post}
-        hideActionsMenu={false}
-      />
+  return (
+    <div className={classes.root} onClick={expanded ? undefined : handleExpand}>
+      <UltraFeedCommentsItemMeta comment={comment} post={post} {...metaDataProps} />
       {showInLineCommentThreadTitle && (
         <div className={classes.inlineCommentThreadTitle}>
           <span>
@@ -201,7 +180,7 @@ const UltraFeedCommentItem = ({
         </ContentStyles>
       </div>
 
-      <div className={classes.commentBottom}>
+      {expanded && <div className={classes.commentBottom}>
         <CommentBottom
           comment={comment}
           post={post}
@@ -210,16 +189,10 @@ const UltraFeedCommentItem = ({
           voteProps={voteProps}
           replyButton={<div>Reply</div>}
         />
-      </div>
+      </div>}
     </div>
   );
 
-  return (
-    <>
-      {collapsedComment}
-      {expandedComment}
-    </>
-  );
 };
 
 const UltraFeedCommentItemComponent = registerComponent("UltraFeedCommentItem", UltraFeedCommentItem);

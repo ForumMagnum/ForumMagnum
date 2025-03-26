@@ -80,7 +80,7 @@ const UltraFeedCommentsItemMeta = ({
   setShowEdit?: () => void,
   hideDate?: boolean,
   hideVoteButtons?: boolean,
-  hideActionsMenu: boolean,
+  hideActionsMenu?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { CommentsMenu, CommentsItemDate, CommentUserName, SmallSideVote } = Components;
