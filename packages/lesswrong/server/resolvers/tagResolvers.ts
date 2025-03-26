@@ -20,17 +20,12 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { captureException } from '@sentry/core';
-import GraphQLJSON from 'graphql-type-json';
-import { getToCforTag } from '../tableOfContents';
-import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
@@ -132,29 +127,28 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
   ],
 });
 
-export const subForumFeedGraphQLTypeDefs = gql`
-  ${subforumSortings.map(sorting => `
-    type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
-      cutoff: Date
-      endOffset: Int!
-      results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!]
-    }
-    type Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
-      type: String!
-      tagSubforumPosts: Post
-      tagSubforumComments: Comment
-      tagSubforumStickyComments: Comment
-    }
-    extend type Query {
-      Subforum${subforumSortingToResolverName(sorting)}Feed(
-        limit: Int
-        cutoff: ${subforumSortingTypes[sorting]}
-        offset: Int
-        tagId: String!
-        af: Boolean
-      ): Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults!
-  }`).join('\n')}
-`
+export const subForumFeedGraphQLTypeDefs = gql(subforumSortings.map(sorting => `
+  type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
+    cutoff: Date
+    endOffset: Int!
+    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!]
+  }
+  type Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
+    type: String!
+    tagSubforumPosts: Post
+    tagSubforumComments: Comment
+    tagSubforumStickyComments: Comment
+  }
+  extend type Query {
+    Subforum${subforumSortingToResolverName(sorting)}Feed(
+      limit: Int
+      cutoff: ${subforumSortingTypes[sorting]}
+      offset: Int
+      tagId: String!
+      af: Boolean
+    ): Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults!
+  }
+`).join('\n'))
 
 export const subForumFeedGraphQLQueries = {
   ...(Object.fromEntries(subforumSortings.map((sorting) => [
@@ -205,7 +199,7 @@ export const tagGraphQLTypeDefs = gql`
     TagPreview(slug: String!, hash: String): TagPreviewWithSummaries
     TagsByCoreTagId(coreTagId: String, limit: Int, searchTagIds: [String]): TagWithTotalCount!
   }
-`
+`;
 
 interface TagUpdates {
   tag: Partial<DbTag>;
@@ -834,40 +828,6 @@ export const tagResolversGraphQLQueries = {
   }
 
 }
-
-export const tagResolvers = {
-  contributors: contributorsField({
-    collectionName: 'Tags',
-    fieldName: 'description',
-  }),
-  tableOfContents: {
-    resolveAs: {
-      arguments: 'version: String',
-      type: GraphQLJSON,
-      resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
-        try {
-          return await getToCforTag({document, version: args.version||null, context});
-        } catch(e) {
-          captureException(e);
-          return null;
-        }
-      }
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"Tags">>;
-
-export const tagRelResolvers = {
-  autoApplied: {
-    resolveAs: {
-      type: "Boolean!",
-      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
-        const tagBotUserId = await getTagBotUserId(context);
-        if (!tagBotUserId) return false;
-        return (document.userId===tagBotUserId && document.voteCount===1);
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"TagRels">>;
 
 function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   const tagsByIdMap = keyBy(tags, '_id');

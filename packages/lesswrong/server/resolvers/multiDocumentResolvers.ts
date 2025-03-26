@@ -1,26 +1,8 @@
-import { GraphQLJSON } from "graphql-type-json";
-import { getToCforMultiDocument } from "../tableOfContents";
 import { loadByIds } from "@/lib/loaders";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { updateMutator } from "../vulcan-lib/mutators";
-import { contributorsField } from '../utils/contributorsFieldHelper';
 import gql from "graphql-tag";
 
-export const multiDocumentResolvers = {
-  contributors: contributorsField({
-    collectionName: 'MultiDocuments',
-    fieldName: 'contents',
-  }),
-  tableOfContents: {
-    resolveAs: {
-      arguments: 'version: String',
-      type: GraphQLJSON,
-      resolver: async (document: DbMultiDocument, { version }: { version: string | null }, context: ResolverContext) => {
-        return await getToCforMultiDocument({ document, version, context });
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"MultiDocuments">>;
 
 export const multiDocumentTypeDefs = gql`
   extend type Mutation {

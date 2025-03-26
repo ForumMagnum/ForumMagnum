@@ -1,7 +1,3 @@
-// GENERATED FILE - DO NOT MODIFY DIRECTLY
-// This is a generated file that has been converted from the old schema format to the new format.
-// The original schema is still in use, this is just for reference.
-
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
 import moment from "moment";
@@ -1742,7 +1738,7 @@ const schema = {
       outputType: "TagRel",
       canRead: ["guests"],
       arguments: "tagId: String",
-      resolver: async (post, args, context) => {
+      resolver: async (post, args: { tagId: string }, context) => {
         const { tagId } = args;
         const { currentUser, TagRels } = context;
         const tagRels = await getWithLoader(
@@ -2855,7 +2851,7 @@ const schema = {
       outputType: "Post",
       canRead: ["guests"],
       arguments: "sequenceId: String",
-      resolver: async (post, args, context) => {
+      resolver: async (post, args: { sequenceId: string }, context) => {
         const { sequenceId } = args;
         const { currentUser, Posts } = context;
         if (sequenceId) {
@@ -2903,7 +2899,7 @@ const schema = {
       outputType: "Post",
       canRead: ["guests"],
       arguments: "sequenceId: String",
-      resolver: async (post, args, context) => {
+      resolver: async (post, args: { sequenceId: string }, context) => {
         const { sequenceId } = args;
         const { currentUser, Posts } = context;
         if (sequenceId) {
@@ -2958,7 +2954,7 @@ const schema = {
       outputType: "Sequence",
       canRead: ["guests"],
       arguments: "sequenceId: String, prevOrNext: String",
-      resolver: async (post, args, context) => {
+      resolver: async (post, args: { sequenceId: string, prevOrNext?: 'prev' | 'next' }, context) => {
         const { sequenceId, prevOrNext } = args;
         const { currentUser } = context;
         let sequence = null;

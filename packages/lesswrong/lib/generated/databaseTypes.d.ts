@@ -1676,7 +1676,9 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
-  bookmarkedPostsMetadata: Array<any>
+  bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number
@@ -1718,7 +1720,9 @@ interface DbUser extends DbObject {
   goodHeartTokens: number | null
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   groups: Array<string> | null
-  hiddenPostsMetadata: Array<any>
+  hiddenPostsMetadata: Array<{
+    postId: string,
+  }>
   hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean
   hideCommunitySection: boolean
