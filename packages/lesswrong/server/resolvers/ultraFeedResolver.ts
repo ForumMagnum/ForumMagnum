@@ -222,12 +222,37 @@ defineFeedResolver<Date>({
       throw new Error("Must be logged in to fetch UltraFeed.");
     }
 
+    // Helper function to apply timeout to a promise
+    const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, methodName: string): Promise<T | []> => {
+      const timeoutPromise = new Promise<[]>((_, reject) => {
+        setTimeout(() => {
+          const error = new Error(`Timeout after ${timeoutMs}ms in ${methodName}`);
+          error.name = 'TimeoutError';
+          console.error(error);
+          reject(error);
+        }, timeoutMs);
+      });
+      
+      try {
+        return await Promise.race([promise, timeoutPromise]);
+      } catch (error) {
+        // Just return empty array on timeout
+        console.error(`Error in ${methodName}:`, error);
+        return [] as any;
+      }
+    };
+
     try {
       const ultraFeedRepo = new UltraFeedRepo();
+      const TIMEOUT_MS = 5000; // 5 second timeout for each method
 
-      // Get minimal data from repo methods
+      // Get minimal data from repo methods - with timeout only for Recombee posts
       const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
-        ultraFeedRepo.getUltraFeedPostThreads(context, limit),
+        withTimeout(
+          ultraFeedRepo.getUltraFeedPostThreads(context, limit),
+          TIMEOUT_MS,
+          'getUltraFeedPostThreads'
+        ),
         ultraFeedRepo.getUltraFeedCommentThreads(context, limit),
         ultraFeedRepo.getUltraFeedSpotlights(context, limit/4)
       ]);
