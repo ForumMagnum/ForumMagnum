@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Revisions from '../../server/collections/revisions/collection'
 import { getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
-import { createAnonymousContext } from '../vulcan-lib/query';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 export default registerMigration({
   name: "revisionChangeMetrics",

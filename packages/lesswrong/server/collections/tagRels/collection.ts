@@ -4,6 +4,7 @@ import { canVoteOnTagAsync } from '@/lib/voting/tagRelVoteRules';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
@@ -37,5 +38,7 @@ export const TagRels: TagRelsCollection = createCollection({
     ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
   },
 });
+
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('TagRels');
 
 export default TagRels;

@@ -36,7 +36,7 @@ import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
-import { createAdminContext } from "@/server/vulcan-lib/query.ts";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
 import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
 import { getCollection } from "@/server/collections/allCollections";
 

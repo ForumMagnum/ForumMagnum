@@ -26,7 +26,7 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection } from "@/server/collections/allCollections";
 import { createMutator } from "@/server/vulcan-lib/mutators";
-import { createAdminContext } from "@/server/vulcan-lib/query";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 

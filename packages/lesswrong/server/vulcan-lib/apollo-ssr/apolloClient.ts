@@ -1,17 +1,13 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
-import { apolloCacheVoteablePossibleTypes } from '@/lib/schema/allSchemas';
-import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
+import { makeExecutableSchema } from 'graphql-tools';
+import { getGraphQLSchema } from '../apollo-server/getTypeDefs';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
 export const createClient = async (context: ResolverContext | null, foreign = false) => {
-  const cache = new InMemoryCache({
-    possibleTypes: {
-      ...apolloCacheVoteablePossibleTypes()
-    }
-  });
+  const cache = new InMemoryCache();
 
   const links: ApolloLink[] = [];
 
@@ -19,7 +15,7 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
     links.push(createErrorLink());
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
   } else if (context) {
-    const schema = getExecutableSchema();
+    const schema = makeExecutableSchema(getGraphQLSchema());
     // schemaLink will fetch data directly based on the executable schema
     // context here is the resolver context
     links.push(createSchemaLink(schema, context));
