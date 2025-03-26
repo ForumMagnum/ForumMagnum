@@ -93,9 +93,10 @@ ${essay}`
 
 
 const saveImageAsReviewWinnerArt = async (prompt: string, essay: Essay, url: string) => {
-  // Take first 32 characters of the prompt, removing any whitespace
-  const shortPrompt = prompt.trim().replace(/\s+/g, '_').slice(0, 32);
-  const originId = encodeURIComponent(`${essay.title}_${shortPrompt}_${Math.random()}`);
+  // Take first 32 characters of the prompt, removing any whitespace and special characters
+  const shortPrompt = prompt.trim().replace(/[^a-zA-Z0-9]/g, '_').slice(0, 32);
+  const title = essay.title.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 32);
+  const originId = encodeURIComponent(`${title}_${shortPrompt}_${Math.random()}`);
   
   const newUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: originId})
   if (!newUrl) {

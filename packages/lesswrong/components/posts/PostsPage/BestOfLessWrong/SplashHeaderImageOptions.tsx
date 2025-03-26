@@ -37,7 +37,7 @@ const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
 export const SplashHeaderImageOptions = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
 }) => {
-  const { Loading } = Components;
+  const { Loading, GenerateImagesButton } = Components;
   const classes = useStyles(styles);
 
   const { results: images, loading } = useMulti({
@@ -52,6 +52,7 @@ export const SplashHeaderImageOptions = ({ post }: {
 
   return (
     <div className={classes.root}>
+      <GenerateImagesButton postId={post._id} />
       {images && <PostWithArtGrid post={post} images={images} defaultExpanded={true} />}
       {loading && <Loading />}
     </div>
