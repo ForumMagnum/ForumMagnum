@@ -59,8 +59,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     const recommendedData = result.data?.RecombeeHybridPosts?.results || [];
 
-    // 4. Convert each post result into DisplayFeedPostWithComments
-    //    so each item has a "post" and an empty "comments" array by default
     const displayPosts: FeedPostWithComments[] = recommendedData.map((item: any) => ({
       postId: item.post._id,
       comments: [],              // We leave comments empty, or retrieve them separately if desired.

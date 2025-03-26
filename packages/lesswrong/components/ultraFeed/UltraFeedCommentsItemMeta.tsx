@@ -68,14 +68,14 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
 }));
 
 const UltraFeedCommentsItemMeta = ({
-  commentWithMetaInfo,
+  comment,
   post,
   setShowEdit,
   hideDate,
   hideActionsMenu,
   hideVoteButtons,
 }: {
-  commentWithMetaInfo: DisplayFeedComment,
+  comment: CommentsList,
   post: PostsMinimumInfo,
   setShowEdit?: () => void,
   hideDate?: boolean,
@@ -84,8 +84,6 @@ const UltraFeedCommentsItemMeta = ({
 }) => {
   const classes = useStyles(styles);
   const { CommentsMenu, CommentsItemDate, CommentUserName, SmallSideVote } = Components;
-
-  const { comment, metaInfo } = commentWithMetaInfo;
 
   const currentUser = useCurrentUser();
 

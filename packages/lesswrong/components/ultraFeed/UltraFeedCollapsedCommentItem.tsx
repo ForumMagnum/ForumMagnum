@@ -48,26 +48,28 @@ const styles = defineStyles("UltraFeedCollapsedCommentItem", (theme: ThemeType) 
   },
 }));
 
+interface UltraFeedCollapsedCommentItemProps {
+  comment: CommentsList;
+  post: PostsMinimumInfo;
+  onExpand: () => void;
+}
+
 const UltraFeedCollapsedCommentItem = ({
-  commentWithMetaInfo,
+  comment,
   post,
-  setExpanded
-}: {
-  commentWithMetaInfo: DisplayFeedComment,
-  post: PostsMinimumInfo,
-  setExpanded: (value: boolean) => void
-}) => {
+  onExpand,
+}: UltraFeedCollapsedCommentItemProps) => {
   const classes = useStyles(styles);
   const { UltraFeedCommentsItemMeta, ContentStyles } = Components;
   
   const handleClick = useCallback(() => {
-    setExpanded(true);
-  }, [setExpanded]);
+    onExpand();
+  }, [onExpand]);
   
   return (
     <div className={classes.root} onClick={handleClick}>
       <UltraFeedCommentsItemMeta 
-        commentWithMetaInfo={commentWithMetaInfo}
+        comment={comment}
         post={post}
         hideDate={true}
         hideVoteButtons={true}
@@ -76,9 +78,9 @@ const UltraFeedCollapsedCommentItem = ({
       <div className={classes.contentWrapper}>
         <ContentStyles 
           contentType="comment" 
-          className={classNames( classes.content, classes.truncatedContent)}
+          className={classNames(classes.content, classes.truncatedContent)}
         >
-          <div dangerouslySetInnerHTML={{ __html: commentWithMetaInfo.comment.contents?.html || '' }} />
+          <div dangerouslySetInnerHTML={{ __html: comment.contents?.html || '' }} />
         </ContentStyles>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import { postGetLink } from "@/lib/collections/posts/helpers";
+import { FeedPostMetaInfo } from "./ultraFeedTypes";
 
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
@@ -89,9 +90,11 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
 // Main component definition
 const UltraFeedPostItem = ({
   post,
+  postMetaInfo,
   initiallyExpanded = false,
 }: {
   post: PostsListWithVotes,
+  postMetaInfo: FeedPostMetaInfo,
   initiallyExpanded?: boolean,
 }) => {
   const classes = useStyles(styles);

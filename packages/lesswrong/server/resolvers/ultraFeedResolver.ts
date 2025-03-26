@@ -33,7 +33,7 @@ addGraphQLSchema(`
 const SOURCE_WEIGHTS = {
   postThreads: 20,
   commentThreads: 40,
-  spotlights: 20,
+  spotlights: 5,
   // popularComments: 5,
   // quickTakes: 5,
   // subscribed: 0
@@ -305,9 +305,6 @@ defineFeedResolver<Date>({
         console.error("Unknown item renderAsType:", item);
         return null;
       })))
-
-      console.log("Spotlight Results before being returned:", results.filter(r => r.type === "feedSpotlight").map(r => r.feedSpotlight?.spotlight));
-
 
       // Determine if there are likely more results that could be returned
       const hasMoreResults = true;

@@ -11,16 +11,10 @@ import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { DisplayFeedPostWithComments } from './ultraFeedTypes';
 
 // Add this at the top level of your file
-interface FeedPostWithCommentsType {
-  _id: string;
-  sources: string[];
-  postMetaInfo: any;
-  commentMetaInfos: any;
-  post: PostsListWithVotes;
-  comments: CommentsList[];
-}
+
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   toggleContainer: {
@@ -269,54 +263,30 @@ const UltraFeedContent = () => {
               renderers={{
                   feedCommentThread: {
                     fragmentName: 'FeedPostWithCommentsFragment',
-                    render: (item: FeedPostWithCommentsType) => {
+                    render: (item: DisplayFeedPostWithComments) => {
                       if (!item) {
                         console.log("Missing feed item data:", item);
                         return null;
                       }
                       
                       return (
-                        <FeedItemWrapper sources={item.sources || ['commentThreads']}>
-                          <UltraFeedThreadItem 
-                            thread={{
-                              post: item.post,
-                              comments: item.comments.map((comment: CommentsList) => ({
-                                comment,
-                                metaInfo: {
-                                  sources: ['commentThreads'],
-                                  displayStatus: 'collapsed',
-                                }
-                              })),
-                              postMetaInfo: item.postMetaInfo
-                            }} 
-                          />
+                        <FeedItemWrapper sources={['commentThreads']}>
+                          <UltraFeedThreadItem thread={item} />
                         </FeedItemWrapper>
                       );
                     }
                   },
                   feedPost: {
                     fragmentName: 'FeedPostWithCommentsFragment',
-                    render: (item: FeedPostWithCommentsType) => {
+                    render: (item: DisplayFeedPostWithComments) => {
                       if (!item) {
                         console.log("Missing feed item data:", item);
                         return null;
                       }
                       
                       return (
-                        <FeedItemWrapper sources={item.sources || ['postThreads']}>
-                          <UltraFeedThreadItem 
-                            thread={{
-                              post: item.post,
-                              comments: item.comments.map((comment: CommentsList) => ({
-                                comment,
-                                metaInfo: {
-                                  sources: ['postThreads'],
-                                  displayStatus: 'collapsed',
-                                }
-                              })),
-                              postMetaInfo: item.postMetaInfo
-                            }} 
-                          />
+                        <FeedItemWrapper sources={['postThreads']}>
+                          <UltraFeedThreadItem thread={item} />
                         </FeedItemWrapper>
                       );
                     }

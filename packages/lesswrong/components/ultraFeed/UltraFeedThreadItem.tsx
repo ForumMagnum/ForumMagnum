@@ -12,13 +12,10 @@ import UnfoldLessDoubleIcon from "@/lib/vendor/@material-ui/icons/src/UnfoldLess
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    // padding: 12,
-    paddingTop: 16,
     paddingBottom: 8,
-
-    // marginBottom: 16,
-    backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
+    // paddingTop: 16,
+    backgroundColor: theme.palette.panelBackground.default,
     
   },
   header: {
@@ -69,8 +66,7 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
   commentsContainer: {
     position: 'relative',
-    
-    borderTop: theme.palette.border.itemSeparatorFeedTop,
+    // borderTop: theme.palette.border.itemSeparatorFeedTop,
   },
   verticalLine: {
     position: 'absolute',
@@ -113,34 +109,47 @@ interface CollapsedPlaceholder {
 }
 
 // Utility to compress collapsed sequences
-const compressCollapsedComments = (
-  comments: DisplayFeedComment[]
-): Array<DisplayFeedComment | CollapsedPlaceholder> => {
-  const result: Array<DisplayFeedComment | CollapsedPlaceholder> = [];
-  let tempGroup: DisplayFeedComment[] = [];
+function compressCollapsedComments(
+  displayStatuses: Record<string, "expanded" | "collapsed" | "hidden">,
+  comments: CommentsList[],
+) {
+
+  console.log("compressCollapsedComments", displayStatuses);
+
+  const result: Array<CommentsList | { placeholder: true; hiddenComments: CommentsList[] }> = [];
+
+  let tempGroup: CommentsList[] = [];
 
   const flushGroupIfNeeded = () => {
     if (tempGroup.length >= 2) {
       // Make a placeholder containing the group
       result.push({ placeholder: true, hiddenComments: [...tempGroup] });
     } else {
-      // Just push them back as individual comments
+      // Push them back as individual comments
       tempGroup.forEach(item => result.push(item));
     }
     tempGroup = [];
   };
 
   for (const comment of comments) {
-    if (comment.metaInfo.displayStatus === "collapsed") {
+    const commentId = comment._id;
+    const localStatus = displayStatuses[commentId] || "collapsed"
+
+    // If "hidden", do not display at all, skip it
+    if (localStatus === "hidden") {
+      continue;
+    }
+
+    if (localStatus === "collapsed") {
       // Accumulate collapsed
       tempGroup.push(comment);
     } else {
-      // If we hit a non-collapsed, flush current group first
+      // If we hit a non-collapsed, flush the current group
       flushGroupIfNeeded();
       result.push(comment);
     }
   }
-  // Flush any leftover collapsed items
+  // Flush at the end
   flushGroupIfNeeded();
 
   return result;
@@ -150,137 +159,113 @@ const compressCollapsedComments = (
 const UltraFeedThreadItem = ({thread}: {
   thread: DisplayFeedPostWithComments,
 }) => {
-  const { post, comments, postMetaInfo } = thread;
+  const { post, comments, postMetaInfo, commentMetaInfos } = thread;
 
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const [postExpanded, setPostExpanded] = useState(postMetaInfo.displayStatus === 'expanded');
-  const [allCommentsExpanded, setAllCommentsExpanded] = useState<boolean | undefined>(undefined);
 
+  // 1) Store each comment's displayStatus locally
+  const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<Record<string, "expanded" | "collapsed" | "hidden">>(() => {
+    // Initialize from commentMetaInfos if available
+    const result: Record<string, "expanded" | "collapsed" | "hidden"> = {};
+    for (const [commentId, meta] of Object.entries(commentMetaInfos || {})) {
+      result[commentId] = meta.displayStatus || "collapsed";
+    }
+
+    return result;
+  });
+
+  console.log("commentDisplayStatuses", commentDisplayStatuses);
 
   const { UltraFeedCommentItem, UltraFeedPostItem, UltraFeedCompressedCommentsItem } = Components;
 
 
   // Get basic thread statistics
   const commentCount = comments.length;
-  const topLevelCommentId = comments?.[0]?.comment?._id;
+  const topLevelCommentId = comments?.[0]?._id;
   
   // Extract post information
   const postTitle = post.title || "Untitled Post";
   const postUrl = `/posts/${post._id}`;
-  const threadUrl = `/posts/${post._id}/${topLevelCommentId}`;
 
-  // Handle click on "View Full Thread" button
-  const handleViewFullThread = () => {
-    captureEvent("ultraFeedThreadViewFull", {threadId: topLevelCommentId});
-  };
-  
-  // Handle click on "Expand All" button
-  // TODO: Once we've implemented hidden comments, ensure we expand them too?
-  const handleExpandAllComments = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAllCommentsExpanded(!allCommentsExpanded);
-    captureEvent("ultraFeedThreadExpandAll", {
-      threadId: topLevelCommentId,
-      expanded: !allCommentsExpanded
-    });
+  // 2) Function to update a single comment's status
+  const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
+    setCommentDisplayStatuses(prev => ({
+      ...prev,
+      [commentId]: newStatus,
+    }));
   };
 
-  // Filter comments by display status - only show non-hidden comments
-  const visibleComments = thread.comments.filter(
-    comment => comment.metaInfo.displayStatus !== "hidden"
+  // Filter out hidden comments from the start
+  const visibleComments = useMemo(
+    () => comments.filter(c => commentDisplayStatuses[c._id] !== "hidden"),
+    [comments, commentDisplayStatuses]
   );
+
+  // 3) Compress consecutive collapsed items
+  const compressedItems = useMemo(() => {
+    return compressCollapsedComments(commentDisplayStatuses, visibleComments);
+  }, [visibleComments, commentDisplayStatuses]);
 
   const titleClickHandler = (ev: React.MouseEvent<HTMLAnchorElement>) => {
     ev.preventDefault();
     setPostExpanded(!postExpanded);
   }
+
+  const showInLineCommentThreadTitle = true
       
-  const titleElement = (
+  const titleElement = 
+  showInLineCommentThreadTitle ? undefined : (
     <div className={classes.header}>
       <div className={classes.titleArea}>
         <Link to={postUrl} className={classes.postTitle} onClick={titleClickHandler}>{postTitle}</Link>
       </div>
-      {commentCount > 1 && (
-        <div 
-          className={classes.expandAllButton} 
-          onClick={handleExpandAllComments}
-        >
-          {allCommentsExpanded ? <UnfoldLessDoubleIcon /> : <UnfoldMoreDoubleIcon />}
-        </div>
-      )}
     </div>
   );
 
-  // Instead of using visibleComments directly, compress them before rendering:
-  const compressedItems = useMemo(() => {
-    return compressCollapsedComments(visibleComments);
-  }, [visibleComments]);
-
-  // Track any placeholders that got expanded
-  const [expandedPlaceholders, setExpandedPlaceholders] = useState<{
-    [placeholderIndex: number]: boolean;
-  }>({});
-
-  // Handler to expand a placeholder
-  const handleExpandPlaceholder = (idx: number) => {
-    setExpandedPlaceholders({
-      ...expandedPlaceholders,
-      [idx]: true,
-    });
+  const handleViewFullThread = () => {
+    if (comments.length > 0) {
+      const topLevelCommentId = comments[0]._id;
+      captureEvent("ultraFeedThreadViewFull", { threadId: topLevelCommentId });
+    }
   };
+
+  const threadUrl = `/posts/${post._id}/${comments[0]?._id}`;
 
   return (
     <div className={classes.root}>
-      {postExpanded ? <UltraFeedPostItem post={thread.post} initiallyExpanded={false} /> : titleElement}
-      {commentCount > 0 && <div className={classes.commentsList}>
+      {postExpanded ? <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} initiallyExpanded={false} /> : titleElement}
+      {comments.length > 0 && <div className={classes.commentsList}>
         <div className={classes.commentsContainer}>
-          {/* {visibleComments.length > 1 && <div className={classes.verticalLine}></div>} */}
-          
           {compressedItems.map((item, index) => {
             if ("placeholder" in item) {
-              // It's our "multicomment placeholder"
+              // Multi-comment placeholder
               const hiddenCount = item.hiddenComments.length;
-              const isExpanded = expandedPlaceholders[index];
-              if (isExpanded) {
-                // Show the previously hidden comments
-                return item.hiddenComments.map((hiddenItem) => (
-                  <div key={hiddenItem.comment._id} className={classes.commentItem}>
-                    <UltraFeedCommentItem
-                      commentWithMetaInfo={hiddenItem}
-                      post={thread.post}
-                      forceExpand={undefined}
-                    />
-                  </div>
-                ));
-              } else {
-                // Show a single row with a "+" link
-                return (
-                  // <div
-                  //   key={`placeholder-${index}`}
-                  //   className={classes.commentItem}
-                  //   onClick={() => handleExpandPlaceholder(index)}
-                  //   style={{ cursor: "pointer", opacity: 0.6 }}
-                  // >
-                  //   +{hiddenCount} collapsed comments
-                  // </div>
-                  <div className={classes.commentItem} key={`placeholder-${index}`}>
-                    <UltraFeedCompressedCommentsItem 
-                      numComments={hiddenCount} 
-                      setExpanded={() => handleExpandPlaceholder(index)} 
-                    />
-                  </div>
-                );
-              }
-            } else {
-              // Normal (non-collapsed or single collapsed) item
               return (
-                <div key={item.comment._id} className={classes.commentItem}>
-                  <UltraFeedCommentItem 
-                    commentWithMetaInfo={item} 
-                    post={thread.post} 
-                    forceExpand={undefined} 
+                <div className={classes.commentItem} key={`placeholder-${index}`}>
+                  <UltraFeedCompressedCommentsItem
+                    numComments={hiddenCount}
+                    setExpanded={() => {
+                      // Expand all comments in this placeholder
+                      item.hiddenComments.forEach(h => {
+                        setDisplayStatus(h._id, "expanded");
+                      });
+                    }}
+                  />
+                </div>
+              );
+            } else {
+              // Normal comment
+              const cId = item._id;
+              return (
+                <div key={cId} className={classes.commentItem}>
+                  <UltraFeedCommentItem
+                    comment={item}
+                    post={thread.post}
+                    displayStatus={commentDisplayStatuses[cId]}
+                    onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
+                    showInLineCommentThreadTitle={(index === 0) && showInLineCommentThreadTitle}
                   />
                 </div>
               );
@@ -288,10 +273,10 @@ const UltraFeedThreadItem = ({thread}: {
           })}
         </div>
         
-        {commentCount > visibleComments.length && (
+        {comments.length > visibleComments.length && (
           <div className={classes.viewFullThreadButton} onClick={handleViewFullThread}>
             <Link to={threadUrl} className={classes.viewFullThreadLink}>
-              View full thread ({commentCount} comments) →
+              View full thread ({comments.length} comments) →
             </Link>
           </div>
         )}
