@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { formatStat } from "../users/EAUserTooltipContent";
-import { CAREER_STAGES } from "@/lib/collections/users/schema";
+import { CAREER_STAGES } from "@/lib/collections/users/newSchema";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import classNames from "classnames";

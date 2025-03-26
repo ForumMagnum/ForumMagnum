@@ -16,11 +16,12 @@ interface InvertedCountOfReferenceOptions {
 
 type CountOfReferenceMap = Record<string, InvertedCountOfReferenceOptions[] | undefined>;
 
-type CollectionFieldEntry = [string, CollectionFieldSpecification<CollectionNameString>];
-type CollectionFieldEntryWithCountOfReferences = [string, CollectionFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions }];
+type CollectionFieldEntry = [string, NewCollectionFieldSpecification<CollectionNameString>];
+type CollectionFieldEntryWithCountOfReferences = [string, NewCollectionFieldSpecification<CollectionNameString> & { graphql: GraphQLWriteableFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions } }];
 
 function isCountOfReferencesField(field: CollectionFieldEntry): field is CollectionFieldEntryWithCountOfReferences {
-  return !!field[1].countOfReferences;
+  const { graphql } = field[1];
+  return !!graphql && 'countOfReferences' in graphql;
 }
 
 /**
@@ -48,7 +49,7 @@ const getAllCountOfReferenceFieldsByTargetCollection = (() => {
           .entries(schema)
           .filter(isCountOfReferencesField)
           .forEach(([referenceFieldName, fieldSpec]) => {
-            const { countOfReferences: { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } } = fieldSpec;
+            const { graphql: { countOfReferences: { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } } } = fieldSpec;
             const invertedOptions: InvertedCountOfReferenceOptions = {
               sourceCollectionName,
               referenceFieldName,

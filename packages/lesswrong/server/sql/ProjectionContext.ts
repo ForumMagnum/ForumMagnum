@@ -73,9 +73,18 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     const schema = this.getSchema();
     for (const fieldName in schema) {
       const field = schema[fieldName];
-      if (field.resolveAs) {
-        const resolverName = field.resolveAs.fieldName ?? fieldName;
-        this.resolvers[resolverName] = field.resolveAs;
+      if (field.graphql?.resolver) {
+        const { outputType, resolver, sqlResolver, sqlPostProcess, arguments: resolverArgs } = field.graphql;
+        const customResolver: CustomResolver<N> = {
+          type: outputType,
+          resolver,
+          sqlResolver,
+          sqlPostProcess,
+          arguments: resolverArgs,
+          fieldName,
+        };
+
+        this.resolvers[fieldName] = customResolver;
       }
     }
   }

@@ -79,7 +79,7 @@ CREATE TABLE "Bans" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "expirationDate" TIMESTAMPTZ NOT NULL,
+  "expirationDate" TIMESTAMPTZ,
   "userId" VARCHAR(27) NOT NULL,
   "ip" TEXT,
   "reason" TEXT,

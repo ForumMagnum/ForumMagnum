@@ -21,7 +21,6 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -29,10 +28,6 @@ import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { captureException } from '@sentry/core';
-import GraphQLJSON from 'graphql-type-json';
-import { getToCforTag } from '../tableOfContents';
-import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
@@ -41,6 +36,7 @@ import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
 import { updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from '../vulcan-lib/query';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -695,40 +691,6 @@ defineQuery({
   },
 });
 
-export const tagResolvers = {
-  contributors: contributorsField({
-    collectionName: 'Tags',
-    fieldName: 'description',
-  }),
-  tableOfContents: {
-    resolveAs: {
-      arguments: 'version: String',
-      type: GraphQLJSON,
-      resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
-        try {
-          return await getToCforTag({document, version: args.version||null, context});
-        } catch(e) {
-          captureException(e);
-          return null;
-        }
-      }
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"Tags">>;
-
-export const tagRelResolvers = {
-  autoApplied: {
-    resolveAs: {
-      type: "Boolean!",
-      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
-        const tagBotUserId = await getTagBotUserId(context);
-        if (!tagBotUserId) return false;
-        return (document.userId===tagBotUserId && document.voteCount===1);
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"TagRels">>;
-
 function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   const tagsByIdMap = keyBy(tags, '_id');
   return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
@@ -850,21 +812,25 @@ defineMutation({
         document: tag,
         collectionName: "Tags",
         fieldName: "description",
+        context,
       }),
       updateDenormalizedHtmlAttributions({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context,
       }),
       updateDenormalizedContributorsList({
         document: tag,
         collectionName: "Tags",
         fieldName: "description",
+        context,
       }),
       updateDenormalizedContributorsList({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context,
       }),
     ]);
     
@@ -876,9 +842,10 @@ defineMutation({
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+  const context = createAdminContext();
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
-  const latestRev = await getLatestRev(tag._id, "description");
+  const latestRev = await getLatestRev(tag._id, "description", context);
   if (!latestRev) throw new Error("Could not get latest rev");
   await Tags.rawUpdateOne(
     {_id: tag._id},
@@ -895,6 +862,9 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+  const resolverContext = createAdminContext();
+  const { Tags } = resolverContext;
+
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const lenses = await MultiDocuments.find({
@@ -908,22 +878,26 @@ export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug
     document: tag,
     collectionName: "Tags",
     fieldName: "description",
+    context: resolverContext,
   });
   await updateDenormalizedContributorsList({
     document: tag,
     collectionName: "Tags",
     fieldName: "description",
+    context: resolverContext,
   });
   for (const lensMultiDocument of lenses) {
     await updateDenormalizedHtmlAttributions({
       document: lensMultiDocument,
       collectionName: "MultiDocuments",
       fieldName: "contents",
+      context: resolverContext,
     });
     await updateDenormalizedContributorsList({
       document: lensMultiDocument,
       collectionName: "MultiDocuments",
       fieldName: "contents",
+      context: resolverContext,
     });
   }
 }

@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/lwevents/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
@@ -26,8 +25,7 @@ const options: MutationOptions<DbLWEvent> = {
 export const LWEvents = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('LWEvents', {name:1, createdAt:-1});
     indexSet.addIndex('LWEvents', {name:1, userId:1, documentId:1, createdAt:-1})

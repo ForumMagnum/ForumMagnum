@@ -1,4 +1,3 @@
-import schema from '@/lib/collections/elicitQuestions/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
@@ -7,8 +6,7 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 export const ElicitQuestions: ElicitQuestionsCollection = createCollection({
   collectionName: 'ElicitQuestions',
   typeName: 'ElicitQuestion',
-  schema,
-  resolvers: getDefaultResolvers('ElicitQuestions'),
+    resolvers: getDefaultResolvers('ElicitQuestions'),
   mutations: getDefaultMutations('ElicitQuestions', {
     newCheck: (user: DbUser|null) => {
       if (!user) return false;
