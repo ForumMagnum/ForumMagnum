@@ -52,7 +52,7 @@ export const eaEmojiPalette: EmojiOption[] = [
   {
     Component: LaughReactionIcon,
     name: "laugh",
-    label: "Joy",
+    label: "Made me laugh",
   },
 ];
 
