@@ -2,27 +2,27 @@ import React, { FC, ReactNode } from 'react';
 import { Components } from './vulcan-lib/components';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
-import PostsIcon from '@material-ui/icons/Description';
-import CommentsIcon from '@material-ui/icons/ModeComment';
-import EventIcon from '@material-ui/icons/Event';
-import MailIcon from '@material-ui/icons/Mail';
+import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
+import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
+import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
+import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
-import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
-import DoneIcon from '@material-ui/icons/Done';
-import { NotificationChannelOption } from './collections/users/schema';
+import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
+import GroupAddIcon from '@/lib/vendor/@material-ui/icons/src/GroupAdd';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
-import DebateIcon from '@material-ui/icons/Forum';
+import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
+import { NotificationChannel } from './collections/users/newSchema';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -109,7 +109,7 @@ interface GetDialogueMessageProps {
 export interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
-  allowedChannels?: NotificationChannelOption[],
+  allowedChannels?: NotificationChannel[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>, context: ResolverContext}) => Promise<string>
   getIcon: () => ReactNode,
   Display?: FC<{
@@ -147,7 +147,7 @@ export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): Not
   return result;
 }
 
-const registerNotificationType = ({allowedChannels = ["none", "onsite", "email", "both"], ...otherArgs}: NotificationType) => {
+const registerNotificationType = ({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType) => {
   const notificationTypeClass = {allowedChannels, ...otherArgs};
 
   const name = notificationTypeClass.name;
@@ -398,7 +398,6 @@ export const NewCommentNotification = registerNotificationType({
 export const NewSubforumCommentNotification = registerNotificationType({
   name: "newSubforumComment",
   userSettingField: "notificationSubforumUnread",
-  allowedChannels: ["none", "onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId, context) as DbComment;
@@ -493,7 +492,7 @@ export const NewDialogueMatchNotification = registerNotificationType({
 export const NewDialogueCheckNotification = registerNotificationType({
   name: "newDialogueChecks",
   userSettingField: "notificationNewDialogueChecks",
-  allowedChannels: ["onsite", "none"],
+  allowedChannels: ["onsite"],
   async getMessage(props: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
@@ -505,7 +504,7 @@ export const NewDialogueCheckNotification = registerNotificationType({
 export const YourTurnMatchFormNotification = registerNotificationType({
   name: "yourTurnMatchForm",
   userSettingField: "notificationYourTurnMatchForm",
-  allowedChannels: ["onsite", "none"],
+  allowedChannels: ["onsite"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
@@ -656,9 +655,9 @@ export const NewUserNotification = registerNotificationType({
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
-    const { Conversations, Users } = context;
+    const { Users, Conversations } = context;
+
     let document = await getDocument(documentType, documentId, context) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
@@ -729,7 +728,6 @@ export const PostSharedWithUserNotification = registerNotificationType({
 export const PostAddedAsCoauthorNotification = registerNotificationType({
   name: "addedAsCoauthor",
   userSettingField: "notificationAddedAsCoauthor",
-  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbPost;
     const name = await postGetAuthorName(document, context);

@@ -1,8 +1,7 @@
 import { userCanDo } from '@/lib/vulcan-users/permissions';
-import schema from '@/lib/collections/messages/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbMessage> = {
@@ -34,8 +33,7 @@ const options: MutationOptions<DbMessage> = {
 export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Messages', { conversationId:1, createdAt:1 });
     return indexSet;

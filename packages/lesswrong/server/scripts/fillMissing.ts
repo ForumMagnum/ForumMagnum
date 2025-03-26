@@ -20,7 +20,7 @@ registerMigration({
       console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
   
       for (let fieldName of fieldsWithAutofill) {
-        const defaultValue = schema[fieldName].defaultValue
+        const defaultValue = schema[fieldName].database?.defaultValue
         await migrateDocuments({
           description: `Filling in missing values for ${collection.collectionName} in field: ${fieldName} (default value: ${defaultValue})`,
           collection,

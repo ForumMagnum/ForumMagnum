@@ -1,7 +1,6 @@
-import schema from '@/lib/collections/moderatorActions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
@@ -16,8 +15,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const ModeratorActions: ModeratorActionsCollection = createCollection({
   collectionName: 'ModeratorActions',
   typeName: 'ModeratorAction',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ModeratorActions', { userId: 1, createdAt: -1 })
     indexSet.addIndex('ModeratorActions', { type: 1, createdAt: -1, endedAt: -1 })

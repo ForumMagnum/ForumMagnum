@@ -1,8 +1,7 @@
 import { userCanDo } from '@/lib/vulcan-users/permissions';
-import schema from '@/lib/collections/localgroups/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbLocalgroup> = {
@@ -28,8 +27,7 @@ const options: MutationOptions<DbLocalgroup> = {
 export const Localgroups: LocalgroupsCollection = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Localgroups', { organizerIds: 1, deleted: 1, name: 1 });
     indexSet.addIndex('Localgroups', { organizerIds: 1, inactive: 1, deleted: 1, name: 1 });

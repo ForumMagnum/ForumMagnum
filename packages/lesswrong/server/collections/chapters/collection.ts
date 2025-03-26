@@ -1,9 +1,8 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import schema from '@/lib/collections/chapters/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import Sequences from '../sequences/collection';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 const options: MutationOptions<DbChapter> = {
@@ -32,8 +31,7 @@ const options: MutationOptions<DbChapter> = {
 export const Chapters: ChaptersCollection = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Chapters', { sequenceId: 1, number: 1 })
     return indexSet;

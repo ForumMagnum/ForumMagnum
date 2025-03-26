@@ -2,7 +2,7 @@ import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery, addGraphQLMutat
 import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
-import { encode } from 'querystring'
+import { encode } from 'querystring';
 import ElicitQuestions from '../../server/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
@@ -199,7 +199,7 @@ export function addElicitResolvers() {
     const elicitPredictionResolver = {
       ElicitUser: {
         lwUser: generateIdResolverSingle({
-          collectionName: "Users",
+          foreignCollectionName: "Users",
           fieldName: "sourceUserId",
           nullable: true 
         })

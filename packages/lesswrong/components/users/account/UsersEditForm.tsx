@@ -1,7 +1,7 @@
 import { useMessages } from '@/components/common/withMessages';
 import React from 'react';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '@/lib/collections/users/helpers';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { isEAForum } from '@/lib/instanceSettings';

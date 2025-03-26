@@ -4,9 +4,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import HistoryIcon from '@material-ui/icons/History';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import LockIcon from '@material-ui/icons/Lock';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import EditOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/EditOutlined';
+import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';

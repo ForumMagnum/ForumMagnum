@@ -3,7 +3,7 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { ThemeContextProvider } from '../../components/themes/useTheme';
 import { AbstractThemeOptions } from '../../themes/themeNames';
-import { createGenerateClassName } from '@material-ui/core/styles';
+import { createGenerateClassName } from '@/lib/vendor/@material-ui/core/src/styles';
 import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 
 export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: typeof SheetsRegistry}>(

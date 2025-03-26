@@ -13,7 +13,11 @@ interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   createdAt: Date
   interestedInMetaculus: boolean
-  jobAds: any /*{"definitions":[{"blackbox":true}]}*/
+  jobAds: Array<{
+    state: "seen" | "expanded" | "interested" | "uninterested",
+    uninterestedReason: string | null,
+    lastUpdated: Date,
+  }> | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   userId: string
 }
@@ -63,7 +67,7 @@ type BooksCollection = CollectionBase<"Books">;
 
 interface DbBook extends DbObject {
   __collectionName?: "Books"
-  collectionId: string | null
+  collectionId: string
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
@@ -134,8 +138,8 @@ interface DbCollection extends DbObject {
   hideStartReadingButton: boolean | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   noindex: boolean
-  slug: string | null
-  title: string | null
+  slug: string
+  title: string
   userId: string
 }
 
@@ -185,7 +189,11 @@ interface DbComment extends DbObject {
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   } | null
   hideAuthor: boolean
   hideKarma: boolean | null
@@ -298,7 +306,7 @@ interface DbDatabaseMetadata extends DbObject {
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   name: string
-  value: any /*{"definitions":[{"blackbox":true}]}*/
+  value: any
 }
 
 type DebouncerEventsCollection = CollectionBase<"DebouncerEvents">;
@@ -370,11 +378,11 @@ interface DbDigest extends DbObject {
   createdAt: Date
   endDate: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  num: number | null
+  num: number
   onsiteImageId: string | null
   onsitePrimaryColor: string | null
   publishedDate: Date | null
-  startDate: Date | null
+  startDate: Date
 }
 
 type ElectionCandidatesCollection = CollectionBase<"ElectionCandidates">;
@@ -401,7 +409,7 @@ interface DbElectionCandidate extends DbObject {
   name: string
   postCount: number
   score: number
-  tagId: string | null
+  tagId: string
   targetAmount: number | null
   userId: string
   voteCount: number
@@ -516,6 +524,9 @@ interface DbForumEvent extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number
+  pollAgreeWording: string | null
+  pollDisagreeWording: string | null
+  pollQuestion_latest: string | null
   postId: string | null
   postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null
@@ -839,11 +850,11 @@ type PodcastEpisodesCollection = CollectionBase<"PodcastEpisodes">;
 interface DbPodcastEpisode extends DbObject {
   __collectionName?: "PodcastEpisodes"
   createdAt: Date
-  episodeLink: string | null
-  externalEpisodeId: string | null
+  episodeLink: string
+  externalEpisodeId: string
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   podcastId: string
-  title: string | null
+  title: string
 }
 
 type PodcastsCollection = CollectionBase<"Podcasts">;
@@ -854,7 +865,7 @@ interface DbPodcast extends DbObject {
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   spotifyPodcastLink: string | null
-  title: string | null
+  title: string
 }
 
 type PostEmbeddingsCollection = CollectionBase<"PostEmbeddings">;
@@ -1172,7 +1183,7 @@ interface DbReport extends DbObject {
   createdAt: Date
   description: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  link: string | null
+  link: string
   markedAsSpam: boolean | null
   postId: string | null
   reportedAsSpam: boolean | null
@@ -1275,7 +1286,7 @@ interface DbSequence extends DbObject {
   lastUpdated: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   noindex: boolean
-  title: string | null
+  title: string
   userId: string
   userProfileOrder: number | null
 }
@@ -1665,7 +1676,9 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
-  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number
@@ -1684,7 +1697,10 @@ interface DbUser extends DbObject {
   draftsListSorting: string | null
   email: string | null
   emailSubscribedToCurated: boolean | null
-  emails: Array<any /*{"definitions":[{}]}*/> | null
+  emails: Array<{
+    address: string,
+    verified: boolean,
+  }> | null
   expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
@@ -1704,7 +1720,9 @@ interface DbUser extends DbObject {
   goodHeartTokens: number | null
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   groups: Array<string> | null
-  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  hiddenPostsMetadata: Array<{
+    postId: string,
+  }>
   hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean
   hideCommunitySection: boolean
@@ -1775,172 +1793,396 @@ interface DbUser extends DbObject {
   noSingleLineComments: boolean
   noindex: boolean
   notificationAddedAsCoauthor: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationCommentsOnDraft: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationDebateCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationDebateReplies: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationDialogueMatch: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationKarmaPowersGained: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationNewMention: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationPublishedDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationSubscribedSequencePost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationSubscribedUserComment: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   }
   nullifyVotes: boolean | null
   oldSlugs: Array<string>
@@ -1967,7 +2209,7 @@ interface DbUser extends DbObject {
   postGlossariesPinned: boolean
   postingDisabled: boolean | null
   previousDisplayName: string | null
-  profile: any /*{"definitions":[{"blackbox":true}]}*/
+  profile: any
   profileImageId: string | null
   profileTagIds: Array<string>
   profileUpdatedAt: Date
@@ -2071,7 +2313,7 @@ interface DbVote extends DbObject {
   createdAt: Date
   documentId: string
   documentIsAf: boolean
-  extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
+  extendedVoteType: any /*{"definitions":[{}]}*/
   isUnvote: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   power: number

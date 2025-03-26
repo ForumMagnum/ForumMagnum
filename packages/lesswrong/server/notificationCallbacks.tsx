@@ -3,14 +3,14 @@ import Users from '../server/collections/users/collection';
 import { Posts } from '../server/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import './emailComponents/EmailWrapper';
-import './emailComponents/NewPostEmail';
+import './emailComponents/PostsEmail';
 import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EmailCuratedAuthors';
 import * as _ from 'underscore';
 import { getCollectionHooks } from './mutationCallbacks';
 
-import { RSVPType } from '../lib/collections/posts/schema';
+import type { RSVPType } from '../lib/collections/posts/newSchema';
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';

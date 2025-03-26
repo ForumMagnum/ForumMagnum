@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Input from '@material-ui/core/Input';
-import Checkbox from '@material-ui/core/Checkbox';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';

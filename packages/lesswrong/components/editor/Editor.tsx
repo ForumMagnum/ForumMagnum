@@ -3,15 +3,15 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import FormLabel from '@material-ui/core/FormLabel';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
 
 const postEditorHeight = isEAForum ? 250 : 400;
@@ -816,7 +816,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 // can call its methods, which means it can't have any HoCs. In particular, it
 // can't have 'styles' (since that would add a HoC); instead, it exports its
 // styles, and has classes provided by whatever wraps it.
-export const EditorComponent = registerComponent('Editor', Editor);
+export const EditorComponent = registerComponent('Editor', Editor, {
+  allowRef: true,
+});
 
 declare global {
   interface ComponentTypes {

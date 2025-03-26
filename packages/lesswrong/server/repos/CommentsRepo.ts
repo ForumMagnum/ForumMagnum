@@ -452,6 +452,19 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const commentsByPost = groupBy(comments, c=>c.postId);
     return postIds.map(postId => commentsByPost[postId] ?? []);
   }
+
+  async setLatestPollVote({ forumEventId, latestVote, userId }: { forumEventId: string; latestVote: number | null; userId: string; }): Promise<void> {
+    await this.getRawDb().none(`
+      -- CommentsRepo.setLatestPollVote
+      UPDATE "Comments"
+      SET "forumEventMetadata" = jsonb_set("forumEventMetadata", '{poll,latestVote}',
+        CASE
+          WHEN $2 IS NULL THEN 'null'::jsonb
+          ELSE to_jsonb($2::float)
+        END)
+      WHERE "forumEventId" = $1 AND "userId" = $3
+    `, [forumEventId, latestVote, userId]);
+  }
 }
 
 recordPerfMetrics(CommentsRepo);

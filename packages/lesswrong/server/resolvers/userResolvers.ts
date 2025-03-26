@@ -1,170 +1,17 @@
-import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
-import Users from '../../server/collections/users/collection';
-import { denormalizedField } from '../../lib/utils/schemaUtils'
+import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
-import {getUserEmail, userCanEditUser} from "../../lib/collections/users/helpers";
-import {userFindOneByEmail} from "../commonQueries";
-import { isAF, isEAForum } from '../../lib/instanceSettings';
-import GraphQLJSON from 'graphql-type-json';
-import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
-import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
+import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
+import { isEAForum } from '../../lib/instanceSettings';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import Users from '../../server/collections/users/collection';
+import { userFindOneByEmail } from "../commonQueries";
 import UsersRepo from '../repos/UsersRepo';
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import { createPaginatedResolver } from './paginatedResolver';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
-import { slugify } from '@/lib/utils/slugify';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { updateMutator } from "../vulcan-lib/mutators";
-import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from '../karmaChanges';
-
-addGraphQLSchema(`
-  type CommentCountTag {
-    name: String!
-    comment_count: Int!
-  }
-  type TopCommentedTagUser {
-    _id: ID!
-    username: String!
-    displayName: String!
-    total_power: Float!
-    tag_comment_counts: [CommentCountTag!]!
-  }
-  type UpvotedUser {
-    _id: ID!
-    username: String!
-    displayName: String!
-    total_power: Float!
-    power_values: String!
-    vote_counts: Int!
-    total_agreement: Float!
-    agreement_values: String!
-    recently_active_matchmaking: Boolean!
-  }
-  type UserDialogueUsefulData {
-    dialogueUsers: [User]
-    topUsers: [UpvotedUser]
-    activeDialogueMatchSeekers: [User]
-  }
-`)
-
-export const userResolvers = {
-  htmlMapMarkerText: {
-    ...denormalizedField({
-      needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),
-      getValue: async (user: DbUser) => {
-        if (!user.mapMarkerText) return "";
-        return await markdownToHtml(user.mapMarkerText);
-      }
-    })
-  },
-  bio: {
-    resolveAs: {
-      type: "String",
-      resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
-        const bio = user.biography?.originalContents;
-        if (!bio) return "";
-        return dataToMarkdown(bio.data, bio.type);
-      }
-    }
-  },
-  htmlBio: {
-    resolveAs: {
-      type: "String!",
-      resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
-        const bio = user.biography;
-        return bio?.html || "";
-      }
-    }
-  },
-  rateLimitNextAbleToComment: {
-    nullable: true,
-    resolveAs: {
-      type: GraphQLJSON,
-      arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
-      }
-    },
-  },
-  rateLimitNextAbleToPost: {
-    nullable: true,
-    resolveAs: {
-      type: GraphQLJSON,
-      arguments: 'eventForm: Boolean',
-      resolver: async (user: DbUser, args: { eventForm?: boolean }, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        const { eventForm } = args
-        if (eventForm) return null
-
-        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
-        if (rateLimit) {
-          return rateLimit
-        } else {
-          return null
-        }
-      }
-    }
-  },
-  recentKarmaInfo: {
-    nullable: true,
-    resolveAs: {
-      type: GraphQLJSON,
-      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
-        return getRecentKarmaInfo(user._id)
-      }
-    }
-  },
-  karmaChanges: {
-    type: 'KarmaChanges',
-    resolveAs: {
-      arguments: 'startDate: Date, endDate: Date',
-      type: 'KarmaChanges',
-      resolver: async (document, {startDate, endDate}, context: ResolverContext) => {
-        const { currentUser, Users } = context;
-        if (!currentUser)
-          return null;
-        
-        
-        // If this isn't an SSR (ie, it might be a mutation), refetch the current
-        // user, because the current user gets set at the beginning of the request,
-        // which matters if we're refetching this because we just updated
-        // karmaChangeLastOpened.
-        const newCurrentUser = context.isSSR
-          ? currentUser
-          : await Users.findOne(currentUser._id)
-        if (!newCurrentUser) throw Error(`Cant find user with ID: ${currentUser._id}`)
-        
-        const settings = newCurrentUser.karmaChangeNotifierSettings
-        const now = new Date();
-        
-        // If date range isn't specified, infer it from user settings
-        if (!startDate || !endDate) {
-          // If the user has karmaChanges disabled, don't return anything
-          if (settings.updateFrequency === "disabled") return null
-          const lastOpened = newCurrentUser.karmaChangeLastOpened;
-          const lastBatchStart = newCurrentUser.karmaChangeBatchStart;
-          
-          const dateRange = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now})
-          if (dateRange == null) return null;
-          const {start, end} = dateRange;
-          startDate = start;
-          endDate = end;
-        }
-        
-        const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
-        
-        return getKarmaChanges({
-          user: document,
-          startDate, endDate,
-          nextBatchDate,
-          af: isAF,
-          context,
-        });
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"Users">>;
+import { createPaginatedResolver } from './paginatedResolver';
 
 addGraphQLSchema(`
   type NewUserCompletedProfile {

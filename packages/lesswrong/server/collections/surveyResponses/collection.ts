@@ -1,14 +1,12 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import schema from "@/lib/collections/surveyResponses/schema";
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const SurveyResponses = createCollection({
   collectionName: "SurveyResponses",
   typeName: "SurveyResponse",
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('SurveyResponses', {surveyId: 1});
     indexSet.addIndex('SurveyResponses', {surveyScheduleId: 1});

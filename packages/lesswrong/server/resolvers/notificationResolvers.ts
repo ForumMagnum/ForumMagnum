@@ -2,8 +2,8 @@ import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../server/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
-import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
-import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
+import type { NotificationCountsResult } from '../../lib/collections/notifications/newSchema';
+import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
@@ -83,8 +83,8 @@ defineQuery({
   }
 });
 
-const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string): Promise<DialogueMessageInfo|undefined> => {
-  const html = await handleDialogueHtml(dialogueHtml)
+const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string, context: ResolverContext): Promise<DialogueMessageInfo|undefined> => {
+  const html = await handleDialogueHtml(dialogueHtml, context)
   const $ = cheerioParse(html);
   const messages = $('.dialogue-message');
   let latestMessage: DialogueMessageInfo|undefined
@@ -104,14 +104,15 @@ defineMutation({
   name: "sendNewDialogueMessageNotification",
   resultType: "Boolean!",
   argTypes: "(postId: String!, dialogueHtml: String!)",
-  fn: async (_, {postId, dialogueHtml}: { postId: string, dialogueHtml: string }, {currentUser, loaders}) => {
+  fn: async (_, {postId, dialogueHtml}: { postId: string, dialogueHtml: string }, context) => {
+    const { currentUser, loaders } = context;
     if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(postId)
     if (!post) throw new Error("No post was provided")
     if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
     if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
 
-    const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id) 
+    const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id, context) 
 
     await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
     

@@ -1,15 +1,13 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanCreateTags } from '@/lib/betas';
-import schema from '@/lib/collections/tags/schema';
 import { tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 
 export const Tags = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
-  schema,
-  resolvers: getDefaultResolvers('Tags'),
+    resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
       if (!user) return false;

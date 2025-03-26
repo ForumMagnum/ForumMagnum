@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
+import { userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -9,12 +9,12 @@ import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfRefer
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
-import uniqBy from 'lodash/uniqBy'
+import uniqBy from 'lodash/uniqBy';
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -25,6 +25,7 @@ import { getNestedProperty } from "../../vulcan-lib/utils";
 import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { editableFields } from '@/lib/editor/make_editable';
 import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
+import { PartialDeep } from 'type-fest';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -76,18 +77,99 @@ export const REACT_PALETTE_STYLES = ['listView', 'gridView'];
 export const MAX_NOTIFICATION_RADIUS = 300
 
 
-export type NotificationChannelOption = "none"|"onsite"|"email"|"both"
-export type NotificationBatchingOption = "realtime"|"daily"|"weekly"
+export type NotificationChannel = "onsite" | "email";
 
-export type NotificationTypeSettings = {
-  channel: NotificationChannelOption,
-  batchingFrequency: NotificationBatchingOption,
+const NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
+  "realtime",
+  "daily",
+  "weekly",
+] as const);
+export type NotificationBatchingFrequency = UnionOf<typeof NOTIFICATION_BATCHING_FREQUENCIES>;
+
+const DAYS_OF_WEEK = new TupleSet(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const);
+export type DayOfWeek = UnionOf<typeof DAYS_OF_WEEK>;
+
+export type NotificationChannelSettings = {
+  enabled: boolean,
+  /**
+   * Frequency at which we send batched notifications. When enabled is false, this doesn't apply, but is persisted
+   * so the user can restore their old settings
+   */
+  batchingFrequency: NotificationBatchingFrequency,
+  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
   timeOfDayGMT: number,
-  dayOfWeekGMT: string // "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
+  /** Day of week at which weekly updates are released, always in GMT */
+  dayOfWeekGMT: DayOfWeek
+}
+const notificationChannelSettingsSchema = new SimpleSchema({
+  enabled: {
+    type: Boolean,
+  },
+  batchingFrequency: {
+    type: String,
+    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
+  },
+  timeOfDayGMT: {
+    type: SimpleSchema.Integer,
+    min: 0,
+    max: 23
+  },
+  dayOfWeekGMT: {
+    type: String,
+    allowedValues: Array.from(DAYS_OF_WEEK)
+  },
+})
+
+export type NotificationTypeSettings = Record<NotificationChannel, NotificationChannelSettings>
+const notificationTypeSettingsSchema = new SimpleSchema({
+  onsite: {
+    type: notificationChannelSettingsSchema,
+  },
+  email: {
+    type: notificationChannelSettingsSchema,
+  },
+});
+export const defaultNotificationTypeSettings: NotificationTypeSettings = {
+  onsite: {
+    enabled: true,
+    batchingFrequency: "realtime",
+    timeOfDayGMT: 12,
+    dayOfWeekGMT: "Monday",
+  },
+  email: {
+    enabled: false,
+    batchingFrequency: "realtime",
+    timeOfDayGMT: 12,
+    dayOfWeekGMT: "Monday",
+  }
 };
 
-export const defaultNotificationTypeSettings: NotificationTypeSettings = {
+
+///////////////////////////////////////////////
+// Migration of NotificationTypeSettings     //
+//                                           //
+// This section is here to support migrating //
+// NotificationTypeSettings to a new format, //
+// and will be deleted shortly               //
+///////////////////////////////////////////////
+
+export type LegacyNotificationTypeSettings = {
+  channel: "none" | "onsite" | "email" | "both";
+  batchingFrequency: "realtime" | "daily" | "weekly";
+  timeOfDayGMT: number; // 0 to 23
+  dayOfWeekGMT: DayOfWeek;
+};
+
+
+export const legacyDefaultNotificationTypeSettings: LegacyNotificationTypeSettings = {
   channel: "onsite",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
+export const legacyMultiChannelDefaultNotificationTypeSettings: LegacyNotificationTypeSettings = {
+  channel: "both",
   batchingFrequency: "realtime",
   timeOfDayGMT: 12,
   dayOfWeekGMT: "Monday",
@@ -106,6 +188,100 @@ const rateLimitInfoSchema = new SimpleSchema({
   },
 })
 
+export function isLegacyNotificationTypeSettings(value: AnyBecauseIsInput): value is LegacyNotificationTypeSettings {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'channel' in value &&
+    'batchingFrequency' in value &&
+    'timeOfDayGMT' in value &&
+    'dayOfWeekGMT' in value
+  );
+}
+
+export function isNewNotificationTypeSettings(value: AnyBecauseIsInput): value is NotificationTypeSettings {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'onsite' in value &&
+    'email' in value &&
+    typeof value.onsite === 'object' &&
+    typeof value.email === 'object' &&
+    'batchingFrequency' in value.onsite &&
+    'timeOfDayGMT' in value.onsite &&
+    'dayOfWeekGMT' in value.onsite
+  );
+}
+
+export function legacyToNewNotificationTypeSettings(notificationSettings: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
+  if (!notificationSettings) return defaultNotificationTypeSettings;
+  if (isNewNotificationTypeSettings(notificationSettings)) return notificationSettings
+
+  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = notificationSettings;
+
+  const onsiteEnabled = (channel === "both" || channel === "onsite");
+  const emailEnabled = (channel === "both" || channel === "email");
+
+  return {
+    onsite: {
+      enabled: onsiteEnabled,
+      batchingFrequency,
+      timeOfDayGMT,
+      dayOfWeekGMT,
+    },
+    email: {
+      enabled: emailEnabled,
+      batchingFrequency,
+      timeOfDayGMT,
+      dayOfWeekGMT,
+    },
+  };
+};
+
+export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): LegacyNotificationTypeSettings {
+  if (!newFormat) return legacyDefaultNotificationTypeSettings;
+  if (isLegacyNotificationTypeSettings(newFormat)) return newFormat;
+
+  const { onsite, email } = newFormat;
+
+  let channel: "none" | "onsite" | "email" | "both" = "none";
+  if (onsite.enabled && email.enabled) {
+    channel = "both";
+  } else if (onsite.enabled) {
+    channel = "onsite";
+  } else if (email.enabled) {
+    channel = "email";
+  }
+
+  // Not a one-to-one mapping here because the old format doesn't support different settings for each channel
+  // when both are enabled. If this is the case, choose the faster frequency for both
+  let batchingFrequency: NotificationBatchingFrequency = legacyDefaultNotificationTypeSettings.batchingFrequency;
+  if (channel === "both") {
+    const frequencies = [onsite.batchingFrequency, email.batchingFrequency];
+    if (frequencies.includes("realtime")) {
+      batchingFrequency = "realtime";
+    } else if (frequencies.includes("daily")) {
+      batchingFrequency = "daily";
+    } else {
+      batchingFrequency = "weekly";
+    }
+  } else {
+    batchingFrequency = channel === "onsite" ? onsite.batchingFrequency : email.batchingFrequency;
+  }
+
+  // Use onsite settings as the default for time and day, assuming they are the same for both
+  return {
+    channel,
+    batchingFrequency,
+    timeOfDayGMT: onsite.timeOfDayGMT,
+    dayOfWeekGMT: onsite.dayOfWeekGMT,
+  };
+}
+
+///////////////////////////////////////////////
+// End migration of NotificationTypeSettings //
+///////////////////////////////////////////////
+
 const karmaChangeUpdateFrequencies = new TupleSet([
   "disabled",
   "daily",
@@ -114,14 +290,13 @@ const karmaChangeUpdateFrequencies = new TupleSet([
 ] as const);
 
 export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
-
 export interface KarmaChangeSettingsType {
   updateFrequency: KarmaChangeUpdateFrequency
   /**
    * Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT.
    */
   timeOfDayGMT: number
-  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
+  dayOfWeekGMT: DayOfWeek
   showNegativeKarma: boolean
 }
 const karmaChangeSettingsType = new SimpleSchema({
@@ -139,12 +314,12 @@ const karmaChangeSettingsType = new SimpleSchema({
   dayOfWeekGMT: {
     type: String,
     optional: true,
-    allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    allowedValues: Array.from(DAYS_OF_WEEK)
   },
   showNegativeKarma: {
     type: Boolean,
     optional: true,
-  }
+  },
 })
 
 export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
@@ -162,24 +337,6 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
   },
 } as const);
 
-const notificationTypeSettings = new SimpleSchema({
-  channel: {
-    type: String,
-    allowedValues: ["none", "onsite", "email", "both"],
-  },
-  batchingFrequency: {
-    type: String,
-    allowedValues: ['realtime', 'daily', 'weekly'],
-  },
-  timeOfDayGMT: {
-    type: Number,
-    optional: true,
-  },
-  dayOfWeekGMT: {
-    type: String,
-    optional: true,
-  },
-})
 
 const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
@@ -189,16 +346,30 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
-const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
-  type: notificationTypeSettings,
-  optional: true,
-  group: formGroups.notifications,
-  control: "NotificationTypeSettingsWidget" as const,
-  canRead: [userOwns, 'admins'] as FieldPermissions,
-  canUpdate: [userOwns, 'admins'] as FieldPermissions,
-  canCreate: ['members', 'admins'] as FieldCreatePermissions,
-  ...schemaDefaultValue<'Users'>({ ...defaultNotificationTypeSettings, ...overrideSettings })
-});
+const mergeNotificationSettings = (override?: PartialDeep<NotificationTypeSettings>, base: NotificationTypeSettings = defaultNotificationTypeSettings) => {
+  return {
+    onsite: { ...base.onsite, ...override?.onsite },
+    email: { ...base.email, ...override?.email }
+  }
+}
+const notificationTypeSettingsField = (defaultValue: NotificationTypeSettings | DeferredForumSelect<NotificationTypeSettings> = defaultNotificationTypeSettings) => {
+  // TODO remove once migration is complete
+  const migrationFields = {
+    blackbox: true
+  }
+
+  return {
+    type: notificationTypeSettingsSchema,
+    optional: true,
+    group: () => formGroups.notifications,
+    control: "NotificationTypeSettingsWidget" as const,
+    canRead: [userOwns, 'admins'] as FieldPermissions,
+    canUpdate: [userOwns, 'admins'] as FieldPermissions,
+    canCreate: ['members', 'admins'] as FieldCreatePermissions,
+    ...schemaDefaultValue<'Users'>(defaultValue),
+    ...migrationFields
+  };
+};
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -313,10 +484,6 @@ export const PROGRAM_PARTICIPATION = [
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
-type LatLng = {
-  lat: number
-  lng: number
-};
 const latLng = new SimpleSchema({
   lat: {
     type: Number,
@@ -342,13 +509,13 @@ const schema: SchemaType<"Users"> = {
     fieldName: "moderationGuidelines",
     commentEditor: true,
     commentStyles: true,
-    formGroup: formGroups.moderationGroup,
-    hidden: isFriendlyUI,
+    formGroup: () => formGroups.moderationGroup,
+    hidden: !hasAuthorModeration,
     order: 50,
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     }
   }),
 
@@ -356,16 +523,16 @@ const schema: SchemaType<"Users"> = {
     fieldName: 'howOthersCanHelpMe',
     commentEditor: true,
     commentStyles: true,
-    formGroup: formGroups.aboutMe,
+    formGroup: () => formGroups.aboutMe,
     hidden: true,
     order: 7,
     label: "How others can help me",
     formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Ex: I am looking for opportunities to do...",
+    hintText: () => "Ex: I am looking for opportunities to do...",
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     },
   }),
 
@@ -373,16 +540,16 @@ const schema: SchemaType<"Users"> = {
     fieldName: 'howICanHelpOthers',
     commentEditor: true,
     commentStyles: true,
-    formGroup: formGroups.aboutMe,
+    formGroup: () => formGroups.aboutMe,
     hidden: true,
     order: 8,
     label: "How I can help others",
     formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Ex: Reach out to me if you have questions about...",
+    hintText: () => "Ex: Reach out to me if you have questions about...",
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     },
   }),
 
@@ -393,7 +560,7 @@ const schema: SchemaType<"Users"> = {
     slugOptions: {
       canUpdate: ['admins'],
       order: 40,
-      group: formGroups.adminOptions,
+      group: () => formGroups.adminOptions,
     },
   }),
 
@@ -408,14 +575,14 @@ const schema: SchemaType<"Users"> = {
     commentStyles: true,
     hidden: isEAForum,
     order: isEAForum ? 6 : 40,
-    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
+    formGroup: () => isEAForum ? formGroups.aboutMe : formGroups.default,
     label: "Bio",
     formVariant: isFriendlyUI ? "grey" : undefined,
-    hintText: "Tell us about yourself",
+    hintText: () => "Tell us about yourself",
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-      canCreate: [userOwns, 'sunshineRegiment', 'admins']
+      canCreate: ['sunshineRegiment', 'admins']
     },
   }),
   
@@ -479,7 +646,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
     ...schemaDefaultValue(false),
-    group: adminGroup,
+    group: () => adminGroup,
   },
   profile: {
     type: Object,
@@ -523,7 +690,7 @@ const schema: SchemaType<"Users"> = {
     onCreate: ({ document: user }) => {
       return user.displayName || createDisplayName(user);
     },
-    group: formGroups.default,
+    group: () => formGroups.default,
     control: isFriendlyUI ? "FormComponentFriendlyDisplayNameInput" : undefined,
   },
   /**
@@ -536,7 +703,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     order: 11,
-    group: formGroups.default,
+    group: () => formGroups.default,
   },
   /**
     The user's email. Modifiable.
@@ -550,7 +717,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ownsOrIsMod,
     order: 20,
-    group: formGroups.default,
+    group: () => formGroups.default,
     onCreate: ({ document: user }) => {
       // look in a few places for the user email
       const facebookEmail: any = getNestedProperty(user, 'services.facebook.email');
@@ -585,7 +752,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     order: 48,
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     label: "No Index",
     tooltip: "Hide this user's profile from search engines",
   },
@@ -600,7 +767,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['admins'],
     canUpdate: ['alignmentForumAdmins', 'admins', 'realAdmins'],
     canRead: ['guests'],
-    group: adminGroup,
+    group: () => adminGroup,
     form: {
       options: function() {
         const groups = _.without(
@@ -674,7 +841,7 @@ const schema: SchemaType<"Users"> = {
     hidden: isLWorAF,
     control: "ThemeSelect",
     order: 1,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
   },
   
   lastUsedTimezone: {
@@ -691,7 +858,7 @@ const schema: SchemaType<"Users"> = {
     type: Date,
     optional: true,
     order: 1,
-    group: formGroups.emails,
+    group: () => formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
     // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
@@ -719,7 +886,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     order: 43,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     control: "select",
     form: {
       // getCommentViewOptions has optional parameters so it's safer to wrap it
@@ -737,7 +904,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'admins'],
     label: "Sort Drafts by",
     order: 43,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     control: "select",
     form: {
       options: function () { // options for the select form control
@@ -754,7 +921,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
     label: "React Palette Style",
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     allowedValues: ['listView', 'gridView'],
     ...schemaDefaultValue('listView'),
     hidden: isEAForum,
@@ -777,7 +944,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
     canCreate: ['members', 'admins'],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     order: 68,
   },
   
@@ -790,7 +957,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     hidden: !isEAForum,
     control: 'checkbox',
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     order: 69,
   },
   
@@ -805,7 +972,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     hidden: true,
     control: 'checkbox',
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     order: 70,
   },
 
@@ -817,7 +984,7 @@ const schema: SchemaType<"Users"> = {
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     canCreate: ['members'],
     control: 'checkbox',
     label: "Hide Intercom"
@@ -833,7 +1000,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
 
@@ -845,7 +1012,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Hide other users' Elicit predictions until I have predicted myself",
   },
   
@@ -857,7 +1024,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isAF,
     label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
   },
@@ -867,7 +1034,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -881,7 +1048,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -895,7 +1062,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -910,7 +1077,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     nullable: false,
     hidden: !isEAForum,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ["guests"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
@@ -936,7 +1103,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     nullable: false,
     hidden: !isEAForum,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -951,7 +1118,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     nullable: false,
     hidden: !hasPostRecommendations,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ["guests"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
@@ -965,7 +1132,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     nullable: true,//TODO not-null – examine this
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -986,7 +1153,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ["members"],
     canRead: [userOwns, "sunshineRegiment", "admins"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Opt out of user surveys",
     order: 97,
   },
@@ -998,7 +1165,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Pin glossaries on posts, and highlight all instances of each term",
     order: 98,
     ...schemaDefaultValue(false),
@@ -1010,7 +1177,7 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
     canRead: ['members'],
     canUpdate: [userOwns],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
   },
 
@@ -1018,7 +1185,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     hidden: true,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     canRead: ['members'],
     canUpdate: [userOwns],
     ...schemaDefaultValue(true),
@@ -1188,7 +1355,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
     control: "select",
-    group: formGroups.moderationGroup,
+    group: () => formGroups.moderationGroup,
     hidden: isFriendlyUI,
     label: "Style",
     canRead: ['guests'],
@@ -1211,7 +1378,7 @@ const schema: SchemaType<"Users"> = {
   moderatorAssistance: {
     type: Boolean,
     optional: true,
-    group: formGroups.moderationGroup,
+    group: () => formGroups.moderationGroup,
     hidden: isFriendlyUI,
     label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
@@ -1224,7 +1391,7 @@ const schema: SchemaType<"Users"> = {
   collapseModerationGuidelines: {
     type: Boolean,
     optional: true,
-    group: formGroups.moderationGroup,
+    group: () => formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
     hidden: isFriendlyUI,
     canRead: ['guests'],
@@ -1237,7 +1404,7 @@ const schema: SchemaType<"Users"> = {
   // bannedUserIds: users who are not allowed to comment on this user's posts
   bannedUserIds: {
     type: Array,
-    group: formGroups.moderationGroup,
+    group: () => formGroups.moderationGroup,
     canRead: ['guests'],
     canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -1254,7 +1421,7 @@ const schema: SchemaType<"Users"> = {
   // bannedPersonalUserIds: users who are not allowed to comment on this user's personal blog posts
   bannedPersonalUserIds: {
     type: Array,
-    group: formGroups.moderationGroup,
+    group: () => formGroups.moderationGroup,
     canRead: ['guests'],
     canUpdate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -1355,7 +1522,7 @@ const schema: SchemaType<"Users"> = {
     tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
     hidden: hasAccountDeletionFlow,
-    group: formGroups.deactivate,
+    group: () => formGroups.deactivate,
   },
 
   // permanentDeletionRequestedAt: The date the user requested their account to be permanently deleted,
@@ -1386,7 +1553,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['admins'],
     control: 'checkbox',
-    group: formGroups.banUser,
+    group: () => formGroups.banUser,
     label: 'Set all future votes of this user to have zero weight',
     hidden: true,
   },
@@ -1399,7 +1566,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['admins'],
     control: 'checkbox',
-    group: formGroups.banUser,
+    group: () => formGroups.banUser,
     label: 'Nullify all past votes'
   },
 
@@ -1411,7 +1578,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['admins'],
     control: 'checkbox',
-    group: formGroups.banUser,
+    group: () => formGroups.banUser,
     label: 'Delete all user content'
   },
 
@@ -1424,14 +1591,14 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['admins'],
     control: 'datetime',
     label: 'Ban user until',
-    group: formGroups.banUser,
+    group: () => formGroups.banUser,
   },
 
   // IPs: All Ips that this user has ever logged in with
   IPs: resolverOnlyField({
     type: Array,
     graphQLtype: '[String!]',
-    group: formGroups.banUser,
+    group: () => formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<string[]> => {
       const { currentUser, LWEvents } = context;
@@ -1455,7 +1622,7 @@ const schema: SchemaType<"Users"> = {
   },
   auto_subscribe_to_my_posts: {
     label: "Auto-subscribe to comments on my posts",
-    group: formGroups.notifications,
+    group: () => formGroups.notifications,
     type: Boolean,
     optional: true,
     control: "checkbox",
@@ -1467,7 +1634,7 @@ const schema: SchemaType<"Users"> = {
   },
   auto_subscribe_to_my_comments: {
     label: "Auto-subscribe to replies to my comments",
-    group: formGroups.notifications,
+    group: () => formGroups.notifications,
     type: Boolean,
     optional: true,
     control: "checkbox",
@@ -1478,7 +1645,7 @@ const schema: SchemaType<"Users"> = {
   },
   autoSubscribeAsOrganizer: {
     label: `Auto-subscribe to posts/events in groups I organize`,
-    group: formGroups.notifications,
+    group: () => formGroups.notifications,
     type: Boolean,
     optional: true,
     control: "checkbox",
@@ -1491,40 +1658,53 @@ const schema: SchemaType<"Users"> = {
 
   notificationCommentsOnSubscribedPost: {
     label: `Comments on posts/events I'm subscribed to`,
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily"}}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationShortformContent: {
     label: isEAForum
       ? "Quick takes by users I'm subscribed to"
       : "Shortform by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRepliesToSubscribedComments: {
     label: "Replies to comments I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
-    onCreate: () => {
-      if (!isLWorAF) {
-        return {...defaultNotificationTypeSettings, channel: 'both'}
-      }
-    }
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationSubscribedUserComment: {
     label: "Comments by users I'm subscribed to",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true, batchingFrequency: "daily" }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
     hidden: !allowSubscribeToUserComments
   },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
@@ -1532,63 +1712,69 @@ const schema: SchemaType<"Users"> = {
   },
   notificationSubscribedSequencePost: {
     label: "Posts added to sequences I'm subscribed to",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
     hidden: !isLWorAF,
-    ...notificationTypeSettingsField({ channel: "both"})
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } }))
   },
   notificationEventInRadius: {
     label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationKarmaPowersGained: {
     label: "Karma powers gained",
     hidden: true,
-    ...notificationTypeSettingsField({ channel: "onsite" }),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationGroupAdministration: {
     label: "Group administration notifications",
     hidden: !hasEventsSetting.get(),
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationCommentsOnDraft: {
     label: "Comments on unpublished draft posts I've shared",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationPostsNominatedReview: {
     label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
     // Hide this while review is inactive
     hidden: true,
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   notificationSubforumUnread: {
     label: `New discussions in topics I'm subscribed to`,
-    ...notificationTypeSettingsField({ channel: "onsite", batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { batchingFrequency: "daily" } })),
   },
   notificationNewMention: {
     label: "Someone has mentioned me in a post or a comment",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField(new DeferredForumSelect<NotificationTypeSettings>({
+      EAForum: mergeNotificationSettings({email: { enabled: true }}),
+      default: defaultNotificationTypeSettings,
+    } as const)),
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ channel: "both"}),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
@@ -1598,12 +1784,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { batchingFrequency: 'daily' } })),
     hidden: !isLW,
   },
   notificationDebateReplies: {
@@ -1613,12 +1799,12 @@ const schema: SchemaType<"Users"> = {
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
-    ...notificationTypeSettingsField({ channel: "both" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ email: { enabled: true } })),
     hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ channel: "none" }),
+    ...notificationTypeSettingsField(mergeNotificationSettings({ onsite: { enabled: false } })),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {
@@ -1633,7 +1819,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Hide the widget for opting in to being approached about dialogues",
     ...schemaDefaultValue(false)
@@ -1646,7 +1832,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Allow users to reveal their checks for better facilitation",
     ...schemaDefaultValue(false)
@@ -1659,7 +1845,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
     ...schemaDefaultValue(false)
@@ -1671,7 +1857,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Show a list of recently active dialogues inside the frontpage widget",
     ...schemaDefaultValue(true)
@@ -1683,7 +1869,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Show a list of dialogues the user participated in inside the frontpage widget",
     ...schemaDefaultValue(true)
@@ -1695,7 +1881,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Show a list of dialogue reciprocity matched users inside frontpage widget",
     ...schemaDefaultValue(true)
@@ -1707,7 +1893,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Show a list of recommended dialogue partners inside frontpage widget",
     ...schemaDefaultValue(true)
@@ -1718,7 +1904,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Hides/collapses the active dialogue users in the header",
     ...schemaDefaultValue(false)
@@ -1726,7 +1912,7 @@ const schema: SchemaType<"Users"> = {
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
-    group: formGroups.notifications,
+    group: () => formGroups.notifications,
     type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.tsx
     optional: true,
     control: "KarmaChangeNotifierSettings",
@@ -1764,7 +1950,7 @@ const schema: SchemaType<"Users"> = {
   emailSubscribedToCurated: {
     type: Boolean,
     optional: true,
-    group: formGroups.emails,
+    group: () => formGroups.emails,
     control: 'EmailConfirmationRequiredCheckbox',
     label: "Email me new posts in Curated",
     canCreate: ['members'],
@@ -1775,7 +1961,7 @@ const schema: SchemaType<"Users"> = {
   subscribedToDigest: {
     type: Boolean,
     optional: true,
-    group: formGroups.emails,
+    group: () => formGroups.emails,
     label: "Subscribe to the EA Forum Digest emails",
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1786,7 +1972,7 @@ const schema: SchemaType<"Users"> = {
   unsubscribeFromAll: {
     type: Boolean,
     optional: true,
-    group: formGroups.emails,
+    group: () => formGroups.emails,
     label: "Do not send me any emails (unsubscribe from all)",
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1896,7 +2082,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !hasEventsSetting.get(),
     label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
@@ -1921,7 +2107,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo,
+    group: () => isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo,
     order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
     label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
@@ -2041,7 +2227,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 44,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Hide the frontpage map"
   },
@@ -2055,7 +2241,7 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
     label: "Hide the tagging progress bar",
     order: 45,
-    group: formGroups.siteCustomizations
+    group: () => formGroups.siteCustomizations
   },
 
   hideFrontpageBookAd: {
@@ -2067,7 +2253,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     order: 46,
     hidden: true,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
 
@@ -2079,7 +2265,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     order: 47,
     hidden: true,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
 
@@ -2091,7 +2277,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     hidden: !isLWorAF,
     order: 47,
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },
 
@@ -2099,7 +2285,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     optional: true,
     ...schemaDefaultValue(""),
   },
@@ -2108,7 +2294,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -2117,7 +2303,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -2126,7 +2312,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -2134,7 +2320,7 @@ const schema: SchemaType<"Users"> = {
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     optional: true
   },
 
@@ -2152,7 +2338,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['sunshineRegiment', 'admins', 'guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
   },
 
   isReviewed: resolverOnlyField({
@@ -2165,7 +2351,7 @@ const schema: SchemaType<"Users"> = {
     type: Date,
     canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     optional: true
   },
 
@@ -2309,7 +2495,7 @@ const schema: SchemaType<"Users"> = {
   fullName: {
     type: String,
     optional: true,
-    group: formGroups.default,
+    group: () => formGroups.default,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment'],
     hidden: !isLWorAF,
@@ -2329,7 +2515,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
   },
 
   viewUnreviewedComments: {
@@ -2338,7 +2524,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     order: 0,
   },
 
@@ -2360,7 +2546,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Opt into experimental (beta) features",
     order: 70,
   },
@@ -2404,7 +2590,7 @@ const schema: SchemaType<"Users"> = {
     control: 'datetime',
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     hidden: true
   },
   petrovLaunchCodeDate: {
@@ -2413,7 +2599,7 @@ const schema: SchemaType<"Users"> = {
     control: 'datetime',
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     hidden: true
   },
   defaultToCKEditor: {
@@ -2422,7 +2608,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     label: "Activate CKEditor by default"
   },
   // ReCaptcha v3 Integration
@@ -2433,7 +2619,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     tooltip: "Edit this number to '1' if you're confiden they're not a spammer",
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
   },
   noExpandUnreadCommentsReview: {
     type: Boolean,
@@ -2526,7 +2712,7 @@ const schema: SchemaType<"Users"> = {
     nullable: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     onCreate: ({ document, context }) => {
       if (!document.abTestKey) {
         return getUserABTestKey({clientId: context.clientId ?? randomId()});
@@ -2546,7 +2732,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     canRead: ['guests'],
     tooltip: "Restore the old Draft-JS based editor",
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
     hidden: !isEAForum,
     order: 73,
@@ -2556,7 +2742,7 @@ const schema: SchemaType<"Users"> = {
     optional:true,
     canRead: ['guests'],
     canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     hidden: !isLWorAF,
   },
   hideWalledGardenUI: {
@@ -2564,7 +2750,7 @@ const schema: SchemaType<"Users"> = {
     optional:true,
     canRead: ['guests'],
     // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.siteCustomizations,
+    group: () => formGroups.siteCustomizations,
     hidden: !isLWorAF,
   },
   walledGardenPortalOnboarded: {
@@ -2596,7 +2782,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'admins'],
     label: "Payment Contact Email",
     tooltip: "An email you'll definitely check where you can receive information about receiving payments",
-    group: formGroups.paymentInfo,
+    group: () => formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
   paymentInfo: {
@@ -2606,7 +2792,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'admins'],
     label: "PayPal Info",
     tooltip: "Your PayPal account info, for sending small payments",
-    group: formGroups.paymentInfo,
+    group: () => formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
 
@@ -2626,7 +2812,7 @@ const schema: SchemaType<"Users"> = {
   profileImageId: {
     hidden: true,
     order: isLWorAF ? 40 : 1, // would use isFriendlyUI but that's not available here
-    group: formGroups.default,
+    group: () => formGroups.default,
     type: String,
     optional: true,
     canRead: ['guests'],
@@ -2645,7 +2831,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.generalInfo,
+    group: () => formGroups.generalInfo,
     order: 2,
     label: 'Role',
     control: "FormComponentFriendlyTextInput",
@@ -2658,7 +2844,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.generalInfo,
+    group: () => formGroups.generalInfo,
     order: 3,
     control: "FormComponentFriendlyTextInput",
   },
@@ -2670,7 +2856,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.generalInfo,
+    group: () => formGroups.generalInfo,
     order: 4,
     control: 'FormComponentMultiSelect',
     label: "Career stage",
@@ -2698,7 +2884,7 @@ const schema: SchemaType<"Users"> = {
       inputPrefix: 'https://',
       heading: "Website",
     },
-    group: formGroups.socialMedia,
+    group: () => formGroups.socialMedia,
     order: 6
   },
 
@@ -2733,11 +2919,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
+      inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
       heading: "Social media",
       smallBottomMargin: true,
     },
-    group: formGroups.socialMedia,
+    group: () => formGroups.socialMedia,
     order: 1,
   },
   facebookProfileURL: {
@@ -2749,10 +2935,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
+      inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
       smallBottomMargin: true,
     },
-    group: formGroups.socialMedia,
+    group: () => formGroups.socialMedia,
     order: 2,
   },
   blueskyProfileURL: {
@@ -2764,10 +2950,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
+      inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.blueskyProfileURL,
       smallBottomMargin: true,
     },
-    group: formGroups.socialMedia,
+    group: () => formGroups.socialMedia,
     order: 3,
   },
   /**
@@ -2783,10 +2969,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
       smallBottomMargin: true,
     },
-    group: formGroups.socialMedia,
+    group: () => formGroups.socialMedia,
     order: 4,
   },
   /**
@@ -2803,11 +2989,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
       heading: "Social media (private, for admin use)",
       smallBottomMargin: false,
     },
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     order: 11
   },
   githubProfileURL: {
@@ -2819,9 +3005,9 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
+      inputPrefix: () => SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
     },
-    group: formGroups.socialMedia,
+    group: () => formGroups.socialMedia,
     order: 4,
   },
 
@@ -2837,7 +3023,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    group: formGroups.aboutMe,
+    group: () => formGroups.aboutMe,
     order: 100,
     control: "TagMultiselect",
     form: {
@@ -2866,7 +3052,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    group: formGroups.activity,
+    group: () => formGroups.activity,
     order: 2,
     control: "SelectLocalgroup",
     label: "Organizer of",
@@ -2893,14 +3079,14 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.activity,
+    group: () => formGroups.activity,
     order: 3,
     control: 'FormComponentMultiSelect',
     placeholder: "Which of these programs have you participated in?",
     form: {
       variant: "grey",
       separator: ", ",
-      options: PROGRAM_PARTICIPATION
+      options: () => PROGRAM_PARTICIPATION
     },
   },
   'programParticipation.$': {
@@ -2916,7 +3102,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.disabledPrivileges,
+    group: () => formGroups.disabledPrivileges,
     order: 69,
   },
   allCommentingDisabled: {
@@ -2926,7 +3112,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.disabledPrivileges,
+    group: () => formGroups.disabledPrivileges,
     order: 70,
   },
   commentingOnOtherUsersDisabled: {
@@ -2936,7 +3122,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.disabledPrivileges,
+    group: () => formGroups.disabledPrivileges,
     order: 71,
   },
   conversationsDisabled: {
@@ -2946,7 +3132,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
-    group: formGroups.disabledPrivileges,
+    group: () => formGroups.disabledPrivileges,
     order: 72,
   },
   
@@ -3069,7 +3255,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
     label: "Hide my profile from the People directory",
-    group: formGroups.privacy,
+    group: () => formGroups.privacy,
     ...schemaDefaultValue(false),
   },
 
@@ -3082,7 +3268,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     label: "Allow Session Replay",
     tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
-    group: formGroups.privacy,
+    group: () => formGroups.privacy,
     ...schemaDefaultValue(false),
   },
 
@@ -3144,7 +3330,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForumAdmins', 'admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     label: "AF Review UserId",
     hidden: !isLWorAF,
   },
@@ -3194,7 +3380,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
-    group: formGroups.adminOptions,
+    group: () => formGroups.adminOptions,
     label: "Hide Sunshine Sidebar",
     hidden: isEAForum,
     ...schemaDefaultValue(false),

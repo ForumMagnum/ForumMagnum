@@ -1,13 +1,11 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import schema from "@/lib/collections/ckEditorUserSessions/schema";
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const CkEditorUserSessions = createCollection({
   collectionName: 'CkEditorUserSessions',
   typeName: 'CkEditorUserSession',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('CkEditorUserSessions', { documentId: 1, userId: 1 })
     return indexSet;

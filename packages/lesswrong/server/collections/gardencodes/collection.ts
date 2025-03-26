@@ -1,15 +1,13 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import '@/lib/collections/gardencodes/fragments';
-import { getDefaultResolvers } from "@/lib/vulcan-core/default_resolvers";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-import schema from '@/lib/collections/gardencodes/schema';
 
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
-  schema,
-  getIndexes: () => {
+    getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('GardenCodes', {code: 1, deleted: 1});
     indexSet.addIndex('GardenCodes', {userId: 1, deleted: 1});

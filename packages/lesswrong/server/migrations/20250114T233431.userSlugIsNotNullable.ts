@@ -1,7 +1,7 @@
 import { Users } from "@/server/collections/users/collection";
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { updateMutator } from "../vulcan-lib/mutators";
-import { createDisplayName } from "@/lib/collections/users/schema";
+import { createDisplayName } from "@/lib/collections/users/newSchema";
 import { createAdminContext } from "../vulcan-lib/query";
 
 export const up = async ({db}: MigrationContext) => {

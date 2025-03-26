@@ -29,7 +29,7 @@ import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
-import HistoryIcon from '@material-ui/icons/History';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
 import type { ContentItemBody } from "../common/ContentItemBody";

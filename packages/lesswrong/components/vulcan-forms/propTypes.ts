@@ -118,7 +118,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
   typeName: string
   document?: ObjectsByCollectionName[T]
-  schema: SchemaType<T>
+  schema: NewSimpleSchemaType<T>
   createMutation?: any
   updateMutation?: any
   removeMutation?: any
@@ -132,6 +132,7 @@ declare global {
 
   interface FormComponentWrapperProps<T> {
     document: any
+    getDocument: any
     name: string
     label?: string
     placeholder?: string
@@ -149,6 +150,7 @@ declare global {
     clearFieldErrors: any
     tooltip?: string
     formComponents?: FormComponentOverridesType
+    getLabel: (fieldName: string, fieldLocale?: any) => string,
     locale?: string
     max?: number
     nestedInput: any
@@ -156,6 +158,9 @@ declare global {
     formType: "new"|"edit"
     setFooterContent?: any
     hideClear?: boolean
+    submitForm: any
+    addToSubmitForm: any
+    addToSuccessForm: any
   }
   interface FormComponentInnerWrapperProps<T> extends FormComponentWrapperProps<T> {
     beforeComponent?: any
@@ -182,9 +187,8 @@ declare global {
     deletedValues?: any
     errors?: any[]
     formType: "edit"|"new"
-  }
-  interface FormComponentContext<T> {
-    updateCurrentValues: UpdateCurrentValues
-    addToDeletedValues: any
+    addToSubmitForm: any
+    addToSuccessForm: any;
+    addToDeletedValues: any;
   }
 }

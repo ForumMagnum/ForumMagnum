@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
 
 const styles = (theme: ThemeType) => ({
   root: {

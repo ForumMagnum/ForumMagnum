@@ -62,6 +62,7 @@ import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';
 import './server/prunePerfMetricsCron';
+import './server/collections/users/karmaChangesGraphQL';
 
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
@@ -128,8 +129,6 @@ import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
-import './server/resolvers/llmConversationsResolvers';
-import './server/resolvers/jargonResolvers/jargonTermResolvers';
 import './server/resolvers/multiDocumentResolvers';
 import './server/resolvers/importUrlAsDraftPost';
 import './server/resolvers/lightcone2024FundraiserResolvers';

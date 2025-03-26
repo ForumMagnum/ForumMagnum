@@ -4,7 +4,8 @@
     "packages/lesswrong/server",
     "packages/lesswrong/viteClient",
     "node_modules",
-    "build"
+    "build",
+    "packages/lesswrong/lib/vendor/@material-ui"
   ],
   "compilerOptions": {
     "paths": {

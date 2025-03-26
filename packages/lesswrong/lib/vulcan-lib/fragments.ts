@@ -1,7 +1,7 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 // This has a stub for the client bundle
-import SqlFragment from '@/server/sql/SqlFragment';
+import type SqlFragment from '@/server/sql/SqlFragment';
 import { getAllFragments, getMemoizedFragmentInfo } from '../fragments/allFragments';
 
 
