@@ -7,17 +7,14 @@ import classNames from "classnames";
 import { postGetLink } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
+import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
-    // marginBottom: 4,
-    // paddingLeft: 4,
-    // paddingRight: 4,
-    paddingTop: 16,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingBottom: 12,
+    paddingTop: 24,
+    // paddingLeft: 12,
+    // paddingRight: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   header: {
@@ -40,7 +37,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.4rem',
+    fontSize: '1.6rem',
     fontWeight: 600,
     opacity: 0.6,
     lineHeight: 1.15,
@@ -82,9 +79,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginTop: 8,
   },
   footer: {
-    marginTop: 12,
-    display: 'flex',
-    justifyContent: 'space-between',
+    paddingBottom: 24,
   },
 }));
 
@@ -101,6 +96,7 @@ const UltraFeedPostItem = ({
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const { FeedPostsHighlight, UltraFeedPostItemMeta, PostActionsButton } = Components;
+  const { settings } = useUltraFeedSettings();
 
   const [expanded, setExpanded] = useState(initiallyExpanded);
   
@@ -138,14 +134,14 @@ const UltraFeedPostItem = ({
         <Components.FeedContentBody 
           post={post}
           html={post.contents.htmlHighlight || ""}
-          breakpoints={[100, 500, 1000]} 
+          breakpoints={settings.postTruncationBreakpoints} 
           initialExpansionLevel={0}
           wordCount={post.contents.wordCount || 0}
           linkToEntityOnFinalExpand={true}
           nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
         />
       )}
-      
+      <div className={classes.footer} />
     </div>
   );
 };

@@ -7,43 +7,49 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import UnfoldMoreDoubleIcon from "@/lib/vendor/@material-ui/icons/src/UnfoldMoreDouble";
 import UnfoldLessDoubleIcon from "@/lib/vendor/@material-ui/icons/src/UnfoldLessDouble";
+import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 
 // Styles for the UltraFeedThreadItem component
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   root: {
-    position: "relative",
-    paddingBottom: 8,
+    // paddingTop: 24,
+    // paddingBottom: 24,
+    paddingLeft: 16,
+    paddingRight: 16,
     borderRadius: 4,
-    // paddingTop: 16,
     backgroundColor: theme.palette.panelBackground.default,
     
   },
-  header: {
+  postStyleHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingLeft: 12,
-    paddingRight: 12,
-    marginBottom: 12,
-    marginLeft: 2,
+    // marginBottom: 12,
+    // marginLeft: 2,
     // textAlign: 'right',
+    paddingTop: 24,
+    paddingBottom: 20,
+    marginLeft: -16,
+    marginRight: -16,
+    borderBottom: theme.palette.border.itemSeparatorFeedTop,
   },
   titleArea: {
     flexGrow: 1,
   },
   postTitle: {
+    marginLeft: 16,
+    marginBottom: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.4rem',
     fontWeight: 600,
     opacity: 0.6,
     lineHeight: 1.15,
 
-    lineWrap: 'balance',
-    textWrap: 'balance',
+    // lineWrap: 'balance',
+    // textWrap: 'balance',
     textDecoration: 'none',
     cursor: 'pointer',
 
-    paddingBottom: 4,
     width: '100%',
     '&:hover': {
       opacity: 0.9,
@@ -61,24 +67,47 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
       opacity: 0.4,
     },
   },
-  commentsList: {
-    position: 'relative',
-  },
   commentsContainer: {
-    position: 'relative',
-    // borderTop: theme.palette.border.itemSeparatorFeedTop,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 16,
+  },
+  commentsList: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   verticalLine: {
-    position: 'absolute',
-    left: '50%', // Position at 30% of the width for better visual centering
-    top: 0,
-    bottom: 12,  // Match marginBottom of the last comment
-    width: 3,
-    backgroundColor: theme.palette.grey[400],
-    zIndex: 0, // Ensure it's behind comments
-    display: 'none',
+    width: 24,
+    // backgroundColor: theme.palette.grey[400],
+    borderLeft: `3px solid ${theme.palette.grey[300]}`,
+    // borderTop: `2px solid ${theme.palette.grey[400]}`,
+    // borderBottom: `2px solid ${theme.palette.grey[400]}`,
+    // borderRadius: 4,
+    marginRight: 16,
+    marginTop: 30,
+    marginBottom: 16,
+    // marginTop: -20,
+    // marginBottom: -20,
+    // position: 'absolute',
+    // left: '50%', // Position at 30% of the width for better visual centering
+    // top: 0,
+    // bottom: 12,  // Match marginBottom of the last comment
+    // width: 3,
+    // backgroundColor: theme.palette.grey[400],
+    // zIndex: 0, // Ensure it's behind comments
+    // display: 'none',
   },
   commentItem: {
+    position: 'relative',
+    zIndex: 1, // Ensure comments are above the line
+    '&:not(:last-child)': {
+      borderBottom: theme.palette.border.itemSeparatorBottom,
+    },
+    '&:last-child': {
+      marginBottom: 12,
+    },
+  },
+  collapsedCommentItem: {
     position: 'relative',
     zIndex: 1, // Ensure comments are above the line
     '&:not(:last-child)': {
@@ -171,6 +200,7 @@ const UltraFeedThreadItem = ({thread}: {
 
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
+  const { settings } = useUltraFeedSettings();
   const [postExpanded, setPostExpanded] = useState(postMetaInfo.displayStatus === 'expanded');
 
   // 1) Store each comment's displayStatus locally
@@ -234,16 +264,23 @@ const UltraFeedThreadItem = ({thread}: {
     setPostExpanded(!postExpanded);
   }
 
-  const showInLineCommentThreadTitle = true
+  // Determine if we should show the post title as post-style heading
+  const showPostStyleHeading = settings.commentTitleStyle === "postStyleHeading";
+  
+  // Always use the old props for first comment for backward compatibility
+  const showInLineCommentThreadTitle = !showPostStyleHeading;
       
-  const titleElement = 
-  showInLineCommentThreadTitle ? undefined : (
-    <div className={classes.header}>
+  // Get the showVerticalLine setting from ultraFeedSettings
+  const showVerticalLine = settings.showVerticalLine;
+      
+  // Only render the title element if we're using the post-style heading
+  const titleElement = showPostStyleHeading ? (
+    <div className={classes.postStyleHeader}>
       <div className={classes.titleArea}>
         <Link to={postUrl} className={classes.postTitle} onClick={titleClickHandler}>{postTitle}</Link>
       </div>
     </div>
-  );
+  ) : undefined;
 
   const handleViewFullThread = () => {
     if (comments.length > 0) {
@@ -257,52 +294,44 @@ const UltraFeedThreadItem = ({thread}: {
   return (
     <div className={classes.root}>
       {postExpanded ? <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} initiallyExpanded={false} /> : titleElement}
-      {comments.length > 0 && <div className={classes.commentsList}>
-        <div className={classes.commentsContainer}>
+      {comments.length > 0 && <div className={classes.commentsContainer}>
+        {showVerticalLine && <div className={classes.verticalLine} />}
+        <div className={classes.commentsList}>
           {compressedItems.map((item, index) => {
             if ("placeholder" in item) {
               // Multi-comment placeholder
-              const hiddenCount = item.hiddenComments.length;
-              return (
-                <div className={classes.commentItem} key={`placeholder-${index}`}>
-                  <UltraFeedCompressedCommentsItem
-                    numComments={hiddenCount}
-                    setExpanded={() => {
-                      // Expand all comments in this placeholder
-                      item.hiddenComments.forEach(h => {
-                        setDisplayStatus(h._id, "expanded");
-                      });
-                    }}
-                  />
-                </div>
-              );
-            } else {
-              // Normal comment
-              const cId = item._id;
-              return (
-                <div key={cId} className={classes.commentItem}>
-                  <UltraFeedCommentItem
-                    comment={item}
-                    post={thread.post}
-                    displayStatus={commentDisplayStatuses[cId]}
-                    onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                    showInLineCommentThreadTitle={(index === 0) && showInLineCommentThreadTitle}
-                  />
-                </div>
-              );
-            }
+            const hiddenCount = item.hiddenComments.length;
+            return (
+              <div className={classes.commentItem} key={`placeholder-${index}`}>
+                <UltraFeedCompressedCommentsItem
+                  numComments={hiddenCount}
+                  setExpanded={() => {
+                    // Expand all comments in this placeholder
+                    item.hiddenComments.forEach(h => {
+                      setDisplayStatus(h._id, "expanded");
+                    });
+                  }}
+                />
+              </div>
+            );
+          } else {
+            // Normal comment
+            const cId = item._id;
+            return (
+              <div key={cId} className={classes.commentItem}>
+                <UltraFeedCommentItem
+                  comment={item}
+                  post={thread.post}
+                  displayStatus={commentDisplayStatuses[cId]}
+                  onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
+                  showInLineCommentThreadTitle={index === 0 && showInLineCommentThreadTitle}
+                />
+              </div>
+            );
+          }
           })}
         </div>
-        
-        {comments.length > visibleComments.length && (
-          <div className={classes.viewFullThreadButton} onClick={handleViewFullThread}>
-            <Link to={threadUrl} className={classes.viewFullThreadLink}>
-              View full thread ({comments.length} comments) →
-            </Link>
-          </div>
-        )}
-      </div>
-      }
+      </div>}
     </div>
   );
 }
@@ -318,4 +347,4 @@ declare global {
   interface ComponentTypes {
     UltraFeedThreadItem: typeof UltraFeedThreadItemComponent
   }
-} 
+}

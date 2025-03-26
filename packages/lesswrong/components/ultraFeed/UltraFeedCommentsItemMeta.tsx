@@ -17,7 +17,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     rowGap: "6px",
     // marginBottom: 8,
     color: theme.palette.text.dim,
-    paddingTop: "0.6em",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "1.4rem !important",
     "& > *": {
