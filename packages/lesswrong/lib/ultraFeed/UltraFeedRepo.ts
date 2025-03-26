@@ -368,8 +368,34 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       };
     });
     
+    // Group threads by topLevelCommentId (first comment's ID in the thread)
+    const threadsByTopLevelId = new Map<string, typeof threadsWithStats[0][]>();
+    
+    for (const threadWithStats of threadsWithStats) {
+      const topLevelCommentId = threadWithStats.thread[0]?.commentId;
+      if (topLevelCommentId) {
+        if (!threadsByTopLevelId.has(topLevelCommentId)) {
+          threadsByTopLevelId.set(topLevelCommentId, []);
+        }
+        threadsByTopLevelId.get(topLevelCommentId)!.push(threadWithStats);
+      }
+    }
+    
+    // For each group, keep only the thread with the highest priority score
+    const filteredThreads: typeof threadsWithStats = [];
+    
+    for (const [_, threads] of threadsByTopLevelId) {
+      // Find the thread with the highest priority score in this group
+      const highestPriorityThread = threads.reduce((highest, current) => 
+        current.priorityScore > highest.priorityScore ? current : highest, 
+        threads[0]
+      );
+      
+      filteredThreads.push(highestPriorityThread);
+    }
+    
     // Sort by priority score in descending order
-    return threadsWithStats.sort((a, b) => b.priorityScore - a.priorityScore);
+    return filteredThreads.sort((a, b) => b.priorityScore - a.priorityScore);
   }
 
   // TOOD: Implement actually good logic for choosing which to display

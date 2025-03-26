@@ -6,6 +6,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import { postGetLink } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
+import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
@@ -134,12 +135,15 @@ const UltraFeedPostItem = ({
       
       
       {post.contents && (
-        // <div className={classes.content}>
-        //   <ContentStyles contentType="comment">
-        //     <div dangerouslySetInnerHTML={{ __html: html }} />
-        //   </ContentStyles>
-        // </div>
-        <FeedPostsHighlight post={post} maxCollapsedLengthWords={100} />
+        <Components.FeedContentBody 
+          post={post}
+          html={post.contents.htmlHighlight || ""}
+          breakpoints={[100, 500, 1000]} 
+          initialExpansionLevel={0}
+          wordCount={post.contents.wordCount || 0}
+          linkToEntityOnFinalExpand={true}
+          nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
+        />
       )}
       
     </div>

@@ -113,11 +113,17 @@ function compressCollapsedComments(
   displayStatuses: Record<string, "expanded" | "collapsed" | "hidden">,
   comments: CommentsList[],
 ) {
-
-  console.log("compressCollapsedComments", displayStatuses);
-
   const result: Array<CommentsList | { placeholder: true; hiddenComments: CommentsList[] }> = [];
 
+  // If there are no comments, return empty array
+  if (comments.length === 0) return result;
+
+  // Always add the first comment without compression
+  if (comments.length > 0) {
+    result.push(comments[0]);
+  }
+
+  // Start from the second comment for compression
   let tempGroup: CommentsList[] = [];
 
   const flushGroupIfNeeded = () => {
@@ -131,7 +137,9 @@ function compressCollapsedComments(
     tempGroup = [];
   };
 
-  for (const comment of comments) {
+  // Process only comments after the first one
+  for (let i = 1; i < comments.length; i++) {
+    const comment = comments[i];
     const commentId = comment._id;
     const localStatus = displayStatuses[commentId] || "collapsed"
 
@@ -169,8 +177,21 @@ const UltraFeedThreadItem = ({thread}: {
   const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<Record<string, "expanded" | "collapsed" | "hidden">>(() => {
     // Initialize from commentMetaInfos if available
     const result: Record<string, "expanded" | "collapsed" | "hidden"> = {};
+    
     for (const [commentId, meta] of Object.entries(commentMetaInfos || {})) {
-      result[commentId] = meta.displayStatus || "collapsed";
+      // For the first comment, ensure it's at least "collapsed"
+      if (comments.length > 0 && commentId === comments[0]._id) {
+        // If it was set to "hidden", upgrade it to "collapsed"
+        const firstCommentStatus = meta.displayStatus === "hidden" ? "collapsed" : meta.displayStatus || "collapsed";
+        result[commentId] = firstCommentStatus;
+      } else {
+        result[commentId] = meta.displayStatus || "collapsed";
+      }
+    }
+
+    // If the first comment somehow wasn't included in the loop above, ensure it's set
+    if (comments.length > 0 && !result[comments[0]._id]) {
+      result[comments[0]._id] = "collapsed";
     }
 
     return result;

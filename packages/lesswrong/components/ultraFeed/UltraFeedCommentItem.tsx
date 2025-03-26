@@ -10,6 +10,7 @@ import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { CommentsListWithTopLevelComment } from "@/lib/collections/comments/fragments";
 import { Link } from "@/lib/reactRouterWrapper";
+import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 
 
 const ultraFeedCommentItemCommonStyles = (theme: ThemeType) => ({
@@ -29,37 +30,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
 
   // Styles for expanded comment
   commentHeader: {
-    position: "relative",
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
     marginBottom: 8,
-    color: theme.palette.text.dim,
-    paddingTop: "0.6em",
-    marginRight: isFriendlyUI ? 40 : 20,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.4rem',
-    rowGap: "6px",
-    "& a:hover, & a:active": {
-      textDecoration: "none",
-      color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
-    },
   },
   contentWrapper: {
     cursor: "pointer",
   },
-  content: {
-  },
-  truncatedContent: {
-    overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 6,
-    '& blockquote, & br, & figure, & img': {
-      display: 'none'
-    }
-  },
-  replyLink: {
+  replyButton: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginRight: 6,
     display: "inline",
@@ -68,7 +44,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     cursor: "pointer",
   },
   commentBottom: {
-    marginTop: 8,
+    marginTop: 12,
     marginBottom: 4,
   },
   voteContainer: {
@@ -138,7 +114,7 @@ const UltraFeedCommentItem = ({
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-  const { UltraFeedCommentsItemMeta, ContentStyles, CommentBottom } = Components;
+  const { UltraFeedCommentsItemMeta, ContentStyles, CommentBottom, FeedContentBody } = Components;
 
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
@@ -157,27 +133,33 @@ const UltraFeedCommentItem = ({
 
   const expanded = displayStatus === "expanded";
   const metaDataProps = displayStatus === "expanded" ? {} : {hideDate: true, hideVoteButtons: true, hideActionsMenu: true};
+  const truncationBreakpoints = displayStatus === "expanded" ? [100, 300, 600] : [50];
 
   return (
     <div className={classes.root} onClick={expanded ? undefined : handleExpand}>
-      <UltraFeedCommentsItemMeta comment={comment} post={post} {...metaDataProps} />
-      {showInLineCommentThreadTitle && (
-        <div className={classes.inlineCommentThreadTitle}>
-          <span>
-            Replying to&nbsp;
-            <Link to={`/posts/${post._id}`} className={classes.inlineCommentThreadTitleLink}>
-              {post.title}
-            </Link>
-          </span>
-        </div>
-      )}
+      <div className={classes.commentHeader}>
+        <UltraFeedCommentsItemMeta comment={comment} post={post} {...metaDataProps} />
+        {showInLineCommentThreadTitle && (
+          <div className={classes.inlineCommentThreadTitle}>
+            <span>
+              Replying to&nbsp;
+              <Link to={`/posts/${post._id}`} className={classes.inlineCommentThreadTitleLink}>
+                {post.title}
+              </Link>
+            </span>
+          </div>
+        )}
+      </div>
       <div className={classes.contentWrapper}>
-        <ContentStyles
-          contentType="comment"
-          className={classNames(classes.content, shouldTruncate && classes.truncatedContent)}
-        >
-          <div dangerouslySetInnerHTML={{ __html: comment.contents?.html || "" }} />
-        </ContentStyles>
+        <FeedContentBody
+          comment={comment}
+          html={comment.contents?.html || ""}
+          breakpoints={truncationBreakpoints}
+          wordCount={comment.contents?.wordCount || 0}
+          linkToEntityOnFinalExpand={displayStatus === "expanded"}
+          initialExpansionLevel={0}
+          nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+        />
       </div>
 
       {expanded && <div className={classes.commentBottom}>
@@ -187,7 +169,7 @@ const UltraFeedCommentItem = ({
           treeOptions={{}}
           votingSystem={votingSystem}
           voteProps={voteProps}
-          replyButton={<div>Reply</div>}
+          replyButton={<div className={classes.replyButton}>Reply</div>}
         />
       </div>}
     </div>
