@@ -33,7 +33,6 @@ import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
-import { graphqlTypeDefs as analyticsTypeDefs } from '@/lib/analyticsEvents';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
 import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/posts/newSchema';
 import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
@@ -109,7 +108,6 @@ export const typeDefs = gql`
   # type Query
   # type Mutation
   ${notificationTypeDefs}
-  ${analyticsTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}
   ${additionalRevisionsTypeDefs}

@@ -13,14 +13,6 @@ import gql from 'graphql-tag';
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
 
-export const graphqlTypeDefs = gql`
-  type AnalyticsEvent {
-    type: String!,
-    timestamp: Date!,
-    props: JSON!
-  }
-`;
-
 // clientContextVars: A dictionary of variables that will be added to every
 // analytics event sent from the client. Client-side only, filled in side-
 // effectfully from inside a React useEffect in AnalyticsClient.tsx.
