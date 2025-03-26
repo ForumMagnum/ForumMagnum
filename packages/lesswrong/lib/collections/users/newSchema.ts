@@ -320,18 +320,14 @@ const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
   },
 } satisfies GraphQLFieldSpecification<"Users">;
 
-const dailyEmailBatchNotificationSettingOnCreate = () => {
-  return {
-    onsite: { ...defaultNotificationTypeSettings.onsite },
-    email: { ...defaultNotificationTypeSettings.email, enabled: true, batchingFrequency: "daily" },
-  };
+const dailyEmailBatchNotificationSettingOnCreate = {
+  onsite: defaultNotificationTypeSettings.onsite,
+  email: { ...defaultNotificationTypeSettings.email, enabled: true, batchingFrequency: "daily" },
 };
 
-const emailEnabledNotificationSettingOnCreate = () => {
-  return {
-    onsite: { ...defaultNotificationTypeSettings.onsite },
-    email: { ...defaultNotificationTypeSettings.email, enabled: true },
-  };
+const emailEnabledNotificationSettingOnCreate = {
+  onsite: defaultNotificationTypeSettings.onsite,
+  email: { ...defaultNotificationTypeSettings.email, enabled: true },
 };
 
 ///////////////////////////////////////////////
@@ -2475,7 +2471,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Comments on posts/events I'm subscribed to",
@@ -2492,7 +2488,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: isEAForum
@@ -2511,7 +2507,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: emailEnabledNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Replies to my comments",
@@ -2528,7 +2524,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Replies to comments I'm subscribed to",
@@ -2545,7 +2541,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Posts by users I'm subscribed to",
@@ -2562,7 +2558,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: dailyEmailBatchNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Comments by users I'm subscribed to",
@@ -2682,7 +2678,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: emailEnabledNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
     form: {
       hidden: true,
@@ -2777,7 +2773,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: emailEnabledNotificationSettingOnCreate } : {}),
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Someone has mentioned me in a post or a comment",
