@@ -4,6 +4,7 @@ import { createDummyUser, createDummyTag, createDummyRevision, waitUntilCallback
 import { performVoteServer } from '../server/voteServer';
 import Tags from '../server/collections/tags/collection';
 import Revisions from '../server/collections/revisions/collection'
+import { createAdminContext } from "@/server/vulcan-lib/query";
 
 describe('Tagging', function() {
   describe('Contributors List', function() {
@@ -21,7 +22,7 @@ describe('Tagging', function() {
       });
       await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user, skipRateLimits: false });
       await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user: voter, skipRateLimits: false });
-      await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description' });
+      await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description', context: createAdminContext() });
       await waitUntilCallbacksFinished();
       const updatedTag = await Tags.find({_id: tag._id}).fetch();
       const stats = (updatedTag[0] as any).contributionStats;

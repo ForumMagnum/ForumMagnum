@@ -129,8 +129,6 @@ import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
-import './server/resolvers/llmConversationsResolvers';
-import './server/resolvers/jargonResolvers/jargonTermResolvers';
 import './server/resolvers/multiDocumentResolvers';
 import './server/resolvers/importUrlAsDraftPost';
 import './server/resolvers/lightcone2024FundraiserResolvers';

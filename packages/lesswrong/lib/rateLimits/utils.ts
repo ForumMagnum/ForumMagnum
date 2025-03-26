@@ -4,7 +4,6 @@ import moment from "moment"
 import { forumSelect } from "../forumTypeUtils"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import { AutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RateLimitUser, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
-import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -227,4 +226,36 @@ export function documentOnlyHasSelfVote(userId: string, mostRecentVoteInfo: Rece
     mostRecentVoteInfo.userId === userId &&
     allVoteInfo.filter(v => v.userId === userId && v.documentId === mostRecentVoteInfo.documentId).length === 1
   );
+}
+
+export function getDownvoteRatio(user: UserKarmaInfo): number {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
+
+  let {
+    smallUpvoteReceivedCount,
+    bigUpvoteReceivedCount,
+    smallDownvoteReceivedCount,
+    bigDownvoteReceivedCount,
+    voteReceivedCount
+  } = user;
+
+  smallUpvoteReceivedCount ??= 0;
+  bigUpvoteReceivedCount ??= 0;
+  smallDownvoteReceivedCount ??= 0;
+  bigDownvoteReceivedCount ??= 0;
+  voteReceivedCount ??= 0;
+
+  const sumOfVoteCounts = smallUpvoteReceivedCount + bigUpvoteReceivedCount + smallDownvoteReceivedCount + bigDownvoteReceivedCount;
+  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - voteReceivedCount);
+  const voteCountsAreValid = voteReceivedCount > 0
+    && (denormalizedVoteCountSumDiff / voteReceivedCount) <= 0.05;
+
+  const totalDownvoteCount = smallDownvoteReceivedCount + bigDownvoteReceivedCount;
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / voteReceivedCount) : 0
+
+  return downvoteRatio
 }

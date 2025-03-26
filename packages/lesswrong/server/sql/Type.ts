@@ -1,9 +1,9 @@
-import GraphQLJSON from 'graphql-type-json';
-import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "@/lib/random";
 import { DeferredForumSelect } from "@/lib/forumTypeUtils";
 import { ForumTypeString } from "@/lib/instanceSettings";
 import { editableFieldIsNormalized } from "@/lib/editor/make_editable";
+import GraphQLJSON from "graphql-type-json";
+import SimpleSchema from "simpl-schema";
 
 const forceNonResolverFields = [
   "contents",
@@ -29,6 +29,41 @@ export const isResolverOnly = <N extends CollectionNameString>(
     return true;
   }
   return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
+}
+
+export function isArrayTypeString<T extends DatabaseBaseType>(typeString: T | `${T}[]`): typeString is `${T}[]` {
+  return typeString.endsWith('[]');
+}
+
+export function isVarcharTypeString<T extends DatabaseBaseType>(typeString: T): typeString is T & `VARCHAR(${number})` {
+  return typeString.startsWith('VARCHAR(');
+}
+
+function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldSpecification<CollectionNameString>['foreignKey']) {
+  if (isVarcharTypeString(type)) {
+    if (type === 'VARCHAR(27)' || typeof foreignKey === 'string') {
+      return new IdType();
+    }
+    const maxLength = parseInt(type.split('(')[1].split(')')[0]);
+    return new StringType(maxLength);
+  }
+
+  switch (type) {
+    case 'TEXT':
+      return new StringType();
+    case 'BOOL':
+      return new BoolType();
+    case 'DOUBLE PRECISION':
+      return new FloatType();
+    case 'INTEGER':
+      return new IntType();
+    case 'JSONB':
+      return new JsonType();
+    case 'TIMESTAMPTZ':
+      return new DateType();
+    case 'VECTOR(1536)':
+      return new VectorType(1536);
+  }
 }
 
 /**
@@ -70,6 +105,56 @@ export abstract class Type {
   static fromSchema<N extends CollectionNameString>(
     collectionName: N,
     fieldName: string,
+    databaseSpec: DatabaseFieldSpecification<N> | undefined,
+    graphqlSpec: GraphQLFieldSpecification<N> | undefined,
+    forumType: ForumTypeString,
+  ): Type {
+    if (!databaseSpec) {
+      throw new Error("Can't generate type for resolver-only field");
+    }
+
+    if (databaseSpec.defaultValue !== undefined && databaseSpec.defaultValue !== null) {
+      const { defaultValue, ...rest } = databaseSpec;
+      const value = defaultValue instanceof DeferredForumSelect
+        ? defaultValue.get(forumType)
+        : defaultValue;
+
+      return new DefaultValueType(
+        Type.fromSchema(collectionName, fieldName, rest, graphqlSpec, forumType),
+        value,
+      );
+    }
+
+    if (graphqlSpec?.validation?.optional === false || databaseSpec.nullable === false) {
+      const newDatabaseSpec = { ...databaseSpec, nullable: true };
+      let newGraphqlSpec: GraphQLFieldSpecification<N> | undefined;
+      if (graphqlSpec?.validation?.optional === false) {
+        const { validation: { optional, ...validationRest }, ...graphqlRest } = graphqlSpec;
+        newGraphqlSpec = { ...graphqlRest, validation: { ...validationRest } } as GraphQLFieldSpecification<N>;
+      }
+
+      return new NotNullType(
+        Type.fromSchema(collectionName, fieldName, newDatabaseSpec, newGraphqlSpec, forumType),
+      );
+    }
+
+
+    if (isArrayTypeString(databaseSpec.type)) {
+      const baseTypeString = databaseSpec.type.slice(0, -2) as DatabaseBaseType;
+      const baseType = getBaseTypeInstance(baseTypeString, databaseSpec.foreignKey);
+      return new ArrayType(baseType);
+    }
+
+    if (fieldName === 'createdAt') {
+      return new DefaultValueType(new DateType(), "CURRENT_TIMESTAMP");
+    }
+
+    return getBaseTypeInstance(databaseSpec.type, databaseSpec.foreignKey);
+  }
+
+  static fromOldSchema<N extends CollectionNameString>(
+    collectionName: N,
+    fieldName: string,
     schema: CollectionFieldSpecification<N>,
     indexSchema: CollectionFieldSpecification<N> | undefined,
     forumType: ForumTypeString,
@@ -84,7 +169,7 @@ export abstract class Type {
         ? defaultValue.get(forumType)
         : defaultValue;
       return new DefaultValueType(
-        Type.fromSchema(collectionName, fieldName, rest, indexSchema, forumType),
+        Type.fromOldSchema(collectionName, fieldName, rest, indexSchema, forumType),
         value,
       );
     }
@@ -92,7 +177,7 @@ export abstract class Type {
     if (schema.optional === false || schema.nullable === false) {
       const newSchema = {...schema, optional: true, nullable: true};
       return new NotNullType(
-        Type.fromSchema(collectionName, fieldName, newSchema, indexSchema, forumType),
+        Type.fromOldSchema(collectionName, fieldName, newSchema, indexSchema, forumType),
       );
     }
 
@@ -124,7 +209,7 @@ export abstract class Type {
           return new VectorType(schema.vectorSize);
         }
         return new ArrayType(
-          Type.fromSchema(collectionName, fieldName + ".$", indexSchema, undefined, forumType),
+          Type.fromOldSchema(collectionName, fieldName + ".$", indexSchema, undefined, forumType),
         );
     }
 
@@ -196,7 +281,7 @@ export class ArrayType extends Type {
     return `${this.subtype.toString()}[]`;
   }
 
-  isArray() {
+  isArray(): this is ArrayType {
     return true;
   }
 }
@@ -246,7 +331,7 @@ export class NotNullType extends Type {
     return this.type.toConcrete();
   }
 
-  isArray() {
+  isArray(): this is ArrayType {
     return this.type.isArray();
   }
 }

@@ -130,9 +130,10 @@ const documentHelpers = {
   },
   
   async saveDocumentRevision(userId: string, documentId: string, html: string) {
+    const context = createAdminContext();
     const fieldName = "contents";
     const user = await Users.findOne(userId);
-    const previousRev = await getLatestRev(documentId, fieldName);
+    const previousRev = await getLatestRev(documentId, fieldName, context);
     
     const newOriginalContents = {
       data: html,
@@ -147,6 +148,7 @@ const documentHelpers = {
         ...await buildRevision({
           originalContents: newOriginalContents,
           currentUser: user,
+          context,
         }),
         documentId,
         fieldName,
@@ -166,8 +168,9 @@ const documentHelpers = {
   },
 
   async saveOrUpdateDocumentRevision(postId: string, html: string) {
+    const context = createAdminContext();
     const fieldName = "contents";
-    const previousRev = await getLatestRev(postId, fieldName);
+    const previousRev = await getLatestRev(postId, fieldName, context);
     
     // Time relative to which to compute the max autosave interval, in ms since
     // epoch.
@@ -182,7 +185,7 @@ const documentHelpers = {
       && previousRev.commitMessage===cloudEditorAutosaveCommitMessage
     ) {
       // Get the revision prior to the one being replaced, for computing change metrics
-      const precedingRev = await getPrecedingRev(previousRev);
+      const precedingRev = await getPrecedingRev(previousRev, context);
       
       // eslint-disable-next-line no-console
       console.log("Updating rev "+previousRev._id);

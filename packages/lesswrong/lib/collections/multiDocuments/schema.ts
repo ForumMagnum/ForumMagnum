@@ -224,7 +224,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     denormalized: true,
   },
 
-  ...summariesField('MultiDocuments', { group: formGroups.summaries }),
+  ...summariesField('MultiDocuments', { group: () => formGroups.summaries }),
 
   ...textLastUpdatedAtField('MultiDocuments'),
   

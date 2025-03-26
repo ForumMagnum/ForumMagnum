@@ -15,7 +15,7 @@ import Tags from '../../server/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/newSchema';
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { updateModerateOwnPersonal, updateTrustedStatus } from '../users/moderationUtils';
 import { captureException } from '@sentry/core';
@@ -65,21 +65,21 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   void updatePostDenormalizedTags(postId);
 }
 
-export async function recomputeContributorScoresFor(votedRevision: DbRevision) {
+export async function recomputeContributorScoresFor(votedRevision: DbRevision, context: ResolverContext) {
   if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
 
   if (votedRevision.collectionName === "Tags") {
     const tag = await Tags.findOne({_id: votedRevision.documentId});
     if (!tag) return;
-    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description' });
+    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description', context });
   } else if (votedRevision.collectionName === "MultiDocuments") {
     const multiDocument = await MultiDocuments.findOne({_id: votedRevision.documentId});
     if (!multiDocument) return;
-    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents' });
+    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents', context });
   }
 }
 
-export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
+export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
   cancelVoteKarma({newDocument, vote}, collection, user);
   void cancelVoteCount({newDocument, vote});
@@ -89,7 +89,7 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
-      await recomputeContributorScoresFor(newDocument as DbRevision);
+      await recomputeContributorScoresFor(newDocument as DbRevision, context);
     }
   }
 }
@@ -104,7 +104,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
-      await recomputeContributorScoresFor(newDocument as DbRevision);
+      await recomputeContributorScoresFor(newDocument as DbRevision, context);
     }
   }
 

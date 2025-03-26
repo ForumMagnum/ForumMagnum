@@ -1,5 +1,4 @@
 import { diff } from './vendor/node-htmldiff/htmldiff';
-import { Revisions } from '../server/collections/revisions/collection';
 import { compareVersionNumbers } from '../lib/editor/utils';
 import cheerio from 'cheerio';
 import { cheerioParse } from './utils/htmlUtil';
@@ -11,11 +10,12 @@ import * as _ from 'underscore';
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
 
-export async function annotateAuthors( documentId: string, collectionName: string, fieldName: string, upToVersion?: string | null): Promise<string> {
+export async function annotateAuthors(documentId: string, collectionName: string, fieldName: string, context: ResolverContext, upToVersion?: string | null): Promise<string> {
   const { finalHtml, attributions } = await computeAttributions(
     documentId,
     collectionName,
     fieldName,
+    context,
     upToVersion
   );
 
@@ -26,8 +26,11 @@ export async function computeAttributions(
   documentId: string,
   collectionName: string,
   fieldName: string,
+  context: ResolverContext,
   upToVersion?: string | null
 ): Promise<{ finalHtml: string; attributions: EditAttributions }> {
+  const { Revisions } = context;
+
   const revs = await Revisions.find({
     documentId, collectionName, fieldName,
     skipAttributions: false,

@@ -2,14 +2,14 @@ import { editableFields } from '@/lib/editor/make_editable'
 import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 import { universalFields } from '../../collectionUtils';
 
-export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
+export const formGroups = {
   chapterDetails: {
     name: "chapterDetails",
     order: 25,
     label: "Chapter Details",
     startCollapsed: true,
   },
-}
+} satisfies Partial<Record<string, FormGroupType<"Chapters">>>;
 
 const schema: SchemaType<"Chapters"> = {
   ...universalFields({}),
@@ -29,7 +29,7 @@ const schema: SchemaType<"Chapters"> = {
     canCreate: ['admins'],
     placeholder:"Title",
     order: 10,
-    group: formGroups.chapterDetails
+    group: () => formGroups.chapterDetails
   },
 
   subtitle: {
@@ -40,7 +40,7 @@ const schema: SchemaType<"Chapters"> = {
     canCreate: ['admins'],
     placeholder:"Subtitle",
     order: 20,
-    group: formGroups.chapterDetails
+    group: () => formGroups.chapterDetails
   },
 
   number: {
@@ -49,7 +49,7 @@ const schema: SchemaType<"Chapters"> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
-    group: formGroups.chapterDetails
+    group: () => formGroups.chapterDetails
   },
 
   sequenceId: {
