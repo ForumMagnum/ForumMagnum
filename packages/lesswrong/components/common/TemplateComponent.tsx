@@ -1,4 +1,4 @@
-// TODO: Import component in components.ts
+// TODO: run `yarn run generate` after creating component
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
@@ -11,10 +11,19 @@ const styles = defineStyles("TemplateComponent", (theme: ThemeType) => ({
 
 const TemplateComponent = () => {
   const classes = useStyles(styles);
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <div className={classes.root}>
+  const { captureEvent } = useTracking(); // use this for non-link buttons (eventTypes should be pastTenseVerbs, e.g linkClicked)
 
-  </div>;
+  return (
+    // <AnalyticsContext 
+    // // choose one of: pageContext|pageSectionContext|pageSubSectionContext|pageElementContext|pageElementSubContext=""
+    // >
+      <div className={classes.root}>
+        <div>
+          <h1>Template Component</h1>
+        </div>
+      </div>
+    // </AnalyticsContext>
+  )
 }
 
 const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent);

@@ -70,7 +70,7 @@ const GenerateImagesButton = ({
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
-      const finalPrompt = allowCustomPrompt ? customPrompt + ", " + artPrompt : prompt;
+      const finalPrompt = allowCustomPrompt ? customPrompt + artPrompt : prompt;
       await generateCoverImages({ 
         variables: { 
           postId,
