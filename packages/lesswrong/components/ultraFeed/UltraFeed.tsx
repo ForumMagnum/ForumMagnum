@@ -33,7 +33,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     marginBottom: 16
   },
   sectionTitle: {
-    marginBottom: 16,
     display: 'flex',
     width: '100%',
     alignItems: 'center',
@@ -78,7 +77,8 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     flex: '1 1 0',
     display: 'flex',
     justifyContent: 'flex-end',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 8
   },
   ultraFeedNewContentContainer: {
   },
@@ -114,7 +114,14 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     fontStyle: 'italic',
     textAlign: 'center',
     opacity: 0.6,
-  }
+  },
+  settingsContainer: {
+    marginBottom: 20,
+    background: theme.palette.panelBackground.default,
+    borderRadius: 3,
+    padding: '16px 12px',
+    boxShadow: theme.palette.boxShadow.default,
+  },
 }));
 
 // Define the main component implementation
@@ -122,12 +129,15 @@ const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
     FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, 
-    Divider, UltraFeedThreadItem, SpotlightFeedItem } = Components;
+    Divider, UltraFeedThreadItem, SpotlightFeedItem, UltraFeedSettings } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
   
+  // State for settings drawer visibility
+  const [settingsVisible, setSettingsVisible] = useState(false);
+
   // Generate a new session ID for each component mount
   const [sessionId] = useState(() => randomId());
   
@@ -207,6 +217,12 @@ const UltraFeedContent = () => {
     </span>
   );
   
+  // Toggle settings drawer
+  const toggleSettings = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the container's onClick
+    setSettingsVisible(!settingsVisible);
+  };
+  
   // Custom title with refresh button
   const customTitle = <>
     <div className={classes.titleContainer} onClick={loadMoreAtTop}>
@@ -219,10 +235,7 @@ const UltraFeedContent = () => {
     <div className={classes.settingsButtonContainer}>
       <SettingsButton 
         showIcon={true}
-        onClick={(e: React.MouseEvent) => {
-          e.stopPropagation(); // Prevent triggering the container's onClick
-          /* No-op for now */
-        }}
+        onClick={toggleSettings}
       />
     </div>
   </>;
@@ -249,6 +262,14 @@ const UltraFeedContent = () => {
           {/* place this higher than top feed so it properly scrolls into view */}
           <div ref={topSectionRef} />
           <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
+          
+          {/* Settings Drawer */}
+          {settingsVisible && (
+            <div className={classes.settingsContainer}>
+              <UltraFeedSettings onClose={() => setSettingsVisible(false)} />
+            </div>
+          )}
+          
           {/* New Content Section */}
           <div className={classes.ultraFeedNewContentContainer}>
             <MixedTypeFeed
