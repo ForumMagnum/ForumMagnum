@@ -1,12 +1,19 @@
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import DialogTitle from "@/lib/vendor/@material-ui/core/src/DialogTitle";
+import DialogContent from "@/lib/vendor/@material-ui/core/src/DialogContent";
+import DialogContentText from "@/lib/vendor/@material-ui/core/src/DialogContentText";
+import DialogActions from "@/lib/vendor/@material-ui/core/src/DialogActions";
+import { useCurrentUser } from "@/components/common/withUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    position: "relative",
     fontFamily: theme.palette.fonts.sansSerifStack,
     maxWidth: "100vw",
     maxHeight: "min(80vh, 720px)",
@@ -102,6 +109,29 @@ const styles = (theme: ThemeType) => ({
   spinner: {
     height: "20px !important",
   },
+  closeButtonOuter: {
+    position: "absolute",
+    top: 16,
+    right: 24,
+  },
+  close: {
+    cursor: "pointer",
+  },
+  logoutDialog: {
+    zIndex: theme.zIndexes.confirmLogoutModal,
+    minWidth: 300,
+  },
+  logoutDialogTitle: {
+    marginTop: 0,
+  },
+  logoutDialogText: {
+    marginTop: 0,
+    marginBottom: 2,
+  },
+  logoutDialogActions: {
+    marginRight: 16,
+    marginBottom: 16,
+  },
 });
 
 export const EAOnboardingStage = ({
@@ -136,7 +166,28 @@ export const EAOnboardingStage = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentStage, goToNextStage, nextStageIsLoading, captureOnboardingEvent} = useEAOnboarding();
-
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  
+  // Opens the logout confirmation dialog when the x button is clicked
+  // TODO; rename
+  const handleClose = useCallback(() => {
+    console.log('handleClose');
+    setLogoutDialogOpen(true);
+  }, []);
+  
+  // Closes the dialog without logging out
+  const handleDialogCancel = useCallback(() => {
+    setLogoutDialogOpen(false);
+  }, []);
+  
+  // Confirm logout – insert your logout logic here
+  const handleConfirmLogout = useCallback(() => {
+    // Implement your logout logic (e.g., call an API, clear auth tokens, redirect)
+    setLogoutDialogOpen(false);
+  }, []);
+  
+  const currentUser = useCurrentUser();
+  
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
     captureOnboardingEvent("onboardingContinue", {from: stageName});
@@ -152,7 +203,7 @@ export const EAOnboardingStage = ({
     return null;
   }
 
-  const {EAButton, Loading} = Components;
+  const {EAButton, Loading, LWTooltip, ForumIcon, LWDialog, Typography} = Components;
   return (
     <AnalyticsContext
       pageElementContext="onboardingFlow"
@@ -162,6 +213,13 @@ export const EAOnboardingStage = ({
         [classes.rootThin]: thin,
         [classes.rootWide]: !thin,
       })}>
+        <div className={classes.closeButtonOuter}>
+          <LWTooltip title="logout">
+            <IconButton onClick={handleClose} className={classes.close}>
+              <ForumIcon icon="Close" />
+            </IconButton>
+          </LWTooltip>
+        </div>
         <div className={classes.scrollable}>
           {!hideHeader &&
             <div className={classes.header}>
@@ -202,6 +260,28 @@ export const EAOnboardingStage = ({
             }
           </div>
         }
+        <LWDialog open={logoutDialogOpen} onClose={handleDialogCancel} className={classes.logoutDialog}>
+          <DialogTitle disableTypography>
+            <Typography variant="display1" className={classes.logoutDialogTitle}>
+              Confirm Logout
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <p className={classes.logoutDialogText}>You are currently logged in with the email</p>
+              <p className={classes.logoutDialogText}>{currentUser?.email ?? "(no email found)"}</p>
+              <p className={classes.logoutDialogText}>But have not chosen a username.</p>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className={classes.logoutDialogActions}>
+            <EAButton onClick={handleDialogCancel} style="grey">
+              Cancel
+            </EAButton>
+            <EAButton onClick={handleConfirmLogout} autoFocus>
+              Logout
+            </EAButton>
+          </DialogActions>
+        </LWDialog>
       </div>
     </AnalyticsContext>
   );
