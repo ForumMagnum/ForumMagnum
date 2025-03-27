@@ -24,8 +24,8 @@ export const DEFAULT_SETTINGS: UltraFeedSettings = {
   postTruncationBreakpoints: [100, 500, 1000],
   commentTruncationBreakpoints: [50, 300, 600],
   collapsedCommentTruncation: 50,
-  showVerticalLine: false,
-  lineClampNumberOfLines: 0,
+  showVerticalLine: true,
+  lineClampNumberOfLines: 2,
 };
 
 // Storage key

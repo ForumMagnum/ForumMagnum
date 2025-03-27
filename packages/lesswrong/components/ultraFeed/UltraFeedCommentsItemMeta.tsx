@@ -6,6 +6,7 @@ import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedComment } from "./ultraFeedTypes";
 import { commentGetKarma } from "@/lib/collections/comments/helpers";
+import classNames from "classnames";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -32,6 +33,9 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     alignItems: "center",
     flexGrow: 1,
     flexWrap: "wrap",
+  },
+  commentShortformIcon: {
+    // paddingBottom: 2
   },
   karma: {
     display:"inline-block",
@@ -82,7 +86,7 @@ const UltraFeedCommentsItemMeta = ({
   hideActionsMenu?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { CommentsMenu, CommentsItemDate, CommentUserName, SmallSideVote } = Components;
+  const { CommentsMenu, CommentsItemDate, CommentUserName, SmallSideVote, CommentShortformIcon } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -96,13 +100,14 @@ const UltraFeedCommentsItemMeta = ({
       : !comment.hideModeratorHat
   );
 
-
   const showKarma = hideVoteButtons && !comment.rejected && !comment.debateResponse;
   const showVoteButtons = !hideVoteButtons && !comment.rejected && !comment.debateResponse;
 
   return (
     <div className={classes.root}>
       <span className={classes.leftSection}>
+        {comment.shortform && <div className={classes.commentShortformIcon}><CommentShortformIcon comment={comment} post={post} />
+        </div>}
         {showKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
