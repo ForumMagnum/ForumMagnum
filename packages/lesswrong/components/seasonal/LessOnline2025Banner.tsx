@@ -49,8 +49,8 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
     position: 'fixed',
     right: 16,
     bottom: 200,
-    color: theme.palette.text.alwaysBlack,
-    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
+    color: theme.palette.greyAlpha(0.87),
+    textShadow: `0 0 3px ${theme.palette.background.default}, 0 0 3px ${theme.palette.background.default}`,
     textAlign: 'right',
     width: 500,
     [theme.breakpoints.down(1450)]: {

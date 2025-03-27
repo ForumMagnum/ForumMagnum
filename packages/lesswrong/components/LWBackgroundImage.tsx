@@ -219,13 +219,14 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS')
+  // const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS')
+  const renderDefaultImage = currentRoute?.name !== 'home' // remove this when lessonline banner is removed
 
   return <div className={classes.root}>
-      {/* {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
+      {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
       {getReviewPhase() === 'RESULTS' && currentRoute?.name === 'home' && reviewCompleteImage}
-      {renderDefaultImage && defaultImage} */}
-      <LessOnline2025Banner />
+      {currentRoute?.name === 'home' && <LessOnline2025Banner />}
+      {renderDefaultImage && defaultImage}
   </div>;
 }
 
