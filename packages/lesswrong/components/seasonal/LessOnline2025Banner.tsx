@@ -58,10 +58,14 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down(1380)]: {
       width: 200,
+      '&& h2': {
+        fontSize: '3.5rem',
+      },
     },
     pointerEvents: 'auto',
     '& h2': {
       fontSize: '4rem',
+      lineHeight: '1.2',
       margin: 0,
       '& a': {
         color: 'inherit',
