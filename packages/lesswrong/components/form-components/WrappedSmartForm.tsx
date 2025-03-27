@@ -37,7 +37,7 @@ function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFor
               // If not, set field to undefined
               : undefined
           ]
-        }))
+        })) 
         return {...data, ...editableFields}
       }}
     />  
