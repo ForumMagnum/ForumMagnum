@@ -39,7 +39,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.6rem',
     fontWeight: 600,
-    opacity: 0.6,
+    opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
     width: '100%',
@@ -137,7 +137,7 @@ const UltraFeedPostItem = ({
           breakpoints={settings.postTruncationBreakpoints} 
           initialExpansionLevel={0}
           wordCount={post.contents.wordCount || 0}
-          linkToEntityOnFinalExpand={true}
+          linkToDocumentOnFinalExpand={true}
           nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
         />
       )}
