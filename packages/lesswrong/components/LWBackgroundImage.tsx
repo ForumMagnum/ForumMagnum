@@ -4,6 +4,7 @@ import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
+import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -221,9 +222,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS')
 
   return <div className={classes.root}>
-      {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
+      {/* {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
       {getReviewPhase() === 'RESULTS' && currentRoute?.name === 'home' && reviewCompleteImage}
-      {renderDefaultImage && defaultImage}
+      {renderDefaultImage && defaultImage} */}
+      <LessOnline2025Banner />
   </div>;
 }
 
