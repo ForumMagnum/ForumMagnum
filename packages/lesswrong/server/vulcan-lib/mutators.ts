@@ -55,7 +55,7 @@ import { searchIndexedCollectionNamesSet } from '@/lib/search/searchUtil';
 // This needs to be import type to avoid a dependency cycle
 import type { elasticSyncDocument as elasticSyncDocumentType } from '../search/elastic/elasticCallbacks';
 
-const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
+export const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
 ): CreateCallbackProperties<N> => {
   const {
@@ -106,6 +106,25 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
 
   return document;
 };
+
+export async function runFieldOnCreateCallbacks<
+  D extends Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
+  S extends NewSchemaType<CollectionName>,
+  CollectionName extends CollectionNameString
+>(schema: S, data: D, properties: CreateCallbackProperties<CollectionName>): Promise<D> {
+  for (let fieldName in schema) {
+    let autoValue;
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onCreate' in graphql && !!graphql.onCreate) {
+      autoValue = await graphql.onCreate({ ...properties, fieldName });
+    }
+    if (typeof autoValue !== 'undefined') {
+      Object.assign(data, { [fieldName]: autoValue });
+    }
+  }
+
+  return data;
+}
 
 /**
  * Create mutation

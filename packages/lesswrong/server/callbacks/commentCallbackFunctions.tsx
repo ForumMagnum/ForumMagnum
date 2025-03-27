@@ -93,10 +93,10 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
 const utils = {
   enforceCommentRateLimit: async ({user, comment, context}: {
     user: DbUser,
-    comment: DbInsertion<DbComment>,
+    comment: Partial<DbInsertion<DbComment>>,
     context: ResolverContext,
   }) => {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId, context);
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType:_} = rateLimit;
       if (nextEligible > new Date()) {

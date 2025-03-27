@@ -5,10 +5,10 @@ import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '@/lib/utils/logging';
 import { createMutator, deleteMutator, updateMutator } from '../vulcan-lib/mutators';
 import { performCheck } from '../vulcan-lib/utils';
-import { accessFilterSingle } from '@/lib/utils/schemaUtils';
+import { ACCESS_FILTERED, accessFilterSingle } from '@/lib/utils/schemaUtils';
 
 export interface MutationOptions<T extends DbObject> {
-  newCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
+  newCheck?: (user: DbUser|null, document: DbInsertion<T>|null, context: ResolverContext) => Promise<boolean>|boolean,
   editCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
   removeCheck?: (user: DbUser|null, document: T|null, context: ResolverContext) => Promise<boolean>|boolean,
   create?: boolean,
@@ -24,6 +24,31 @@ const getUpdateMutationName = (typeName: string): string => `update${typeName}`;
 const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
+type CreateFunction<N extends CollectionNameString> = (data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
+type UpdateFunction<N extends CollectionNameString> = (selector: MongoSelector<ObjectsByCollectionName[N]>, data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
+
+interface DefaultMutationFunctionProps<N extends CollectionNameString> {
+  createFunction?: CreateFunction<N>;
+  updateFunction?: UpdateFunction<N>;
+}
+
+type DefaultMutationFunctionReturn<N extends CollectionNameString, I extends DefaultMutationFunctionProps<N>> = {
+  [k in keyof I]: I[k] extends (...args: AnyBecauseHard[]) => Promise<null>
+    ? never
+    : I[k] extends CreateFunction<N>
+      ? CreateFunction<N>
+      : I[k] extends UpdateFunction<N>
+        ? UpdateFunction<N>
+        : never;
+}
+
+export function getDefaultMutationFunctions<N extends CollectionNameString, I extends DefaultMutationFunctionProps<N>>(collectionName: N, props: I): DefaultMutationFunctionReturn<N, I> {
+  return {
+    ...(props.createFunction ? { createFunction: props.createFunction } : {}),
+    ...(props.updateFunction ? { updateFunction: props.updateFunction } : {}),
+  } as DefaultMutationFunctionReturn<N, I>;
+}
+
 export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
   type T = ObjectsByCollectionName[N];
   const typeName = collectionNameToGraphQLType(collectionName);
@@ -38,7 +63,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     const mutationName = getCreateMutationName(typeName);
 
     // check function called on a user to see if they can perform the operation
-    const check = async (user: DbUser|null, document: T|null, context: ResolverContext): Promise<boolean> => {
+    const check = async (user: DbUser|null, document: DbInsertion<T>|null, context: ResolverContext): Promise<boolean> => {
       // OpenCRUD backwards compatibility
       const check = mutationOptions.newCheck;
       if (check) {
@@ -94,7 +119,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     const mutationName = getUpdateMutationName(typeName);
 
     // check function called on a user and document to see if they can perform the operation
-    const check = async (user: DbUser|null, document: T|null, context: ResolverContext) => {
+    const check = async (user: DbUser|null, document: T | null, context: ResolverContext) => {
       // OpenCRUD backwards compatibility
       const check = mutationOptions.editCheck;
       if (check) {
@@ -140,7 +165,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         }
 
         // check if user can perform operation; if not throw error
-        await performCheck<T>(
+        await performCheck<T, T>(
           check,
           context.currentUser,
           document,
@@ -244,7 +269,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           );
         }
 
-        await performCheck<T>(
+        await performCheck<T, T>(
           check,
           context.currentUser,
           document,

@@ -12,12 +12,12 @@ interface CallbackPropertiesBase<N extends CollectionNameString> {
 }
 
 export interface CreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
-  document: DbInsertion<ObjectsByCollectionName[N]>,
+  document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
   /**
    * BE CAREFUL USING THIS - IT'S NOT THE INSERTED RECORD, BUT THE DATA PASSED IN TO `createMutator`
    * Correspondingly, it won't have fields like `_id`
    */
-  newDocument: DbInsertion<ObjectsByCollectionName[N]>,
+  newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
 }
 
 export interface AfterCreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
@@ -43,8 +43,8 @@ export interface DeleteCallbackProperties<N extends CollectionNameString> extend
 export class CollectionMutationCallbacks<N extends CollectionNameString> {
   createValidate: CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>
   
-  createBefore: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[CreateCallbackProperties<N>]>
-  newSync: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>
+  createBefore: CallbackChainHook<Partial<DbInsertion<ObjectsByCollectionName[N]>>, [CreateCallbackProperties<N>]>
+  newSync: CallbackChainHook<Partial<DbInsertion<ObjectsByCollectionName[N]>>, [DbUser|null,ResolverContext]>
 
   createAfter: CallbackChainHook<ObjectsByCollectionName[N],[AfterCreateCallbackProperties<N>]>
   newAfter: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null, AfterCreateCallbackProperties<N>]>

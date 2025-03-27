@@ -1,9 +1,9 @@
 import { throwError } from './errors';
 
-export const performCheck = async <T extends DbObject>(
-  operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>,
+export const performCheck = async <T extends DbObject, O extends Partial<T> | Partial<DbInsertion<T>>>(
+  operation: <I extends O>(user: DbUser|null, obj: I, context: any) => Promise<boolean>,
   user: DbUser|null,
-  checkedObject: T,
+  checkedObject: O,
   
   context: ResolverContext,
   documentId: string,

@@ -154,11 +154,11 @@ const utils = {
     }
   },
 
-  postHasUnconfirmedCoauthors: (post: DbPost) => {
+  postHasUnconfirmedCoauthors: (post: Partial<DbInsertion<DbPost>>) => {
     return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
   },
 
-  scheduleCoauthoredPost: <T extends Partial<DbPost>>(post: T): T => {
+  scheduleCoauthoredPost: <T extends Partial<DbInsertion<DbPost>> | Partial<DbPost>>(post: T): T => {
     const now = new Date();
     post.postedAt = new Date(now.setDate(now.getDate() + 1));
     post.isFuture = true;
@@ -425,7 +425,7 @@ export async function postsNewRateLimit(validationErrors: CallbackValidationErro
 }
 
 /* CREATE BEFORE */
-export function addReferrerToPost(post: DbInsertion<DbPost>, properties: CreateCallbackProperties<'Posts'>): DbInsertion<DbPost> | undefined {
+export function addReferrerToPost(post: Partial<DbInsertion<DbPost>>, properties: CreateCallbackProperties<'Posts'>): Partial<DbInsertion<DbPost>> {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
     let userAgent = properties.context.headers["user-agent"];
@@ -436,30 +436,32 @@ export function addReferrerToPost(post: DbInsertion<DbPost>, properties: CreateC
       userAgent: userAgent,
     };
   }
+
+  return post;
 }
 
 
 /* NEW SYNC */
-export function checkTosAccepted<T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T {
+export function checkTosAccepted<T extends Partial<DbInsertion<DbPost>>>(currentUser: DbUser | null, post: T): T {
   if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
     throw new Error(TOS_NOT_ACCEPTED_ERROR);
   }
   return post;
 }
 
-export function assertPostTitleHasNoEmojis(post: Partial<DbPost>) {
+export function assertPostTitleHasNoEmojis(post: Partial<DbInsertion<DbPost>>) {
   if (/\p{Extended_Pictographic}/u.test(post.title ?? '')) {
     throw new Error("Post titles cannot contain emojis");
   }
 }
 
-export async function checkRecentRepost(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function checkRecentRepost(post: Partial<DbInsertion<DbPost>> | Partial<DbPost>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
   const { Posts } = context;
 
   if (!post.draft) {
     const oneHourAgo = new Date(Date.now() - (60 * 60 * 1000));
     const existing = await Posts.findOne({
-      _id: {$ne: post._id},
+      ...('_id' in post ? {_id: {$ne: post._id}} : {}),
       title: post.title,
       userId: post.userId,
       draft: {$ne: true},
@@ -473,14 +475,14 @@ export async function checkRecentRepost(post: DbPost, user: DbUser | null, conte
   return post;
 }
 
-export async function postsNewDefaultLocation(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewDefaultLocation(post: Partial<DbInsertion<DbPost>>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
   return {
     ...post,
     ...(await getDefaultPostLocationFields(post, context))
   };
 }
 
-export async function postsNewDefaultTypes(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewDefaultTypes(post: Partial<DbInsertion<DbPost>>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
   const { Localgroups } = context;
 
   if (post.isEvent && post.groupId && !post.types) {
@@ -495,7 +497,7 @@ export async function postsNewDefaultTypes(post: DbPost, user: DbUser | null, co
 
 const MINIMUM_APPROVAL_KARMA = 5;
 
-export async function postsNewUserApprovedStatus(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewUserApprovedStatus(post: Partial<DbInsertion<DbPost>>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
   const { Users } = context;
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
@@ -504,7 +506,7 @@ export async function postsNewUserApprovedStatus(post: DbPost, user: DbUser | nu
   return post;
 }
 
-export async function fixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+export async function fixEventStartAndEndTimes(post: Partial<DbInsertion<DbPost>>): Promise<Partial<DbInsertion<DbPost>>> {
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
@@ -537,14 +539,14 @@ export async function fixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
   return post;
 }
 
-export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: DbPost): Promise<DbPost> {
+export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: Partial<DbInsertion<DbPost>>): Promise<Partial<DbInsertion<DbPost>>> {
   if (utils.postHasUnconfirmedCoauthors(post) && !post.draft) {
     post = utils.scheduleCoauthoredPost(post);
   }
   return post;
 }
 
-export function addLinkSharingKey(post: DbPost): DbPost {
+export function addLinkSharingKey(post: Partial<DbInsertion<DbPost>>): Partial<DbInsertion<DbPost>> {
   return {
     ...post,
     linkSharingKey: generateLinkSharingKey()

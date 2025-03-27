@@ -129,7 +129,7 @@ function isUpdateBeforeCallbackForSlugCollection<
   return !!graphqlSpec && 'slugCallbackOptions' in graphqlSpec;
 }
 
-export async function runSlugCreateBeforeCallback<N extends CollectionNameString>(createProps: CreateCallbackProperties<N>) {
+export async function runSlugCreateBeforeCallback<P extends CreateCallbackProperties<N>, N extends CollectionNameString>(createProps: P): Promise<P['document']> {
   if (!isCreateBeforeCallbackForSlugCollection(createProps)) {
     return createProps.document;
   }

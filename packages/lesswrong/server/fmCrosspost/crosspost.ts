@@ -5,11 +5,12 @@ import { loggerConstructor } from "../../lib/utils/logging";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
 import type { UpdateCallbackProperties } from "../mutationCallbacks";
-import type { Crosspost, DenormalizedCrosspostData } from "./types";
+import { requiredDenormalizedFields, type Crosspost, type DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
 } from "@/server/crossposting/tokens";
+import schema from "@/lib/collections/posts/newSchema";
 // import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 // import { fetchFragmentSingle } from '../fetchFragment';
 // import {
@@ -19,7 +20,7 @@ import {
 // import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
 const assertPostIsCrosspostable = (
-  post: DbPost,
+  post: Partial<DbInsertion<DbPost>>,
   logger: ReturnType<typeof loggerConstructor>,
 ) => {
   if (post.isEvent) {
@@ -32,7 +33,7 @@ const assertPostIsCrosspostable = (
   }
 }
 
-export async function performCrosspost(post: DbPost): Promise<DbPost> {
+export async function performCrosspost<T extends Partial<DbInsertion<DbPost>> | Partial<DbPost>>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -57,20 +58,29 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   }
 
   // If we're creating a new post without making a draft first then we won't have an ID yet
-  if (!post._id) {
+  if (!('_id' in post)) {
     logger('we must be creating a new post, assigning a random ID')
-    post._id = randomId();
+    Object.assign(post, {_id: randomId()});
   }
 
   // Grab the normalized contents from the revision
   // TODO: Enable to this when V2 is deployed to both sites
   // const revision = await getLatestContentsRevision(post);
 
+  const postWithDefaultValues: T & DenormalizedCrosspostData = {
+    ...post,
+    draft: post.draft ?? schema.draft.database.defaultValue,
+    deletedDraft: post.deletedDraft ?? schema.deletedDraft.database.defaultValue,
+    title: post.title ?? '',
+    isEvent: post.isEvent ?? schema.isEvent.database.defaultValue,
+    question: post.question ?? schema.question.database.defaultValue,
+  };
+
   const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
-    postId: post._id,
-    ...extractDenormalizedData(post),
+    postId: (post as DbPost)._id,
+    ...extractDenormalizedData(postWithDefaultValues),
     // TODO: Enable to this when V2 is deployed to both sites
     // originalContents: revision?.originalContents,
   });

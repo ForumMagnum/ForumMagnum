@@ -395,7 +395,7 @@ async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: Ed
   await convertImagesInObject(collectionName, doc._id, context, fieldName);
 }
 
-export async function runCreateBeforeEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: CreateBeforeEditableCallbackProperties<N>) {
+export async function runCreateBeforeEditableCallbacks<P extends CreateBeforeEditableCallbackProperties<N>, N extends CollectionNameString>(runCallbackStageProperties: P): Promise<P['doc']> {
   let { props, doc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);

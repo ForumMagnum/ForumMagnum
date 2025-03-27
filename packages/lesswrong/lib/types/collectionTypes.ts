@@ -94,7 +94,7 @@ interface DefaultMutationBase {
 }
 
 interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
-  check: (user: DbUser | null, document: T | null, context: ResolverContext) => Promise<boolean> | boolean,
+  check: (user: DbUser | null, document: T | DbInsertion<T> | null, context: ResolverContext) => Promise<boolean> | boolean,
 }
 
 type DefaultMutations<T extends DbObject> = Partial<{

@@ -66,6 +66,8 @@ export const generateIdResolverMulti = <ForeignCollectionName extends Collection
   return idResolverMulti;
 }
 
+export const ACCESS_FILTERED = Symbol('ACCESS_FILTERED');
+
 // Apply both document-level and field-level permission checks to a single document.
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
@@ -75,12 +77,12 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
   collectionName: N,
   document: DocType|null,
   context: ResolverContext,
-): Promise<Partial<DocType|null>> => {
+): Promise<(Partial<DocType> & { [ACCESS_FILTERED]: true }) | null> => {
   if (!document) return null;
   const checkAccess = getCollectionAccessFilter(collectionName);
   if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
   const restrictedDoc = restrictViewableFieldsSingle(currentUser, collectionName, document)
-  return restrictedDoc;
+  return restrictedDoc as Partial<DocType> & { [ACCESS_FILTERED]: true };
 }
 
 // Apply both document-level and field-level permission checks to a list of documents.
@@ -181,10 +183,10 @@ export const foreignKeyField = <const CollectionName extends CollectionNameStrin
 }
 
 export function arrayOfForeignKeysOnCreate<CollectionName extends CollectionNameString>({newDocument, fieldName}: {
-  newDocument: ObjectsByCollectionName[CollectionName],
+  newDocument: Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
   fieldName: string,
 }) {
-  if (newDocument[fieldName as keyof DbObject] === undefined) {
+  if (newDocument[fieldName as keyof Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>] === undefined) {
     return [];
   }
 }
@@ -362,13 +364,10 @@ SimpleSchema.extendOptions([
 ]);
 
 export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
-  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]> | Partial<DbInsertion<ObjectsByCollectionName[N]>>) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
 }): Exclude<GraphQLWriteableFieldSpecification<N>['onCreate'], undefined> {
-  return async function denormalizedFieldOnCreate({newDocument, context}: {
-    newDocument: ObjectsByCollectionName[N],
-    context: ResolverContext,
-  }) {
+  return async function denormalizedFieldOnCreate({newDocument, context}) {
     if (!needsUpdate || needsUpdate(newDocument)) {
       return await getValue(newDocument, context)
     }
@@ -396,8 +395,8 @@ export function getDenormalizedFieldOnUpdate<N extends CollectionNameString>({ n
 // of other collections, because it doesn't set up callbacks for changes in
 // those collections)
 export function denormalizedField<N extends CollectionNameString>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
-  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]> | Partial<DbInsertion<ObjectsByCollectionName[N]>>) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
 }): CollectionFieldSpecification<N> {
   return {
     onUpdate: getDenormalizedFieldOnUpdate({ needsUpdate, getValue }),
@@ -508,10 +507,10 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 
 export function getFillIfMissing(defaultValue: any) {
   return function fillIfMissing<N extends CollectionNameString>({ newDocument, fieldName }: {
-    newDocument: ObjectsByCollectionName[N];
+    newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
     fieldName: string;
   }) {
-    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
+    if (newDocument[fieldName as keyof Partial<DbInsertion<ObjectsByCollectionName[N]>>] === undefined) {
       const isForumSpecific = defaultValue instanceof DeferredForumSelect;
       return isForumSpecific ? defaultValue.get() : defaultValue;
     } else {

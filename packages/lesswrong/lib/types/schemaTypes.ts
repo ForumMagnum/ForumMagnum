@@ -175,12 +175,11 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
   onCreate?: (args: {
-    data: DbInsertion<ObjectsByCollectionName[N]>,
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,
-    document: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N],
+    document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     fieldName: string
   }) => any, 
   onUpdate?: (args: {
@@ -355,12 +354,11 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   //    the field value is left unchanged.
   //
   onCreate?: (args: {
-    data: DbInsertion<ObjectsByCollectionName[N]>,
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,
-    document: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N],
+    document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     fieldName: string
   }) => any,
   onUpdate?: (args: {

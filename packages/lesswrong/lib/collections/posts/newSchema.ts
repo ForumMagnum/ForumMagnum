@@ -9,7 +9,9 @@ import {
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate,
-  getForeignKeySqlResolver
+  getForeignKeySqlResolver,
+  getFillIfMissing,
+  throwIfSetToNull
 } from "../../utils/schemaUtils";
 import {
   postCanEditHideCommentKarma,
@@ -230,6 +232,9 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
 const schemaDefaultValueFmCrosspost = schemaDefaultValue<"Posts">({
   isCrosspost: false,
 });
+
+const fmCrosspostOnCreate = getFillIfMissing({ isCrosspost: false });
+const fmCrosspostOnUpdate = throwIfSetToNull;
 
 const userHasModerationGuidelines = (currentUser: DbUser | null): boolean => {
   if (!hasAuthorModeration) {
@@ -2687,7 +2692,7 @@ const schema = {
         if (document.fmCrosspost?.foreignPostId && !context.isFMCrosspostRequest) {
           throw new Error("Cannot set the foreign post ID of a crosspost");
         }
-        return schemaDefaultValueFmCrosspost.onCreate?.(args);
+        return fmCrosspostOnCreate<'Posts'>(args);
       },
       onUpdate: (args) => {
         const { data, oldDocument } = args;
@@ -2697,7 +2702,7 @@ const schema = {
         ) {
           throw new Error("Cannot change the foreign post ID of a crosspost");
         }
-        return schemaDefaultValueFmCrosspost.onUpdate?.(args);
+        return fmCrosspostOnUpdate(args);
       },
       validation: {
         simpleSchema: crosspostSchema,
@@ -3185,7 +3190,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 2 ? new Date() : null),
+      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 2 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3199,7 +3204,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 30 ? new Date() : null),
+      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 30 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3213,7 +3218,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 45 ? new Date() : null),
+      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 45 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3227,7 +3232,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 75 ? new Date() : null),
+      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 75 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3241,7 +3246,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 125 ? new Date() : null),
+      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 125 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3255,7 +3260,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 200 ? new Date() : null),
+      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 200 ? new Date() : null),
       validation: {
         optional: true,
       },

@@ -14,7 +14,7 @@ async function postCreateValidate(validationErrors: CallbackValidationErrors, pr
   return validationErrors;
 }
 
-async function postCreateBefore(doc: DbInsertion<DbPost>, props: CreateCallbackProperties<'Posts'>): Promise<DbInsertion<DbPost>> {  
+async function postCreateBefore(doc: Partial<DbInsertion<DbPost>>, props: CreateCallbackProperties<'Posts'>): Promise<Partial<DbInsertion<DbPost>>> {  
   let mutablePost = doc;
 
   mutablePost = addReferrerToPost(mutablePost, props) ?? mutablePost;
@@ -22,7 +22,7 @@ async function postCreateBefore(doc: DbInsertion<DbPost>, props: CreateCallbackP
   return mutablePost;
 }
 
-async function postNewSync(post: DbPost, currentUser: DbUser | null, context: ResolverContext): Promise<DbPost> {
+async function postNewSync(post: Partial<DbInsertion<DbPost>>, currentUser: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
   // TODO: add forum-gated EA forum callbacks
   if (isEAForum) {
     // TODO: were the errors thrown by these previously being swallowed?
