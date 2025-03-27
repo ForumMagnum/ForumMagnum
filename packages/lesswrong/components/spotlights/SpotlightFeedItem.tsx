@@ -39,7 +39,12 @@ const useSpotlightFeedItemStyles = defineStyles(
   "SpotlightFeedItem",
   (theme: ThemeType) => ({
     root: {
+      background: theme.palette.panelBackground.default,
       boxShadow: theme.palette.boxShadow.default,
+      paddingTop: 24,
+      paddingBottom: 24,
+      paddingLeft: 16,
+      paddingRight: 16,
       maxWidth: SECTION_WIDTH,
       marginLeft: "auto",
       marginRight: "auto",
@@ -58,8 +63,6 @@ const useSpotlightFeedItemStyles = defineStyles(
     contentContainer: {
       display: "flex",
       flexDirection: "column",
-      background: theme.palette.panelBackground.default,
-      padding: 16,
       position: "relative",
       overflow: "hidden",
     },

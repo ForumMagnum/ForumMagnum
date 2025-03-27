@@ -5,7 +5,7 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
     marginBottom: 0,
-    borderBottom: '8px solid rgba(0,0,0,0.05)'
+    borderBottom: '2px solid rgba(0,0,0,0.05)'
     // borderBottom: '3px solid rgba(0,0,0,0.10)'
 
   },
