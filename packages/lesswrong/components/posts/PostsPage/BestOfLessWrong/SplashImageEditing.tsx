@@ -6,16 +6,21 @@ import { Coordinates } from './ImageCropPreview';
 import { gql, useMutation } from '@apollo/client';
 
 const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 
-  rightSectionBelowBottomRow: {
+  root: {
     position: 'absolute',
     top: 200,
     right: 25,
     display: 'flex',
-    flexDirection: 'row-reverse',
+    flexDirection: 'column',
     paddingLeft: 8,
     paddingRight: 8,
     paddingBottom: 8,
     zIndex: 2,
+    opacity: .1,
+    gap: '8px',
+    '&:hover': {
+      opacity: 1
+    },
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
@@ -30,20 +35,10 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.reviewGold,
     color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
-    marginBottom: 8,
-    opacity: 0.3,
-    '&:hover': {
-      opacity: 1
-    }
   },
   splashContent: {
     padding: 8,
     backgroundColor: theme.palette.background.paper,
-  },
-  controlButtons: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
   }
 }));
 
@@ -64,20 +59,16 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
     await flipMutation({ variables: { reviewWinnerArtId: post.reviewWinner?.reviewWinnerArt?._id } }); 
   }
 
-  return <div className={classes.rightSectionBelowBottomRow}>
-    <div className={classes.controlButtons}>
-      <div {...eventHandlers}>
-        <div className={classes.changeImageBox}>Change image</div>
-        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
-          <div className={classes.splashContent}>
-          <SplashHeaderImageOptions post={post}/>
-        </div>
-      </LWPopper>
+  return <div className={classes.root}>
+    <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
+    <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
+    <div {...eventHandlers}>
+      <div className={classes.changeImageBox}>Change image</div>
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
+        <div className={classes.splashContent}>
+        <SplashHeaderImageOptions post={post}/>
       </div>
-      <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
-    </div>
-    <div className={classes.rightSectionBelowBottomRow}>
-      <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
+    </LWPopper>
     </div>
   </div>
 }

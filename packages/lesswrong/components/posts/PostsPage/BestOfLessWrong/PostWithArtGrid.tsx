@@ -18,7 +18,12 @@ export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   return `${parts[0]}/upload/w_${width}/${parts[1]}`;
 }
 
-const artRowStyles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
+const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
+  row: {
+    maxWidth: "100%",
+    borderTop: theme.palette.border.normal,
+    paddingTop: 10,
+  },
   postWrapper: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -126,8 +131,8 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
-      const corePrompt = prompt.split(", aquarelle artwork fading")[0] || 'No prompt found';
-      return <div key={prompt}>
+      const corePrompt = prompt.split(", aquarelle artwork fading")[0]
+      return <div key={prompt} className={classes.row}>
         <h3>{corePrompt}</h3>
         <div className={classes.content}>
           <GenerateImagesButton 

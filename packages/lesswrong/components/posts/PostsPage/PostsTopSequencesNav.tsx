@@ -7,6 +7,9 @@ import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
+import classNames from 'classnames';
+
+export const darkGreyAlpha = .7
 
 export const titleStyles = (theme: ThemeType) => ({
   display: 'inline-block',
@@ -26,12 +29,18 @@ const styles = (theme: ThemeType) => ({
   },
   title: {  
     ...titleStyles(theme)
+  },
+  blackText: {
+    '&&': {
+      color: theme.palette.greyAlpha(darkGreyAlpha),
+    }
   }
 })
 
-const PostsTopSequencesNav = ({post, classes}: {
+const PostsTopSequencesNav = ({post, classes, blackText}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
+  blackText?: boolean
 }) => {
   const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
@@ -72,7 +81,7 @@ const PostsTopSequencesNav = ({post, classes}: {
         direction="left" />
 
       <SequencesTooltip sequence={post.sequence}>
-        <div className={classes.title}>
+        <div className={classNames(classes.title, {[classes.blackText]: blackText})}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>

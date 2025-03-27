@@ -973,6 +973,8 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
     return emptyCellElement;
   }
 
+  console.log(post.reviewWinner)
+
   return (
     <ImageGridPost
       key={post._id}

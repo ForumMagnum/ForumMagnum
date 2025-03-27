@@ -3,24 +3,22 @@ import { registerComponent, Components } from '../../../../lib/vulcan-lib/compon
 import { useMulti } from '../../../../lib/crud/withMulti';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
+import GenerateImagesButton from '@/components/review/GenerateImagesButton';
 
 const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
   root: { 
     zIndex: theme.zIndexes.splashHeaderImageOptions,
     marginBottom: '40px', 
-    height: '80vh',
-    overflow: 'scroll',
-    display: 'flex',
     gap: '10px',
     width: 'calc(100vw - 40px)',
     flexWrap: 'wrap',
     backgroundColor: theme.palette.background.paper,
     padding: 20,
     ...theme.typography.body2,
-    '& $PostWithArtRow': {
-      ...theme.typography.body2,
-      backgroundColor: theme.palette.background.paper,
-    }
+  },
+  postWithArtGridContainer: {
+    ...theme.typography.body2,
+    backgroundColor: theme.palette.background.paper,
   },
   imageContainer: {
     width: '200px',
@@ -37,7 +35,7 @@ const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
 export const SplashHeaderImageOptions = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
 }) => {
-  const { Loading, GenerateImagesButton } = Components;
+  const { Loading } = Components;
   const classes = useStyles(styles);
 
   const { results: images, loading } = useMulti({
@@ -52,8 +50,8 @@ export const SplashHeaderImageOptions = ({ post }: {
 
   return (
     <div className={classes.root}>
-      <GenerateImagesButton postId={post._id} />
-      {images && <PostWithArtGrid post={post} images={images} defaultExpanded={true} />}
+      <GenerateImagesButton postId={post._id} allowCustomPrompt={true} />
+      {images && <div className={classes.postWithArtGridContainer}><PostWithArtGrid post={post} images={images} defaultExpanded={true} /></div>}
       {loading && <Loading />}
     </div>
   );

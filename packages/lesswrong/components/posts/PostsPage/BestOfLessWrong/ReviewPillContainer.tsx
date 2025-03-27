@@ -13,11 +13,12 @@ const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({
     gap: '8px',
     ...theme.typography.body2,
     fontSize: '1.1rem',
+    flexWrap: 'wrap',
   },
   review: {
     cursor: 'pointer',
     display: 'flex',
-    padding: '4px 8px',
+    padding: '3px 10px 4px 10px',
     borderRadius: '3px',
     backgroundColor: theme.palette.panelBackground.reviewGold,
     gap: '7px',
@@ -60,8 +61,7 @@ const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
   reviewerName: {
-    fontWeight: '600',
-    marginRight: '8px'
+    marginLeft: -3
   }
 }));
 
@@ -101,12 +101,10 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
         <LWTooltip key={review._id} title={reviewPreview(review)} tooltip={false} placement="bottom-start" flip={false} clickable={true}>
           <HashLink key={review._id} to={`#${review._id}`}>
             <div className={classes.review}>
-              <div>
-                Review by
+              Review by
+              <div className={classes.reviewerName}>
+                <UsersNameDisplay user={review.user} />
               </div>
-            <div>
-              <UsersNameDisplay user={review.user} />
-            </div>
             </div>
           </HashLink>
         </LWTooltip>

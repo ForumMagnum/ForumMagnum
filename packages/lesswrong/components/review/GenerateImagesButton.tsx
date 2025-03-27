@@ -102,7 +102,7 @@ const GenerateImagesButton = ({
         onChange={(e) => setCustomPrompt(e.target.value)}
         placeholder="Enter custom prompt..."
       />}
-      <div className={classes.promptContainer}>{artPrompt}</div>
+      {allowCustomPrompt && <div className={classes.promptContainer}>{artPrompt}</div>}
       {isGenerating && <span className={classes.loadingText}>Generating...</span>}
     </div>
   );
