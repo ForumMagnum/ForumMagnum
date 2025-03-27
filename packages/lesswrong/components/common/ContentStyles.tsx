@@ -68,10 +68,25 @@ const styles = (theme: ThemeType) => ({
     '& blockquote, & li': {
       fontSize: '1.0rem'
     }
+  },
+  ultraFeed: {
+    ...commentBodyStyles(theme),
+    fontSize: '1.3rem',
+    '& h1, & h2, & h3': {
+      fontSize: "1.6rem",
+      marginBlockStart: "0 !important",
+    },
+    '& img, & iframe': {
+      maxWidth: '100%',
+      height: 'auto',
+    },
+    '& blockquote, & li': {
+      fontSize: '1.3rem'
+    }
   }
 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -112,6 +127,7 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
     contentType==="tag" && classes.tagBody,
     contentType==="debateResponse" && classes.debateResponseBody,
     contentType==="llmChat" && classes.llmChat,
+    contentType==="ultraFeed" && classes.ultraFeed,
   )}>
     {children}
   </div>;
