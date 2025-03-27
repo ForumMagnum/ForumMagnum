@@ -1,10 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-
-// Hardcoded variable to control banner visibility
-const SHOW_LESS_ONLINE_2025_BANNER = true;
 
 const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   root: {
@@ -106,35 +103,38 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   },
 }));
 
-export const LessOnline2025Banner = () => {
-  const { captureEvent } = useTracking();
+export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
   const classes = useStyles(styles);
   const { CloudinaryImage2 } = Components
 
-  if (!SHOW_LESS_ONLINE_2025_BANNER) {
-    return null;
-  }
+  const timeRemaining = priceIncreaseDate.getTime() - new Date().getTime();
+  const daysRemaining = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+  const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
+  const minutesRemaining = Math.floor(timeRemaining / (1000 * 60));
 
-  const priceIncreaseDate = new Date('2025-04-01');
-  const daysRemaining = Math.ceil((priceIncreaseDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const countdownText = daysRemaining > 0 
+    ? `in ${daysRemaining} days` 
+    : 'tomorrow';
 
   return (
-    <div className={classes.root}>
-      <div className={classes.imageColumn}>
-          <CloudinaryImage2
-            loading="lazy"
-            className={classes.image}
-            publicId="v1741048939/cover_image_qmzcby"
-          />
-          <div className={classes.gradientOverlay} />
+    <AnalyticsContext pageSectionContext="lessOnline2025Banner">
+      <div className={classes.root}>
+        <div className={classes.imageColumn}>
+            <CloudinaryImage2
+              loading="lazy"
+              className={classes.image}
+              publicId="v1741048939/cover_image_qmzcby"
+            />
+            <div className={classes.gradientOverlay} />
+        </div>
+        <div className={classes.lessOnlineBannerText}>
+          <h2><a href="http://less.online">LessOnline 2025</a></h2>
+          <h3>Ticket prices increase {countdownText}</h3>
+          <div className={classes.lessOnlineBannerDateAndLocation}>Join our Festival of Blogging and Truthseeking from May 30 - Jun 1, Berkeley, CA</div>
+          <a href="http://less.online/" target="_blank" rel="noopener noreferrer"><button>Buy Tickets</button></a>
+        </div>
       </div>
-      <div className={classes.lessOnlineBannerText}>
-        <h2><a href="http://less.online">LessOnline 2025</a></h2>
-        <h3>Ticket prices increase in {daysRemaining} days</h3>
-        <div className={classes.lessOnlineBannerDateAndLocation}>Join our Festival of Blogging and Truthseeking from May 30 - Jun 1, Berkeley, CA</div>
-        <a href="http://less.online/" target="_blank" rel="noopener noreferrer"><button>Buy Tickets</button></a>
-      </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 
