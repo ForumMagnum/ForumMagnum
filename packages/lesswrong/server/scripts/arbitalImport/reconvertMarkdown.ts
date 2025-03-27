@@ -3,7 +3,7 @@
 import Revisions from "@/server/collections/revisions/collection";
 import groupBy from "lodash/groupBy";
 import { ArbitalImportOptions, buildConversionContext, connectAndLoadArbitalDatabase, defaultArbitalImportOptions } from "./arbitalImport";
-import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/query.ts";
+import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { arbitalMarkdownToCkEditorMarkup } from "./markdownService";
 import { Comments } from "@/server/collections/comments/collection.ts";
 import Tags from "@/server/collections/tags/collection";

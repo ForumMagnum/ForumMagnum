@@ -1,4 +1,4 @@
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import ReviewWinnerArts from "../../server/collections/reviewWinnerArts/collection";
 import { moveImageToCloudinary } from "./convertImagesToCloudinary";
 import { createMutator } from "../vulcan-lib/mutators";

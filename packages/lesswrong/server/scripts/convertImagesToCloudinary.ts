@@ -18,7 +18,7 @@ import Papa from 'papaparse';
 import fs from "node:fs";
 import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
-import { createAnonymousContext } from '../vulcan-lib/query';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");

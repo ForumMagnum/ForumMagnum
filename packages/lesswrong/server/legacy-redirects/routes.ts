@@ -7,7 +7,7 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { faviconUrlSetting, isAF } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
-import { createAnonymousContext } from '../vulcan-lib/query';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import type { ServerResponse } from 'http';
 
 // Some legacy routes have an optional subreddit prefix, which is either

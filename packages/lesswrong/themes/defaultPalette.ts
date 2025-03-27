@@ -423,7 +423,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     appBar: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     sequencesGridItemHover: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     eventCard: `0 1px 3px ${shades.boxShadowColor(.1)}`,
-    mozillaHubPreview: `0px 0px 10px ${shades.boxShadowColor(.1)}`,
     featuredResourcesCard: `0 4px 4px ${shades.boxShadowColor(.07)}`,
     spreadsheetPage1: `2px 0 2px -1px ${shades.boxShadowColor(.15)}`,
     spreadsheetPage2: `0 0 3px ${shades.boxShadowColor(.3)}`,

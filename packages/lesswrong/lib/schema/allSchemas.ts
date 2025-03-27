@@ -4,7 +4,6 @@
 // Helper imports
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { isAnyTest, isCodegen } from '../executionEnvironment';
-import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 
 // Collection imports
 import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';
@@ -310,12 +309,4 @@ const allSimpleSchemas: Record<CollectionNameString, SimpleSchema> = new Proxy({
 export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): NewSimpleSchemaType<N> {
   const simpleSchema = allSimpleSchemas[collectionName] as NewSimpleSchemaType<N>;
   return simpleSchema;
-}
-
-export function apolloCacheVoteablePossibleTypes() {
-  return {
-    Voteable: Object.entries(allSchemas)
-      .filter(([_, schema]) => 'score' in schema && 'currentUserVote' in schema)
-      .map(([collectionName]) => collectionNameToTypeName[collectionName as CollectionNameString]),
-  }
 }

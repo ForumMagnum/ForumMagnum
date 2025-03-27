@@ -5,7 +5,7 @@ import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createMutator } from "../vulcan-lib/mutators";
 
 interface CkEditorUserConnectionChange {
